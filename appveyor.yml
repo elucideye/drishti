@@ -1,0 +1,41 @@
+environment:
+  matrix:
+    - TOOLCHAIN: "vs-12-2013"
+      CONFIG: Release
+
+    - TOOLCHAIN: "vs-12-2013"
+      CONFIG: Debug
+
+    - TOOLCHAIN: "vs-12-2013-win64"
+      CONFIG: Release
+
+    - TOOLCHAIN: "vs-12-2013-win64"
+      CONFIG: Debug
+
+install:
+  - cmd: set POLLY_VERSION="0.7.9"
+  - cmd: appveyor DownloadFile "https://github.com/ruslo/polly/archive/v%POLLY_VERSION%.tar.gz"
+  - cmd: cmake -E tar xf "v%POLLY_VERSION%.tar.gz"
+  - cmd: set POLLY_PATH=%cd%\polly-%POLLY_VERSION%\bin
+  - cmd: set PATH=C:\Python34-x64;%PATH%
+  - cmd: cmake --version
+  - cmd: python --version
+  - cmd: git submodule -q update --init
+
+build_script:
+  - cmd: python %POLLY_PATH%\build.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%"
+
+artifacts:
+  - path: _builds\*\drishti-*.tar.gz
+    name: Releases
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: "U5MPrdwVvE0Xyt7KNsBHp3e03qaBZ5UTV1s7GpTYy4Jxsx6EkKsXuZzBtaDtcU12"
+  artifact: /drishti-.*\.tar.gz/
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true
+    

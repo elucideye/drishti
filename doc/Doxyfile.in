@@ -1,0 +1,34 @@
+PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
+PROJECT_NUMBER         = @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
+STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@ \
+                         @PROJECT_BINARY_DIR@
+INPUT                  = @doxy_main_page@ \
+                         @PROJECT_SOURCE_DIR@ \
+                         @PROJECT_BINARY_DIR@
+
+EXCLUDE_PATTERNS       = */.svn/* \
+                         */.git/* \
+                         */doc/* \
+                         */src/3rdparty/* \
+                         */_logs/* \
+                         */_builds/* \
+                         */_install/* \
+                         */_framework/*
+
+FILE_PATTERNS          = *.h \
+                         *.hpp \
+                         *.cpp \
+                         *.cc \
+                         *.c
+
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+SKIP_FUNCTION_MACROS   = NO
+EXPAND_ONLY_PREDEF     = NO
+PREDEFINED             = "DRISHTI_CORE_BEGIN=namespace drishti { namespace core { "\
+                          "DRISHTI_CORE_END=} }
+
+
+
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = @doxy_main_page@

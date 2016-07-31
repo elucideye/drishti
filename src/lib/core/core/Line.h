@@ -1,0 +1,66 @@
+/*!
+  @file   Line.h
+  @author David Hirvonen (dhirvonen elucideye com)
+  @brief  Declaration of stream based line reader.
+
+  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
+#ifndef CORE_LINE_H
+#define CORE_LINE_H
+
+#include "drishti_core.h"
+#include <sstream>
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <numeric>
+#include <vector>
+#include <iterator>
+#include <memory>
+#include <iomanip>
+
+DRISHTI_CORE_BEGIN
+
+// For use with istream_iterator to read complete lines (new line delimiter)
+// std::vector<std::string> lines;
+// std::copy(std::istream_iterator<line>(std::cin), std::istream_iterator<line>(), std::back_inserter(lines));
+//http://stackoverflow.com/questions/1567082/how-do-i-iterate-over-cin-line-by-line-in-c/1567703#1567703
+
+class Line
+{
+    std::string data;
+public:
+    friend std::istream &operator>>(std::istream &is, Line &l)
+    {
+        std::getline(is, l.data);
+        return is;
+    }
+    operator std::string() const
+    {
+        //std::string name = data.substr(0, data.find(','));
+        //std::cout << name << std::endl;
+        return data;
+    }
+};
+
+struct csv_reader: std::ctype<char>
+{
+    csv_reader(): std::ctype<char>(get_table()) {}
+    static std::ctype_base::mask const* get_table()
+    {
+        static std::vector<std::ctype_base::mask> rc(table_size, std::ctype_base::mask());
+        rc[','] = std::ctype_base::space;
+        rc['\n'] = std::ctype_base::space;
+        rc[' '] = std::ctype_base::space;
+        return &rc[0];
+    }
+};
+
+DRISHTI_CORE_END
+
+#endif // CORE_LINE_H
+
+
