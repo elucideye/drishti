@@ -43,6 +43,10 @@ releases/*
 
 # Emacs
 *.*~
+*~
+
+# TAGS
+TAGS
 
 # Common backup
 *.orig
