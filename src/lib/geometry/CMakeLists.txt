@@ -1,2 +1,0 @@
-add_library(drishti_geometry STATIC ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
-

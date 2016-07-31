@@ -1,1 +1,0 @@
-add_library(drishti_graphics STATIC ${DRISHTI_GRAPHICS_SRCS} ${DRISHTI_GRAPHICS_HDRS_PUBLIC})

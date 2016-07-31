@@ -1,2 +1,0 @@
-add_library(drishti_iris STATIC ${DRISHTI_IRIS_SRCS} ${DRISHTI_IRIS_HDRS_PUBLIC})
-

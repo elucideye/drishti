@@ -1,1 +1,0 @@
-add_library(drishti_face STATIC ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})

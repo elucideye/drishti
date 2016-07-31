@@ -1,4 +1,0 @@
-add_library(drishti_drishti STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
-
-
-
