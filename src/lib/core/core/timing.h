@@ -1,7 +1,9 @@
 /*!
   @file   timing.h
-  @author TODO
+  @author Shervin Emami
   @brief  Common timer macros
+
+  see: http://shervinemami.info/timingTests.html
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
