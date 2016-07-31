@@ -1,0 +1,7 @@
+macro(print_cmake_env)
+  get_cmake_property(_variableNames VARIABLES)
+  foreach (_variableName ${_variableNames})
+    message(STATUS "VARIABLE: ${_variableName}=${${_variableName}}")
+  endforeach()
+  return()
+endmacro()

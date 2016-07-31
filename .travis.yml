@@ -1,0 +1,158 @@
+# OSX/Linux (https://github.com/travis-ci-tester/toolchain-table)
+
+language:
+  - cpp
+
+os:
+  - linux
+  - osx
+
+# Container-based infrastructure (Linux)
+# * https://docs.travis-ci.com/user/migrating-from-legacy/#How-can-I-use-container-based-infrastructure%3F
+sudo:
+  - false
+
+# Install packages differs for container-based infrastructure
+# * https://docs.travis-ci.com/user/migrating-from-legacy/#How-do-I-install-APT-sources-and-packages%3F
+# * http://stackoverflow.com/a/30925448/2288008
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - python3
+
+      # python3-pip package is not available, use 'easy_install3':
+      # * https://github.com/travis-ci/apt-package-whitelist/issues/768
+      - python3-setuptools # easy_install3
+
+      # https://github.com/travis-ci-tester/travis-test-clang-cxx-11
+      - libstdc++-4.8-dev
+
+      # https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
+      - g++-4.8
+  
+env:
+#  - TOOLCHAIN=default CONFIG=Release
+#  - TOOLCHAIN=default CONFIG=Debug
+  - TOOLCHAIN=libcxx CONFIG=Debug
+  - TOOLCHAIN=libcxx CONFIG=Release
+#  - TOOLCHAIN=clang-libstdcxx CONFIG=Release
+#  - TOOLCHAIN=clang-libstdcxx CONFIG=Debug
+  - TOOLCHAIN=xcode CONFIG=Debug
+  - TOOLCHAIN=xcode CONFIG=Release
+  - TOOLCHAIN=osx-10-9 CONFIG=Debug
+  - TOOLCHAIN=osx-10-9 CONFIG=Release
+#  - TOOLCHAIN=gcc CONFIG=Debug
+#  - TOOLCHAIN=gcc CONFIG=Release
+  - TOOLCHAIN=gcc-4-8-pic CONFIG=Release
+  - TOOLCHAIN=gcc-4-8-pic CONFIG=Debug
+  - TOOLCHAIN=ios-nocodesign CONFIG=Debug EXTRA="--iossim"
+  - TOOLCHAIN=ios-nocodesign CONFIG=Release EXTRA="--iossim"
+  - TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon CONFIG=Release
+  - TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon CONFIG=Debug
+#  - TOOLCHAIN=analyze CONFIG=Release
+#  - TOOLCHAIN=analyze CONFIG=Debug
+#  - TOOLCHAIN=sanitize-address CONFIG=Release
+#  - TOOLCHAIN=sanitize-address CONFIG=Debug
+#  - TOOLCHAIN=sanitize-leak CONFIG=Release
+#  - TOOLCHAIN=sanitize-leak CONFIG=Debug
+#  - TOOLCHAIN=sanitize-thread CONFIG=Release
+#  - TOOLCHAIN=sanitize-thread CONFIG=Debug
+
+matrix:
+  exclude:
+    ### Linux excludes ###
+    # https://github.com/travis-ci-tester/travis-test-clang-with-libcxx
+    - os: linux
+      env: TOOLCHAIN=libcxx CONFIG=Debug
+    - os: linux
+      env: TOOLCHAIN=libcxx CONFIG=Release
+
+    # Xcode is for OSX only
+    - os: linux
+      env: TOOLCHAIN=xcode CONFIG=Debug
+    - os: linux
+      env: TOOLCHAIN=xcode CONFIG=Release
+    - os: linux
+      env: TOOLCHAIN=osx-10-9 CONFIG=Debug
+    - os: linux
+      env: TOOLCHAIN=osx-10-9 CONFIG=Release
+    - os: linux
+      env: TOOLCHAIN=ios-nocodesign CONFIG=Debug EXTRA="--iossim"
+    - os: linux
+      env: TOOLCHAIN=ios-nocodesign CONFIG=Release EXTRA="--iossim"
+
+    # https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
+    - os: linux
+      env: TOOLCHAIN=gcc CONFIG=Debug
+    - os: linux
+      env: TOOLCHAIN=gcc CONFIG=Release
+
+    ### OSX excludes ###
+    # TOOLCHAIN=gcc works fine on OSX
+    - os: osx
+      env: TOOLCHAIN=gcc-4-8 CONFIG=Debug
+    - os: osx
+      env: TOOLCHAIN=gcc-4-8 CONFIG=Release
+
+    # https://github.com/travis-ci-tester/travis-test-mac-clang-address-sanitizer
+    - os: osx
+      env: TOOLCHAIN=sanitize-address CONFIG=Release
+    - os: osx
+      env: TOOLCHAIN=sanitize-address CONFIG=Debug
+
+    # Linux only
+    - os: osx
+      env: TOOLCHAIN=sanitize-leak CONFIG=Release
+    - os: osx
+      env: TOOLCHAIN=sanitize-leak CONFIG=Debug
+    - os: osx
+      env: TOOLCHAIN=sanitize-thread CONFIG=Release
+    - os: osx
+      env: TOOLCHAIN=sanitize-thread CONFIG=Debug
+  
+install:
+  # Info about OS
+  - uname -a
+
+  # Install Python 3
+  - if [[ "`uname`" == "Darwin" ]]; then brew install python3; fi
+
+  # Install Python package 'requests'
+  # 'easy_install3' is not installed by 'brew install python3' on OS X 10.9 Maverick
+  - if [[ "`uname`" == "Darwin" ]]; then pip3 install requests; fi
+  - if [[ "`uname`" == "Linux" ]]; then easy_install3 --user requests; fi
+
+  # Install latest Polly toolchains and scripts
+  - wget https://github.com/ruslo/polly/archive/master.zip
+  - unzip master.zip
+  - POLLY_ROOT="`pwd`/polly-master"
+  - export PATH="${POLLY_ROOT}/bin:${PATH}"
+
+  # Install dependencies (CMake, Android NDK)
+  - install-ci-dependencies.py
+
+  # Tune locations
+  - export PATH="`pwd`/_ci/cmake/bin:${PATH}"
+
+  # Installed if toolchain is Android (otherwise directory doesn't exist)
+  - export ANDROID_NDK_r10e="`pwd`/_ci/android-ndk-r10e"
+
+script:
+    - source bin/build-common.sh
+    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} BUILD_REGRESSION_SIMD=NO --jobs 8 --strip --discard 10 --tail 100
+
+before_deploy:
+    - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
+    - export FILE_TO_UPLOAD=$(ls _builds/*/drishti*.tar.gz)
+
+deploy:
+  provider: releases
+  api_key:
+    - secure: "QytKsC4M6gTVO9CkXPGWVR9P7fIq+KGOhp8KZPR814sPEWSSpGrdHG7PxLZ/nObG9DCRufTfv2vi2alL5L2cq1Ob/JECMrSpZmePl1I4ABLVoR5VvK1SFWEzFptu5hkbxXWZXeBIaQgjSkbXxcDrW/xe41TlriG0AP4XnAA2uZI="
+  file_glob: true
+  file: "${FILE_TO_UPLOAD}"
+  skip_cleanup: true
+  on:
+    tags: true

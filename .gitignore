@@ -27,3 +27,29 @@
 *.exe
 *.out
 *.app
+
+# Hunter/polly 
+_logs/*
+_builds/*
+_install/*
+_framework/*
+_os/*
+
+# Store releases
+releases/*
+
+# Mac OS X
+.DS_Store
+
+# Emacs
+*.*~
+*~
+
+# TAGS
+TAGS
+
+# Common backup
+*.orig
+
+# Matlab
+*.mexmaci64

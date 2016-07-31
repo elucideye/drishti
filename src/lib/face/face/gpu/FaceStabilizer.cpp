@@ -1,0 +1,80 @@
+/*!
+  @file   face/gpu/FaceStabilizer.cpp
+  @author David Hirvonen
+  @brief Simple interface to stabilize the eyes (similarity transformation).
+
+  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
+#include "face/gpu/FaceStabilizer.h"
+#include "geometry/motion.h" // for transformation::
+
+//BEGIN_OGLES_GPGPU
+
+FaceStabilizer::FaceStabilizer(const cv::Size &sizeOut) : m_sizeOut(sizeOut)
+{
+
+}
+
+std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel &face, const cv::Size &sizeIn) const
+{
+    using PointPair = std::array<cv::Point2f, 2>;
+    const PointPair eyeCenters {{ face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center }};
+    auto eyes = renderEyes(eyeCenters, sizeIn);
+    eyes[0].eye = face.eyeFullR;
+    eyes[1].eye = face.eyeFullL;
+
+    //eyes[0].H = eyes[1].H = cv::Matx33f::eye();
+
+    return eyes;
+}
+
+std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2>  &eyeCenters, const cv::Size &sizeIn) const
+{
+    using PointPair = std::array<cv::Point2f, 2>;
+
+    const cv::Size screenSize(m_sizeOut.width, m_sizeOut.height);
+    const cv::Point screenCenter(screenSize.width/2, screenSize.height/2);
+
+    // SCREEN: map pixels to normalized texture [-1.0 ... +1.0]
+    cv::Matx33f No = transformation::normalize(screenSize);
+
+    // Map pixel from normalized texture to input pixels
+    //cv::Matx33f Ni = transformation::denormalize(sizeIn);
+
+    int eyeWidth = screenSize.width / 2;
+    std::array<cv::Rect, 2> eyeRois;
+
+    if(m_autoScaling) // auto
+    {
+        const cv::Rect eyeRoi(0,0,screenSize.width/2,screenSize.height);;
+        eyeRois  = {{ eyeRoi, eyeRoi + cv::Point(eyeRoi.width,0) }};
+    }
+    else
+    {
+        eyeWidth = std::min(screenSize.width / 2, m_maxEyeWidth);
+        const cv::Point eyeOffset(eyeWidth/2, 0);
+        const cv::Rect eyeRoi(screenCenter.x - eyeOffset.x, 0, eyeWidth, int(m_aspectRatio * eyeWidth + 0.5f));
+        eyeRois = {{ eyeRoi - eyeOffset, eyeRoi + eyeOffset }};
+    }
+
+    const PointPair screenCenters {{ transformation::center(eyeRois[0]), transformation::center(eyeRois[1]) }};
+    const float eyeScaleInScreen = cv::norm(screenCenters[0] - screenCenters[1]);
+    cv::Matx33f H = transformation::estimateSimilarity(eyeCenters, screenCenters);
+
+    std::array<EyeWarp, 2> cropInfo;
+    for(int i = 0; i < 2; i++)
+    {
+        // Adjust scaling
+        const float scale = 2.f * float(eyeWidth) / eyeScaleInScreen;
+        const cv::Matx33f S = transformation::scale(scale, scale, screenCenters[i]);
+        const cv::Matx33f Heye = No * S * H;
+        cropInfo[i] = { eyeRois[i], Heye }; // return this for use later
+    }
+
+    return cropInfo;
+}
+
+//END_OGLES_GPGPU
