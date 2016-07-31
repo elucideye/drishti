@@ -1,6 +1,6 @@
 /*!
   @file   Sensor.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
 
   @brief  Implementation of a simple sensor/camera abstraction.
 

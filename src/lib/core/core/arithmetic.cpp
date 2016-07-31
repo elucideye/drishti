@@ -1,6 +1,6 @@
 /*!
   @file   arithmetic.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Implementation of optimized vector arithmetic.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

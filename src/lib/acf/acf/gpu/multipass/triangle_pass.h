@@ -1,6 +1,6 @@
 /*!
   @file   triangle_pass.h
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief Declaration of a single pass ogles_gpgpu triangle filter shader.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

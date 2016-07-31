@@ -1,6 +1,6 @@
 /*!
   @file   gain.cpp
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief Implementation of ogles_gpgpu shader for gain.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   rgb2luv.h
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief Declaration of an ogles_gpgpu shader for RGB to LUV colorspace conversions.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

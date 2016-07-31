@@ -1,6 +1,6 @@
 /*!
   @file   cprTrain.cpp
-  @author David Hirvonen (C++ implementation (gradient boosting trees)) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Implementation of core CPR training routines.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

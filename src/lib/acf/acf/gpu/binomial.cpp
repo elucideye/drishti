@@ -1,6 +1,6 @@
 /*!
   @file   binomial.cpp
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief Implementation of an ogles_gpgpu binomial filter shader.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

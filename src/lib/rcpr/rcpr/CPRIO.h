@@ -1,6 +1,6 @@
 /*!
   @file   CPRIO.h
-  @author David Hirvonen (C++ implementation (gradient boosting trees)) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Declaration of (de)serialization routines for Cascaded Pose Regression class.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

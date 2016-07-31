@@ -1,6 +1,6 @@
 /*!
   @file   Face.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal declaration of a utility face model class.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

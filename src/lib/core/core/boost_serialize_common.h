@@ -1,6 +1,6 @@
 /*!
   @file   boost_serialize_common.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Private header to support easy reuse of common boost serialization includes.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

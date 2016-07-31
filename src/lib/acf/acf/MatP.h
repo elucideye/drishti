@@ -1,6 +1,6 @@
 /*!
   @file   MatP.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of OpenCV cv::Mat planar format object.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

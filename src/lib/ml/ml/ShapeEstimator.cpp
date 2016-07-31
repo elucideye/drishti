@@ -1,6 +1,6 @@
 /*!
   @file   ShapeEstimator.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal declaration of shape estimator API.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

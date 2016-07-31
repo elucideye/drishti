@@ -1,6 +1,6 @@
 /*!
   @file   chnsPyramid.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @author P. Dollár (original matlab code)
   @brief  Computation of an Aggregated Channel Features pyramid (no necessarily powers of two).
 

@@ -1,6 +1,6 @@
 /*!
   @file   EyeModelEstimator.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal eye model estimator implementation.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

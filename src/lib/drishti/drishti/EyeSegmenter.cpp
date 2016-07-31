@@ -1,6 +1,6 @@
 /**
   @file   EyeSegmenter.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Implementation of public API for eye model estimation using simple portable types.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   triangle.h
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief Declaration of a separable ogles_gpgpu simple triangle filter shader.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

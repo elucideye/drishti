@@ -1,6 +1,6 @@
 /*!
   @file   drishti_rcpr.h
-  @author David Hirvonen (C++ implementation (gradient boosting trees)) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation (gradient boosting trees))
   @author P. Dollár (original matlab code (random ferns))
   @brief  Declaration of the Robust Cascaded Pose Regression namespace (RCPR variant deleted).
 

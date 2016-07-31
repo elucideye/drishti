@@ -1,6 +1,6 @@
 /*!
   @file   MatP.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal ACF namespace.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

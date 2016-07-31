@@ -1,6 +1,6 @@
 /*!
   @file   drishti_sensor.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @author TODO: Add attributes for model sample code
 
   @brief  Declaration of drishti::sensor namespace

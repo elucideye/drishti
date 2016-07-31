@@ -1,6 +1,6 @@
 /*!
   @file   test-acf.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Google test for the GPU ACF code.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

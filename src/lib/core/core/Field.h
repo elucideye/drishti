@@ -1,6 +1,6 @@
 /*!
   @file   Field.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of optional (de)serializable value
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

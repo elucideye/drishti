@@ -1,6 +1,6 @@
 /*!
   @file   test-EyeSegmenter.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Google fixture with various subtests for the drishti public SDK.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

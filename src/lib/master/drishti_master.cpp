@@ -1,6 +1,6 @@
 /*!
   @file   drishti_master.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Minimal top level file to satisfy CMake + Xcode >= 1 source
   file when using CMake object libraries.
 

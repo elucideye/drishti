@@ -1,6 +1,6 @@
 /*!
   @file   drishti_serialize.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of boost/cereal (de)serialization for common classes. This file also contains
   implementations of standard library routines that are required by CEREAL and that are missing
   on some platforms (notably ANDROID).

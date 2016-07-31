@@ -1,6 +1,6 @@
 /*!
   @file   EyeIO.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of internal routines related to eye model conversion.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

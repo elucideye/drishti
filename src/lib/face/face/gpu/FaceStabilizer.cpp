@@ -1,6 +1,6 @@
 /*!
   @file   face/gpu/FaceStabilizer.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief Simple interface to stabilize the eyes (similarity transformation).
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

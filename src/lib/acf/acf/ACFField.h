@@ -1,6 +1,6 @@
 /*!
   @file   ACFField.h
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief  Utility class to provide optional fields for (de)serialization.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

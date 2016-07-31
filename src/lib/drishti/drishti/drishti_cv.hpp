@@ -1,6 +1,6 @@
 /*!
   @file   drishti_cv.hpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Public API header only OpenCV interop for drishti types.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

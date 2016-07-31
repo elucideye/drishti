@@ -1,6 +1,6 @@
 /*!
   @file   RegressorXGBoost.h
-  @author David Hirvonen (C++ implementation (gradient boosting trees)) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Declaration of an univariate XGBoost regressor.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /**
   @file   EyeSegmenterImpl.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Top level API eye model declaration.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

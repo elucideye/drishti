@@ -1,6 +1,6 @@
 /*!
   @file   FaceDetectorAndTrackerNN.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  A nearest neighbor (noop) face tracking variant.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   TriangleStripWarp.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Implementation of utility structure to perform arbitrary warps via GL_TRIANGL_STRIPS
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

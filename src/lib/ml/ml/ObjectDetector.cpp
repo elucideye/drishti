@@ -1,6 +1,6 @@
 /*!
   @file   ObjectDetector.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal ObjectDetector abstract API implementation file (high level routines).
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

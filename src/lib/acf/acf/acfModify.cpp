@@ -1,6 +1,6 @@
 /*!
   @file   acfModify.cpp
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @author P. Dollár (original matlab code)
   @brief  Routines to modify ACF detection classification.
 

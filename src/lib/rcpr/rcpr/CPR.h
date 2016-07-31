@@ -1,6 +1,6 @@
 /*!
   @file   CPR.h
-  @author David Hirvonen (C++ implementation (gradient boosting trees)) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation (gradient boosting trees))
   @author P. Dollár (original matlab code (random ferns))
   @brief  Declaration of Cascaded Pose Regression class (single ellipse model).
 

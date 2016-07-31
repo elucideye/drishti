@@ -1,6 +1,6 @@
 /*!
   @file   chnsCompute.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @author P. Dollár (original matlab code)
   @brief  Computation of Aggregated Channel Features for a single image.
 

@@ -1,6 +1,6 @@
 /*!
   @file   EyeWarp.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of utility structure to specify a transformed eye model.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

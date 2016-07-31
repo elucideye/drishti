@@ -1,6 +1,6 @@
 /*!
   @file   finder/gpu/MultiTransformProc.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief Simple interface to apply parametric transformations to multiple image ROI's.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

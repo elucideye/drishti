@@ -1,6 +1,6 @@
 /*!
   @file   QGLContext.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of a Qt based cross platform offscreen OpenGL context.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

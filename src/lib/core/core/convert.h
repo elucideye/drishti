@@ -1,6 +1,6 @@
 /*!
   @file   convert.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of optimized unpack and format conversion routines.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

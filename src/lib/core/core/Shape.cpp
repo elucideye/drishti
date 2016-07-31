@@ -1,6 +1,6 @@
 /*!
   @file   Shape.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Implementation of simple (de)serializable shapes/contours.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   drishti_defs.hpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Drishti cross platform export header.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

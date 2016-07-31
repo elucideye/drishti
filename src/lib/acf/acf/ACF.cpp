@@ -1,6 +1,6 @@
 /*!
   @file   ACF.cpp
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @author P. Dollár (original matlab code)
   @brief  Aggregated Channel Feature object detector implementation.
 

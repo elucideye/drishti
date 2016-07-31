@@ -1,6 +1,6 @@
 /*!
   @file   convTri.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @author P. Dollár (original matlab code)
   @brief  Fast constant time triangle convolution (see toolbox docs).
 

@@ -1,6 +1,6 @@
 /*!
   @file   IrisNormalizer.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of internal class for creating ellipso-polar normalized iris images.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

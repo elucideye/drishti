@@ -1,6 +1,6 @@
 /*!
   @file   FaceLandmarkMeshMapper.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @author TODO: Add attributes for model sample code
 
   @brief  Implementation of a FaceMeshMapper interface to the EOS library.

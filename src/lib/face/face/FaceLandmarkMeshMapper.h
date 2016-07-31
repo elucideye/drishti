@@ -1,6 +1,6 @@
 /*!
   @file   FaceLandmarkMeshMapper.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of a FaceMeshMapper interface to the EOS library.
 
   This is based on sample code provided with the EOS library.

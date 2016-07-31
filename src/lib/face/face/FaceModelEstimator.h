@@ -1,6 +1,6 @@
 /*!
   @file   FaceModelEstimator.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal declaration of a class to estimate 3D models from 2D face landmarks.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

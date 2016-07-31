@@ -1,6 +1,6 @@
 /*!
   @file   Rectangle.h
-  @author David Hirvonen <dhirvonen elucideye com>
+  @author David Hirvonen
   @brief  Declaration of rectangle class and geometric operations.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

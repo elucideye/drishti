@@ -1,6 +1,6 @@
 /*!
   @file   drishti_csv.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Boost serialization CVS parser.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

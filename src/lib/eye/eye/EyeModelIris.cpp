@@ -1,6 +1,6 @@
 /*!
   @file   EyeModelIris.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Implemenation of iris specific eye model estimation.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

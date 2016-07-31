@@ -1,6 +1,6 @@
 /*!
   @file   RegressionTreeEnsembleShapeEstimator.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal declaration of regression tree ensemble shape estimator variant.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

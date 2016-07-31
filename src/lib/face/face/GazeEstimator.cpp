@@ -1,6 +1,6 @@
 /*!
   @file   GazeEstimator.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal implementation for a simple model based relative gaze estimation scheme.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

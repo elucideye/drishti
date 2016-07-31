@@ -1,6 +1,6 @@
 /*!
   @file   ACFObject.h
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief  Delcaration of an ACF object class.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

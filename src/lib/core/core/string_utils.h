@@ -1,6 +1,6 @@
 /*!
   @file   string_utils.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of string manipulation routines.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

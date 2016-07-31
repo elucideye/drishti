@@ -1,6 +1,6 @@
 /*!
   @file   FixedField.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of "syntatic sugar" ostream formatting for floating point values.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

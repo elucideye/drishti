@@ -1,6 +1,6 @@
 /*!
   @file   drishti_ml.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of the drishti::ml namespace macros.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

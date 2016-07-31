@@ -1,6 +1,6 @@
 /*!
   @file   Parallel.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of parallel_for abstraction classes
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

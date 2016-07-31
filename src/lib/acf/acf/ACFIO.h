@@ -1,6 +1,6 @@
 /*!
   @file   ACFIO.h
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief  Declaration of deserialization routines for ACFIO mat models.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

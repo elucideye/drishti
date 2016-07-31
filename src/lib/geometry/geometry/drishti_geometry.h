@@ -1,6 +1,6 @@
 /*!
   @file   drishti_geometry.h
-  @author David Hirvonen (C++ implementation) <dhirvonen elucideye com>
+  @author David Hirvonen (C++ implementation)
   @brief  Declaration of drishti geometry namespace.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

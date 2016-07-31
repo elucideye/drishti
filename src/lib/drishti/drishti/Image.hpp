@@ -1,6 +1,6 @@
 /**
   @file   Image.hpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Top level Image declaration.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   EyeModelEyelids.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Implemenation of eyelid specific eye model estimation.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   EyeModelEstimatorImpl.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal declaration of eye model estimator private implementation class.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

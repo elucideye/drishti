@@ -1,6 +1,6 @@
 /**
   @file   EyeDetector.hpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Top level eye detection API class declaration.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   EllipsoPolarWarp.h
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Declaration of class for OpenGL ellipso-polar warping shader (via GL_TRIANGLE_STRIPS).
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

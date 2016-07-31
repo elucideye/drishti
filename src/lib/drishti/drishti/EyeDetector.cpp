@@ -1,6 +1,6 @@
 /**
   @file   EyeDetector.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Top level eye detection API class implementation.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 /*!
   @file   face_util.cpp
-  @author David Hirvonen (dhirvonen elucideye com)
+  @author David Hirvonen
   @brief  Internal implementation for some simple face model utility functions.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.

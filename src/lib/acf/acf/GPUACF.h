@@ -1,6 +1,6 @@
 /*!
   @file   GPUACF.h
-  @author David Hirvonen <dhirvonen elucideye com>
+  @author David Hirvonen
   @brief  Implementation of OpenGL shader optimized Aggregated Channel Feature computation.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
