@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-message("CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}")
-message("CMAKE_C_COMPILER ${CMAKE_C_COMPILER}")
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 
 include("cmake/HunterGate.cmake")
@@ -32,6 +29,9 @@ string(REGEX REPLACE "^v" "" version "${version}")
 
 ### Main project ###
 project(drishtisdk VERSION ${version})
+
+message("CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}")
+message("CMAKE_C_COMPILER ${CMAKE_C_COMPILER}")
 
 #####################################################################
 ## IMPORTANT: Set platform variables after project() and before
