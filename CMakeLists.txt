@@ -27,8 +27,8 @@ string(REGEX REPLACE "^v" "" version "${version}")
 ### Main project ###
 project(drishtisdk VERSION ${version})
 
-message("CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}")
-message("CMAKE_C_COMPILER ${CMAKE_C_COMPILER}")
+message("CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
+message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 
 #####################################################################
 ## IMPORTANT: Set platform variables after project() and before
