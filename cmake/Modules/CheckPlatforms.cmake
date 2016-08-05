@@ -1,5 +1,5 @@
 function(check_platforms)
-  set(is_android ${ANDROID}) 
+  set(is_android ${ANDROID})
   set(is_apple ${APPLE})
   set(is_msvc ${MSVC})
   set(is_ios ${IOS})
