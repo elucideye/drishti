@@ -188,7 +188,6 @@ endif()
 # Include macros:
 include(PrintEnvVar)
 include(CTest)
-include(AddMemcheckTest)
 include(ExternalProject)
 include(AlwaysFullRPATH)
 include(ConfigureConsoleApp)
