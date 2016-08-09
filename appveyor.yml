@@ -38,4 +38,4 @@ deploy:
   prerelease: false
   on:
     appveyor_repo_tag: true
-    
+
