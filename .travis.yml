@@ -3,10 +3,6 @@
 language:
   - cpp
 
-os:
-  - linux
-  - osx
-
 # Container-based infrastructure (Linux)
 # * https://docs.travis-ci.com/user/migrating-from-legacy/#How-can-I-use-container-based-infrastructure%3F
 sudo:
@@ -32,92 +28,51 @@ addons:
       # https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
       - g++-4.8
 
-env:
-#  - TOOLCHAIN=default CONFIG=Release
-#  - TOOLCHAIN=default CONFIG=Debug
-  - TOOLCHAIN=libcxx CONFIG=Debug
-  - TOOLCHAIN=libcxx CONFIG=Release
-#  - TOOLCHAIN=clang-libstdcxx CONFIG=Release
-#  - TOOLCHAIN=clang-libstdcxx CONFIG=Debug
-  - TOOLCHAIN=xcode CONFIG=Debug
-  - TOOLCHAIN=xcode CONFIG=Release
-  - TOOLCHAIN=osx-10-9 CONFIG=Debug
-  - TOOLCHAIN=osx-10-9 CONFIG=Release
-#  - TOOLCHAIN=gcc CONFIG=Debug
-#  - TOOLCHAIN=gcc CONFIG=Release
-  - TOOLCHAIN=gcc-4-8-pic CONFIG=Release
-  - TOOLCHAIN=gcc-4-8-pic CONFIG=Debug
-  - TOOLCHAIN=ios-nocodesign CONFIG=Debug EXTRA="--iossim"
-  - TOOLCHAIN=ios-nocodesign CONFIG=Release EXTRA="--iossim"
-  - TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon CONFIG=Release
-  - TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon CONFIG=Debug
-#  - TOOLCHAIN=analyze CONFIG=Release
-#  - TOOLCHAIN=analyze CONFIG=Debug
-#  - TOOLCHAIN=sanitize-address CONFIG=Release
-#  - TOOLCHAIN=sanitize-address CONFIG=Debug
-#  - TOOLCHAIN=sanitize-leak CONFIG=Release
-#  - TOOLCHAIN=sanitize-leak CONFIG=Debug
-#  - TOOLCHAIN=sanitize-thread CONFIG=Release
-#  - TOOLCHAIN=sanitize-thread CONFIG=Debug
-
 matrix:
-  exclude:
-    ### Linux excludes ###
-    # https://github.com/travis-ci-tester/travis-test-clang-with-libcxx
+  include:
+    # Linux {
     - os: linux
-      env: TOOLCHAIN=libcxx CONFIG=Debug
+      env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic
     - os: linux
-      env: TOOLCHAIN=libcxx CONFIG=Release
+      env: CONFIG=Debug TOOLCHAIN=gcc-4-8-pic
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    # }
 
-    # Xcode is for OSX only
-    - os: linux
-      env: TOOLCHAIN=xcode CONFIG=Debug
-    - os: linux
-      env: TOOLCHAIN=xcode CONFIG=Release
-    - os: linux
-      env: TOOLCHAIN=osx-10-9 CONFIG=Debug
-    - os: linux
-      env: TOOLCHAIN=osx-10-9 CONFIG=Release
-    - os: linux
-      env: TOOLCHAIN=ios-nocodesign CONFIG=Debug EXTRA="--iossim"
-    - os: linux
-      env: TOOLCHAIN=ios-nocodesign CONFIG=Release EXTRA="--iossim"
+    # OSX {
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=libcxx
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=libcxx
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=osx-10-9
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=osx-10-9
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign
+    - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3
+    - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    # }
 
-    # https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
-    - os: linux
-      env: TOOLCHAIN=gcc CONFIG=Debug
-    - os: linux
-      env: TOOLCHAIN=gcc CONFIG=Release
-
-    ### OSX excludes ###
-    # TOOLCHAIN=gcc works fine on OSX
-    - os: osx
-      env: TOOLCHAIN=gcc-4-8 CONFIG=Debug
-    - os: osx
-      env: TOOLCHAIN=gcc-4-8 CONFIG=Release
-
-    # https://github.com/travis-ci-tester/travis-test-mac-clang-address-sanitizer
-    - os: osx
-      env: TOOLCHAIN=sanitize-address CONFIG=Release
-    - os: osx
-      env: TOOLCHAIN=sanitize-address CONFIG=Debug
-
-    # Linux only
-    - os: osx
-      env: TOOLCHAIN=sanitize-leak CONFIG=Release
-    - os: osx
-      env: TOOLCHAIN=sanitize-leak CONFIG=Debug
-    - os: osx
-      env: TOOLCHAIN=sanitize-thread CONFIG=Release
-    - os: osx
-      env: TOOLCHAIN=sanitize-thread CONFIG=Debug
 
 install:
   # Info about OS
   - uname -a
 
   # Install Python 3
-  - if [[ "`uname`" == "Darwin" ]]; then brew install python3; fi
+  - if [[ "`uname`" == "Darwin" ]]; then travis_retry brew install python3; fi
 
   # Install Python package 'requests'
   # 'easy_install3' is not installed by 'brew install python3' on OS X 10.9 Maverick
@@ -141,7 +96,7 @@ install:
 
 script:
     - source bin/build-common.sh
-    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} BUILD_REGRESSION_SIMD=NO --jobs 8 --strip --discard 10 --tail 100
+    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose --fwd BUILD_REGRESSION_SIMD=NO HUNTER_USE_CACHE_SERVERS=ONLY --jobs 8 --strip --discard 10 --tail 100
 
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
