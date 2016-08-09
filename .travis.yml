@@ -31,7 +31,7 @@ addons:
 
       # https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
       - g++-4.8
-  
+
 env:
 #  - TOOLCHAIN=default CONFIG=Release
 #  - TOOLCHAIN=default CONFIG=Debug
@@ -111,7 +111,7 @@ matrix:
       env: TOOLCHAIN=sanitize-thread CONFIG=Release
     - os: osx
       env: TOOLCHAIN=sanitize-thread CONFIG=Debug
-  
+
 install:
   # Info about OS
   - uname -a
