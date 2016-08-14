@@ -1,5 +1,6 @@
 #include <thread-pool-cpp/thread_pool.hpp>
 #include <iostream>
+#include <algorithm> // std::sort
 
 const int FunctionSize = 128;
 using FixedThreadPool=ThreadPool<FunctionSize>;
