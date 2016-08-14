@@ -104,6 +104,7 @@ script:
       --fwd
       BUILD_REGRESSION_SIMD=NO
       HUNTER_USE_CACHE_SERVERS=ONLY
+      HUNTER_DISABLE_BUILDS=YES
       --jobs 8
       --strip
       --discard 10
