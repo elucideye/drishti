@@ -28,6 +28,8 @@
 #include <memory>
 #include <chrono>
 
+#define DO_ELLIPSO_POLAR 0
+
 namespace ogles_gpgpu
 {
 class FlashFilter;
@@ -130,7 +132,9 @@ protected:
 
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
 
+#if DO_ELLIPSO_POLAR
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
+#endif
 
     int m_outputOrientation = 0;
 

@@ -197,6 +197,7 @@ void FaceFinder::init(const FrameInput &frame)
 
     ogles_gpgpu::Size2d eyesSize(480, 240);
 
+#if DO_ELLIPSO_POLAR
     {
         // ### Ellipsopolar warper ####
         for(int i = 0; i < 2; i++)
@@ -205,6 +206,7 @@ void FaceFinder::init(const FrameInput &frame)
             m_ellipsoPolar[i]->setOutputSize(640, 240);
         }
     }
+#endif // DO_ELLIPSO_POLAR
 
     {
         // ### Eye enhancer ###
@@ -218,6 +220,7 @@ void FaceFinder::init(const FrameInput &frame)
         m_eyeFilter->setAutoScaling(true);
         m_eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
 
+#if DO_ELLIPSO_POLAR
         // Add a callback to retrieve updated eye models automatically:
         cv::Matx33f N = transformation::scale(0.5, 0.5) * transformation::translate(1.f, 1.f);
         for(int i = 0; i < 2; i++)
@@ -231,6 +234,7 @@ void FaceFinder::init(const FrameInput &frame)
             m_ellipsoPolar[i]->addEyeDelegate(eyeDelegate);
             m_eyeFilter->add(m_ellipsoPolar[i].get());
         }
+#endif // DO_ELLIPSO_POLAR
 
         m_eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
     }
@@ -337,12 +341,13 @@ GLuint FaceFinder::paint(const ScenePrimitives &scene, GLuint inputTexture)
         m_eyeFilter->process(inputTexture, 1, GL_TEXTURE_2D);
         m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
 
+#if DO_ELLIPSO_POLAR
         //Draw the polar warp:
         for(int i = 0; i < 2; i++)
         {
             m_painter->setIrisTexture(i, m_ellipsoPolar[i]->getOutputTexId(), m_ellipsoPolar[i]->getOutFrameSize());
-            m_ellipsoPolar[i]->getOutFrameH();
         }
+#endif
     }
     else if(scene.objects().size())
     {
@@ -534,8 +539,7 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
 
             m_faceDetector->refine(Ib, faces, Hdr, isDetection);
 
-            float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
-            std::cout << iod << std::endl;
+            //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
 
             // Scale faces from regression to level 0
             // The configuration sizes used in the ACF stcked channe image
