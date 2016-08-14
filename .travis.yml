@@ -96,7 +96,18 @@ install:
 
 script:
     - source bin/build-common.sh
-    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose --fwd BUILD_REGRESSION_SIMD=NO HUNTER_USE_CACHE_SERVERS=ONLY --jobs 8 --strip --discard 10 --tail 100
+    - >
+      build.py
+      --toolchain ${TOOLCHAIN}
+      --config ${CONFIG}
+      --verbose
+      --fwd
+      BUILD_REGRESSION_SIMD=NO
+      HUNTER_USE_CACHE_SERVERS=ONLY
+      --jobs 8
+      --strip
+      --discard 10
+      --tail 100
 
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
