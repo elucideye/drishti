@@ -40,20 +40,20 @@ matrix:
   include:
     # Linux {
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic
+      env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic STRIP=--strip
     - os: linux
-      env: CONFIG=Debug TOOLCHAIN=gcc-4-8-pic
+      env: CONFIG=Debug TOOLCHAIN=gcc-4-8-pic STRIP=--strip
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon STRIP=--strip
     - os: linux
-      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon STRIP=--strip
     # }
 
     # OSX {
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=libcxx
+      env: CONFIG=Release TOOLCHAIN=libcxx STRIP=--strip
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=libcxx
+      env: CONFIG=Debug TOOLCHAIN=libcxx STRIP=--strip
     - os: osx
       env: CONFIG=Release TOOLCHAIN=osx-10-9
     - os: osx
@@ -69,9 +69,9 @@ matrix:
       osx_image: xcode7.3
       env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon STRIP=--strip
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon STRIP=--strip
     # }
 
 
@@ -115,7 +115,7 @@ script:
       HUNTER_DISABLE_BUILDS=YES
       CMAKE_INSTALL_PREFIX="`pwd`/_install"
       --jobs 8
-      --strip
+      ${STRIP}
 
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
