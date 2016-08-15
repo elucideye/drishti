@@ -116,8 +116,6 @@ script:
       CMAKE_INSTALL_PREFIX="`pwd`/_install"
       --jobs 8
       --strip
-      --discard 10
-      --tail 100
 
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
