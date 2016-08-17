@@ -1,20 +1,14 @@
 cmake_minimum_required(VERSION 3.0)
 
-message("CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}")
-message("CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER}")
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 
 include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 HunterGate(
-    #URL "https://github.com/ruslo/hunter/archive/v0.14.29.tar.gz"
-    #SHA1 "9c29c30fff99b7c1479b2e9d4926dcc3f8d364e0"
+    URL "https://github.com/ruslo/hunter/archive/v0.15.16.tar.gz"
+    SHA1 "ca1b3388940bd2ca4452b62a407e6aca743d0ea2"
 
-    URL "https://github.com/ruslo/hunter/archive/v0.15.2.tar.gz"
-    SHA1 "6cfc7a553c860c0799e5f001ac42cb302856b142"
-    
-    LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`    
+    LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
     )
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
@@ -32,6 +26,9 @@ string(REGEX REPLACE "^v" "" version "${version}")
 
 ### Main project ###
 project(drishtisdk VERSION ${version})
+
+message("CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
+message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 
 #####################################################################
 ## IMPORTANT: Set platform variables after project() and before
@@ -191,11 +188,11 @@ endif()
 # Include macros:
 include(PrintEnvVar)
 include(CTest)
-include(AddMemcheckTest)
-include(ExternalProject) 
+include(ExternalProject)
 include(AlwaysFullRPATH)
 include(ConfigureConsoleApp)
 include(GenerateExportHeader)
+include(DrishtiUtils)
 
 include(CheckTypeSize)
 check_type_size("__fp16" FP16)
@@ -249,14 +246,31 @@ message("TIFF_INCLUDE_DIRS = ${TIFF_INCLUDE_DIR}")
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
 
+include(CheckCSourceCompiles)
+
 ### Thread-pool-cpp
+check_c_source_compiles("
+#if defined (__GNUC__)
+    #define ATTRIBUTE_TLS __thread
+#elif defined (_MSC_VER)
+    #define ATTRIBUTE_TLS __declspec(thread)
+#else // !__GNUC__ && !_MSC_VER
+    #error \"Define a thread local storage qualifier for your compiler/platform!\"
+#endif
+ATTRIBUTE_TLS int tls;
+int main(void) {
+    return 0;
+}" HAVE_THREAD_LOCAL_STORAGE)
+
+DRISHTI_OPTION(USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
+
 option(USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 if(USE_LOCAL_THREAD_POOL_CPP)
   add_definitions(-DUSE_LOCAL_THREAD_POOL=1)
   set(THREAD_POOL_LIB ) # header only (null)
   include_directories(src/3rdparty/thread-pool-cpp/thread_pool)
 else()
-  add_definitions(-DUSE_LOCAL_THREAD_POOL=0)  
+  add_definitions(-DUSE_LOCAL_THREAD_POOL=0)
   hunter_add_package(thread-pool-cpp)
   find_package(thread-pool-cpp CONFIG REQUIRED)
   set(THREAD_POOL_LIB thread-pool-cpp::thread-pool-cpp)
@@ -280,7 +294,7 @@ message("${CMAKE_MODULE_PATH}")
 ### Boost ###
 hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams) #regex)
 find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams) #regex)
-include_directories(${Boost_INCLUDE_DIRS}) 
+include_directories(${Boost_INCLUDE_DIRS})
 message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
 
 ### DLIB: dlib (Header only + no CMakeLists.txt)
@@ -296,7 +310,7 @@ message("EIGEN3_INCLUDE_DIR = ${EIGEN3_INCLUDE_DIR}")
 
 ### CVMATIO
 if(BUILD_DRISHTI_ACF)
-  hunter_add_package(cvmatio) 
+  hunter_add_package(cvmatio)
   find_package(cvmatio REQUIRED CONFIG)
 endif()
 
@@ -304,7 +318,7 @@ endif()
 if(is_xcode)
   option(DRISHTI_DISABLE_DSYM "Disable generation of dSYM information" ON)
   if(DRISHTI_DISABLE_DSYM)
-    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")    
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
   endif()
   set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)
 
@@ -314,7 +328,7 @@ if(is_xcode)
 
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE_ON_ANALYZE_ACTION "Shallow")
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE "Shallow")
-  
+
 endif()
 
  # get_cmake_property(_variableNames VARIABLES)
@@ -325,7 +339,7 @@ endif()
 
 if(NOT is_ios AND NOT ANDROID)
   find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
-  set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS 
+  set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS
     "--trace-children=yes"
     "--leak-check=full"
     "--tool=memcheck"
@@ -335,7 +349,7 @@ if(NOT is_ios AND NOT ANDROID)
     )
   find_file(HAVE_VALGRIND "valgrind")
   message("HAVE_VALGRIND: ${HAVE_VALGRIND}")
-  
+
 endif()
 
 include_directories(src/lib/drishti)
