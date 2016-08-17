@@ -246,6 +246,8 @@ message("TIFF_INCLUDE_DIRS = ${TIFF_INCLUDE_DIR}")
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
 
+include(CheckCSourceCompiles)
+
 ### Thread-pool-cpp
 check_c_source_compiles("
 #if defined (__GNUC__)
