@@ -1,4 +1,4 @@
-macro(configure_doxygen)
+function(configure_doxygen)
 
   if(NOT DOXYGEN_FOUND)
     message(FATAL_ERROR "Doxygen is needed to build the documentation.")
@@ -13,4 +13,4 @@ macro(configure_doxygen)
     VERBATIM
     )
 
-endmacro(configure_doxygen)
+endfunction()

@@ -13,17 +13,40 @@ environment:
       CONFIG: Debug
 
 install:
-  - cmd: set POLLY_VERSION="0.7.9"
-  - cmd: appveyor DownloadFile "https://github.com/ruslo/polly/archive/v%POLLY_VERSION%.tar.gz"
-  - cmd: cmake -E tar xf "v%POLLY_VERSION%.tar.gz"
-  - cmd: set POLLY_PATH=%cd%\polly-%POLLY_VERSION%\bin
-  - cmd: set PATH=C:\Python34-x64;%PATH%
-  - cmd: cmake --version
-  - cmd: python --version
-  - cmd: git submodule -q update --init
+  # Python 3
+  - cmd: set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
+
+  # Install Python package 'requests'
+  - cmd: pip install requests
+
+  # Install latest Polly toolchains and scripts
+  - cmd: appveyor DownloadFile https://github.com/ruslo/polly/archive/master.zip
+  - cmd: 7z x master.zip
+  - cmd: set POLLY_ROOT=%cd%\polly-master
+
+  # Install dependencies (CMake, Ninja)
+  - cmd: python %POLLY_ROOT%\bin\install-ci-dependencies.py
+
+  # Tune locations
+  - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
+  - cmd: set PATH=%cd%\_ci\ninja;%PATH%
+
+  - git submodule update --init --recursive
+
+  # Remove entry with sh.exe from PATH to fix error with MinGW toolchain
+  # (For MinGW make to work correctly sh.exe must NOT be in your path)
+  # * http://stackoverflow.com/a/3870338/2288008
+  - cmd: set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+
+  # Use MinGW from Qt tools because version is higher
+  # * http://www.appveyor.com/docs/installed-software#qt
+  - cmd: set MINGW_PATH=C:\Qt\Tools\mingw492_32\bin
+
+  # MSYS2 location
+  - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
-  - cmd: python %POLLY_PATH%\build.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%"
+  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --fwd HUNTER_USE_CACHE_SERVERS=ONLY
 
 artifacts:
   - path: _builds\*\drishti-*.tar.gz
@@ -38,4 +61,4 @@ deploy:
   prerelease: false
   on:
     appveyor_repo_tag: true
-    
+

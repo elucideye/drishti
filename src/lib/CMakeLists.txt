@@ -124,6 +124,12 @@ message("=========================================")
 message("DRISHTI_DRISTHI_HDRS_PUBLIC :  ${DRISHTI_DRISTHI_HDRS_PUBLIC}")
 message("=========================================")
 message("=========================================")
+
+string(COMPARE EQUAL "${CMAKE_INSTALL_PREFIX}" "" no_install_prefix)
+if(no_install_prefix)
+  message(FATAL_ERROR "CMAKE_INSTALL_PREFIX expected")
+endif()
+
 set(THIRD_PARTY_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/3rdparty")
 add_custom_command(TARGET drishtisdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRD_PARTY_INSTALL_DIR}")
 foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
