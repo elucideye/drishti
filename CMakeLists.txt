@@ -192,6 +192,7 @@ include(ExternalProject)
 include(AlwaysFullRPATH)
 include(ConfigureConsoleApp)
 include(GenerateExportHeader)
+include(DrishtiUtils)
 
 include(CheckTypeSize)
 check_type_size("__fp16" FP16)
@@ -246,6 +247,21 @@ hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
 
 ### Thread-pool-cpp
+check_c_source_compiles("
+#if defined (__GNUC__)
+    #define ATTRIBUTE_TLS __thread
+#elif defined (_MSC_VER)
+    #define ATTRIBUTE_TLS __declspec(thread)
+#else // !__GNUC__ && !_MSC_VER
+    #error \"Define a thread local storage qualifier for your compiler/platform!\"
+#endif
+ATTRIBUTE_TLS int tls;
+int main(void) {
+    return 0;
+}" HAVE_THREAD_LOCAL_STORAGE)
+
+DRISHTI_OPTION(USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
+
 option(USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 if(USE_LOCAL_THREAD_POOL_CPP)
   add_definitions(-DUSE_LOCAL_THREAD_POOL=1)

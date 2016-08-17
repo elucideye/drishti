@@ -9,7 +9,9 @@ find_package(GTest CONFIG REQUIRED)
 
 add_subdirectory(drishti)
 
-add_subdirectory(thread-pool)
+if(USE_THREAD_POOL_CPP)
+  add_subdirectory(thread-pool)
+endif()
 
 # QT is used for the portable rendering context
 if(BUILD_QT)
