@@ -2,6 +2,9 @@
 # Copyright (c) 2015-2016, David Hirvonen
 # All rights reserved.
 
+hunter_add_package(nlohmann-json)
+find_package(nlohmann-json REQUIRED)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -11,8 +14,15 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON) # for main.moc
 find_package(Qt5Quick REQUIRED) # Qt5::Quick
 find_package(Qt5Multimedia REQUIRED) # Qt5::QMultimediaDeclarativeModule
 
+set(FACE_FILTER_RESOURCES
+  "${CMAKE_SOURCE_DIR}/assets/drishti_face_inner_48x48.mat"
+  "${CMAKE_SOURCE_DIR}/assets/drishti_face_5_point_mean_48x48.xml"    
+  "${CMAKE_SOURCE_DIR}/assets/drishti_face_inner.pba.z"
+  "${CMAKE_SOURCE_DIR}/assets/drishti_eye_full_npd_eix.pba.z"
+  )
+
 set(
-  sources
+  FACE_FILTER_SOURCES
   main.cpp
 
   Scene.hpp  
@@ -34,6 +44,10 @@ set(
   QTRenderGL.hpp
   QTRenderGL.cpp
 
+  AssetManager.h
+  AssetManager.cpp
+  QtStream.h
+
   ## Application specific
   FaceFinder.h
   FaceFinder.cpp
@@ -50,10 +64,13 @@ set(
 
   gpu/FlashFilter.h
   gpu/FlashFilter.cpp
+
+  ## Config
+  facefilter.json
   )
 
 if(ANDROID)
-  add_library(facefilter SHARED ${sources})
+  add_library(facefilter SHARED ${FACE_FILTER_SOURCES} ${FACE_FILTER_RESOURCES})
 
   target_link_libraries(facefilter Qt5::Quick Qt5::Multimedia)
   target_link_libraries(facefilter EGL GLESv2)
@@ -103,28 +120,21 @@ else()
     set(qml_dir "")
   endif()
 
-  set(FINDER_RESOURCES
-    "${CMAKE_SOURCE_DIR}/assets/drishti_face_inner_48x48.mat"
-    "${CMAKE_SOURCE_DIR}/assets/drishti_face_5_point_mean_48x48.xml"    
-    "${CMAKE_SOURCE_DIR}/assets/drishti_face_inner.pba.z"
-    "${CMAKE_SOURCE_DIR}/assets/drishti_eye_full_npd_eix.pba.z"
-    )
-  
-  add_executable(facefilter MACOSX_BUNDLE ${sources}
+  add_executable(facefilter MACOSX_BUNDLE ${FACE_FILTER_SOURCES}
+    ${FACE_FILTER_RESOURCES}    
     ${qt_conf}
     ${qml_dir}
-    "${FINDER_RESOURCES}"
     )
 
   set_target_properties(
     facefilter
     PROPERTIES
-    RESOURCE "${qt_conf};${qml_dir};${FINDER_RESOURCES}"
+    RESOURCE "${qt_conf};${qml_dir};${FACE_FILTER_RESOURCES}"
     )
 
   # https://cmake.org/pipermail/cmake/2012-June/050735.html
   # set_property(TARGET ${library} PROPERTY FOLDER "libs/drishti")  
-  SOURCE_GROUP("Resources" FILES "${FINDER_RESOURCES}")
+  SOURCE_GROUP("Resources" FILES "${FACE_FILTER_RESOURCES}")
 
   if(IOS)
     set_target_properties(
@@ -158,7 +168,11 @@ if(APPLE)
   target_sources(facefilter PUBLIC FetchResource.h FetchResource.mm)
 endif()
 
-target_link_libraries(facefilter drishtisdk ${OGLES_GPGPU_LIB} ${THREAD_POOL_LIB})
+target_link_libraries(facefilter
+  drishtisdk
+  ${OGLES_GPGPU_LIB}
+  ${THREAD_POOL_LIB}
+  nlohmann-json::nlohmann-json)
 
 set_property(TARGET facefilter PROPERTY FOLDER "app/gui")
 
