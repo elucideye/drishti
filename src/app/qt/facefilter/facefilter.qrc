@@ -1,5 +1,10 @@
 <RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-    </qresource>
+  <qresource prefix="/">
+    <file>main.qml</file>
+    <file>facefilter.json</file>
+    <file>../../../../assets/drishti_face_inner_48x48.mat</file>
+    <file>../../../../assets/drishti_face_5_point_mean_48x48.xml</file>
+    <file>../../../../assets/drishti_face_inner.pba.z</file>
+    <file>../../../../assets/drishti_eye_full_npd_eix.pba.z</file>
+  </qresource>
 </RCC>
