@@ -67,12 +67,7 @@ std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetec
     std::unique_ptr<drishti::ml::ObjectDetector> ptr;
     std::function<bool(std::istream &is)> loader = [&](std::istream &is)
     {
-#if 0
-        std::string filename = "/Users/dhirvonen/devel/drishti/assets/drishti_face_inner_48x48.mat";
-        ptr = drishti::core::make_unique<drishti::acf::Detector>(filename);
-#else
         ptr = drishti::core::make_unique<drishti::acf::Detector>(is);
-#endif
         return true;
     };
     load(sFaceDetector, loader);
