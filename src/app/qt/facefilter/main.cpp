@@ -2,6 +2,7 @@
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Copyright (C) 2015 Ruslan Baratov
+** Coypright (C) 2016 David Hirvonen
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Multimedia module.
@@ -45,14 +46,20 @@
 #include <QtPlugin> // Q_IMPORT_PLUGIN
 #include <QQmlExtensionPlugin>
 #include <QtOpenGL/QGLFormat>
+#include <QFile>
+#include <QTextStream>
+#include <QDirIterator>
 
 #include "VideoFilterRunnable.hpp"
 #include "VideoFilter.hpp"
 #include "InfoFilter.hpp"
 #include "QTRenderGL.hpp"
 #include "FrameHandler.h"
+#include "QtStream.h"
 
 #include "core/Logger.h"
+
+#include "nlohmann/json.hpp" // nlohman-json
 
 #include <iostream>
 
@@ -60,6 +67,34 @@
 Q_IMPORT_PLUGIN(QtQuick2Plugin);
 Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
 #endif
+
+static void printResources()
+{
+    QDirIterator it(":", QDirIterator::Subdirectories);
+    while (it.hasNext())
+    {
+        qDebug() << it.next();
+    }
+}
+
+static nlohmann::json loadJSON(spdlog::logger &logger)
+{
+    nlohmann::json json;
+
+    QFile inputFile(":/facefilter.json");
+    if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        logger.error() << "Can't open file";
+        return EXIT_FAILURE;
+    }
+    
+    QTextStream in(&inputFile);
+    std::stringstream stream;
+    stream <<  in.readAll().toStdString();
+    stream >> json;
+    
+    return json;
+}
 
 #if defined(Q_OS_IOS)
 extern "C" int qtmn(int argc, char** argv)
@@ -71,11 +106,20 @@ int main(int argc, char **argv)
 #ifdef Q_OS_WIN // avoid ANGLE on Windows
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
-
-    QGuiApplication app(argc, argv);
-
+    
+    // ###### Instantiate logger ########
     auto logger = drishti::core::Logger::create("facefilter");
     logger->info() << "Start";
+    
+    printResources();
+
+    // JSON configuration
+    auto json = loadJSON(*logger);
+    
+    //std::cout << json["pi"].get<float>() << std::endl;
+    //std::cout << json["name"].get<std::string>() << std::endl;
+    
+    QGuiApplication app(argc, argv);
 
     qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
     qmlRegisterType<InfoFilter>("facefilter.test", 1, 0, "InfoFilter");
@@ -91,19 +135,9 @@ int main(int argc, char **argv)
     view.setResizeMode( QQuickView::SizeRootObjectToView );
 
 #if defined(Q_OS_OSX)
-
     // This had been tested with GLFW + ogles_gpgpu before
     //OpenGL version: 2.1 NVIDIA-10.4.2 310.41.35f01
     //GLSL version: 1.20
-
-    // Currently texture2D() calls in our shaders are failing on OS X builds.
-    // and the output texture appears black.  The input texture displays fine
-    // in the QML VideoOutput and if we write directly to the gl_FragColor from
-    // the same shader (ignoring the input texture) then the output texture
-    // displays properly in QML VideoOutput as well.  This would seem to point
-    // to a deprecated texture2D() behavior which could be remedied by setting
-    // the version/profile (several configurations tested without luck so far).
-
     QSurfaceFormat format;
     format.setVersion(2, 1);
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
@@ -174,7 +208,6 @@ int main(int argc, char **argv)
 #if defined(Q_OS_IOS)
         desiredFormats = { QVideoFrame::Format_NV12, QVideoFrame::Format_NV21 };
 #else
-        // TODO: add OS X texture cache for Y + UV texture loads
         desiredFormats = { QVideoFrame::Format_ARGB32 };
 #endif
         auto viewfinderSettings = camera->supportedViewfinderSettings();
