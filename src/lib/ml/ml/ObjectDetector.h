@@ -46,6 +46,9 @@ public:
     {
         return m_doNms;
     }
+    
+    virtual cv::Size getWindowSize() const = 0;
+    
 protected:
     bool m_doNms = false;
     double m_detectionScorePruneRatio = 0.0;
