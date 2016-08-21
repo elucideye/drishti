@@ -35,10 +35,13 @@
 
 DRISHTI_ACF_BEGIN
 
+template<class _T> struct ParserNode;
+
 class Detector : public drishti::ml::ObjectDetector
 {
 public:
 
+    typedef ParserNode<Detector> ParserNodeDetector;
     typedef std::vector<cv::Size2d> Size2dVec;
     typedef std::vector<double> RealVec;
     typedef std::vector<cv::Rect> RectVec;
@@ -47,6 +50,7 @@ public:
 
     Detector() {}
     Detector(const Detector &src);
+    Detector(std::istream &is);
     Detector(const std::string &filename);
     Detector(const char *filename);
 
@@ -334,6 +338,11 @@ public:
         friend std::ostream& operator<<(std::ostream &os, const Modify &src);
         void merge(const Modify &src, int mode);
     };
+    
+    cv::Size getWindowSize() const
+    {
+        return opts.modelDs.get();
+    }
 
     // (((( Compute pyramid ))))
     void computePyramid(const cv::Mat &I, Pyramid &P);
@@ -352,10 +361,10 @@ public:
     int chnsPyramid(const MatP &I, const Options::Pyramid *pPyramid, Pyramid &pyramid, bool isInit=false, MatLoggerType pLogger=0);
 
     static int rgbConvert(const MatP &I, MatP &J, const std::string &cs, bool useSingle, bool isLuv=false);
-    static int getScales(int nPerOct, int nOctUp, const cv::Size &minDs, int shrink, const cv::Size &sz, RealVec &scales, Size2dVec &scaleshw );
+    static int getScales(int nPerOct, int nOctUp, const cv::Size &minDs, int shrink, const cv::Size &sz, RealVec &scales, Size2dVec &scaleshw);
     static int convTri(const MatP &I, MatP &J, double r=1.0, int s=1);
-    static int gradientMag( const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel = 0, int normRad = 0, double normConst = 0.005, int full = 0, MatLoggerType logge=0);
-    static int gradientHist( const cv::Mat &M, const cv::Mat &O, MatP &H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full );
+    static int gradientMag(const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel=0, int normRad=0, double normConst=0.005, int full=0, MatLoggerType logge=0);
+    static int gradientHist(const cv::Mat &M, const cv::Mat &O, MatP &H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full);
 
     virtual void setDetectionScorePruneRatio(double ratio)
     {
@@ -373,10 +382,11 @@ public:
         cv::Rect roi;
         double score = 1.0;
     };
+    using DetectionVec = std::vector<Detection>;
 
-    void acfDetect1(const MatP &chns, const RectVec &rois, int shrink, cv::Size modelDsPad, int stride, double cascThr, std::vector<Detection> &objects );
+    void acfDetect1(const MatP &chns, const RectVec &rois, int shrink, cv::Size modelDsPad, int stride, double cascThr, DetectionVec &objects);
 
-    int bbNms(const std::vector<Detection> &bbsIn, const Options::Nms &pNms, std::vector<Detection> &bbs);
+    int bbNms(const DetectionVec &bbsIn, const Options::Nms &pNms, DetectionVec &bbs);
 
     int acfModify( const Detector::Modify &params );
 
@@ -384,6 +394,8 @@ public:
     int initializeOpts();
     int deserialize(const std::string &filename);
     int deserialize(const char * filename);
+    int deserialize(std::istream &is);
+    int deserialize(ParserNodeDetector &detector_);
 
     // Additional configuration parameters:
     void setIsLuv(bool flag)

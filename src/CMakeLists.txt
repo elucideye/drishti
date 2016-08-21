@@ -141,7 +141,7 @@ if(BUILD_QT)
 endif()
 
 # Include *nix style console apps (some will run on iOS and Android)
-#add_subdirectory(app)
+add_subdirectory(app)
 
 # (Optional) build unit tests
 if(BUILD_TESTS)

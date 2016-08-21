@@ -50,6 +50,14 @@ public:
         m_predictor = sp;
     }
 
+    Impl(std::istream &is)
+    {
+        auto sp = std::make_shared<_SHAPE_PREDICTOR>();
+        load_pba_z(is, *sp);
+        sp->populate_f16();
+        m_predictor = sp;
+    }
+    
     void packPointsInShape(const std::vector<cv::Point2f> &points, int ellipseCount, float *shape) const
     {
         DRISHTI_STREAM_LOG_FUNC(6,2,m_streamLogger);
@@ -167,6 +175,11 @@ void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
 RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string &filename)
 {
     m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(filename);
+}
+
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream &is)
+{
+    m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(is);
 }
 
 void RTEShapeEstimator::setStagesHint(int stages)

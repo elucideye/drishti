@@ -32,6 +32,10 @@ Detector::Detector(const Detector &src)
     clf = src.clf;
     opts = src.opts;
 }
+Detector::Detector(std::istream &is)
+{
+    deserialize(is);
+}
 Detector::Detector(const std::string &filename)
 {
     deserialize(filename);
@@ -268,7 +272,7 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
     std::vector< Detection > bbs;
     for(int i = 0; i < P.nScales; i++)
     {
-        std::vector<Detection> ds;
+        DetectionVec ds;
 
         if(P.rois.size() > i)
         {
@@ -301,7 +305,7 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
         if(bbs.size())
         {
             // Run non maximal suppression:
-            std::vector<Detection> bbOut;
+            DetectionVec bbOut;
             bbNms(bbs, opts.pNms, bbOut);
             std::copy(bbOut.begin(), bbOut.end(), std::back_inserter(objects));
 

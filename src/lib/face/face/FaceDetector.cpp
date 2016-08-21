@@ -38,6 +38,8 @@ static cv::Matx33f denormalize(const cv::Rect &roi)
     return (C2 * S * C1);
 }
 
+
+
 // ((((((((((((((( Impl )))))))))))))))
 class FaceDetector::Impl
 {
@@ -45,39 +47,22 @@ public:
 
     typedef FaceDetector::MatLoggerType MatLoggerType;
     typedef FaceDetector::TimeLoggerType TimeLoggerType;
-    typedef FaceDetector::Resources Resources;
     typedef FaceDetector::EyeCropper EyeCropper;
 
-    Impl(const Resources &resources)
+    Impl(FaceDetectorFactory &resources)
     {
         create(resources);
     }
 
-    void create(const Resources &resources)
+    void create(FaceDetectorFactory &resources)
     {
-        const auto &sFaceDetector = resources.sFaceDetector;
-        const auto &sFaceRegressors = resources.sFaceRegressors;
-        const auto &sEyeRegressor = resources.sEyeRegressor;
-
-        m_detector = drishti::core::make_unique<drishti::acf::Detector>(sFaceDetector);
-        if(sFaceRegressors.size())
+        m_detector = resources.getFaceDetector();
+        m_regressor = resources.getInnerFaceEstimator();
+        m_regressor2 = resources.getOuterFaceEstimator();
+        m_eyeRegressor.resize(2);
+        for(int i = 0; i < 2; i++)
         {
-            m_regressor = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[0]);
-            if(sFaceRegressors.size() > 1)
-            {
-                m_regressor2 = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[1]);
-            }
-        }
-
-        if(!sEyeRegressor.empty())
-        {
-            m_eyeRegressor.resize(2);
-            for(int i = 0; i < 2; i++)
-            {
-                m_eyeRegressor[i] = std::unique_ptr< DRISHTI_EYE::EyeModelEstimator>(new DRISHTI_EYE::EyeModelEstimator);
-                load_pba_z(sEyeRegressor, *m_eyeRegressor[i]);
-                m_eyeRegressor[i]->setDoIndependentIrisAndPupil(true);
-            }
+            m_eyeRegressor[i] = resources.getEyeEstimator();
         }
     }
 
@@ -235,7 +220,7 @@ public:
         const cv::Mat gray = Ib.Ib;
         CV_Assert(gray.type() == CV_8UC1);
 
-        std::vector< std::pair< drishti::ml::RegressionTreeEnsembleShapeEstimator *, cv::Matx33f > > regressors
+        std::vector< std::pair< drishti::ml::ShapeEstimator *, cv::Matx33f > > regressors
         {
             { m_regressor.get(), m_Hrd },
         };
@@ -333,7 +318,7 @@ public:
         }
     }
 
-    FaceModel getMeanShape(const drishti::ml::RegressionTreeEnsembleShapeEstimator &regressor, const cv::Rect2f &roi) const
+    FaceModel getMeanShape(const drishti::ml::ShapeEstimator &regressor, const cv::Rect2f &roi) const
     {
         auto mu = regressor.getMeanShape();
         drishti::core::Shape shape;
@@ -357,7 +342,7 @@ public:
         return getMeanShape(*m_regressor, roi);
     }
 
-    cv::Matx33f getAffineMotionFromRegressorToDetector(const ml::RegressionTreeEnsembleShapeEstimator &regressor)
+    cv::Matx33f getAffineMotionFromRegressorToDetector(const ml::ShapeEstimator &regressor)
     {
         FaceModel faceRegressorMean = getMeanShape(regressor, {0.f, 0.f, 1.f, 1.f});
 
@@ -421,7 +406,8 @@ public:
     {
         if(m_detector)
         {
-            m_detector->setLogger(logger);
+            std::cerr << "TODO: must add logger method" << std::endl;
+            //m_detector->setLogger(logger);
         }
     }
     void setDetectionTimeLogger(TimeLoggerType logger)
@@ -505,11 +491,9 @@ public:
     TimeLoggerType m_detectionTimeLogger;
     TimeLoggerType m_regressionTimeLogger;
     TimeLoggerType m_eyeRegressionTimeLogger;
-    std::unique_ptr<drishti::acf::Detector> m_detector;
-    std::unique_ptr<drishti::ml::RegressionTreeEnsembleShapeEstimator> m_regressor;
-
-    // Second regressor, with more face features
-    std::unique_ptr<drishti::ml::RegressionTreeEnsembleShapeEstimator> m_regressor2;
+    std::unique_ptr<drishti::ml::ObjectDetector> m_detector;
+    std::unique_ptr<drishti::ml::ShapeEstimator> m_regressor;
+    std::unique_ptr<drishti::ml::ShapeEstimator> m_regressor2;
 
     std::vector<std::unique_ptr<DRISHTI_EYE::EyeModelEstimator>> m_eyeRegressor;
 
@@ -549,12 +533,12 @@ void FaceDetector::setLogger(MatLoggerType logger)
 {
     m_impl->setLogger(logger);
 }
-drishti::acf::Detector * FaceDetector::getDetector()
+drishti::ml::ObjectDetector * FaceDetector::getDetector()
 {
     return m_impl->m_detector.get();
 }
 
-FaceDetector::FaceDetector(const Resources &resources)
+FaceDetector::FaceDetector(FaceDetectorFactory &resources)
     : m_impl( std::make_shared<Impl>(resources) )
 {
 
@@ -633,9 +617,9 @@ void FaceDetector::operator()(const MatP &I, const PaddedImage &Ib, std::vector<
 
 }
 
-const cv::Size & FaceDetector::getWindowSize() const
+cv::Size FaceDetector::getWindowSize() const
 {
-    return m_impl->m_detector->opts.modelDs.get();
+    return m_impl->m_detector->getWindowSize();
 }
 void FaceDetector::setDetectionTimeLogger(TimeLoggerType logger)
 {

@@ -193,7 +193,11 @@ struct ParserNode
 {
     ParserNode() {}
 
-    ParserNode(const ParserNode &node) : m_name(node.m_name), m_object(node.m_object), m_variables(node.m_variables),  m_indent(node.m_indent)  {}
+    ParserNode(const ParserNode &node)
+        : m_name(node.m_name)
+        , m_object(node.m_object)
+        , m_variables(node.m_variables)
+        , m_indent(node.m_indent)  {}
 
     ParserNode(const std::string &filename, T &object)
         : m_name("root")
@@ -217,6 +221,18 @@ struct ParserNode
         log();
     }
 
+    // Istream input
+    ParserNode(std::istream &is, T &object)
+        : m_name("root")
+        , m_object(&object)
+    {
+#if USE_INDENTING_STREAM
+        m_indent = std::make_shared<IndentingOStreambuf>(std::cout);
+#endif
+        open(is);
+        log();
+    }
+
     ParserNode & operator=(const ParserNode &src)
     {
         m_name = src.m_name;
@@ -235,6 +251,23 @@ struct ParserNode
             std::cout << v.name() << " " << v.type() << std::endl;
         }
 #endif
+    }
+    int open(std::istream &is)
+    {
+        // create a new reader
+        bool ok = m_matio.attach(is);
+        if (!ok)
+        {
+            return -1;
+        }
+
+        // read all of the variables in the file
+        m_variables = m_matio.read();
+
+        // display the file info
+        m_matio.whos(m_variables);
+
+        return 0;        
     }
 
     int open(const std::string &filename)
@@ -255,7 +288,6 @@ struct ParserNode
 
         return 0;
     }
-
 
     // Return single instance
     template <typename T2> ParserNode<T2> create(const std::string &name, T2 &object)
