@@ -44,8 +44,9 @@ set(
   QTRenderGL.hpp
   QTRenderGL.cpp
 
-  AssetManager.h
-  AssetManager.cpp
+  QtFaceDetectorFactory.h
+  QtFaceDetectorFactory.cpp
+
   QtStream.h
 
   ## Application specific
