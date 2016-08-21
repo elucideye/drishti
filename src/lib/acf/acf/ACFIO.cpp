@@ -25,7 +25,18 @@ int Detector::deserialize(const char *filename)
     MatlabIO matio;
     ParserNode<Detector> root_(filename, *this);
     ParserNode<Detector> && detector_ = root_.create("detector", (*this));
+    return deserialize(detector_);
+}
 
+int Detector::deserialize(std::istream &is)
+{
+    ParserNode<Detector> root_(is, *this);
+    ParserNode<Detector> && detector_ = root_.create("detector", (*this));
+    return deserialize(detector_);
+}
+
+int Detector::deserialize(ParserNodeDetector &detector_)
+{    
     {
         // Parse the classifier
         auto && clf_ = detector_.create("clf", this->clf);
