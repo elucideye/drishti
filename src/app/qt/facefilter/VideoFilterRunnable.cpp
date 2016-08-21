@@ -44,6 +44,7 @@
 #include "VideoFilter.hpp"
 #include "TextureBuffer.hpp"
 #include "QVideoFrameScopeMap.h"
+#include "QtFaceDetectorFactory.h"
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
@@ -58,7 +59,9 @@ struct VideoFilterRunnable::Impl
 
     Impl(void *glContext, int orientation)
     {
-        m_detector = std::make_shared<FaceFinder>(glContext, orientation);
+        // Allocate the face detector:
+        std::shared_ptr<drishti::face::FaceDetectorFactory> resources = std::make_shared<QtFaceDetectorFactory>();
+        m_detector = std::make_shared<FaceFinder>(resources, glContext, orientation);
     }
 
     GLuint operator()(const ogles_gpgpu::FrameInput &frame)
