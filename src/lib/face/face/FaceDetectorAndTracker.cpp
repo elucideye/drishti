@@ -16,7 +16,7 @@ BEGIN_FACE_NAMESPACE
 
 // =============================
 
-FaceDetectorAndTracker::FaceDetectorAndTracker(const Resources &resources) : FaceDetector(resources)
+FaceDetectorAndTracker::FaceDetectorAndTracker(FaceDetectorFactory &resources) : FaceDetector(resources)
 {
     //m_pImpl = std::make_shared<CorrelationTracker>();
     //m_pImpl = std::make_shared<LKTracker>();
