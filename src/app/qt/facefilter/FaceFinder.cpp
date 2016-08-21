@@ -559,14 +559,6 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
 
 // #### init2 ####
 
-#if ANDROID
-std::string getResourcePath(const std::string &filename)
-{
-    std::string data = "/data/local/tmp/acf/";
-    return data + "/" + filename;
-}
-#endif
-
 void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 {
     m_logger->info() << "FaceFinder::init2() #################################################################";
