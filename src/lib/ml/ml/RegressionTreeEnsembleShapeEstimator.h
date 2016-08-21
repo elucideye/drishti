@@ -29,6 +29,7 @@ public:
 
     RegressionTreeEnsembleShapeEstimator() {}
     RegressionTreeEnsembleShapeEstimator(const std::string &filename);
+    RegressionTreeEnsembleShapeEstimator(std::istream &is);
 
     virtual void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
     virtual int operator()(const cv::Mat &I, const cv::Mat &M, Point2fVec &points, BoolVec &mask) const;
