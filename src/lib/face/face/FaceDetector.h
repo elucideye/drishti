@@ -12,6 +12,7 @@
 #define __DRISHTI__FaceDetector__
 
 #include "face/drishti_face.h"
+#include "face/FaceDetectorFactory.h"
 #include "core/Shape.h"
 #include "acf/MatP.h"
 #include "face/Face.h"
@@ -32,10 +33,6 @@
 #include <functional>
 
 #define DO_CV_FACE 1
-
-// *INDENT-OFF*
-namespace drishti { namespace acf { class Detector; } }
-// *INDENT-ON*
 
 namespace dsdkc = drishti::core;
 
@@ -59,21 +56,13 @@ public:
     };
 
     typedef std::function<std::array<cv::Mat,2>(const cv::Point2f &L, const cv::Point2f &R)> EyeCropper;
-
-    struct Resources
-    {
-        std::string sFaceDetector;
-        std::vector<std::string> sFaceRegressors;
-        std::string sEyeRegressor;
-    };
-
     typedef std::function<int(const cv::Mat&, const std::string &tag)> MatLoggerType;
     typedef std::function<void(double seconds)> TimeLoggerType;
 
     class Impl;
     typedef std::vector<cv::Point2f> Landmarks;
 
-    FaceDetector(const Resources &resources);
+    FaceDetector(FaceDetectorFactory &Resources);
 
     void setLandmarkFormat(FaceSpecification::Format format);
 
@@ -86,7 +75,7 @@ public:
     virtual void operator()(const MatP &I, const PaddedImage &Ib, std::vector<dsdkc::Shape> &shapes, const cv::Matx33f &H=EYE);
 
     // TODO: Add this for detector modification (cascThr, etc), but eventually make limited public API
-    drishti::acf::Detector * getDetector();
+    drishti::ml::ObjectDetector * getDetector();
 
     virtual std::vector<cv::Point2f> getFeatures() const;
 
@@ -94,7 +83,7 @@ public:
     FaceModel getMeanShape(const cv::Rect2f &roi) const;
 
     void setScaling(float scale);
-    const cv::Size &getWindowSize() const;
+    cv::Size getWindowSize() const;
 
     void setFaceStagesHint(int stages);
     void setFace2StagesHint(int stages);
