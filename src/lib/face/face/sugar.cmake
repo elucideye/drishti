@@ -41,6 +41,7 @@ sugar_files(DRISHTI_FACE_SRCS
   FaceDetectorAndTracker.cpp
   FaceDetectorAndTrackerImpl.cpp
   FaceDetectorAndTrackerNN.cpp
+  FaceDetectorFactory.cpp
   FaceIO.cpp
   FaceLandmarkMeshMapper.cpp  
   FaceModelEstimator.cpp
@@ -57,6 +58,7 @@ sugar_files(DRISHTI_FACE_HDRS_PUBLIC
   FaceDetectorAndTracker.h
   FaceDetectorAndTrackerImpl.h
   FaceDetectorAndTrackerNN.h
+  FaceDetectorFactory.h
   FaceIO.h
   FaceLandmarkMeshMapper.h
   FaceModelEstimator.h
