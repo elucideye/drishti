@@ -10,6 +10,7 @@
 
 #include "FaceFinder.h"
 #include "FetchResource.h"
+#include "QtFaceDetectorFactory.h"
 #include "gpu/FacePainter.h"
 #include "gpu/FlashFilter.h"
 #include "face/gpu/EyeFilter.h"
@@ -31,12 +32,6 @@
 
 #define DO_TRACKING 1
 #define MODIFY_ACF 1
-
-// TODO: Move these regressor names to a config file
-#define DRISHTI_FACE_INNER_DETECT "drishti_face_inner_48x48.mat"
-#define DRISHTI_FACE_MEAN_5_POINT "drishti_face_5_point_mean_48x48.xml"
-#define DRISHTI_FACE_INNER "drishti_face_inner.pba.z"
-#define DRISHTI_EYE_FULL "drishti_eye_full_npd_eix.pba.z"
 
 using drishti::face::operator*;
 
@@ -75,7 +70,7 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
 #define DO_FLOW 1
 #define DO_FLOW_QUIVER 0
 
-FaceFinder::FaceFinder(void *glContext, int orientation, int delay)
+FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, void *glContext, int orientation, int delay)
     : m_glContext(glContext)
     , m_hasInit(false)
     , m_outputOrientation(orientation)
@@ -88,6 +83,7 @@ FaceFinder::FaceFinder(void *glContext, int orientation, int delay)
     , m_scenes(delay+1)
     , m_doFlash(DO_FLASH) // ###### DO FLASH ##########
     , m_flashWidth(128)
+    , m_factory(factory)
 {
     // TODO: share across objects
     m_logger = drishti::core::Logger::create("drishti");
@@ -254,7 +250,7 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
     if(!m_hasInit)
     {
         m_hasInit = true;
-        init2();
+        init2(*m_factory);
         init(frame);
     }
 
@@ -571,7 +567,7 @@ std::string getResourcePath(const std::string &filename)
 }
 #endif
 
-void FaceFinder::init2()
+void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 {
     m_logger->info() << "FaceFinder::init2() #################################################################";
 
@@ -588,11 +584,6 @@ void FaceFinder::init2()
         this->m_timerInfo.eyeRegressionTime = seconds;
     };
 
-    // Allocate the face detector:
-    drishti::face::FaceDetector::Resources resources;
-    resources.sFaceDetector = getResourcePath(DRISHTI_FACE_INNER_DETECT);
-    resources.sFaceRegressors = {{ getResourcePath(DRISHTI_FACE_INNER) }};
-    resources.sEyeRegressor = getResourcePath(DRISHTI_EYE_FULL);
 
 #if DO_TRACKING
     auto faceDetectorAndTracker = std::make_shared<drishti::face::FaceDetectorAndTracker>(resources);
@@ -618,24 +609,13 @@ void FaceFinder::init2()
     }
 #endif
 
-    m_faceDetector->setDetectionTimeLogger( m_timerInfo.detectionTimeLogger );
-    m_faceDetector->setRegressionTimeLogger( m_timerInfo.regressionTimeLogger );
-    m_faceDetector->setEyeRegressionTimeLogger( m_timerInfo.eyeRegressionTimeLogger );
+    m_faceDetector->setDetectionTimeLogger(m_timerInfo.detectionTimeLogger);
+    m_faceDetector->setRegressionTimeLogger(m_timerInfo.regressionTimeLogger);
+    m_faceDetector->setEyeRegressionTimeLogger(m_timerInfo.eyeRegressionTimeLogger);
 
     {
         // FaceDetection mean:
-        drishti::face::FaceModel faceDetectorMean;
-
-        // mean face detector face
-        std::string sFaceDetectorMean = getResourcePath(DRISHTI_FACE_MEAN_5_POINT);
-
-        std::ifstream is(sFaceDetectorMean);
-        if(is)
-        {
-            cereal::XMLInputArchive ia(is);
-            typedef decltype(ia) Archive;
-            ia >> faceDetectorMean;
-        }
+        drishti::face::FaceModel faceDetectorMean = m_factory->getMeanFace();
 
         // We can change the regressor crop padding by doing a centered scaling of face features:
         if(0)

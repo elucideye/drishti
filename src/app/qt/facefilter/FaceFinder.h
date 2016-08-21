@@ -13,6 +13,7 @@
 #include "acf/GPUACF.h"
 #include "acf/ACF.h"
 #include "face/Face.h"
+#include "face/FaceDetectorFactory.h"
 #include "sensor/Sensor.h"
 
 #include "Scene.hpp"
@@ -30,29 +31,28 @@
 
 #define DO_ELLIPSO_POLAR 0
 
+// *INDENT-OFF*
 namespace ogles_gpgpu
 {
-class FlashFilter;
-class FacePainter;
-class FifoProc;
-class TransformProc;
-class EyeFilter;
-class EllipsoPolarWarp;
+    class FlashFilter;
+    class FacePainter;
+    class FifoProc;
+    class TransformProc;
+    class EyeFilter;
+    class EllipsoPolarWarp;
 }
 
-namespace spdlog
-{
-class logger;
-}
+namespace spdlog { class logger; }
 
 namespace drishti
 {
-namespace face
-{
-class FaceModelEstimator;
-class FaceDetector;
+    namespace face
+    {
+        class FaceModelEstimator;
+        class FaceDetector;
+    }
 }
-}
+// *INDENT-ON*
 
 struct TimerInfo
 {
@@ -70,7 +70,7 @@ public:
 
     using FrameInput = ogles_gpgpu::FrameInput;
 
-    FaceFinder(void *glContext, int outputOrientation, int delay=1);
+    FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, void *glContext, int outputOrientation, int delay=1);
 
     virtual GLuint operator()(const FrameInput &frame);
 
@@ -78,7 +78,7 @@ protected:
 
     void createColormap(); // [0..359];
 
-    void init2();
+    void init2(drishti::face::FaceDetectorFactory &resources);
     void detect2(const FrameInput &frame, ScenePrimitives &scene);
 
     void init(const FrameInput &frame);
@@ -142,7 +142,8 @@ protected:
     std::vector< std::future<ScenePrimitives> > m_scenes;
 
     TimerInfo m_timerInfo;
-
+    
+    std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;
 };
 
 #endif // FACE_FINDER_H
