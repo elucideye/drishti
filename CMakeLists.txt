@@ -58,7 +58,7 @@ hunter_add_package(Sugar)
 include("${SUGAR_ROOT}/cmake/Sugar")
 include(sugar_include)
 
-include(SetCxxFlags)
+include(DrishtiSetCxxFlags)
 set_cxx_flags()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
