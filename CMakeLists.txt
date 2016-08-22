@@ -190,7 +190,7 @@ include(PrintEnvVar)
 include(CTest)
 include(ExternalProject)
 include(DrishtiAlwaysFullRPATH)
-include(ConfigureConsoleApp)
+include(DrishtiConfigureConsoleApp)
 include(GenerateExportHeader)
 include(DrishtiUtils)
 
