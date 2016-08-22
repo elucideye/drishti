@@ -186,7 +186,7 @@ endif()
 #######################################################################################
 
 # Include macros:
-include(PrintEnvVar)
+include(DrishtiPrintEnvVar)
 include(CTest)
 include(ExternalProject)
 include(DrishtiAlwaysFullRPATH)
