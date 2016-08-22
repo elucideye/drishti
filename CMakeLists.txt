@@ -37,7 +37,7 @@ message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 ## call, so we need to populate system variable before that.
 ## Do note move this!!!!!!!!
 #####################################################################
-include(CheckPlatforms)
+include(DrishtiCheckPlatforms)
 check_platforms()
 
 ####################################################################
