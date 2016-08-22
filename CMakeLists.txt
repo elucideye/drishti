@@ -49,7 +49,7 @@ find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 if(BUILD_DOCUMENTATION)
-  include(ConfigureDoxygen)
+  include(DrishtiConfigureDoxygen)
   configure_doxygen()
 endif()
 
