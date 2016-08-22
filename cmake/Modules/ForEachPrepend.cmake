@@ -1,7 +1,0 @@
-FUNCTION(for_each_prepend var prefix)
-  SET(listVar "")
-  FOREACH(f ${ARGN})
-      LIST(APPEND listVar "${prefix}/${f}")
-   ENDFOREACH(f)
-   SET(${var} "${listVar}" PARENT_SCOPE)
-ENDFUNCTION(for_each_prepend)
