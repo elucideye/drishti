@@ -37,7 +37,7 @@ message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 ## call, so we need to populate system variable before that.
 ## Do note move this!!!!!!!!
 #####################################################################
-include(CheckPlatforms)
+include(DrishtiCheckPlatforms)
 check_platforms()
 
 ####################################################################
@@ -49,7 +49,7 @@ find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 if(BUILD_DOCUMENTATION)
-  include(ConfigureDoxygen)
+  include(DrishtiConfigureDoxygen)
   configure_doxygen()
 endif()
 
@@ -58,7 +58,7 @@ hunter_add_package(Sugar)
 include("${SUGAR_ROOT}/cmake/Sugar")
 include(sugar_include)
 
-include(SetCxxFlags)
+include(DrishtiSetCxxFlags)
 set_cxx_flags()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -186,11 +186,11 @@ endif()
 #######################################################################################
 
 # Include macros:
-include(PrintEnvVar)
+include(DrishtiPrintEnvVar)
 include(CTest)
 include(ExternalProject)
-include(AlwaysFullRPATH)
-include(ConfigureConsoleApp)
+include(DrishtiAlwaysFullRPATH)
+include(DrishtiConfigureConsoleApp)
 include(GenerateExportHeader)
 include(DrishtiUtils)
 

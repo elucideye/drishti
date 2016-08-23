@@ -11,27 +11,27 @@ message("  is_xcode: ${is_xcode}")
 ### OpenCV
 if(${is_android})
   message("is_android =====================================================================")
-  include(SetOpenCVCMakeArgs-android)
+  include(DrishtiSetOpenCVCMakeArgs-android)
   set_opencv_cmake_args_android()
 elseif(${is_ios})
   message("is_ios =========================================================================")
-  include(SetOpenCVCMakeArgs-iOS) 
+  include(DrishtiSetOpenCVCMakeArgs-iOS)
   set_opencv_cmake_args_ios()
 elseif(${is_apple})
   message("is_apple========================================================================")
-  include(SetOpenCVCMakeArgs-osx) 
+  include(DrishtiSetOpenCVCMakeArgs-osx)
   set_opencv_cmake_args_osx()
 elseif(${is_linux})
   message("is_linux =======================================================================")
-  include(SetOpenCVCMakeArgs-nix) 
+  include(DrishtiSetOpenCVCMakeArgs-nix)
   set_opencv_cmake_args_nix()
 elseif(${is_msvc})
   message("is_msvc=========================================================================")
-  include(SetOpenCVCMakeArgs-windows) 
+  include(DrishtiSetOpenCVCMakeArgs-windows)
   set_opencv_cmake_args_windows()
 endif()
 
-list(APPEND OPENCV_CMAKE_ARGS 
+list(APPEND OPENCV_CMAKE_ARGS
   BUILD_opencv_world=ON
   BUILD_opencv_ts=OFF
   BUILD_opencv_python2=OFF
