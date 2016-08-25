@@ -5,12 +5,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.15.16.tar.gz"
-    SHA1 "ca1b3388940bd2ca4452b62a407e6aca743d0ea2"
-
+    URL "https://github.com/ruslo/hunter/archive/v0.15.18.tar.gz"
+    SHA1 "af15f396b3b7e90e7956a377c633106476567970"  
     LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
     )
-
+  
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
 string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
 
