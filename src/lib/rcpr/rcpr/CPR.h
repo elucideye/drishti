@@ -360,8 +360,6 @@ public:
 
     bool usesMask() const;
 
-    void compress();
-
     struct CPROpts
     {
         acf::Field<Vector1d> pInit; // initial pose
