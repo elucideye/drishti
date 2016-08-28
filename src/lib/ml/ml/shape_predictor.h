@@ -1,4 +1,5 @@
 // Copyright (C) 2014  Davis E. King (davis@dlib.net)
+// Copyright (C) 2015-2016  David Hirvonen
 // License: Boost Software License   See LICENSE.txt for the full license.
 #ifndef DLIB_SHAPE_PREDICTOR_MODIFIED_H_
 #define DLIB_SHAPE_PREDICTOR_MODIFIED_H_
@@ -101,7 +102,8 @@ static cv::RotatedRect vectorToEllipse(const std::vector<float> &phi)
     return drishti::geometry::phiToEllipse(phi, false);
 }
 
-inline static void add16sAnd32s(const dlib::matrix<int32_t,0,1> &a, const dlib::matrix<int16_t,0,1> &b, dlib::matrix<int32_t,0,1> &c)
+inline static
+void add16sAnd32s(const dlib::matrix<int32_t,0,1> &a, const dlib::matrix<int16_t,0,1> &b, dlib::matrix<int32_t,0,1> &c)
 {
     if(!c.size())
     {
@@ -123,11 +125,10 @@ inline static void add16sAnd32s(const dlib::matrix<int32_t,0,1> &a, const dlib::
         }
 #endif
     }
-
-    //std::cout << dlib::trans(c) << std::endl;
 }
 
-inline static void add16sAnd16s(const dlib::matrix<int16_t,0,1> &a, const dlib::matrix<int16_t,0,1> &b, dlib::matrix<int16_t,0,1> &c)
+inline static
+void add16sAnd16s(const dlib::matrix<int16_t,0,1> &a, const dlib::matrix<int16_t,0,1> &b, dlib::matrix<int16_t,0,1> &c)
 {
     if(!c.size())
     {
@@ -141,12 +142,10 @@ inline static void add16sAnd16s(const dlib::matrix<int16_t,0,1> &a, const dlib::
         c += b;
 #endif
     }
-
-    //std::cout << dlib::trans(c) << std::endl;
 }
 
-
-inline static void add32F( const drishti::ml::fshape &a, const fshape &b, fshape &c )
+inline static
+void add32F(const drishti::ml::fshape &a, const fshape &b, fshape &c)
 {
     if(!c.size())
     {
@@ -247,15 +246,19 @@ struct split_feature
 
     friend inline void serialize (const split_feature& item, std::ostream& out)
     {
+#if !BUILD_MIN_SIZE
         dlib::serialize(item.idx1, out);
         dlib::serialize(item.idx2, out);
         dlib::serialize(item.thresh, out);
+#endif // !BUILD_MIN_SIZE
     }
     friend inline void deserialize (split_feature& item, std::istream& in)
     {
+#if !BUILD_MIN_SIZE
         dlib::deserialize(item.idx1, in);
         dlib::deserialize(item.idx2, in);
         dlib::deserialize(item.thresh, in);
+#endif // !BUILD_MIN_SIZE
     }
 };
 
@@ -277,11 +280,6 @@ inline unsigned long right_child (unsigned long idx)
     ensures
         - returns the index of the left child of the binary tree node idx
 !*/
-
-struct LeafValues
-{
-
-};
 
 struct Fixed {};
 struct regression_tree
@@ -396,13 +394,17 @@ struct regression_tree
 
     friend void serialize (const regression_tree& item, std::ostream& out)
     {
+#if !BUILD_MIN_SIZE        
         dlib::serialize(item.splits, out);
         dlib::serialize(item.leaf_values, out);
+#endif // !BUILD_MIN_SIZE
     }
     friend void deserialize (regression_tree& item, std::istream& in)
     {
+#if !BUILD_MIN_SIZE        
         dlib::deserialize(item.splits, in);
         dlib::deserialize(item.leaf_values, in);
+#endif // !BUILD_MIN_SIZE
     }
 };
 
@@ -976,15 +978,18 @@ public:
 
     friend void serialize (const shape_predictor& item, std::ostream& out)
     {
+#if !BUILD_MIN_SIZE
         int version = 1;
         dlib::serialize(version, out);
         dlib::serialize(item.initial_shape, out);
         dlib::serialize(item.forests, out);
         dlib::serialize(item.anchor_idx, out);
         dlib::serialize(item.deltas, out);
+#endif // !BUILD_MIN_SIZE
     }
     friend void deserialize (shape_predictor& item, std::istream& in)
     {
+#if !BUILD_MIN_SIZE
         int version = 0;
         dlib::deserialize(version, in);
         if (version != 1)
@@ -995,6 +1000,7 @@ public:
         dlib::deserialize(item.forests, in);
         dlib::deserialize(item.anchor_idx, in);
         dlib::deserialize(item.deltas, in);
+#endif // !BUILD_MIN_SIZE
     }
 
     void setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
@@ -1022,8 +1028,7 @@ public:
 };
 
 // ----------------------------------------------------------------------------------------
-#define USE_TRAINER 1
-#if USE_TRAINER
+#if !BUILD_MIN_SIZE
 
 class shape_predictor_trainer
 {
@@ -2126,7 +2131,7 @@ double test_shape_predictor (
     return test_shape_predictor(sp, images, objects, no_scales);
 }
 
-#endif
+#endif // !BUILD_MIN_SIZE
 
 void serialize(const drishti::ml::shape_predictor& item, std::ostream& out);
 void deserialize(drishti::ml::shape_predictor& item, std::istream& in);
