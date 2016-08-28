@@ -104,8 +104,6 @@ void EyeModel::refine(int eyelidPoints, int creasePoints)
         creaseSpline.clear();
         fitSpline(crease, creaseSpline, creasePoints, false);
     }
-
-
 }
 
 void EyeModel::normalizeEllipse(cv::RotatedRect &ellipse)
@@ -223,6 +221,7 @@ cv::Mat EyeModel::mask(const cv::Size &size, bool sclera, float irisScale) const
 std::vector<std::vector<cv::Point2f> > EyeModel::getContours() const
 {
     std::vector<std::vector<cv::Point2f>> contours;
+    
     contours.push_back(eyelidsSpline);
 
     if(irisEllipse.size.width)
@@ -591,11 +590,4 @@ static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, c
     return contours;
 }
 
-
-
 DRISHTI_EYE_END
-
-
-
-
-
