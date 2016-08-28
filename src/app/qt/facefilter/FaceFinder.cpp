@@ -33,7 +33,21 @@
 #define DO_TRACKING 1
 #define MODIFY_ACF 1
 
+#define DO_CORNERS 0
+#define DO_FLASH 0
+#define DO_REGRESSION 1
+#define DO_FLOW 1
+#define DO_FLOW_QUIVER 0
+
+#define DO_ACF_MODIFY 0
+
+// Macbook (iSight)
+#define REGRESSION_WIDTH 1024
+#define DETECTION_WIDTH 512
+
 using drishti::face::operator*;
+
+static const char * sBar = "#################################################################";
 
 template <typename T1, typename T2>
 cv::Rect operator *(const cv::Rect_<T1> &roi, const T2 &scale)
@@ -64,32 +78,25 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
 
 // === utility ===
 
-#define DO_CORNERS 0
-#define DO_FLASH 0
-#define DO_REGRESSION 1
-#define DO_FLOW 1
-#define DO_FLOW_QUIVER 0
-
-FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, void *glContext, int orientation, int delay)
+FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &args, void *glContext)
     : m_glContext(glContext)
     , m_hasInit(false)
-    , m_outputOrientation(orientation)
+    , m_outputOrientation(args.outputOrientation)
     , m_doRegression(DO_REGRESSION) // ########## DO REGRESSION #########
-    , m_regressionWidth(512)
+    , m_regressionWidth(REGRESSION_WIDTH)
     , m_doCorners(DO_CORNERS)
     , m_cornerWidth(512)
     , m_doFlow(DO_FLOW)  // ######## DO FLOW #########
     , m_flowWidth(128)
-    , m_scenes(delay+1)
     , m_doFlash(DO_FLASH) // ###### DO FLASH ##########
     , m_flashWidth(128)
+    , m_scenes(args.delay+1)
     , m_factory(factory)
+    , m_sensor(args.sensor)
+    , m_logger(args.logger)
+    , m_threads(args.threads)
 {
-    // TODO: share across objects
-    m_logger = drishti::core::Logger::create("drishti");
-    m_logger->info() << "FaceFinder #################################################################";
-
-    m_threads = std::unique_ptr<ThreadPool<128>>(new ThreadPool<128>);
+  
 }
 
 void FaceFinder::dump(std::vector<cv::Mat4b> &frames)
@@ -135,16 +142,11 @@ void FaceFinder::init(const FrameInput &frame)
     {
         // ### ACF (Transpose) ###
 
-        // {1280x960} = 4 => {320, 240}
-        // {1280x960} = 8 => {160, 120}
-
-        // {1920x1080} = 4 => {480, 270}
-        // {1920x1080} = 8 => {240, 135}
-
         // 120 iphone
         // 1024 macbook
-        const int detectionWidth = 200;
-        m_scale =  float(inputSizeUp.width) / float(detectionWidth);
+        // Detection width should be set based on device focal length:
+        const int detectionWidth = DETECTION_WIDTH;
+        m_scale = float(inputSizeUp.width) / float(detectionWidth);
 
         // ACF implementation uses reduce resolution transposed image:
         cv::Size detectionSize = inputSizeUp * (1.0f/m_scale);
@@ -245,7 +247,7 @@ void FaceFinder::init(const FrameInput &frame)
 
 GLuint FaceFinder::operator()(const FrameInput &frame)
 {
-    m_logger->info() << "FaceFinder::operator() #################################################################";
+    m_logger->info() << "FaceFinder::operator() " << sBar;
 
     if(!m_hasInit)
     {
@@ -300,7 +302,7 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
         }
         catch(...)
         {
-            std::cerr << "Error with the output scene" << std::endl;
+            m_logger->error() << "Error with the output scene";
         }
 
         outputTexId = paint(scene, outputTexId);
@@ -367,6 +369,7 @@ GLuint FaceFinder::paint(const ScenePrimitives &scene, GLuint inputTexture)
     }
 
     m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
+    
     return m_rotater->getOutputTexId();
 }
 
@@ -394,7 +397,7 @@ void FaceFinder::createColormap()
 
 void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
 {
-    m_logger->info() << "FaceFinder::preprocess()  " <<  int(frame.textureFormat) << "#################################################################";
+    m_logger->info() << "FaceFinder::preprocess()  " <<  int(frame.textureFormat) << sBar;
 
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
@@ -443,7 +446,6 @@ void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
     if(m_doRegression)
     {
         scene.image() = m_acf->getGrayscale();
-        //cv::imshow("gray", scene.image());
     }
 }
 
@@ -475,7 +477,7 @@ void FaceFinder::fill(drishti::acf::Detector::Pyramid &P)
 
 int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
 {
-    m_logger->info() << "FaceFinder::detect() #################################################################";
+    m_logger->info() << "FaceFinder::detect() " << sBar;
 
     if(m_detector != nullptr && scene.m_P)
     {
@@ -561,7 +563,7 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
 
 void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 {
-    m_logger->info() << "FaceFinder::init2() #################################################################";
+    m_logger->info() << "FaceFinder::init2() " << sBar;
 
     m_timerInfo.detectionTimeLogger = [this](double seconds)
     {
@@ -590,7 +592,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
     // Get weak ref to underlying ACF detector
     m_detector = dynamic_cast<drishti::acf::Detector*>(m_faceDetector->getDetector());
 
-#if 1
+#if DO_ACF_MODIFY
     if(m_detector)
     {
         // Perform modification
