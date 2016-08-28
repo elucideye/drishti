@@ -12,6 +12,7 @@ macro(set_opencv_cmake_args_ios)
       BUILD_ZLIB=OFF ## HUNTER
       BUILD_TIFF=OFF ## HUNTER
       BUILD_PNG=OFF  ## HUNTER
+      BUILD_JPEG=OFF
       ANDROID_EXAMPLES_WITH_LIBS=OFF    # "Build binaries of Android examples with native libraries" 
 
       ### Custom ARGS ###
