@@ -17,13 +17,9 @@
 #include <opencv2/core/core.hpp>
 #include <vector>
 
-namespace drishti
-{
-namespace acf
-{
-class Detector;
-}
-};
+// *INDENT-OFF*
+namespace drishti { namespace acf { class Detector; } };
+// *INDENT-ON*
 
 struct ScenePrimitives
 {
