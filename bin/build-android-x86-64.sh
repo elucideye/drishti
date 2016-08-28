@@ -15,6 +15,7 @@ COMMAND=(
     "--verbose --fwd ANDROID=TRUE "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
+    "BUILD_MIN_SIZE=${BUILD_MIN_SIZE} "
     "--config Release "
     "--pack ${CPACK_TYPE} "
     "--jobs 8 "
@@ -25,4 +26,3 @@ COMMAND=(
 eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 
 echo "Finished with status $?"
-
