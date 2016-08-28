@@ -92,15 +92,14 @@ if(NOT is_xcode) # We'll never have openmp on ios, and this test is really slow
   endif()
 endif()
 
-option(BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
 option(BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
-
 if(BUILD_REGRESSION_SIMD)
   add_definitions(-DBUILD_REGRESSION_SIMD=1)
 else()
   add_definitions(-DBUILD_REGRESSION_SIMD=0)
 endif()
 
+option(BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
 if(BUILD_REGRESSION_FIXED_POINT)
   add_definitions(-DBUILD_REGRESSION_FIXED_POINT=1)
 else()
@@ -233,6 +232,7 @@ always_full_rpath()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 
 ### JPEG
+# Note: Currently used in apps only
 hunter_add_package(Jpeg)
 find_package(JPEG CONFIG REQUIRED)
 
