@@ -116,9 +116,6 @@ int main(int argc, char **argv)
     // JSON configuration
     auto json = loadJSON(*logger);
     
-    //std::cout << json["pi"].get<float>() << std::endl;
-    //std::cout << json["name"].get<std::string>() << std::endl;
-    
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
@@ -160,6 +157,8 @@ int main(int argc, char **argv)
     QObject * qmlVideoOutput = root->findChild<QObject*>("VideoOutput");
     assert(qmlVideoOutput);
 
+    cv::Size bestSize;
+    
 #if defined(Q_OS_ANDROID)
     {
         // viewfinderSettings doesn't work for Android:
@@ -188,6 +187,8 @@ int main(int argc, char **argv)
             }
 
             logger->info() << "best: " << best.first.width() << " " << best.first.height();
+            
+            bestSize = { best.first.width(), best.first.height() };
 
             QImageEncoderSettings imageSettings;
             imageSettings.setResolution(best.first);
@@ -227,16 +228,25 @@ int main(int argc, char **argv)
                 }
             }
         }
+        
+        bestSize = { best.second.resolution().width(), best.second.resolution().height() };
+        
         assert(!best.second.isNull());
         camera->setViewfinderSettings(best.second);
     }
 #endif // Q_OS_IOS
-
-    auto frameHandlers = FrameHandlerManager::get();
+    
+    auto frameHandlers = FrameHandlerManager::get(&json);
     if(frameHandlers)
     {
-        QCameraInfo cameraInfo( *camera );
+        QCameraInfo cameraInfo(*camera);
+        
+        // FaceTime HD Camera (Built-in)
+        logger->info() << "device: " << cameraInfo.deviceName().toStdString();
+        logger->info() << "description: " << cameraInfo.description().toStdString();
+        
         frameHandlers->setOrientation(cameraInfo.orientation());
+        frameHandlers->setSize(bestSize);
     }
 
     view.showFullScreen();
