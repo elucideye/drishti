@@ -388,19 +388,13 @@ template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const un
     ar & m_impl;
 }
 
-//template void EyeModelEstimator::Impl::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
-//template void EyeModelEstimator::Impl::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
-//template void EyeModelEstimator::Impl::serialize<boost::archive::binary_oarchive>(boost::archive::binary_oarchive &ar, const unsigned int);
-//template void EyeModelEstimator::Impl::serialize<boost::archive::binary_iarchive>(boost::archive::binary_iarchive &ar, const unsigned int);
+#if !BUILD_MIN_SIZE
 template void EyeModelEstimator::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
-//template void EyeModelEstimator::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
-//template void EyeModelEstimator::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
-//template void EyeModelEstimator::serialize<boost::archive::binary_oarchive>(boost::archive::binary_oarchive &ar, const unsigned int);
-//template void EyeModelEstimator::serialize<boost::archive::binary_iarchive>(boost::archive::binary_iarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
+#else
+template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+#endif
 
 DRISHTI_EYE_END
 
