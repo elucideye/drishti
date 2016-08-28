@@ -1,14 +1,15 @@
 {
-  "pi": 3.141,
-  "happy": true,
-  "name": "Niels",
-  "nothing": null,
-  "answer": {
-    "everything": 42
-  },
-  "list": [1, 0, 2],
-  "object": {
-    "currency": "USD",
-    "value": 42.99
-  }
+    "sensor": {
+        "intrinsic": {
+            "size": {
+                "width": 640,
+                "height": 852
+            },
+            "principal": {
+                "x": 320.0,
+                "y": 426.0
+            },
+            "focal_length_x": 768.0
+        }
+    }
 }
