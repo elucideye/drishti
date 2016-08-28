@@ -59,9 +59,20 @@ struct VideoFilterRunnable::Impl
 
     Impl(void *glContext, int orientation)
     {
+        // Retrieve sensor intrinsic calibration:
+        auto manager = FrameHandlerManager::get();
+        
         // Allocate the face detector:
         std::shared_ptr<drishti::face::FaceDetectorFactory> resources = std::make_shared<QtFaceDetectorFactory>();
-        m_detector = std::make_shared<FaceFinder>(resources, glContext, orientation);
+        
+        FaceFinder::Config config;
+        config.sensor = manager->getSensor();
+        config.logger = manager->getLogger();
+        config.threads = manager->getThreadPool();
+        config.outputOrientation = orientation;
+        config.delay = 1;
+        
+        m_detector = std::make_shared<FaceFinder>(resources, config, glContext);
     }
 
     GLuint operator()(const ogles_gpgpu::FrameInput &frame)
