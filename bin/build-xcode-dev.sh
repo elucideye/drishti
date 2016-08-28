@@ -28,7 +28,8 @@ COMMAND=(
     "--config Release "
     "--jobs 8 "
     "--open "
-    "${EXTRA_ARGS} "
+    "--install "
+    "${EXTRA_ARGS}"
 )
 
 build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
