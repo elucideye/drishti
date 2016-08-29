@@ -25,6 +25,7 @@ COMMAND=(
     "CMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT} "
     "BUILD_QT=${BUILD_QT} "
     "BUILD_OGLES_GPGPU=${BUILD_OGLES_GPGPU} "
+    "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
     "--config Release "
     "--jobs 8 "
     "--open "
