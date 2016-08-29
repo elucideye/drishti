@@ -231,16 +231,6 @@ always_full_rpath()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 
-### JPEG
-# Note: Currently used in apps only
-hunter_add_package(Jpeg)
-find_package(JPEG CONFIG REQUIRED)
-
-### TIFF: TIFF_INCLUDE_DIR; TIFF_LIBRARIES; TIFF_FOUND
-hunter_add_package(TIFF)
-find_package(TIFF CONFIG REQUIRED)
-message("TIFF_INCLUDE_DIRS = ${TIFF_INCLUDE_DIR}")
-
 ### spdlog: Added logging library
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
@@ -291,10 +281,16 @@ message("OpenCV_LIBS = ${OpenCV_LIBS}")
 message("${CMAKE_MODULE_PATH}")
 
 ### Boost ###
-hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams) #regex)
-find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams) #regex)
+hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams)
+find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams)
 include_directories(${Boost_INCLUDE_DIRS})
 message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
+set(DRISHTI_SDK_BOOST_LIBS
+  Boost::filesystem 
+  Boost::system 
+  Boost::serialization 
+  Boost::iostreams
+  )
 
 ### DLIB: dlib (Header only + no CMakeLists.txt)
 hunter_add_package(dlib)
