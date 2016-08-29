@@ -14,22 +14,26 @@ set(LIB_TYPE STATIC)
 
 ## drishti_core
 add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
+
 ## drishti_geometry
 add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
-## drishti_sensory
+
+## drishti_sensors
 add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
+
 ## drishti_ml
 add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
 target_link_libraries(drishti_ml ${XGBOOST_LIB})
+
 ## drishti_rcpr
 add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
 target_link_libraries(drishti_rcpr drishti_ml ${XGBOOST_LIB})
+
 ## drishti_eye
 add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
+target_link_libraries(drishti_eye drishti_ml drishti_rcpr)
 
-include_directories("${PROJECT_BINARY_DIR}")
-generate_export_header(drishti_core)
-
+## drishti_acf
 if(BUILD_DRISHTI_ACF)
   include_directories(acf/acf/toolbox)
   add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
@@ -37,18 +41,14 @@ if(BUILD_DRISHTI_ACF)
     target_link_libraries(drishti_acf ${OGLES_GPGPU_LIB})
   endif()
   set(OBJ_ACF drishti_acf)
-
 endif()
 
+## drishti_face
 if(BUILD_DRISHTI_FACE)
   add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
+  target_link_libraries(drishti_face drishti_eye ${OBJ_ACF})
   set(OBJ_FACE drishti_face)
 endif()
-
-# if(BUILD_DRISHTI_MOTION)
-#   add_library(drishti_motion ${LIB_TYPE} ${DRISHTI_MOTION_SRCS} ${DRISHTI_MOTION_HDRS_PUBLIC})
-#   set(OBJ_MOTION drishti_motion)
-# endif()
 
 set(DRISHTI_LIBS 
   ${OBJ_ACF}
@@ -62,8 +62,13 @@ set(DRISHTI_LIBS
 )
 
 foreach(library ${DRISHTI_LIBS})
-  target_link_libraries(${library} Eigen::eigen)
+  target_link_libraries(${library}
+    Eigen::eigen
+    )
 endforeach()
+
+include_directories("${PROJECT_BINARY_DIR}")
+generate_export_header(drishti_core)
 
 #
 # Build and install a single library or framework from our set of object libraries
@@ -246,17 +251,3 @@ install(
   NAMESPACE "${namespace}"
   DESTINATION "${config_install_dir}"
   )
-
-##
-## Get extra dependencies
-##
-
-# http://stackoverflow.com/a/24389006
-
-# include(GetPrerequisites)
-# get_prerequisites("${TARGET_SDK}" DEPENDENCIES 0 0 "" "")
-
-# foreach(DEPENDENCY_FILE ${DEPENDENCIES})
-#   gp_resolve_item("${TARGET_SDK}" "${DEPENDENCY_FILE}" "" "" resolved_file)
-#   message("resolved_file='${resolved_file}'")
-# endforeach()
