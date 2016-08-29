@@ -221,8 +221,7 @@ void ACF::operator()(const FrameInput &frame)
     auto tic = std::chrono::system_clock::now();
     VideoSource::operator()(frame); // call main method
     std::chrono::duration<double> elapsedSeconds =  std::chrono::system_clock::now() - tic;
-    m_logger->info() << "ACF COMPUTE SECONDS: " << elapsedSeconds.count() << std::endl;
-
+    m_logger->info() << "ACF COMPUTE SECONDS: " << elapsedSeconds.count();
 }
 
 void ACF::preConfig()
@@ -379,7 +378,7 @@ cv::Mat ACF::getChannels()
     cv::Mat result = getChannelsImpl();
 
     std::chrono::duration<double> elapsedSeconds =  std::chrono::system_clock::now() - tic;
-    m_logger->info() << "ACF ACCESS SECONDS:" << elapsedSeconds.count() << std::endl;
+    m_logger->info() << "ACF ACCESS SECONDS:" << elapsedSeconds.count();
 
     return result;
 }
