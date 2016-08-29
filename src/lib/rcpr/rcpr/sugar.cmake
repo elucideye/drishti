@@ -13,7 +13,7 @@ include(sugar_files)
 
 project(drishti_rcpr)
 
-if(NOT BUILD_MIN_SIZE)
+if(NOT DRISHTI_BUILD_MIN_SIZE)
   set(DRISHTI_RCPR_OPT_SOURCE
     cprTrain.cpp
     )
