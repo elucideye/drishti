@@ -231,7 +231,7 @@ RTEShapeEstimator::serialize(Archive & ar, const unsigned int version)
     ar & m_impl;
 }
 
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
 template void RTEShapeEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 #endif

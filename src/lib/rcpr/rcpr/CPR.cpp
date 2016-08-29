@@ -277,7 +277,7 @@ template<class Archive> void CPR::serialize(Archive & ar, const unsigned int ver
 
 // explicit instantiation:
 
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
 template void CPR::Model::Parts::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void CPR::Model::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);

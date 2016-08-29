@@ -246,19 +246,19 @@ struct split_feature
 
     friend inline void serialize (const split_feature& item, std::ostream& out)
     {
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
         dlib::serialize(item.idx1, out);
         dlib::serialize(item.idx2, out);
         dlib::serialize(item.thresh, out);
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
     }
     friend inline void deserialize (split_feature& item, std::istream& in)
     {
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
         dlib::deserialize(item.idx1, in);
         dlib::deserialize(item.idx2, in);
         dlib::deserialize(item.thresh, in);
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
     }
 };
 
@@ -394,17 +394,17 @@ struct regression_tree
 
     friend void serialize (const regression_tree& item, std::ostream& out)
     {
-#if !BUILD_MIN_SIZE        
+#if !DRISHTI_BUILD_MIN_SIZE        
         dlib::serialize(item.splits, out);
         dlib::serialize(item.leaf_values, out);
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
     }
     friend void deserialize (regression_tree& item, std::istream& in)
     {
-#if !BUILD_MIN_SIZE        
+#if !DRISHTI_BUILD_MIN_SIZE        
         dlib::deserialize(item.splits, in);
         dlib::deserialize(item.leaf_values, in);
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
     }
 };
 
@@ -718,8 +718,8 @@ public:
         , m_pca(pca)
         , m_ellipse_count(ellipse_count)
         , m_npd(npd)
-        , interpolated_features(interpolated_features)
         , m_do_affine(do_affine)
+        , interpolated_features(interpolated_features)        
         /*!
          requires
          - initial_shape.size()%2 == 0
@@ -978,18 +978,18 @@ public:
 
     friend void serialize (const shape_predictor& item, std::ostream& out)
     {
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
         int version = 1;
         dlib::serialize(version, out);
         dlib::serialize(item.initial_shape, out);
         dlib::serialize(item.forests, out);
         dlib::serialize(item.anchor_idx, out);
         dlib::serialize(item.deltas, out);
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
     }
     friend void deserialize (shape_predictor& item, std::istream& in)
     {
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
         int version = 0;
         dlib::deserialize(version, in);
         if (version != 1)
@@ -1000,7 +1000,7 @@ public:
         dlib::deserialize(item.forests, in);
         dlib::deserialize(item.anchor_idx, in);
         dlib::deserialize(item.deltas, in);
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
     }
 
     void setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
@@ -1015,20 +1015,20 @@ public:
     std::vector<std::vector<unsigned short> > anchor_idx;
     std::vector<PointVecf > deltas;
 
-    // Use interpolated "line indexed" features (stead of the relative encoding above):
-    std::vector<std::vector<InterpolatedFeature>> interpolated_features;
-
     // PCA reduction:
     std::shared_ptr<drishti::ml::StandardizedPCA> m_pca; // global pca
     int m_ellipse_count = 0;
     bool m_npd = false;
     bool m_do_affine = false;
 
+    // Use interpolated "line indexed" features (stead of the relative encoding above):
+    std::vector<std::vector<InterpolatedFeature>> interpolated_features;
+
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
 
 // ----------------------------------------------------------------------------------------
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
 
 class shape_predictor_trainer
 {
@@ -2131,7 +2131,7 @@ double test_shape_predictor (
     return test_shape_predictor(sp, images, objects, no_scales);
 }
 
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
 
 void serialize(const drishti::ml::shape_predictor& item, std::ostream& out);
 void deserialize(drishti::ml::shape_predictor& item, std::istream& in);

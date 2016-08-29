@@ -19,6 +19,7 @@
 
 DRISHTI_CORE_BEGIN
 
+#if !DRISHTI_BUILD_MIN_SIZE
 const char * sXML = R"text(<?xml version='1.0' encoding='ISO-8859-1'?>
 <?xml-stylesheet type='text/xsl' href='image_metadata_stylesheet.xsl'?>
 <dataset>
@@ -26,21 +27,27 @@ const char * sXML = R"text(<?xml version='1.0' encoding='ISO-8859-1'?>
 <comment>Custom face landmark images.</comment>
 <images>
 )text";
+#endif
 
 std::string getXMLHeader()
 {
+#if !DRISHTI_BUILD_MIN_SIZE    
     std::string header = sXML;
     return header;
+#endif
 }
 
 std::string getXMLFooter()
 {
+#if !DRISHTI_BUILD_MIN_SIZE        
     const char * sXML = "    </images>\n</dataset>\n";
     return std::string(sXML);
+#endif
 }
 
 void Shape::write(cv::FileStorage& fs) const
 {
+#if !DRISHTI_BUILD_MIN_SIZE    
     fs << "{";
     fs << "roi" << roi;
     fs << "points";
@@ -52,10 +59,12 @@ void Shape::write(cv::FileStorage& fs) const
     }
     fs << "]";
     fs << "}";
+#endif
 }
 
 void Shape::read(const cv::FileNode& node)
 {
+#if !DRISHTI_BUILD_MIN_SIZE        
     std::vector<int> tmp;
     node["roi"] >> tmp; roi = {tmp[0], tmp[1], tmp[2], tmp[3]};
     
@@ -70,10 +79,12 @@ void Shape::read(const cv::FileNode& node)
             contour.push_back( ControlPoint(cv::Point2f(tmp.x, tmp.y), tmp.z ) );
         }
     }
+#endif
 };
 
 void Shape::read(const std::string &filename)
 {
+#if !DRISHTI_BUILD_MIN_SIZE        
     //std::cout << filename << std::endl;
     cv::FileStorage storage(filename, cv::FileStorage::READ);
     if(storage.isOpened())
@@ -88,19 +99,24 @@ void Shape::read(const std::string &filename)
             read(storage.root());
         }
     }
+#endif
 };
 
 void Shape::write(const std::string &filename) const
 {
+#if !DRISHTI_BUILD_MIN_SIZE        
     cv::FileStorage storage(filename, cv::FileStorage::WRITE);
     if(storage.isOpened())
     {
         write(storage["contour"]);
     }
+#endif
 };
 
 void fitSpline(const PointVec &controlPoints, PointVec &interpolatedPoints, int count, bool closed)
 {
+    interpolatedPoints = controlPoints; return;
+    
     if(controlPoints.size() > 1)
     {
         typedef Eigen::Spline<double,2> Spline2d;
@@ -172,7 +188,6 @@ static void upsample(const Eigen::Spline<double,2> &spline, int extent, float k0
     }
 }
 
-
 void upsample(const PointVec &controlPoints, PointVec &interpolatedPoints, int factor, bool closed)
 {
     if(controlPoints.size() > 1)
@@ -217,7 +232,8 @@ void upsample(const PointVec &controlPoints, PointVec &interpolatedPoints, int f
 std::vector< std::vector<int> > readSpecification(const std::string &filename)
 {
     std::vector<std::vector<int>> specification;
-    
+
+#if !DRISHTI_BUILD_MIN_SIZE
     std::vector<std::string> lines;
     std::ifstream file(filename);
     std::copy(std::istream_iterator<drishti::core::Line>(file), std::istream_iterator<drishti::core::Line>(), std::back_inserter(lines));
@@ -250,19 +266,27 @@ std::vector< std::vector<int> > readSpecification(const std::string &filename)
         
         std::cout << std::endl;
     }
+#endif
     
     return specification;
 }
 
 
 // These OpenCV functions must be in global namespace
-void write(cv::FileStorage& fs, const std::string&, const drishti::core::Shape& x) { x.write(fs); }
+void write(cv::FileStorage& fs, const std::string&, const drishti::core::Shape& x)
+{
+#if !DRISHTI_BUILD_MIN_SIZE    
+    x.write(fs);
+#endif
+}
 void read(const cv::FileNode& node, drishti::core::Shape& x, const drishti::core::Shape & default_value)
 {
+#if !DRISHTI_BUILD_MIN_SIZE    
     if(node.empty())
         x = default_value;
     else
         x.read(node);
+#endif    
 }
 
 std::vector<cv::Vec3b> makeRainbow()

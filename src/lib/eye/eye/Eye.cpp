@@ -16,6 +16,11 @@
 #include "eye/Eye.h"
 #include "core/Shape.h"
 #include "geometry/Ellipse.h"
+
+#if !DRISHTI_BUILD_MIN_SIZE
+#include "geometry/EllipseSerializer.h"
+#endif
+
 #include "geometry/Primitives.h"
 #include "geometry/motion.h"
 
@@ -323,6 +328,7 @@ void EyeModel::flop(int width)
 
 void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &color, int width) const
 {
+#if !DRISHTI_BUILD_MIN_SIZE
     CV_Assert(canvas.type() == CV_8UC3);
     if(eyelids.size() < 3)
     {
@@ -383,10 +389,14 @@ void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &c
         cv::circle(canvas, cv::Point2f(pI[i].x * image.cols, pI[i].y * image.rows), 1, {255,0,255}, CV_AA);
 #endif
 
+#else
+    CV_Assert(false);
+#endif
 }
 
 void EyeModel::read(const std::string &filename)
 {
+#if !DRISHTI_BUILD_MIN_SIZE
     cv::FileStorage storage(filename, cv::FileStorage::READ);
     if(storage.isOpened())
     {
@@ -397,19 +407,27 @@ void EyeModel::read(const std::string &filename)
             refine();
         }
     }
+#else
+    CV_Assert(false);
+#endif
 };
 
 void EyeModel::write(const std::string &filename) const
 {
+#if !DRISHTI_BUILD_MIN_SIZE    
     cv::FileStorage storage(filename, cv::FileStorage::WRITE);
     if(storage.isOpened())
     {
         storage << "eye" << (*this);
     }
+#else
+    CV_Assert(false);
+#endif    
 };
 
 void EyeModel::read(const cv::FileNode& node)
 {
+#if !DRISHTI_BUILD_MIN_SIZE
     {
         // Parse eyelids
         auto n = node["eyelids"];
@@ -467,10 +485,16 @@ void EyeModel::read(const cv::FileNode& node)
             pupilEllipse = ellipse;
         }
     }
+
+#else
+    CV_Assert(false);
+#endif
+    
 };
 
 void DRISHTI_EYE::EyeModel::write(cv::FileStorage& fs) const
 {
+#if !DRISHTI_BUILD_MIN_SIZE    
     fs << "{";
 
     if(eyelids.size())
@@ -505,15 +529,23 @@ void DRISHTI_EYE::EyeModel::write(cv::FileStorage& fs) const
 
 
     fs << "}";
+#else
+    CV_Assert(false);
+#endif
 }
 
 void write(cv::FileStorage& fs, const std::string&, const DRISHTI_EYE::EyeModel& x)
 {
+#if !DRISHTI_BUILD_MIN_SIZE
     x.write(fs);
+#else
+    CV_Assert(false);
+#endif
 }
 
 void read(const cv::FileNode& node, DRISHTI_EYE::EyeModel& x, const DRISHTI_EYE::EyeModel & default_value)
 {
+#if !DRISHTI_BUILD_MIN_SIZE
     if(node.empty())
     {
         x = default_value;
@@ -522,10 +554,12 @@ void read(const cv::FileNode& node, DRISHTI_EYE::EyeModel& x, const DRISHTI_EYE:
     {
         x.read(node);
     }
+#else
+    CV_Assert(false);
+#endif
 }
 
 // ==========
-
 
 // http://stackoverflow.com/a/23214219
 static int mod(int k, int n)

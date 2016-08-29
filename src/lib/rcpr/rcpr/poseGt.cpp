@@ -673,7 +673,7 @@ cv::RotatedRect phiToEllipse(const Vector1d &phi, bool transpose)
     return ellipse;
 }
 
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
 void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale, bool doTranspose)
 {
     // Draw the feature pairs
@@ -717,6 +717,6 @@ void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, cons
         cv::line(canvas, f0, f1, color, 1, 8);
     }
 };
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
 
 DRISHTI_RCPR_END

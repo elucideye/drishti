@@ -8,7 +8,7 @@
 
 */
 
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
 
 #include "rcpr/CPR.h"
 #include "ml/PCA.h"
@@ -493,5 +493,5 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
 
 DRISHTI_RCPR_END
 
-#endif // !BUILD_MIN_SIZE
+#endif // !DRISHTI_BUILD_MIN_SIZE
 

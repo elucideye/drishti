@@ -122,17 +122,26 @@ public:
     }
     inline void LoadModel(const char *fname)
     {
+#if !DRISHTI_BUILD_MIN_SIZE 
         learner::BoostLearner::LoadModel(fname);
         this->init_model = true;
+#else
+        CV_Assert(false);
+#endif
     }
     inline void LoadModelFromBuffer(const void *buf, size_t size)
     {
+#if !DRISHTI_BUILD_MIN_SIZE
         utils::MemoryFixSizeBuffer fs((void*)buf, size);
         learner::BoostLearner::LoadModel(fs, true);
         this->init_model = true;
+#else
+        CV_Assert(false);
+#endif
     }
     inline const char *GetModelRaw(bst_ulong *out_len)
     {
+#if !DRISHTI_BUILD_MIN_SIZE
         this->CheckInitModel();
         model_str.resize(0);
         utils::MemoryBufferStream fs(&model_str);
@@ -146,6 +155,9 @@ public:
         {
             return &model_str[0];
         }
+#else
+        CV_Assert(false);
+#endif
     }
 
     friend class boost::serialization::access;
@@ -348,7 +360,7 @@ public:
 
     void train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask= {})
     {
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
         std::shared_ptr<DMatrixSimple> dTrain = xgboost::DMatrixSimpleFromMat(features, features.size(), features[0].size(), mask);
         dTrain->info.labels = values;
 
@@ -368,12 +380,15 @@ public:
 
     void read(const std::string &name)
     {
+#if !DRISHTI_BUILD_MIN_SIZE
+        // normal XGBoost logging not needed with boost serialization
         m_booster->LoadModel(name.c_str());
+#endif
     }
 
     void write(const std::string &name)
     {
-#if !BUILD_MIN_SIZE        
+#if !DRISHTI_BUILD_MIN_SIZE        
         m_booster->SaveModel(name.c_str(), true); // with_pbuffer TODO
 #endif
     }
@@ -429,16 +444,20 @@ float XGBooster::operator()(const std::vector<float> &features)
 
 void XGBooster::train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask)
 {
+#if !DRISHTI_BUILD_MIN_SIZE    
     m_impl->train(features, values, mask);
+#endif
 }
 
 void XGBooster::read(const std::string &filename)
 {
+#if !DRISHTI_BUILD_MIN_SIZE     
     m_impl->read(filename);
+#endif
 }
 void XGBooster::write(const std::string &filename) const
 {
-#if !BUILD_MIN_SIZE    
+#if !DRISHTI_BUILD_MIN_SIZE 
     m_impl->write(filename);
 #endif 
 }
@@ -461,11 +480,11 @@ template<class Archive> void XGBooster::serialize(Archive & ar, const unsigned i
     ar & m_impl;
 }
 
-#if !BUILD_MIN_SIZE
+//#if !DRISHTI_BUILD_MIN_SIZE
 template void XGBooster::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void XGBooster::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-#endif
+//#endif
 
 template void XGBooster::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void XGBooster::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
@@ -473,7 +492,7 @@ template void XGBooster::Recipe::serialize<portable_binary_iarchive>(portable_bi
 
 _DRISHTI_ML_END
 
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
 template void xgboost::tree::RegTree::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 #endif
 template void xgboost::tree::RegTree::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);

@@ -388,7 +388,7 @@ template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const un
     ar & m_impl;
 }
 
-#if !BUILD_MIN_SIZE
+#if !DRISHTI_BUILD_MIN_SIZE
 template void EyeModelEstimator::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 #else
