@@ -37,7 +37,7 @@ public:
         Intrinsic(const cv::Point2f &c, float fx, const cv::Size &size);
         float getFocalLength() const { return m_fx; }
 
-        const cv::Size & getSize() const { return m_size; }
+        const cv::Size & getSize() const { return *m_size; }
         void setSize(const cv::Size &size) { m_size = size; }
         
         cv::Matx33f getK() const;
