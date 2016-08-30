@@ -22,4 +22,4 @@ if(COMPILER_SUPPORTS_NO_UNKNOWN_ATTRIBUTES)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-attributes")
 endif()
 
-endmacro(drishti_set_cxx_flags)
+endmacro()
