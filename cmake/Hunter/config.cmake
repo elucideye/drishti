@@ -3,14 +3,14 @@ message(">:>:>:>:>:>:>:>:>:>:>:>:>:>:>:>:>: ${CMAKE_MODULE_PATH} <:<:<:<:<:<:<:<
 message("-- config.cmake --")
 message("  is_msvc: ${is_msvc}")
 message("  is_apple: ${is_apple}")
-message("  is_android: ${is_android}")
+message("  ANDROID: ${ANDROID}")
 message("  is_ios: ${is_ios}")
 message("  is_linux: ${is_linux}")
 message("  is_xcode: ${is_xcode}")
 
 ### OpenCV
-if(${is_android})
-  message("is_android =====================================================================")
+if(ANDROID)
+  message("ANDROID =====================================================================")
   include(drishti_set_opencv_cmake_args_android)
   drishti_set_opencv_cmake_args_android()
 elseif(${is_ios})
