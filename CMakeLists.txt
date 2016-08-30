@@ -191,7 +191,7 @@ include(ExternalProject)
 include(drishti_always_full_rpath)
 include(drishti_configure_console_app)
 include(GenerateExportHeader)
-include(drishti_utils)
+include(drishti_option)
 
 include(CheckTypeSize)
 check_type_size("__fp16" FP16)
