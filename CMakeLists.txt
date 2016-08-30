@@ -6,10 +6,10 @@ include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.15.18.tar.gz"
-    SHA1 "af15f396b3b7e90e7956a377c633106476567970"  
+    SHA1 "af15f396b3b7e90e7956a377c633106476567970"
     LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
     )
-  
+
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
 string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
 
@@ -36,8 +36,8 @@ message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 ## call, so we need to populate system variable before that.
 ## Do note move this!!!!!!!!
 #####################################################################
-include(DrishtiCheckPlatforms)
-check_platforms()
+include(drishti_check_platforms)
+drishti_check_platforms()
 
 ####################################################################
 ## Doxygen
@@ -48,8 +48,8 @@ find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 if(BUILD_DOCUMENTATION)
-  include(DrishtiConfigureDoxygen)
-  configure_doxygen()
+  include(drishti_configure_doxygen)
+  drishti_configure_doxygen()
 endif()
 
 ### Add Sugar packages for cmake wrappers ###
@@ -57,8 +57,8 @@ hunter_add_package(Sugar)
 include("${SUGAR_ROOT}/cmake/Sugar")
 include(sugar_include)
 
-include(DrishtiSetCxxFlags)
-set_cxx_flags()
+include(drishti_set_cxx_flags)
+drishti_set_cxx_flags()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -185,13 +185,12 @@ endif()
 #######################################################################################
 
 # Include macros:
-include(DrishtiPrintEnvVar)
+include(drishti_print_env_var)
 include(CTest)
 include(ExternalProject)
-include(DrishtiAlwaysFullRPATH)
-include(DrishtiConfigureConsoleApp)
+include(drishti_always_full_rpath)
 include(GenerateExportHeader)
-include(DrishtiUtils)
+include(drishti_option)
 
 include(CheckTypeSize)
 check_type_size("__fp16" FP16)
@@ -205,7 +204,7 @@ endif()
 ### RPATH (BEGIN) ###
 #####################
 #s see: http://www.cmake.org/Wiki/CMake_RPATH_handling ("Always full RPATH")
-always_full_rpath()
+drishti_always_full_rpath()
 
 #####################
 ### RPATH (END)   ###
@@ -261,7 +260,7 @@ int main(void) {
     return 0;
 }" HAVE_THREAD_LOCAL_STORAGE)
 
-DRISHTI_OPTION(USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
+drishti_option(USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
 
 option(USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 if(USE_LOCAL_THREAD_POOL_CPP)

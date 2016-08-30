@@ -1,4 +1,4 @@
-function(configure_doxygen)
+function(drishti_configure_doxygen)
 
   if(NOT DOXYGEN_FOUND)
     message(FATAL_ERROR "Doxygen is needed to build the documentation.")

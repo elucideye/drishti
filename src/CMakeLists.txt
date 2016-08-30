@@ -33,7 +33,7 @@ else()
   set(XGBOOST_LIB xgboost::xgboost)
 endif()
 
-#print_env_var()
+#drishti_print_env_var()
 #return()
 
 if(BUILD_OGLES_GPGPU)
@@ -64,7 +64,7 @@ if(BUILD_OGLES_GPGPU)
 
 endif()
 
-#print_env_var()
+#drishti_print_env_var()
 
 option(BUILD_EOS "EOS 2D-3D fitting" ON)
 if(BUILD_EOS)

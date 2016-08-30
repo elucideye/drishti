@@ -4,7 +4,7 @@
 # Can accept condition to control when option is available for user.
 # Usage:
 #   option(<option_variable> "help string describing the option" <initial value or boolean expression> [IF <condition>])
-macro(DRISHTI_OPTION variable description value)
+macro(drishti_option variable description value)
   set(__value ${value})
   set(__condition "")
   set(__varname "__value")
