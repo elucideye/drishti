@@ -49,7 +49,7 @@ option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation 
 
 if(BUILD_DOCUMENTATION)
   include(DrishtiConfigureDoxygen)
-  configure_doxygen()
+  drishti_configure_doxygen()
 endif()
 
 ### Add Sugar packages for cmake wrappers ###
@@ -58,7 +58,7 @@ include("${SUGAR_ROOT}/cmake/Sugar")
 include(sugar_include)
 
 include(DrishtiSetCxxFlags)
-set_cxx_flags()
+drishti_set_cxx_flags()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
