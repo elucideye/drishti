@@ -1,4 +1,4 @@
-macro(set_opencv_cmake_args_nix)
+macro(drishti_set_opencv_cmake_args_nix)
     set(OPENCV_CMAKE_ARGS 
 
       #### Repeat HUNTER ARGS ###
@@ -70,4 +70,4 @@ macro(set_opencv_cmake_args_nix)
       WITH_GDAL=OFF           # "Include GDAL Support"                        
       WITH_GPHOTO2=OFF        # "Include gPhoto2 library support"             
     )
-endmacro(set_opencv_cmake_args_nix)
+endmacro(drishti_set_opencv_cmake_args_nix)

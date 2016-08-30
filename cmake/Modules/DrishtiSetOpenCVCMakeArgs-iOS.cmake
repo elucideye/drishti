@@ -1,4 +1,4 @@
-macro(set_opencv_cmake_args_ios)
+macro(drishti_set_opencv_cmake_args_ios)
     set(OPENCV_CMAKE_ARGS 
       #### Repeat HUNTER ARGS ###
       BUILD_DOCS=OFF
@@ -69,4 +69,4 @@ macro(set_opencv_cmake_args_ios)
       WITH_GDAL=OFF           # "Include GDAL Support"                        
       WITH_GPHOTO2=OFF        # "Include gPhoto2 library support"             
     )
-endmacro(set_opencv_cmake_args_ios)
+endmacro(drishti_set_opencv_cmake_args_ios)
