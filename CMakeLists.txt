@@ -345,7 +345,7 @@ endif()
  # endforeach()
  # return()
 
-if(NOT is_ios AND NOT ANDROID)
+if(NOT IOS AND NOT ANDROID)
   find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
   set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS
     "--trace-children=yes"
@@ -377,7 +377,7 @@ add_subdirectory(src)
 message("${PROJECT_NAME}:")
 message("-- system --")
 message("  APPLE: ${APPLE}")
-message("  iOS: ${is_ios}")
+message("  iOS: ${IOS}")
 message("-- configuration --")
 message("  Build shared libraries: ${BUILD_SHARED_LIBS}")
 message("-- packages --")

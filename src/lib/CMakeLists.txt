@@ -79,7 +79,7 @@ generate_export_header(drishti_core)
 
 message("DRISHTISDK_PUBLIC_HDRS ${DRISHTISDK_PUBLIC_HDRS}")
 
-if(is_ios)
+if(IOS)
   set(OPENGL_LIB OpenGLES) 
 else()
   set(OPENGL_LIB OpenGL)
@@ -117,7 +117,7 @@ target_link_libraries(drishtisdk PRIVATE
 
 # Build internal lib for console apps, etc.
 set_target_properties(drishtisdk PROPERTIES PUBLIC_HEADER "${DRISHTISDK_PUBLIC_HDRS}" )
-if(NOT is_ios)
+if(NOT IOS)
   set_target_properties(drishtisdk PROPERTIES
     SOVERSION "${drishtisdk_VERSION_MAJOR}"
     VERSION "${drishtisdk_VERSION}"
@@ -186,7 +186,7 @@ set_target_properties(drishti PROPERTIES
 #   set_target_properties(drishti PROPERTIES LINK_FLAGS "-static") ### link static dependencies
 # endif()
 
-if(NOT is_ios)
+if(NOT IOS)
   set_target_properties(drishti PROPERTIES
     VERSION "${drishtisdk_VERSION}"
     SOVERSION "${drishtisdk_VERSION_MAJOR}"
