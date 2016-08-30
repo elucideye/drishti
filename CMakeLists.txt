@@ -37,7 +37,7 @@ message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 ## Do note move this!!!!!!!!
 #####################################################################
 include(DrishtiCheckPlatforms)
-check_platforms()
+drishti_check_platforms()
 
 ####################################################################
 ## Doxygen
@@ -205,7 +205,7 @@ endif()
 ### RPATH (BEGIN) ###
 #####################
 #s see: http://www.cmake.org/Wiki/CMake_RPATH_handling ("Always full RPATH")
-always_full_rpath()
+drishti_always_full_rpath()
 
 #####################
 ### RPATH (END)   ###

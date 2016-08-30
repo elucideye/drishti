@@ -1,4 +1,4 @@
-function(configure_console_app
+function(drishti_configure_console_app
     DRISHTI_SDK_PROJECT_NAME
     DRISHTI_SDK_PRODUCT_NAME
     DRISHTI_SDK_APP_NAME
@@ -21,4 +21,4 @@ function(configure_console_app
     set_target_properties(${DRISHTI_SDK_APP_NAME} PROPERTIES INSTALL_RPATH "@loader_path/../lib")
   endif()
 
-endfunction(configure_console_app)
+endfunction(drishti_configure_console_app)

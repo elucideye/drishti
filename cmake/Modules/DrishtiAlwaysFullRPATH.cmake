@@ -1,6 +1,6 @@
 #https://cmake.org/Wiki/CMake_RPATH_handling
 
-macro(always_full_rpath)
+macro(drishti_always_full_rpath)
 
   # use, i.e. don't skip the full RPATH for the build tree
   SET(CMAKE_SKIP_BUILD_RPATH  FALSE)

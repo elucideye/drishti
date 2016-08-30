@@ -1,4 +1,4 @@
-function(check_platforms)
+function(drishti_check_platforms)
   set(is_android ${ANDROID})
   set(is_apple ${APPLE})
   set(is_msvc ${MSVC})
