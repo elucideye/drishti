@@ -22,7 +22,7 @@ COMMAND=(
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_EXPORT_COMPILE_COMMANDS=ON "
     "BUILD_QT=${BUILD_QT} "
-    "BUILD_OGLES_GPGPU=${BUILD_OGLES_GPGPU} "    
+    "BUILD_OGLES_GPGPU=${BUILD_OGLES_GPGPU} "
     "--config Release "
     "--strip "
     "--jobs 8 "
