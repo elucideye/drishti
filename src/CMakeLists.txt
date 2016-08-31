@@ -72,7 +72,7 @@ if(BUILD_EOS)
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/3rdparty/glm-0.9.7.0") # TODO: hunter package
 endif()
 
-if(BUILD_DEST)
+if(DRISHTI_BUILD_DEST)
   option(USE_LOCAL_DEST "Use local dest" OFF)
 
   if(USE_LOCAL_DEST)
