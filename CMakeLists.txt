@@ -62,7 +62,7 @@ drishti_set_cxx_flags()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if(is_xcode)
+if(XCODE)
   set(CMAKE_CONFIGURATION_TYPES "Debug;Release;MinSizeRel;RelWithDebInfo")
 endif()
 
@@ -82,7 +82,7 @@ message("OPENMP CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # The various compiler checks take > 10 seconds on ios "Try OpenMP CXX flag = [-openmp]" in xcode
 # TODO: Investigate why this is so much slower with ios toolchain
-if(NOT is_xcode) # We'll never have openmp on ios, and this test is really slow
+if(NOT XCODE) # We'll never have openmp on ios, and this test is really slow
   find_package( OpenMP )
   if(OPENMP_FOUND)
     message("OPENMP FOUND")
@@ -323,7 +323,7 @@ if(BUILD_DRISHTI_ACF)
 endif()
 
 ### Faster build itmes
-if(is_xcode)
+if(XCODE)
   option(DRISHTI_DISABLE_DSYM "Disable generation of dSYM information" ON)
   if(DRISHTI_DISABLE_DSYM)
     set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")

@@ -6,7 +6,7 @@ message("  APPLE: ${APPLE}")
 message("  ANDROID: ${ANDROID}")
 message("  IOS: ${IOS}")
 message("  is_linux: ${is_linux}")
-message("  is_xcode: ${is_xcode}")
+message("  XCODE: ${XCODE}")
 
 ### OpenCV
 if(ANDROID)
