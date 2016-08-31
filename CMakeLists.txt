@@ -297,9 +297,9 @@ find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams)
 include_directories(${Boost_INCLUDE_DIRS})
 message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
 set(DRISHTI_SDK_BOOST_LIBS
-  Boost::filesystem 
-  Boost::system 
-  Boost::serialization 
+  Boost::filesystem
+  Boost::system
+  Boost::serialization
   Boost::iostreams
   )
 
