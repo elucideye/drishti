@@ -114,7 +114,7 @@ else()
 endif()
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
-option(BUILD_EXAMPLES "Build the examples" OFF)
+option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_PUBLIC_SDK "Build the public drishti SDK" ON)
 option(BUILD_DRISHTI_ACF "Drishti ACF lib." OFF)
 option(BUILD_DRISHTI_FACE "Drishti face lib." OFF)
