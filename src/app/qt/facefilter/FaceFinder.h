@@ -46,6 +46,10 @@ namespace spdlog { class logger; }
 
 namespace drishti
 {
+    namespace sensor
+    {
+        class Sensor;
+    }
     namespace face
     {
         class FaceModelEstimator;
@@ -69,8 +73,17 @@ class FaceFinder
 public:
 
     using FrameInput = ogles_gpgpu::FrameInput;
+    
+    struct Config
+    {
+        std::shared_ptr<drishti::sensor::SensorModel> sensor;
+        std::shared_ptr<spdlog::logger> logger;
+        std::shared_ptr<ThreadPool<128>> threads;        
+        int outputOrientation = 0;
+        int delay = 1;
+    };
 
-    FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, void *glContext, int outputOrientation, int delay=1);
+    FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &config, void *glContext = nullptr);
 
     virtual GLuint operator()(const FrameInput &frame);
 
@@ -91,34 +104,30 @@ protected:
 
     cv::Mat3f m_colors32FC3; // map angles to colors
 
-    std::shared_ptr<spdlog::logger> m_logger;
-    //std::shared_ptr<drishti::core::Logger> m_logger;
-
     void *m_glContext = nullptr;
     bool m_hasInit = false;
     float m_scale = 2.0f;
+    int m_outputOrientation = 0;
 
     uint64_t m_frameIndex = 0;
-    std::unique_ptr<ThreadPool<128>> m_threads;
+
 
     using time_point = std::chrono::high_resolution_clock::time_point;
     std::pair<time_point, std::vector<cv::Rect>> m_objects;
 
-    drishti::sensor::SensorModel m_sensor;
-
     drishti::acf::Detector::Pyramid m_P;
 
-    int m_regressionWidth = 256;
     bool m_doRegression = false;
+    int m_regressionWidth = 256;
 
-    int m_cornerWidth = 256;
     bool m_doCorners = false;
+    int m_cornerWidth = 256;
 
-    int m_flowWidth = 256;
     bool m_doFlow = false;
+    int m_flowWidth = 256;
 
-    int m_flashWidth = 128;
     bool m_doFlash = false;
+    int m_flashWidth = 128;
 
     std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo;
     std::shared_ptr<ogles_gpgpu::ACF> m_acf;
@@ -136,14 +145,15 @@ protected:
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
 #endif
 
-    int m_outputOrientation = 0;
-
     int m_index = 0;
     std::vector< std::future<ScenePrimitives> > m_scenes;
 
     TimerInfo m_timerInfo;
     
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;
+    std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
+    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<ThreadPool<128>> m_threads;
 };
 
 #endif // FACE_FINDER_H

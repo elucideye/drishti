@@ -12,14 +12,12 @@
 #define __drishtisdk__XGBooster__
 
 #include "ml/drishti_ml.h"
+#include "core/Logger.h"
 
 #include <opencv2/core.hpp>
 
-// Probably want to hide this stuff
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/export.hpp>
-
-#include "core/Logger.h"
 
 #include <memory>
 

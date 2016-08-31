@@ -114,15 +114,9 @@ set(DRISHTI_SDK_3RDPARTY_SRC_LIBS
 set(DRISHTI_SDK_3RDPARTY_LIBS 
   dlib::dlib
   ${CMATIO_LIB}
-  Boost::filesystem 
-  Boost::system 
-  Boost::serialization 
-  Boost::iostreams
+  ${DRISHTI_SDK_BOOST_LIBS}
   cereal::cereal  
   ${OpenCV_LIBS} 
-  TIFF::libtiff
-  PNG::png
-  ZLIB::zlib
   Eigen::eigen
   ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
   spdlog::spdlog

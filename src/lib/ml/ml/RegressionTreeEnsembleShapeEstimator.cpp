@@ -231,11 +231,12 @@ RTEShapeEstimator::serialize(Archive & ar, const unsigned int version)
     ar & m_impl;
 }
 
+#if !DRISHTI_BUILD_MIN_SIZE
 template void RTEShapeEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void RTEShapeEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
-// ###### serialize model
 template void RTEShapeEstimator::serializeModel<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
+#endif
+
+template void RTEShapeEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 
 _DRISHTI_ML_END

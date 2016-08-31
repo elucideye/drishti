@@ -8,7 +8,6 @@
 */
 
 #include "geometry/Primitives.h"
-#include "core/Shape.h"
 
 DRISHTI_GEOMETRY_BEGIN
 

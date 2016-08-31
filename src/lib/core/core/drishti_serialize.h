@@ -27,7 +27,6 @@
 #include <opencv2/core/core.hpp>
 
 #if ANDROID
-
 DRISHTI_BEGIN_NAMESPACE(std)
 
 template <typename T> inline std::string to_string(T value)

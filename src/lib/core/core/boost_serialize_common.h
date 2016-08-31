@@ -15,8 +15,8 @@
 #include <fstream>
 
 // Boost serialization files:
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
+//#include <boost/archive/binary_iarchive.hpp>
+//#include <boost/archive/binary_oarchive.hpp>
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -57,19 +57,23 @@ void load_pba_z(const std::string &filename, T &object)
 template <typename T>
 void save_pba_z(std::ostream &os, T &object)
 {
+#if !DRISHTI_BUILD_MIN_SIZE
     boost::iostreams::filtering_stream<boost::iostreams::output> buffer;
     buffer.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
     buffer.push(os);
     portable_binary_oarchive oa(buffer);
     oa << object;
+#endif
 }
 
 template <typename T>
 void save_pba_z(const std::string &filename, T &object)
 {
+#if !DRISHTI_BUILD_MIN_SIZE    
     std::ofstream ofs(filename, std::ios::binary);
     CV_Assert(ofs);
     save_pba_z(ofs, object);
+#endif
 }
 
 #endif

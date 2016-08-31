@@ -92,26 +92,25 @@ if(NOT is_xcode) # We'll never have openmp on ios, and this test is really slow
   endif()
 endif()
 
-option(BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
 option(BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
-
 if(BUILD_REGRESSION_SIMD)
   add_definitions(-DBUILD_REGRESSION_SIMD=1)
 else()
   add_definitions(-DBUILD_REGRESSION_SIMD=0)
 endif()
 
+option(BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
 if(BUILD_REGRESSION_FIXED_POINT)
   add_definitions(-DBUILD_REGRESSION_FIXED_POINT=1)
 else()
   add_definitions(-DBUILD_REGRESSION_FIXED_POINT=0)
 endif()
 
-option(BUILD_MIN_SIZE "Build minimum size lib (exclude training)" OFF)
-if(BUILD_MIN_SIZE)
-  add_definitions(-DBUILD_MIN_SIZE=1)
+option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" OFF)
+if(DRISHTI_BUILD_MIN_SIZE)
+  add_definitions(-DDRISHTI_BUILD_MIN_SIZE=1)
 else()
-  add_definitions(-DBUILD_MIN_SIZE=0)
+  add_definitions(-DDRISHTI_BUILD_MIN_SIZE=0)
 endif()
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
@@ -231,14 +230,19 @@ drishti_always_full_rpath()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 
-### JPEG
-hunter_add_package(Jpeg)
-find_package(JPEG CONFIG REQUIRED)
-
-### TIFF: TIFF_INCLUDE_DIR; TIFF_LIBRARIES; TIFF_FOUND
-hunter_add_package(TIFF)
-find_package(TIFF CONFIG REQUIRED)
-message("TIFF_INCLUDE_DIRS = ${TIFF_INCLUDE_DIR}")
+if(MSVC OR is_linux) # Look for WITH_JPEG=ON in Hunter/config.cmake
+  # Dependency for OpenCV. Usually dependent packages installed automatically
+  # but current hardcoded version of OpenCV is not hunterized enough so
+  # don't know about Jpeg, i.e. there is no `hunter_add_package(Jpeg)`.
+  # But Jpeg is present in fresh version of Hunter with
+  # custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
+  # OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
+  # FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
+  # we manually download Jpeg before OpenCV.
+  # TODO: remove after OpenCV version updated
+  hunter_add_package(Jpeg)
+  find_package(JPEG CONFIG REQUIRED)
+endif()
 
 ### spdlog: Added logging library
 hunter_add_package(spdlog)
@@ -290,10 +294,16 @@ message("OpenCV_LIBS = ${OpenCV_LIBS}")
 message("${CMAKE_MODULE_PATH}")
 
 ### Boost ###
-hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams) #regex)
-find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams) #regex)
+hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams)
+find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams)
 include_directories(${Boost_INCLUDE_DIRS})
 message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
+set(DRISHTI_SDK_BOOST_LIBS
+  Boost::filesystem 
+  Boost::system 
+  Boost::serialization 
+  Boost::iostreams
+  )
 
 ### DLIB: dlib (Header only + no CMakeLists.txt)
 hunter_add_package(dlib)

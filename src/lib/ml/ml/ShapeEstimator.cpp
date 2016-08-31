@@ -16,36 +16,10 @@
 #include "ml/drishti_ml.h"
 #include "ml/ShapeEstimator.h"
 #include "geometry/Primitives.h"
-#include "geometry/Ellipse.h"
 #include "core/Shape.h"
 #include "core/Logger.h"
 
 #include <deque>
-
-#if MOVE_RTE_STUFF
-
-#include <dlib/image_transforms/assign_image.h>
-#include <dlib/statistics/statistics.h>
-#include <dlib/image_processing/shape_predictor.h>
-#include <dlib/opencv/cv_image.h>
-#include <dlib/vectorstream.h>
-#include <dlib/serialize.h>
-
-#include "ml/shape_predictor.h"
-
-//#define _SHAPE_PREDICTOR dlib
-
-// This type uses the regression trees from dlib modified to support
-// shape space model regression to reduce memory requirements.  In
-// addition a few other options have been added such as normalized pixel
-// differences and the line indexed features described in RCPC publication.
-#define _SHAPE_PREDICTOR drishti::ml::shape_predictor
-
-BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
-BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
-
-
-#endif // MOVE_RTE_STUFF
 
 _DRISHTI_ML_BEGIN
 

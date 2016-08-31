@@ -79,14 +79,6 @@ CPR::CPR(const char * filename)
 }
 #endif
 
-// Convert GBDT structs to MiniForest type and prune all unused feature types:
-void CPR::compress()
-{
-    DRISHTI_STREAM_LOG_FUNC(8,1,m_streamLogger);
-
-    // Legacy: Non XGBOOST
-}
-
 // TODO: rethink shape estimator API to better support parametric models
 // For now we'll just store each parameter in the x coordinate of a 2D point
 
@@ -285,34 +277,28 @@ template<class Archive> void CPR::serialize(Archive & ar, const unsigned int ver
 
 // explicit instantiation:
 
+#if !DRISHTI_BUILD_MIN_SIZE
 template void CPR::Model::Parts::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::Model::Parts::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::Model::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::Model::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::CprPrm::FtrPrm::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::CprPrm::FtrPrm::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::CprPrm::FernPrm::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::CprPrm::FernPrm::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::CprPrm::Recipe::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::CprPrm::Recipe::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::CprPrm::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::CprPrm::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::RegModel::Regs::FtrData::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::RegModel::Regs::FtrData::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::RegModel::Regs::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::RegModel::Regs::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::RegModel::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void CPR::RegModel::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
 template void CPR::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
+#endif
+
+template void CPR::Model::Parts::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::Model::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::FtrPrm::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::FernPrm::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::Recipe::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::RegModel::Regs::FtrData::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::RegModel::Regs::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+template void CPR::RegModel::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void CPR::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 
 DRISHTI_RCPR_END
