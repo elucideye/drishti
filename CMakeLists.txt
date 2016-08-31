@@ -145,10 +145,8 @@ if(DRISHTI_BUILD_QT)
 endif()
 
 if(IOS OR ANDROID)
-  set(DRISHTI_OPENGL_ES TRUE)
   add_definitions(-DDRISHTI_OPENGL_ES=1)
 else()
-  set(DRISHTI_OPENGL_ES FALSE)
   add_definitions(-DDRISHTI_OPENGL_ES=0)
 endif()
 
