@@ -37,7 +37,7 @@ add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLI
 target_link_libraries(drishti_eye drishti_ml drishti_rcpr ${OpenCV_LIBS} ${XGBOOST_LIB})
 
 ## drishti_acf
-if(BUILD_DRISHTI_ACF)
+if(DRISHTI_BUILD_ACF)
   include_directories(acf/acf/toolbox)
   add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
   if(BUILD_OGLES_GPGPU)

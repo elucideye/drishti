@@ -116,7 +116,7 @@ endif()
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_PUBLIC_SDK "Build the public drishti SDK" ON)
-option(BUILD_DRISHTI_ACF "Drishti ACF lib." OFF)
+option(DRISHTI_BUILD_ACF "Drishti ACF lib." OFF)
 option(BUILD_DRISHTI_FACE "Drishti face lib." OFF)
 
 # 3rd party libraries
@@ -317,7 +317,7 @@ find_package(Eigen REQUIRED) # <== not finding hunter provided eigen
 message("EIGEN3_INCLUDE_DIR = ${EIGEN3_INCLUDE_DIR}")
 
 ### CVMATIO
-if(BUILD_DRISHTI_ACF)
+if(DRISHTI_BUILD_ACF)
   hunter_add_package(cvmatio)
   find_package(cvmatio REQUIRED CONFIG)
 endif()

@@ -11,7 +11,7 @@ endif()
 
 include(sugar_files)
 
-if(BUILD_DRISHTI_ACF)
+if(DRISHTI_BUILD_ACF)
   set(DRISHTI_DRISHTI_OPT_SRCS EyeDetector.cpp)
   set(DRISHTI_DRISHTI_OPT_HDRS EyeDetector.hpp)
 endif()
