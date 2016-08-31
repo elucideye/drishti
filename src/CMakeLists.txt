@@ -137,7 +137,7 @@ endif()
 add_subdirectory(app)
 
 # (Optional) build unit tests
-if(BUILD_TESTS)
+if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
