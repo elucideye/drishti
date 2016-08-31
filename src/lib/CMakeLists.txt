@@ -40,7 +40,7 @@ target_link_libraries(drishti_eye drishti_ml drishti_rcpr ${OpenCV_LIBS} ${XGBOO
 if(DRISHTI_BUILD_ACF)
   include_directories(acf/acf/toolbox)
   add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
-  if(BUILD_OGLES_GPGPU)
+  if(DRISHTI_BUILD_OGLES_GPGPU)
     target_link_libraries(drishti_acf ${OGLES_GPGPU_LIB} ${OpenCV_LIBS})
   endif()
   set(OBJ_ACF drishti_acf)

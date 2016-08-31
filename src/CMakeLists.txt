@@ -36,7 +36,7 @@ endif()
 #drishti_print_env_var()
 #return()
 
-if(BUILD_OGLES_GPGPU)
+if(DRISHTI_BUILD_OGLES_GPGPU)
 
   # Support local submodule use or external package:
   option(USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)

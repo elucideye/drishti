@@ -123,7 +123,7 @@ option(DRISHTI_BUILD_FACE "Drishti face lib." OFF)
 option(DRISHTI_BUILD_THEIA_SOLVERS "Build theia solvers lib" OFF)
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
-option(BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
+option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
 
 # Note: OGLES_GPGPU handling moved to src folder
 option(BUILD_QT "Build with Qt" OFF)

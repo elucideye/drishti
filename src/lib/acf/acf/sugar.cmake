@@ -13,7 +13,7 @@ include(sugar_files)
 
 #project(drishti_acf)
 
-if(BUILD_OGLES_GPGPU)
+if(DRISHTI_BUILD_OGLES_GPGPU)
   set(GPU_ACF_HDRS
     GPUACF.h
     gpu/binomial.h

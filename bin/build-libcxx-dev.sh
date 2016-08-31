@@ -12,7 +12,7 @@ fi
 [ ! -d ${DRISHTISDK}/_logs ] && mkdir -p ${DRISHTISDK}/_logs
 
 BUILD_QT=OFF
-BUILD_OGLES_GPGPU=ON
+DRISHTI_BUILD_OGLES_GPGPU=ON
 
 rename_tab drishti ${TOOLCHAIN}
 
@@ -22,7 +22,7 @@ COMMAND=(
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_EXPORT_COMPILE_COMMANDS=ON "
     "BUILD_QT=${BUILD_QT} "
-    "BUILD_OGLES_GPGPU=${BUILD_OGLES_GPGPU} "
+    "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
     "--config Release "
     "--strip "
     "--jobs 8 "
