@@ -9,7 +9,7 @@ find_package(GTest CONFIG REQUIRED)
 
 add_subdirectory(drishti)
 
-if(USE_THREAD_POOL_CPP)
+if(DRISHTI_USE_THREAD_POOL_CPP)
   add_subdirectory(thread-pool)
 endif()
 

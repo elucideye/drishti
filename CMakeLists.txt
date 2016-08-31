@@ -262,7 +262,7 @@ int main(void) {
     return 0;
 }" HAVE_THREAD_LOCAL_STORAGE)
 
-drishti_option(USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
+drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
 
 option(USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 if(USE_LOCAL_THREAD_POOL_CPP)
