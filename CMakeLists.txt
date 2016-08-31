@@ -45,9 +45,9 @@ drishti_check_platforms()
 
 ## https://tty1.net/blog/2014/cmake-doxygen_en.html
 find_package(Doxygen)
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(DRISHTI_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-if(BUILD_DOCUMENTATION)
+if(DRISHTI_BUILD_DOCUMENTATION)
   include(drishti_configure_doxygen)
   drishti_configure_doxygen()
 endif()

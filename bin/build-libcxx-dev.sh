@@ -17,7 +17,7 @@ BUILD_OGLES_GPGPU=ON
 rename_tab drishti ${TOOLCHAIN}
 
 COMMAND=(
-    "--verbose --fwd BUILD_DOCUMENTATION=ON"
+    "--verbose --fwd DRISHTI_BUILD_DOCUMENTATION=ON"
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_EXPORT_COMPILE_COMMANDS=ON "
