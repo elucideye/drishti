@@ -10,8 +10,8 @@ IOS_IDENTITY="iPhone Developer: David Hirvonen (7YLQXWH6FK)"
 
 CMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 
-HUNTER_CONFIGURATION_TYPES=Release 
-BUILD_PUBLIC_SDK=ON 
+HUNTER_CONFIGURATION_TYPES=Release
+BUILD_PUBLIC_SDK=ON
 BUILD_DRISHTI_ACF=OFF
 BUILD_DRISHTI_FACE=OFF
 BUILD_DRISHTI_MOTION=OFF
@@ -51,5 +51,5 @@ DRISHTHI_BUILD_HIDE=\
 
 function rename_tab
 {
-	echo -ne "\033]0;$1:$2\007"
+  echo -ne "\033]0;$1:$2\007"
 }
