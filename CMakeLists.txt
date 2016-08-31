@@ -92,8 +92,8 @@ if(NOT XCODE) # We'll never have openmp on ios, and this test is really slow
   endif()
 endif()
 
-option(BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
-if(BUILD_REGRESSION_SIMD)
+option(DRISHTI_BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
+if(DRISHTI_BUILD_REGRESSION_SIMD)
   add_definitions(-DBUILD_REGRESSION_SIMD=1)
 else()
   add_definitions(-DBUILD_REGRESSION_SIMD=0)
