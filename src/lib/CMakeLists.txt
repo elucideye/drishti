@@ -47,7 +47,7 @@ if(DRISHTI_BUILD_ACF)
 endif()
 
 ## drishti_face
-if(BUILD_DRISHTI_FACE)
+if(DRISHTI_BUILD_FACE)
   add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
   target_link_libraries(drishti_face drishti_eye ${OBJ_ACF} ${OpenCV_LIBS})
   set(OBJ_FACE drishti_face)
