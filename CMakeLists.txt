@@ -126,9 +126,9 @@ option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
 
 # Note: OGLES_GPGPU handling moved to src folder
-option(BUILD_QT "Build with Qt" OFF)
+option(DRISHTI_BUILD_QT "Build with Qt" OFF)
 
-if(BUILD_QT)
+if(DRISHTI_BUILD_QT)
   message("=== BUILD QT #!#!@#$ ===== ")
   # Do this first for success/fail
   hunter_add_package(Qt COMPONENTS qtmultimedia qtdeclarative qtsensors qtquickcontrols)

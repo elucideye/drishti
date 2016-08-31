@@ -14,6 +14,6 @@ if(USE_THREAD_POOL_CPP)
 endif()
 
 # QT is used for the portable rendering context
-if(BUILD_QT)
+if(DRISHTI_BUILD_QT)
   add_subdirectory(acf)
 endif()

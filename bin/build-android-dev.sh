@@ -15,7 +15,7 @@ fi
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_HOME
 echo $ANDROID_SDK_ROOT
 
-BUILD_QT=ON
+DRISHTI_BUILD_QT=ON
 DRISHTI_BUILD_OGLES_GPGPU=ON
 
 rename_tab drishti $TOOLCHAIN
@@ -24,7 +24,7 @@ COMMAND=(
     "--verbose "
     "--fwd ANDROID=TRUE "
     "${DRISHTI_BUILD_ARGS[*]} "
-    "BUILD_QT=${BUILD_QT} "
+    "DRISHTI_BUILD_QT=${DRISHTI_BUILD_QT} "
     "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
     "--config Release "
     "--install "
