@@ -1,16 +1,15 @@
 [submodule "src/3rdparty/xgboost"]
-	path = src/3rdparty/xgboost
-	url = https://github.com/headupinclouds/xgboost.git
+  path = src/3rdparty/xgboost
+  url = https://github.com/hunter-packages/xgboost.git
 [submodule "src/3rdparty/thread-pool-cpp"]
-	path = src/3rdparty/thread-pool-cpp
-	url = https://github.com/headupinclouds/thread-pool-cpp.git
+  path = src/3rdparty/thread-pool-cpp
+  url = https://github.com/hunter-packages/thread-pool-cpp.git
 [submodule "src/3rdparty/ogles_gpgpu"]
-	path = src/3rdparty/ogles_gpgpu
-	url = https://github.com/headupinclouds/ogles_gpgpu.git
+  path = src/3rdparty/ogles_gpgpu
+  url = https://github.com/hunter-packages/ogles_gpgpu.git
 [submodule "src/3rdparty/eos"]
-	path = src/3rdparty/eos
-	url = https://github.com/headupinclouds/eos.git
+  path = src/3rdparty/eos
+  url = https://github.com/headupinclouds/eos.git
 [submodule "src/3rdparty/dest"]
-	path = src/3rdparty/dest
-	url = https://github.com/headupinclouds/dest.git
-    
+  path = src/3rdparty/dest
+  url = https://github.com/hunter-packages/dest.git
