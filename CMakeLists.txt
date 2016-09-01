@@ -264,8 +264,8 @@ int main(void) {
 
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
 
-option(USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
-if(USE_LOCAL_THREAD_POOL_CPP)
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
+if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_definitions(-DUSE_LOCAL_THREAD_POOL=1)
   set(THREAD_POOL_LIB ) # header only (null)
   include_directories(src/3rdparty/thread-pool-cpp/thread_pool)
