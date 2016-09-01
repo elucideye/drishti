@@ -73,9 +73,9 @@ if(DRISHTI_BUILD_EOS)
 endif()
 
 if(DRISHTI_BUILD_DEST)
-  option(USE_LOCAL_DEST "Use local dest" OFF)
+  option(DRISHTI_USE_LOCAL_DEST "Use local dest" OFF)
 
-  if(USE_LOCAL_DEST)
+  if(DRISHTI_USE_LOCAL_DEST)
     add_definitions(-DUSE_LOCAL_DEST=1)
     set(DEST_BUILD_EXAMPLES OFF)
     set(DEST_WITH_OPENCV OFF)
