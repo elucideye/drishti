@@ -65,8 +65,8 @@ endif()
 
 #drishti_print_env_var()
 
-option(BUILD_EOS "EOS 2D-3D fitting" ON)
-if(BUILD_EOS)
+option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" ON)
+if(DRISHTI_BUILD_EOS)
   ## Header only eos lib for 3D-to-2D model fitting
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/include")
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/3rdparty/glm-0.9.7.0") # TODO: hunter package
