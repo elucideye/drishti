@@ -39,9 +39,9 @@ endif()
 if(DRISHTI_BUILD_OGLES_GPGPU)
 
   # Support local submodule use or external package:
-  option(USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
+  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
 
-  if(USE_LOCAL_OGLES_GPGPU)
+  if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
     add_definitions(-DUSE_LOCAL_OGLES_GPGPU=1)
     set(SKIP_INSTALL ON CACHE BOOL "Avoid installation of submodule libraries" )
     set(OGLES_GPGPU_BUILD_EXAMPLES OFF CACHE BOOL "Don't build examples")
