@@ -15,8 +15,8 @@ set(LIB_TYPE STATIC)
 
 ### XGBOOST ### (SUBMODULE)
 
-option(USE_LOCAL_XGBOOST "Use local xgboost" ON)
-if(USE_LOCAL_XGBOOST)
+option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
+if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
   set(SKIP_INSTALL ON CACHE BOOL "Avoid installation of submodule libraries")
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost")
