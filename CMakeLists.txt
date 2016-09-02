@@ -120,7 +120,6 @@ option(DRISHTI_BUILD_ACF "Drishti ACF lib." OFF)
 option(DRISHTI_BUILD_FACE "Drishti face lib." OFF)
 
 # 3rd party libraries
-option(DRISHTI_BUILD_THEIA_SOLVERS "Build theia solvers lib" OFF)
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
@@ -360,7 +359,6 @@ endif()
 
 include_directories(src/lib/drishti)
 include_directories(src/lib/core)
-include_directories(src/lib/solvers)
 include_directories(src/lib/ml)
 include_directories(src/lib/acf)
 include_directories(src/lib/rcpr)
