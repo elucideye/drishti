@@ -1,4 +1,4 @@
-if(BUILD_QT)
+if(DRISHTI_BUILD_QT)
   # Some background: https://github.com/ruslo/hunter/issues/253
   # hunter_add_package(Qt COMPONENTS qtmultimedia qtdeclarative)
   # find_package(Qt5Widgets REQUIRED)

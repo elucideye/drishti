@@ -37,17 +37,17 @@ add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLI
 target_link_libraries(drishti_eye drishti_ml drishti_rcpr ${OpenCV_LIBS} ${XGBOOST_LIB})
 
 ## drishti_acf
-if(BUILD_DRISHTI_ACF)
+if(DRISHTI_BUILD_ACF)
   include_directories(acf/acf/toolbox)
   add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
-  if(BUILD_OGLES_GPGPU)
+  if(DRISHTI_BUILD_OGLES_GPGPU)
     target_link_libraries(drishti_acf ${OGLES_GPGPU_LIB} ${OpenCV_LIBS})
   endif()
   set(OBJ_ACF drishti_acf)
 endif()
 
 ## drishti_face
-if(BUILD_DRISHTI_FACE)
+if(DRISHTI_BUILD_FACE)
   add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
   target_link_libraries(drishti_face drishti_eye ${OBJ_ACF} ${OpenCV_LIBS})
   set(OBJ_FACE drishti_face)

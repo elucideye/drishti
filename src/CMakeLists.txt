@@ -15,8 +15,8 @@ set(LIB_TYPE STATIC)
 
 ### XGBOOST ### (SUBMODULE)
 
-option(USE_LOCAL_XGBOOST "Use local xgboost" ON)
-if(USE_LOCAL_XGBOOST)
+option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
+if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
   set(SKIP_INSTALL ON CACHE BOOL "Avoid installation of submodule libraries")
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost")
@@ -36,12 +36,12 @@ endif()
 #drishti_print_env_var()
 #return()
 
-if(BUILD_OGLES_GPGPU)
+if(DRISHTI_BUILD_OGLES_GPGPU)
 
   # Support local submodule use or external package:
-  option(USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
-  
-  if(USE_LOCAL_OGLES_GPGPU)
+  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
+
+  if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
     add_definitions(-DUSE_LOCAL_OGLES_GPGPU=1)
     set(SKIP_INSTALL ON CACHE BOOL "Avoid installation of submodule libraries" )
     set(OGLES_GPGPU_BUILD_EXAMPLES OFF CACHE BOOL "Don't build examples")
@@ -51,7 +51,6 @@ if(BUILD_OGLES_GPGPU)
     add_subdirectory( "${CMAKE_SOURCE_DIR}/src/3rdparty/ogles_gpgpu" )
     set(OGLES_GPGPU_LIB ogles_gpgpu)
     unset(SKIP_INSTALL)
-    unset(BUILD_EXAMPLES)  
   else()
     add_definitions(-DUSE_LOCAL_OGLES_GPGPU=0)
     hunter_add_package(ogles_gpgpu)
@@ -59,24 +58,24 @@ if(BUILD_OGLES_GPGPU)
     # TODO: Fix package includes, shouldn't need these
     include_directories("${OGLES_GPGPU_ROOT}/include/ogles_gpgpu")
     include_directories("${OGLES_GPGPU_ROOT}/include/ogles_gpgpu/common")
-    set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)    
+    set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
   endif()
 
 endif()
 
 #drishti_print_env_var()
 
-option(BUILD_EOS "EOS 2D-3D fitting" ON)
-if(BUILD_EOS)
+option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" ON)
+if(DRISHTI_BUILD_EOS)
   ## Header only eos lib for 3D-to-2D model fitting
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/include")
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/3rdparty/glm-0.9.7.0") # TODO: hunter package
 endif()
 
-if(BUILD_DEST)
-  option(USE_LOCAL_DEST "Use local dest" OFF)
-  
-  if(USE_LOCAL_DEST)
+if(DRISHTI_BUILD_DEST)
+  option(DRISHTI_USE_LOCAL_DEST "Use local dest" OFF)
+
+  if(DRISHTI_USE_LOCAL_DEST)
     add_definitions(-DUSE_LOCAL_DEST=1)
     set(DEST_BUILD_EXAMPLES OFF)
     set(DEST_WITH_OPENCV OFF)
@@ -98,12 +97,12 @@ endif()
 #set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_TOP})
 
 ## 3rd party boost pba
-include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba) 
-add_library(boost-pba STATIC ${BOOST_PBA_SRCS}) 
+include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
+add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
 
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
-set(DRISHTI_SDK_3RDPARTY_SRC_LIBS 
+set(DRISHTI_SDK_3RDPARTY_SRC_LIBS
   ${XGBOOST_LIB}
   ${OGLES_GPGPU_LIB}
   ${DEST_LIB}
@@ -111,12 +110,12 @@ set(DRISHTI_SDK_3RDPARTY_SRC_LIBS
   )
 
 ## After finding all these create our master dependency list ##
-set(DRISHTI_SDK_3RDPARTY_LIBS 
+set(DRISHTI_SDK_3RDPARTY_LIBS
   dlib::dlib
   ${CMATIO_LIB}
   ${DRISHTI_SDK_BOOST_LIBS}
-  cereal::cereal  
-  ${OpenCV_LIBS} 
+  cereal::cereal
+  ${OpenCV_LIBS}
   Eigen::eigen
   ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
   spdlog::spdlog
@@ -129,7 +128,7 @@ endif()
 # Add the sub-libraries
 add_subdirectory(lib)
 
-if(BUILD_QT)
+if(DRISHTI_BUILD_QT)
   # Some background: https://github.com/ruslo/hunter/issues/253
   hunter_add_package(Qt COMPONENTS qtmultimedia qtdeclarative)
 endif()
@@ -138,7 +137,7 @@ endif()
 add_subdirectory(app)
 
 # (Optional) build unit tests
-if(BUILD_TESTS)
+if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 

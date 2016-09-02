@@ -11,7 +11,7 @@ endif()
 
 include(sugar_files)
 
-if(BUILD_OGLES_GPGPU)
+if(DRISHTI_BUILD_OGLES_GPGPU)
   set(DRISHTI_EYE_GPU_HDRS
     gpu/EllipsoPolarWarp.h
     gpu/TriangleStripWarp.h

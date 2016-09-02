@@ -22,7 +22,7 @@ include(sugar_files)
 # 	)
 # endif()
 
-if(BUILD_OGLES_GPGPU)
+if(DRISHTI_BUILD_OGLES_GPGPU)
   set(DRISHTI_FACE_GPU_HDRS
     gpu/EyeFilter.h
     gpu/FaceStabilizer.h

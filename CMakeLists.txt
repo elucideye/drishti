@@ -45,9 +45,9 @@ drishti_check_platforms()
 
 ## https://tty1.net/blog/2014/cmake-doxygen_en.html
 find_package(Doxygen)
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(DRISHTI_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-if(BUILD_DOCUMENTATION)
+if(DRISHTI_BUILD_DOCUMENTATION)
   include(drishti_configure_doxygen)
   drishti_configure_doxygen()
 endif()
@@ -92,15 +92,15 @@ if(NOT XCODE) # We'll never have openmp on ios, and this test is really slow
   endif()
 endif()
 
-option(BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
-if(BUILD_REGRESSION_SIMD)
+option(DRISHTI_BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
+if(DRISHTI_BUILD_REGRESSION_SIMD)
   add_definitions(-DBUILD_REGRESSION_SIMD=1)
 else()
   add_definitions(-DBUILD_REGRESSION_SIMD=0)
 endif()
 
-option(BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
-if(BUILD_REGRESSION_FIXED_POINT)
+option(DRISHTI_BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
+if(DRISHTI_BUILD_REGRESSION_FIXED_POINT)
   add_definitions(-DBUILD_REGRESSION_FIXED_POINT=1)
 else()
   add_definitions(-DBUILD_REGRESSION_FIXED_POINT=0)
@@ -114,21 +114,21 @@ else()
 endif()
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
-option(BUILD_EXAMPLES "Build the examples" OFF)
-option(BUILD_PUBLIC_SDK "Build the public drishti SDK" ON)
-option(BUILD_DRISHTI_ACF "Drishti ACF lib." OFF)
-option(BUILD_DRISHTI_FACE "Drishti face lib." OFF)
+option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
+option(DRISHTI_BUILD_PUBLIC_SDK "Build the public drishti SDK" ON)
+option(DRISHTI_BUILD_ACF "Drishti ACF lib." OFF)
+option(DRISHTI_BUILD_FACE "Drishti face lib." OFF)
 
 # 3rd party libraries
-option(BUILD_THEIA_SOLVERS "Build theia solvers lib" OFF)
-option(BUILD_DEST "Build dest lib" OFF)
-option(BUILD_TESTS "Build unit tests" ON)
-option(BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
+option(DRISHTI_BUILD_THEIA_SOLVERS "Build theia solvers lib" OFF)
+option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
+option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
+option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
 
 # Note: OGLES_GPGPU handling moved to src folder
-option(BUILD_QT "Build with Qt" OFF)
+option(DRISHTI_BUILD_QT "Build with Qt" OFF)
 
-if(BUILD_QT)
+if(DRISHTI_BUILD_QT)
   message("=== BUILD QT #!#!@#$ ===== ")
   # Do this first for success/fail
   hunter_add_package(Qt COMPONENTS qtmultimedia qtdeclarative qtsensors qtquickcontrols)
@@ -145,10 +145,8 @@ if(BUILD_QT)
 endif()
 
 if(IOS OR ANDROID)
-  set(DRISHTI_OPENGL_ES TRUE)
   add_definitions(-DDRISHTI_OPENGL_ES=1)
 else()
-  set(DRISHTI_OPENGL_ES FALSE)
   add_definitions(-DDRISHTI_OPENGL_ES=0)
 endif()
 
@@ -264,10 +262,10 @@ int main(void) {
     return 0;
 }" HAVE_THREAD_LOCAL_STORAGE)
 
-drishti_option(USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
+drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
 
-option(USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
-if(USE_LOCAL_THREAD_POOL_CPP)
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
+if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_definitions(-DUSE_LOCAL_THREAD_POOL=1)
   set(THREAD_POOL_LIB ) # header only (null)
   include_directories(src/3rdparty/thread-pool-cpp/thread_pool)
@@ -299,9 +297,9 @@ find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams)
 include_directories(${Boost_INCLUDE_DIRS})
 message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
 set(DRISHTI_SDK_BOOST_LIBS
-  Boost::filesystem 
-  Boost::system 
-  Boost::serialization 
+  Boost::filesystem
+  Boost::system
+  Boost::serialization
   Boost::iostreams
   )
 
@@ -317,7 +315,7 @@ find_package(Eigen REQUIRED) # <== not finding hunter provided eigen
 message("EIGEN3_INCLUDE_DIR = ${EIGEN3_INCLUDE_DIR}")
 
 ### CVMATIO
-if(BUILD_DRISHTI_ACF)
+if(DRISHTI_BUILD_ACF)
   hunter_add_package(cvmatio)
   find_package(cvmatio REQUIRED CONFIG)
 endif()
