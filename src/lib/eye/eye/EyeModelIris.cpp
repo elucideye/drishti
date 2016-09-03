@@ -36,7 +36,7 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat &I, EyeModel &eye) const
     CV_Assert(cpr != 0);
 
     cv::Mat1b M;
-    if(cpr->usesMask())
+    if(cpr && cpr->usesMask())
     {
         M = eye.mask(I.size(), false);
     }
