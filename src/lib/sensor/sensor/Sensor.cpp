@@ -19,8 +19,8 @@ SensorModel::Intrinsic::Intrinsic()
 }
 
 SensorModel::Intrinsic::Intrinsic(const cv::Point2f &c, float fx, const cv::Size &size)
-    : m_c(c)
-    , m_size(size)
+    : m_size(size)
+    , m_c(c)
     , m_fx(fx)
 {
 
