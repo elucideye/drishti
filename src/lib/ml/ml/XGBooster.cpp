@@ -157,6 +157,7 @@ public:
         }
 #else
         CV_Assert(false);
+        return nullptr;
 #endif
     }
 
