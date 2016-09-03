@@ -9,7 +9,7 @@
   url = https://github.com/hunter-packages/ogles_gpgpu.git
 [submodule "src/3rdparty/eos"]
   path = src/3rdparty/eos
-  url = https://github.com/headupinclouds/eos.git
+  url = https://github.com/hunter-packages/eos
 [submodule "src/3rdparty/dest"]
   path = src/3rdparty/dest
   url = https://github.com/hunter-packages/dest.git
