@@ -13,8 +13,8 @@
 
 #include "drishti/EyeSegmenterImpl.hpp"
 
-#include "eye/Eye.h" // internal sdk eye model
-#include "eye/EyeModelEstimator.h"
+#include "drishti/eye/Eye.h" // internal sdk eye model
+#include "drishti/eye/EyeModelEstimator.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -23,9 +23,9 @@
 #include "drishti/drishti_cv.hpp" // Must come after opencvx
 
 // auto-generated from ${DRISHTI}/assets/model.pba.z
-//#include "eye_model_rsc.h"
+//#include "drishti/eye_model_rsc.h"
 
-#include "core/Logger.h"
+#include "drishti/core/Logger.h"
 
 #include <string>
 #include <fstream>

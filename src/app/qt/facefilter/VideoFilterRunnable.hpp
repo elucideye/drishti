@@ -41,7 +41,7 @@
 #include <QVideoFilterRunnable>
 #include <QOpenGLFunctions> // introduce GLuint in cross-platform fashion
 
-#include "acf/GPUACF.h"
+#include "drishti/acf/GPUACF.h"
 
 // *INDENT-OFF*
 namespace drishti { namespace acf { class Detector; } };

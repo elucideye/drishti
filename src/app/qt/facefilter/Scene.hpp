@@ -12,8 +12,8 @@
 #define SCENE_H
 
 #include "gpu/LineDrawing.hpp"
-#include "face/Face.h"
-#include "acf/ACF.h"
+#include "drishti/face/Face.h"
+#include "drishti/acf/ACF.h"
 #include <opencv2/core/core.hpp>
 #include <vector>
 

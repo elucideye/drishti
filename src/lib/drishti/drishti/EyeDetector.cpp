@@ -11,7 +11,7 @@
 */
 
 #include "drishti/EyeDetector.hpp"
-#include "acf/ACF.h"
+#include "drishti/acf/ACF.h"
 
 #include <opencv2/core/core.hpp>
 #include "drishti/drishti_cv.hpp"

@@ -15,7 +15,7 @@
 #define __drishtisdk__DrishtiEyeSegmenterImpl__
 
 #include "drishti/EyeSegmenter.hpp"
-#include "core/Logger.h"
+#include "drishti/core/Logger.h"
 
 // *INDENT-OFF*
 namespace drishti { namespace eye { class EyeModelEstimator; } };

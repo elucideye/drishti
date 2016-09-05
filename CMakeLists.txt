@@ -356,28 +356,10 @@ if(NOT IOS AND NOT ANDROID)
 
 endif()
 
+include_directories(src/lib)
+
+# Legacy public interface
 include_directories(src/lib/drishti)
-include_directories(src/lib/core)
-include_directories(src/lib/ml)
-include_directories(src/lib/acf)
-include_directories(src/lib/rcpr)
-include_directories(src/lib/geometry)
-include_directories(src/lib/graphics)
-include_directories(src/lib/sensor)
-include_directories(src/lib/face)
-include_directories(src/lib/eye)
 
 add_subdirectory(src)
 
-message("${PROJECT_NAME}:")
-message("-- system --")
-message("  APPLE: ${APPLE}")
-message("  iOS: ${IOS}")
-message("-- configuration --")
-message("  Build shared libraries: ${BUILD_SHARED_LIBS}")
-message("-- packages --")
-message("  Sugar: ${SUGAR_ROOT}/cmake/Sugar")
-message("  ZLIB: ${ZLIB_DIR}")
-message("  OpenCV: ${OpenCV_DIR}")
-message("  CVMATIO: ${CVMATIO_DIR}")
-message("  GPUImage: ${GPUImage_DIR}")

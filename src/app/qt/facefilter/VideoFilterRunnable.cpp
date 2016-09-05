@@ -37,7 +37,7 @@
 
 #include <cassert> // assert
 
-#include "graphics/drishti_graphics.h"
+#include "drishti/graphics/drishti_graphics.h"
 
 #include "FaceFinder.h"
 #include "FrameHandler.h"
