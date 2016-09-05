@@ -121,6 +121,12 @@ option(DRISHTI_BUILD_FACE "Drishti face lib." OFF)
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
+
+if(DRISHTI_BUILD_TESTS)
+  hunter_add_package(GTest)
+  find_package(GTest CONFIG REQUIRED)
+endif()
+
 option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
 
 # Note: OGLES_GPGPU handling moved to src folder

@@ -70,6 +70,13 @@ foreach(library ${DRISHTI_LIBS})
     )
 endforeach()
 
+##
+## Unit tests
+##
+
+add_subdirectory(drishti)
+add_subdirectory(acf)
+
 include_directories("${PROJECT_BINARY_DIR}")
 generate_export_header(drishti_core)
 
