@@ -11,7 +11,7 @@
 #ifndef OGLES_GPGPU_GAIN_H
 #define OGLES_GPGPU_GAIN_H
 
-#include "acf/drishti_acf.h"
+#include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/base/filterprocbase.h"
 
 BEGIN_OGLES_GPGPU

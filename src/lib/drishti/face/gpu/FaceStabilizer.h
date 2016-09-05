@@ -11,9 +11,9 @@
 #ifndef FACE_STABILIZER_H
 #define FACE_STABILIZER_H
 
-#include "face/Face.h"
-#include "eye/Eye.h"
-#include "eye/gpu/EyeWarp.h" // utility
+#include "drishti/face/Face.h"
+#include "drishti/eye/Eye.h"
+#include "drishti/eye/gpu/EyeWarp.h" // utility
 
 #include <opencv2/core.hpp>
 

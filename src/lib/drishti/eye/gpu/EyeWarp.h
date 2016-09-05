@@ -11,7 +11,7 @@
 #ifndef EYE_WARP_H
 #define EYE_WARP_H 1
 
-#include "eye/Eye.h"
+#include "drishti/eye/Eye.h"
 
 #include <opencv2/core/core.hpp>
 

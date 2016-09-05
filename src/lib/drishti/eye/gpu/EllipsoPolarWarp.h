@@ -11,8 +11,8 @@
 #ifndef ELLIPSO_POLAR_WARP_H
 #define ELLIPSO_POLAR_WARP_H
 
-#include "eye/gpu/TriangleStripWarp.h"
-#include "eye/gpu/EyeWarp.h"
+#include "drishti/eye/gpu/TriangleStripWarp.h"
+#include "drishti/eye/gpu/EyeWarp.h"
 
 #include <opencv2/core.hpp>
 

@@ -12,7 +12,7 @@
 #ifndef OGLES_GPGPU_SWIZZLE2_H
 #define OGLES_GPGPU_SWIZZLE2_H
 
-#include "acf/drishti_acf.h"
+#include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/two.h"
 
 BEGIN_OGLES_GPGPU

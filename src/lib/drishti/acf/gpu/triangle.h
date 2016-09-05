@@ -14,10 +14,10 @@
 #ifndef OGLES_GPGPU_COMMON_PROC_TRIANGLE
 #define OGLES_GPGPU_COMMON_PROC_TRIANGLE
 
-#include "acf/drishti_acf.h"
+#include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/common_includes.h"
 #include "ogles_gpgpu/common/proc/base/multipassproc.h"
-#include "acf/gpu/multipass/triangle_pass.h"
+#include "drishti/acf/gpu/multipass/triangle_pass.h"
 
 BEGIN_OGLES_GPGPU
 

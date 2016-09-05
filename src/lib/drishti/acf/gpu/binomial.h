@@ -11,7 +11,7 @@
 #ifndef OGLES_GPGPU_BINOMIAL_H
 #define OGLES_GPGPU_BINOMIAL_H
 
-#include "acf/drishti_acf.h"
+#include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/filter3x3.h"
 
 BEGIN_OGLES_GPGPU

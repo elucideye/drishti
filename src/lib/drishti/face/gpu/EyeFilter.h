@@ -19,11 +19,11 @@
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/common_includes.h"
 
-#include "face/gpu/FaceStabilizer.h"
-#include "face/gpu/MultiTransformProc.h"
+#include "drishti/face/gpu/FaceStabilizer.h"
+#include "drishti/face/gpu/MultiTransformProc.h"
 
-#include "face/Face.h"
-#include "eye/gpu/EyeWarp.h"
+#include "drishti/face/Face.h"
+#include "drishti/eye/gpu/EyeWarp.h"
 
 #include <opencv2/core.hpp>
 
