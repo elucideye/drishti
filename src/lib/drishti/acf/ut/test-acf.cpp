@@ -14,14 +14,16 @@
 
 extern const char* imageFilename;
 extern const char* truthFilename;
+extern const char* modelFilename;
 
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
 
     ::testing::InitGoogleTest(&argc, argv);
-    assert(argc == 3);
+    assert(argc == 4);
     imageFilename = argv[1];
     truthFilename = argv[2];
+    modelFilename = argv[3];
     return RUN_ALL_TESTS();
 }
