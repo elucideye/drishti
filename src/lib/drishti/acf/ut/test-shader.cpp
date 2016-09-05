@@ -6,18 +6,30 @@
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
+  This file has various tests for comparing GPU ACF output with the
+  reference CPU ACF output.  This is a WIP and there is currently 
+  liberal use of cv::imshow() for visualization, etc.  This needs to
+  be automated and reasonable tolerances on GPU vs CPU discrepancies 
+  need to be established.
+
 */
+
+// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
+// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
+// #!#!#!#!#!#!#!#!#!#!#!#!#!#!# Work in progress !#!#!#!#!#!#!#!#!#!#!#!#!
+// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
+// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 
 #include <gtest/gtest.h>
 
 #include "QGLContext.h"
-#include "core/Logger.h"
-#include "core/drawing.h"
-#include "acf/ACF.h"
-#include "acf/MatP.h"
-#include "acf/GPUACF.h"
-#include "acf/gpu/gain.h"
-#include "acf/gpu/triangle.h"
+#include "drishti/core/Logger.h"
+#include "drishti/core/drawing.h"
+#include "drishti/acf/ACF.h"
+#include "drishti/acf/MatP.h"
+#include "drishti/acf/GPUACF.h"
+#include "drishti/acf/gpu/gain.h"
+#include "drishti/acf/gpu/triangle.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -53,9 +65,6 @@ const char* modelFilename;
 
 #include <iostream>
 #include <chrono>
-
-//#define BEGIN_OGLES_GPGPU namespace ogles_gpgpu {
-//#define END_OGLES_GPGPU }
 
 #define BEGIN_EMPTY_NAMESPACE namespace {
 #define END_EMPTY_NAMESPACE }
