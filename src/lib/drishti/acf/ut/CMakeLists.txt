@@ -31,7 +31,7 @@ if(DRISHTI_BUILD_QT)
   ##
 
   enable_testing()
-  add_test(acf_test test-acf
+  add_test(NAME acf_test COMMAND test-acf
     "${CMAKE_SOURCE_DIR}/assets/images/lena512color.png"
     "${CMAKE_SOURCE_DIR}/assets/images/lena512gray.png"
     "${CMAKE_SOURCE_DIR}/assets/drishti_face_inner_48x48.mat"
