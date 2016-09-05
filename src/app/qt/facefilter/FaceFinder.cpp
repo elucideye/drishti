@@ -13,16 +13,16 @@
 #include "QtFaceDetectorFactory.h"
 #include "gpu/FacePainter.h"
 #include "gpu/FlashFilter.h"
-#include "face/gpu/EyeFilter.h"
-#include "eye/gpu/EllipsoPolarWarp.h"
-#include "eye/gpu/EyeWarp.h"
 
-#include "core/Logger.h"
-#include "face/FaceDetectorAndTracker.h"
-#include "face/FaceModelEstimator.h"
-#include "face/FaceDetector.h"
+#include "drishti/face/gpu/EyeFilter.h"
+#include "drishti/eye/gpu/EllipsoPolarWarp.h"
+#include "drishti/eye/gpu/EyeWarp.h"
+#include "drishti/core/Logger.h"
+#include "drishti/face/FaceDetectorAndTracker.h"
+#include "drishti/face/FaceModelEstimator.h"
+#include "drishti/face/FaceDetector.h"
 
-#include "geometry/motion.h"
+#include "drishti/geometry/motion.h"
 
 #include "ogles_gpgpu/common/proc/fifo.h"
 

@@ -57,7 +57,7 @@
 #include "FrameHandler.h"
 #include "QtStream.h"
 
-#include "core/Logger.h"
+#include "drishti/core/Logger.h"
 
 #include "nlohmann/json.hpp" // nlohman-json
 

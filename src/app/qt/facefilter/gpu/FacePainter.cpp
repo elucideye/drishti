@@ -9,8 +9,8 @@
 */
 
 #include "gpu/FacePainter.h"
-#include "face/gpu/FaceStabilizer.h"
-#include "geometry/motion.h"
+#include "drishti/face/gpu/FaceStabilizer.h"
+#include "drishti/geometry/motion.h"
 
 #include <opencv2/imgproc.hpp>
 

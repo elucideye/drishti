@@ -11,7 +11,7 @@
 */
 
 #include "drishti/Eye.hpp"
-#include "core/drishti_serialize.h"
+#include "drishti/core/drishti_serialize.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>

@@ -15,16 +15,16 @@
  * GPGPU transform processor.
  */
 
-#include "face/gpu/EyeFilter.h"
-//#include "face/gpu/EyePairStabilizer.h"
+#include "drishti/face/gpu/EyeFilter.h"
+//#include "drishti/face/gpu/EyePairStabilizer.h"
 
-#include "acf/drishti_acf.h"
+#include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/transform.h"
 #include "ogles_gpgpu/common/common_includes.h"
 
 #include "gpu/LineDrawing.hpp"
 
-#include "face/Face.h" // face model
+#include "drishti/face/Face.h" // face model
 
 #include <opencv2/core/core.hpp>
 

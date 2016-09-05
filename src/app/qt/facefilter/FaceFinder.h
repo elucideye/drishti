@@ -10,11 +10,11 @@
 #ifndef FACE_FINDER_H
 #define FACE_FINDER_H
 
-#include "acf/GPUACF.h"
-#include "acf/ACF.h"
-#include "face/Face.h"
-#include "face/FaceDetectorFactory.h"
-#include "sensor/Sensor.h"
+#include "drishti/acf/GPUACF.h"
+#include "drishti/acf/ACF.h"
+#include "drishti/face/Face.h"
+#include "drishti/face/FaceDetectorFactory.h"
+#include "drishti/sensor/Sensor.h"
 
 #include "Scene.hpp"
 

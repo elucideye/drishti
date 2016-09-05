@@ -6,10 +6,10 @@
 #include <QDirIterator>
 #include "QtStream.h"
 
-#include "core/drishti_core.h"
-#include "acf/ACF.h"
-#include "ml/RegressionTreeEnsembleShapeEstimator.h"
-#include "eye/EyeModelEstimator.h"
+#include "drishti/core/drishti_core.h"
+#include "drishti/acf/ACF.h"
+#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
+#include "drishti/eye/EyeModelEstimator.h"
 
 #include <iostream>
 

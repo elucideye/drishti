@@ -1,7 +1,7 @@
 #ifndef ASSET_MANAGER_H
 #define ASSET_MANAGER_H
 
-#include "face/FaceDetectorFactory.h"
+#include "drishti/face/FaceDetectorFactory.h"
 
 namespace drishti
 {

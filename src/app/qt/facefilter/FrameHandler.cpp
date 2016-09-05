@@ -10,9 +10,9 @@
 
 #include "FrameHandler.h"
 
-#include "sensor/Sensor.h"
+#include "drishti/sensor/Sensor.h"
 
-#include "core/Logger.h"
+#include "drishti/core/Logger.h"
 
 
 // Sample:
