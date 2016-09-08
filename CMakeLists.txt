@@ -36,8 +36,7 @@ message("CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 ## call, so we need to populate system variable before that.
 ## Do note move this!!!!!!!!
 #####################################################################
-include(drishti_check_platforms)
-drishti_check_platforms()
+string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 
 ####################################################################
 ## Doxygen
