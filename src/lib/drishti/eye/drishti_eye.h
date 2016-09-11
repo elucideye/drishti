@@ -15,6 +15,5 @@
 #define DRISHTI_EYE_END } }
 
 #define DRISHTI_EYE drishti::eye
-#define IRIS eye::
 
 #endif
