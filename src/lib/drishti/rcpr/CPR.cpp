@@ -14,10 +14,10 @@
 #include "drishti/acf/ACFField.h"
 
 // Deprecated backwards compatibility
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
 #  include "cvmatio/MatlabIO.hpp"
 #  include "cvmatio/MatlabIOContainer.hpp"
-#  include "acf/ACFIO.h"
+#  include "drishti/acf/ACFIO.h"
 #endif
 
 #include "drishti/core/serialization.h"
@@ -67,7 +67,7 @@ void CPR::CprPrm::FtrPrm::merge(const CPR::CprPrm::FtrPrm &opts, int checkExtra)
 CPR::CPR() {}
 CPR::CPR(const CPR &src) {}
 
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
 CPR::CPR(const std::string &filename)
 {
     deserialize(filename);
@@ -100,8 +100,8 @@ int CPR::operator()(const cv::Mat &I, const cv::Mat &M, Point2fVec &points, Bool
 
     if(m_isMat)
     {
-#if DO_LEAN_CPR
-        std::cerr << "Software configured without random fern regressors: see DO_LEAN_CPR" << std::endl;
+#if DRISHTI_CPR_DO_LEAN
+        std::cerr << "Software configured without random fern regressors: see DRISHTI_CPR_DO_LEAN" << std::endl;
         CV_Assert(m_isMat == false);
 #else
         CPROpts  opts;
@@ -133,7 +133,7 @@ int CPR::operator()(const cv::Mat &I, const cv::Mat &M, Point2fVec &points, Bool
             {ellipse.angle, 0.f}
         };
 
-        if(CPR_TRANSPOSE)
+        if(DRISHTI_CPR_TRANSPOSE)
         {
             float theta = ellipse.angle * M_PI/180.0;
             std::swap(points[0].x, points[1].x);
@@ -209,7 +209,7 @@ template<class Archive> void CPR::CprPrm::serialize(Archive & ar, const unsigned
     ar & T;
     ar & L;
     ar & ftrPrm;
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
     ar & fernPrm;
 #endif
     ar & verbose;
@@ -224,7 +224,7 @@ template<class Archive> void CPR::RegModel::Regs::FtrData::serialize(Archive & a
     ar & F;
     ar & nChn;
 
-#if DO_HALF_FLOAT
+#if DRISHTI_CPR_DO_HALF_FLOAT
     std::vector<PointHalf> xs_;
     if(Archive::is_loading::value)
     {
@@ -239,19 +239,19 @@ template<class Archive> void CPR::RegModel::Regs::FtrData::serialize(Archive & a
 #else
     ar & xs;
 #endif
+    
     ar & pids;
 }
 
 template<class Archive> void CPR::RegModel::Regs::serialize(Archive & ar, const unsigned int version)
 {
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
     ar & ferns;
 #endif
+    
     ar & ftrData;
     ar & r;
     ar & xgbdt;
-
-    //ar & pca;
 }
 
 template<class Archive> void CPR::RegModel::serialize(Archive & ar, const unsigned int version)
