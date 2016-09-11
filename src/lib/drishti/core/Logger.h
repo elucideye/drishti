@@ -35,29 +35,40 @@ protected:
     static int m_count;
 };
 
+// Enable only one of these:
+#define DRISHTI_DO_VERBOSE_LOGGING 0
+#define DRISHTI_DO_COMPACT_LOGGING 0
+#define DRISHTI_DO_NO_LOGGING 1
+
+#if DRISHTI_DO_VERBOSE_LOGGING
 // Verbose:
-//#define DRISHTI_STREAM_LOG_FUNC(0,1,ptr) do \
-//{                                           \
-//    if(ptr)                                 \
-//    {                                                         \
-//        ptr->info() << __PRETTY_FUNCTION__ << "::" << __func__;   \
-//    }                                                             \
-//} while (0)
+#define DRISHTI_STREAM_LOG_FUNC(0,1,ptr) do                      \
+{                                                                \
+    if(ptr)                                                      \
+    {                                                            \
+        ptr->info() << __PRETTY_FUNCTION__ << "::" << __func__;  \
+    }                                                            \
+} while (0)
+#endif
 
+#if DRISHTI_DO_COMPACT_LOGGING
 // Minimal:
-//#define DRISHTI_STREAM_LOG_FUNC(FILE_ID,CHECKPOINT,ptr) do    \
-//{                                                             \
-//    if(ptr)                                                   \
-//    {                                                         \
-//        if(drishti::core::Logger::count() < 4)                \
-//        {                                                     \
-//            ptr->info() << FILE_ID << ":" << CHECKPOINT;      \
-//        }                                                     \
-//    }                                                         \
-//} while (0)
+#define DRISHTI_STREAM_LOG_FUNC(FILE_ID,CHECKPOINT,ptr) do   \
+{                                                            \
+   if(ptr)                                                   \
+   {                                                         \
+       if(drishti::core::Logger::count() < 999999)           \
+       {                                                     \
+           ptr->info() << FILE_ID << ":" << CHECKPOINT;      \
+       }                                                     \
+   }                                                         \
+} while (0)
+#endif
 
+#if DRISHTI_DO_NO_LOGGING
 // Disable:
 #define DRISHTI_STREAM_LOG_FUNC(FILE_ID,CHECKPOINT,ptr)
+#endif
 
 DRISHTI_CORE_END
 
