@@ -8,16 +8,22 @@
 
 */
 
-#include "drawing.h"
-#include "drishti_core.h"
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/imgproc/imgproc_c.h>
+#include "drishti/core/drawing.h"
+#include "drishti/core/drishti_core.h"
+
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include <opencv2/highgui/highgui.hpp>
+#  include <opencv2/imgproc/imgproc.hpp>
+#  include <opencv2/imgproc/imgproc_c.h>
+#endif
 
 DRISHTI_CORE_BEGIN
 
 void quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int step, float scale, const cv::Mat1b &mask)
 {
+#if DRISHTI_BUILD_MIN_SIZE
+    assert(false);
+#else
     for(int y = 0; y < canvas.rows; y += step)
     {
         for(int x = 0; x < canvas.cols; x += step)
@@ -32,6 +38,7 @@ void quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int ste
             cv::arrowedLine(canvas, cv::Point(x, y), cv::Point(x,y)+v, CV_RGB(0,255,0), 1, CV_AA);
         }
     }
+#endif
 }
 
 DRISHTI_CORE_END
