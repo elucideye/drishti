@@ -12,20 +12,14 @@
 */
 
 #include "drishti/EyeSegmenterImpl.hpp"
-
 #include "drishti/eye/Eye.h" // internal sdk eye model
 #include "drishti/eye/EyeModelEstimator.h"
+#include "drishti/core/Logger.h"
 
+// OpenCV inlucdes must come before drishti_cv.hpp
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
 #include "drishti/drishti_cv.hpp" // Must come after opencvx
-
-// auto-generated from ${DRISHTI}/assets/model.pba.z
-//#include "drishti/eye_model_rsc.h"
-
-#include "drishti/core/Logger.h"
 
 #include <string>
 #include <fstream>
@@ -68,7 +62,7 @@ void EyeSegmenter::Impl::init(std::istream &is)
     m_eme->setEyelidInits(1); // fast configuration:
     m_eme->setIrisInits(1);
 
-    m_streamLogger = core::Logger::create("SEGMENT");
+    //m_streamLogger = core::Logger::create("SEGMENT");
     m_eme->setStreamLogger(m_streamLogger);
 }
 
