@@ -46,6 +46,7 @@ public:
     }
 };
 
+// http://stackoverflow.com/a/19280868
 struct csv_reader: std::ctype<char>
 {
     csv_reader(): std::ctype<char>(get_table()) {}
