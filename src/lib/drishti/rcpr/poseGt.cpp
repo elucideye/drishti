@@ -14,8 +14,9 @@
 
 #include <opencv2/imgproc.hpp>
 
-#define DRISHTI_RCPR_DO_FTR_DEBUG 0
-#define DRISHTI_RCPR_DO_FEATURE_MASK 1
+#define DRISHTI_CPR_DO_FTR_DEBUG 0
+#define DRISHTI_CPR_DO_FEATURE_MASK 1
+#define DRISHTI_CPR_USE_FEATURE_SEPARATION_PRIOR 1
 
 DRISHTI_RCPR_BEGIN
 
@@ -157,12 +158,12 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
     std::vector<cv::Point> pts;
     auto && inds = xsToInds(HS, xs, w, h, nChn, DRISHTI_CPR_TRANSPOSE, stride); // TODO: rowStride != cols
 
-#if DRISHTI_RCPR_DO_FEATURE_MASK
+#if DRISHTI_CPR_DO_FEATURE_MASK
     const auto &M = Im.getMask();
     auto &mask = result.ftrMask;
 #endif
 
-#if DRISHTI_RCPR_DO_FTR_DEBUG
+#if DRISHTI_CPR_DO_FTR_DEBUG
     cv::Mat tmp1(M.size(), CV_8UC1, cv::Scalar::all(0)), tmp2 = tmp1.clone();
 #endif
 
@@ -195,7 +196,7 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
 
         ftrs[j] =  d;
 
-#if DRISHTI_RCPR_DO_FEATURE_MASK
+#if DRISHTI_CPR_DO_FEATURE_MASK
         // Store occlusion estimate
         // TODO: test impact of full and partial occlusion
         if(!M.empty())
@@ -210,7 +211,7 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
                 ftrs[j] = NAN;
             }
 
-#if DRISHTI_RCPR_DO_FTR_DEBUG
+#if DRISHTI_CPR_DO_FTR_DEBUG
             m1 = m2 = 255;
             tmp1.ptr()[inds[i+0]] = 255 * int(m1 && m2);
             tmp1.ptr()[inds[i+1]] = 255 * int(m1 && m2);
@@ -219,7 +220,7 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
 #endif
     }
 
-#if DRISHTI_RCPR_DO_FTR_DEBUG
+#if DRISHTI_CPR_DO_FTR_DEBUG
     cv::imshow("tmp1", tmp1); // opt
     cv::imshow("M", M); // opt
     cv::imshow("I", I); // opt
@@ -300,8 +301,7 @@ int ftrsGen(const CPR::Model &model, const CPR::CprPrm::FtrPrm &ftrPrmIn, FtrDat
     // currently only one model part:
     ftrData.xs = { "xs",  PointVec() };
 
-#define USE_FEATURE_SEPARATION_PRIOR 1
-#if USE_FEATURE_SEPARATION_PRIOR
+#if DRISHTI_CPR_USE_FEATURE_SEPARATION_PRIOR
     // Generate a bunch of pixels:
     std::vector<cv::Point2f> points;
     cv::RNG rng;
