@@ -16,4 +16,8 @@
 #  define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406 
 #endif
 
+#ifndef M_SQRT2
+#  define M_SQRT2 1.41421356237309504880
+#endif
+
 #endif // drishtisdk_core_drishti_math_h
