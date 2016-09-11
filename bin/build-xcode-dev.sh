@@ -12,6 +12,7 @@ fi
 
 DRISHTI_BUILD_QT=ON
 DRISHTI_BUILD_OGLES_GPGPU=ON
+DRISHTI_BUILD_TESTS=ON
 
 rename_tab drishti ${TOOLCHAIN}
 
@@ -25,11 +26,12 @@ COMMAND=(
     "CMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT} "
     "DRISHTI_BUILD_QT=${DRISHTI_BUILD_QT} "
     "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
+    "DRISHTI_BUILD_TESTS=${DRISHTI_BUILD_TESTS} "
     "--config Release "
     "--jobs 8 "
     "--open "
     "--install "
-    "${EXTRA_ARGS}"
+    "${EXTRA_ARGS}"  "--test "
 )
 
 build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
