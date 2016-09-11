@@ -8,7 +8,7 @@
 
 */
 
-#include "gradhist.h"
+#include "drishti/acf/gpu/gradhist.h"
 
 BEGIN_OGLES_GPGPU
 

@@ -18,13 +18,17 @@
 #include "drishti/geometry/Ellipse.h"
 
 #if !DRISHTI_BUILD_MIN_SIZE
-#include "drishti/geometry/EllipseSerializer.h"
+#  include "drishti/geometry/EllipseSerializer.h"
 #endif
 
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
 
-#include <opencv2/highgui.hpp>
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include <opencv2/highgui.hpp>
+#endif
+
+#define DO_DRAW_INITIAL_SHAPE 0
 
 using namespace drishti;
 using namespace drishti::core;
@@ -381,7 +385,6 @@ void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &c
         }
     }
 
-#define DO_DRAW_INITIAL_SHAPE 0
 #if DO_DRAW_INITIAL_SHAPE
     // Draw the initial shape for visualization:
     const cv::Point2f *pI = reinterpret_cast<const cv::Point2f *>(&initial_shape_ref(0,0));

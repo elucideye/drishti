@@ -10,8 +10,8 @@
 
 #include <stdio.h>
 
-#include "string_utils.h"
-#include "Line.h" // for csv_reader
+#include "drishti/core/string_utils.h"
+#include "drishti/core/Line.h" // for csv_reader
 #include <locale>
 
 DRISHTI_CORE_BEGIN

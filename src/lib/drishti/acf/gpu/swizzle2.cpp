@@ -8,7 +8,7 @@
 
 */
 
-#include "swizzle2.h"
+#include "drishti/acf/gpu/swizzle2.h"
 
 BEGIN_OGLES_GPGPU
 

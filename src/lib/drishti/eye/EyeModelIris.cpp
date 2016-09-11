@@ -13,19 +13,22 @@
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 
-#include <opencv2/highgui.hpp>
-
 DRISHTI_EYE_BEGIN
+
+#define DRISHTI_CPR_DEBUG_PHI_ESTIMATE 0
+
+#if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
+#  include <opencv2/highgui.hpp>
+#endif
+
+#if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
+static void drawIrisEstimates(const cv::Mat &I, const EllipseVec &irises, const std::string &name="iris");
+static cv::RotatedRect tranpose(cv::RotatedRect e);
+#endif
 
 static cv::RotatedRect ellipseFromCircle(const cv::Point2f &c, float radius, float theta);
 static void jitter(cv::RNG &rng, const EyeModel &eye, const geometry::UniformSimilarityParams &params, EllipseVec &irises, int n);
 static void createIrisEstimates(const EyeModel &eye, const cv::RotatedRect &pStar, EllipseVec &irises);
-static void drawIrisEstimates(const cv::Mat &I, const EllipseVec &irises, const std::string &name="iris");
-static cv::RotatedRect tranpose(cv::RotatedRect e);
-
-#define DEBUG_IRIS 0
-#define DO_JITTER 1 // allow override of m_irisInits
-#define DEBUG_PHI_ESTIMATE 0
 
 void EyeModelEstimator::Impl::segmentIris(const cv::Mat &I, EyeModel &eye) const
 {
@@ -45,15 +48,13 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat &I, EyeModel &eye) const
     EllipseVec irises;
     createIrisEstimates(eye, cpr->getPStar(), irises);
 
-#if DO_JITTER
     cv::RNG rng;
     if(m_irisInits > 1)
     {
         jitter(rng, eye, m_jitterIrisParams, irises, m_irisInits-1);
     }
-#endif
 
-#if DEBUG_PHI_ESTIMATE
+#if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
     drawIrisEstimates(I, irises, "iris-in");
 #endif
 
@@ -70,7 +71,7 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat &I, EyeModel &eye) const
         eye.irisEllipse = geometry::pointsToEllipse(points);
     }
 
-#if CPR_TRANSPOSE
+#if DRISHTI_CPR_TRANSPOSE
     eye.irisEllipse = tranpose(eye.irisEllipse);
 #endif
 }
@@ -78,7 +79,7 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat &I, EyeModel &eye) const
 cv::RotatedRect
 EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat &I, const cv::Mat &M, const EllipseVec &irises) const
 {
-#if DEBUG_PHI_ESTIMATE
+#if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
     EllipseVec estimates;
 #endif
 
@@ -86,7 +87,6 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat &I, const cv::Mat &M,
     std::function<void(int)> worker = [&](int i)
     {
         // Find iris:
-        // TODO: currently override 2d point interface
         std::vector<bool> mask;
         std::vector<cv::Point2f> points = geometry::ellipseToPoints(irises[i]);
         ScopeTimer timer("iris_time", m_doVerbose);
@@ -98,7 +98,7 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat &I, const cv::Mat &M,
             params[j][i] = phi[j];
         }
 
-#if DEBUG_PHI_ESTIMATE
+#if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
         estimates.push_back(drishti::rcpr::phiToEllipse(phi));
 #endif
     };
@@ -110,7 +110,7 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat &I, const cv::Mat &M,
     harness({0, int(irises.size())});
     //cv::parallel_for_({0, int(irises.size())}, harness, 2);
 
-#if DEBUG_PHI_ESTIMATE
+#if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
     drawIrisEstimates(I, estimates, "iris-out");
 #endif
 
@@ -192,6 +192,7 @@ static void createIrisEstimates(const EyeModel &eye, const cv::RotatedRect &pSta
     }
 }
 
+#if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
 static void drawIrisEstimates(const cv::Mat &I, const EllipseVec &irises, const std::string &name)
 {
     cv::Mat canvas;
@@ -214,6 +215,6 @@ static cv::RotatedRect tranpose(cv::RotatedRect e)
     e.angle = std::atan2(std::cos(theta), std::sin(theta)) * 180.0 / M_PI;
     return e;
 }
-
+#endif // DRISHTI_CPR_DEBUG_PHI_ESTIMATE
 
 DRISHTI_EYE_END

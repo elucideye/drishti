@@ -8,7 +8,7 @@
 
 */
 
-#include "drishti_core.h"
+#include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>
 
 #ifndef CORE_PADDING_H

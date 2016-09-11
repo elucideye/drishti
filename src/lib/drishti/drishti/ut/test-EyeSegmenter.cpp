@@ -264,11 +264,6 @@ TEST_F(EyeSegmenterTest, ImageValid)
             const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
             ASSERT_GT( PASCAL(eye, *m_eye), threshold );
         }
-
-        // cv::Mat canvas = m_images[i].storage.clone();
-        // draw(canvas, eye);
-        // cv::imshow("canvas", canvas);
-        // cv::waitKey(0);
     }
 }
 
@@ -397,8 +392,8 @@ static float PASCAL(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB
 #define DEBUG_PASCAL 0
 #if DEBUG_PASCAL
     std::cout << "SCORE: " << score << std::endl;
-    cv::imshow("maskA", maskA);
-    cv::imshow("maskB", maskB);
+    cv::imshow("maskA", maskA); // opt
+    cv::imshow("maskB", maskB); // opt
     cv::waitKey(0);
 #endif
 

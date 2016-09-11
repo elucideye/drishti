@@ -12,12 +12,10 @@
 
 #include "drishti/Eye.hpp"
 #include "drishti/core/drishti_serialize.h"
+#include "drishti/drishti_cv.hpp"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-
-#include "drishti/drishti_cv.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -26,8 +24,6 @@
 CEREAL_CLASS_VERSION(drishti::sdk::Eye, 1);
 
 _DRISHTI_SDK_BEGIN
-
-// TODO: Better way to serialize templates non intrusively (without specialization)
 
 // ### Vec2
 

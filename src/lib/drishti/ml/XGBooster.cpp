@@ -94,13 +94,21 @@ public:
     {
         DRISHTI_STREAM_LOG_FUNC(7,1,m_streamLogger);
 
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+        return nullptr;
+#else
         this->CheckInitModel();
         this->Predict(dmat, (option_mask&1) != 0, &this->preds_, ntree_limit, (option_mask&2) != 0);
         *len = static_cast<bst_ulong>(this->preds_.size());
         return BeginPtr(this->preds_);
+#endif
     }
     inline void BoostOneIter(const DataMatrix &train, float *grad, float *hess, bst_ulong len)
     {
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+#else
         DRISHTI_STREAM_LOG_FUNC(7,2,m_streamLogger);
 
         this->gpair_.resize(len);
@@ -111,6 +119,7 @@ public:
             gpair_[j] = bst_gpair(grad[j], hess[j]);
         }
         gbm_->DoBoost(train.fmat(), this->FindBufferOffset(train), train.info.info, &gpair_);
+#endif
     }
     inline void CheckInitModel(void)
     {
@@ -122,26 +131,29 @@ public:
     }
     inline void LoadModel(const char *fname)
     {
-#if !DRISHTI_BUILD_MIN_SIZE 
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+#else
         learner::BoostLearner::LoadModel(fname);
         this->init_model = true;
-#else
-        CV_Assert(false);
 #endif
     }
     inline void LoadModelFromBuffer(const void *buf, size_t size)
     {
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+#else
         utils::MemoryFixSizeBuffer fs((void*)buf, size);
         learner::BoostLearner::LoadModel(fs, true);
         this->init_model = true;
-#else
-        CV_Assert(false);
 #endif
     }
     inline const char *GetModelRaw(bst_ulong *out_len)
     {
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+        return nullptr;
+#else
         this->CheckInitModel();
         model_str.resize(0);
         utils::MemoryBufferStream fs(&model_str);
@@ -155,9 +167,6 @@ public:
         {
             return &model_str[0];
         }
-#else
-        CV_Assert(false);
-        return nullptr;
 #endif
     }
 
@@ -233,6 +242,10 @@ DMatrixSimpleFromMat(const float *data, bst_ulong nrow, bst_ulong ncol, float  m
 std::shared_ptr<DMatrixSimple>
 DMatrixSimpleFromMat(const MatrixType<float> &data, bst_ulong nrow, bst_ulong ncol, float  missing)
 {
+#if DRISHTI_BUILD_MIN_SIZE
+    assert(false);
+    return std::shared_ptr<DMatrixSimple>();
+#else
     bool nan_missing = utils::CheckNAN(missing);
 
     std::shared_ptr<DMatrixSimple> p_mat = std::make_shared<DMatrixSimple>();
@@ -260,6 +273,7 @@ DMatrixSimpleFromMat(const MatrixType<float> &data, bst_ulong nrow, bst_ulong nc
         mat.row_ptr_.push_back(mat.row_ptr_.back() + nelem);
     }
     return p_mat;
+#endif
 }
 
 std::shared_ptr<DMatrixSimple>
@@ -361,7 +375,9 @@ public:
 
     void train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask= {})
     {
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+#else
         std::shared_ptr<DMatrixSimple> dTrain = xgboost::DMatrixSimpleFromMat(features, features.size(), features[0].size(), mask);
         dTrain->info.labels = values;
 
@@ -381,7 +397,9 @@ public:
 
     void read(const std::string &name)
     {
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+#else
         // normal XGBoost logging not needed with boost serialization
         m_booster->LoadModel(name.c_str());
 #endif
@@ -389,7 +407,9 @@ public:
 
     void write(const std::string &name)
     {
-#if !DRISHTI_BUILD_MIN_SIZE        
+#if DRISHTI_BUILD_MIN_SIZE
+        assert(false);
+#else
         m_booster->SaveModel(name.c_str(), true); // with_pbuffer TODO
 #endif
     }
@@ -445,20 +465,26 @@ float XGBooster::operator()(const std::vector<float> &features)
 
 void XGBooster::train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask)
 {
-#if !DRISHTI_BUILD_MIN_SIZE    
+#if DRISHTI_BUILD_MIN_SIZE
+    assert(false);
+#else
     m_impl->train(features, values, mask);
 #endif
 }
 
 void XGBooster::read(const std::string &filename)
 {
-#if !DRISHTI_BUILD_MIN_SIZE     
+#if DRISHTI_BUILD_MIN_SIZE
+    assert(false);
+#else
     m_impl->read(filename);
 #endif
 }
 void XGBooster::write(const std::string &filename) const
 {
-#if !DRISHTI_BUILD_MIN_SIZE 
+#if DRISHTI_BUILD_MIN_SIZE
+    assert(false);
+#else
     m_impl->write(filename);
 #endif 
 }
@@ -481,11 +507,11 @@ template<class Archive> void XGBooster::serialize(Archive & ar, const unsigned i
     ar & m_impl;
 }
 
-//#if !DRISHTI_BUILD_MIN_SIZE
 template void XGBooster::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
+#if !DRISHTI_BUILD_MIN_SIZE
 template void XGBooster::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-//#endif
+#endif
 
 template void XGBooster::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void XGBooster::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);

@@ -10,13 +10,6 @@
 
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 
-#include <dlib/image_transforms/assign_image.h>
-#include <dlib/statistics/statistics.h>
-#include <dlib/image_processing/shape_predictor.h>
-#include <dlib/opencv/cv_image.h>
-#include <dlib/vectorstream.h>
-#include <dlib/serialize.h>
-
 // This type uses the multi-variate gradient boosted regression trees from dlib
 // modified to support shape space model regression to reduce memory requirements.
 // In addition, a few other options have been added such as normalized pixel
@@ -87,8 +80,6 @@ public:
         {
             packPointsInShape(points, m_predictor->m_ellipse_count, &initial_shape(0,0));
         }
-
-        // std::cout << initial_shape - sp.initial_shape << " vs " << std::endl;
 
         // Zero copy cv::Mat wrapper:
         auto img = dlib::cv_image<uint8_t>(crop);

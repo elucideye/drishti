@@ -8,7 +8,7 @@
 
 */
 
-#include "rgb2luv.h"
+#include "drishti/acf/gpu/rgb2luv.h"
 
 BEGIN_OGLES_GPGPU
 

@@ -15,15 +15,16 @@
 
 #include "drishti/geometry/Ellipse.h"
 
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#define DRISHTI_CPR_DO_DEBUG 0
 
-//#include <boost/archive/binary_oarchive.hpp>
-//#include <boost/archive/binary_iarchive.hpp>
+#if DRISHTI_CPR_DO_DEBUG
+#  include <opencv2/imgproc/imgproc.hpp>
+#  include <opencv2/highgui/highgui.hpp>
+#endif
 
 DRISHTI_RCPR_BEGIN
 
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
 
 // Apply multi stage pose regressor.
 //
@@ -73,7 +74,7 @@ int CPR::cprApply( const cv::Mat &I, const RegModel &regModel, CPRResult &result
 
     if(p.empty())
     {
-        std::copy( (*regModel.pStar).begin(), (*regModel.pStar).begin() + 2, std::back_inserter(p));
+        std::copy((*regModel.pStar).begin(), (*regModel.pStar).begin() + 2, std::back_inserter(p));
     }
 
     // Run regressor starting from a single pose:
@@ -82,26 +83,17 @@ int CPR::cprApply( const cv::Mat &I, const RegModel &regModel, CPRResult &result
         ScopeTimer timer("cpr");
         if(p.size() == 2) // just center, augment model params
         {
-            std::copy( (*regModel.pStar).begin()+2,  (*regModel.pStar).end(), std::back_inserter( p ) );
+            std::copy((*regModel.pStar).begin()+2,  (*regModel.pStar).end(), std::back_inserter(p));
         }
-        cprApply1( I, regModel, p, result );
-    }
-    // Run regressor starting from multiple poses:
-    else if( rad == 0.0 )
-    {
-        // TODO:
-    }
-    // Run regressor starting from multiple poses and find mode.
-    else
-    {
-        // TODO:
+        cprApply1(I, regModel, p, result);
     }
 
     //cv::Mat canvas;
     //cv::cvtColor(I.t(), canvas, cv::COLOR_GRAY2BGR);
     //cv::ellipse(canvas, phiToEllipse(result.p), {0,255,0}, 1, 8);
-    //cv::imshow("canvas", canvas.t()), cv::waitKey(0);
-
+    //cv::imshow("canvas", canvas.t()); // opt
+    //cv::waitKey(0);
+    
     return 0;
 }
 
@@ -207,7 +199,7 @@ int CPR::fernsRegApply(const Vector1d &data, const RegModel::Regs::Ferns &ferns,
     return 0;
 }
 
-#endif // !DO_LEAN_CPR
+#endif // !DRISHTI_CPR_DO_LEAN
 
 void CPR::CPROpts::merge(const CPR::CPROpts &opts, int checkExtra)
 {
@@ -234,7 +226,7 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
     DRISHTI_STREAM_LOG_FUNC(9,2,m_streamLogger);
 
     ImageMaskPair Is = IsIn;
-    if(CPR_TRANSPOSE)
+    if(DRISHTI_CPR_TRANSPOSE)
     {
         Is.getImage() = Is.getImage().t();
         Is.getMask() = Is.getMask().t();
@@ -265,9 +257,11 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
     {
         auto &reg = *(*(regModel.regs))[t];
 
+        DRISHTI_STREAM_LOG_FUNC(9,3,m_streamLogger);
         FeaturesResult ftrResult;
         featuresComp( model, p, Is, *(reg.ftrData), ftrResult);
-
+        DRISHTI_STREAM_LOG_FUNC(9,4,m_streamLogger);
+        
         auto pDel = identity(model);
 
         cv::Mat features;
@@ -284,7 +278,9 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
 
             for(auto &t : reg.xgbdt)
             {
+                DRISHTI_STREAM_LOG_FUNC(9,5,m_streamLogger);
                 pDel[t.first] = (*t.second)(data[0]);
+                DRISHTI_STREAM_LOG_FUNC(9,6,m_streamLogger);
             }
         }
 
@@ -296,10 +292,9 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
         p = compose(model, p, pDel);
         result.pAll[t] = p; // store result for this stage
 
-#define DO_DEBUG 0
-#if DO_DEBUG && !HAS_XGBOOST
+#if DRISHTI_CPR_DO_DEBUG && !HAS_XGBOOST
         // TODO: Legacy non xgboost
-        if(true || doPreview)
+        if(doPreview)
         {
             cv::Mat canvas;
             cv::cvtColor(I, canvas, cv::COLOR_GRAY2BGR);
@@ -310,7 +305,8 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
 
             drishti::geometry::Ellipse e2(e);
             cv::line(canvas, e.center, e2.getMajorAxisPos(), {0,255,0}, 1, 8);
-            cv::imshow("I", canvas), cv::waitKey(0);
+            cv::imshow("I", canvas); // opt
+            cv::waitKey(0);
         }
 #endif
 

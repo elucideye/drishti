@@ -4,27 +4,33 @@
 #ifndef DLIB_SHAPE_PREDICTOR_MODIFIED_H_
 #define DLIB_SHAPE_PREDICTOR_MODIFIED_H_
 
+#define DRISHTI_DLIB_DO_DEBUG_ELLIPSE 0
+#define DRISHTI_DLIB_DO_VISUALIZE_FEATURE_POINTS 0
+#define DRISHTI_DLIB_DO_PCA_INTERNAL 1
+#define DRISHTI_DLIB_DO_HALF 1
+#define DRISHTI_DLIB_DO_NUMERIC_DEBUG 0
+#define DRISHTI_DLIB_DO_SQUARE_PIXELS 1
+
 #include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
+
+#if DRISHTI_DLIB_DO_DEBUG_ELLIPSE
+#  include <opencv2/imgproc/imgproc.hpp>
+#endif
+
+#if DRISHTI_DLIB_DO_DEBUG_ELLIPSE || DRISHTI_DLIB_DO_VISUALIZE_FEATURE_POINTS
+#  include <opencv2/highgui/highgui.hpp>
+#endif
 
 #include <dlib/opencv.h>
 #include <dlib/opencv/cv_image.h>
-
-#include "dlib/image_processing/shape_predictor_abstract.h"
-#include "dlib/image_processing/full_object_detection.h"
-#include "dlib/algs.h"
-#include "dlib/matrix.h"
-#include "dlib/geometry.h"
-#include "dlib/pixel.h"
-#include "dlib/console_progress_indicator.h"
+#include <dlib/geometry/vector.h>
 #include <dlib/image_transforms/assign_image.h>
-#include <dlib/statistics/statistics.h>
-#include <dlib/image_processing/shape_predictor.h>
-#include <dlib/opencv/cv_image.h>
-#include <dlib/vectorstream.h>
-#include <dlib/serialize.h>
-#include "dlib/statistics/statistics.h"
+#include <dlib/image_processing/full_object_detection.h>
+
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include <dlib/serialize.h>
+#  include <dlib/console_progress_indicator.h>
+#endif
 
 #include "Eigen/Eigen"
 
@@ -33,7 +39,6 @@
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/core/drishti_serialize.h"
-#include "drishti/core/Parallel.h"
 #include "drishti/core/Logger.h"
 
 // Check input preprocessor definitions for SIMD and FIXED_POINT behavior:
@@ -46,9 +51,12 @@
 #if defined(ANDROID)
 #  define HALF_ENABLE_CPP11_CMATH 0
 #endif
-#include "half/half.hpp"
-#include "drishti/core/arithmetic.h"
 
+#if DRISHTI_DLIB_DO_HALF
+#  include "half/half.hpp"
+#endif
+
+#include "drishti/core/arithmetic.h"
 #include "drishti/core/boost_serialize_common.h"
 
 // OpenCV
@@ -56,11 +64,6 @@
 
 // STL
 #include <deque>
-
-#define DO_PCA_INTERNAL 1
-#define DO_HALF 1
-#define DO_NUMERIC_DEBUG 0
-#define DO_SQUARE_PIXELS 1
 
 _DRISHTI_ML_BEGIN
 
@@ -88,14 +91,6 @@ typedef dlib::matrix<float,0,1> fshape;
 typedef dlib::vector<float,2> fpoint;
 typedef std::vector<fpoint> PointVecf;
 typedef std::vector<PointVecf> PointVecVecf;
-
-static std::vector<float> ellipseToVector(const cv::RotatedRect &e)
-{
-    auto params = drishti::geometry::ellipseToPhi(e);
-    params[2] = M_PI_2;
-    params[4] = 0.f;
-    return params;
-}
 
 static cv::RotatedRect vectorToEllipse(const std::vector<float> &phi)
 {
@@ -168,7 +163,7 @@ template <typename T> T compute_npd(const T &a, const T &b)
 
 template <> float compute_npd(const float &a, const float &b)
 {
-    return (a == b) ? std::numeric_limits<float>::lowest() : (a - b)/(a + b); // TODO: nan case?
+    return ((a == 0.f) && (b == 0.f)) ? std::numeric_limits<float>::lowest() : (a - b)/(a + b);
 }
 
 // struct Ellipse { double xs, ys, ang, scl, asp; };
@@ -194,7 +189,7 @@ struct InterpolatedFeature
     {
         ar & f1;
         ar & f2;
-#if DO_HALF
+#if DRISHTI_DLIB_DO_HALF
         if(Archive::is_loading::value)
         {
             half_float::detail::uint16 value;
@@ -518,7 +513,7 @@ inline dlib::point_transform_affine normalizing_tform (
           to (1,1).
 !*/
 {
-#if DO_SQUARE_PIXELS
+#if DRISHTI_DLIB_DO_SQUARE_PIXELS
     const float scale = (1.0 / float(rect.right()));
     dlib::matrix<double,2,2> m;
     m = scale,0,0,scale;
@@ -542,7 +537,7 @@ inline dlib::point_transform_affine unnormalizing_tform (
           rect.br_corner().
 !*/
 {
-#if DO_SQUARE_PIXELS
+#if DRISHTI_DLIB_DO_SQUARE_PIXELS
     const float scale = float(rect.right());
     dlib::matrix<double,2,2> m;
     m = scale,0,0,scale;
@@ -623,8 +618,7 @@ void extract_feature_pixel_values ( // TODO: [DJH] 14% of typical use case (full
     dlib::const_image_view<image_type> img(img_);
     feature_pixel_values.resize(reference_pixel_deltas.size());
 
-#define DO_VISUALIZE_FEATURE_POINTS 0
-#if DO_VISUALIZE_FEATURE_POINTS
+#if DRISHTI_DLIB_DO_VISUALIZE_FEATURE_POINTS
     cv::Mat canvas;
     cv::cvtColor( dlib::toMat(const_cast<image_type&>(img_)), canvas, cv::COLOR_GRAY2BGR);
     //cv::Mat canvas(area.height(), area.width(), CV_8UC3, cv::Scalar::all(0));
@@ -642,7 +636,7 @@ void extract_feature_pixel_values ( // TODO: [DJH] 14% of typical use case (full
         if (area.contains(p)) // TODO: [DJH] 207x
         {
             feature_pixel_values[i] = dlib::get_pixel_intensity(img[p.y()][p.x()]); // TODO: [DJH] 1251x get_pixel_..
-#if DO_VISUALIZE_FEATURE_POINTS
+#if DRISHTI_DLIB_DO_VISUALIZE_FEATURE_POINTS
             cv::circle(canvas, cv::Point(p.x(), p.y()), 2, {0,255,255}, -1, 8);
 #endif
         }
@@ -652,13 +646,13 @@ void extract_feature_pixel_values ( // TODO: [DJH] 14% of typical use case (full
         }
     }
 
-#if DO_VISUALIZE_FEATURE_POINTS
+#if DRISHTI_DLIB_DO_VISUALIZE_FEATURE_POINTS
     for(int i = 0; i < current_shape.size()/2; i++)
     {
         auto q = tform_to_img(location(current_shape, i));
         cv::circle(canvas, cv::Point(q.x(), q.y()), 2, {0,255,0}, -1, 8);
     }
-    cv::imshow("features", canvas), cv::waitKey(0);
+    cv::imshow("features", canvas), cv::waitKey(0); // opt
 #endif
 }
 
@@ -895,7 +889,6 @@ public:
 
         //std::cout << "current_shape: " << current_shape << std::endl;
 
-
         if(do_pca)
         {
             // Convert the final model back to euclidean
@@ -938,8 +931,7 @@ public:
             parts[end + 4] = dlib::point(e2.angle, 0.f);
         }
 
-#define DO_DEBUG_ELLIPSE 0
-#if DO_DEBUG_ELLIPSE
+#if DRISHTI_DLIB_DO_DEBUG_ELLIPSE
         {
             //  Convert image to opencv, then draw ellipse and shape:
             cv::Mat image = dlib::toMat( const_cast<image_type&>(img) );
@@ -1458,7 +1450,7 @@ private:
 
             e2 = H * e; // this will preserve the orientation
 
-            std::vector<float> phi = ellipseToVector(e2);
+            std::vector<float> phi = geometry::ellipseToVector(e2);
             for(int k = 0; k < phi.size(); k++, j++)
             {
                 shape(j) = phi[k];
@@ -1538,7 +1530,7 @@ private:
             cv::Mat1f cs1 = pca->backProject(cs1_);
             memcpy(&s.current_shape(0), cs1.ptr<float>(), sizeof(float) * cs1.cols);
 
-#if DO_NUMERIC_DEBUG
+#if DRISHTI_DLIB_DO_NUMERIC_DEBUG
             for(auto &v : s.current_shape_)
             {
                 CV_Assert( !std::isnan(v) );
@@ -2143,7 +2135,7 @@ BOOST_CLASS_VERSION(drishti::ml::shape_predictor, 4);
 typedef drishti::ml::impl::regression_tree RTType;
 typedef dlib::vector<float,2> Vec2Type;
 
-#if DO_HALF
+#if DRISHTI_DLIB_DO_HALF
 struct PointHalf
 {
     PointHalf() {}
@@ -2187,7 +2179,7 @@ void serialize(Archive & ar, drishti::ml::fshape &g, const unsigned int version)
     {
         // #### READING
         std::vector<float> values;
-#if DO_HALF
+#if DRISHTI_DLIB_DO_HALF
         std::vector<half_float::detail::uint16> half;
         ar & half;
         values.resize(half.size());
@@ -2205,7 +2197,7 @@ void serialize(Archive & ar, drishti::ml::fshape &g, const unsigned int version)
     {
         // #### WRITING
         std::vector<float> values(&g(0), &g(0) + g.size());
-#if DO_HALF
+#if DRISHTI_DLIB_DO_HALF
         std::vector<half_float::detail::uint16> half(values.size());
         std::transform(values.begin(), values.end(), half.begin(), [](float a)
         {
@@ -2221,7 +2213,7 @@ void serialize(Archive & ar, drishti::ml::fshape &g, const unsigned int version)
 template<class Archive>
 void serialize(Archive & ar, dlib::vector<float,2> &g, const unsigned int version)
 {
-#if DO_HALF
+#if DRISHTI_DLIB_DO_HALF
     half_float::detail::uint16 half1, half2;
     if(Archive::is_loading::value)
     {
@@ -2250,7 +2242,7 @@ void serialize(Archive & ar, drishti::ml::impl::split_feature &g, const unsigned
     ar & g.idx1;
     ar & g.idx2;
 
-#if DO_HALF
+#if DRISHTI_DLIB_DO_HALF
     half_float::detail::uint16 thresh;
     if (Archive::is_loading::value)
     {
@@ -2304,7 +2296,7 @@ template<class Archive> void serialize(Archive & ar, drishti::ml::shape_predicto
     ar & forests;
     ar & anchor_idx;
 
-#if DO_HALF
+#if DRISHTI_DLIB_DO_HALF
     std::vector<std::vector<PointHalf>>  deltas_;
     if(Archive::is_loading::value)
     {

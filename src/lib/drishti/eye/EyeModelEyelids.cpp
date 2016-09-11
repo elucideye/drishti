@@ -16,21 +16,23 @@
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 #include "drishti/eye/EyeIO.h"
 
-#include <opencv2/highgui.hpp>
+#define DRISHTI_EYE_DEBUG_INITS 0
+#if DRISHTI_EYE_DEBUG_INITS
+#  include <opencv2/highgui.hpp>
+#endif
 
 DRISHTI_EYE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
-
-static std::vector<cv::Point2f> operator*(const cv::Matx33f &H, const std::vector<cv::Point2f> &points);
 static void jitter(const EyeModel &eye, const geometry::UniformSimilarityParams &params, std::vector<EyeModel> &poses, int n);
 static void jitter(const cv::Rect &roi, const geometry::UniformSimilarityParams &params, std::vector<cv::Rect> &poses, int n);
 static PointVec getMedianOfPoses(const std::vector<PointVec> &poses);
-static void drawPoses(const cv::Mat &I, const std::vector<PointVec> & poses, const std::string &name="poses");
+
+#if DRISHTI_EYE_DEBUG_INITS
+static std::vector<cv::Point2f> operator*(const cv::Matx33f &H, const std::vector<cv::Point2f> &points);
 static void drawEyes(const cv::Mat &I, const std::vector<EyeModel> & eyes, const std::string &name="eyes");
 static std::vector<EyeModel> shapesToEyes(const std::vector<PointVec> &shapes, const EyeModelSpecification &spec, const cv::Matx33f &S);
-
-#define DEBUG_INITS 0
+#endif
 
 void EyeModelEstimator::Impl::segmentEyelids(const cv::Mat &I, EyeModel &eye) const
 {
@@ -64,7 +66,7 @@ void EyeModelEstimator::Impl::segmentEyelids(const cv::Mat &I, EyeModel &eye) co
     PointVec pose = (poses.size() > 1) ? getMedianOfPoses(poses) : poses[0];
     eye = shapeToEye(poses[0], m_eyeSpec);
 
-#if DEBUG_INITS
+#if DRISHTI_EYE_DEBUG_INITS
     drawEyes(I, shapesToEyes(poses, m_eyeSpec, cv::Matx33f::eye()), "poses-out");
 #endif
 }
@@ -89,7 +91,7 @@ void EyeModelEstimator::Impl::segmentEyelids_(const cv::Mat &I, EyeModel &eye) c
         std::transform(jittered.begin(), jittered.end(), std::back_inserter(poses), toShape);
     }
 
-#if DEBUG_INITS
+#if DRISHTI_EYE_DEBUG_INITS
     drawEyes(I, shapesToEyes(poses, m_eyeSpec, cv::Matx33f::diag({I.cols, I.cols, 1.f})), "poses-in");
 #endif
 
@@ -105,14 +107,14 @@ void EyeModelEstimator::Impl::segmentEyelids_(const cv::Mat &I, EyeModel &eye) c
     PointVec pose = (poses.size() > 1) ? getMedianOfPoses(poses) : poses[0];
     eye = shapeToEye(poses[0], m_eyeSpec);
 
-#if DEBUG_INITS
+#if DRISHTI_EYE_DEBUG_INITS
     drawEyes(I, shapesToEyes(poses, m_eyeSpec, cv::Matx33f::eye()), "poses-out");
 #endif
 
 }
 
+#if DRISHTI_EYE_DEBUG_INITS
 // #### utility functions ####
-
 static std::vector<EyeModel> shapesToEyes(const std::vector<PointVec> &shapes, const EyeModelSpecification &spec, const cv::Matx33f &S)
 {
     auto toEye = [&](const PointVec &shape)
@@ -151,6 +153,23 @@ static float getMaxSeparation(const PointVec &points)
     }
     return maxSeparation;
 }
+
+static void drawEyes(const cv::Mat &I, const std::vector<EyeModel> & eyes, const std::string &name)
+{
+    cv::Mat canvas;
+    cv::cvtColor(I, canvas, cv::COLOR_GRAY2BGR);
+    
+    for(const auto &v : eyes)
+    {
+        cv::Matx41d color = cv::Scalar::randu(100, 255);
+        v.draw(canvas, 0, 0, {color(0),color(1),color(2)}, 1);
+    }
+    
+    cv::imshow(name, canvas);
+    cv::waitKey(0);
+}
+
+#endif // DRISHTI_EYE_DEBUG_INITS
 
 static void jitter(const cv::Rect &roi, const geometry::UniformSimilarityParams &params, std::vector<cv::Rect> &poses, int n)
 {
@@ -213,39 +232,6 @@ static PointVec getMedianOfPoses(const std::vector<PointVec> &poses)
     }
 
     return pose;
-}
-
-static void drawEyes(const cv::Mat &I, const std::vector<EyeModel> & eyes, const std::string &name)
-{
-    cv::Mat canvas;
-    cv::cvtColor(I, canvas, cv::COLOR_GRAY2BGR);
-
-    for(const auto &v : eyes)
-    {
-        cv::Matx41d color = cv::Scalar::randu(100, 255);
-        v.draw(canvas, 0, 0, {color(0),color(1),color(2)}, 1);
-    }
-
-    cv::imshow(name, canvas);
-    cv::waitKey(0);
-}
-
-static void drawPoses(const cv::Mat &I, const std::vector<PointVec> & poses, const std::string &name)
-{
-    cv::Mat canvas;
-    cv::cvtColor(I, canvas, cv::COLOR_GRAY2BGR);
-
-    for(const auto &v : poses)
-    {
-        cv::Matx41d color = cv::Scalar::randu(0, 255);
-        for(const auto &p : v)
-        {
-            cv::circle(canvas, {p.x*canvas.cols, p.y*canvas.cols}, 2, {color(0),color(1),color(2)}, -1, 8);
-        }
-    }
-
-    cv::imshow(name, canvas);
-    cv::waitKey(0);
 }
 
 DRISHTI_EYE_END

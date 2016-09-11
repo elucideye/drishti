@@ -12,14 +12,10 @@
 #ifndef __drishtisdk__CPR__
 #define __drishtisdk__CPR__
 
-#define DO_LEAN_CPR 1
-#define DO_SQUEEZE 1
-#define DO_HALF_FLOAT 1
-#define DO_USE_SIMPLE_GBDT 1
-
-#define CPR_ANGLE_RANGE (2.0 * M_PI)
-
-#define CPR_TRANSPOSE 0
+#define DRISHTI_CPR_DO_LEAN 1
+#define DRISHTI_CPR_DO_HALF_FLOAT 1
+#define DRISHTI_CPR_ANGLE_RANGE (2.0 * M_PI)
+#define DRISHTI_CPR_TRANSPOSE 0
 
 #if defined(ANDROID)
 #  define HALF_ENABLE_CPP11_CMATH 0
@@ -27,16 +23,11 @@
 #include "half/half.hpp"
 #include "drishti/rcpr/drishti_rcpr.h"
 #include "drishti/ml/ShapeEstimator.h"
-
-#include "drishti/acf/ACFField.h" // TODO: migrate this parsing stuff to common base lib
-
+#include "drishti/acf/ACFField.h"
 #include "drishti/ml/XGBooster.h"
-
 #include "drishti/core/cvmat_serialization.h"
 #include "drishti/core/serialization.h"
 #include "drishti/core/Logger.h"
-
-//#include "drishti/ml/PCA.h"
 
 #include <boost/serialization/export.hpp>
 
@@ -46,9 +37,7 @@
 
 DRISHTI_RCPR_BEGIN
 
-#define DO_RTREE_SINGLE_PARAM_UPDATES 1
-
-#if DO_HALF_FLOAT
+#if DRISHTI_CPR_DO_HALF_FLOAT
 struct PointHalf
 {
     PointHalf() {}
@@ -112,7 +101,7 @@ public:
 
     operator cv::Mat()
     {
-        return image;    // legacy ImageVec compatibility
+        return image;  // legacy ImageVec compatibility
     }
 
 protected:
@@ -121,7 +110,7 @@ protected:
     cv::Mat mask;
 };
 
-#if DO_LEAN_CPR
+#if DRISHTI_CPR_DO_LEAN
 #define CV_REAL_TYPE CV_32F
 typedef float RealType;
 typedef std::vector<cv::Point2f> PointVec;
@@ -149,7 +138,7 @@ typedef std::vector<cv::Matx33f> HVec;
 class CPR : public drishti::ml::ShapeEstimator
 {
 public:
-
+    
     virtual std::vector<cv::Point2f> getMeanShape() const;
 
     cv::RotatedRect getPStar() const ; // get mean normalized ellipse
@@ -158,6 +147,18 @@ public:
     {
         double xs, ys, ang, scl, asp;
     };
+    
+    virtual void setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
+    {
+        drishti::ml::ShapeEstimator::setStreamLogger(logger);
+        for(auto &reg : (*regModel->regs))
+        {
+            for(auto &t : reg->xgbdt)
+            {
+                t.second->setStreamLogger(logger);
+            }
+        }
+    }
 
     virtual void setStagesHint(int stages)
     {
@@ -298,7 +299,7 @@ public:
 
         struct Regs
         {
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
             struct Ferns
             {
                 acf::Field<std::vector<uint32_t>> fids;
@@ -333,15 +334,11 @@ public:
 
             std::vector<std::pair<int, std::shared_ptr<ml::XGBooster>>> xgbdt;
 
-            //std::shared_ptr<drishti::ml::StandardizedPCA> pca; // experimental
-
             // Boost serialization:
             friend class boost::serialization::access;
             template<class Archive> void serialize(Archive & ar, const unsigned int version);
         };
         acf::Field< std::vector< acf::Field<Regs> > > regs;
-
-        // Add PCA here:
 
         // Boost serialization:
         friend class boost::serialization::access;
@@ -353,7 +350,7 @@ public:
     CPR();
     CPR(const CPR &src);
 
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
     CPR(const std::string &filename);
     CPR(const char *filename);
 #endif
@@ -373,11 +370,10 @@ public:
     {
         Vector1d p;
         std::vector< Vector1d > pAll;
-        // TODO: Visualization of feature locations: Vs
     };
 
-    virtual int operator()(const cv::Mat &I, const cv::Mat &M, std::vector<cv::Point2f> &points, std::vector<bool> &mask) const;
-    virtual int operator()(const cv::Mat &I, std::vector<cv::Point2f> &points, std::vector<bool> &mask) const;
+    virtual int operator()(const cv::Mat &I, const cv::Mat &M, PointVec &points, std::vector<bool> &mask) const;
+    virtual int operator()(const cv::Mat &I, PointVec &points, std::vector<bool> &mask) const;
 
     struct FeaturesResult
     {
@@ -392,7 +388,6 @@ public:
     };
 
     int cprTrain(const ImageMaskPairVec &images, const EllipseVec &ellipses, const HVec &H, const CprPrm &cprPrm, bool doJitter=false);
-
     int cprApplyTree(const cv::Mat &Is, const RegModel &regModel, const Vector1d &p, CPRResult &result, bool preview=false) const;
     int cprApplyTree(const ImageMaskPair &Is, const RegModel &regModel, const Vector1d &p, CPRResult &result, bool preview=false) const;
 
@@ -418,14 +413,13 @@ protected:
     };
     std::vector<StageLog> trainingLog;
 
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
     static int cprApply1(const cv::Mat &Is, const RegModel &regModel, const Vector1d &p, CPRResult &result);
     int cprApply( const cv::Mat &Is, const RegModel &regModel, CPRResult &result, const CPROpts & = {}) const;
     static int fernsRegApply(const Vector1d &ftrs, const RegModel::Regs::Ferns &ferns, FernResult &result, const std::vector<uint32_t> &indsIn);
 #endif
-    //static void draw(cv::Mat &I, const Vector1d &p);
 
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
     // CVMATIO deserialization:
     int deserialize(const std::string &filename);
     int deserialize(const char *filename);
@@ -444,7 +438,7 @@ protected:
 using FtrData=CPR::RegModel::Regs::FtrData;
 
 int createModel(int type, CPR::Model &model);
-int featuresComp(const CPR::Model &model, const Vector1d &p, const ImageMaskPair &I, const  FtrData& ftrData, CPR::FeaturesResult &result, bool useNPD=false);
+int featuresComp(const CPR::Model &model, const Vector1d &p, const ImageMaskPair &I, const FtrData& ftrData, CPR::FeaturesResult &result, bool useNPD=false);
 int ftrsGen(const CPR::Model &model, const CPR::CprPrm::FtrPrm &ftrPrmIn, FtrData &ftrData, float lambda=0.1f);
 Vector1d identity(const CPR::Model &model);
 Vector1d compose(const CPR::Model &mnodel, const Vector1d &phis0, const Vector1d &phis1 );
@@ -452,18 +446,16 @@ Vector1d inverse(const CPR::Model &model, const Vector1d &phis0);
 Vector1d phisFrHs(const Matx33Real &Hs);
 Vector1d compPhiStar(const CPR::Model &mnodel, const EllipseVec &phis);
 Vector1d ellipseToPhi(const cv::RotatedRect &e);
-cv::RotatedRect phiToEllipse(const Vector1d &phi, bool transpose=CPR_TRANSPOSE);
+cv::RotatedRect phiToEllipse(const Vector1d &phi, bool transpose=DRISHTI_CPR_TRANSPOSE);
 Matx33Real phisToHs(const Vector1d &phis);
 double normAng(double ang, double rng);
 double dist( const CPR::Model &model, const Vector1d &phis0, const Vector1d &phis1 );
 void print(const Vector1d &p, bool eol=false);
-void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale=1.f, bool doTranspose=CPR_TRANSPOSE);
+void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale=1.f, bool doTranspose=DRISHTI_CPR_TRANSPOSE);
 
 DRISHTI_RCPR_END
 
 BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
 BOOST_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
-
-//BOOST_CLASS_EXPORT_GUID(drishti::rcpr::CPR, "drishti::rcpr::CPR");
 
 #endif /* defined(__drishtisdk__CPR__) */

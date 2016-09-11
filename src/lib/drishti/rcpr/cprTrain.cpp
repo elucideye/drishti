@@ -100,11 +100,11 @@ debug_features(BoostVec &gbdt, const EllipseVec &pCur, const ImageMaskPairVec &I
 
             //cv::Mat It_ = canvas.t();
             const float scale = M_SQRT2;
-            drawFeatures(canvas, xs, pCur[i], features, scale, CPR_TRANSPOSE);
-            //drawFeatures(It_, xs, pCur[i], features, scale, 1-CPR_TRANSPOSE);
+            drawFeatures(canvas, xs, pCur[i], features, scale, DRISHTI_CPR_TRANSPOSE);
+            //drawFeatures(It_, xs, pCur[i], features, scale, 1-DRISHTI_CPR_TRANSPOSE);
             //cv::imshow("canvas", canvas); cv::imshow("It_", It_.t()), cv::waitKey(0);
 
-            cv::RotatedRect e = phiToEllipse(pCur[i], CPR_TRANSPOSE) * scale;
+            cv::RotatedRect e = phiToEllipse(pCur[i], DRISHTI_CPR_TRANSPOSE) * scale;
 
             cv::ellipse(canvas, e, {255,0,255}, 1, 8);
             cv::resize(tmp, tmp, {}, scale, scale);
@@ -133,7 +133,7 @@ debug_features(BoostVec &gbdt, const EllipseVec &pCur, const ImageMaskPairVec &I
             std::swap(i, canvas);
         }
 
-#if CPR_TRANSPOSE
+#if DRISHTI_CPR_TRANSPOSE
         cv::hconcat(drawings[k], canvases[k]);
 #else
         cv::vconcat(drawings[k], canvases[k]);
@@ -150,8 +150,8 @@ static void debug_current_and_ground_truth(const cv::Mat &Is, const Vector1d &pC
 {
     cv::Mat canvas;
     cv::cvtColor(Is, canvas, cv::COLOR_GRAY2BGR);
-    cv::RotatedRect eCur = phiToEllipse(pCur, CPR_TRANSPOSE);
-    cv::RotatedRect eGt = phiToEllipse(pGtIn, CPR_TRANSPOSE);
+    cv::RotatedRect eCur = phiToEllipse(pCur, DRISHTI_CPR_TRANSPOSE);
+    cv::RotatedRect eGt = phiToEllipse(pGtIn, DRISHTI_CPR_TRANSPOSE);
 
     drishti::geometry::Ellipse xCur(eCur);
     drishti::geometry::Ellipse xGt(eGt);

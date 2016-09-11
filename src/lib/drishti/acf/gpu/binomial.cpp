@@ -8,7 +8,7 @@
 
 */
 
-#include "binomial.h"
+#include "drishti/acf/gpu/binomial.h"
 
 BEGIN_OGLES_GPGPU
 

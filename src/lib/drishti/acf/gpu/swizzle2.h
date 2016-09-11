@@ -8,7 +8,6 @@
 
 */
 
-
 #ifndef OGLES_GPGPU_SWIZZLE2_H
 #define OGLES_GPGPU_SWIZZLE2_H
 

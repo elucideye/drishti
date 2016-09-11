@@ -14,6 +14,10 @@
 
 #include <opencv2/imgproc.hpp>
 
+#define DRISHTI_CPR_DO_FTR_DEBUG 0
+#define DRISHTI_CPR_DO_FEATURE_MASK 1
+#define DRISHTI_CPR_USE_FEATURE_SEPARATION_PRIOR 1
+
 DRISHTI_RCPR_BEGIN
 
 Vector1d operator*(const Vector1d &src, Vector1d::value_type value)
@@ -128,8 +132,6 @@ int createModel(int type, CPR::Model &model)
 // NOTE: This is much simpler than the matlab code, since we are only dealing with one image at a time
 // ########
 
-#define DO_FEATURE_MASK 1
-
 using FtrData = CPR::RegModel::Regs::FtrData;
 int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPair &Im, const FtrData &ftrData, CPR::FeaturesResult &result, bool useNPD)
 {
@@ -154,15 +156,14 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
     //CV_Assert(s <= e); // for now, this would normally be used for loop control
 
     std::vector<cv::Point> pts;
-    auto && inds = xsToInds(HS, xs, w, h, nChn, CPR_TRANSPOSE, stride); // TODO: rowStride != cols
+    auto && inds = xsToInds(HS, xs, w, h, nChn, DRISHTI_CPR_TRANSPOSE, stride); // TODO: rowStride != cols
 
-#if DO_FEATURE_MASK
+#if DRISHTI_CPR_DO_FEATURE_MASK
     const auto &M = Im.getMask();
     auto &mask = result.ftrMask;
 #endif
 
-#define DO_FTR_DEBUG 0
-#if DO_FTR_DEBUG
+#if DRISHTI_CPR_DO_FTR_DEBUG
     cv::Mat tmp1(M.size(), CV_8UC1, cv::Scalar::all(0)), tmp2 = tmp1.clone();
 #endif
 
@@ -195,7 +196,7 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
 
         ftrs[j] =  d;
 
-#if DO_FEATURE_MASK
+#if DRISHTI_CPR_DO_FEATURE_MASK
         // Store occlusion estimate
         // TODO: test impact of full and partial occlusion
         if(!M.empty())
@@ -210,7 +211,7 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
                 ftrs[j] = NAN;
             }
 
-#if DO_FTR_DEBUG
+#if DRISHTI_CPR_DO_FTR_DEBUG
             m1 = m2 = 255;
             tmp1.ptr()[inds[i+0]] = 255 * int(m1 && m2);
             tmp1.ptr()[inds[i+1]] = 255 * int(m1 && m2);
@@ -219,11 +220,11 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
 #endif
     }
 
-#if DO_FTR_DEBUG
-    cv::imshow("tmp1", tmp1);
-    cv::imshow("M", M);
-    cv::imshow("I", I);
-    cv::waitKey(0);
+#if DRISHTI_CPR_DO_FTR_DEBUG
+    cv::imshow("tmp1", tmp1); // opt
+    cv::imshow("M", M); // opt
+    cv::imshow("I", I); // opt
+    cv::waitKey(0); // opt
 #endif
 
     // Create V for visualization:
@@ -300,8 +301,7 @@ int ftrsGen(const CPR::Model &model, const CPR::CprPrm::FtrPrm &ftrPrmIn, FtrDat
     // currently only one model part:
     ftrData.xs = { "xs",  PointVec() };
 
-#define USE_FEATURE_SEPARATION_PRIOR 1
-#if USE_FEATURE_SEPARATION_PRIOR
+#if DRISHTI_CPR_USE_FEATURE_SEPARATION_PRIOR
     // Generate a bunch of pixels:
     std::vector<cv::Point2f> points;
     cv::RNG rng;
@@ -400,7 +400,7 @@ static Matx33Real getPose( const Vector1d &phi  )
 // Note: Base 0 with transposed image (column major)
 static int index(RealType x, RealType y, int w, int h, int stride)
 {
-#if CPR_TRANSPOSE
+#if DRISHTI_CPR_TRANSPOSE
     RealType cs = std::max(RealType(1.0), std::min(RealType(h), RealType(x))); // note: tranpose
     RealType rs = std::max(RealType(1.0), std::min(RealType(w), RealType(y)));
     return (int(cs-1.0+0.5) * w + int(rs+0.5)) - 1; // base zero
@@ -413,7 +413,7 @@ static std::vector<uint32_t> xsToInds(const Matx33Real &HS, const PointVec &xs, 
 {
     CV_Assert(nChn == 1);
 
-#if DO_LEAN_CPR
+#if DRISHTI_CPR_DO_LEAN
     int n = xs.size();
 #else
     int n = xs.rows;
@@ -422,7 +422,7 @@ static std::vector<uint32_t> xsToInds(const Matx33Real &HS, const PointVec &xs, 
     std::vector<uint32_t> inds(n);
     for(int i = 0; i < inds.size(); i++)
     {
-#if DO_LEAN_CPR
+#if DRISHTI_CPR_DO_LEAN
         cv::Vec<RealType,2> p = xs[i];
 #else
         cv::Vec<RealType,2> p = xs.at<cv::Vec<RealType,2>>(i,0);
@@ -460,7 +460,7 @@ Vector1d compose(const CPR::Model &mnodel, const Vector1d &phis0, const Vector1d
         phis4.push_back(phis.back());
         std::swap(phis4, phis);
     }
-    phis[2] = normAng(phis[2], CPR_ANGLE_RANGE);
+    phis[2] = normAng(phis[2], DRISHTI_CPR_ANGLE_RANGE);
 
     return phis;
 }
@@ -505,7 +505,7 @@ Vector1d inverse(const CPR::Model &mnodel, const Vector1d &phis0 )
         {
             phis[i] = phis1[i];
         }
-        phis[2] = normAng(phis[2], CPR_ANGLE_RANGE); // update angle term
+        phis[2] = normAng(phis[2], DRISHTI_CPR_ANGLE_RANGE); // update angle term
     }
     return phis;
 }
@@ -578,7 +578,7 @@ Vector1d compPhiStar(const CPR::Model &model, const EllipseVec &phis)
         double t = (2.0 * M_PI) * double(j) / (M - 1), del = 0.0;
         for(int i = 0; i < phis.size(); i++)
         {
-            del += std::pow(normAng(phis[i][2] - t, CPR_ANGLE_RANGE), 2.0);
+            del += std::pow(normAng(phis[i][2] - t, DRISHTI_CPR_ANGLE_RANGE), 2.0);
         }
 
         if(del < best.second)
@@ -630,7 +630,7 @@ Vector1d diff( const Vector1d &phis0, const Vector1d &phis1 )
         del[i] = phis0[i] - phis1[i];
     }
 
-    del[2] = normAng(del[2], CPR_ANGLE_RANGE);
+    del[2] = normAng(del[2], DRISHTI_CPR_ANGLE_RANGE);
     return del;
 }
 
@@ -677,14 +677,12 @@ cv::RotatedRect phiToEllipse(const Vector1d &phi, bool transpose)
 void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale, bool doTranspose)
 {
     // Draw the feature pairs
-
     if(scale != 1.f)
     {
         cv::resize(canvas, canvas, {}, scale, scale, cv::INTER_CUBIC);
     }
 
     Matx33Real Hs = getPose(phi);
-    //Matx33Real Hs = phisToHs(phi);
 
     cv::RNG rng;
     rng.state = 100;
@@ -694,7 +692,7 @@ void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, cons
         int k = (i * 2);
         cv::Scalar color(rng.uniform(0,255), rng.uniform(0,255), rng.uniform(0,255));
 
-#if DO_LEAN_CPR
+#if DRISHTI_CPR_DO_LEAN
         const cv::Vec<RealType,2> p0 = xs[k+0];
         const cv::Vec<RealType,2> p1 = xs[k+1];
 #else
