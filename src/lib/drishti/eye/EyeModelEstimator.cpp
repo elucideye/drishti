@@ -156,7 +156,9 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat &crop, EyeModel &eye) cons
 
                 //cv::Mat canvas;
                 //cv::cvtColor(dark, canvas, cv::COLOR_GRAY2BGR);
-                //cv::ellipse(canvas, eye.irisEllipse, {0,255,0}, 1, 8); cv::imshow("debug", canvas); cv::waitKey(0);
+                //cv::ellipse(canvas, eye.irisEllipse, {0,255,0}, 1, 8);
+                //cv::imshow("debug", canvas);
+                //cv::waitKey(0);
                 if(m_pupilEstimator && m_doPupil && eye.irisEllipse.size.area() > 0.f)
                 {
                     segmentPupil(red, eye);
