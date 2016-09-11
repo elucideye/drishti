@@ -12,7 +12,7 @@
 
 // This is the original matlab serialization code
 
-#if !DO_LEAN_CPR
+#if !DRISHTI_CPR_DO_LEAN
 
 DRISHTI_RCPR_BEGIN
 
