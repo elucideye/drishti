@@ -11,7 +11,7 @@
 #ifndef CORE_LINE_H
 #define CORE_LINE_H
 
-#include "drishti_core.h"
+#include "drishti/core/drishti_core.h"
 #include <sstream>
 #include <algorithm>
 #include <fstream>
