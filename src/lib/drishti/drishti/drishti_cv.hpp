@@ -19,6 +19,10 @@
 
 #include <algorithm>
 
+#ifndef M_PI
+#  define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406 
+#endif
+
 _DRISHTI_SDK_BEGIN
 
 template <typename T1, typename T2>
@@ -102,7 +106,7 @@ inline cv::RotatedRect drishtiToCv(const drishti::sdk::Eye::Ellipse &src)
     cv::RotatedRect ellipse;
     ellipse.center = { src.center[0], src.center[1] };
     ellipse.size = { src.size.width, src.size.height };
-    ellipse.angle = src.angle * 180.f / float(M_PI);
+    ellipse.angle = src.angle * 180.f / static_cast<float>(M_PI);
     return ellipse;
 }
 
@@ -111,7 +115,7 @@ inline drishti::sdk::Eye::Ellipse cvToDrishti(const cv::RotatedRect &src)
     drishti::sdk::Eye::Ellipse ellipse;
     ellipse.center = { src.center.x, src.center.y };
     ellipse.size = { src.size.width, src.size.height };
-    ellipse.angle = src.angle * float(M_PI) / 180.f;
+    ellipse.angle = src.angle * static_cast<float>(M_PI) / 180.f;
     return ellipse;
 }
 
