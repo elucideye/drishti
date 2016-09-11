@@ -2553,7 +2553,13 @@ _NEON2SSE_INLINE __m128i  _MM_INSERT_EPI8(__m128i vec, int p, const int LANE)
 
 _NEON2SSE_INLINE __m128 _MM_INSERT_PS(__m128 vec, __m128 p, const int LANE)
 {
-    _NEON2SSE_ALIGN_16 int32_t mask[4] = {0xffffffff,0xffffffff,0xffffffff,0xffffffff};
+    _NEON2SSE_ALIGN_16 int32_t mask[4] =
+        {
+            static_cast<int32_t>(0xffffffff),
+            static_cast<int32_t>(0xffffffff),
+            static_cast<int32_t>(0xffffffff),
+            static_cast<int32_t>(0xffffffff)
+        };
     __m128 tmp, vec_masked, p_masked;
     mask[LANE >> 4] = 0x0; //here the LANE is not actural lane, need to deal with it
     vec_masked = _mm_and_ps (*(__m128*)mask,vec); //ready for p
@@ -6669,11 +6675,12 @@ _NEON2SSE_INLINE int8x8_t vpmax_s8(int8x8_t a, int8x8_t b) // VPMAX.S8 d0,d0,d0
 int16x4_t vpmax_s16(int16x4_t a, int16x4_t b); // VPMAX.S16 d0,d0,d0
 _NEON2SSE_INLINE int16x4_t vpmax_s16(int16x4_t a, int16x4_t b) // VPMAX.S16 d0,d0,d0
 {
+    static const int8_t OXFF = static_cast<int8_t>(0xff);    
     //solution may be not optimal compared with the serial one
     int16x4_t res64;
     __m128i ab, ab1, max;
     _NEON2SSE_ALIGN_16 int8_t mask16_sab[16] = { 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13}; //each chars pair is considerd to be 16 bit number
-    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13,  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13,  OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF};
     ab = _mm_unpacklo_epi64 ( _pM128i(a),  _pM128i(b)); //ab
     ab1 = _mm_shuffle_epi8 (ab, *(__m128i*) mask16_sab); //horisontal pairs swap for vertical max finding, use 8bit fn and the corresponding mask
     max = _mm_max_epi16 (ab, ab1);
@@ -6760,11 +6767,13 @@ _NEON2SSE_INLINE int8x8_t vpmin_s8(int8x8_t a, int8x8_t b) // VPMIN.S8 d0,d0,d0
 int16x4_t vpmin_s16(int16x4_t a, int16x4_t b); // VPMIN.S16 d0,d0,d0
 _NEON2SSE_INLINE int16x4_t vpmin_s16(int16x4_t a, int16x4_t b) // VPMIN.S16 d0,d0,d0
 {
+    static const int8_t OXFF = static_cast<int8_t>(0xff);        
     //solution may be not optimal compared with the serial one
     int16x4_t res64;
     __m128i ab, ab1, min;
     _NEON2SSE_ALIGN_16 int8_t mask16_sab[16] = { 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13}; //each chars pair is considerd to be 16 bit number
-    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13,  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF};
+    
     ab = _mm_unpacklo_epi64 (  _pM128i(a),  _pM128i(b)); //ab
     ab1 = _mm_shuffle_epi8 (ab, *(__m128i*) mask16_sab); //horisontal pairs swap for vertical max finding, use 8bit fn and the corresponding mask
     min = _mm_min_epi16 (ab, ab1);
@@ -6879,11 +6888,12 @@ float32x4_t vrecpeq_f32(float32x4_t a); // VRECPE.F32 q0,q0
 uint32x4_t vrecpeq_u32(uint32x4_t a); // VRECPE.U32 q0,q0
 _NEON2SSE_INLINE _NEON2SSE_PERFORMANCE_WARNING(uint32x4_t vrecpeq_u32(uint32x4_t a), _NEON2SSE_REASON_SLOW_SERIAL)
 {
+    static const int OX80000000 = static_cast<int>(0x80000000);
     //Input is  fixed point number!!!
     //We implement the recip_estimate function as described in ARMv7 reference manual (VRECPE instruction) but use float instead of double
     _NEON2SSE_ALIGN_16 uint32_t atmp[4];
     _NEON2SSE_ALIGN_16 uint32_t res[4];
-    _NEON2SSE_ALIGN_16 int c80000000[4] = {0x80000000,0x80000000, 0x80000000,0x80000000};
+    _NEON2SSE_ALIGN_16 int c80000000[4] = {OX80000000,OX80000000,OX80000000,OX80000000};
     float resf, r;
     int i, q, s;
     __m128i res128, mask, zero;
@@ -6956,11 +6966,13 @@ float32x4_t vrsqrteq_f32(float32x4_t a); // VRSQRTE.F32 q0,q0
 uint32x4_t vrsqrteq_u32(uint32x4_t a); // VRSQRTE.U32 q0,q0
 _NEON2SSE_INLINE _NEON2SSE_PERFORMANCE_WARNING(uint32x4_t vrsqrteq_u32(uint32x4_t a), _NEON2SSE_REASON_SLOW_SERIAL)
 {
+    static const int OXC0000000 = static_cast<int>(0xc0000000);
+
     //Input is  fixed point number!!!
     //We implement the recip_sqrt_estimate function as described in ARMv7 reference manual (VRSQRTE instruction) but use float instead of double
     _NEON2SSE_ALIGN_16 uint32_t  atmp[4], res[4];
     _NEON2SSE_ALIGN_16 float c1_31[4] = {(float)(((uint32_t)1) << 31), (float)(((uint32_t)1) << 31),(float)(((uint32_t)1) << 31), (float)(((uint32_t)1) << 31)};
-    _NEON2SSE_ALIGN_16 int c_c0000000[4] = {0xc0000000,0xc0000000, 0xc0000000,0xc0000000};
+    _NEON2SSE_ALIGN_16 int c_c0000000[4] = {OXC0000000,OXC0000000,OXC0000000,OXC0000000};
     __m128 tmp;
     __m128i res128, mask, zero;
     float r, resf, coeff;
@@ -11384,7 +11396,7 @@ _NEON2SSE_INLINE void vst3q_u8_ptr(__transfersize(48) uint8_t * ptr, uint8x16x3_
     _NEON2SSE_ALIGN_16 uint8_t mask2lo[16] = {0xff,0xff, 0, 0xff,0xff, 1, 0xff,0xff, 2, 0xff,0xff, 3, 0xff,0xff, 4, 0xff};
     _NEON2SSE_ALIGN_16 uint8_t mask2med[16] = {0xff, 5, 0xff, 0xff, 6, 0xff,0xff, 7, 0xff,0xff, 8, 0xff,0xff, 9, 0xff, 0xff};
     _NEON2SSE_ALIGN_16 uint8_t mask2hi[16] = {10, 0xff,0xff, 11, 0xff,0xff, 12, 0xff,0xff, 13, 0xff,0xff, 14, 0xff, 0xff, 15};
-
+ 
     v0 =  _mm_unpacklo_epi8(val->val[0], val->val[1]); //0,1, 3,4, 6,7, 9,10, 12,13, 15,16, 18,19, 21,22
     v2 =  _mm_unpackhi_epi8(val->val[0], val->val[1]); //24,25,  27,28, 30,31, 33,34, 36,37, 39,40, 42,43, 45,46
     v1 =  _mm_alignr_epi8(v2, v0, 11); //12,13, 15,16, 18,19, 21,22, 24,25,  27,28, 30,31, 33,34
@@ -11509,11 +11521,12 @@ void vst3q_p16_ptr(__transfersize(24) poly16_t * ptr, poly16x8x3_t * val);
 //void vst3_u8(__transfersize(24) uint8_t * ptr, uint8x8x3_t val)// VST3.8 {d0, d1, d2}, [r0]
 _NEON2SSE_INLINE void vst3_u8_ptr(__transfersize(24) uint8_t * ptr, uint8x8x3_t* val)
 {
+    static const int8_t OXFF = static_cast<int8_t>(0xff);        
     __m128i tmp, sh0, sh1, val0, val2;
     _NEON2SSE_ALIGN_16 int8_t mask0[16] = { 0, 8, 16, 1, 9, 17, 2, 10, 18, 3, 11, 19, 4, 12, 20, 5};
     _NEON2SSE_ALIGN_16 int8_t mask1[16] = {13, 21, 6, 14, 22, 7, 15, 23, 0,0,0,0,0,0,0,0};
-    _NEON2SSE_ALIGN_16 int8_t mask0_sel[16] = {0, 0, 0xff, 0, 0, 0xff, 0, 0, 0xff, 0, 0, 0xff, 0, 0, 0xff, 0};
-    _NEON2SSE_ALIGN_16 int8_t mask1_sel[16] = {0, 0xff, 0, 0, 0xff, 0, 0, 0xff, 0,0,0,0,0,0,0,0};
+    _NEON2SSE_ALIGN_16 int8_t mask0_sel[16] = {0, 0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0};
+    _NEON2SSE_ALIGN_16 int8_t mask1_sel[16] = {0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0,0,0,0,0,0,0,0};
     tmp = _mm_unpacklo_epi64(_pM128i(val->val[0]), _pM128i(val->val[1]) );
     sh0 =  _mm_shuffle_epi8(tmp, *(__m128i*)mask0); //for bi>15 bi is wrapped (bi-=15)
     val2 = _pM128i(val->val[2]);
@@ -12662,7 +12675,25 @@ _NEON2SSE_INLINE float32x2_t vdup_lane_f32(float32x2_t vec, __constrange(0,1) in
 uint8x16_t vdupq_lane_u8(uint8x8_t vec, __constrange(0,7) int lane); // VDUP.8 q0,d0[0]
 _NEON2SSE_INLINE uint8x16_t vdupq_lane_u8(uint8x8_t vec, __constrange(0,7) int lane) // VDUP.8 q0,d0[0]
 {
-    _NEON2SSE_ALIGN_16 int8_t lanemask8[16] = {lane, lane, lane, lane, lane, lane, lane, lane, lane, lane, lane, lane, lane, lane, lane, lane};
+    _NEON2SSE_ALIGN_16 int8_t lanemask8[16] =
+        {
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane),
+            static_cast<int8_t>(lane)
+        };
     return _mm_shuffle_epi8 (_pM128i(vec), *(__m128i*) lanemask8);
 }
 
@@ -12671,9 +12702,26 @@ _NEON2SSE_INLINE uint16x8_t vdupq_lane_u16(uint16x4_t vec, __constrange(0,3) int
 {
     //we could use 8bit shuffle for 16 bit as well
     const int8_t lane16 = ((int8_t) lane) << 1;
-    _NEON2SSE_ALIGN_16 int8_t lanemask_e16[16] = {lane16, lane16 + 1, lane16, lane16 + 1, lane16, lane16 + 1, lane16, lane16 + 1,
-                                                  lane16, lane16 + 1, lane16, lane16 + 1, lane16, lane16 + 1, lane16, lane16 + 1
-                                                 };
+    _NEON2SSE_ALIGN_16 int8_t lanemask_e16[16] =
+        {
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1),
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1),
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1),
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1),
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1),
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1),
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1),
+            static_cast<int8_t>(lane16),
+            static_cast<int8_t>(lane16 + 1)
+
+        };
     return _mm_shuffle_epi8 (_pM128i(vec), *(__m128i*)lanemask_e16);
 }
 
@@ -14914,9 +14962,10 @@ _NEON2SSE_INLINE int32x2_t vneg_s32(int32x2_t a)
 float32x2_t vneg_f32(float32x2_t a); // VNE//d0,d0
 _NEON2SSE_INLINE float32x2_t vneg_f32(float32x2_t a) // VNE//d0,d0
 {
+    static const int32_t OX80000000 = static_cast<int32_t>(0x80000000);    
     float32x4_t res;
     __m64_128 res64;
-    _NEON2SSE_ALIGN_16 int32_t c80000000[4] = {0x80000000, 0x80000000, 0x80000000, 0x80000000};
+    _NEON2SSE_ALIGN_16 int32_t c80000000[4] = {OX80000000,OX80000000,OX80000000,OX80000000};
     res = _mm_xor_ps (_pM128(a), *(__m128*) c80000000); //use low 64 bits
     _M64f(res64, res);
     return res64;
@@ -14949,7 +14998,8 @@ _NEON2SSE_INLINE int32x4_t vnegq_s32(int32x4_t a) // VNE//q0,q0
 float32x4_t vnegq_f32(float32x4_t a); // VNE//q0,q0
 _NEON2SSE_INLINE float32x4_t vnegq_f32(float32x4_t a) // VNE//q0,q0
 {
-    _NEON2SSE_ALIGN_16 int32_t c80000000[4] = {0x80000000, 0x80000000, 0x80000000, 0x80000000};
+    static const int32_t OX80000000 = static_cast<int32_t>(0x80000000);    
+    _NEON2SSE_ALIGN_16 int32_t c80000000[4] = {OX80000000,OX80000000,OX80000000,OX80000000};
     return _mm_xor_ps (a, *(__m128*) c80000000);
 }
 
