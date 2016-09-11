@@ -21,7 +21,7 @@
 #endif
 
 #ifndef M_PI_2
-#  define 1.57079632679489661923
+#  define M_PI_2 1.57079632679489661923
 #endif
 
 #endif // drishtisdk_core_drishti_math_h
