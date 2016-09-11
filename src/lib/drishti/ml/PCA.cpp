@@ -8,6 +8,8 @@
 
 */
 
+#define DRISHTI_ML_USE_EIGEN_GEMM 1
+
 #include "drishti/ml/PCA.h"
 
 #include <Eigen/Dense>
@@ -195,9 +197,7 @@ cv::Mat StandardizedPCA::backProject(const cv::Mat &projection) const
             tmp_mean = cv::repeat(mean, data.rows, 1);
 
             // Eigen multiplication ( no copy )
-
-#define USE_EIGEN_GEMM 1
-#if USE_EIGEN_GEMM
+#if DRISHTI_ML_USE_EIGEN_GEMM
             const cv::Mat &A = tmp_data;
             const cv::Mat &Bt = m_eT;
             MapMatrixRowMajor A1(const_cast<float *>(A.ptr<float>()), A.rows, A.cols);
