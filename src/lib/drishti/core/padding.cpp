@@ -12,7 +12,6 @@
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videostab.hpp>
-#include <opencv2/highgui.hpp>
 
 #include <iostream>
 
@@ -88,7 +87,6 @@ cv::Point padToWidthUsingAspectRatio(const cv::Mat &canvas, cv::Mat &padded, int
     {
         padded = padded(cv::Rect(std::max(-left,0), std::max(-top,0), width, height));
     }
-    //cv::imshow("padded_", padded); cv::waitKey(0);
 
     return tl;
 }
@@ -177,10 +175,6 @@ void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask)
     cv::Scalar mu = cv::mean(input, ~mask);
     output = input.clone();
     output.setTo(mu, mask);
-
-    // cv::imshow("input", input);
-    // cv::imshow("output", output);
-    // cv::imshow("mask", mask), cv::waitKey(0);
 }
 
 DRISHTI_CORE_END
