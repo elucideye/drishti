@@ -13,6 +13,7 @@
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 #include "drishti/core/boost_serialize_common.h"
+#include "drishti/core/drishti_math.h"
 
 DRISHTI_EYE_BEGIN
 
@@ -76,16 +77,16 @@ void EyeModelEstimator::Impl::init()
     DRISHTI_STREAM_LOG_FUNC(2,3,m_streamLogger);
 
     // Jitter iris defaults (normalized by eyelid extents):
-    m_jitterIrisParams.theta = { -M_PI/64.f, +M_PI/64.f };
+    m_jitterIrisParams.theta = { static_cast<float>(-M_PI/64.f), static_cast<float>(+M_PI/64.f) };
     m_jitterIrisParams.scale = { 7.f/8.f, 8.f/7.f };
-    m_jitterIrisParams.deltaX = { -0.125, +0.125 };
-    m_jitterIrisParams.deltaY = { -0.05, +0.05 };
+    m_jitterIrisParams.deltaX = { -0.125f, +0.125f };
+    m_jitterIrisParams.deltaY = { -0.050f, +0.050f };
 
     // Jitter eyelid defaults (normalized by image extents):
-    m_jitterEyelidParams.theta = { -M_PI/32.f, +M_PI/32.f };
-    m_jitterEyelidParams.scale = { 3.0/4.0, 1.0 }; //
-    m_jitterEyelidParams.deltaX = { -0.05, +0.05 };
-    m_jitterEyelidParams.deltaY = { -0.05, +0.05 };
+    m_jitterEyelidParams.theta = { static_cast<float>(-M_PI/32.f), static_cast<float>(+M_PI/32.f) };
+    m_jitterEyelidParams.scale = { 3.0f/4.0f, 1.0f }; //
+    m_jitterEyelidParams.deltaX = { -0.05f, +0.05f };
+    m_jitterEyelidParams.deltaY = { -0.05f, +0.05f };
 
     m_eyeSpec = EyeModelSpecification::create(16,9,1,1,1,1,1);
 }

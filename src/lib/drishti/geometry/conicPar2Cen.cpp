@@ -1,4 +1,5 @@
 #include "drishti/geometry/fitEllipse.h"
+#include "drishti/core/drishti_math.h"
 
 #include <cmath>
 
@@ -46,7 +47,7 @@ cv::RotatedRect conicPar2Cen(const cv::Vec6d &par)
     // ellipse = (centrex,centrey,ax,ay,orientation)
     if(Auu==0 || Avv==0)
     {
-        return cv::RotatedRect(cv::Point2f(0,0), cv::Size2f(0,0), 0 );
+        return cv::RotatedRect(cv::Point2f(0.f,0.f), cv::Size2f(0.f,0.f), 0.f);
     }
 
     // ROTATED = [Ao Au Av Auu Avv]

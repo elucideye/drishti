@@ -9,6 +9,7 @@
 */
 
 #include "drishti/geometry/Ellipse.h"
+#include "drishti/core/drishti_math.h" 
 #include "drishti/core/drishti_core.h"
 
 #include <opencv2/imgproc.hpp>

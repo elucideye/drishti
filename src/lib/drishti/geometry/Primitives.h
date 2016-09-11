@@ -11,6 +11,7 @@
 #define drishtisdk_Primitives_h
 
 #include "drishti/geometry/drishti_geometry.h"
+#include "drishti/core/drishti_math.h"
 
 #include <opencv2/core/core.hpp>
 
