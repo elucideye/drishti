@@ -11,7 +11,7 @@
 #ifndef CORE_STRING_UTILS_H
 #define CORE_STRING_UTILS_H
 
-#include "drishti_core.h"
+#include "drishti/core/drishti_core.h"
 #include <sstream>
 #include <algorithm>
 #include <fstream>
