@@ -22,13 +22,6 @@
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
 
-// http://stackoverflow.com/a/19253378
-#ifdef _GNUC
-  #define ATTR_UNUSED __attribute__((unused))
-#else
-  #define ATTR_UNUSED
-#endif
-
 BOOST_SERIALIZATION_SPLIT_FREE(cv::Mat)
 
 // Macros fix some IDE formatting
@@ -38,7 +31,7 @@ DRISHTI_BEGIN_NAMESPACE(serialization)
 
 /** Serialization support for cv::Mat */
 template<class Archive>
-void save(Archive &ar, const cv::Mat &m, const unsigned int ATTR_UNUSED version)
+void save(Archive &ar, const cv::Mat &m, const unsigned int BOOST_ATTRIBUTE_UNUSED version)
 {
     size_t elem_size = m.elemSize();
     size_t elem_type = m.type();
@@ -54,7 +47,7 @@ void save(Archive &ar, const cv::Mat &m, const unsigned int ATTR_UNUSED version)
 
 /** Serialization support for cv::Mat */
 template<class Archive>
-void load(Archive &ar, cv::Mat &m, const unsigned int ATTR_UNUSED version)
+void load(Archive &ar, cv::Mat &m, const unsigned int BOOST_ATTRIBUTE_UNUSED version)
 {
     int    cols, rows;
     size_t elem_size, elem_type;
