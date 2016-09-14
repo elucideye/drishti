@@ -11,8 +11,12 @@
 #ifndef DRISHTI_DEFS_H
 #define DRISHTI_DEFS_H
 
-#if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__) && defined CVAPI_EXPORTS
+#if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__)
+# ifdef drishti_EXPORTS
 #  define DSDK_EXPORTS __declspec(dllexport)
+# else
+#  define DSDK_EXPORTS __declspec(dllimport)
+# endif
 #elif (defined __GNUC__ && __GNUC__ >= 4) || defined(__clang__)
 #  define DSDK_EXPORTS __attribute__ ((visibility ("default")))
 #else

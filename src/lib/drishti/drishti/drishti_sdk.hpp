@@ -14,7 +14,11 @@
 #define __drishtisdk__SDK__
 
 #if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__)
+# ifdef drishti_EXPORTS
 #  define DRISHTI_EXPORTS __declspec(dllexport)
+# else
+#  define DRISHTI_EXPORTS __declspec(dllimport)
+# endif
 #elif (defined __GNUC__ && __GNUC__ >= 4) || defined(__clang__)
 #  define DRISHTI_EXPORTS __attribute__ ((visibility ("default")))
 #else
