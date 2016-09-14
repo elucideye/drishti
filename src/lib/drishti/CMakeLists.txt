@@ -1,14 +1,16 @@
 include(sugar_include)
 sugar_include(.)
 
-## Customize linker flags 
-include(CheckCCompilerFlag)
-CHECK_C_COMPILER_FLAG("-Wl,-dead_strip" FLAG_dead_strip)
-IF(NOT FLAG_dead_strip)
-  SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections")
-ELSE()
-  SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip")
-ENDIF()
+## Customize linker flags
+include(CheckCCompilerFlag)  
+if(NOT MSVC)
+  CHECK_C_COMPILER_FLAG("-Wl,-dead_strip" FLAG_dead_strip)
+  IF(NOT FLAG_dead_strip)
+    SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections")
+  ELSE()
+    SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip")
+  ENDIF()
+endif()
 
 set(LIB_TYPE STATIC)
 
