@@ -13,7 +13,7 @@
 #ifndef __drishtisdk__SDK__
 #define __drishtisdk__SDK__
 
-#if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__) && defined CVAPI_EXPORTS
+#if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__)
 #  define DRISHTI_EXPORTS __declspec(dllexport)
 #elif (defined __GNUC__ && __GNUC__ >= 4) || defined(__clang__)
 #  define DRISHTI_EXPORTS __attribute__ ((visibility ("default")))
@@ -33,7 +33,7 @@ _DRISHTI_SDK_BEGIN
 
 #define DRISHTI_VERSION_MAJOR 0
 #define DRISHTI_VERSION_MINOR 7
-#define DRISHTI_VERSION_PATCH 0
+#define DRISHTI_VERSION_PATCH 1
 #define DRISHTI_VERSION_STATUS "" // e.g., "-dev"
 
 #define DRISHTI_STR_EXP(__A)  #__A
