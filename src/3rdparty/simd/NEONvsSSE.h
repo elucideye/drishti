@@ -11521,12 +11521,12 @@ void vst3q_p16_ptr(__transfersize(24) poly16_t * ptr, poly16x8x3_t * val);
 //void vst3_u8(__transfersize(24) uint8_t * ptr, uint8x8x3_t val)// VST3.8 {d0, d1, d2}, [r0]
 _NEON2SSE_INLINE void vst3_u8_ptr(__transfersize(24) uint8_t * ptr, uint8x8x3_t* val)
 {
-    static const int8_t OXFF = static_cast<int8_t>(0xff);        
+    static const int8_t FFs8 = static_cast<int8_t>(0xff);        
     __m128i tmp, sh0, sh1, val0, val2;
     _NEON2SSE_ALIGN_16 int8_t mask0[16] = { 0, 8, 16, 1, 9, 17, 2, 10, 18, 3, 11, 19, 4, 12, 20, 5};
     _NEON2SSE_ALIGN_16 int8_t mask1[16] = {13, 21, 6, 14, 22, 7, 15, 23, 0,0,0,0,0,0,0,0};
-    _NEON2SSE_ALIGN_16 int8_t mask0_sel[16] = {0, 0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0};
-    _NEON2SSE_ALIGN_16 int8_t mask1_sel[16] = {0, OXFF, 0, 0, OXFF, 0, 0, OXFF, 0,0,0,0,0,0,0,0};
+    _NEON2SSE_ALIGN_16 int8_t mask0_sel[16] = {0, 0, FFs8, 0, 0, FFs8, 0, 0, FFs8, 0, 0, FFs8, 0, 0, FFs8, 0};
+    _NEON2SSE_ALIGN_16 int8_t mask1_sel[16] = {0, FFs8, 0, 0, FFs8, 0, 0, FFs8, 0,0,0,0,0,0,0,0};
     tmp = _mm_unpacklo_epi64(_pM128i(val->val[0]), _pM128i(val->val[1]) );
     sh0 =  _mm_shuffle_epi8(tmp, *(__m128i*)mask0); //for bi>15 bi is wrapped (bi-=15)
     val2 = _pM128i(val->val[2]);
