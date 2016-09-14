@@ -229,7 +229,9 @@ drishti_always_full_rpath()
 ### PACKAGES #####
 ##################
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
+if(NOT MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
+endif()
 
 if(MSVC OR is_linux) # Look for WITH_JPEG=ON in Hunter/config.cmake
   # Dependency for OpenCV. Usually dependent packages installed automatically

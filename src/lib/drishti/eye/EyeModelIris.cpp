@@ -12,6 +12,7 @@
 */
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
+#include "drishti/core/drishti_math.h"
 
 DRISHTI_EYE_BEGIN
 

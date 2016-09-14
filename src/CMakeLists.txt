@@ -99,6 +99,7 @@ endif()
 ## 3rd party boost pba
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
 add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
+target_link_libraries(boost-pba PUBLIC Boost::boost)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
 

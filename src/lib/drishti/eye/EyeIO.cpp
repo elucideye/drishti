@@ -12,6 +12,7 @@
 */
 
 #include "drishti/eye/EyeIO.h"
+#include "drishti/core/drishti_math.h"
 #include "drishti/geometry/Ellipse.h"
 
 DRISHTI_EYE_BEGIN

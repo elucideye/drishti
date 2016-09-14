@@ -12,6 +12,8 @@
 #include "drishti/core/drishti_core.h"
 #include "drishti/rcpr/CPR.h"
 
+#include "drishti/core/drishti_math.h"
+
 #include <opencv2/imgproc.hpp>
 
 #define DRISHTI_CPR_DO_FTR_DEBUG 0
@@ -90,11 +92,50 @@ int createPart(int parent, CPR::Model::Parts &part)
     CV_Assert(parent == 0); // for now, just one part
 
     part.prn =  { "prn", parent };
-    part.lks =  { "lks",  {0.0, 0.0, 0.0, 0.0, 1.0} };
-    part.mus =  { "mus",  {100.0, 100.0, 0.0, 6.0, -1.0} };
-    part.sigs = { "sigs", {10.0, 10.0, M_PI, 0.5, 0.5 } };
-    //part.wts =  { "wts",  {0.313, 0.342, 11.339, 13.059, 6.998 } };
-    part.wts =  { "wts",  {0.313, 0.342, 11.339, 13.059, 48.0 } };
+    part.lks =
+        {
+            "lks",
+            {
+                static_cast<RealType>(0.0),
+                static_cast<RealType>(0.0),
+                static_cast<RealType>(0.0),
+                static_cast<RealType>(0.0),
+                static_cast<RealType>(1.0f)
+            }
+        };
+    part.mus =
+        {
+            "mus",
+            {
+                static_cast<RealType>(100.0),
+                static_cast<RealType>(100.0),
+                static_cast<RealType>(0.0),
+                static_cast<RealType>(6.0),
+                static_cast<RealType>(-1.0)
+            }
+        };
+    part.sigs =
+        {
+            "sigs",
+            {
+                static_cast<RealType>(10.0),
+                static_cast<RealType>(10.0),
+                static_cast<RealType>(M_PI),
+                static_cast<RealType>(0.5),
+                static_cast<RealType>(0.5)
+            }
+        };
+    part.wts =
+        {
+            "wts",
+            {
+                static_cast<RealType>(0.313),
+                static_cast<RealType>(0.342),
+                static_cast<RealType>(11.339),
+                static_cast<RealType>(13.059),
+                static_cast<RealType>(48.0)
+            }
+        };
 
     return 0;
 }
@@ -142,18 +183,9 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
     int nChn = I.channels();
 
     // compute image inds from xs adjusted for pose
-
     Matx33Real HS = getPose( phi ); // just single component model for now (don't need multiple parts)
-    //Matx33Real HS = phisToHs( phi );
 
     const auto &xs = *(ftrData.xs);
-    //const auto &pids = *(ftrData.pids);
-
-    // For multi-part regression we would use this
-    //int s = pids[0];
-    //int e = pids[1];
-    //xs({s,e}, cv::Range::all())
-    //CV_Assert(s <= e); // for now, this would normally be used for loop control
 
     std::vector<cv::Point> pts;
     auto && inds = xsToInds(HS, xs, w, h, nChn, DRISHTI_CPR_TRANSPOSE, stride); // TODO: rowStride != cols
@@ -519,7 +551,13 @@ Vector1d phisFrHs( const Matx33Real &Hs)
     s = core::logN(std::sqrt(sc*sc+ss*ss),2.0);
     x = Hs(0,2);
     y = Hs(1,2);
-    Vector1d phis { x, y, a, s };
+    Vector1d phis
+    {
+        static_cast<RealType>(x),
+        static_cast<RealType>(y),
+        static_cast<RealType>(a),
+        static_cast<RealType>(s),
+    };
     return phis;
 }
 

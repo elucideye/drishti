@@ -158,8 +158,8 @@ struct DRISHTI_EXPORTS EyeIStream : public EyeStream
     Eye &eye;
 };
 
-std::ostream& operator<<(std::ostream &os, const EyeOStream &eye) DRISHTI_EXPORTS;
-std::istream& operator>>(std::istream &is, EyeIStream &eye) DRISHTI_EXPORTS;
+DRISHTI_EXPORTS std::ostream& operator<<(std::ostream &os, const EyeOStream &eye);
+DRISHTI_EXPORTS std::istream& operator>>(std::istream &is, EyeIStream &eye);
 
 enum EyeRegions
 {

@@ -4,11 +4,13 @@ sugar_include(.)
 ## Customize linker flags 
 include(CheckCCompilerFlag)
 CHECK_C_COMPILER_FLAG("-Wl,-dead_strip" FLAG_dead_strip)
-IF(NOT FLAG_dead_strip)
-  SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections")
-ELSE()
-  SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip")
-ENDIF()
+if(NOT MSVC)
+  IF(NOT FLAG_dead_strip)
+    SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections")
+  ELSE()
+    SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip")
+  ENDIF()
+endif()
 
 set(LIB_TYPE STATIC)
 
@@ -19,6 +21,7 @@ target_link_libraries(drishti_core ${OpenCV_LIBS})
 ## drishti_geometry
 add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
 target_link_libraries(drishti_geometry ${OpenCV_LIBS})
+target_compile_definitions(drishti_geometry PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
 ## drishti_sensors
 add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
@@ -27,6 +30,7 @@ target_link_libraries(drishti_sensor ${OpenCV_LIBS})
 ## drishti_ml
 add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
 target_link_libraries(drishti_ml ${OpenCV_LIBS} ${XGBOOST_LIB})
+target_compile_definitions(drishti_ml PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
 ## drishti_rcpr
 add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
@@ -167,6 +171,7 @@ message("=========================================")
 set(API_LIB_TYPE SHARED)
 
 add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
 include(drishti_symbols.cmake)
 
