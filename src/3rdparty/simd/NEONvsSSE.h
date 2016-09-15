@@ -6675,12 +6675,12 @@ _NEON2SSE_INLINE int8x8_t vpmax_s8(int8x8_t a, int8x8_t b) // VPMAX.S8 d0,d0,d0
 int16x4_t vpmax_s16(int16x4_t a, int16x4_t b); // VPMAX.S16 d0,d0,d0
 _NEON2SSE_INLINE int16x4_t vpmax_s16(int16x4_t a, int16x4_t b) // VPMAX.S16 d0,d0,d0
 {
-    static const int8_t OXFF = static_cast<int8_t>(0xff);    
+    static const int8_t FFs8 = static_cast<int8_t>(0xff);    
     //solution may be not optimal compared with the serial one
     int16x4_t res64;
     __m128i ab, ab1, max;
     _NEON2SSE_ALIGN_16 int8_t mask16_sab[16] = { 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13}; //each chars pair is considerd to be 16 bit number
-    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13,  OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF};
+    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13,  FFs8, FFs8, FFs8, FFs8, FFs8, FFs8, FFs8, FFs8};
     ab = _mm_unpacklo_epi64 ( _pM128i(a),  _pM128i(b)); //ab
     ab1 = _mm_shuffle_epi8 (ab, *(__m128i*) mask16_sab); //horisontal pairs swap for vertical max finding, use 8bit fn and the corresponding mask
     max = _mm_max_epi16 (ab, ab1);
@@ -6767,12 +6767,12 @@ _NEON2SSE_INLINE int8x8_t vpmin_s8(int8x8_t a, int8x8_t b) // VPMIN.S8 d0,d0,d0
 int16x4_t vpmin_s16(int16x4_t a, int16x4_t b); // VPMIN.S16 d0,d0,d0
 _NEON2SSE_INLINE int16x4_t vpmin_s16(int16x4_t a, int16x4_t b) // VPMIN.S16 d0,d0,d0
 {
-    static const int8_t OXFF = static_cast<int8_t>(0xff);        
+    static const int8_t FFs8 = static_cast<int8_t>(0xff);        
     //solution may be not optimal compared with the serial one
     int16x4_t res64;
     __m128i ab, ab1, min;
     _NEON2SSE_ALIGN_16 int8_t mask16_sab[16] = { 2, 3, 0, 1, 6, 7, 4, 5, 10, 11, 8, 9, 14, 15, 12, 13}; //each chars pair is considerd to be 16 bit number
-    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF, OXFF};
+    _NEON2SSE_ALIGN_16 int8_t mask16_odd[16] = { 0,1, 4,5, 8,9, 12,13, FFs8, FFs8, FFs8, FFs8, FFs8, FFs8, FFs8, FFs8};
     
     ab = _mm_unpacklo_epi64 (  _pM128i(a),  _pM128i(b)); //ab
     ab1 = _mm_shuffle_epi8 (ab, *(__m128i*) mask16_sab); //horisontal pairs swap for vertical max finding, use 8bit fn and the corresponding mask
