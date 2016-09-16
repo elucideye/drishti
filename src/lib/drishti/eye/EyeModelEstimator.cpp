@@ -13,7 +13,6 @@
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 #include "drishti/core/boost_serialize_common.h"
-#include "drishti/core/drishti_math.h"
 
 DRISHTI_EYE_BEGIN
 

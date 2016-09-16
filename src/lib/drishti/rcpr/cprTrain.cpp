@@ -16,7 +16,6 @@
 #include "drishti/core/Parallel.h"
 #include "drishti/core/timing.h"
 #include "drishti/core/serialization.h"
-#include "drishti/core/drishti_math.h"
 
 typedef std::vector<float> T_VECTOR;
 typedef std::vector<T_VECTOR> T_MATRIX;

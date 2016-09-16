@@ -12,8 +12,6 @@
 #include "drishti/core/drishti_core.h"
 #include "drishti/rcpr/CPR.h"
 
-#include "drishti/core/drishti_math.h"
-
 #include <opencv2/imgproc.hpp>
 
 #define DRISHTI_CPR_DO_FTR_DEBUG 0

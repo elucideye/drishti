@@ -1,5 +1,4 @@
 #include "drishti/geometry/fitEllipse.h"
-#include "drishti/core/drishti_math.h"
 
 #include <cmath>
 

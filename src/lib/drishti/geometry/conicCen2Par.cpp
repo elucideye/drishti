@@ -1,5 +1,4 @@
 #include "drishti/geometry/fitEllipse.h"
-#include "drishti/core/drishti_math.h"
 
 // see:
 // http://research.microsoft.com/en-us/um/people/awf/ellipse/fitellipse.html
