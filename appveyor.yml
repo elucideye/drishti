@@ -12,7 +12,7 @@ environment:
 
     - TOOLCHAIN: "vs-14-2015-win64"
       CONFIG: Debug
-      
+
 install:
   # Python 3
   - cmd: set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
