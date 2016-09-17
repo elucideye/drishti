@@ -19,10 +19,6 @@
 
 #include <algorithm>
 
-#ifndef M_PI
-#  define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406 
-#endif
-
 _DRISHTI_SDK_BEGIN
 
 template <typename T1, typename T2>

@@ -20,7 +20,6 @@
 #  include "drishti/acf/ACFIO.h"
 #endif
 
-#include "drishti/core/drishti_math.h"
 #include "drishti/core/serialization.h"
 
 DRISHTI_RCPR_BEGIN
