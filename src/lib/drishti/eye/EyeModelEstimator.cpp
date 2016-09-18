@@ -14,32 +14,14 @@
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 #include "drishti/core/boost_serialize_common.h"
 
+#define DRISHTI_EYE_USE_DARK_CHANNEL 0
+
 DRISHTI_EYE_BEGIN
 
-static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)
-{
-    float scale = 1.f;
-    if(src.cols < width)
-    {
-        dst = src;
-    }
-    else
-    {
-        scale = float(width) / float(src.cols);
-        cv::resize(src, dst, {}, scale, scale, cv::INTER_CUBIC);
-    }
-    return scale;
-}
-
-static cv::Mat getDarkChannel(const cv::Mat &I)
-{
-    cv::Mat dark;
-    cv::Mat Ic = I.isContinuous() ? I : I.clone();
-    cv::reduce(Ic.reshape(1, I.size().area()), dark, 1, CV_REDUCE_MIN);
-    dark = dark.reshape(1, I.rows);
-    return dark;
-}
-
+#if DRISHTI_EYE_USE_DARK_CHANNEL
+static cv::Mat getDarkChannel(const cv::Mat &I);
+#endif
+static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width);
 
 // TODO: support for stream input
 EyeModelEstimator::Impl::Impl(const std::string &eyeRegressor, const std::string &irisRegressor, const std::string &pupilRegressor)
@@ -116,8 +98,10 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat &crop, EyeModel &eye) cons
     {
         cv::split(I, Ic);
 
+#if DRISHTI_EYE_USE_DARK_CHANNEL
         // Dark channel:
-        //dark = getDarkChannel(I);
+        dark = getDarkChannel(I);
+#endif
         blue = Ic[0];
         red = Ic[2];
     }
@@ -397,6 +381,32 @@ template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_bi
 
 template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+
+static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)
+{
+    float scale = 1.f;
+    if(src.cols < width)
+    {
+        dst = src;
+    }
+    else
+    {
+        scale = float(width) / float(src.cols);
+        cv::resize(src, dst, {}, scale, scale, cv::INTER_CUBIC);
+    }
+    return scale;
+}
+
+#if DRISHTI_EYE_USE_DARK_CHANNEL
+static cv::Mat getDarkChannel(const cv::Mat &I)
+{
+    cv::Mat dark;
+    cv::Mat Ic = I.isContinuous() ? I : I.clone();
+    cv::reduce(Ic.reshape(1, I.size().area()), dark, 1, CV_REDUCE_MIN);
+    dark = dark.reshape(1, I.rows);
+    return dark;
+}
+#endif
 
 DRISHTI_EYE_END
 
