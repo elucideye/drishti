@@ -153,10 +153,6 @@ else()
   endif()
 endif()
 
-if(APPLE)
-  target_sources(facefilter PUBLIC FetchResource.h FetchResource.mm)
-endif()
-
 target_link_libraries(facefilter
   drishtisdk
   ${OGLES_GPGPU_LIB}
