@@ -24,7 +24,13 @@
 
 #include <stdio.h>
 
+#define DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS 0
+
 BEGIN_FACE_NAMESPACE
+
+#if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS
+static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes);
+#endif
 
 using drishti::geometry::operator*;
 
@@ -549,23 +555,6 @@ void FaceDetector::setLandmarkFormat(FaceSpecification::Format format)
     m_impl->setLandmarkFormat(format);
 }
 
-static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes)
-{
-    if(shapes.size())
-    {
-        cv::Mat canvas;
-        cv::Mat It = I[0].t();
-        It.convertTo(canvas, CV_8UC1, 255);
-        cv::cvtColor(canvas, canvas, cv::COLOR_GRAY2BGR);
-        for(auto &f : shapes)
-        {
-            //std::cout << "Roi:" << f.roi << std::endl;
-            cv::rectangle(canvas, f.roi, {0,255,0}, 1, 8);
-        }
-        cv::imshow("input", canvas), cv::waitKey(0);
-    }
-}
-
 cv::Mat FaceDetector::getUprightImage()
 {
     return m_impl->getUprightImage();
@@ -577,7 +566,9 @@ void FaceDetector::detect(const MatP &I, std::vector<FaceModel> &faces)
     std::vector<dsdkc::Shape> shapes;
     m_impl->detect(I, shapes);
 
-    //previewDetections(I, shapes);
+#if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS
+    previewDetections(I, shapes);
+#endif
 
     faces.resize(shapes.size());
     for(int i = 0; i < faces.size(); i++)
@@ -676,5 +667,27 @@ void FaceDetector::setIrisStagesRepetitionFactor(int x)
 {
     m_impl->setIrisStagesRepetitionFactor(x);
 }
+
+
+#if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS
+
+static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes)
+{
+    if(shapes.size())
+    {
+        cv::Mat canvas;
+        cv::Mat It = I[0].t();
+        It.convertTo(canvas, CV_8UC1, 255);
+        cv::cvtColor(canvas, canvas, cv::COLOR_GRAY2BGR);
+        for(auto &f : shapes)
+        {
+            //std::cout << "Roi:" << f.roi << std::endl;
+            cv::rectangle(canvas, f.roi, {0,255,0}, 1, 8);
+        }
+        cv::imshow("input", canvas), cv::waitKey(0);
+    }
+}
+
+#endif
 
 END_FACE_NAMESPACE
