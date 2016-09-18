@@ -42,6 +42,7 @@ using drishti::face::operator*;
 
 static const char * sBar = "#################################################################";
 
+// Local template definitions:
 template <typename T1, typename T2>
 cv::Rect operator *(const cv::Rect_<T1> &roi, const T2 &scale)
 {
@@ -65,9 +66,12 @@ cv::Size_<T1> operator*(const cv::Size_<T1> &size, const T2 &scale)
     return cv::Size_<T1>(T2(size.width) * scale, T2(size.height) * scale);
 }
 
+#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER
 static cv::Size uprightSize(const cv::Size &size, int orientation);
-static void extractCorners(const cv::Mat1b &corners, ScenePrimitives &scene, float flowScale = 1.f);
 static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, ScenePrimitives &scene, float flowScale = 1.f);
+static void extractCorners(const cv::Mat1b &corners, ScenePrimitives &scene, float flowScale = 1.f);
+#endif
+
 
 // === utility ===
 
@@ -611,6 +615,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 
 // #### utilty: ####
 
+#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER
 static cv::Size uprightSize(const cv::Size &size, int orientation)
 {
     cv::Size upSize = size;
@@ -663,5 +668,6 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
     cv::extractChannel(ayxb(flowRoi), corners, 0);
     extractCorners(corners, scene, flowScale);
 }
+#endif
 
 
