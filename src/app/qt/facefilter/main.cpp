@@ -38,11 +38,6 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #include <QQuickItem>
-#include <QCamera>
-#include <QQuickWindow>
-#include <QCameraInfo>
-#include <QCameraImageCapture>
-#include <QMediaRecorder>
 #include <QtPlugin> // Q_IMPORT_PLUGIN
 #include <QQmlExtensionPlugin>
 #include <QtOpenGL/QGLFormat>
@@ -50,6 +45,7 @@
 #include <QTextStream>
 #include <QDirIterator>
 
+#include "QMLCameraManager.h"
 #include "VideoFilterRunnable.hpp"
 #include "VideoFilter.hpp"
 #include "InfoFilter.hpp"
@@ -58,6 +54,7 @@
 #include "QtStream.h"
 
 #include "drishti/core/Logger.h"
+#include "drishti/core/drishti_core.h"
 
 #include "nlohmann/json.hpp" // nlohman-json
 
@@ -68,41 +65,16 @@ Q_IMPORT_PLUGIN(QtQuick2Plugin);
 Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
 #endif
 
-static void printResources()
-{
-    QDirIterator it(":", QDirIterator::Subdirectories);
-    while (it.hasNext())
-    {
-        qDebug() << it.next();
-    }
-}
-
-static nlohmann::json loadJSON(spdlog::logger &logger)
-{
-    nlohmann::json json;
-
-    QFile inputFile(":/facefilter.json");
-    if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        logger.error() << "Can't open file";
-        return EXIT_FAILURE;
-    }
-    
-    QTextStream in(&inputFile);
-    std::stringstream stream;
-    stream <<  in.readAll().toStdString();
-    stream >> json;
-    
-    return json;
-}
+// Utilities
+static void printResources();
+static nlohmann::json loadJSON(spdlog::logger &logger);
 
 #if defined(Q_OS_IOS)
 extern "C" int qtmn(int argc, char** argv)
-{
 #else
 int main(int argc, char **argv)
-{
 #endif
+{
 #ifdef Q_OS_WIN // avoid ANGLE on Windows
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
@@ -147,109 +119,56 @@ int main(int argc, char **argv)
 
     // Default camera on iOS is not setting good parameters by default
     QQuickItem* root = view.rootObject();
-
-    QObject* qmlCamera = root->findChild<QObject*>("CameraObject");
-    assert(qmlCamera != nullptr);
-
-    QCamera* camera = qvariant_cast<QCamera*>(qmlCamera->property("mediaObject"));
-    assert(camera != nullptr);
-
+    
     QObject * qmlVideoOutput = root->findChild<QObject*>("VideoOutput");
     assert(qmlVideoOutput);
-
-    cv::Size bestSize;
     
-#if defined(Q_OS_ANDROID)
-    {
-        // viewfinderSettings doesn't work for Android:
-        // * https://bugreports.qt.io/browse/QTBUG-50422
-        // Experiments show that QCameraImageCapture can be used for this:
-        // * https://github.com/headupinclouds/gatherer/issues/109
-        // (probably not quite correctly)
-
-        std::pair<QSize, int> best;
-        QCameraImageCapture *imageCapture = new QCameraImageCapture(camera);
-        QList<QVideoFrame::PixelFormat> formats = imageCapture->supportedBufferFormats();
-
-        QList<QSize> resolutions = imageCapture->supportedResolutions();
-
-        if(resolutions.size())
-        {
-            // This seems to work on Android, but not for iOS
-            for(auto &i : resolutions)
-            {
-                int area = i.width() * i.height();
-                if(area > best.second)
-                {
-                    best = {i, area};
-                }
-                logger->info() << "video: " << i.width() << " " << i.height();
-            }
-
-            logger->info() << "best: " << best.first.width() << " " << best.first.height();
-            
-            bestSize = { best.first.width(), best.first.height() };
-
-            QImageEncoderSettings imageSettings;
-            imageSettings.setResolution(best.first);
-            imageCapture->setEncodingSettings(imageSettings);
-        }
-    }
-#endif // Q_OS_ANDROID
-
-#if defined(Q_OS_IOS) || defined(Q_OS_OSX)
-    {
-        // Not available in Android:
-        // https://bugreports.qt.io/browse/QTBUG-46470
-
-        // Try the highest resolution NV{12,21} format format:
-        // This should work for both Android and iOS
-        std::vector<QVideoFrame::PixelFormat> desiredFormats;
-
-#if defined(Q_OS_IOS)
-        desiredFormats = { QVideoFrame::Format_NV12, QVideoFrame::Format_NV21 };
-#else
-        desiredFormats = { QVideoFrame::Format_ARGB32 };
-#endif
-        auto viewfinderSettings = camera->supportedViewfinderSettings();
-
-        logger->info() << "# of settings: " << viewfinderSettings.size();
-
-        std::pair<int, QCameraViewfinderSettings> best;
-        for (auto i: viewfinderSettings)
-        {
-            logger->info() << "settings: " << i.resolution().width() << "x" << i.resolution().height() << " : " << int(i.pixelFormat());
-            if(std::find(desiredFormats.begin(), desiredFormats.end(), i.pixelFormat()) != desiredFormats.end())
-            {
-                int area = (i.resolution().height() * i.resolution().width());
-                if(area > best.first)
-                {
-                    best = { area, i };
-                }
-            }
-        }
-        
-        bestSize = { best.second.resolution().width(), best.second.resolution().height() };
-        
-        assert(!best.second.isNull());
-        camera->setViewfinderSettings(best.second);
-    }
-#endif // Q_OS_IOS
+    auto qmlCameraManager = QMLCameraManager::create(root, logger);
+    (void) qmlCameraManager->configure();
+    
+    // ### Display the device/camera name:
+    logger->info() << "device: " << qmlCameraManager->getDeviceName();
+    logger->info() << "description: " << qmlCameraManager->getDescription();
     
     auto frameHandlers = FrameHandlerManager::get(&json);
-    if(frameHandlers)
+    if(frameHandlers && qmlCameraManager)
     {
-        QCameraInfo cameraInfo(*camera);
-        
-        // FaceTime HD Camera (Built-in)
-        logger->info() << "device: " << cameraInfo.deviceName().toStdString();
-        logger->info() << "description: " << cameraInfo.description().toStdString();
-        
-        frameHandlers->setOrientation(cameraInfo.orientation());
-        frameHandlers->setSize(bestSize);
+        frameHandlers->setOrientation(qmlCameraManager->getOrientation());
+        frameHandlers->setSize(qmlCameraManager->getSize());
     }
 
     view.showFullScreen();
 
     return app.exec();
 }
+
+
+static void printResources()
+{
+    QDirIterator it(":", QDirIterator::Subdirectories);
+    while (it.hasNext())
+    {
+        qDebug() << it.next();
+    }
+}
+
+static nlohmann::json loadJSON(spdlog::logger &logger)
+{
+    nlohmann::json json;
+    
+    QFile inputFile(":/facefilter.json");
+    if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        logger.error() << "Can't open file";
+        return EXIT_FAILURE;
+    }
+    
+    QTextStream in(&inputFile);
+    std::stringstream stream;
+    stream <<  in.readAll().toStdString();
+    stream >> json;
+    
+    return json;
+}
+
+

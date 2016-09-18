@@ -40,6 +40,9 @@ set(
   QtFaceDetectorFactory.h
   QtFaceDetectorFactory.cpp
 
+  QMLCameraManager.h
+  QMLCameraManager.cpp
+
   QtStream.h
 
   ## Application specific
@@ -160,4 +163,3 @@ target_link_libraries(facefilter
   nlohmann-json::nlohmann-json)
 
 set_property(TARGET facefilter PROPERTY FOLDER "app/gui")
-
