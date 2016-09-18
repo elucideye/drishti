@@ -10,6 +10,10 @@
 
 #if !DRISHTI_BUILD_MIN_SIZE
 
+#define DRISHTI_CPR_DO_FEATURE_DEBUG 1
+#define DRISHTI_CPR_DO_PREVIEW_GT 0
+#define DRISHTI_CPR_DO_PREVIEW_JITTER 0
+
 #include "drishti/rcpr/CPR.h"
 #include "drishti/ml/PCA.h"
 #include "drishti/geometry/Ellipse.h"
@@ -20,9 +24,10 @@
 typedef std::vector<float> T_VECTOR;
 typedef std::vector<T_VECTOR> T_MATRIX;
 
-#include <opencv2/imgproc.hpp>
-#include <opencv2/ml.hpp>
-#include <opencv2/highgui.hpp>
+#if DRISHTI_CPR_DO_FEATURE_DEBUG || DRISHTI_CPR_DO_PREVIEW_GT || DRISHTI_CPR_DO_PREVIEW_JITTER
+#  include <opencv2/highgui.hpp>
+#  include <opencv2/imgproc.hpp>
+#endif
 
 #include <algorithm>
 #include <numeric>
@@ -33,30 +38,9 @@ DRISHTI_RCPR_BEGIN
 template <typename T>
 using MatrixType = std::vector<std::vector<T>>;
 
-static Vector1d operator*(const Vector1d &a, const RealType &b)
-{
-    Vector1d c(a.size());
-    for(int i = 0; i < a.size(); i++)
-    {
-        c[i] = a[i] * b;
-    }
-    return c;
-}
-
-static Vector1d operator+(const Vector1d &a, const Vector1d &b)
-{
-    Vector1d c(a.size());
-    for(int i = 0; i < a.size(); i++)
-    {
-        c[i] = a[i] + b[i];
-    }
-    return c;
-}
-
-static cv::RotatedRect operator*(const cv::RotatedRect &e, float scale)
-{
-    return cv::RotatedRect(e.center * scale, e.size * scale, e.angle);
-}
+static Vector1d operator*(const Vector1d &a, const RealType &b);
+static Vector1d operator+(const Vector1d &a, const Vector1d &b);
+static cv::RotatedRect operator*(const cv::RotatedRect &e, float scale);
 
 void CPR::log(std::ofstream &os)
 {
@@ -146,6 +130,9 @@ debug_features(BoostVec &gbdt, const EllipseVec &pCur, const ImageMaskPairVec &I
     cv::imshow( name, canvas), cv::waitKey(100);
 };
 
+
+#if DRISHTI_CPR_DO_PREVIEW_GT || DRISHTI_CPR_DO_PREVIEW_JITTER
+
 static void debug_current_and_ground_truth(const cv::Mat &Is, const Vector1d &pCur, const Vector1d &pGtIn, const std::string &name)
 {
     cv::Mat canvas;
@@ -164,6 +151,8 @@ static void debug_current_and_ground_truth(const cv::Mat &Is, const Vector1d &pC
 
     cv::imshow(name, canvas);
 }
+
+#endif
 
 // % augment data amount
 // pCur=repmat(pStar,N*L,1);
@@ -233,8 +222,6 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
     // Create vector to store current estimate for each pose:
     EllipseVec pCur(N * L, (pStar_.size() ? pStar_ : pStar)); // repmat of pStar
 
-#define DO_PREVIEW_GT 0
-#define DO_PREVIEW_JITTER 0
     // If we have normalization params, then map back to image coordinate system:
     if(Hs.size())
     {
@@ -243,7 +230,7 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
             int j = (i % N);
             pCur[i] = Hs[j].inv() * pCur[i];
 
-#if DO_PREVIEW_GT
+#if DRISHTI_CPR_DO_PREVIEW_GT
             debug_current_and_ground_truth(Is[j].getImage(), pCur[i], pGtIn[j], "gt");
             cv::waitKey(0);
 #endif
@@ -279,7 +266,7 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
             pCur[i] = compose(model, pGt[j], pTmp);
         }
 
-#if DO_PREVIEW_JITTER
+#if DRISHTI_CPR_DO_PREVIEW_JITTER
         cv::imshow("other", Is[k].getImage());
         debug_current_and_ground_truth(Is[imgIds[i]].getImage(), pCur[i], pGt[i], "jitter");
         cv::waitKey(0);
@@ -406,8 +393,7 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
             cv::parallel_for_({0, int(regressorToPhiIndex.size())}, harness);
         }
 
-#define DO_FEATURE_DEBUG 1
-#if DO_FEATURE_DEBUG
+#if DRISHTI_CPR_DO_FEATURE_DEBUG
         debug_features(xgbdt, pCur, Is, imgIds, *ftrData.xs, m_windowName);
 #endif
         std::vector<double> losses(phiSets.size(), 0.0);
@@ -489,6 +475,33 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
     // this->regModel->pca = pca;
 
     return 0;
+}
+
+// Uiltity
+
+static Vector1d operator*(const Vector1d &a, const RealType &b)
+{
+    Vector1d c(a.size());
+    for(int i = 0; i < a.size(); i++)
+    {
+        c[i] = a[i] * b;
+    }
+    return c;
+}
+
+static Vector1d operator+(const Vector1d &a, const Vector1d &b)
+{
+    Vector1d c(a.size());
+    for(int i = 0; i < a.size(); i++)
+    {
+        c[i] = a[i] + b[i];
+    }
+    return c;
+}
+
+static cv::RotatedRect operator*(const cv::RotatedRect &e, float scale)
+{
+    return cv::RotatedRect(e.center * scale, e.size * scale, e.angle);
 }
 
 DRISHTI_RCPR_END
