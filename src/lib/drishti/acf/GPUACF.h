@@ -117,6 +117,12 @@ public:
 
     bool m_debug = false;
 
+    // Grayscale stuff:
+    bool m_doGray = false;
+    float m_grayscaleScale = 1.0f;
+    bool m_hasGrayscaleOutput = false;
+    cv::Mat m_grayscale;
+    
     ogles_gpgpu::NoopProc rotationProc; // make sure we have an unmodified upright image
     ogles_gpgpu::GaussOptProc rgbSmoothProc;
     ogles_gpgpu::NoopProc reduceRgbSmoothProc;  // reduce
@@ -160,12 +166,6 @@ public:
     bool m_doFlow = false;
     float m_flowScale = 1.0f;
     cv::Mat m_flow;
-
-    // Grayscale stuff:
-    bool m_doGray = false;
-    float m_grayscaleScale = 1.0f;
-    bool m_hasGrayscaleOutput = false;
-    cv::Mat m_grayscale;
 
     // Channel stuff:
     cv::Mat m_channels;

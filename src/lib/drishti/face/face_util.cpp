@@ -23,12 +23,6 @@ BEGIN_FACE_NAMESPACE
 
 using PointVec = std::vector<cv::Point2f>;
 
-static PointVec& cat(PointVec &points, const PointVec &src)
-{
-    std::copy(src.begin(), src.end(), std::back_inserter(points));
-    return points;
-}
-
 cv::Mat estimateGlobalMotionLeastSquares(const FaceModel &a, const FaceModel &b, cv::videostab::MotionModel model)
 {
     CV_Assert(a.eyeLeftCenter.has);

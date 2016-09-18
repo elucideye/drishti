@@ -25,10 +25,6 @@
 BEGIN_FACE_NAMESPACE
 
 static void polyfit(const cv::Mat& src_x, const cv::Mat& src_y, cv::Mat& dst, int order);
-static cv::Point3f homogeneous(const cv::Point2f &p)
-{
-    return cv::Point3f(p.x, p.y, 1.f);
-}
 
 class GazeEstimator::Impl
 {
@@ -534,6 +530,8 @@ template<class Archive> void GazeEstimator::serialize(Archive & ar, const unsign
 {
     ar & m_pImpl;
 }
+
+// Utility
 
 static void polyfit(const cv::Mat& src_x, const cv::Mat& src_y, cv::Mat& dst, int order)
 {

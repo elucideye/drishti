@@ -6971,7 +6971,6 @@ _NEON2SSE_INLINE _NEON2SSE_PERFORMANCE_WARNING(uint32x4_t vrsqrteq_u32(uint32x4_
     //Input is  fixed point number!!!
     //We implement the recip_sqrt_estimate function as described in ARMv7 reference manual (VRSQRTE instruction) but use float instead of double
     _NEON2SSE_ALIGN_16 uint32_t  atmp[4], res[4];
-    _NEON2SSE_ALIGN_16 float c1_31[4] = {(float)(((uint32_t)1) << 31), (float)(((uint32_t)1) << 31),(float)(((uint32_t)1) << 31), (float)(((uint32_t)1) << 31)};
     _NEON2SSE_ALIGN_16 int c_c0000000[4] = {OXC0000000,OXC0000000,OXC0000000,OXC0000000};
     __m128 tmp;
     __m128i res128, mask, zero;
