@@ -29,7 +29,7 @@
 #include <memory>
 #include <chrono>
 
-#define DO_ELLIPSO_POLAR 0
+#define DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR 0
 
 // *INDENT-OFF*
 namespace ogles_gpgpu
@@ -111,7 +111,6 @@ protected:
 
     uint64_t m_frameIndex = 0;
 
-
     using time_point = std::chrono::high_resolution_clock::time_point;
     std::pair<time_point, std::vector<cv::Rect>> m_objects;
 
@@ -141,12 +140,12 @@ protected:
 
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
 
-#if DO_ELLIPSO_POLAR
+#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
 #endif
 
     int m_index = 0;
-    std::vector< std::future<ScenePrimitives> > m_scenes;
+    std::vector<std::future<ScenePrimitives>> m_scenes;
 
     TimerInfo m_timerInfo;
     

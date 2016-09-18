@@ -9,7 +9,6 @@
 */
 
 #include "FaceFinder.h"
-#include "FetchResource.h"
 #include "QtFaceDetectorFactory.h"
 #include "gpu/FacePainter.h"
 #include "gpu/FlashFilter.h"
@@ -21,29 +20,23 @@
 #include "drishti/face/FaceDetectorAndTracker.h"
 #include "drishti/face/FaceModelEstimator.h"
 #include "drishti/face/FaceDetector.h"
-
 #include "drishti/geometry/motion.h"
 
 #include "ogles_gpgpu/common/proc/fifo.h"
 
-#include <opencv2/highgui.hpp>
-
 #include <vector>
 
-#define DO_TRACKING 1
-#define MODIFY_ACF 1
-
-#define DO_CORNERS 0
-#define DO_FLASH 0
-#define DO_REGRESSION 1
-#define DO_FLOW 1
-#define DO_FLOW_QUIVER 0
-
-#define DO_ACF_MODIFY 0
+#define DRISHTI_FACEFILTER_DO_TRACKING 1
+#define DRISHTI_FACEFILTER_DO_CORNERS 0
+#define DRISHTI_FACEFILTER_DO_FLASH 0
+#define DRISHTI_FACEFILTER_DO_REGRESSION 1
+#define DRISHTI_FACEFILTER_DO_FLOW 1
+#define DRISHTI_FACEFILTER_DO_FLOW_QUIVER 0
+#define DRISHTI_FACEFILTER_DO_ACF_MODIFY 0
 
 // Macbook (iSight)
-#define REGRESSION_WIDTH 1024
-#define DETECTION_WIDTH 512
+#define DRISHTI_FACEFILTER_REGRESSION_WIDTH 1024
+#define DRISHTI_FACEFILTER_DETECTION_WIDTH 512
 
 using drishti::face::operator*;
 
@@ -82,13 +75,13 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
     : m_glContext(glContext)
     , m_hasInit(false)
     , m_outputOrientation(args.outputOrientation)
-    , m_doRegression(DO_REGRESSION) // ########## DO REGRESSION #########
-    , m_regressionWidth(REGRESSION_WIDTH)
-    , m_doCorners(DO_CORNERS)
+    , m_doRegression(DRISHTI_FACEFILTER_DO_REGRESSION) // ########## DO REGRESSION #########
+    , m_regressionWidth(DRISHTI_FACEFILTER_REGRESSION_WIDTH)
+    , m_doCorners(DRISHTI_FACEFILTER_DO_CORNERS)
     , m_cornerWidth(512)
-    , m_doFlow(DO_FLOW)  // ######## DO FLOW #########
+    , m_doFlow(DRISHTI_FACEFILTER_DO_FLOW)  // ######## DO FLOW #########
     , m_flowWidth(128)
-    , m_doFlash(DO_FLASH) // ###### DO FLASH ##########
+    , m_doFlash(DRISHTI_FACEFILTER_DO_FLASH) // ###### DO FLASH ##########
     , m_flashWidth(128)
     , m_scenes(args.delay+1)
     , m_factory(factory)
@@ -145,7 +138,7 @@ void FaceFinder::init(const FrameInput &frame)
         // 120 iphone
         // 1024 macbook
         // Detection width should be set based on device focal length:
-        const int detectionWidth = DETECTION_WIDTH;
+        const int detectionWidth = DRISHTI_FACEFILTER_DETECTION_WIDTH;
         m_scale = float(inputSizeUp.width) / float(detectionWidth);
 
         // ACF implementation uses reduce resolution transposed image:
@@ -195,7 +188,7 @@ void FaceFinder::init(const FrameInput &frame)
 
     ogles_gpgpu::Size2d eyesSize(480, 240);
 
-#if DO_ELLIPSO_POLAR
+#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
     {
         // ### Ellipsopolar warper ####
         for(int i = 0; i < 2; i++)
@@ -204,7 +197,7 @@ void FaceFinder::init(const FrameInput &frame)
             m_ellipsoPolar[i]->setOutputSize(640, 240);
         }
     }
-#endif // DO_ELLIPSO_POLAR
+#endif // DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
 
     {
         // ### Eye enhancer ###
@@ -218,7 +211,7 @@ void FaceFinder::init(const FrameInput &frame)
         m_eyeFilter->setAutoScaling(true);
         m_eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
 
-#if DO_ELLIPSO_POLAR
+#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
         // Add a callback to retrieve updated eye models automatically:
         cv::Matx33f N = transformation::scale(0.5, 0.5) * transformation::translate(1.f, 1.f);
         for(int i = 0; i < 2; i++)
@@ -232,7 +225,7 @@ void FaceFinder::init(const FrameInput &frame)
             m_ellipsoPolar[i]->addEyeDelegate(eyeDelegate);
             m_eyeFilter->add(m_ellipsoPolar[i].get());
         }
-#endif // DO_ELLIPSO_POLAR
+#endif // DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
 
         m_eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
     }
@@ -339,7 +332,7 @@ GLuint FaceFinder::paint(const ScenePrimitives &scene, GLuint inputTexture)
         m_eyeFilter->process(inputTexture, 1, GL_TEXTURE_2D);
         m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
 
-#if DO_ELLIPSO_POLAR
+#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
         //Draw the polar warp:
         for(int i = 0; i < 2; i++)
         {
@@ -417,28 +410,12 @@ void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
 
     auto thing = m_acf->getFlowPyramid();
 
-#if DO_FLOW_QUIVER
+#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER
     if(m_acf->getFlowStatus())
     {
         cv::Size frameSize = uprightSize({frame.size.width, frame.size.height}, m_outputOrientation);
         cv::Mat4b ayxb = m_acf->getFlow();
         extractFlow(ayxb, frameSize, scene, 1.0f / m_acf->getFlowScale());
-    }
-#endif
-
-#define LOG_ACF 0
-#if LOG_ACF
-    {
-        cv::Mat canvas;
-        cv::cvtColor(acf, canvas, cv::COLOR_GRAY2BGR);
-        for(const auto &i : crops) for(const auto &j : i)
-                cv::rectangle(canvas, {j.x,j.y,j.width,j.height}, {0,255,0}, 1, 8);
-
-        std::string home = getenv("HOME");
-        home += "/Documents/";
-        cv::imwrite(home + "acf.png", canvas);
-        cv::imshow("acf", acf), cv::waitKey(10);
-        //cv::imwrite("/tmp/data/acf.png", canvas);
     }
 #endif
 
@@ -579,7 +556,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
     };
 
 
-#if DO_TRACKING
+#if DRISHTI_FACEFILTER_DO_TRACKING
     auto faceDetectorAndTracker = std::make_shared<drishti::face::FaceDetectorAndTracker>(resources);
     faceDetectorAndTracker->setMaxTrackAge(2.0);
     m_faceDetector = faceDetectorAndTracker;
@@ -592,7 +569,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
     // Get weak ref to underlying ACF detector
     m_detector = dynamic_cast<drishti::acf::Detector*>(m_faceDetector->getDetector());
 
-#if DO_ACF_MODIFY
+#if DRISHTI_FACEFILTER_DO_ACF_MODIFY
     if(m_detector)
     {
         // Perform modification
