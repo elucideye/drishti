@@ -15,11 +15,11 @@
 
 #include <opencv2/core.hpp> // for cv::Size
 
-// *NOINDENT*
+// *INDENT-OFF*
 namespace spdlog { class logger; }
+// *INDENT-ON*
 class QCamera;
 class QQuickItem;
-// *INDENT*
 
 class QMLCameraManager
 {
