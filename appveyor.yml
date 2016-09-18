@@ -12,7 +12,7 @@ environment:
 
     - TOOLCHAIN: "vs-14-2015-win64"
       CONFIG: Debug
-      
+
 install:
   # Python 3
   - cmd: set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
@@ -47,7 +47,7 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
-  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --fwd HUNTER_USE_CACHE_SERVERS=YES
+  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --fwd HUNTER_USE_CACHE_SERVERS=ONLY
 
 artifacts:
   - path: _builds\*\drishti-*.tar.gz
