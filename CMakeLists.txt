@@ -122,6 +122,11 @@ option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 
 if(DRISHTI_BUILD_TESTS)
+  if(ANDROID OR IOS)
+    # FIXME: https://github.com/elucideye/drishti/issues/58
+  else()
+    enable_testing()
+  endif()
   hunter_add_package(GTest)
   find_package(GTest CONFIG REQUIRED)
 endif()
