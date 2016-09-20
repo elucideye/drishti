@@ -191,7 +191,6 @@ endif()
 
 # Include macros:
 include(drishti_print_env_var)
-include(CTest)
 include(ExternalProject)
 include(drishti_always_full_rpath)
 include(GenerateExportHeader)
