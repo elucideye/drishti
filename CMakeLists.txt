@@ -5,8 +5,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.15.18.tar.gz"
-    SHA1 "af15f396b3b7e90e7956a377c633106476567970"
+    URL "https://github.com/ruslo/hunter/archive/v0.15.28.tar.gz"
+    SHA1 "b6f9c614d388492984c5c87b1588976683ed45ea"
     LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
     )
 
