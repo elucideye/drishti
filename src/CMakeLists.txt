@@ -67,9 +67,16 @@ endif()
 
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" ON)
 if(DRISHTI_BUILD_EOS)
-  ## Header only eos lib for 3D-to-2D model fitting
-  include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/include")
-  include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/3rdparty/glm-0.9.7.0") # TODO: hunter package
+  option(DRISHTI_USE_LOCAL_EOS "Use local eos" ON)
+  if(DRISHTI_USE_LOCAL_EOS)
+    ## Header only eos lib for 3D-to-2D model fitting
+    include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/include")
+    include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/3rdparty/glm-0.9.7.0") # TODO: hunter package
+  else()
+    hunter_add_package(eos)
+    find_package(eos CONFIG REQUIRED)
+    # TODO: unify
+  endif()
 endif()
 
 if(DRISHTI_BUILD_DEST)
