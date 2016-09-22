@@ -532,7 +532,6 @@ template void xgboost::tree::RegTree::serialize<portable_binary_oarchive>(portab
 #endif
 template void xgboost::tree::RegTree::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 
-
 #if DRISHTI_USE_TEXT_ARCHIVES
 // ##################################################################
 // #################### text_*archive ####################
