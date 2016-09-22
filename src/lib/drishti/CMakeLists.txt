@@ -16,29 +16,35 @@ set(LIB_TYPE STATIC)
 
 ## drishti_core
 add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
-target_link_libraries(drishti_core ${OpenCV_LIBS})
+target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
+if(DRISHTI_USE_TEXT_ARCHIVES)
+  target_compile_definitions(drishti_core PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
+endif()
 
 ## drishti_geometry
 add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
-target_link_libraries(drishti_geometry ${OpenCV_LIBS})
+target_link_libraries(drishti_geometry PUBLIC ${OpenCV_LIBS})
 target_compile_definitions(drishti_geometry PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
 ## drishti_sensors
 add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
-target_link_libraries(drishti_sensor ${OpenCV_LIBS})
+target_link_libraries(drishti_sensor PUBLIC ${OpenCV_LIBS})
 
 ## drishti_ml
 add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
-target_link_libraries(drishti_ml ${OpenCV_LIBS} ${XGBOOST_LIB})
+target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} ${XGBOOST_LIB})
 target_compile_definitions(drishti_ml PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
 ## drishti_rcpr
 add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
-target_link_libraries(drishti_rcpr drishti_ml ${OpenCV_LIBS} ${XGBOOST_LIB})
+target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} ${XGBOOST_LIB})
 
 ## drishti_eye
 add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
-target_link_libraries(drishti_eye drishti_ml drishti_rcpr ${OpenCV_LIBS} ${XGBOOST_LIB})
+target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} ${XGBOOST_LIB})
+if(DRISHTI_USE_TEXT_ARCHIVES)
+  target_compile_definitions(drishti_eye PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
+endif()
 
 ## drishti_acf
 if(DRISHTI_BUILD_ACF)
@@ -53,7 +59,7 @@ endif()
 ## drishti_face
 if(DRISHTI_BUILD_FACE)
   add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-  target_link_libraries(drishti_face drishti_eye ${OBJ_ACF} ${OpenCV_LIBS})
+  target_link_libraries(drishti_face PUBLIC drishti_eye ${OBJ_ACF} ${OpenCV_LIBS})
   set(OBJ_FACE drishti_face)
 endif()
 
@@ -70,6 +76,7 @@ set(DRISHTI_LIBS
 
 foreach(library ${DRISHTI_LIBS})
   target_link_libraries(${library}
+    PUBLIC
     Eigen::eigen
     )
 endforeach()
@@ -120,9 +127,9 @@ endif()
 # endforeach()
 
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})
-target_link_libraries(drishtisdk PRIVATE
+target_link_libraries(drishtisdk PUBLIC
   ${DRISHTI_LIBS}
-  ${DRISHTI_SDK_3RDPARTY_LIBS}   
+  ${DRISHTI_SDK_3RDPARTY_LIBS}
   ${APPLE_FRAMEWORKS}
   ${ANDROID_3RDPARTY_LIBS}
 )
