@@ -367,6 +367,7 @@ int EyeModelEstimator::loadPBA(std::istream &is, EyeModelEstimator &eme)
     return 0;
 }
 
+#if DRISHTI_USE_TEXT_ARCHIVES
 int EyeModelEstimator::loadTXT(const std::string &filename, EyeModelEstimator &eme)
 {
     std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
@@ -378,6 +379,7 @@ int EyeModelEstimator::loadTXT(std::istream &is, EyeModelEstimator &eme)
     load_txt_z(is, eme);
     return 0;
 }
+#endif
 
 // Boost serialization:
 template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)

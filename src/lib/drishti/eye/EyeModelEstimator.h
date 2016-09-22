@@ -94,8 +94,10 @@ public:
     static int loadPBA(const std::string &filename, EyeModelEstimator &eme);
     static int loadPBA(std::istream &is, EyeModelEstimator &eme);
 
+#if DRISHTI_USE_TEXT_ARCHIVES    
     static int loadTXT(const std::string &filename, EyeModelEstimator &eme);
     static int loadTXT(std::istream &is, EyeModelEstimator &eme);
+#endif
 
     EyeModel getMeanShape(const cv::Size &size) const;
 

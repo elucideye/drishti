@@ -58,8 +58,10 @@ void EyeSegmenter::Impl::init(std::istream &is, ArchiveKind kind)
 
     switch(kind)
     {
+#if DRISHTI_USE_TEXT_ARCHIVES        
         case kTXT: DRISHTI_EYE::EyeModelEstimator::loadTXT(is, (*m_eme)); break;
-        case kPBA: DRISHTI_EYE::EyeModelEstimator::loadPBA(is, (*m_eme)); break;        
+#endif
+        default: DRISHTI_EYE::EyeModelEstimator::loadPBA(is, (*m_eme)); break;
     }
     m_eme->setDoPupil(false);
     m_eme->setDoVerbose(false);
