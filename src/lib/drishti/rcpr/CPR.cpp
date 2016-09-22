@@ -277,6 +277,10 @@ template<class Archive> void CPR::serialize(Archive & ar, const unsigned int ver
 
 // explicit instantiation:
 
+// ##################################################################
+// #################### portable_binary_*archive ####################
+// ##################################################################
+
 #if !DRISHTI_BUILD_MIN_SIZE
 template void CPR::Model::Parts::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void CPR::Model::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
@@ -300,6 +304,36 @@ template void CPR::RegModel::Regs::FtrData::serialize<portable_binary_iarchive>(
 template void CPR::RegModel::Regs::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void CPR::RegModel::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void CPR::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+
+#if DRISHTI_USE_TEXT_ARCHIVES
+
+// ##################################################################
+// #################### text_*archive ###############################
+// ##################################################################
+
+template void CPR::Model::Parts::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::Model::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::CprPrm::FtrPrm::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::CprPrm::FernPrm::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::CprPrm::Recipe::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::CprPrm::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::RegModel::Regs::FtrData::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::RegModel::Regs::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::RegModel::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void CPR::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+
+template void CPR::Model::Parts::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::Model::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::FtrPrm::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::FernPrm::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::Recipe::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::CprPrm::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::RegModel::Regs::FtrData::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::RegModel::Regs::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::RegModel::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void CPR::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+
+#endif
 
 DRISHTI_RCPR_END
 
