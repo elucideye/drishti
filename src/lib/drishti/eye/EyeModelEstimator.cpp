@@ -374,6 +374,10 @@ template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const un
     ar & m_impl;
 }
 
+// ##################################################################
+// #################### portable_binary_*archive ####################
+// ##################################################################
+
 #if !DRISHTI_BUILD_MIN_SIZE
 template void EyeModelEstimator::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
@@ -382,14 +386,16 @@ template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_bi
 template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 
+// ##################################################################
+// #################### text_*archive ###############################
+// ##################################################################
 
-#if DRISHTI_USE_XML_ARCHIVES
+#if DRISHTI_USE_TEXT_ARCHIVES
+template void EyeModelEstimator::Impl::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void EyeModelEstimator::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
 
-template void EyeModelEstimator::Impl::serialize<boost::archive::xml_oarchive>(boost::archive::xml_oarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<boost::archive::xml_oarchive>(boost::archive::xml_oarchive &ar, const unsigned int);
-
-template void EyeModelEstimator::Impl::serialize<boost::archive::xml_iarchive>(boost::archive::xml_iarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<boost::archive::xml_iarchive>(boost::archive::xml_iarchive &ar, const unsigned int);
+template void EyeModelEstimator::Impl::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void EyeModelEstimator::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
 #endif
 
 static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)

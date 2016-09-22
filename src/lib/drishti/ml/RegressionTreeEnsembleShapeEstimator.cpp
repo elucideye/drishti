@@ -222,6 +222,10 @@ RTEShapeEstimator::serialize(Archive & ar, const unsigned int version)
     ar & m_impl;
 }
 
+// ##################################################################
+// #################### portable_binary_*archive ####################
+// ##################################################################
+
 #if !DRISHTI_BUILD_MIN_SIZE
 template void RTEShapeEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
@@ -229,6 +233,18 @@ template void RTEShapeEstimator::serializeModel<portable_binary_oarchive>(portab
 
 template void RTEShapeEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+
+// ##################################################################
+// #################### text_*archive ###############################
+// ##################################################################
+
+#if DRISHTI_USE_TEXT_ARCHIVES
+template void RTEShapeEstimator::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void RTEShapeEstimator::serializeModel<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+
+template void RTEShapeEstimator::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void RTEShapeEstimator::serializeModel<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+#endif
 
 _DRISHTI_ML_END
 

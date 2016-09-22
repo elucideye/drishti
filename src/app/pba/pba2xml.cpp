@@ -12,8 +12,8 @@
 #include "core/boost_serialize_common.h"
 #include "eye/EyeModelEstimator.h"
 
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
 #include <memory>
 
@@ -29,13 +29,9 @@ int main(int argc, char **argv)
     }
 
     {
-        //boost::iostreams::filtering_stream<boost::iostreams::output> buffer;
-        //buffer.push(boost::iostreams::zlib_compressor(boost::iostreams::zlib::best_compression));
-        //buffer.push(os);
-
         std::ofstream ofs(sOutput);
         assert(ofs.good());
-        boost::archive::xml_oarchive oa(ofs);
-        oa << BOOST_SERIALIZATION_NVP(*sp);
+        boost::archive::text_oarchive oa(ofs);
+        oa << *sp;
     }
 }

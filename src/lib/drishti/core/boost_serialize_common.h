@@ -16,9 +16,9 @@
 
 
 // Boost serialization files:
-#if DRISHTI_USE_XML_ARCHIVES
-#  include <boost/archive/xml_iarchive.hpp>
-#  include <boost/archive/xml_oarchive.hpp>
+#if DRISHTI_USE_TEXT_ARCHIVES
+#  include <boost/archive/text_iarchive.hpp>
+#  include <boost/archive/text_oarchive.hpp>
 #endif
 
 #include <boost/serialization/vector.hpp>
