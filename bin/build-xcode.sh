@@ -12,6 +12,7 @@ fi
 
 DRISHTI_BUILD_QT=OFF
 DRISHTI_BUILD_OGLES_GPGPU=OFF
+DRISHTI_USE_XML_ARCHIVES=ON
 
 rename_tab drishti ${TOOLCHAIN}
 
@@ -26,11 +27,12 @@ COMMAND=(
     "DRISHTI_BUILD_QT=${DRISHTI_BUILD_QT} "
     "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
     "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
+    "DRISHTI_USE_XML_ARCHIVES=${DRISHTI_USE_XML_ARCHIVES} "
     "--config Release "
     "--jobs 8 "
     "--open "
     "--install "
-    "${EXTRA_ARGS}"
+    "${EXTRA_ARGS} " #--nobuild"
 )
 
 build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

@@ -308,6 +308,14 @@ set(DRISHTI_SDK_BOOST_LIBS
   Boost::iostreams
   )
 
+#if DRISHTI_USE_XML_ARCHIVES
+option(DRISHTI_USE_XML_ARCHIVES "Support XML archives for serialization (extra size)" OFF)
+if(DRISHTI_USE_XML_ARCHIVES)
+  add_definitions(-DDRISHTI_USE_XML_ARCHIVES=1)
+else()
+  add_definitions(-DDRISHTI_USE_XML_ARCHIVES=0)
+endif()
+
 ### DLIB: dlib (Header only + no CMakeLists.txt)
 hunter_add_package(dlib)
 find_package(dlib CONFIG REQUIRED)

@@ -14,9 +14,12 @@
 #include <opencv2/core.hpp>
 #include <fstream>
 
+
 // Boost serialization files:
-//#include <boost/archive/binary_iarchive.hpp>
-//#include <boost/archive/binary_oarchive.hpp>
+#if DRISHTI_USE_XML_ARCHIVES
+#  include <boost/archive/xml_iarchive.hpp>
+#  include <boost/archive/xml_oarchive.hpp>
+#endif
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>

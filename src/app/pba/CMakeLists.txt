@@ -1,0 +1,5 @@
+add_executable(pba2xml pba2xml.cpp)
+target_link_libraries(pba2xml drishtisdk)
+install(TARGETS pba2xml DESTINATION bin)
+set_property(TARGET pba2xml PROPERTY FOLDER "app/console")
+install(TARGETS pba2xml DESTINATION bin)

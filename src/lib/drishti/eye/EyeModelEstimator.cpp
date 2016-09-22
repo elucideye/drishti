@@ -382,6 +382,16 @@ template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_bi
 template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 
+
+#if DRISHTI_USE_XML_ARCHIVES
+
+template void EyeModelEstimator::Impl::serialize<boost::archive::xml_oarchive>(boost::archive::xml_oarchive &ar, const unsigned int);
+template void EyeModelEstimator::serialize<boost::archive::xml_oarchive>(boost::archive::xml_oarchive &ar, const unsigned int);
+
+template void EyeModelEstimator::Impl::serialize<boost::archive::xml_iarchive>(boost::archive::xml_iarchive &ar, const unsigned int);
+template void EyeModelEstimator::serialize<boost::archive::xml_iarchive>(boost::archive::xml_iarchive &ar, const unsigned int);
+#endif
+
 static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)
 {
     float scale = 1.f;
