@@ -40,22 +40,29 @@ EyeSegmenter::Impl::Impl(bool doLoad)
 
 }
 
-EyeSegmenter::Impl::Impl(const std::string &filename)
+EyeSegmenter::Impl::Impl(const std::string &filename, ArchiveKind kind)
 {
     std::ifstream is(filename);
-    init(is);
+    init(is, kind);
 }
 
-EyeSegmenter::Impl::Impl(std::istream &is)
+EyeSegmenter::Impl::Impl(std::istream &is, ArchiveKind kind)
 {
-    init(is);
+    init(is, kind);
 }
 
-void EyeSegmenter::Impl::init(std::istream &is)
+void EyeSegmenter::Impl::init(std::istream &is, ArchiveKind kind)
 {
     // First try loading from resource
     m_eme = std::unique_ptr<DRISHTI_EYE::EyeModelEstimator>(new DRISHTI_EYE::EyeModelEstimator());
-    DRISHTI_EYE::EyeModelEstimator::load(is, (*m_eme));
+
+    switch(kind)
+    {
+#if DRISHTI_USE_TEXT_ARCHIVES        
+        case kTXT: DRISHTI_EYE::EyeModelEstimator::loadTXT(is, (*m_eme)); break;
+#endif
+        default: DRISHTI_EYE::EyeModelEstimator::loadPBA(is, (*m_eme)); break;
+    }
     m_eme->setDoPupil(false);
     m_eme->setDoVerbose(false);
     m_eme->setTargetWidth(128);

@@ -91,8 +91,13 @@ public:
 
     void setOptimizationLevel(int level);
 
-    static int load(const std::string &filename, EyeModelEstimator &eme);
-    static int load(std::istream &is, EyeModelEstimator &eme);
+    static int loadPBA(const std::string &filename, EyeModelEstimator &eme);
+    static int loadPBA(std::istream &is, EyeModelEstimator &eme);
+
+#if DRISHTI_USE_TEXT_ARCHIVES    
+    static int loadTXT(const std::string &filename, EyeModelEstimator &eme);
+    static int loadTXT(std::istream &is, EyeModelEstimator &eme);
+#endif
 
     EyeModel getMeanShape(const cv::Size &size) const;
 

@@ -14,9 +14,12 @@
 #include <opencv2/core.hpp>
 #include <fstream>
 
+
 // Boost serialization files:
-//#include <boost/archive/binary_iarchive.hpp>
-//#include <boost/archive/binary_oarchive.hpp>
+#if DRISHTI_USE_TEXT_ARCHIVES
+#  include <boost/archive/text_iarchive.hpp>
+#  include <boost/archive/text_oarchive.hpp>
+#endif
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -34,6 +37,10 @@
 
 #include "portable_binary_iarchive.hpp"
 #include "portable_binary_oarchive.hpp"
+
+// ############################################################
+// ######################## PBA ###############################
+// ############################################################
 
 template <typename T>
 void load_pba_z(std::istream &is, T &object)
@@ -75,5 +82,41 @@ void save_pba_z(const std::string &filename, T &object)
     save_pba_z(ofs, object);
 #endif
 }
+
+// ############################################################
+// ######################## TEXT ##############################
+// ############################################################
+
+#if DRISHTI_USE_TEXT_ARCHIVES
+
+template <typename T>
+void load_txt_z(std::istream &is, T &object)
+{
+    boost::archive::text_iarchive ia(is);
+    ia >> object;
+}
+
+template <typename T>
+void load_txt_z(const std::string &filename, T &object)
+{
+    std::ifstream ifs(filename, std::ios::binary);
+    load_txt_z(ifs, object);
+}
+
+template <typename T>
+void save_txt_z(std::ostream &os, T &object)
+{
+    boost::archive::text_oarchive oa(os);
+    oa << object;
+}
+
+template <typename T>
+void save_txt_z(const std::string &filename, T &object)
+{
+    std::ofstream ofs(filename, std::ios::binary);
+    save_txt_z(ofs, object);
+}
+
+#endif // DRISHTI_USE_TEXT_ARCHIVES
 
 #endif

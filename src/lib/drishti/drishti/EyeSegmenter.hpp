@@ -27,13 +27,19 @@ _DRISHTI_SDK_BEGIN
 
 */
 
+enum ArchiveKind
+{
+    kPBA,
+    kTXT
+};
+
 class DRISHTI_EXPORTS EyeSegmenter
 {
 public:
 
     class Impl;
-    EyeSegmenter(const std::string &filename);
-    EyeSegmenter(std::istream &is);
+    EyeSegmenter(const std::string &filename, ArchiveKind kind = kPBA);
+    EyeSegmenter(std::istream &is, ArchiveKind kind = kPBA);
 
     // EyeSegmenter cannot be moved or copied:
     EyeSegmenter(const EyeSegmenter &) = delete;
@@ -60,7 +66,7 @@ public:
 
 protected:
 
-    void init(std::istream &is);
+    void init(std::istream &is, ArchiveKind kind = kPBA);
     std::unique_ptr<Impl> m_impl;
 };
 

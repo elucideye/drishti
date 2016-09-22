@@ -27,8 +27,8 @@ class DRISHTI_EXPORTS EyeSegmenter::Impl
 {
 public:
     Impl(bool doLoad=false);
-    Impl(const std::string &filename);
-    Impl(std::istream &is);
+    Impl(const std::string &filename, ArchiveKind kind);
+    Impl(std::istream &is, ArchiveKind kind);
     ~Impl();
     int operator()(const Image3b &image, Eye &eye, bool isRight);
 
@@ -48,7 +48,7 @@ public:
 
 protected:
 
-    void init(std::istream &is);
+    void init(std::istream &is, ArchiveKind);
 
     std::unique_ptr<eye::EyeModelEstimator> m_eme;
 

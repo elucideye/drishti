@@ -299,12 +299,6 @@ DRISHTI_EYE::EyeModel EyeModelEstimator::getMeanShape(const cv::Size &size) cons
     return m_impl->getMeanShape(size);
 }
 
-int EyeModelEstimator::load(std::istream &is, EyeModelEstimator &eme)
-{
-    load_pba_z(is, eme);
-    return 0;
-}
-
 bool EyeModelEstimator::getDoMask() const
 {
     DRISHTI_STREAM_LOG_FUNC(2,26,m_streamLogger);
@@ -361,11 +355,31 @@ int EyeModelEstimator::getIrisStagesRepetitionFactor() const
     return m_impl->getIrisStagesRepetitionFactor();
 }
 
-int EyeModelEstimator::load(const std::string &filename, EyeModelEstimator &eme)
+int EyeModelEstimator::loadPBA(const std::string &filename, EyeModelEstimator &eme)
 {
     std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    return load(ifs, eme);
+    return loadPBA(ifs, eme);
 }
+
+int EyeModelEstimator::loadPBA(std::istream &is, EyeModelEstimator &eme)
+{
+    load_pba_z(is, eme);
+    return 0;
+}
+
+#if DRISHTI_USE_TEXT_ARCHIVES
+int EyeModelEstimator::loadTXT(const std::string &filename, EyeModelEstimator &eme)
+{
+    std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
+    return loadTXT(ifs, eme);
+}
+
+int EyeModelEstimator::loadTXT(std::istream &is, EyeModelEstimator &eme)
+{
+    load_txt_z(is, eme);
+    return 0;
+}
+#endif
 
 // Boost serialization:
 template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
@@ -374,6 +388,10 @@ template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const un
     ar & m_impl;
 }
 
+// ##################################################################
+// #################### portable_binary_*archive ####################
+// ##################################################################
+
 #if !DRISHTI_BUILD_MIN_SIZE
 template void EyeModelEstimator::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
@@ -381,6 +399,18 @@ template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_bi
 
 template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+
+// ##################################################################
+// #################### text_*archive ###############################
+// ##################################################################
+
+#if DRISHTI_USE_TEXT_ARCHIVES
+template void EyeModelEstimator::Impl::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void EyeModelEstimator::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+
+template void EyeModelEstimator::Impl::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void EyeModelEstimator::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+#endif
 
 static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)
 {

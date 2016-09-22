@@ -507,6 +507,14 @@ template<class Archive> void XGBooster::serialize(Archive & ar, const unsigned i
     ar & m_impl;
 }
 
+_DRISHTI_ML_END
+
+// ##################################################################
+// #################### portable_binary_*archive ####################
+// ##################################################################
+
+_DRISHTI_ML_BEGIN
+
 template void XGBooster::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 #if !DRISHTI_BUILD_MIN_SIZE
 template void XGBooster::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
@@ -523,6 +531,28 @@ _DRISHTI_ML_END
 template void xgboost::tree::RegTree::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 #endif
 template void xgboost::tree::RegTree::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+
+#if DRISHTI_USE_TEXT_ARCHIVES
+// ##################################################################
+// #################### text_*archive ####################
+// ##################################################################
+
+_DRISHTI_ML_BEGIN
+
+template void XGBooster::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void XGBooster::Impl::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void XGBooster::Recipe::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+
+template void XGBooster::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void XGBooster::Impl::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+template void XGBooster::Recipe::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+
+_DRISHTI_ML_END
+
+template void xgboost::tree::RegTree::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
+template void xgboost::tree::RegTree::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
+
+#endif // DRISHTI_USE_TEXT_ARCHIVES
 
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::XGBooster);
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::XGBooster::Impl);
