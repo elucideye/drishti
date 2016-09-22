@@ -153,10 +153,11 @@ TEST(EyeSegmenter, StringConstructor)
     // Make sure modelFilename is not null:
     ASSERT_NE(modelFilename, (const char *)NULL);
 
-    drishti::sdk::EyeSegmenter segmenter(modelFilename);
+    auto kind = isTextArchive ? drishti::sdk::kTXT : drishti::sdk::kPBA;
+    drishti::sdk::EyeSegmenter segmenter(modelFilename, kind);
 
     // Make sure we reached this point (no exceptions):
-    ASSERT_EQ(true, true);
+    ASSERT_EQ(segmenter.good(), true);
 }
 
 TEST(EyeSegmenter, StreamConstructor)
@@ -169,10 +170,11 @@ TEST(EyeSegmenter, StreamConstructor)
     // Make sure file could be opened:
     ASSERT_TRUE((bool)is);
 
-    drishti::sdk::EyeSegmenter segmenter(is);
+    auto kind = isTextArchive ? drishti::sdk::kTXT : drishti::sdk::kPBA;    
+    drishti::sdk::EyeSegmenter segmenter(is, kind);
 
     // Make sure we reached this point (no exceptions):
-    EXPECT_EQ(true, true);
+    EXPECT_EQ(segmenter.good(), true);
 }
 
 static void checkValid(const drishti::sdk::Eye &eye, const cv::Size &size)

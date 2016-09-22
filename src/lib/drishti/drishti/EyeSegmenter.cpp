@@ -56,6 +56,16 @@ EyeSegmenter::~EyeSegmenter()
 
 }
 
+bool EyeSegmenter::good() const
+{
+    return static_cast<bool>(m_impl.get()); 
+}
+
+EyeSegmenter::operator bool() const
+{
+    return good();
+}
+
 int EyeSegmenter::operator()(const Image3b &image, Eye &eye, bool isRight)
 {
     int status = (*m_impl)(image, eye, isRight);
