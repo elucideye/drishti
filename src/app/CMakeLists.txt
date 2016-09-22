@@ -2,5 +2,7 @@
 add_subdirectory(qt)
 
 if(DRISHTI_USE_TEXT_ARCHIVES)
-  add_subdirectory(pba)
+  if(NOT ANDROID AND NOT IOS)
+    add_subdirectory(pba)
+  endif()
 endif()
