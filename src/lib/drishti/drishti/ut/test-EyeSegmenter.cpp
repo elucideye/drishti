@@ -25,6 +25,7 @@
 const char* modelFilename;
 const char* imageFilename;
 const char* truthFilename;
+bool isTextArchive;
 
 #define BEGIN_EMPTY_NAMESPACE namespace {
 #define END_EMPTY_NAMESPACE }
@@ -53,7 +54,8 @@ protected:
     EyeSegmenterTest()
     {
         // Create the segmenter (constructor tests performed prior to this)
-        m_eyeSegmenter = std::make_shared<drishti::sdk::EyeSegmenter>(modelFilename);
+        auto kind = isTextArchive ? drishti::sdk::kTXT : drishti::sdk::kPBA;
+        m_eyeSegmenter = std::make_shared<drishti::sdk::EyeSegmenter>(modelFilename, kind);
 
         // Load the ground truth data:
         loadTruth();

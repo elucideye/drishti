@@ -299,12 +299,6 @@ DRISHTI_EYE::EyeModel EyeModelEstimator::getMeanShape(const cv::Size &size) cons
     return m_impl->getMeanShape(size);
 }
 
-int EyeModelEstimator::load(std::istream &is, EyeModelEstimator &eme)
-{
-    load_pba_z(is, eme);
-    return 0;
-}
-
 bool EyeModelEstimator::getDoMask() const
 {
     DRISHTI_STREAM_LOG_FUNC(2,26,m_streamLogger);
@@ -361,10 +355,28 @@ int EyeModelEstimator::getIrisStagesRepetitionFactor() const
     return m_impl->getIrisStagesRepetitionFactor();
 }
 
-int EyeModelEstimator::load(const std::string &filename, EyeModelEstimator &eme)
+int EyeModelEstimator::loadPBA(const std::string &filename, EyeModelEstimator &eme)
 {
     std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    return load(ifs, eme);
+    return loadPBA(ifs, eme);
+}
+
+int EyeModelEstimator::loadPBA(std::istream &is, EyeModelEstimator &eme)
+{
+    load_pba_z(is, eme);
+    return 0;
+}
+
+int EyeModelEstimator::loadTXT(const std::string &filename, EyeModelEstimator &eme)
+{
+    std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
+    return loadTXT(ifs, eme);
+}
+
+int EyeModelEstimator::loadTXT(std::istream &is, EyeModelEstimator &eme)
+{
+    load_txt_z(is, eme);
+    return 0;
 }
 
 // Boost serialization:

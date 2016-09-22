@@ -24,22 +24,22 @@ _DRISHTI_SDK_BEGIN
  * EyeSegmenter
  */
 
-EyeSegmenter::EyeSegmenter(const std::string &filename)
+EyeSegmenter::EyeSegmenter(const std::string &filename, ArchiveKind kind)
 {
     std::ifstream is(filename);
-    init(is);
+    init(is, kind);
 }
 
-EyeSegmenter::EyeSegmenter(std::istream &is)
+EyeSegmenter::EyeSegmenter(std::istream &is, ArchiveKind kind)
 {
-    init(is);
+    init(is, kind);
 }
 
-void EyeSegmenter::init(std::istream &is)
+void EyeSegmenter::init(std::istream &is, ArchiveKind kind)
 {
     try
     {
-        m_impl = std::unique_ptr<Impl>(new Impl(is));
+        m_impl = std::unique_ptr<Impl>(new Impl(is, kind));
     }
     catch(std::exception &e)
     {
