@@ -18,7 +18,7 @@ set(
   FACE_FILTER_SOURCES
   main.cpp
 
-  Scene.hpp  
+  Scene.hpp
   Scene.cpp
   TextureBuffer.hpp
   VideoFilter.hpp
