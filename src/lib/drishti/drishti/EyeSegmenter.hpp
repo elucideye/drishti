@@ -48,6 +48,10 @@ public:
 
     ~EyeSegmenter();
 
+    bool good() const;
+
+    explicit operator bool() const;
+
     int operator()(const Image3b &image, Eye &eye, bool isRight);
     Eye getMeanEye(int width) const;
 

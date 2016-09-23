@@ -47,7 +47,7 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
-  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --fwd HUNTER_USE_CACHE_SERVERS=ONLY
+  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --test --fwd HUNTER_USE_CACHE_SERVERS=ONLY DRISHTI_USE_TEXT_ARCHIVES=YES
 
 artifacts:
   - path: _builds\*\drishti-*.tar.gz

@@ -22,6 +22,15 @@ else()
     )
 endif()
 
+if(WIN32)
+  set_property(
+      TEST DrishtiTest
+      PROPERTY
+      ENVIRONMENT
+      "PATH=$<TARGET_FILE_DIR:drishti>;$ENV{PATH}"
+  )
+endif()
+
 set_property(TARGET test-drishti PROPERTY FOLDER "app/tests")
 
 
