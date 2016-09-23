@@ -159,7 +159,7 @@ endif()
 target_link_libraries(facefilter
   drishtisdk
   ${OGLES_GPGPU_LIB}
-  ${THREAD_POOL_LIB}
+  thread-pool-cpp::thread-pool-cpp
   nlohmann-json::nlohmann-json)
 
 set_property(TARGET facefilter PROPERTY FOLDER "app/gui")

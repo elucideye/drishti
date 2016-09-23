@@ -246,14 +246,11 @@ drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF
 
 option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
-  add_definitions(-DUSE_LOCAL_THREAD_POOL=1)
-  set(THREAD_POOL_LIB ) # header only (null)
-  include_directories(src/3rdparty/thread-pool-cpp/thread_pool)
+  add_subdirectory(src/3rdparty/thread-pool-cpp)
+  add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
 else()
-  add_definitions(-DUSE_LOCAL_THREAD_POOL=0)
   hunter_add_package(thread-pool-cpp)
   find_package(thread-pool-cpp CONFIG REQUIRED)
-  set(THREAD_POOL_LIB thread-pool-cpp::thread-pool-cpp)
 endif()
 
 ### Cereal
