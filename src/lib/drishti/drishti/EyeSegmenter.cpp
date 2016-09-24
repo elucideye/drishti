@@ -131,7 +131,15 @@ drishti::sdk::EyeSegmenter* drishti_create_from_stream(std::istream &is)
 
 void drishti_destroy(drishti::sdk::EyeSegmenter *segmenter)
 {
-    delete segmenter;
+    if(segmenter)
+    {
+        delete segmenter;
+    }
+}
+
+void drishti_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight)
+{
+    (*segmenter)(image, eye, isRight);
 }
 DRISHTI_EXTERN_C_END
 

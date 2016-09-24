@@ -84,6 +84,7 @@ DRISHTI_EXTERN_C_BEGIN
 DRISHTI_EXPORTS drishti::sdk::EyeSegmenter* drishti_create_from_file(const std::string &filename);
 DRISHTI_EXPORTS drishti::sdk::EyeSegmenter* drishti_create_from_stream(std::istream &is);
 DRISHTI_EXPORTS void drishti_destroy(drishti::sdk::EyeSegmenter *segmenter);
+DRISHTI_EXPORTS void drishti_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight);
 DRISHTI_EXTERN_C_END
 
 #endif /* defined(__drishtisdk__DrishtiEyeSegmenter__) */
