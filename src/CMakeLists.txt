@@ -18,6 +18,7 @@ set(LIB_TYPE STATIC)
 option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
+  option(XGBOOST_DO_LEAN ON CACHE BOOL "Build lean library for evaluation only" FORCE)  
   option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost")
   include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost/src")
