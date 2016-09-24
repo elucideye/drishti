@@ -1,0 +1,4 @@
+_drishti_create_from_file
+_drishti_create_from_stream
+_drishti_destroy
+_drishti_segment

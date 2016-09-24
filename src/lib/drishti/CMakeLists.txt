@@ -283,7 +283,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
 
   set_target_properties(drishti_c
     PROPERTIES
-    EXPORTED_SYMBOLS_FILE "${CMAKE_CURRENT_LIST_DIR}/drishti_symbols.txt"
+    EXPORTED_SYMBOLS_FILE "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_symbols.txt"
     )
 
   install(
