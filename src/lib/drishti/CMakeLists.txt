@@ -194,7 +194,6 @@ set(DRISHTI_SDK_LIBS
   ${ANDROID_3RDPARTY_LIBS}
   )
 
-
 # Create the public shared library
 add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
 target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
@@ -276,6 +275,9 @@ install(
 ##################
 
 if(DRISHTI_BUILD_C_INTERFACE)
+
+  message("DRISHTI_BUILD_C_INTERFACE = ${DRISHTI_BUILD_C_INTERFACE}")
+  
   add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
   target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
@@ -283,11 +285,11 @@ if(DRISHTI_BUILD_C_INTERFACE)
 
   set_target_properties(drishti_c
     PROPERTIES
-    EXPORTED_SYMBOLS_FILE "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_symbols.txt"
+    XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_symbols.txt"
     )
 
   install(
-    TARGETS ${TARGET_SDK}_c
+    TARGETS drishti_c
     EXPORT "${targets_export_name}"
     LIBRARY DESTINATION "lib"
     ARCHIVE DESTINATION "lib"
