@@ -1,4 +1,4 @@
-function(drishti_bare_bones drishti_library)
+function(drishti_hide_and_strip drishti_library)
   set_target_properties(${drishti_library}
     PROPERTIES
     CXX_VISIBILITY_PRESET hidden  ### HIDE
@@ -14,4 +14,4 @@ function(drishti_bare_bones drishti_library)
     XCODE_ATTRIBUTE_GENERATE_MASTER_OBJECT_FILE "YES" # "Perform Single-Object Prelink"
     PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
     )
-endfunction()
+endfunction(drishti_hide_and_strip)

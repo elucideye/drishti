@@ -1,5 +1,4 @@
-function(drishti_strip_symbols drishti_library)
-  
+function(drishti_symbol_list drishti_library)
   set(
     DRISHTI_SDK_SYMBOLS
     _drishti_create_from_file
@@ -30,4 +29,4 @@ function(drishti_strip_symbols drishti_library)
     LINK_FLAGS "${LINK_FLAGS}"
     )
 
-endfunction(drishti_strip_symbols)
+endfunction(drishti_symbol_list)
