@@ -1,27 +1,41 @@
 function(drishti_symbol_list drishti_library)
   set(
     DRISHTI_SDK_SYMBOLS
-    _drishti_create_from_file
-    _drishti_create_from_stream
-    _drishti_destroy
-    _drishti_segment
+    drishti_create_from_file
+    drishti_create_from_stream
+    drishti_destroy
+    drishti_segment
     )
-
-  set (LINK_FLAGS "")
 
   if (APPLE)
     # Create a symbols_list file for the darwin linker
-    string(REPLACE ";" "\n_" _symbols "${SDK_SYMBOLS}")
+    string(REPLACE ";" "\n_" _symbols "${DRISHTI_SDK_SYMBOLS}")
     set(_symbols_list "${CMAKE_CURRENT_BINARY_DIR}/symbols.list")
     file(WRITE ${_symbols_list} "_${_symbols}\n")
-    set(LINK_FLAGS "${LINK_FLAGS} -Wl,-exported_symbols_list,'${_symbols_list}'")
+    set(LINK_FLAGS "${LINK_FLAGS} -Wl,-exported_symbols_list,'${_symbols_list}'")    
+
+    # Support xcode toolchain use XCODE_ATTRIBUTE_*
+    set_target_properties(${drishti_library}
+      PROPERTIES
+      XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "${_symbols_list}"
+      XCODE_ATTRIBUTE_COPY_PHASE_STRIP "YES"
+      XCODE_ATTRIBUTE_STRIP_INSTALLED_PRODUCT "YES"
+      XCODE_ATTRIBUTE_STRIP_STYLE "non-global"
+      XCODE_ATTRIBUTE_STRIPFLAGS "-x -u -r"
+      XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING "YES"
+      XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING "YES"
+      XCODE_ATTRIBUTE_GENERATE_MASTER_OBJECT_FILE "YES" # "Perform Single-Object Prelink"
+      )
+
   elseif (CMAKE_C_COMPILER_ID STREQUAL GNU)
     # Create a version script for GNU ld.
-    set(_symbols "{ global: ${SDK_SYMBOLS}; local: *; };")
+    set(_symbols "{ global: ${DRISHTI_SDK_SYMBOLS}; local: *; };")
     set(_version_script "${CMAKE_CURRENT_BINARY_DIR}/version.script")
     file(WRITE ${_version_script} "${_symbols}\n")
     set(LINK_FLAGS "${LINK_FLAGS} -Wl,--version-script,'${_version_script}'")
   endif (APPLE)
+
+  # TODO: MSVC, etc
 
   set_target_properties(
     ${drishti_library}
