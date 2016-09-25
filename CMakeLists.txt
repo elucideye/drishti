@@ -71,10 +71,6 @@ message("** -- ** ${CMAKE_CXX_FLAGS_DEBUG}")
 message("+++ ${CMAKE_CONFIGURATION_TYPES} +++" )
 message("--- ${CMAKE_BUILD_TYPE} ---")
 
-# set(CMAKE_C_COMPILER "/usr/local/bin/clang-omp")
-# set(CMAKE_CXX_COMPILER "/usr/local/bin/clang-omp++")
-# set(CMAKE_XCODE_ATTRIBUTE_CC "/usr/local/bin/clang-omp")
-
 message("CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}")
 message("CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER}")
 message("OPENMP CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
@@ -91,26 +87,16 @@ if(NOT XCODE) # We'll never have openmp on ios, and this test is really slow
   endif()
 endif()
 
+include(drishti_mirror_definition)
+
 option(DRISHTI_BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
-if(DRISHTI_BUILD_REGRESSION_SIMD)
-  add_definitions(-DBUILD_REGRESSION_SIMD=1)
-else()
-  add_definitions(-DBUILD_REGRESSION_SIMD=0)
-endif()
+drishti_mirror_definition(DRISHTI_BUILD_REGRESSION_SIMD)
 
 option(DRISHTI_BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
-if(DRISHTI_BUILD_REGRESSION_FIXED_POINT)
-  add_definitions(-DBUILD_REGRESSION_FIXED_POINT=1)
-else()
-  add_definitions(-DBUILD_REGRESSION_FIXED_POINT=0)
-endif()
+drishti_mirror_definition(DRISHTI_BUILD_REGRESSION_FIXED_POINT)
 
 option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" OFF)
-if(DRISHTI_BUILD_MIN_SIZE)
-  add_definitions(-DDRISHTI_BUILD_MIN_SIZE=1)
-else()
-  add_definitions(-DDRISHTI_BUILD_MIN_SIZE=0)
-endif()
+drishti_mirror_definition(DRISHTI_BUILD_MIN_SIZE)
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
@@ -220,16 +206,12 @@ drishti_always_full_rpath()
 ### Visibility    ###
 #####################
 
-# Not working for clang
-#set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
-#set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+# Always hide symbols within this project:
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-# Note: The brute force approach seems to be required to get xcode working:
-#set(XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN "YES")
-#set(XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN "YES")
-
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+set(CMAKE_XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN "YES")
+set(CMAKE_XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN "YES")
 
 ##################
 ### PACKAGES #####
@@ -257,22 +239,9 @@ endif()
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
 
-include(CheckCSourceCompiles)
-
 ### Thread-pool-cpp
-check_c_source_compiles("
-#if defined (__GNUC__)
-    #define ATTRIBUTE_TLS __thread
-#elif defined (_MSC_VER)
-    #define ATTRIBUTE_TLS __declspec(thread)
-#else // !__GNUC__ && !_MSC_VER
-    #error \"Define a thread local storage qualifier for your compiler/platform!\"
-#endif
-ATTRIBUTE_TLS int tls;
-int main(void) {
-    return 0;
-}" HAVE_THREAD_LOCAL_STORAGE)
-
+include(drishti_thread_local_storage)
+drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
 
 option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
