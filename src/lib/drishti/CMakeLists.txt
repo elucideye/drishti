@@ -1,15 +1,19 @@
+include(drishti_symbol_list)
+include(drishti_hide)
+include(drishti_strip)
 include(sugar_include)
+
 sugar_include(.)
 
 ## Customize linker flags 
 include(CheckCCompilerFlag)
-CHECK_C_COMPILER_FLAG("-Wl,-dead_strip" FLAG_dead_strip)
 if(NOT MSVC)
-  IF(NOT FLAG_dead_strip)
-    SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections")
-  ELSE()
-    SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip")
-  ENDIF()
+  check_c_compiler_flag("-Wl,-dead_strip" FLAG_dead_strip)  
+  if(NOT FLAG_dead_strip)
+    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections")
+  else()
+    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip")
+  endif()
 endif()
 
 set(LIB_TYPE STATIC)
@@ -78,15 +82,13 @@ foreach(library ${DRISHTI_LIBS})
   target_link_libraries(${library}
     PUBLIC
     Eigen::eigen
-    )
+    )  
 endforeach()
 
 ##
 ## Unit tests
 ##
 
-# TOOD: The acf GPU vs CPU tests need more work
-#add_subdirectory(acf)
 add_subdirectory(drishti)
 
 include_directories("${PROJECT_BINARY_DIR}")
@@ -121,11 +123,6 @@ else()
   set(APPLE_FRAMEWORKS "")
 endif()
 
-# get_cmake_property(_variableNames VARIABLES)
-# foreach (_variableName ${_variableNames})
-#      message(STATUS "VARIABLE: ${_variableName}=${${_variableName}}")
-# endforeach()
-
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})
 target_link_libraries(drishtisdk PUBLIC
   ${DRISHTI_LIBS}
@@ -135,9 +132,19 @@ target_link_libraries(drishtisdk PUBLIC
 )
 
 # Build internal lib for console apps, etc.
-set_target_properties(drishtisdk PROPERTIES PUBLIC_HEADER "${DRISHTISDK_PUBLIC_HDRS}" )
+set_target_properties(drishtisdk
+  PROPERTIES
+  PUBLIC_HEADER "${DRISHTISDK_PUBLIC_HDRS}"
+  XCODE_ATTRIBUTE_COPY_PHASE_STRIP "YES"
+  XCODE_ATTRIBUTE_STRIP_INSTALLED_PRODUCT "YES"
+  XCODE_ATTRIBUTE_STRIP_STYLE "non-global"
+  XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING "YES"
+  XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING "YES"
+  )
+
 if(NOT IOS)
-  set_target_properties(drishtisdk PROPERTIES
+  set_target_properties(drishtisdk
+    PROPERTIES
     SOVERSION "${drishtisdk_VERSION_MAJOR}"
     VERSION "${drishtisdk_VERSION}"
     )
@@ -159,14 +166,18 @@ if(no_install_prefix)
 endif()
 
 set(THIRD_PARTY_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/3rdparty")
-add_custom_command(TARGET drishtisdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRD_PARTY_INSTALL_DIR}")
+add_custom_command(TARGET drishtisdk POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRD_PARTY_INSTALL_DIR}"
+  )
 foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
   if(TARGET ${library}  ## Avoid generator expression errors for header only libs
 	  AND NOT "${library}" MATCHES "dlib::dlib" 
 	  AND NOT "${library}" MATCHES "cereal::cereal"
 	  AND NOT "${library}" MATCHES "spdlog::spdlog"
 	  AND NOT "${library}" MATCHES "Eigen::eigen") 
-    add_custom_command(TARGET drishtisdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}")
+    add_custom_command(TARGET drishtisdk POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
+      )
   endif()
 endforeach()
 message("=========================================")
@@ -177,11 +188,6 @@ message("=========================================")
 ## Always static for ios (we'll build dynamic framework from within xcode)
 set(API_LIB_TYPE SHARED)
 
-add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
-target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-
-include(drishti_symbols.cmake)
-
 set(DRISHTI_SDK_LIBS
   ${DRISHTI_LIBS}
   ${DRISHTI_SDK_3RDPARTY_LIBS}   
@@ -189,25 +195,22 @@ set(DRISHTI_SDK_LIBS
   ${ANDROID_3RDPARTY_LIBS}
   )
 
+# Create the public shared library
+add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
+drishti_hide(drishti)
+drishti_strip(drishti)
 
-#add_dependencies(drishti eye_model_rsc)
-
-set_target_properties(drishti PROPERTIES
-  CXX_VISIBILITY_PRESET hidden  ### HIDE
-  VISIBILITY_INLINES_HIDDEN ON
-  XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN YES 
-  XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN YES
-  XCODE_ATTRIBUTE_COPY_PHASE_STRIP YES
+set_target_properties(drishti
+  PROPERTIES
   PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
   )
 
-# if(ANDROID)
-#   set_target_properties(drishti PROPERTIES LINK_FLAGS "-static") ### link static dependencies
-# endif()
-
 if(NOT IOS)
-  set_target_properties(drishti PROPERTIES
+  # iOS dynamic frameworks don't use this type of versioning:
+  set_target_properties(drishti
+    PROPERTIES
     VERSION "${drishtisdk_VERSION}"
     SOVERSION "${drishtisdk_VERSION_MAJOR}"
     )
@@ -274,3 +277,31 @@ install(
   NAMESPACE "${namespace}"
   DESTINATION "${config_install_dir}"
   )
+
+##################
+##### C API ######
+##################
+
+if(DRISHTI_BUILD_C_INTERFACE)
+
+  message("DRISHTI_BUILD_C_INTERFACE = ${DRISHTI_BUILD_C_INTERFACE}")
+  
+  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+  target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+  target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
+  drishti_hide(drishti_c)
+  drishti_strip(drishti_c)
+  drishti_symbol_list(drishti_c)
+  
+  install(
+    TARGETS drishti_c
+    EXPORT "${targets_export_name}"
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib"
+    RUNTIME DESTINATION "bin"
+    INCLUDES DESTINATION "${include_install_dir}"
+    )
+
+endif()
+
+

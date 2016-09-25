@@ -113,6 +113,8 @@ else()
 endif()
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
+
+option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." OFF)
 option(DRISHTI_BUILD_FACE "Drishti face lib." OFF)
