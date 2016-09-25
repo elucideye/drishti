@@ -18,72 +18,113 @@ endif()
 
 set(LIB_TYPE STATIC)
 
-## drishti_core
-add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
-target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
-if(DRISHTI_USE_TEXT_ARCHIVES)
-  target_compile_definitions(drishti_core PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
-endif()
+##################
+#### world #######
+##################
 
-## drishti_geometry
-add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
-target_link_libraries(drishti_geometry PUBLIC ${OpenCV_LIBS})
-target_compile_definitions(drishti_geometry PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+if(DRISHTI_BUILD_WORLD)
 
-## drishti_sensors
-add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
-target_link_libraries(drishti_sensor PUBLIC ${OpenCV_LIBS})
+  set(DRISHTI_WORLD_SOURCES
+    ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC}
+    ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC}
+    ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC}
+    ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC}
+    ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC}
+    ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC}
+    ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC}
+    ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC}    
+    )
 
-## drishti_ml
-add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
-target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} ${XGBOOST_LIB})
-target_compile_definitions(drishti_ml PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-
-## drishti_rcpr
-add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
-target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} ${XGBOOST_LIB})
-
-## drishti_eye
-add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
-target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} ${XGBOOST_LIB})
-if(DRISHTI_USE_TEXT_ARCHIVES)
-  target_compile_definitions(drishti_eye PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
-endif()
-
-## drishti_acf
-if(DRISHTI_BUILD_ACF)
-  include_directories(acf/acf/toolbox)
-  add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
-  if(DRISHTI_BUILD_OGLES_GPGPU)
-    target_link_libraries(drishti_acf PUBLIC ${OGLES_GPGPU_LIB} ${OpenCV_LIBS})
+  if(DRISHTI_BUILD_ACF)
+    include_directories(acf/acf/toolbox)
+    list(APPEND DRISHTI_SOURCES ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
   endif()
-  set(OBJ_ACF drishti_acf)
-endif()
 
-## drishti_face
-if(DRISHTI_BUILD_FACE)
-  add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-  target_link_libraries(drishti_face PUBLIC drishti_eye ${OBJ_ACF} ${OpenCV_LIBS})
-  set(OBJ_FACE drishti_face)
-endif()
+  if(DRISHTI_BUILD_FACE)
+    list(APPEND DRISHTI_SOURCES ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
+  endif()  
 
-set(DRISHTI_LIBS 
-  ${OBJ_ACF}
-  ${OBJ_FACE}
-  drishti_eye
-  drishti_rcpr
-  drishti_ml
-  drishti_geometry
-  drishti_sensor
-  drishti_core
-)
+  if(DRISHTI_BUILD_OGLES_GPGPU)
+    list(APPEND DRISHTI_SDK_3RDPARTY_LIBS ${OGLES_GPGPU_LIB})
+  endif()
+  
+  add_library(drishti_world ${LIB_TYPE}  ${DRISHTI_WORLD_SOURCES})
+  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS})
+  target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+  set(DRISHTI_LIBS drishti_world)
 
-foreach(library ${DRISHTI_LIBS})
-  target_link_libraries(${library}
-    PUBLIC
-    Eigen::eigen
-    )  
-endforeach()
+  # TODO: Need IDE granularity
+
+else()
+
+  ## drishti_core
+  add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
+  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
+  if(DRISHTI_USE_TEXT_ARCHIVES)
+    target_compile_definitions(drishti_core PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
+  endif()
+
+  ## drishti_geometry
+  add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
+  target_link_libraries(drishti_geometry PUBLIC ${OpenCV_LIBS})
+  target_compile_definitions(drishti_geometry PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+
+  ## drishti_sensors
+  add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
+  target_link_libraries(drishti_sensor PUBLIC ${OpenCV_LIBS})
+
+  ## drishti_ml
+  add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
+  target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} ${XGBOOST_LIB})
+  target_compile_definitions(drishti_ml PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+
+  ## drishti_rcpr
+  add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
+  target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} ${XGBOOST_LIB})
+
+  ## drishti_eye
+  add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
+  target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} ${XGBOOST_LIB})
+  if(DRISHTI_USE_TEXT_ARCHIVES)
+    target_compile_definitions(drishti_eye PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
+  endif()
+
+  ## drishti_acf
+  if(DRISHTI_BUILD_ACF)
+    include_directories(acf/acf/toolbox)
+    add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
+    if(DRISHTI_BUILD_OGLES_GPGPU)
+      target_link_libraries(drishti_acf PUBLIC ${OGLES_GPGPU_LIB} ${OpenCV_LIBS})
+    endif()
+    set(OBJ_ACF drishti_acf)
+  endif()
+
+  ## drishti_face
+  if(DRISHTI_BUILD_FACE)
+    add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
+    target_link_libraries(drishti_face PUBLIC drishti_eye ${OBJ_ACF} ${OpenCV_LIBS})
+    set(OBJ_FACE drishti_face)
+  endif()
+
+  set(DRISHTI_LIBS 
+    ${OBJ_ACF}
+    ${OBJ_FACE}
+    drishti_eye
+    drishti_rcpr
+    drishti_ml
+    drishti_geometry
+    drishti_sensor
+    drishti_core
+    )
+
+  foreach(library ${DRISHTI_LIBS})
+    target_link_libraries(${library} PUBLIC Eigen::eigen)
+  endforeach()
+
+  generate_export_header(drishti_core)
+  install(FILES "${PROJECT_BINARY_DIR}/drishti_core_export.h" DESTINATION "${include_install_dir}")
+
+endif(DRISHTI_BUILD_WORLD)
 
 ##
 ## Unit tests
@@ -92,7 +133,6 @@ endforeach()
 add_subdirectory(drishti)
 
 include_directories("${PROJECT_BINARY_DIR}")
-generate_export_header(drishti_core)
 
 #
 # Build and install a single library or framework from our set of object libraries
@@ -250,8 +290,6 @@ write_basic_package_version_file("${version_config}" VERSION "${drishtisdk_VERSI
 # Note: variable 'targets_export_name' used
 configure_file("${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in" "${project_config}" @ONLY)
 
-install(FILES "${PROJECT_BINARY_DIR}/drishti_core_export.h" DESTINATION "${include_install_dir}")
-
 install(
   TARGETS ${TARGET_SDK}
   EXPORT "${targets_export_name}"
@@ -292,6 +330,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
   drishti_hide(drishti_c)
   drishti_strip(drishti_c)
   drishti_symbol_list(drishti_c)
+  set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
   
   install(
     TARGETS drishti_c
