@@ -309,7 +309,7 @@ endif()
 #####################
 
 # This will build a static library using all specified modules
-option(DRISHTI_BUILD_WORLD "Build single library" OFF)
+option(DRISHTI_BUILD_WORLD "Build single library" ON)
 
 ### Faster build itmes
 if(XCODE)
