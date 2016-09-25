@@ -22,14 +22,14 @@
 
 // include all std functions
 using namespace std;
-#include "wrapper/xgboost_wrapper.h"
-#include "src/data.h"
-#include "src/learner/learner-inl.hpp"
-#include "src/io/io.h"
-#include "src/utils/utils.h"
-#include "src/utils/math.h"
-#include "src/utils/group_data.h"
-#include "src/io/simple_dmatrix-inl.hpp"
+#include "xgboost/wrapper/xgboost_wrapper.h"
+#include "xgboost/src/data.h"
+#include "xgboost/src/learner/learner-inl.hpp"
+#include "xgboost/src/io/io.h"
+#include "xgboost/src/utils/utils.h"
+#include "xgboost/src/utils/math.h"
+#include "xgboost/src/utils/group_data.h"
+#include "xgboost/src/io/simple_dmatrix-inl.hpp"
 
 // Probably want to hide this stuff
 #include "drishti/core/boost_serialize_common.h"
@@ -41,9 +41,9 @@ using namespace std;
 using namespace xgboost;
 using namespace xgboost::io;
 
-#include "src/gbm/gblinear-inl.hpp"
-#include "src/gbm/gbtree-inl.hpp"
-#include "src/learner/objective-inl.hpp"
+#include "xgboost/src/gbm/gblinear-inl.hpp"
+#include "xgboost/src/gbm/gbtree-inl.hpp"
+#include "xgboost/src/learner/objective-inl.hpp"
 
 // Use this definition with custom boost serialization XGBoost lib,
 // else simply wrap standard XGBoost serialization with a boost API.
