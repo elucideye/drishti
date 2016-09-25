@@ -1,5 +1,6 @@
 include(drishti_symbol_list)
-include(drishti_hide_and_strip)
+include(drishti_hide)
+include(drishti_strip)
 include(sugar_include)
 
 sugar_include(.)
@@ -198,9 +199,16 @@ set(DRISHTI_SDK_LIBS
 add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
 target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
-drishti_hide_and_strip(drishti)
+drishti_hide(drishti)
+drishti_strip(drishti)
+
+set_target_properties(drishti
+  PROPERTIES
+  PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
+  )
 
 if(NOT IOS)
+  # iOS dynamic frameworks don't use this type of versioning:
   set_target_properties(drishti
     PROPERTIES
     VERSION "${drishtisdk_VERSION}"
@@ -281,13 +289,10 @@ if(DRISHTI_BUILD_C_INTERFACE)
   add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
   target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
-  drishti_hide_and_strip(drishti_c)
-
-  set_target_properties(drishti_c
-    PROPERTIES
-    XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_symbols.txt"
-    )
-
+  drishti_hide(drishti_c)
+  drishti_strip(drishti_c)
+  drishti_symbol_list(drishti_c)
+  
   install(
     TARGETS drishti_c
     EXPORT "${targets_export_name}"
