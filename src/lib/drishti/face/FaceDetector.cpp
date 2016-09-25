@@ -40,7 +40,7 @@ static cv::Matx33f denormalize(const cv::Rect &roi)
     cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f);
     cv::Matx33f C1(1,0,-0.5,0,1,-0.5,0,0,1);
     cv::Matx33f C2(1,0,+center.x,0,1,+center.y,0,0,1);
-    cv::Matx33f S = cv::Matx33f::diag({roi.width, roi.height,1});
+    cv::Matx33f S = cv::Matx33f::diag({static_cast<float>(roi.width), static_cast<float>(roi.height),1.f});
     return (C2 * S * C1);
 }
 

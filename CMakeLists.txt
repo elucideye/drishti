@@ -283,13 +283,9 @@ set(DRISHTI_SDK_BOOST_LIBS
   Boost::iostreams
   )
 
-#if DRISHTI_USE_TEXT_ARCHIVES
+### DRISHTI_USE_TEXT_ARCHIVES
 option(DRISHTI_USE_TEXT_ARCHIVES "Support TEXT archives for serialization (extra size)" OFF)
-if(DRISHTI_USE_TEXT_ARCHIVES)
-  add_definitions(-DDRISHTI_USE_TEXT_ARCHIVES=1)
-else()
-  add_definitions(-DDRISHTI_USE_TEXT_ARCHIVES=0)
-endif()
+drishti_mirror_definition(DRISHTI_USE_TEXT_ARCHIVES)
 
 ### DLIB: dlib (Header only + no CMakeLists.txt)
 hunter_add_package(dlib)
@@ -307,6 +303,13 @@ if(DRISHTI_BUILD_ACF)
   hunter_add_package(cvmatio)
   find_package(cvmatio REQUIRED CONFIG)
 endif()
+
+#####################
+### drishti_world ###
+#####################
+
+# This will build a static library using all specified modules
+option(DRISHTI_BUILD_WORLD "Build single library" ON)
 
 ### Faster build itmes
 if(XCODE)
