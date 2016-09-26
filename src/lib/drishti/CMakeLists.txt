@@ -133,6 +133,7 @@ endif(DRISHTI_BUILD_WORLD)
 ##
 
 add_subdirectory(drishti)
+add_subdirectory(geometry)
 
 include_directories("${PROJECT_BINARY_DIR}")
 
