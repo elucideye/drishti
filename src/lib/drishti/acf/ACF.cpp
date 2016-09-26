@@ -237,12 +237,11 @@ void Detector::computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLogger)
  * Input is transposed planar format image: LUVMO
  */
 
-int Detector::operator()(const MatP &Ip, std::vector<cv::Rect> &objects, std::vector<double> *scores)
+int Detector::operator()(const MatP &IpTranspose, std::vector<cv::Rect> &objects, std::vector<double> *scores)
 {
-
     // Create features:
     Pyramid P;
-    chnsPyramid(Ip, &opts.pPyramid.get(), P, true);
+    chnsPyramid(IpTranspose, &opts.pPyramid.get(), P, true);
 
     if(m_logger)
     {
