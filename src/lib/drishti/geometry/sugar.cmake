@@ -24,10 +24,6 @@ sugar_files(DRISHTI_GEOMETRY_SRCS
   conicResidualGeo.cpp
   conicCen2Par.cpp
   conicPar2Cen.cpp
-
-  # https://www.mathworks.com/matlabcentral/fileexchange/28318-conics-intersection/content/intersectConicLine.m  
-  getPointsOnLine.cpp
-  intersectConicLine.cpp  
   )
 
 sugar_files(DRISHTI_GEOMETRY_HDRS_PUBLIC
@@ -39,4 +35,8 @@ sugar_files(DRISHTI_GEOMETRY_HDRS_PUBLIC
   drishti_geometry.h
   fitEllipse.h
   motion.h
+
+  # https://www.mathworks.com/matlabcentral/fileexchange/28318-conics-intersection/content/intersectConicLine.m  
+  getPointsOnLine.h
+  intersectConicLine.h  
   )
