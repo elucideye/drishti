@@ -20,11 +20,7 @@
 
 #include "ogles_gpgpu/common/proc/flow.h"
 
-#if USE_LOCAL_THREAD_POOL
-#  include <thread_pool.hpp>
-#else
-#  include <thread-pool-cpp/thread_pool.hpp>
-#endif
+#include <thread_pool/thread_pool.hpp>
 
 #include <memory>
 #include <chrono>
