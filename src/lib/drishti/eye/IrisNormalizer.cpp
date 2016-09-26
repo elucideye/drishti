@@ -10,6 +10,7 @@
 
 #include "drishti/eye/IrisNormalizer.h"
 #include "drishti/geometry/Ellipse.h"
+#include "drishti/geometry/intersectConicLine.h"
 
 #include <opencv2/imgproc.hpp>
 
