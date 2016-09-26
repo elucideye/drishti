@@ -123,9 +123,6 @@ else()
     target_link_libraries(${library} PUBLIC Eigen::eigen)
   endforeach()
 
-  generate_export_header(drishti_core)
-  install(FILES "${PROJECT_BINARY_DIR}/drishti_core_export.h" DESTINATION "${include_install_dir}")
-
 endif(DRISHTI_BUILD_WORLD)
 
 ##
@@ -134,6 +131,9 @@ endif(DRISHTI_BUILD_WORLD)
 
 add_subdirectory(drishti)
 add_subdirectory(geometry)
+if(DRISHTI_BUILD_ACF)
+  add_subdirectory(acf)
+endif()
 
 include_directories("${PROJECT_BINARY_DIR}")
 
