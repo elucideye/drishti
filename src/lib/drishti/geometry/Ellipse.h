@@ -63,23 +63,6 @@ protected:
  
 void ellipse(cv::Mat &image, const Ellipse &e, const cv::Scalar &color, int width, int type);
 
-// intersectConicLine - given a line and a conic detect the real intersection
-// points
-//          - Pierluigi Taddei (pierluigi.taddei@polimi.it)
-//
-// Usage:   P = intersectConicLine(C, l)
-//
-// Arguments:
-//           C - homogeneous conic matrix
-//           l - homogeneous line vector
-//
-//           P - matrix of homogeneous intersection points (each column is a
-//           point)
-// 08.3.2007 : Created
-
-int intersectConicLine(const cv::Matx33f &C, const cv::Vec3f &l, cv::Vec3f P[2]);
-void getPointsOnLine(const cv::Vec3f &l, cv::Vec3f &p1, cv::Vec3f &p2);
-
 std::vector<float> pointsToPhi(const std::vector<cv::Point2f> &points);
 std::vector<float> ellipseToPhi(const cv::RotatedRect &e);
 cv::RotatedRect phiToEllipse(const std::vector<float> &phi, bool transpose=false);

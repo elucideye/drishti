@@ -1,7 +1,7 @@
 /*!
   @file   test-shader.cpp
   @author David Hirvonen
-  @brief  GPU ACF shader tests using a google test fixture.
+  @brief  CPU ACF shader tests using a google test fixture.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
@@ -14,6 +14,19 @@
 
 */
 
+// https://code.google.com/p/googletest/wiki/Primer
+
+#define DRISHTI_ACF_TEST_DISPLAY_OUTPUT 0
+#define DRISHTI_ACF_TEST_COMPARE_CPU_GPU_ORIENTATION 0
+#define DRISHTI_ACF_TEST_COMPARE_CPU_GPU_CHANNELS 0
+
+#if DRISHTI_BUILD_OGLES_GPGPU && DRISHTI_BUILD_QT
+// TODO: (needs more work to be 1)
+#  define DO_ACF_GPU_TEST 0
+#else
+#  define DO_ACF_GPU_TEST 0
+#endif
+
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!# Work in progress !#!#!#!#!#!#!#!#!#!#!#!#!
@@ -22,36 +35,21 @@
 
 #include <gtest/gtest.h>
 
-#include "QGLContext.h"
-#include "drishti/core/Logger.h"
 #include "drishti/core/drawing.h"
 #include "drishti/acf/ACF.h"
 #include "drishti/acf/MatP.h"
-#include "drishti/acf/GPUACF.h"
-#include "drishti/acf/gpu/gain.h"
-#include "drishti/acf/gpu/triangle.h"
+#include "drishti/core/Logger.h"
+#include "drishti/geometry/Primitives.h"
+
+#if DO_ACF_GPU_TEST
+#  include "drishti/acf/GPUACF.h"
+#endif
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 
 #include <fstream>
 #include <memory>
-
-#include "ogles_gpgpu/common/proc/box_opt.h"
-#include "ogles_gpgpu/common/proc/gauss_opt.h"
-#include "ogles_gpgpu/common/proc/flow.h"
-#include "ogles_gpgpu/common/proc/ixyt.h"
-#include "ogles_gpgpu/common/proc/fifo.h"
-#include "ogles_gpgpu/common/proc/filter3x3.h"
-#include "ogles_gpgpu/common/proc/iir.h"
-#include "ogles_gpgpu/common/proc/lowpass.h"
-#include "ogles_gpgpu/common/proc/highpass.h"
-#include "ogles_gpgpu/common/proc/remap.h"
-#include "ogles_gpgpu/common/proc/fir3.h"
-#include "ogles_gpgpu/common/proc/median.h"
-
-// https://code.google.com/p/googletest/wiki/Primer
 
 const char* imageFilename;
 const char* truthFilename;
@@ -69,33 +67,27 @@ const char* modelFilename;
 #define BEGIN_EMPTY_NAMESPACE namespace {
 #define END_EMPTY_NAMESPACE }
 
-#define TIMING 1
-
-#ifdef TIMING
-#define INIT_TIMER auto start = std::chrono::high_resolution_clock::now();
-#define START_TIMER  start = std::chrono::high_resolution_clock::now();
-#define STOP_TIMER(name)  std::cout << "RUNTIME of " << name << ": " << \
-std::chrono::duration_cast<std::chrono::milliseconds>( \
-std::chrono::high_resolution_clock::now()-start \
-).count() << " ms " << std::endl;
-#else
-#define INIT_TIMER
-#define START_TIMER
-#define STOP_TIMER(name)
-#endif
-
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 BEGIN_EMPTY_NAMESPACE
+
+struct WaitKey
+{
+    WaitKey() {}
+    ~WaitKey()
+    {
+#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+        cv::waitKey(0);
+#endif
+    }
+};
 
 class ACFTest : public ::testing::Test
 {
 protected:
 
     bool m_hasTranspose = false;
-
-    std::function<cv::Mat(const cv::Mat &)> m_toUpright;
-    std::function<cv::Mat(const cv::Mat &)> m_toTranspose;
 
     // Setup
     ACFTest()
@@ -105,40 +97,24 @@ protected:
         // Load the ground truth data:
 
         image = loadImage(imageFilename);
-
-#define TEST_ROTATION 1
-#if TEST_ROTATION
-        cv::Mat r;
-        cv::flip(image.t(), r, 0);
-        cv::swap(image, r);
-        m_hasTranspose = true;
-
-        m_toTranspose = [](const cv::Mat &src)
+        if(m_hasTranspose)
         {
-            cv::Mat dst;
-            cv::flip(src, dst, 0);
-            return dst;
-        };
-
-        m_toUpright = [](const cv::Mat &src)
-        {
-            cv::Mat dst;
-            cv::flip(src.t(), dst, 1);
-            return dst;
-        };
-#endif
+            image = image.t();
+        }
 
         // TODO: we need to load ground truth output for each shader
         // (some combinations could be tested, but that is probably excessive!)
         //truth = loadImage(truthFilename);
 
+#if DO_ACF_GPU_TEST
         m_context = std::make_shared<QGLContext>();
+#endif
     }
 
     // Cleanup
     virtual ~ACFTest()
     {
-        drishti::core::Logger::drop("test-acf");
+        drishti::core::Logger::drop("test-drishti-acf");
     }
 
     // Called after constructor for each test
@@ -160,136 +136,86 @@ protected:
         return image;
     }
 
+#if DO_ACF_GPU_TEST
     std::shared_ptr<QGLContext> m_context;
+#endif
+    
     std::shared_ptr<spdlog::logger> m_logger;
 
     // Test images:
     cv::Mat image, truth;
 };
 
-struct SobelResult
-{
-    cv::Mat mag, theta, dx, dy;
 
-    cv::Mat getAll()
-    {
-        cv::Mat channels[4], canvas;
-        cv::normalize(mag, channels[0], 0, 1, cv::NORM_MINMAX, CV_32F);
-        cv::normalize(theta, channels[1], 0, 1, cv::NORM_MINMAX, CV_32F);
-        cv::normalize(dx, channels[2], 0, 1, cv::NORM_MINMAX, CV_32F);
-        cv::normalize(dy, channels[3], 0, 1, cv::NORM_MINMAX, CV_32F);
-        cv::vconcat(channels, 4, canvas);
-        return canvas;
-    }
-};
-
+#if DO_ACF_GPU_TEST
 static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc)
 {
     cv::Mat result(proc.getOutFrameH(), proc.getOutFrameW(), CV_8UC4);
     proc.getResultData(result.ptr());
     return result;
 }
+#endif // DO_ACF_GPU_TEST
 
-#define DISPLAY_OUTPUT 1
+// This is a WIP, currently we test the basic CPU detection functionality
+// with a sample image.  Given the complexity of the GPU implementation,
+// more tests will need to be added for lower level channel computation,
+// such as CPU vs GPU error bounds.  For now the simple detection success
+// test and a simple placeholder assert(true) test wil be added at the
+// end of the test.
 
-/*
- * Fixture tests
- */
-
-
-static void _quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int step, float scale, const cv::Mat1b &mask)
-{
-    assert(dx.size() == dy.size());
-
-    float zoom = float(canvas.cols) / dx.cols;
-    for(int y = 0; y < dx.rows; y += step)
-    {
-        for(int x = 0; x < dx.cols; x += step)
-        {
-            if(mask(y,x))
-            {
-                cv::Point2f v1(dx(y,x), dy(y,x));
-                cv::Point2f p1(x, y);
-
-                cv::Point2f p2 = p1 * zoom;
-                cv::Point2f v2 = (v1 * zoom) * scale;
-
-                cv::circle(canvas, p2, 1, CV_RGB(0,255,255), -1, CV_AA);
-                cv::arrowedLine(canvas, p2, p2 + v2, CV_RGB(0,255,0), 1, CV_AA);
-            }
-        }
-    }
-}
-
-// GradProc delivers:
-// clamp(mag, 0.0, 1.0), theta/3.14159, clamp(dx, 0.0, 1.0), clamp(dy, 0.0, 1.0))
-
-static void printStats(const cv::Mat &I, const std::string &tag)
-{
-    cv::Vec2d vals;
-    cv::minMaxLoc(I, &vals[0], &vals[1]);
-    std::cout << tag << " mean = " << cv::mean(I) << " min = " << vals[0] << " max = " << vals[1] << std::endl;
-}
-
-static void normshow(const std::string &tag, const cv::Mat &I)
-{
-    printStats(I, tag);
-    cv::Mat canvas;
-    cv::normalize(I, canvas, 0, 1, cv::NORM_MINMAX, CV_32F);
-    cv::imshow(tag, canvas);
-}
-
-static void compareLUV(const cv::Mat &LUVp, const cv::Mat &LUV_)
-{
-    assert(LUV_.channels() >= 3);
-
-    cv::Mat LUVpu8;
-    LUVp.convertTo(LUVpu8, CV_8UC3, 255.0);
-
-    cv::Mat L_, U_, V_;
-    cv::extractChannel(LUV_, L_, 0);
-    cv::extractChannel(LUV_, U_, 1);
-    cv::extractChannel(LUV_, V_, 2);
-
-    std::vector<cv::Mat> vLUVh_ = { L_, U_, V_};
-    cv::Mat LUVh_;
-    cv::hconcat(vLUVh_, LUVh_);
-    cv::imshow("LUVp", LUVpu8);
-    cv::imshow("LUV_shader", LUVh_);
-}
-
-#define DO_TESTING 1
-
-TEST_F(ACFTest, acf)
+TEST_F(ACFTest, ACFDetection)
 {
     const char *classifier = modelFilename;
+    
+    WaitKey waitKey;
+    
+    drishti::acf::Detector detector(classifier);
 
     // #### CPU ####
     cv::Mat I;
     cv::cvtColor(image, I, cv::COLOR_BGR2RGB);
     I.convertTo(I, CV_32FC3, (1.0/255.0));
     CV_Assert(I.type() == CV_32FC3);
-
-    MatP Ip( m_toTranspose(I) );
-    drishti::acf::Detector detector(classifier);
-    detector.setIsTranspose(true);
-
-#if  DO_TESTING
-    {
-        // Test CPU detection
+    
+    {  // Test CPU detection w/ cv::Mat
         std::vector<double> scores;
         std::vector<cv::Rect> objects;
-        detector(Ip, objects, &scores);
-
+        detector.setIsTranspose(m_hasTranspose);
+        detector(I, objects, &scores);
+        
+#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
         cv::Mat canvas = image.clone();
         for(auto &r : objects)
         {
             cv::rectangle(canvas, r, {0,255,0}, 1, 8);
         }
         cv::imshow("acf_cpu_detection", canvas);
-        //cv::waitKey(0);
-    }
 #endif
+        
+        ASSERT_GT(objects.size(), 0); // Very weak test!!!
+    }
+
+    // Be sure to construct planar images in transpose:
+    MatP Ip( m_hasTranspose ? I : I.t() );
+
+    {  // Test CPU detection w/ MatP planar format
+        std::vector<double> scores;
+        std::vector<cv::Rect> objects;
+        
+        detector.setIsTranspose(true);
+        detector(Ip, objects, &scores);
+
+#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+        cv::Mat canvas = m_hasTranspose ? image : image.t();
+        for(auto &r : objects)
+        {
+            cv::rectangle(canvas, r, {0,255,0}, 1, 8);
+        }
+        cv::imshow("acf_cpu_detection", canvas);
+#endif
+        
+        ASSERT_GT(objects.size(), 0); // Very weak test!!!
+    }
 
     // Pull out the ACF intermediate results from the logger:
     cv::Mat M, Mnorm, O, L, U, V, H;
@@ -331,12 +257,17 @@ TEST_F(ACFTest, acf)
 
     std::vector<double> scales;
     std::vector<cv::Size2d> scaleshw;
+    
+#if DO_ACF_GPU_TEST
     std::vector<ogles_gpgpu::Size2d> sizes;
+#endif
+    
     {
-        INIT_TIMER;
         detector.computePyramid(Ip, Pcpu);
         scales = Pcpu.scales;
         scaleshw = Pcpu.scaleshw;
+        
+#if DO_ACF_GPU_TEST
         for(int i = 0; i < Pcpu.nScales; i++)
         {
             const auto size = Pcpu.data[i][0][0].size();
@@ -349,22 +280,20 @@ TEST_F(ACFTest, acf)
                 std::swap(s.width, s.height);
             }
         }
-
-        STOP_TIMER("acf_cpu");
+#endif
+        
     }
 
     {
-        INIT_TIMER;
         MatP Ich;
         detector.computeChannels(Ip, Ich, logger);
-        STOP_TIMER("acf_cpu");
-
         cv::Mat d = Ich.base().clone(), canvas;
         canvas = d.t();
-        cv::imshow("acf_cpu_native", d);
-        cv::imshow("acf_cpu", canvas);
+        //cv::imshow("acf_cpu_native", d);
+        //cv::imshow("acf_cpu", canvas);
     }
 
+#if DO_ACF_GPU_TEST
     // #### GPU #####
     ogles_gpgpu::Size2d inputSize(image.cols, image.rows);
     const bool doGrayscale = false;
@@ -398,13 +327,9 @@ TEST_F(ACFTest, acf)
         acf = video.getChannels();
     }
 
-    cv::imshow("acf", acf);
-    cv::waitKey(0);
-    //cv::imwrite("/tmp/acf.png", acf);
-
     auto crops = video.getCropRegions();
-
-
+    
+#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     {
         // Draw crop regions:
         cv::Mat canvas;
@@ -418,8 +343,8 @@ TEST_F(ACFTest, acf)
             }
         }
         cv::imshow("canvas", canvas);
-        cv::waitKey(0);
     }
+#endif // DRISHTI_ACF_TEST_DISPLAY_OUTPUT
 
     drishti::acf::Detector::Pyramid Pgpu;
     Pgpu.pPyramid = detector.opts.pPyramid;
@@ -439,10 +364,8 @@ TEST_F(ACFTest, acf)
     }
     video.fill(Pgpu);
 
-#define COMPARE_CPU_GPU_ORIENTATION 0
-#if COMPARE_CPU_GPU_ORIENTATION
+#if DRISHTI_ACF_TEST_COMPARE_CPU_GPU_ORIENTATION && DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     {
-
         {
             // Draw crop regions:
             cv::Mat canvas;
@@ -482,13 +405,10 @@ TEST_F(ACFTest, acf)
 
         cv::imshow("Ogpu", Ogpu);
         cv::imshow("Ocup", Ocpu);
-        cv::waitKey(0);
     }
-#endif
+#endif // COMPARE_CPU_GPU_ORIENTATION
 
-
-#define COMPARE_CPU_GPU_CHANNELS 0
-#if COMPARE_CPU_GPU_CHANNELS
+#if DRISHTI_ACF_TEST_COMPARE_CPU_GPU_CHANNELS && DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     // Compare Pcpu <-> Pgpu
     for(int i = 0; i < Pgpu.nScales; i++)
     {
@@ -498,9 +418,8 @@ TEST_F(ACFTest, acf)
         Ccpu = Ccpu.t();
         cv::imshow("Ccpu", Ccpu);
         cv::imshow("Cgpu", Cgpu);
-        cv::waitKey(0);
     }
-#endif
+#endif // COMPARE_CPU_GPU_CHANNELS
 
     {
         // Test GPU ACF detection
@@ -518,15 +437,15 @@ TEST_F(ACFTest, acf)
         std::vector<cv::Rect> objects;
         detector(Pgpu, objects, &scores);
 
-        cv::Mat canvas =  m_toUpright(image);
+#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+        cv::Mat canvas =  image.clone();
         for(auto &r : objects)
         {
             cv::rectangle(canvas, r, {0,255,0}, 1, 8);
         }
         cv::imshow("acf_gpu_detection", canvas);
+#endif // DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     }
-
-    cv::waitKey(0);
 
     double total = 0.0;
     for(int i = 1; i < times.size(); i++)
@@ -539,23 +458,7 @@ TEST_F(ACFTest, acf)
         }
     }
 
-    //acf = video.getChannels();
-    //std::cout << "acf.size() = " << acf.size() << std::endl;
-    //cv::imshow("acf", acf);
-
-#if 0
-    {
-        // ##### MO ######
-        cv::Mat XOMY = video.getImage(video.gradProc);;
-        std::vector<cv::Mat> MOXY;
-        cv::split(XOMY, MOXY);
-        cv::imshow("O", MOXY[1]);
-        cv::waitKey(0);
-    }
-#endif
-
-
-#if 0
+#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     cv::Mat pyramid = getImage(video.pyramidProc);
     cv::imshow("pyramid", pyramid);
 
@@ -609,34 +512,11 @@ TEST_F(ACFTest, acf)
     cv::normalize(H, _H, 0, 255, cv::NORM_MINMAX, CV_8UC1);
     cv::imshow("H_acf", _H);
     cv::imshow("H_shader", tmp);
-#endif
 
-    cv::waitKey(0);
-}
-
-TEST_F(ACFTest, luv)
-{
-    ogles_gpgpu::VideoSource video;
-    ogles_gpgpu::Rgb2LuvProc rgb2luvProc;
-
-    rgb2luvProc.setOutputSize(0.25); // 1/4 binning
-
-    cv::Mat input = image;
-
-    video.set(&rgb2luvProc);
-    video({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
-
-    rgb2luvProc.getMemTransferObj()->setOutputPixelFormat(DFLT_TEXTURE_FORMAT);
-    cv::Mat result = getImage(rgb2luvProc);
-
-#if DISPLAY_OUTPUT
-    std::vector<cv::Mat> channels;
-    cv::split(result, channels);
-    cv::swap(channels[0], channels[2]);
-    cv::hconcat(channels, result);
-    cv::imshow("luv", result);
-    cv::waitKey(0);
-#endif
+#endif // DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+#endif // DO_ACF_GPU_TEST (fin)
+    
+    ASSERT_TRUE(true); // Weak test (placeholder), make sure we reach here
 }
 
 END_EMPTY_NAMESPACE

@@ -1,4 +1,5 @@
-#include "drishti/geometry/Ellipse.h"
+#include "drishti/geometry/drishti_geometry.h"
+#include "drishti/geometry/getPointsOnLine.h"
 
 // intersectConicLine - given a line and a conic detect the real intersection
 // points
@@ -39,6 +40,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+DRISHTI_GEOMETRY_BEGIN
+
 // function P = intersectConicLine(C, l)
 //     P = [];
 //     [p1 p2] = getPointsOnLine(l);  
@@ -64,42 +67,52 @@
 //         end
 //     end
 
-DRISHTI_GEOMETRY_BEGIN
-
-int intersectConicLine(const cv::Matx33f &C, const cv::Vec3f &l, cv::Vec3f P[2])
+template <typename T>
+int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Vec<T,3> &l, cv::Vec<T,3> P[2])
 {
     int n = 0;
-    cv::Vec3f p1, p2;
+    
+    cv::Vec<T,3> p1, p2;
     getPointsOnLine(l, p1, p2);
-
+    
     const auto p1Cp1 = (p1.t() * C * p1)[0];
     const auto p2Cp2 = (p2.t() * C * p2)[0];
     const auto p1Cp2 = (p1.t() * C * p2)[0];
-    if(p2Cp2 == 0.f)
+    
+    if (p2Cp2 == T(0.0))
     {
-        const auto k1 = -0.5 * p1Cp1 / p1Cp2;
-        P[0] = (p1 + k1 * p2);
         n = 1;
+        const auto k1 = T(-0.5) * p1Cp1 / p1Cp2;
+        P[0] = p1 + (k1 * p2);
     }
     else
     {
-        const auto delta = p1Cp2*p1Cp2 - p1Cp1*p2Cp2;
-        if (delta >= 0.f)
+        const auto delta = (p1Cp2*p2Cp2) - (p1Cp1*p2Cp2);
+        if(delta >= T(0.0))
         {
+            n = 2;
             const auto deltaSqrt = std::sqrt(delta);
             const auto k1 = (-p1Cp2 + deltaSqrt)/p2Cp2;
             const auto k2 = (-p1Cp2 - deltaSqrt)/p2Cp2;
-            P[0] = (p1 + k1*p2);
-            P[1] = (p1 + k2*p2);
-            n = 2;
+            P[0] = p1 + k1*p2;
+            P[1] = p1 + k2*p2;
         }
         else
         {
-            // no intersection points
+            // not intersection points detected
+            n = 0;
         }
     }
+    
     return n;
 }
+
+template <typename T>
+int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Point3_<T> &l, cv::Vec<T,3> P[2])
+{
+    return intersectConicLine(C, cv::Vec<T,3>(l.x, l.y, l.z), P);
+}
+
 
 DRISHTI_GEOMETRY_END
 

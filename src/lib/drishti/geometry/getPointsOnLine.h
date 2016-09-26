@@ -1,4 +1,4 @@
-#include "drishti/geometry/Ellipse.h"
+#include "drishti/geometry/drishti_geometry.h"
 
 // getPointsOnLine -  given an homogeneous line return two homogeneous points on it
 //              - Pierluigi Taddei (pierluigi.taddei@polimi.it)
@@ -36,6 +36,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+DRISHTI_GEOMETRY_BEGIN
+
 // function [p1 p2] = getPointsOnLine(l)
 //    if (l(1) == 0 && l(2) == 0) %line at infinity
 //        p1 = [1 0 0]';
@@ -50,27 +52,27 @@
 //    end
 // end
 
-DRISHTI_GEOMETRY_BEGIN
-
-void getPointsOnLine(const cv::Vec3f &l, cv::Vec3f &p1, cv::Vec3f &p2)
+template <typename T>
+void getPointsOnLine(const cv::Vec<T,3> &l, cv::Vec<T,3> &p1, cv::Vec<T,3> &p2)
 {
-    if((l[0] == 0.f) && (l[1] == 0.f)) // line at infinity
+    if (l[0] == T(0) && l[1] == T(0))
     {
-        p1 = {1, 0, 0};
-        p2 = {0, 1, 0};
+        p1 = { T(1.0), T(0.0), T(0.0) };
+        p2 = { T(0.0), T(1.0), T(0.0) };
     }
     else
     {
-        p2 = { -l[1], l[0], 0 };
-        if (std::abs(l[0]) < std::abs(l[1]))
+        p2 = { -l[1], l[0], T(0) };
+        if(std::abs(l[0]) < std::abs(l[1]))
         {
-            p1 = cv::Vec3f(0, -l[2], l[1]); 
+            p1 = { T(0), -l[2], l[1] };
         }
         else
         {
-            p1 = cv::Vec3f(-l[2], 0, l[0]);
+            p1 = { -l[2], T(0), l[0] };
         }
     }
 }
 
 DRISHTI_GEOMETRY_END
+

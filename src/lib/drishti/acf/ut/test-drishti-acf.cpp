@@ -8,8 +8,10 @@
 
 */
 
+#if DRISHTI_BUILD_QT
+#  include <QApplication>
+#endif
 
-#include <QApplication>
 #include <gtest/gtest.h>
 
 extern const char* imageFilename;
@@ -18,7 +20,9 @@ extern const char* modelFilename;
 
 int main(int argc, char** argv)
 {
+#if DRISHTI_BUILD_QT
     QApplication app(argc, argv);
+#endif
 
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 4);

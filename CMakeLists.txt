@@ -120,9 +120,11 @@ if(DRISHTI_BUILD_TESTS)
 endif()
 
 option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
+drishti_mirror_definition(DRISHTI_BUILD_OGLES_GPGPU)
 
 # Note: OGLES_GPGPU handling moved to src folder
 option(DRISHTI_BUILD_QT "Build with Qt" OFF)
+drishti_mirror_definition(DRISHTI_BUILD_QT)
 
 if(DRISHTI_BUILD_QT)
   message("=== BUILD QT #!#!@#$ ===== ")
@@ -324,12 +326,6 @@ if(XCODE)
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE "Shallow")
 
 endif()
-
- # get_cmake_property(_variableNames VARIABLES)
- # foreach (_variableName ${_variableNames})
- #     message(STATUS "VARIABLE: ${_variableName}=${${_variableName}}")
- # endforeach()
- # return()
 
 if(NOT IOS AND NOT ANDROID)
   find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
