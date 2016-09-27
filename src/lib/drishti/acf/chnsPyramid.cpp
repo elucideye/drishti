@@ -130,8 +130,9 @@
 // Please email me if you find bugs, or have suggestions or questions!
 // Licensed under the Simplified BSD License [see external/bsd.txt]
 
-#include <core/Parallel.h>
-#include <acf/ACF.h>
+#include "drishti/core/Parallel.h"
+#include "drishti/core/drishti_math.h"
+#include "drishti/acf/ACF.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>

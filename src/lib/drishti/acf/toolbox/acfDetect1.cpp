@@ -18,7 +18,7 @@ using namespace std;
 
 typedef unsigned int uint32;
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 /*
  * These are computed in row major order:
@@ -338,4 +338,4 @@ void Detector::acfDetect1(const MatP &I, const RectVec &rois, int shrink, cv::Si
     }
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

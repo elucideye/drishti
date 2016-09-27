@@ -9,6 +9,7 @@
 */
 
 #include "drishti/core/arithmetic.h"
+#include "drishti/core/drishti_math.h"
 
 #if defined(__arm__) || defined(__arm64__)
 #  include <arm_neon.h>

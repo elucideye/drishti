@@ -13,6 +13,8 @@
 
 #include "drishti/core/drishti_core.h"
 
+#include <cstdint>
+
 DRISHTI_CORE_NAMESPACE_BEGIN
 
 template <typename T> T round(T x);

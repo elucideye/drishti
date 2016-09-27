@@ -13,6 +13,8 @@
 
 #include "drishti/core/drishti_core.h"
 
+#include <cmath>
+
 DRISHTI_CORE_NAMESPACE_BEGIN
 
 template<typename T> T logN(const T &x, const T &n)

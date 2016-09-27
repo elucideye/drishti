@@ -10,6 +10,7 @@
 */
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/drishti_math.h"
 #include "drishti/rcpr/CPR.h"
 
 #include <opencv2/imgproc.hpp>
