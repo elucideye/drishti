@@ -4,9 +4,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 
 include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
+
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.15.28.tar.gz"
-    SHA1 "b6f9c614d388492984c5c87b1588976683ed45ea"
+    URL "https://github.com/ruslo/hunter/archive/v0.15.34.tar.gz"
+    SHA1 "a098bcc04ab369ae21c26b1f737bfc0ea9f95409"
     LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
     )
 
@@ -252,11 +253,9 @@ option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
   add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
-  add_definitions(-DDRISHTI_USE_LOCAL_THREAD_POOL_CPP=1)  
 else()
   hunter_add_package(thread-pool-cpp)
   find_package(thread-pool-cpp CONFIG REQUIRED)
-  # Leave RISHTI_USE_LOCAL_THREAD_POOL_CPP undefined in this case
 endif()
 
 ### Cereal

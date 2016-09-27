@@ -20,11 +20,7 @@
 
 #include "ogles_gpgpu/common/proc/flow.h"
 
-#ifdef DRISHTI_USE_LOCAL_THREAD_POOL_CPP
-#  include "thread_pool/thread_pool.hpp"
-#else
-#  include "thread-pool-cpp/thread_pool.hpp"
-#endif
+#include "thread_pool/thread_pool.hpp"
 
 #include <memory>
 #include <chrono>
