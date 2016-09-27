@@ -245,13 +245,11 @@ find_package(spdlog CONFIG REQUIRED)
 include(drishti_thread_local_storage)
 drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
-
-# TODO (OFF): FrameHandler.h:16:10: fatal error: 'thread_pool/thread_pool.hpp' file not found
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON) 
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
+  
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
-  add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
-  include_directories(src/3rdparty/thread-pool-cpp) # see: TODO (OFF) above
+  add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)   
 else()
   hunter_add_package(thread-pool-cpp)
   find_package(thread-pool-cpp CONFIG REQUIRED)
