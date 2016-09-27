@@ -241,18 +241,22 @@ endif()
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
 
-### Thread-pool-cpp
+
 include(drishti_thread_local_storage)
 drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)
+
+### Thread-pool-cpp
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
 option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
   
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
-  add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)   
+  add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
+  add_definitions(-DDRISHTI_USE_LOCAL_THREAD_POOL_CPP=1)  
 else()
   hunter_add_package(thread-pool-cpp)
   find_package(thread-pool-cpp CONFIG REQUIRED)
+  # Leave RISHTI_USE_LOCAL_THREAD_POOL_CPP undefined in this case
 endif()
 
 ### Cereal

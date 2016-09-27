@@ -13,7 +13,11 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <thread-pool-cpp/thread_pool.hpp>
+#ifdef DRISHTI_USE_LOCAL_THREAD_POOL_CPP
+#  include "thread_pool/thread_pool.hpp"
+#else
+#  include "thread-pool-cpp/thread_pool.hpp"
+#endif
 
 #include "nlohmann/json.hpp" // nlohman-json
 
