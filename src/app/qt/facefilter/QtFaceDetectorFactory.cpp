@@ -7,6 +7,7 @@
 #include "QtStream.h"
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/make_unique.h"
 #include "drishti/acf/ACF.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/eye/EyeModelEstimator.h"
