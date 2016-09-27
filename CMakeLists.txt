@@ -247,7 +247,7 @@ drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)
 
 ### Thread-pool-cpp
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
   
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
