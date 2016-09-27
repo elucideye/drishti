@@ -39,6 +39,13 @@ addons:
 matrix:
   include:
     # Linux {
+
+    # Experimental asan
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=sanitize-address STRIP=--strip
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=sanitize-address STRIP=--strip
+    
     - os: linux
       env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic STRIP=--strip
     - os: linux
@@ -50,6 +57,13 @@ matrix:
     # }
 
     # OSX {
+
+    # Experimental asan
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=sanitize-address STRIP=--strip
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=sanitize-address STRIP=--strip
+
     - os: osx
       env: CONFIG=Release TOOLCHAIN=libcxx STRIP=--strip
     - os: osx
