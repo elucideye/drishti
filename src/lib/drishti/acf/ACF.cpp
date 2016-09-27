@@ -25,8 +25,6 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////
 
-// opencv/modules/objdetect/src/cascadedetect.cpp
-
 Detector::Detector(const Detector &src)
 {
     clf = src.clf;
@@ -597,6 +595,5 @@ void Detector::Options::merge(const Options &src, int checkExtra)
     pNms.merge(src.pNms, checkExtra);
     pPyramid.merge(src.pPyramid, checkExtra);
 }
-
 
 DRISHTI_ACF_NAMESPACE_END
