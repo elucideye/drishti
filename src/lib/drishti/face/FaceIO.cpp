@@ -13,6 +13,8 @@
 #include "drishti/core/Shape.h"
 #include "drishti/geometry/Primitives.h"
 
+#include <numeric>
+
 #include <opencv2/highgui.hpp>
 
 DRISHTI_FACE_NAMESPACE_BEGIN
