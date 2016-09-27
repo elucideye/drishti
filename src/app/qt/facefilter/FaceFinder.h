@@ -20,7 +20,7 @@
 
 #include "ogles_gpgpu/common/proc/flow.h"
 
-#include <thread_pool/thread_pool.hpp>
+#include <thread-pool-cpp/thread_pool.hpp>
 
 #include <memory>
 #include <chrono>
