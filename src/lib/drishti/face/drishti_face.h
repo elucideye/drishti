@@ -11,8 +11,8 @@
 #ifndef DRISHTI_drishti_face_h
 #define DRISHTI_drishti_face_h
 
-#define BEGIN_FACE_NAMESPACE namespace drishti { namespace face {
-#define END_FACE_NAMESPACE } }
+#define DRISHTI_FACE_NAMESPACE_BEGIN namespace drishti { namespace face {
+#define DRISHTI_FACE_NAMESPACE_END } }
 
 #define DRISHTI_FACE drishti::face
 

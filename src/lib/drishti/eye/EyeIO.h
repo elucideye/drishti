@@ -18,7 +18,7 @@
 #include "drishti/eye/Eye.h"
 #include "drishti/core/Shape.h"
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 struct EyeModelSpecification
 {
@@ -49,6 +49,6 @@ std::vector<float> eyeToVector(const EyeModel &eye, bool crease=true);
 std::vector<float> pointsToVector(const std::vector<cv::Point2f> &points);
 std::vector<float>& cat(std::vector<float> &src, const std::vector<float> &params);
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 
 #endif // drishti_eye_serialization_h

@@ -35,11 +35,14 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   convert.h
   cvmat_serialization.h
   drawing.h
+  drishti_algorithm.h
   drishti_core.h
   drishti_csv.h
   drishti_defs.hpp
+  drishti_math.h
   drishti_serialize.h
   infix_iterator.h
+  make_unique.h
   padding.h
   serialization.h
   string_utils.h

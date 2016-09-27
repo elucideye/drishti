@@ -13,7 +13,7 @@
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 #define DRISHTI_CPR_DEBUG_PHI_ESTIMATE 0
 
@@ -217,4 +217,4 @@ static cv::RotatedRect tranpose(cv::RotatedRect e)
 }
 #endif // DRISHTI_CPR_DEBUG_PHI_ESTIMATE
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END

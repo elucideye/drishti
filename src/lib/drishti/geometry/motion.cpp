@@ -14,7 +14,7 @@
 //== Utility =================
 //============================
 
-BEGIN_NAMESPACE_TRANSFORMATION
+DRISHTI_TRANSFORMATION_NAMESPACE_BEGIN
 
 // OpenCV 3-Clause BSD
 // https://github.com/opencv/opencv/blob/21ee113af30a2efba8faac4811d55822ff878b0e/modules/videostab/src/global_motion.cpp#L85
@@ -144,4 +144,4 @@ void R3x3To4x4(const cv::Matx33f &R3, cv::Matx44f &R4)
     R4(3,3) = R3(2,2);
 }
 
-END_NAMESPACE_TRANSFORMATION
+DRISHTI_TRANSFORMATION_NAMESPACE_END

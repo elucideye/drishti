@@ -10,7 +10,7 @@
 
 #include "drishti/face/FaceModelEstimator.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 FaceModelEstimator::FaceModelEstimator(const sensor::SensorModel &sensor) : m_sensor(sensor)
 {
@@ -29,6 +29,6 @@ cv::Point3f FaceModelEstimator::operator()(const face::FaceModel &face)
     return getDepth(face.eyeFullR, face.eyeFullL);
 }
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 

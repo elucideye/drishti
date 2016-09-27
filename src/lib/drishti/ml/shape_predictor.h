@@ -65,7 +65,7 @@
 // STL
 #include <deque>
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 using drishti::geometry::operator *;
 
@@ -2128,7 +2128,7 @@ double test_shape_predictor (
 void serialize(const drishti::ml::shape_predictor& item, std::ostream& out);
 void deserialize(drishti::ml::shape_predictor& item, std::istream& in);
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 BOOST_CLASS_VERSION(drishti::ml::shape_predictor, 4);
 

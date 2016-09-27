@@ -58,13 +58,4 @@
 //#include <GLES/gl.h>
 //#include <GLES/glext.h>
 
-#include <memory>
-
-// http://clean-cpp.org/underprivileged-unique-pointers-make_unique/#more-54
-template <typename Value, typename ... Arguments>
-std::unique_ptr<Value> make_unique(Arguments && ... arguments_for_constructor)
-{
-    return std::unique_ptr<Value>(new Value(std::forward<Arguments>(arguments_for_constructor)...));
-}
-
 #endif

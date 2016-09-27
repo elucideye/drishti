@@ -10,7 +10,7 @@
 
 #include "drishti/face/FaceDetectorAndTrackerImpl.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 FaceDetectorAndTracker::TrackImpl::TrackImpl() {}
 FaceDetectorAndTracker::TrackImpl::~TrackImpl() {}
@@ -63,4 +63,4 @@ cv::Rect getNoseBridge(const FaceModel &face)
     return roi;
 }
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

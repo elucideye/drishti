@@ -11,7 +11,7 @@
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 struct PlaneInfo
 {
@@ -25,4 +25,4 @@ void convertU8ToF32(const cv::Mat4b &input, std::vector<PlaneInfo> &planes);
 
 void unpack(const cv::Mat4b &input, std::vector<PlaneInfo> &planes);
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

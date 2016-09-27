@@ -13,7 +13,7 @@
 
 #include "drishti/face/FaceDetector.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 class FaceDetectorAndTracker : public FaceDetector
 {
@@ -30,6 +30,6 @@ protected:
     std::shared_ptr<TrackImpl> m_pImpl; // make_unique fails
 };
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // __DRISHTI__FaceDetectorAndTracker__

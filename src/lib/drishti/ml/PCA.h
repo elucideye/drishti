@@ -37,7 +37,7 @@ void serialize(Archive & ar, cv::PCA &pca, const unsigned int version)
 DRISHTI_END_NAMESPACE(boost)
 DRISHTI_END_NAMESPACE(serialization)
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 class StandardizedPCA
 {
@@ -91,6 +91,6 @@ public:
     cv::Mat m_eT; // transposed eigenvectors
 };
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 #endif

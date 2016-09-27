@@ -30,7 +30,7 @@
 #  endif
 #endif
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 #if USE_SIMD
 
@@ -140,4 +140,4 @@ void unpack(const cv::Mat4b &input, std::vector<PlaneInfo> &planes)
 #endif
 
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

@@ -23,7 +23,7 @@ namespace drishti { namespace ml { class ShapeEstimator; } };
 namespace drishti { namespace eye { class EyeModelEstimator; } };
 // *INDENT-ON*
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 struct FaceDetectorFactory // TODO: rename *Factory, remove filenames
 {
@@ -39,6 +39,6 @@ struct FaceDetectorFactory // TODO: rename *Factory, remove filenames
     virtual drishti::face::FaceModel getMeanFace();
 };
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // __DRISHTI__FaceDetectorFactory__

@@ -14,7 +14,7 @@
 #include "drishti/eye/EyeIO.h"
 #include "drishti/geometry/Ellipse.h"
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 std::vector<float>& cat(std::vector<float> &src, const std::vector<float> &params)
 {
@@ -185,4 +185,4 @@ std::vector<cv::Point2f> eyeToShape(const EyeModel &eye, const EyeModelSpecifica
 }
 
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END

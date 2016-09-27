@@ -132,7 +132,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 static int addChn(Detector::Channels &chns, const MatP &data, const std::string &name, const std::string &padWith, int h, int w);
 
@@ -381,4 +381,4 @@ static int addChn(Detector::Channels &chns, const MatP &dataIn, const std::strin
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

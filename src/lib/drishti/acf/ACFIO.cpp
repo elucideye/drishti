@@ -13,7 +13,7 @@
 
 #include <iomanip>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 int Detector::deserialize(const std::string &filename)
 {
@@ -173,5 +173,5 @@ int Detector::deserialize(ParserNodeDetector &detector_)
 
 
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END
 

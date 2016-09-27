@@ -21,7 +21,7 @@
 
 #include <deque>
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 void ShapeEstimator::setDoPreview(bool flag)
 {
@@ -49,4 +49,4 @@ int ShapeEstimator::operator()(const cv::Mat &image, const cv::Rect &roi, Point2
     return n;
 }
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END

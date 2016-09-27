@@ -12,7 +12,7 @@
 #ifndef DRISHTI_drishti_rcpr_h
 #define DRISHTI_drishti_rcpr_h
 
-#define DRISHTI_RCPR_BEGIN namespace drishti { namespace rcpr {
-#define DRISHTI_RCPR_END } }
+#define DRISHTI_RCPR_NAMESPACE_BEGIN namespace drishti { namespace rcpr {
+#define DRISHTI_RCPR_NAMESPACE_END } }
 
 #endif

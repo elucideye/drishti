@@ -90,7 +90,7 @@ using namespace string_hash;
 
 void rgbConvertMex(const MatP &I, MatP &J, int flag, double nrm);
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 #define USE_OPENCV_CVTCOLOR 0
 
@@ -178,4 +178,4 @@ int Detector::rgbConvert(const MatP &IIn, MatP &J, const std::string &colorSpace
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

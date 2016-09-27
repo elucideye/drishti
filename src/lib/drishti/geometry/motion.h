@@ -15,10 +15,10 @@
 #include <array>
 
 // Define common rotation operations with cv::Matx33f
-#define BEGIN_NAMESPACE_TRANSFORMATION namespace transformation  {
-#define END_NAMESPACE_TRANSFORMATION }
+#define DRISHTI_TRANSFORMATION_NAMESPACE_BEGIN namespace transformation  {
+#define DRISHTI_TRANSFORMATION_NAMESPACE_END }
 
-BEGIN_NAMESPACE_TRANSFORMATION
+DRISHTI_TRANSFORMATION_NAMESPACE_BEGIN
 
 inline cv::Point2f center(const cv::Rect &roi)
 {
@@ -106,6 +106,6 @@ inline cv::Matx33f denormalize(const cv::Size &sizeIn)
     return S * T;
 }
 
-END_NAMESPACE_TRANSFORMATION
+DRISHTI_TRANSFORMATION_NAMESPACE_END
 
 #endif // DRISHTI_MOTION_H

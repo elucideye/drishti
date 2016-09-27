@@ -19,7 +19,7 @@
 
 #include <array>
 
-_SENSOR_BEGIN
+DRISHTI_SENSOR_NAMESPACE_BEGIN
 
 inline float microToMeters(float microns)
 {
@@ -109,6 +109,6 @@ struct DeviceModel
 };
 
 
-_SENSOR_END
+DRISHTI_SENSOR_NAMESPACE_END
 
 #endif

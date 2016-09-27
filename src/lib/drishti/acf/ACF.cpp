@@ -21,7 +21,7 @@
 
 #include <opencv2/highgui/highgui.hpp>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////
 
@@ -599,4 +599,4 @@ void Detector::Options::merge(const Options &src, int checkExtra)
 }
 
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

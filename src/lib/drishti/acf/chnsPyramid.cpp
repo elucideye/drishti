@@ -136,7 +136,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 template <typename  T>
 cv::Size round(const cv::Size_<T> &size)
@@ -527,4 +527,4 @@ int Detector::getScales(int nPerOct, int nOctUp, const cv::Size &minDs, int shri
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

@@ -15,7 +15,7 @@
 
 #include <vector>
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 class Regressor
 {
@@ -61,6 +61,6 @@ public:
 };
 
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END
 
 #endif // _DRISHTI_SDK_REGRESSOR_

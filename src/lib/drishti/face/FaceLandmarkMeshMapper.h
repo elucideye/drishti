@@ -28,7 +28,7 @@
 #include <iostream>
 #include <memory>
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 class FaceLandmarkMeshMapper
 {
@@ -51,6 +51,6 @@ protected:
     std::shared_ptr<Impl> m_pImpl;
 };
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // FACE_LANDMARK_MESH_MAPPER_H 

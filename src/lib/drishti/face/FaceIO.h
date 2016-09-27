@@ -15,7 +15,7 @@
 #include "drishti/face/Face.h"
 #include "drishti/core/Shape.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
 
@@ -52,6 +52,6 @@ struct FaceSpecification
 FaceModel shapeToFace(drishti::core::Shape &shape, FaceSpecification::Format kind = FaceSpecification::HELEN );
 
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // __drishtisdk__FaceIO__

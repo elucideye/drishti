@@ -12,7 +12,7 @@
 #include "drishti/face/FaceDetectorAndTrackerImpl.h"
 #include "drishti/face/FaceDetectorAndTrackerNN.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 // =============================
 
@@ -71,4 +71,4 @@ void FaceDetectorAndTracker::operator()(const MatP &I, const PaddedImage &Ib, st
 }
 
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

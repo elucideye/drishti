@@ -13,7 +13,7 @@
 #ifndef DRISHTI_drishti_sensor_h
 #define DRISHTI_drishti_sensor_h
 
-#define _SENSOR_BEGIN namespace drishti { namespace sensor {
-#define _SENSOR_END } }
+#define DRISHTI_SENSOR_NAMESPACE_BEGIN namespace drishti { namespace sensor {
+#define DRISHTI_SENSOR_NAMESPACE_END } }
 
 #endif

@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 // Specify API
 
@@ -73,7 +73,7 @@ public:
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_KEY(drishti::ml::ShapeEstimator);
 

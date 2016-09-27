@@ -20,7 +20,7 @@
 #include <iomanip>
 #include <stdio.h>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
 
@@ -196,6 +196,6 @@ void read(const cv::FileNode& node, drishti::core::Shape& x, const drishti::core
 // TODO: move this somewhere else
 std::vector<cv::Vec3b> makeRainbow();
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif /* defined(__DRISHTI__Shape__) */

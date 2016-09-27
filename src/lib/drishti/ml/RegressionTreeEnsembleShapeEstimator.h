@@ -19,7 +19,7 @@
 #include <memory>
 #include <vector>
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 // Consider occlusion estimation
 class RegressionTreeEnsembleShapeEstimator : public ShapeEstimator
@@ -53,7 +53,7 @@ public:
     std::shared_ptr<Impl> m_impl;
 };
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);

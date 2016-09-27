@@ -14,7 +14,7 @@
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 struct ParallelHeterogeneousLambda : public cv::ParallelLoopBody
 {
@@ -55,6 +55,6 @@ public:
     std::function<void(const cv::Range &r)> m_function;
 };
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif

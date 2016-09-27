@@ -13,7 +13,7 @@
 
 #include "drishti/core/drishti_core.h"
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 template <typename T> T round(T x);
 
@@ -22,6 +22,6 @@ void add16sAnd32s(const int32_t *pa, const int16_t *pb, int32_t *pc, int n);
 void add32f(const float *pa, const float *pb, float *pc, int n);
 void convertFixedPoint(const float *pa, int16_t *pb, int n, int fraction);
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif

@@ -1,12 +1,13 @@
 #include "drishti/face/FaceDetectorFactory.h"
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/make_unique.h"
 #include "drishti/acf/ACF.h" // ACF detection
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 std::unique_ptr<drishti::ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
 {
@@ -43,5 +44,5 @@ drishti::face::FaceModel FaceDetectorFactory::getMeanFace()
     return faceDetectorMean;
 }
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 

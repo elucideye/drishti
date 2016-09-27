@@ -18,7 +18,7 @@
 
 #include <vector>
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 // Specify API
 class ObjectDetector
@@ -55,6 +55,6 @@ protected:
     size_t m_maxDetectionCount = 10;
 };
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 #endif

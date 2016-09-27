@@ -40,7 +40,7 @@
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 struct EllipseEntry
 {
@@ -60,7 +60,7 @@ std::ostream & operator<<(std::ostream &os, const EllipseEntry &r)
     return os;
 }
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END
 
 BOOST_FUSION_ADAPT_STRUCT
 (
@@ -70,7 +70,7 @@ BOOST_FUSION_ADAPT_STRUCT
     (drishti::rcpr::Vector1d, ellipse)
 )
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 template <typename Iterator, typename Skipper = qi::blank_type >
 struct record_parser : qi::grammar<Iterator, EllipseEntry(), Skipper>
@@ -86,6 +86,6 @@ struct record_parser : qi::grammar<Iterator, EllipseEntry(), Skipper>
     qi::rule<Iterator, rcpr::EllipseEntry(), Skipper> start;
 };
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END
 
 #endif

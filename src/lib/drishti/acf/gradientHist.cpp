@@ -131,7 +131,7 @@ void gradHist( const cv::Mat &M, const cv::Mat &O, MatP &H, int bin, int nOrient
 
 }
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 int Detector::gradientHist( const cv::Mat &M, const cv::Mat &O, MatP &H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full )
 {
@@ -142,4 +142,4 @@ int Detector::gradientHist( const cv::Mat &M, const cv::Mat &O, MatP &H, int bin
     return 1;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

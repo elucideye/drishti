@@ -33,7 +33,7 @@ typedef std::vector<T_VECTOR> T_MATRIX;
 #include <numeric>
 #include <mutex>
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 template <typename T>
 using MatrixType = std::vector<std::vector<T>>;
@@ -504,7 +504,7 @@ static cv::RotatedRect operator*(const cv::RotatedRect &e, float scale)
     return cv::RotatedRect(e.center * scale, e.size * scale, e.angle);
 }
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END
 
 #endif // !DRISHTI_BUILD_MIN_SIZE
 

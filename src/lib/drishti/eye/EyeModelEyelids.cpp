@@ -21,7 +21,7 @@
 #  include <opencv2/highgui.hpp>
 #endif
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
 static void jitter(const EyeModel &eye, const geometry::UniformSimilarityParams &params, std::vector<EyeModel> &poses, int n);
@@ -234,5 +234,5 @@ static PointVec getMedianOfPoses(const std::vector<PointVec> &poses)
     return pose;
 }
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 

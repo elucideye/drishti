@@ -8,7 +8,7 @@
 
 */
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 #ifndef DRISHTI_CORE_FIXED_FIELD_H
 #define DRISHTI_CORE_FIXED_FIELD_H 1
@@ -29,4 +29,4 @@ inline std::ostream& operator<<(std::ostream &os, const FixedField &f)
 
 #endif // DRISHTI_CORE_FIXED_FIELD_H 
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

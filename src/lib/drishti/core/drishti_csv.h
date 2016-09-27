@@ -8,21 +8,13 @@
 
 */
 
-//
-//  drishti_csv.h
-//  drishtisdk
-//
-//  Created by David Hirvonen on 5/2/15.
-//
-//
-
 #ifndef drishtisdk_drishti_csv_h
 #define drishtisdk_drishti_csv_h
 
 #include "drishti/core/drishti_core.h"
 #include <boost/spirit/include/qi.hpp>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 //#define BOOST_SPIRIT_DEBUG
 //
@@ -85,6 +77,6 @@ private:
 //        std::cout << "Remaining unparsed: '" << std::string(f,l) << "'\n";
 //}
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif

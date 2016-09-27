@@ -305,7 +305,7 @@ DRISHTI_END_NAMESPACE(xgboost)
 
 /// Begin the XGBooster interface class
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 template <typename T> std::string xtos(const T &t)
 {
@@ -507,13 +507,13 @@ template<class Archive> void XGBooster::serialize(Archive & ar, const unsigned i
     ar & m_impl;
 }
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 // ##################################################################
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 template void XGBooster::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 #if !DRISHTI_BUILD_MIN_SIZE
@@ -525,7 +525,7 @@ template void XGBooster::serialize<portable_binary_iarchive>(portable_binary_iar
 template void XGBooster::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 #if !DRISHTI_BUILD_MIN_SIZE
 template void xgboost::tree::RegTree::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
@@ -537,7 +537,7 @@ template void xgboost::tree::RegTree::serialize<portable_binary_iarchive>(portab
 // #################### text_*archive ####################
 // ##################################################################
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 template void XGBooster::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
 template void XGBooster::Impl::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
@@ -547,7 +547,7 @@ template void XGBooster::serialize<boost::archive::text_iarchive>(boost::archive
 template void XGBooster::Impl::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 template void xgboost::tree::RegTree::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
 template void xgboost::tree::RegTree::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);

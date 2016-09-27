@@ -20,7 +20,7 @@
 
 #include <opencv2/core/core.hpp>
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 /*
 
@@ -47,6 +47,6 @@ protected:
     sensor::SensorModel m_sensor;
 };
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif /* defined(__DRISHTI__FaceModelEstimator__) */

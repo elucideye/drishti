@@ -22,7 +22,7 @@
 #  include <opencv2/highgui/highgui.hpp>
 #endif
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 #if !DRISHTI_CPR_DO_LEAN
 
@@ -314,4 +314,4 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
     return 0;
 }
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END

@@ -16,7 +16,7 @@
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/eye/Eye.h"
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 class NormalizedIris
 {
@@ -115,6 +115,6 @@ protected:
     cv::Mat mask;
 };
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 
 #endif /* defined(__drishtisdk__NormalizedIris__) */

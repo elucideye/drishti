@@ -15,7 +15,7 @@
 
 #include <opencv2/highgui.hpp>
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 // Assumes roughly upright
 static cv::Point2f minPointX(std::vector<cv::Point2f> &points)
@@ -169,4 +169,4 @@ FaceModel shapeToFace(drishti::core::Shape &shape, FaceSpecification::Format kin
     return shapeToFace(shape, spec, (kind == FaceSpecification::HELEN));
 }
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

@@ -14,7 +14,7 @@
 
 #include <Eigen/Dense>
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 // ########## Scaling params ############
 
@@ -226,4 +226,4 @@ cv::Mat StandardizedPCA::backProject(const cv::Mat &projection) const
     return result;
 }
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END

@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 using geometry::operator *;
 
@@ -264,7 +264,7 @@ cv::Mat getAffineMotion(const FaceModel &a, const FaceModel &b);
 // Two eyes + nose similarity transformation:
 cv::Mat estimateMotionLeastSquares(const FaceModel &a, const FaceModel &b);
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 CEREAL_CLASS_VERSION(DRISHTI_FACE::FaceModel, 2);
 

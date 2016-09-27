@@ -15,7 +15,7 @@
 
 #define DEBUG_PUPIL 0
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 void EyeModelEstimator::Impl::segmentPupil(const cv::Mat &I, EyeModel &eye, int targetWidth) const
 {
@@ -117,4 +117,4 @@ void EyeModelEstimator::Impl::segmentPupil(const cv::Mat &I, EyeModel &eye, int 
     eye.pupilEllipse.center += tl;
 }
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END

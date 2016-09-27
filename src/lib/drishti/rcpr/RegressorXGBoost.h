@@ -17,7 +17,7 @@
 #include <memory>
 #include <vector>
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 class RegressorXGBoost : public Regressor
 {
@@ -48,6 +48,6 @@ public:
     std::shared_ptr<ml::XGBooster> m_regressor;
 };
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END
 
 #endif // _DRISHTI_SDK_REGRESSOR_XGBOOST_

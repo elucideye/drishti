@@ -60,7 +60,7 @@
 
 // get parameters (and copy to detector and pPyramid structs)
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 void Detector::Modify::merge(const Modify &src, int mode)
 {
@@ -149,4 +149,4 @@ int Detector::acfModify( const Detector::Modify &pIn )
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

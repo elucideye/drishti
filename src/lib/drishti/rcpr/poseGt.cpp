@@ -18,7 +18,7 @@
 #define DRISHTI_CPR_DO_FEATURE_MASK 1
 #define DRISHTI_CPR_USE_FEATURE_SEPARATION_PRIOR 1
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 Vector1d operator*(const Vector1d &src, Vector1d::value_type value)
 {
@@ -753,4 +753,4 @@ void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, cons
 };
 #endif // !DRISHTI_BUILD_MIN_SIZE
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END

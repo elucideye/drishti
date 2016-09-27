@@ -24,7 +24,7 @@
 #ifndef FACE_DETECTOR_AND_TRACKER_IMPL
 #define FACE_DETECTOR_AND_TRACKER_IMPL 1
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 void drawEyes(const cv::Mat1b &image, const FaceModel &face);
 cv::Rect getNoseBridge(const FaceModel &face);
@@ -92,7 +92,7 @@ protected:
 
 };
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // FACE_DETECTOR_AND_TRACKER_IMPL
 
