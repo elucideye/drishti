@@ -21,7 +21,7 @@
 
 #include <array>
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 FaceModel::FaceModel() {}
 
@@ -257,4 +257,4 @@ cv::Mat estimateMotionLeastSquares(const FaceModel &a, const FaceModel &b)
     return H;
 }
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

@@ -31,7 +31,7 @@
 using namespace drishti;
 using namespace drishti::core;
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 typedef std::vector<cv::Point2f> PointVec;
 static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, const PointVec &eyelids= {});
@@ -625,4 +625,4 @@ static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, c
     return contours;
 }
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END

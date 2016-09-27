@@ -15,10 +15,10 @@
 #include "drishti_core.h"
 #include <opencv2/core/core.hpp>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 void quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int step, float scale, const cv::Mat1b &mask=cv::Mat1b());
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif /* defined(__DRISHTI__drawing__) */

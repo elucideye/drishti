@@ -36,7 +36,7 @@
 
 namespace dsdkc = drishti::core;
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 #define EYE cv::Matx33f::eye()
 
@@ -113,6 +113,6 @@ protected:
 
 void splitContour(const std::vector<cv::Point2f> &points, std::vector<std::vector<cv::Point2f>> &contours);
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif /* defined(__DRISHTI__FaceDetector__) */

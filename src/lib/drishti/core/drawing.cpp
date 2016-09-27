@@ -17,7 +17,7 @@
 #  include <opencv2/imgproc/imgproc_c.h>
 #endif
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 void quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int step, float scale, const cv::Mat1b &mask)
 {
@@ -41,4 +41,4 @@ void quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int ste
 #endif
 }
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

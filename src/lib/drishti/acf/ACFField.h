@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 template <typename T> struct Field
 {
@@ -141,7 +141,7 @@ template <typename T> struct Field
     bool isLeaf = true;
 };
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END
 
 #endif // __DRISHTI__ACF_ACFFIELD__
 

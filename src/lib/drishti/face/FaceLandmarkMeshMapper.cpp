@@ -17,7 +17,7 @@
 #include "eos/fitting/nonlinear_camera_estimation.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 static cv::Point2f interpolate(const cv::Point2f &p, const cv::Point2f &q, float f);
 static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::FaceModel &face);
@@ -156,4 +156,4 @@ static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_F
     return landmarks;
 }
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

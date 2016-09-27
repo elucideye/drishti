@@ -13,7 +13,7 @@
 #include <opencv2/imgproc.hpp>
 
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 // Example:
 //
@@ -47,4 +47,4 @@ NormalizedIris NormalizedIris::rotate(int x) const
     return code;
 }
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END

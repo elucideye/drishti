@@ -35,7 +35,7 @@
 
 #define PTR_TYPE std
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 #if DRISHTI_CPR_DO_HALF_FLOAT
 struct PointHalf
@@ -453,7 +453,7 @@ double dist( const CPR::Model &model, const Vector1d &phis0, const Vector1d &phi
 void print(const Vector1d &p, bool eol=false);
 void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale=1.f, bool doTranspose=DRISHTI_CPR_TRANSPOSE);
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
 BOOST_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);

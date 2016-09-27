@@ -9,6 +9,7 @@
 */
 
 #include "drishti/acf/ACF.h"
+#include "drishti/core/drishti_algorithm.h"
 
 #include <vector>
 #include <numeric>
@@ -90,18 +91,7 @@
 
 using namespace string_hash;
 
-DRISHTI_ACF_BEGIN
-
-template <typename T, typename Comp=std::less<T> > std::vector<size_t> ordered(std::vector<T> const& values, const Comp &C)
-{
-    std::vector<size_t> indices(values.size());
-    std::iota(std::begin(indices), std::end(indices), static_cast<size_t>(0));
-    std::sort(std::begin(indices), std::end(indices),[&](size_t a, size_t b)
-    {
-        return C(values[a], values[b]);
-    });
-    return indices;
-}
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 typedef Detector::Detection Detection;
 
@@ -123,10 +113,10 @@ static std::vector<Detection> nmsMax(const std::vector<Detection> &bbsIn, double
     //std::cout << bbsIn.size() << std::endl;
 
     // i.e., ord = sort(bbsIn(:,5), 'descend');  bbs=bbsIn(ord,:)
-    auto ord = ordered(bbsIn, [](const Detection &a, const Detection &b)
+    auto ord = drishti::core::ordered(bbsIn, [](const Detection &a, const Detection &b)
     {
         return a.score > b.score;
-    } );
+    });
     std::vector<Detector::Detection> bbs(bbsIn.size());
 
     // Convert rois to area and tl + br corner (preserve matlab readability)
@@ -312,5 +302,5 @@ int Detector::bbNms(const std::vector<Detection> &bbsIn, const Options::Nms &pNm
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END
 

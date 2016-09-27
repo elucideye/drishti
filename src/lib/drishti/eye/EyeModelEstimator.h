@@ -25,7 +25,7 @@
 
 #include <memory>
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 class EyeModelEstimator
 {
@@ -112,7 +112,7 @@ protected:
     std::shared_ptr<Impl> m_impl;
 };
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator);
 BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator::Impl);

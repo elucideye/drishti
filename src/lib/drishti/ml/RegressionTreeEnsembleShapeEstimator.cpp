@@ -25,7 +25,7 @@
 BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
 BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 typedef RegressionTreeEnsembleShapeEstimator RTEShapeEstimator;
 
@@ -246,7 +246,7 @@ template void RTEShapeEstimator::serialize<boost::archive::text_iarchive>(boost:
 template void RTEShapeEstimator::serializeModel<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
 #endif
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);

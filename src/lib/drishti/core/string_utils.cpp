@@ -14,7 +14,7 @@
 #include "drishti/core/Line.h" // for csv_reader
 #include <locale>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 void tokenize(const std::string &input, std::vector<std::string> &tokens)
 {
@@ -42,4 +42,4 @@ bool replace(std::string& str, const std::string& from, const std::string& to)
     return status;
 }
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

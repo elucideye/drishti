@@ -22,12 +22,12 @@
 #include <memory>
 #include <iomanip>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 void tokenize(const std::string &input, std::vector<std::string> &tokens);
 std::string basename(const std::string &name, const std::string &ext=".");
 bool replace(std::string& str, const std::string& from, const std::string& to);
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif /* CORE_STRING_UTILS_H_ */

@@ -14,7 +14,7 @@
 #include "drishti/core/drishti_core.h"
 #include "drishti/core/drishti_serialize.h"
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 template <typename T> struct Field
 {
@@ -82,7 +82,7 @@ template <typename T> struct Field
     bool has = false;
 };
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif // __drishtisdk__Field__
 

@@ -13,7 +13,7 @@
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/ObjectDetector.h"
 
-_DRISHTI_ML_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 void ObjectDetector::prune(std::vector<cv::Rect> &objects, std::vector<double> &scores)
 {
@@ -36,4 +36,4 @@ void ObjectDetector::prune(std::vector<cv::Rect> &objects, std::vector<double> &
     }
 }
 
-_DRISHTI_ML_END
+DRISHTI_ML_NAMESPACE_END

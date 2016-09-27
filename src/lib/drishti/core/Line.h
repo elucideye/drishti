@@ -22,7 +22,7 @@
 #include <memory>
 #include <iomanip>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 // For use with istream_iterator to read complete lines (new line delimiter)
 // std::vector<std::string> lines;
@@ -60,7 +60,7 @@ struct csv_reader: std::ctype<char>
     }
 };
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif // CORE_LINE_H
 

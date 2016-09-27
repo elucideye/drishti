@@ -22,7 +22,7 @@
 
 #include <fstream>
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 static void polyfit(const cv::Mat& src_x, const cv::Mat& src_y, cv::Mat& dst, int order);
 
@@ -557,4 +557,4 @@ static void polyfit(const cv::Mat& src_x, const cv::Mat& src_y, cv::Mat& dst, in
 }
 
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

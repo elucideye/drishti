@@ -26,7 +26,7 @@
 
 #define DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS 0
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 #if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS
 static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes);
@@ -690,4 +690,4 @@ static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes)
 
 #endif
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

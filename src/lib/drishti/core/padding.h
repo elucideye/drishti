@@ -14,7 +14,7 @@
 #ifndef CORE_PADDING_H
 #define CORE_PADDING_H
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 cv::Point padWithInpainting(const cv::Mat &image, cv::Mat &padded, int top, int bottom, int left, int right, bool inPaint=true);
 cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio, bool inPaint=true);
@@ -22,6 +22,6 @@ cv::Point padToWidthUsingAspectRatio(const cv::Mat &canvas, cv::Mat &padded, int
 cv::Mat borderMask(const cv::Mat &image);
 void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask);
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif // CORE_PADDING_H

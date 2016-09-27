@@ -28,7 +28,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 using EllipseVec = std::vector<cv::RotatedRect>;
 
@@ -250,6 +250,6 @@ protected:
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 
 #endif /* defined(__drishtisdk__EyeModelEstimatorImpl__) */

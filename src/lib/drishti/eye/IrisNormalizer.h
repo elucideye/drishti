@@ -19,7 +19,7 @@
 
 #include <array>
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 class IrisNormalizer
 {
@@ -44,6 +44,6 @@ public:
 protected:
 };
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 
 #endif /* defined(__drishtisdk__IrisNormalizer__) */

@@ -10,7 +10,7 @@
 
 #include "drishti/face/FaceDetectorAndTrackerNN.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 // =============================
 
@@ -41,4 +41,4 @@ bool TrackerNN::update(const cv::Mat1b &image, FaceModel &face)
 }
 
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

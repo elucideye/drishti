@@ -9,13 +9,14 @@
 */
 
 #include "drishti/core/arithmetic.h"
+#include "drishti/core/drishti_math.h"
 
 #if defined(__arm__) || defined(__arm64__)
 #  include <arm_neon.h>
 #  define DO_ARM_NEON 1
 #endif
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 template <> float round(float x)
 {
@@ -170,4 +171,4 @@ void add16sAnd32s()
 
 }
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

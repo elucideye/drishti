@@ -16,7 +16,7 @@
 #include "drishti/core/boost_serialize_common.h"
 #include "drishti/sensor/Sensor.h"
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 #define GAZE_NOSE 1
 #define GAZE_BROW 1
@@ -79,6 +79,6 @@ protected:
     std::shared_ptr<Impl> m_pImpl;
 };
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // __drishtisdk__GazeEstimator__

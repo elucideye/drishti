@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 IrisNormalizer::IrisNormalizer()
 {
@@ -153,4 +153,4 @@ void CurveNormalizer::operator()(const cv::Mat &crop, const std::vector<cv::Poin
     //cv::remap(mask, code.getMask(), mapX, mapY, cv::INTER_NEAREST);
 }
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END

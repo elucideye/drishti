@@ -18,7 +18,7 @@
 
 #include <mutex>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 class Logger
 {
@@ -70,6 +70,6 @@ protected:
 #define DRISHTI_STREAM_LOG_FUNC(FILE_ID,CHECKPOINT,ptr)
 #endif
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 
 #endif // __drishti_core__Logger__

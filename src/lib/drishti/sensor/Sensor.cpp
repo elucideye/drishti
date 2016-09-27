@@ -10,8 +10,7 @@
 
 #include "drishti/sensor/Sensor.h"
 
-_SENSOR_BEGIN
-
+DRISHTI_SENSOR_NAMESPACE_BEGIN
 
 SensorModel::Intrinsic::Intrinsic()
 {
@@ -40,4 +39,4 @@ cv::Point3f SensorModel::Intrinsic::getDepth(const std::array<cv::Point2f,2> &pi
     return cv::Point3f(-(p.x - m_c->x) * Z / *m_fx, -(p.y - m_c->y) * Z / *m_fx, Z);
 }
 
-_SENSOR_END
+DRISHTI_SENSOR_NAMESPACE_END

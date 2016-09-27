@@ -22,7 +22,7 @@
 
 #include "drishti/core/serialization.h"
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 bool CPR::usesMask() const
 {
@@ -335,6 +335,6 @@ template void CPR::serialize<boost::archive::text_iarchive>(boost::archive::text
 
 #endif
 
-DRISHTI_RCPR_END
+DRISHTI_RCPR_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::rcpr::CPR);

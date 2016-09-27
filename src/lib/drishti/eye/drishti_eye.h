@@ -11,8 +11,8 @@
 #ifndef DRISHTI_drishti_eye_h
 #define DRISHTI_drishti_eye_h
 
-#define DRISHTI_EYE_BEGIN namespace drishti { namespace eye {
-#define DRISHTI_EYE_END } }
+#define DRISHTI_EYE_NAMESPACE_BEGIN namespace drishti { namespace eye {
+#define DRISHTI_EYE_NAMESPACE_END } }
 
 #define DRISHTI_EYE drishti::eye
 

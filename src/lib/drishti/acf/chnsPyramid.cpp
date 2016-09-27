@@ -130,13 +130,14 @@
 // Please email me if you find bugs, or have suggestions or questions!
 // Licensed under the Simplified BSD License [see external/bsd.txt]
 
-#include <core/Parallel.h>
-#include <acf/ACF.h>
+#include "drishti/core/Parallel.h"
+#include "drishti/core/drishti_math.h"
+#include "drishti/acf/ACF.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 template <typename  T>
 cv::Size round(const cv::Size_<T> &size)
@@ -527,4 +528,4 @@ int Detector::getScales(int nPerOct, int nOctUp, const cv::Size &minDs, int shri
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

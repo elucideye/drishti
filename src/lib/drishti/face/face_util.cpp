@@ -19,7 +19,7 @@
 
 #include <array>
 
-BEGIN_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
 
@@ -72,4 +72,4 @@ std::vector<float> faceToVector(const FaceModel &face, bool crease, bool brow, b
     return params;
 }
 
-END_FACE_NAMESPACE
+DRISHTI_FACE_NAMESPACE_END

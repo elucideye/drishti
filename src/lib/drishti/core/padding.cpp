@@ -15,7 +15,7 @@
 
 #include <iostream>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 cv::Point padWithInpainting(const cv::Mat &image, cv::Mat &padded, int top, int bottom, int left, int right, bool inPaint)
 {
@@ -177,4 +177,4 @@ void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask)
     output.setTo(mu, mask);
 }
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

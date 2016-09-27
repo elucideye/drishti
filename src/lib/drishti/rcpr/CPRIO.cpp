@@ -14,7 +14,7 @@
 
 #if !DRISHTI_CPR_DO_LEAN
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 int CPR::deserialize(const std::string &filename)
 {
@@ -131,7 +131,7 @@ int CPR::deserialize(const char *filename)
     return 0;
 }
 
-DRISHTI_RCPR_BEGIN
+DRISHTI_RCPR_NAMESPACE_BEGIN
 
 #endif
 

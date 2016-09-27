@@ -13,7 +13,7 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <thread_pool/thread_pool.hpp>
+#include "thread_pool/thread_pool.hpp"
 
 #include "nlohmann/json.hpp" // nlohman-json
 

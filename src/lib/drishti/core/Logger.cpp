@@ -16,7 +16,7 @@
 # include <spdlog/sinks/android_sink.h>
 #endif
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 std::mutex Logger::m_mutex;
 int Logger::m_count = 0;
@@ -69,4 +69,4 @@ void Logger::drop(const char *name)
     spdlog::drop(name);
 }
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END

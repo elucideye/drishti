@@ -113,7 +113,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 float round(const float &x)
 {
     return ::round(x);
@@ -122,7 +122,7 @@ double round(const double &x)
 {
     return ::round(x);
 }
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END
 
 // Declarations:
 void convBoxY( float *I, float *O, int h, int r, int s );
@@ -199,7 +199,7 @@ void convConst(const MatP &A, MatP &B, const std::string &type, float p, int s )
     }
 }
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 int Detector::convTri(const MatP &I, MatP &J, double r, int s )
 {
@@ -252,4 +252,4 @@ int Detector::convTri(const MatP &I, MatP &J, double r, int s )
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

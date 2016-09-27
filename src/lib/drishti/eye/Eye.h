@@ -19,7 +19,7 @@
 #include "drishti/core/drishti_serialize.h"
 #include "drishti/geometry/Rectangle.h"
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 using drishti::geometry::operator *;
 
@@ -259,7 +259,7 @@ EyeModel operator -(const EyeModel &src, const cv::Point_<T> &offset)
 void write(cv::FileStorage& fs, const std::string&, const EyeModel& x);
 void read(const cv::FileNode& node, EyeModel& x, const EyeModel & default_value = {});
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 
 CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModel, 1);
 

@@ -17,7 +17,7 @@
 #include <fstream>
 #include <string>
 
-DRISHTI_CORE_BEGIN
+DRISHTI_CORE_NAMESPACE_BEGIN
 
 #if !DRISHTI_BUILD_MIN_SIZE
 const char * sXML = R"text(<?xml version='1.0' encoding='ISO-8859-1'?>
@@ -305,5 +305,5 @@ std::vector<cv::Vec3b> makeRainbow()
     return rainbow;
 }
 
-DRISHTI_CORE_END
+DRISHTI_CORE_NAMESPACE_END
 

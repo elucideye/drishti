@@ -29,7 +29,7 @@
 #include <string>
 #include <iostream>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 typedef std::vector< MatlabIOContainer > VecContainer;
 typedef std::vector< VecContainer > VecVecContainer;
@@ -352,6 +352,6 @@ struct ParserNode
     MatlabIO m_matio;
 };
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END
 
 #endif /* defined(__DRISHTI__ACFIO__) */

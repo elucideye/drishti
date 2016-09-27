@@ -98,7 +98,7 @@ void gradMagNorm( cv::Mat &M, const cv::Mat &S, float norm ) // operates on M
     gradMagNorm(m, s, M.cols, M.rows, norm);
 }
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 int Detector::gradientMag( const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel, int normRad, double normConst, int full, MatLoggerType logger)
 {
@@ -128,4 +128,4 @@ int Detector::gradientMag( const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel
     return 0;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

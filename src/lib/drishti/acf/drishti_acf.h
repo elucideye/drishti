@@ -11,8 +11,8 @@
 #ifndef DRISHTI_drishti_acf_h
 #define DRISHTI_drishti_acf_h
 
-#define DRISHTI_ACF_BEGIN namespace drishti { namespace acf {
-#define DRISHTI_ACF_END } }
+#define DRISHTI_ACF_NAMESPACE_BEGIN namespace drishti { namespace acf {
+#define DRISHTI_ACF_NAMESPACE_END } }
 
 #define BEGIN_OGLES_GPGPU namespace ogles_gpgpu {
 #define END_OGLES_GPGPU }

@@ -11,7 +11,7 @@
 #ifndef DRISHTI_drishti_ml_h
 #define DRISHTI_drishti_ml_h
 
-#define _DRISHTI_ML_BEGIN namespace drishti { namespace ml {
-#define _DRISHTI_ML_END } }
+#define DRISHTI_ML_NAMESPACE_BEGIN namespace drishti { namespace ml {
+#define DRISHTI_ML_NAMESPACE_END } }
 
 #endif

@@ -16,7 +16,7 @@
 #include <string>
 #include <iostream>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 // ((((( FACE ROI )))))
 
@@ -91,6 +91,6 @@ inline std::ostream & operator<<(std::ostream &os, const ACFObjectSet &src)
 }
 
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END
 
 #endif /* defined(__DRISHTI__ACFOBJECT__) */

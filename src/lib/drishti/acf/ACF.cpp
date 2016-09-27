@@ -21,11 +21,9 @@
 
 #include <opencv2/highgui/highgui.hpp>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////
-
-// opencv/modules/objdetect/src/cascadedetect.cpp
 
 Detector::Detector(const Detector &src)
 {
@@ -598,5 +596,4 @@ void Detector::Options::merge(const Options &src, int checkExtra)
     pPyramid.merge(src.pPyramid, checkExtra);
 }
 
-
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END

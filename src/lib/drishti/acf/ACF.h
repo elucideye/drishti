@@ -33,7 +33,7 @@
 #include <iostream>
 #include <functional>
 
-DRISHTI_ACF_BEGIN
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 template<class _T> struct ParserNode;
 
@@ -497,7 +497,7 @@ inline void fuseChannels(Iterator begin, Iterator end, MatP &Ip)
     Ip.get() = stack;
 }
 
-DRISHTI_ACF_END
+DRISHTI_ACF_NAMESPACE_END
 
 // http://stackoverflow.com/questions/2111667/compile-time-string-hashing
 DRISHTI_BEGIN_NAMESPACE(string_hash)

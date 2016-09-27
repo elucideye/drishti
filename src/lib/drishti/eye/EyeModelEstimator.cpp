@@ -16,7 +16,7 @@
 
 #define DRISHTI_EYE_USE_DARK_CHANNEL 0
 
-DRISHTI_EYE_BEGIN
+DRISHTI_EYE_NAMESPACE_BEGIN
 
 #if DRISHTI_EYE_USE_DARK_CHANNEL
 static cv::Mat getDarkChannel(const cv::Mat &I);
@@ -438,7 +438,7 @@ static cv::Mat getDarkChannel(const cv::Mat &I)
 }
 #endif
 
-DRISHTI_EYE_END
+DRISHTI_EYE_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_IMPLEMENT(DRISHTI_EYE::EyeModelEstimator);
 BOOST_CLASS_EXPORT_IMPLEMENT(DRISHTI_EYE::EyeModelEstimator::Impl);

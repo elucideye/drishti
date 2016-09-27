@@ -14,6 +14,7 @@
 #include "QMLCameraManager.h"
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/make_unique.h"
 
 #include <QQuickItem>
 #include <QCamera>
