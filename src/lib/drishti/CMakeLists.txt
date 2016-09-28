@@ -263,8 +263,13 @@ message("=========================================")
 message("=========================================")
 message("=========================================")
 
+if(DRISHTI_BUILD_SHARED_SDK)
+  set(API_LIB_TYPE SHARED)
+else()
+  set(API_LIB_TYPE STATIC)
+endif()
+
 ## Always static for ios (we'll build dynamic framework from within xcode)
-set(API_LIB_TYPE SHARED)
 
 set(DRISHTI_SDK_LIBS
   ${DRISHTI_LIBS}

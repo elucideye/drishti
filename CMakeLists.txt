@@ -101,6 +101,8 @@ drishti_mirror_definition(DRISHTI_BUILD_MIN_SIZE)
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
+# Use static SDK build for initial asan tests.
+option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" OFF)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." OFF)
