@@ -10,9 +10,6 @@ if [ $DRISHTI_ASAN -gt 0 ]; then
     DRISHTI_BUILD_SHARED_SDK=OFF
     DRISHTI_BUILD_ASAN_TEST=ON
 
-    # for _exit(1) rather than abort() on clang
-    export ASAN_OPTIONS=abort_on_error=0
-
     # TODO : retrieve this more programmatically ?
     export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.0.2/lib/darwin
 else
