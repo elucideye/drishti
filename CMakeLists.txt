@@ -353,5 +353,15 @@ include_directories(src/lib)
 # Legacy public interface
 include_directories(src/lib/drishti)
 
+### Setup install names for later use:
+set(CMAKE_PROJECT_NAME drishti) # overwrite drishtisdk
+set(drishti_generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(drishti_include_install_dir "include")
+set(drishti_config_install_dir "share/${CMAKE_PROJECT_NAME}")
+set(drishti_version_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake")
+set(drishti_drishti_project_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config.cmake")
+set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
+set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
+
 add_subdirectory(src)
 
