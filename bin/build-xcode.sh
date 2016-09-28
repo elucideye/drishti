@@ -2,7 +2,7 @@
 
 . ${DRISHTISDK}/bin/build-common.sh
 
-DRISHTI_ASAN=1
+DRISHTI_ASAN=0
 
 if [ $DRISHTI_ASAN -gt 0 ]; then
 
@@ -14,7 +14,7 @@ if [ $DRISHTI_ASAN -gt 0 ]; then
     export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.0.2/lib/darwin
 else
 
-    TOOLCHAIN=xcode-sections    
+    TOOLCHAIN=xcode-sections
     DRISHTI_BUILD_SHARED_SDK=ON
     DRISHTI_BUILD_ASAN_TEST=OFF
 
@@ -22,8 +22,8 @@ fi
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--reconfig"
-#    EXTRA_ARGS="--clear"
+#    EXTRA_ARGS="--reconfig"
+    EXTRA_ARGS="--clear"
 fi
 
 #DRISHTI_CONFIGURATION=Release
