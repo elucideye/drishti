@@ -33,12 +33,47 @@ if(DRISHTI_BUILD_WORLD)
     ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC}
     )
 
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+  # Here we provide our own IDE source groupings according to namespace
+  # Each source_group() will be a subfolder of the drishti_world target:
+
+  ### core
+  source_group("core\\Header Files" FILES ${DRISHTI_CORE_HDRS_PUBLIC})  
+  source_group("core\\Source Files" FILES ${DRISHTI_CORE_SRCS})
+
+  ### geometry
+  source_group("geometry\\Header Files" FILES ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
+  source_group("geometry\\Source Files" FILES ${DRISHTI_GEOMETRY_SRCS})
+
+  ### sensor
+  source_group("sensor\\Header Files" FILES ${DRISHTI_SENSOR_HDRS_PUBLIC})
+  source_group("sensor\\Source Files" FILES ${DRISHTI_SENSOR_SRCS})
+
+  ### ml
+  source_group("ml\\Header Files" FILES ${DRISHTI_ML_HDRS_PUBLIC})
+  source_group("ml\\Source Files" FILES ${DRISHTI_ML_SRCS})
+
+  ### rcpr
+  source_group("rcpr\\Header Files" FILES ${DRISHTI_RCPR_HDRS_PUBLIC})
+  source_group("rcpr\\Source Files" FILES ${DRISHTI_RCPR_SRCS})
+
+  ### eye
+  source_group("eye\\Header Files" FILES ${DRISHTI_EYE_HDRS_PUBLIC})
+  source_group("eye\\Source Files" FILES ${DRISHTI_EYE_SRCS})
+  
   if(DRISHTI_BUILD_ACF)
+    ### acf
+    source_group("acf\\Header Files" FILES ${DRISHTI_ACF_HDRS_PUBLIC})
+    source_group("acf\\Source Files" FILES ${DRISHTI_ACF_SRCS})    
     include_directories(acf/acf/toolbox)
     list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
   endif()
 
   if(DRISHTI_BUILD_FACE)
+    ### face
+    source_group("face\\Header Files" FILES ${DRISHTI_FACE_HDRS_PUBLIC})
+    source_group("face\\Source Files" FILES ${DRISHTI_FACE_SRCS})
     list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
   endif()  
 
@@ -52,10 +87,9 @@ if(DRISHTI_BUILD_WORLD)
   if(DRISHTI_USE_TEXT_ARCHIVES)
     target_compile_definitions(drishti_world PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
   endif()
-  
-  set(DRISHTI_LIBS drishti_world)
 
-  # TODO: Need IDE granularity
+  # Define a single drishti_world static library
+  set(DRISHTI_LIBS drishti_world)
 
 else()
 
@@ -108,6 +142,7 @@ else()
     set(OBJ_FACE drishti_face)
   endif()
 
+  # Define a list of individual static libraries
   set(DRISHTI_LIBS 
     ${OBJ_ACF}
     ${OBJ_FACE}
