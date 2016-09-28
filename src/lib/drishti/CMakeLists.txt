@@ -169,9 +169,6 @@ add_subdirectory(geometry)
 if(DRISHTI_BUILD_ACF)
   add_subdirectory(acf)
 endif()
-if(DRISHTI_BUILD_ASAN_TEST)
-  add_subdirectory(master)
-endif()
 
 include_directories("${PROJECT_BINARY_DIR}")
 
