@@ -169,6 +169,9 @@ add_subdirectory(geometry)
 if(DRISHTI_BUILD_ACF)
   add_subdirectory(acf)
 endif()
+if(DRISHTI_BUILD_ASAN_TEST)
+  add_subdirectory(master)
+endif()
 
 include_directories("${PROJECT_BINARY_DIR}")
 
@@ -307,9 +310,48 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_SRC_LIBS})
   set_property(TARGET ${library} PROPERTY FOLDER "libs/3rdparty")
 endforeach()
 
+##################
+##### C API ######
+##################
+
+if(DRISHTI_BUILD_C_INTERFACE)
+
+  message("DRISHTI_BUILD_C_INTERFACE = ${DRISHTI_BUILD_C_INTERFACE}")
+  
+  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+  target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+  target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
+  drishti_hide(drishti_c)
+  drishti_strip(drishti_c)
+  drishti_symbol_list(drishti_c)
+  set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
+
+  if(DRISHTI_BUILD_SHARED_SDK)
+    # Simple install to execute post build strip
+    install(
+      TARGETS drishti_c
+      EXPORT "${targets_export_name}"
+      LIBRARY DESTINATION "lib"
+      ARCHIVE DESTINATION "lib"
+      RUNTIME DESTINATION "bin"
+      INCLUDES DESTINATION "${include_install_dir}"
+      )
+  endif()
+  
+endif()
+
+
 ###################
 ##### install #####
 ###################
+
+# TODO: The install section is failing for static libraries.
+#CMake Error: install(EXPORT "drishtiTargets" ...) includes target "drishti" which requires target "drishti_world" that is not in the export set.
+#CMake Error: install(EXPORT "drishtiTargets" ...) includes target "drishti" which requires target "xgboost" that is not in the export set.
+#CMake Error: install(EXPORT "drishtiTargets" ...) includes target "drishti" which requires target "boost-pba" that is not in the export set.
+if(NOT DRISHTI_BUILD_SHARED_SDK)
+  return()
+endif()
 
 # Export minimal public SDK or full internal SDK
 set(TARGET_SDK "drishti") 
@@ -358,32 +400,5 @@ install(
   NAMESPACE "${namespace}"
   DESTINATION "${config_install_dir}"
   )
-
-##################
-##### C API ######
-##################
-
-if(DRISHTI_BUILD_C_INTERFACE)
-
-  message("DRISHTI_BUILD_C_INTERFACE = ${DRISHTI_BUILD_C_INTERFACE}")
-  
-  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
-  target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-  target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
-  drishti_hide(drishti_c)
-  drishti_strip(drishti_c)
-  drishti_symbol_list(drishti_c)
-  set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
-  
-  install(
-    TARGETS drishti_c
-    EXPORT "${targets_export_name}"
-    LIBRARY DESTINATION "lib"
-    ARCHIVE DESTINATION "lib"
-    RUNTIME DESTINATION "bin"
-    INCLUDES DESTINATION "${include_install_dir}"
-    )
-
-endif()
 
 
