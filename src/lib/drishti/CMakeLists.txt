@@ -263,8 +263,13 @@ message("=========================================")
 message("=========================================")
 message("=========================================")
 
+if(DRISHTI_BUILD_SHARED_SDK)
+  set(API_LIB_TYPE SHARED)
+else()
+  set(API_LIB_TYPE STATIC)
+endif()
+
 ## Always static for ios (we'll build dynamic framework from within xcode)
-set(API_LIB_TYPE SHARED)
 
 set(DRISHTI_SDK_LIBS
   ${DRISHTI_LIBS}
@@ -302,58 +307,6 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_SRC_LIBS})
   set_property(TARGET ${library} PROPERTY FOLDER "libs/3rdparty")
 endforeach()
 
-###################
-##### install #####
-###################
-
-# Export minimal public SDK or full internal SDK
-set(TARGET_SDK "drishti") 
-set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISTHI_HDRS_PUBLIC})
-
-message("========== TARGET_PUBLIC_HDRS ${TARGET_PUBLIC_HDRS} ==============")
-
-set(CMAKE_PROJECT_NAME drishti) # overwrite drishtisdk
-
-set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
-set(include_install_dir "include")
-set(config_install_dir "share/${CMAKE_PROJECT_NAME}")
-set(version_config "${generated_dir}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake")
-set(project_config "${generated_dir}/${CMAKE_PROJECT_NAME}Config.cmake")
-set(targets_export_name "${CMAKE_PROJECT_NAME}Targets")
-set(namespace "${CMAKE_PROJECT_NAME}::")
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${version_config}" VERSION "${drishtisdk_VERSION}" COMPATIBILITY SameMajorVersion)
-
-# Note: variable 'targets_export_name' used
-configure_file("${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in" "${project_config}" @ONLY)
-
-install(
-  TARGETS ${TARGET_SDK}
-  EXPORT "${targets_export_name}"
-  LIBRARY DESTINATION "lib"
-  ARCHIVE DESTINATION "lib"
-  RUNTIME DESTINATION "bin"
-  INCLUDES DESTINATION "${include_install_dir}"
-  )
-
-install(
-  FILES 
-  ${TARGET_PUBLIC_HDRS}
-  DESTINATION "${include_install_dir}/${CMAKE_PROJECT_NAME}"
-  )
-
-install(
-  FILES "${project_config}" "${version_config}"
-  DESTINATION "${config_install_dir}"
-  )
-
-install(
-  EXPORT "${targets_export_name}"
-  NAMESPACE "${namespace}"
-  DESTINATION "${config_install_dir}"
-  )
-
 ##################
 ##### C API ######
 ##################
@@ -369,16 +322,68 @@ if(DRISHTI_BUILD_C_INTERFACE)
   drishti_strip(drishti_c)
   drishti_symbol_list(drishti_c)
   set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
-  
-  install(
-    TARGETS drishti_c
-    EXPORT "${targets_export_name}"
-    LIBRARY DESTINATION "lib"
-    ARCHIVE DESTINATION "lib"
-    RUNTIME DESTINATION "bin"
-    INCLUDES DESTINATION "${include_install_dir}"
-    )
 
+  if(DRISHTI_BUILD_SHARED_SDK)
+    # Simple install to execute post build strip
+    install(
+      TARGETS drishti_c
+      EXPORT "${drishti_targets_export_name}"
+      LIBRARY DESTINATION "lib"
+      ARCHIVE DESTINATION "lib"
+      RUNTIME DESTINATION "bin"
+      INCLUDES DESTINATION "${drishti_include_install_dir}"
+      )
+  endif()
+  
 endif()
+
+
+###################
+##### install #####
+###################
+
+if(DRISHTI_BUILD_SHARED_SDK)
+  set(DRISHTI_INSTALL_TARGETS "")  
+else()
+  set(DRISHTI_INSTALL_TARGETS ${DRISHTI_LIBS})
+endif()
+
+# Export minimal public SDK or full internal SDK
+set(TARGET_SDK "drishti") 
+set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+
+message("========== TARGET_PUBLIC_HDRS ${TARGET_PUBLIC_HDRS} ==============")
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("${drishti_version_config}" VERSION "${drishtisdk_VERSION}" COMPATIBILITY SameMajorVersion)
+
+# Note: variable 'drishti_targets_export_name' used
+configure_file("${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
+
+install(
+  TARGETS ${TARGET_SDK} ${DRISHTI_INSTALL_TARGETS}
+  EXPORT "${drishti_targets_export_name}"
+  LIBRARY DESTINATION "lib"
+  ARCHIVE DESTINATION "lib"
+  RUNTIME DESTINATION "bin"
+  INCLUDES DESTINATION "${drishti_include_install_dir}"
+  )
+
+install(
+  FILES 
+  ${TARGET_PUBLIC_HDRS}
+  DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
+  )
+
+install(
+  FILES "${drishti_project_config}" "${drishti_version_config}"
+  DESTINATION "${drishti_config_install_dir}"
+  )
+
+install(
+  EXPORT "${drishti_targets_export_name}"
+  NAMESPACE "${drishti_namespace}"
+  DESTINATION "${drishti_config_install_dir}"
+  )
 
 

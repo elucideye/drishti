@@ -2,12 +2,28 @@
 
 . ${DRISHTISDK}/bin/build-common.sh
 
-TOOLCHAIN=xcode-sections
+DRISHTI_ASAN=0
+
+if [ $DRISHTI_ASAN -gt 0 ]; then
+
+    TOOLCHAIN=osx-10-11-sanitize-address
+    DRISHTI_BUILD_SHARED_SDK=OFF
+    DRISHTI_BUILD_ASAN_TEST=ON
+
+    # TODO : retrieve this more programmatically ?
+    export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.0.2/lib/darwin
+else
+
+    TOOLCHAIN=xcode-sections
+    DRISHTI_BUILD_SHARED_SDK=ON
+    DRISHTI_BUILD_ASAN_TEST=OFF
+
+fi
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    #EXTRA_ARGS="--reconfig"
-    EXTRA_ARGS="--clear"
+    EXTRA_ARGS="--reconfig"
+#    EXTRA_ARGS="--clear"
 fi
 
 #DRISHTI_CONFIGURATION=Release
@@ -34,11 +50,13 @@ COMMAND=(
     "DRISHTI_USE_TEXT_ARCHIVES=${DRISHTI_USE_TEXT_ARCHIVES} "
     "DRISHTI_BUILD_C_INTERFACE=${DRISHTI_BUILD_C_INTERFACE} "
     "DRISHTI_BUILD_WORLD=${DRISHTI_BUILD_WORLD} "
+    "DRISHTI_BUILD_SHARED_SDK=${DRISHTI_BUILD_SHARED_SDK} "
+    "DRISHTI_BUILD_ASAN_TEST=${DRISHTI_BUILD_ASAN_TEST} "
     "--config Release "
     "--jobs 8 "
     "--open "
     "--install "
-    "${EXTRA_ARGS} " # --nobuild"
+    "${EXTRA_ARGS} " " --test"
 )
 
 build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

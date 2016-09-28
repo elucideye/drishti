@@ -11,10 +11,12 @@ message("=======")
 #### opencv_contrib stuff : tracking, etc
 sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
+# DRISHTI_INTERNAL_DEPENDENCIES <= used to collect internal dependencies for install()
+set(DRISHTI_INTERNAL_DEPENDENCIES "")
+
 set(LIB_TYPE STATIC)
 
 ### XGBOOST ### (SUBMODULE)
-
 option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
@@ -23,13 +25,11 @@ if(DRISHTI_USE_LOCAL_XGBOOST)
   add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost)
   unset(SKIP_INSTALL CACHE)
   add_library(xgboost::xgboost ALIAS xgboost)
+  list(APPEND DRISHTI_INTERNAL_DEPENDENCIES xgboost)
 else()
   hunter_add_package(xgboost)
   find_package(xgboost CONFIG REQUIRED)
 endif()
-
-#drishti_print_env_var()
-#return()
 
 if(DRISHTI_BUILD_OGLES_GPGPU)
 
@@ -46,6 +46,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     add_subdirectory( "${CMAKE_SOURCE_DIR}/src/3rdparty/ogles_gpgpu" )
     set(OGLES_GPGPU_LIB ogles_gpgpu)
     unset(SKIP_INSTALL CACHE)
+    list(APPEND DRISHTI_INTERNAL_DEPENDENCIES ogles_gpgpu)
   else()
     add_definitions(-DUSE_LOCAL_OGLES_GPGPU=0)
     hunter_add_package(ogles_gpgpu)
@@ -88,6 +89,7 @@ if(DRISHTI_BUILD_DEST)
     unset(SKIP_INSTALL CACHE)
     set_property(TARGET dest PROPERTY FOLDER "libs/3rdparty")
     set(DEST_LIB dest)
+    list(APPEND DRISHTI_INTERNAL_DEPENDENCIES dest)
   else()
     add_definitions(-DUSE_LOCAL_DEST=0)
     hunter_add_package(dest)
@@ -102,6 +104,7 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
 add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
 target_link_libraries(boost-pba PUBLIC Boost::boost)
+list(APPEND DRISHTI_INTERNAL_DEPENDENCIES boost-pba)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
@@ -116,11 +119,11 @@ set(DRISHTI_SDK_3RDPARTY_SRC_LIBS
 set(DRISHTI_SDK_3RDPARTY_LIBS
   dlib::dlib
   ${CMATIO_LIB}
+  ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}  
   ${DRISHTI_SDK_BOOST_LIBS}
+  ${OpenCV_LIBS}  
   cereal::cereal
-  ${OpenCV_LIBS}
   Eigen::eigen
-  ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
   spdlog::spdlog
   )
 
@@ -144,3 +147,16 @@ if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
+### install ###
+
+if(NOT DRISHTI_BUILD_SHARED_SDK)
+  message("boost-pba install")
+  install(
+    TARGETS boost-pba
+    EXPORT "${drishti_targets_export_name}"
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib"
+    RUNTIME DESTINATION "bin"
+    INCLUDES DESTINATION "${drishti_include_install_dir}"
+    )
+endif()

@@ -101,10 +101,13 @@ drishti_mirror_definition(DRISHTI_BUILD_MIN_SIZE)
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
+# Use static SDK build for initial asan tests.
+option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." OFF)
 option(DRISHTI_BUILD_FACE "Drishti face lib." OFF)
+option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
@@ -350,5 +353,14 @@ include_directories(src/lib)
 # Legacy public interface
 include_directories(src/lib/drishti)
 
-add_subdirectory(src)
+### Setup install names for later use:
+set(CMAKE_PROJECT_NAME drishti) # overwrite drishtisdk
+set(drishti_generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(drishti_include_install_dir "include")
+set(drishti_config_install_dir "share/${CMAKE_PROJECT_NAME}")
+set(drishti_version_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake")
+set(drishti_project_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config.cmake")
+set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
+set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
 
+add_subdirectory(src)
