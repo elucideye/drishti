@@ -119,11 +119,11 @@ set(DRISHTI_SDK_3RDPARTY_SRC_LIBS
 set(DRISHTI_SDK_3RDPARTY_LIBS
   dlib::dlib
   ${CMATIO_LIB}
+  ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}  
   ${DRISHTI_SDK_BOOST_LIBS}
+  ${OpenCV_LIBS}  
   cereal::cereal
-  ${OpenCV_LIBS}
   Eigen::eigen
-  ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
   spdlog::spdlog
   )
 
