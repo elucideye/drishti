@@ -23,7 +23,7 @@ fi
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
     EXTRA_ARGS="--reconfig"
-    EXTRA_ARGS="--clear"
+#    EXTRA_ARGS="--clear"
 fi
 
 #DRISHTI_CONFIGURATION=Release
