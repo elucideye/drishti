@@ -342,13 +342,9 @@ endif()
 ##### install #####
 ###################
 
-# TODO: The install section is failing for static libraries.
-#CMake Error: install(EXPORT "drishtiTargets" ...) includes target "drishti" which requires target "drishti_world" that is not in the export set.
-#CMake Error: install(EXPORT "drishtiTargets" ...) includes target "drishti" which requires target "xgboost" that is not in the export set.
-#CMake Error: install(EXPORT "drishtiTargets" ...) includes target "drishti" which requires target "boost-pba" that is not in the export set.
-if(NOT DRISHTI_BUILD_SHARED_SDK)
-  #return()
-  list(APPEND DRISHTI_INTERNAL_DEPENDENCIES ${DRISHTI_LIBS})
+if(DRISHTI_BUILD_SHARED_SDK)
+  set(DRISHTI_INSTALL_TARGETS "")  
+else()
   set(DRISHTI_INSTALL_TARGETS ${DRISHTI_LIBS})
 endif()
 
@@ -359,13 +355,13 @@ set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISTHI_HDRS_PUBLIC})
 message("========== TARGET_PUBLIC_HDRS ${TARGET_PUBLIC_HDRS} ==============")
 
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${version_config}" VERSION "${drishtisdk_VERSION}" COMPATIBILITY SameMajorVersion)
+write_basic_package_version_file("${drishti_version_config}" VERSION "${drishtisdk_VERSION}" COMPATIBILITY SameMajorVersion)
 
 # Note: variable 'drishti_targets_export_name' used
 configure_file("${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
 
 install(
-  TARGETS ${TARGET_SDK} drishti_world
+  TARGETS ${TARGET_SDK} ${DRISHTI_INSTALL_TARGETS}
   EXPORT "${drishti_targets_export_name}"
   LIBRARY DESTINATION "lib"
   ARCHIVE DESTINATION "lib"
@@ -380,7 +376,7 @@ install(
   )
 
 install(
-  FILES "${drishti_project_config}" "${version_config}"
+  FILES "${drishti_project_config}" "${drishti_version_config}"
   DESTINATION "${drishti_config_install_dir}"
   )
 
