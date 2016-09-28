@@ -15,23 +15,17 @@ set(LIB_TYPE STATIC)
 
 ### XGBOOST ### (SUBMODULE)
 
-option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
+option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
   option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
-  include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost")
-  include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost/src")
   add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost)
-  set(XGBOOST_LIB xgboost)
   unset(SKIP_INSTALL CACHE)
+  add_library(xgboost::xgboost ALIAS xgboost)
 else()
-  message(FATAL_ERROR "XGBoost package must export learner-inl.hpp header")
-  # TODO: missing learner-inl.hpp
-  # ...my_file.cpp:27:10: fatal error: 'src/learner/learner-inl.hpp' file not found
   hunter_add_package(xgboost)
   find_package(xgboost CONFIG REQUIRED)
-  set(XGBOOST_LIB xgboost::xgboost)
 endif()
 
 #drishti_print_env_var()

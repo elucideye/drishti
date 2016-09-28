@@ -82,7 +82,7 @@ if(DRISHTI_BUILD_WORLD)
   endif()
   
   add_library(drishti_world ${LIB_TYPE}  ${DRISHTI_WORLD_SOURCES})
-  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS})
+  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost)
   target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   if(DRISHTI_USE_TEXT_ARCHIVES)
     target_compile_definitions(drishti_world PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
@@ -111,16 +111,16 @@ else()
 
   ## drishti_ml
   add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
-  target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} ${XGBOOST_LIB})
+  target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} xgboost::xgboost)
   target_compile_definitions(drishti_ml PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
   ## drishti_rcpr
   add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
-  target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} ${XGBOOST_LIB})
+  target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} xgboost::xgboost)
 
   ## drishti_eye
   add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
-  target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} ${XGBOOST_LIB})
+  target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} xgboost::xgboost)
   if(DRISHTI_USE_TEXT_ARCHIVES)
     target_compile_definitions(drishti_eye PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
   endif()
