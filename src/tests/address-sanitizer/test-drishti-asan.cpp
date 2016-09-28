@@ -24,6 +24,8 @@
  *  2015      RWTH Aachen University, Federal Republic of Germany
  */
 
+// Run with: `export ASAN_OPTIONS=abort_on_error=0` on clang for _exit(1) rather than abort()
+// http://stackoverflow.com/q/33693486
 
 int
 main(int argc, char **argv)
@@ -31,7 +33,7 @@ main(int argc, char **argv)
 	// Allocate a new array and delete it.
 	int *array = new int[argc];
 	delete[] array;
-
+    
 	/* Access element of the deleted array. This will cause an memory error with
 	 * address sanitizer.
 	 */

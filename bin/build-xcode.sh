@@ -9,7 +9,10 @@ if [ $DRISHTI_ASAN -gt 0 ]; then
     TOOLCHAIN=osx-10-11-sanitize-address
     DRISHTI_BUILD_SHARED_SDK=OFF
     DRISHTI_BUILD_ASAN_TEST=ON
-    
+
+    # for _exit(1) rather than abort() on clang
+    export ASAN_OPTIONS=abort_on_error=0
+
     # TODO : retrieve this more programmatically ?
     export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.0.2/lib/darwin
 else
@@ -22,8 +25,8 @@ fi
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-#    EXTRA_ARGS="--reconfig"
-    EXTRA_ARGS="--clear"
+    EXTRA_ARGS="--reconfig"
+#    EXTRA_ARGS="--clear"
 fi
 
 #DRISHTI_CONFIGURATION=Release
