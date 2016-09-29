@@ -124,7 +124,6 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat &crop, EyeModel &eye) cons
             {
                 segmentIris(red, eye);
 
-                // TODO:
                 {
                     // If point-wise estimates match the iris regressor, then update our landmarks
                     cv::Point2f irisCenter, innerLimbus, outerLimbus;
@@ -138,11 +137,6 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat &crop, EyeModel &eye) cons
                 eye.pupil = 0.f;
                 eye.pupilEllipse.center = eye.irisEllipse.center;
 
-                //cv::Mat canvas;
-                //cv::cvtColor(dark, canvas, cv::COLOR_GRAY2BGR);
-                //cv::ellipse(canvas, eye.irisEllipse, {0,255,0}, 1, 8);
-                //cv::imshow("debug", canvas);
-                //cv::waitKey(0);
                 if(m_pupilEstimator && m_doPupil && eye.irisEllipse.size.area() > 0.f)
                 {
                     segmentPupil(red, eye);
@@ -210,12 +204,6 @@ void EyeModelEstimator::normalize(const cv::Mat &crop, const EyeModel &eye, cons
 {
     DRISHTI_STREAM_LOG_FUNC(2,10,m_streamLogger);
     return m_impl->normalize(crop, eye, size, code, padding);
-}
-
-void EyeModelEstimator::normalize(const cv::Mat &crop, const std::vector<cv::Point2f> &curve, const cv::Size &size, NormalizedCurve &code) const
-{
-    DRISHTI_STREAM_LOG_FUNC(2,11,m_streamLogger);
-    return m_impl->normalize(crop, curve, size, code);
 }
 
 void EyeModelEstimator::setEyelidInits(int n)

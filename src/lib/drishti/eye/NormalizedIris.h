@@ -77,44 +77,6 @@ protected:
 
 };
 
-struct NormalizedCurve
-{
-    NormalizedCurve() {}
-
-    const cv::Rect & getRoi() const
-    {
-        return roi;
-    }
-    cv::Rect & getRoi()
-    {
-        return roi;
-    }
-
-    const cv::Mat &getImage() const
-    {
-        return image;
-    }
-    cv::Mat &getImage()
-    {
-        return image;
-    }
-
-    const cv::Mat &getMask() const
-    {
-        return mask;
-    }
-    cv::Mat &getMask()
-    {
-        return mask;
-    }
-
-protected:
-
-    cv::Rect roi;
-    cv::Mat image;
-    cv::Mat mask;
-};
-
 DRISHTI_EYE_NAMESPACE_END
 
 #endif /* defined(__drishtisdk__NormalizedIris__) */

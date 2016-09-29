@@ -134,11 +134,6 @@ public:
         IrisNormalizer()(crop, eye, size, code, padding);
     }
 
-    void normalize(const cv::Mat &crop, const PointVec &curve, const cv::Size &size, NormalizedCurve &code) const
-    {
-        CurveNormalizer()(crop, curve, size, code);
-    }
-
     cv::Mat drawMeanShape(const cv::Size &size) const
     {
         EyeModel eye = getMeanShape(size);

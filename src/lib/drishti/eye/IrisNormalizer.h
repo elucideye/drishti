@@ -36,14 +36,6 @@ public:
 protected:
 };
 
-struct CurveNormalizer
-{
-public:
-    CurveNormalizer();
-    void operator()(const cv::Mat &crop, const std::vector<cv::Point2f> &curve, const cv::Size &size, NormalizedCurve &code) const;
-protected:
-};
-
 DRISHTI_EYE_NAMESPACE_END
 
 #endif /* defined(__drishtisdk__IrisNormalizer__) */

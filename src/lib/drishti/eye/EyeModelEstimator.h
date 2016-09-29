@@ -55,7 +55,6 @@ public:
     static cv::RotatedRect estimateIrisFromLimbusPoints(const EyeModel &eye);
 
     void normalize(const cv::Mat &crop, const EyeModel &eye, const cv::Size &size, NormalizedIris &code, int padding=0) const;
-    void normalize(const cv::Mat &crop, const std::vector<cv::Point2f> &curve, const cv::Size &size, NormalizedCurve &code) const;
 
     void setDoIndependentIrisAndPupil(bool flag);
 
