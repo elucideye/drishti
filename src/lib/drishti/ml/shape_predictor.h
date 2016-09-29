@@ -581,7 +581,7 @@ void extract_feature_pixel_values(
 }
 
 template <typename image_type>
-void extract_feature_pixel_values ( // TODO: [DJH] 14% of typical use case (full)
+void extract_feature_pixel_values (
     const image_type& img_,
     const dlib::rectangle& rect,
     const fshape& current_shape,
@@ -609,7 +609,6 @@ void extract_feature_pixel_values ( // TODO: [DJH] 14% of typical use case (full
               current_shape rather than reference_shape.
 !*/
 {
-    // TODO: [DJH] 729x (find_tform...)
     const dlib::matrix<float,2,2> tform = dlib::matrix_cast<float>(find_tform_between_shapes(reference_shape, current_shape, ellipse_count, do_affine).get_m());
     const dlib::point_transform_affine tform_to_img = unnormalizing_tform(rect);
 
@@ -632,10 +631,10 @@ void extract_feature_pixel_values ( // TODO: [DJH] 14% of typical use case (full
 
         auto p0 = location(current_shape, reference_pixel_anchor_idx[i]);
         auto p1 = tform*reference_pixel_deltas[i];
-        dlib::point p = tform_to_img(p0 + p1); // TODO: [DJH] 1090x
-        if (area.contains(p)) // TODO: [DJH] 207x
+        dlib::point p = tform_to_img(p0 + p1);
+        if (area.contains(p))
         {
-            feature_pixel_values[i] = dlib::get_pixel_intensity(img[p.y()][p.x()]); // TODO: [DJH] 1251x get_pixel_..
+            feature_pixel_values[i] = dlib::get_pixel_intensity(img[p.y()][p.x()]);
 #if DRISHTI_DLIB_DO_VISUALIZE_FEATURE_POINTS
             cv::circle(canvas, cv::Point(p.x(), p.y()), 2, {0,255,255}, -1, 8);
 #endif
@@ -886,8 +885,6 @@ public:
                 }
             }
         }
-
-        //std::cout << "current_shape: " << current_shape << std::endl;
 
         if(do_pca)
         {
@@ -1295,8 +1292,6 @@ public:
         std::vector<training_sample> samples;
         const fshape initial_shape = populate_training_sample_shapes(objects, samples, ellipse_count);
 
-        //std::cout << "initial_shape: " << initial_shape << std::endl;
-
         std::vector<PointVecf> pixel_coordinates;
         std::vector<std::vector<InterpolatedFeature>> interpolated_features;
 
@@ -1404,8 +1399,6 @@ public:
             std::cout << "Training complete                          " << std::endl;
         }
 
-        std::cout << "ELLIPSE: " << ellipse_count << std::endl;
-
         if(interpolated_features.size())
         {
             return shape_predictor(initial_shape, forests, interpolated_features, pca, do_npd, do_affine, ellipse_count);
@@ -1456,8 +1449,6 @@ private:
                 shape(j) = phi[k];
             }
         }
-
-        //std::cout << shape << std::endl;
 
         return shape;
     }
@@ -1630,7 +1621,6 @@ private:
             else
             {
                 sums[0] += samples[i].target_shape - samples[i].current_shape;
-                //std::cout << "sums[0]:" << sums[0] << std::endl;
             }
         }
 
@@ -1947,7 +1937,6 @@ private:
         const dlib::drectangle &roi= {0.f,0.f,0.f,0.f}
     ) const
     {
-        //std::cout << initial_shape << std::endl;
         const double padding = get_feature_pool_region_padding();
         // Figure out the bounds on the object shapes.  We will sample uniformly
         // from this box.
@@ -1988,7 +1977,6 @@ private:
                 // Avoid points inside the roi:
                 pixel_coordinates[i].x() = rnd.get_random_double()*(max_x-min_x) + min_x;
                 pixel_coordinates[i].y() = rnd.get_random_double()*(max_y-min_y) + min_y;
-                //std::cout << pixel_coordinates[i] << " SKIP " << roi << std::endl;
             }
             while(roi.contains(pixel_coordinates[i]));
         }
@@ -2000,7 +1988,6 @@ private:
         const dlib::drectangle &roi= {0.f,0.f,0.f,0.f}
     ) const
     {
-        //std::cout << initial_shape << std::endl;
         const double padding = get_feature_pool_region_padding();
         // Figure out the bounds on the object shapes.  We will sample uniformly
         // from this box.
@@ -2277,8 +2264,6 @@ void serialize(Archive & ar, drishti::ml::impl::regression_tree &g, const unsign
         {
             g.leaf_values_16[i].set_size( g.leaf_values[i].size() );
             drishti::core::convertFixedPoint(&g.leaf_values[i](0,0), &g.leaf_values_16[i](0,0), int(g.leaf_values[i].size()), FIXED_PRECISION);
-
-            //std::cout << dlib::trans( g.leaf_values[i] ) << "\nvs\n" << dlib::trans(g.leaf_values_16[i]) << std::endl;
         }
     }
 }
