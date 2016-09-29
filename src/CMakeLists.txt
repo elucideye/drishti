@@ -59,8 +59,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
 
 endif()
 
-#drishti_print_env_var()
-
+# Experimental functionality:
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" ON)
 if(DRISHTI_BUILD_EOS)
   option(DRISHTI_USE_LOCAL_EOS "Use local eos" ON)
@@ -75,30 +74,26 @@ if(DRISHTI_BUILD_EOS)
   endif()
 endif()
 
+# Experimental functionality:
 if(DRISHTI_BUILD_DEST)
   option(DRISHTI_USE_LOCAL_DEST "Use local dest" OFF)
+  set(DEST_LIB dest::dest) # else ""
 
   if(DRISHTI_USE_LOCAL_DEST)
-    add_definitions(-DUSE_LOCAL_DEST=1)
     set(DEST_BUILD_EXAMPLES OFF)
     set(DEST_WITH_OPENCV OFF)
     option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
     include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/dest")
     add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/dest)
-    set(DEST_LIB dest)
     unset(SKIP_INSTALL CACHE)
     set_property(TARGET dest PROPERTY FOLDER "libs/3rdparty")
-    set(DEST_LIB dest)
+    add_library(dest::dest ALIAS dest)
     list(APPEND DRISHTI_INTERNAL_DEPENDENCIES dest)
   else()
-    add_definitions(-DUSE_LOCAL_DEST=0)
     hunter_add_package(dest)
     find_package(dest CONFIG REQUIRED)
-    set(DEST_LIB dest::dest)
   endif()
 endif()
-
-#set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_TOP})
 
 ## 3rd party boost pba
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)

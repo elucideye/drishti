@@ -172,42 +172,34 @@ endif()
 
 include_directories("${PROJECT_BINARY_DIR}")
 
-#
-# Build and install a single library or framework from our set of object libraries
-#
-
-message("DRISHTISDK_PUBLIC_HDRS ${DRISHTISDK_PUBLIC_HDRS}")
-
-if(IOS)
-  set(OPENGL_LIB OpenGLES) 
-else()
-  set(OPENGL_LIB OpenGL)
-endif()
+##
+## Build and install a single library or framework from our set of object libraries
+##
 
 # https://public.kitware.com/Bug/bug_relationship_graph.php?bug_id=15038&graph=dependency
 # http://www.cmake.org/pipermail/cmake/2014-February/057055.html
 # https://public.kitware.com/Bug/bug_relationship_graph.php?bug_id=14970&graph=relation
-
-message("DRISHTI_SDK_3RDPARTY_LIBS --${DRISHTI_SDK_3RDPARTY_LIBS}--")
 set(DRISHTI_SDK_SRCS master/drishti_master.hpp master/drishti_master.cpp)
 
-if(ANDROID)
-  set(ANDROID_3RDPARTY_LIBS EGL GLESv2)
-endif()
+# Create dependency list
+set(DRISHTI_SDK_LIBS ${DRISHTI_LIBS} ${DRISHTI_SDK_3RDPARTY_LIBS})
 
+######################
+####### OpenGL #######
+######################
 if(APPLE)
-  set(APPLE_FRAMEWORKS "-framework ${OPENGL_LIB}")
-else()
-  set(APPLE_FRAMEWORKS "")
+  if(IOS)
+    list(APPEND DRISHTI_SDK_LIBS "-framework OpenGLES")
+  else()
+    list(APPEND DRISHTI_SDK_LIBS "-framework OpenGL")
+  endif()
+elseif(ANDROID)
+  list(APPEND DRISHTI_SDK_LIBS EGL GLESv2)
 endif()
 
+### drishtisdk (static)
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})
-target_link_libraries(drishtisdk PUBLIC
-  ${DRISHTI_LIBS}
-  ${DRISHTI_SDK_3RDPARTY_LIBS}
-  ${APPLE_FRAMEWORKS}
-  ${ANDROID_3RDPARTY_LIBS}
-)
+target_link_libraries(drishtisdk PUBLIC ${DRISHTI_SDK_LIBS})
 
 # Build internal lib for console apps, etc.
 set_target_properties(drishtisdk
@@ -232,12 +224,6 @@ endif()
 ###### PUBLIC API ##########
 ############################
 
-message("=========================================")
-message("=========================================")
-message("DRISHTI_DRISTHI_HDRS_PUBLIC :  ${DRISHTI_DRISTHI_HDRS_PUBLIC}")
-message("=========================================")
-message("=========================================")
-
 string(COMPARE EQUAL "${CMAKE_INSTALL_PREFIX}" "" no_install_prefix)
 if(no_install_prefix)
   message(FATAL_ERROR "CMAKE_INSTALL_PREFIX expected")
@@ -258,10 +244,6 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
       )
   endif()
 endforeach()
-message("=========================================")
-message("=========================================")
-message("=========================================")
-message("=========================================")
 
 if(DRISHTI_BUILD_SHARED_SDK)
   set(API_LIB_TYPE SHARED)
@@ -270,13 +252,6 @@ else()
 endif()
 
 ## Always static for ios (we'll build dynamic framework from within xcode)
-
-set(DRISHTI_SDK_LIBS
-  ${DRISHTI_LIBS}
-  ${DRISHTI_SDK_3RDPARTY_LIBS}   
-  ${APPLE_FRAMEWORKS}
-  ${ANDROID_3RDPARTY_LIBS}
-  )
 
 # Create the public shared library
 add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
@@ -307,37 +282,6 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_SRC_LIBS})
   set_property(TARGET ${library} PROPERTY FOLDER "libs/3rdparty")
 endforeach()
 
-##################
-##### C API ######
-##################
-
-if(DRISHTI_BUILD_C_INTERFACE)
-
-  message("DRISHTI_BUILD_C_INTERFACE = ${DRISHTI_BUILD_C_INTERFACE}")
-  
-  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
-  target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-  target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
-  drishti_hide(drishti_c)
-  drishti_strip(drishti_c)
-  drishti_symbol_list(drishti_c)
-  set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
-
-  if(DRISHTI_BUILD_SHARED_SDK)
-    # Simple install to execute post build strip
-    install(
-      TARGETS drishti_c
-      EXPORT "${drishti_targets_export_name}"
-      LIBRARY DESTINATION "lib"
-      ARCHIVE DESTINATION "lib"
-      RUNTIME DESTINATION "bin"
-      INCLUDES DESTINATION "${drishti_include_install_dir}"
-      )
-  endif()
-  
-endif()
-
-
 ###################
 ##### install #####
 ###################
@@ -352,10 +296,11 @@ endif()
 set(TARGET_SDK "drishti") 
 set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISTHI_HDRS_PUBLIC})
 
-message("========== TARGET_PUBLIC_HDRS ${TARGET_PUBLIC_HDRS} ==============")
-
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${drishti_version_config}" VERSION "${drishtisdk_VERSION}" COMPATIBILITY SameMajorVersion)
+write_basic_package_version_file("${drishti_version_config}"
+  VERSION "${drishtisdk_VERSION}"
+  COMPATIBILITY SameMajorVersion
+  )
 
 # Note: variable 'drishti_targets_export_name' used
 configure_file("${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
@@ -386,4 +331,31 @@ install(
   DESTINATION "${drishti_config_install_dir}"
   )
 
+# Experimental size reduction
 
+##################
+##### C API ######
+##################
+
+if(DRISHTI_BUILD_C_INTERFACE)
+  message("DRISHTI_BUILD_C_INTERFACE = ${DRISHTI_BUILD_C_INTERFACE}")
+  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+  target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+  target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
+  drishti_hide(drishti_c)
+  drishti_strip(drishti_c)
+  drishti_symbol_list(drishti_c)
+  set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
+
+  if(DRISHTI_BUILD_SHARED_SDK)
+    # Simple install to execute post build strip
+    install(
+      TARGETS drishti_c
+      EXPORT "${drishti_targets_export_name}"
+      LIBRARY DESTINATION "lib"
+      ARCHIVE DESTINATION "lib"
+      RUNTIME DESTINATION "bin"
+      INCLUDES DESTINATION "${drishti_include_install_dir}"
+      )
+  endif()
+endif()

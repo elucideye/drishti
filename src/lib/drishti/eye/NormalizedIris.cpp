@@ -12,7 +12,6 @@
 
 #include <opencv2/imgproc.hpp>
 
-
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 // Example:
