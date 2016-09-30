@@ -39,6 +39,13 @@ addons:
 matrix:
   include:
     # Linux {
+
+    # Experimental asan
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=sanitize-address STRIP=--strip
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=sanitize-address STRIP=--strip
+    
     - os: linux
       env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic STRIP=--strip
     - os: linux
@@ -50,6 +57,13 @@ matrix:
     # }
 
     # OSX {
+
+    # Experimental asan
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=sanitize-address STRIP=--strip
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=sanitize-address STRIP=--strip
+
     - os: osx
       env: CONFIG=Release TOOLCHAIN=libcxx STRIP=--strip
     - os: osx
@@ -111,7 +125,7 @@ script:
       --fwd
       DRISHTI_BUILD_REGRESSION_SIMD=NO
       DRISHTI_BUILD_REGRESSION_FIXED_POINT=NO
-      HUNTER_USE_CACHE_SERVERS=ONLY
+      HUNTER_USE_CACHE_SERVERS=ON
       HUNTER_DISABLE_BUILDS=YES
       CMAKE_INSTALL_PREFIX="`pwd`/_install"
       --test
