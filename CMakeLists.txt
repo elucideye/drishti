@@ -6,8 +6,8 @@ include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.15.36.tar.gz"
-    SHA1 "78bd23a3c6df93549e0167e36b733e18ed54d4e9"
+    URL "https://github.com/ruslo/hunter/archive/v0.16.0.tar.gz"
+    SHA1 "715bfb65668d99fd3b801a97a33ccad3a99b0c94"
     LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
     )
 
