@@ -6,10 +6,10 @@ include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.15.36.tar.gz"
-    SHA1 "78bd23a3c6df93549e0167e36b733e18ed54d4e9"
-    LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
-    )
+  URL "https://github.com/ruslo/hunter/archive/v0.16.1.tar.gz"
+  SHA1 "266769a8fc74301d62deb0764e147cc9fc88da26"  
+  LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
+  )
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
 string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
