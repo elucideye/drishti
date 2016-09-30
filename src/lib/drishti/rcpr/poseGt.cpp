@@ -21,58 +21,6 @@
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
-Vector1d operator*(const Vector1d &src, Vector1d::value_type value)
-{
-    Vector1d dst = src;
-    for(auto &p : dst)
-    {
-        p = (p * value);
-    }
-    return dst;
-}
-
-Vector1d operator+(const Vector1d &a, const Vector1d &b)
-{
-    Vector1d c(a.size());
-    for(int i = 0; i < a.size(); i++)
-    {
-        c[i] = a[i] + b[i];
-    }
-
-    return c;
-}
-
-Vector1d operator-(const Vector1d &a, const Vector1d &b)
-{
-    Vector1d c(a.size());
-    for(int i = 0; i < a.size(); i++)
-    {
-        c[i] = a[i] - b[i];
-    }
-
-    return c;
-}
-
-Vector1d& operator+=(Vector1d &a, const Vector1d &b)
-{
-    for(int i = 0; i < a.size(); i++)
-    {
-        a[i] += b[i];
-    }
-
-    return a;
-}
-
-Vector1d& operator*=(Vector1d &a, Vector1d::value_type value)
-{
-    for(int i = 0; i < a.size(); i++)
-    {
-        a[i] *= value;
-    }
-
-    return a;
-}
-
 static Matx33Real getPose( const Vector1d &phi  );
 static std::vector<uint32_t> xsToInds(const Matx33Real &HS, const PointVec &xs, int w, int h, int nChn, bool doTranspose, int stride);
 
@@ -568,11 +516,7 @@ Matx33Real phisToHs(const Vector1d &phis)
     double x = phis[0];
     double y = phis[1];
     Matx33Real Hs(c, -s, x, s, c, y, 0, 0, 1);
-
     auto phis_ = phisFrHs(Hs);
-
-    //print(phis); std::cout << std::endl;
-    //print(phis_); std::cout << std::endl;
 
     return Hs;
 }

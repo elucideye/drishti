@@ -30,9 +30,10 @@ sugar_files(DRISHTI_RCPR_SRCS
 sugar_files(DRISHTI_RCPR_HDRS_PUBLIC
   CPR.h
   CPRIO.h
+  ImageMaskPair.h
+  PointHalf.h
   Regressor.h
   RegressorXGBoost.h
+  Vector1d.h
   drishti_rcpr.h
   )
-
-
