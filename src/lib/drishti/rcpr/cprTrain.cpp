@@ -38,10 +38,6 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 template <typename T>
 using MatrixType = std::vector<std::vector<T>>;
 
-static Vector1d operator*(const Vector1d &a, const RealType &b);
-static Vector1d operator+(const Vector1d &a, const Vector1d &b);
-static cv::RotatedRect operator*(const cv::RotatedRect &e, float scale);
-
 void CPR::log(std::ofstream &os)
 {
     // Legacy: non xgboost
@@ -176,17 +172,19 @@ static void transform(const CPR::Model &model, const HVec &Hs, const EllipseVec 
     pStar_ = compPhiStar(model, pGtIn_);
 }
 
-// Hs can be used to specify some normalization estimate.
-// For eye estimation this could be procrustes normalization of the eyelid, such that the mean iris could be estimated
-// in the normalized eye coordinate system.
 
-Vector1d operator*(const cv::Matx33f &H, Vector1d &phi)
+template <typename T>
+std::vector<T> operator*(const cv::Matx33f &H, std::vector<T> &phi)
 {
-    Vector1d phi2;
+    std::vector<T> phi2;
     phi2 = phisFrHs(H * phisToHs(phi));
     phi2.push_back(phi.back());
     return phi2;
 }
+
+// Hs can be used to specify some normalization estimate.
+// For eye estimation this could be procrustes normalization of the eyelid, such that the mean iris could be estimated
+// in the normalized eye coordinate system.
 
 int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVec &Hs, const CprPrm &cprPrm, bool doJitter)
 {
@@ -479,32 +477,6 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
 
 // Uiltity
 
-static Vector1d operator*(const Vector1d &a, const RealType &b)
-{
-    Vector1d c(a.size());
-    for(int i = 0; i < a.size(); i++)
-    {
-        c[i] = a[i] * b;
-    }
-    return c;
-}
-
-static Vector1d operator+(const Vector1d &a, const Vector1d &b)
-{
-    Vector1d c(a.size());
-    for(int i = 0; i < a.size(); i++)
-    {
-        c[i] = a[i] + b[i];
-    }
-    return c;
-}
-
-static cv::RotatedRect operator*(const cv::RotatedRect &e, float scale)
-{
-    return cv::RotatedRect(e.center * scale, e.size * scale, e.angle);
-}
-
 DRISHTI_RCPR_NAMESPACE_END
 
 #endif // !DRISHTI_BUILD_MIN_SIZE
-

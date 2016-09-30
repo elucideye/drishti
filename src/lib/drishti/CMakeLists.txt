@@ -82,7 +82,8 @@ if(DRISHTI_BUILD_WORLD)
   endif()
   
   add_library(drishti_world ${LIB_TYPE}  ${DRISHTI_WORLD_SOURCES})
-  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost)
+  
+  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
   target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   if(DRISHTI_USE_TEXT_ARCHIVES)
     target_compile_definitions(drishti_world PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
@@ -90,6 +91,10 @@ if(DRISHTI_BUILD_WORLD)
 
   # Define a single drishti_world static library
   set(DRISHTI_LIBS drishti_world)
+
+  if(DRISHTI_COTIRE)  
+    cotire(drishti_world)
+  endif()
 
 else()
 
@@ -156,7 +161,7 @@ else()
 
   foreach(library ${DRISHTI_LIBS})
     target_link_libraries(${library} PUBLIC Eigen::eigen)
-  endforeach()
+  endforeach()  
 
 endif(DRISHTI_BUILD_WORLD)
 

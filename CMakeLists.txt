@@ -205,10 +205,6 @@ endif()
 drishti_always_full_rpath()
 
 #####################
-### RPATH (END)   ###
-#####################
-
-#####################
 ### Visibility    ###
 #####################
 
@@ -218,6 +214,15 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 set(CMAKE_XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN "YES")
 set(CMAKE_XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN "YES")
+
+##############
+### cotire ###
+##############
+# https://github.com/sakra/cotire
+option(DRISHTI_COTIRE  "Use cotire single compilation unit build" OFF)
+if(DRISHTI_COTIRE)
+  include(cotire)
+endif()
 
 ##################
 ### PACKAGES #####

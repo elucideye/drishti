@@ -31,84 +31,18 @@
 
 #include <boost/serialization/export.hpp>
 
+#if DRISHTI_CPR_DO_HALF_FLOAT
+#  include "drishti/rcpr/PointHalf.h"
+#endif
+
+#include "drishti/rcpr/ImageMaskPair.h"
+#include "drishti/rcpr/Vector1d.h"
+
 #include <memory>
 
 #define PTR_TYPE std
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
-
-#if DRISHTI_CPR_DO_HALF_FLOAT
-struct PointHalf
-{
-    PointHalf() {}
-
-    PointHalf( const cv::Point2f &p )
-        : x( half_float::detail::float2half<std::round_to_nearest>(p.x) )
-        , y( half_float::detail::float2half<std::round_to_nearest>(p.y) )
-    {}
-
-    operator cv::Point2f() const
-    {
-        return cv::Point2f(asFloat(x), asFloat(y));
-    }
-
-    static float asFloat(const half_float::detail::uint16 &src)
-    {
-        return half_float::detail::half2float(src);
-    }
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-        ar & x;
-        ar & y;
-    }
-
-    half_float::detail::uint16 x, y;
-};
-template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<T2> &dst)
-{
-    dst.resize(src.size());
-    std::copy(src.begin(), src.end(), dst.begin());
-}
-#endif
-
-
-struct ImageMaskPair
-{
-public:
-
-    ImageMaskPair() {}
-    ImageMaskPair(const cv::Mat &image) : image(image) {}
-    ImageMaskPair(const cv::Mat &image, const cv::Mat &mask) : image(image), mask(mask) {}
-
-    const cv::Mat &getImage() const
-    {
-        return image;
-    }
-    cv::Mat &getImage()
-    {
-        return image;
-    }
-    const cv::Mat &getMask() const
-    {
-        return mask;
-    }
-    cv::Mat &getMask()
-    {
-        return mask;
-    }
-
-    operator cv::Mat()
-    {
-        return image;  // legacy ImageVec compatibility
-    }
-
-protected:
-
-    cv::Mat image;
-    cv::Mat mask;
-};
 
 #if DRISHTI_CPR_DO_LEAN
 #define CV_REAL_TYPE CV_32F
@@ -129,7 +63,6 @@ inline int PointVecSize(const PointVec &v)
 #endif
 typedef cv::Matx<RealType,3,3> Matx33Real;
 typedef std::vector<RealType> Vector1d;
-
 typedef std::vector<cv::Mat> ImageVec;
 typedef std::vector<ImageMaskPair> ImageMaskPairVec;
 typedef std::vector<Vector1d> EllipseVec;
@@ -452,6 +385,12 @@ double normAng(double ang, double rng);
 double dist( const CPR::Model &model, const Vector1d &phis0, const Vector1d &phis1 );
 void print(const Vector1d &p, bool eol=false);
 void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale=1.f, bool doTranspose=DRISHTI_CPR_TRANSPOSE);
+
+template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<T2> &dst)
+{
+    dst.resize(src.size());
+    std::copy(src.begin(), src.end(), dst.begin());
+}
 
 DRISHTI_RCPR_NAMESPACE_END
 
