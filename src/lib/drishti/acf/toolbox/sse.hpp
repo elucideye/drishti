@@ -172,7 +172,7 @@ inline RETf DEC( float &x, const RETf y )
     RETf t=SUB(LD(x),y);
     return STR(x,t);
 }
-inline RETf MIN( const RETf x, const RETf y )
+inline RETf MIN_sse( const RETf x, const RETf y )
 {
     return _mm_min_ps(x,y);
 }
