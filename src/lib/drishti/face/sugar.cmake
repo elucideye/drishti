@@ -35,6 +35,11 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     )
 endif()
 
+if(DRISHTI_BUILD_EOS)
+  set(DRISHTI_FACE_EOS_SRCS FaceLandmarkMeshMapper.cpp)
+  set(DRISHTI_FACE_EOS_HDRS_PUBLIC FaceLandmarkMeshMapper.h)
+endif()
+
 sugar_files(DRISHTI_FACE_SRCS
   Face.cpp
   FaceDetector.cpp
@@ -43,10 +48,10 @@ sugar_files(DRISHTI_FACE_SRCS
   FaceDetectorAndTrackerNN.cpp
   FaceDetectorFactory.cpp
   FaceIO.cpp
-  FaceLandmarkMeshMapper.cpp  
   FaceModelEstimator.cpp
   GazeEstimator.cpp
   face_util.cpp
+  ${DRISHTI_FACE_EOS_SRCS}
   ${DRISHTI_FACE_TRACKING_SRCS}
   ${DRISHTI_FACE_GPU_HDRS}  
 )
@@ -60,10 +65,10 @@ sugar_files(DRISHTI_FACE_HDRS_PUBLIC
   FaceDetectorAndTrackerNN.h
   FaceDetectorFactory.h
   FaceIO.h
-  FaceLandmarkMeshMapper.h
   FaceModelEstimator.h
   GazeEstimator.h
   face_util.h
+  ${DRISHTI_FACE_EOS_HDRS_PUBLIC}
   ${DRISHTI_FACE_TRACKING_HDRS_PUBLIC}
   ${DRISHTI_FACE_GPU_SRCS}
   )
