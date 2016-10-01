@@ -5,6 +5,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 
+# drishti specific hunter cache pacakges:
+list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
+
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.16.2.tar.gz"
     SHA1 "defe8ce479f506010eaa602e626a42eb714066cf"
@@ -233,24 +236,22 @@ if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 endif()
 
-if(MSVC OR is_linux) # Look for WITH_JPEG=ON in Hunter/config.cmake
-  # Dependency for OpenCV. Usually dependent packages installed automatically
-  # but current hardcoded version of OpenCV is not hunterized enough so
-  # don't know about Jpeg, i.e. there is no `hunter_add_package(Jpeg)`.
-  # But Jpeg is present in fresh version of Hunter with
-  # custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
-  # OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
-  # FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
-  # we manually download Jpeg before OpenCV.
-  # TODO: remove after OpenCV version updated
-  hunter_add_package(Jpeg)
-  find_package(JPEG CONFIG REQUIRED)
-endif()
+# Look for WITH_JPEG=ON in Hunter/config.cmake
+# Dependency for OpenCV and cvmatio. Usually dependent packages are
+# installed automatically but current hardcoded version of OpenCV is not
+# hunterized enough so it doesn't know about Jpeg, i.e. there is no
+# `hunter_add_package(Jpeg)`.  But Jpeg is present in fresh version of Hunter with
+# custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
+# OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
+# FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
+# we manually download Jpeg before OpenCV.
+# TODO: remove after OpenCV version updated
+hunter_add_package(Jpeg)
+find_package(JPEG CONFIG REQUIRED)
 
 ### spdlog: Added logging library
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
-
 
 include(drishti_thread_local_storage)
 drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)
