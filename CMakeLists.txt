@@ -8,7 +8,7 @@ include("cmake/HunterGate.cmake")
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.16.2.tar.gz"
     SHA1 "defe8ce479f506010eaa602e626a42eb714066cf"
-  LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
+    LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
   )
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
