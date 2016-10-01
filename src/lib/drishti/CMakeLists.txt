@@ -240,11 +240,11 @@ add_custom_command(TARGET drishtisdk POST_BUILD
   )
 foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
   if(TARGET ${library}  ## Avoid generator expression errors for header only libs
-	  AND NOT "${library}" MATCHES "cereal::cereal"
-	  AND NOT "${library}" MATCHES "dlib::dlib"       
+      AND NOT "${library}" MATCHES "cereal::cereal"
+      AND NOT "${library}" MATCHES "dlib::dlib"
       AND NOT "${library}" MATCHES "eos::eos"
-	  AND NOT "${library}" MATCHES "spdlog::spdlog"
-	  AND NOT "${library}" MATCHES "Eigen::eigen") 
+      AND NOT "${library}" MATCHES "spdlog::spdlog"
+      AND NOT "${library}" MATCHES "Eigen::eigen") 
     add_custom_command(TARGET drishtisdk POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
       )
