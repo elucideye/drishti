@@ -20,7 +20,7 @@ macro(drishti_set_opencv_cmake_args_nix)
       WITH_PNG=ON             # "Include PNG support"
       WITH_TIFF=ON            # "Include TIFF support"
       WITH_JASPER=ON          # "Include JPEG2K support"
-      WITH_JPEG=ON            # "Include JPEG support"
+      WITH_JPEG=OFF           # "Include JPEG support"
       WITH_TBB=ON             # "Include Intel TBB support"
 
       WITH_PTHREADS_PF=OFF    # "Use pthreads-based parallel_for"
