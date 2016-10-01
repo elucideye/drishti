@@ -75,6 +75,12 @@ matrix:
       osx_image: xcode7.3
       env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3
     - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Release TOOLCHAIN=osx-10-11-sanitize-address
+    - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Debug TOOLCHAIN=osx-10-11-sanitize-address
+    - os: osx
       env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon STRIP=--strip
     - os: osx
       env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon STRIP=--strip
