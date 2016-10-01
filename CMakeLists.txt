@@ -111,6 +111,7 @@ option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
+option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 
 if(DRISHTI_BUILD_TESTS)
