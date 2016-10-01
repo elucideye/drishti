@@ -7,6 +7,11 @@ function(drishti_symbol_list drishti_library)
     drishti_segment
     )
 
+  get_target_property(x ${drishti_library} LINK_FLAGS)
+  if(x)
+    message(FATAL_ERROR "No LINK_FLAGS expected")
+  endif()  
+
   if (APPLE)
     # Create a symbols_list file for the darwin linker
     string(REPLACE ";" "\n_" _symbols "${DRISHTI_SDK_SYMBOLS}")
