@@ -81,9 +81,9 @@ if(DRISHTI_BUILD_WORLD)
     list(APPEND DRISHTI_SDK_3RDPARTY_LIBS ${OGLES_GPGPU_LIB})
   endif()
   
-  add_library(drishti_world ${LIB_TYPE}  ${DRISHTI_WORLD_SOURCES})
+  add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
   
-  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
+  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen ${EOS_LIB})
   target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   if(DRISHTI_USE_TEXT_ARCHIVES)
     target_compile_definitions(drishti_world PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
@@ -143,7 +143,7 @@ else()
   ## drishti_face
   if(DRISHTI_BUILD_FACE)
     add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-    target_link_libraries(drishti_face PUBLIC drishti_eye ${OBJ_ACF} ${OpenCV_LIBS})
+    target_link_libraries(drishti_face PUBLIC drishti_eye ${OBJ_ACF} ${OpenCV_LIBS} ${EOS_LIB})
     set(OBJ_FACE drishti_face)
   endif()
 
@@ -240,8 +240,9 @@ add_custom_command(TARGET drishtisdk POST_BUILD
   )
 foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
   if(TARGET ${library}  ## Avoid generator expression errors for header only libs
-	  AND NOT "${library}" MATCHES "dlib::dlib" 
 	  AND NOT "${library}" MATCHES "cereal::cereal"
+	  AND NOT "${library}" MATCHES "dlib::dlib"       
+      AND NOT "${library}" MATCHES "eos::eos"
 	  AND NOT "${library}" MATCHES "spdlog::spdlog"
 	  AND NOT "${library}" MATCHES "Eigen::eigen") 
     add_custom_command(TARGET drishtisdk POST_BUILD
@@ -281,10 +282,6 @@ endif()
 
 foreach(library ${DRISHTI_LIBS} drishti drishtisdk)
   set_property(TARGET ${library} PROPERTY FOLDER "libs/drishti")
-endforeach()
-
-foreach(library ${DRISHTI_SDK_3RDPARTY_SRC_LIBS})
-  set_property(TARGET ${library} PROPERTY FOLDER "libs/3rdparty")
 endforeach()
 
 ###################
@@ -343,7 +340,6 @@ install(
 ##################
 
 if(DRISHTI_BUILD_C_INTERFACE)
-  message("DRISHTI_BUILD_C_INTERFACE = ${DRISHTI_BUILD_C_INTERFACE}")
   add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
   target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
