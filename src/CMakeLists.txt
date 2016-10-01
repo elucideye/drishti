@@ -17,14 +17,15 @@ set(LIB_TYPE STATIC)
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
 add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
 target_link_libraries(boost-pba PUBLIC Boost::boost)
+set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
+add_library(boost-pba::boost-pba ALIAS boost-pba)
 
-# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets,
-# so we collect SRC and PKG libs separately.
+# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
 
 ######################################
 ### Initial 3RDPARTY SRC libraries ###
 ######################################
-set(DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba)
+set(DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
 
 ######################################
 ### Initial 3RDPARTY PKG libraries ###
@@ -66,7 +67,7 @@ endif()
 ###################
 if(DRISHTI_BUILD_OGLES_GPGPU)
   # Support local submodule use or external package:
-  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" ON)
+  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
 
   if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
     add_definitions(-DUSE_LOCAL_OGLES_GPGPU=1)
@@ -80,7 +81,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     unset(SKIP_INSTALL CACHE)
     add_library(ogles_gpgpu::ogles_gpgpu ALIAS ogles_gpgpu)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
-    set_property(TARGET xgboost PROPERTY FOLDER "libs/3rdparty")      
+    set_property(TARGET ogles_gpgpu PROPERTY FOLDER "libs/3rdparty")      
   else()
     add_definitions(-DUSE_LOCAL_OGLES_GPGPU=0)
     hunter_add_package(ogles_gpgpu)
