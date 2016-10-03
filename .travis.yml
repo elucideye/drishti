@@ -59,6 +59,12 @@ matrix:
     - os: osx
       env: CONFIG=Debug TOOLCHAIN=osx-10-9
     - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Release TOOLCHAIN=osx-10-11
+    - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Debug TOOLCHAIN=osx-10-11
+    - os: osx
       env: CONFIG=Release TOOLCHAIN=ios-nocodesign
     - os: osx
       env: CONFIG=Debug TOOLCHAIN=ios-nocodesign
