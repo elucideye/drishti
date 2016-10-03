@@ -65,34 +65,36 @@
 
 //***************  functions and data attributes, compiler dependent  *********************************
 //***********************************************************************************
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__)
 
-#define _GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#define _NEON2SSE_ALIGN_16  __attribute__((aligned(16)))
-#define _NEON2SSE_INLINE extern inline __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-#if _GCC_VERSION <  40500
-#define _NEON2SSE_PERFORMANCE_WARNING(function, explanation)   __attribute__((deprecated)) function
+# define _GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+# define _NEON2SSE_ALIGN_16  __attribute__((aligned(16)))
+# define _NEON2SSE_INLINE extern inline __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+# if _GCC_VERSION <  40500
+#  define _NEON2SSE_PERFORMANCE_WARNING(function, explanation)   __attribute__((deprecated)) function
+# else
+#  define _NEON2SSE_PERFORMANCE_WARNING(function, explanation)   __attribute__((deprecated(explanation))) function
+# endif
+# if defined(__x86_64__)
+#  define _NEON2SSE_64BIT  __x86_64__
+# endif
+#elif defined(_MSC_VER)
+# define _NEON2SSE_ALIGN_16  __declspec(align(16))
+# define _NEON2SSE_INLINE __inline
+# if defined(_MSC_VER)|| defined (__INTEL_COMPILER)
+#  define _NEON2SSE_PERFORMANCE_WARNING(function, EXPLANATION) __declspec(deprecated(EXPLANATION)) function
+#  if defined(_M_X64)
+#   define _NEON2SSE_64BIT  _M_X64
+#  endif
+# else
+#  define _NEON2SSE_PERFORMANCE_WARNING(function, explanation)  function
+# endif
 #else
-#define _NEON2SSE_PERFORMANCE_WARNING(function, explanation)   __attribute__((deprecated(explanation))) function
-#endif
-#if defined(__x86_64__)
-#define _NEON2SSE_64BIT  __x86_64__
-#endif
-#else
-#define _NEON2SSE_ALIGN_16  __declspec(align(16))
-#define _NEON2SSE_INLINE __inline
-#if defined(_MSC_VER)|| defined (__INTEL_COMPILER)
-#define _NEON2SSE_PERFORMANCE_WARNING(function, EXPLANATION) __declspec(deprecated(EXPLANATION)) function
-#if defined(_M_X64)
-#define _NEON2SSE_64BIT  _M_X64
-#endif
-#else
-#define _NEON2SSE_PERFORMANCE_WARNING(function, explanation)  function
-#endif
+# error "Unsupported compiler"
 #endif
 
 #if defined  (_NEON2SSE_64BIT) && defined (USE_SSE4)
-#define _NEON2SSE_64BIT_SSE4
+# define _NEON2SSE_64BIT_SSE4
 #endif
 
 /*********************************************************************************************************************/
