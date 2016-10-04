@@ -81,7 +81,11 @@ message("OPENMP CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # The various compiler checks take > 10 seconds on ios "Try OpenMP CXX flag = [-openmp]" in xcode
 # TODO: Investigate why this is so much slower with ios toolchain
-if(NOT XCODE) # We'll never have openmp on ios, and this test is really slow
+
+# OpenMP also causes a compiler error in Eigen on vs-14-2015
+# http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1131
+
+if(NOT XCODE AND NOT MSVC) # We'll never have openmp on ios, and this test is really slow
   find_package( OpenMP )
   if(OPENMP_FOUND)
     message("OPENMP FOUND")
@@ -159,14 +163,16 @@ endif()
 # XGBoost has replaced all previous regression
 add_definitions(-DHAS_XGBOOST=1)
 
-# if(BUILD_DRISHTI_MOTION)
-#   add_definitions(-DHAS_DRISHTI_MOTION=1)
-# endif()
-
 # Desired behavior:
 set(PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
-set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-set(CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}")
+set(DRISHTI_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${DRISHTI_INSTALL_DIR}")
+
+message("DRISHTI_INSTALL_DIR=${DRISHTI_INSTALL_DIR}")
+message("CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
+if(MSVC)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 
 #######################################################################################
 #### https://github.com/forexample/github-binary-release/blob/master/CMakeLists.txt ###
