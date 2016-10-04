@@ -83,7 +83,7 @@ if(DRISHTI_BUILD_WORLD)
   
   add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
   
-  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen ${EOS_LIB})
+  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
   target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   if(DRISHTI_USE_TEXT_ARCHIVES)
     target_compile_definitions(drishti_world PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
