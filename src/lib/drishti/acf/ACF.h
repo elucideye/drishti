@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include "drishti/core/drishti_defs.hpp"
+#include "drishti/core/drishti_string_hash.h"
 #include "drishti/ml/ObjectDetector.h"
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
@@ -288,7 +289,7 @@ public:
         std::vector<Info> info;
     };
 
-    static int chnsCompute(const MatP &I, const Options::Pyramid::Chns &pChns, Channels &chns, bool isInit=false, MatLoggerType pLogger=0);
+    static int chnsCompute(const MatP &I, const Options::Pyramid::Chns &pChns, Channels &chns, bool isInit=false, MatLoggerType pLogger={});
 
     // see chnsPyramid()
     // OUTPUTS
@@ -348,8 +349,8 @@ public:
     void computePyramid(const cv::Mat &I, Pyramid &P);
     void computePyramid(const MatP &Ip, Pyramid &P);
 
-    static void computeChannels(const cv::Mat &I, MatP &Ip2, MatLoggerType pLogger=0);
-    static void computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLlogger=0);
+    static void computeChannels(const cv::Mat &I, MatP &Ip2, MatLoggerType pLogger={});
+    static void computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLlogger={});
 
     // (((((((( Detection ))))))))
     int operator()(const cv::Mat &I, RectVec &objects, RealVec *scores=0);
@@ -358,12 +359,12 @@ public:
     // Multiscale search:
     int operator()(const Pyramid &P, RectVec &objects, RealVec *scores=0);
 
-    int chnsPyramid(const MatP &I, const Options::Pyramid *pPyramid, Pyramid &pyramid, bool isInit=false, MatLoggerType pLogger=0);
+    int chnsPyramid(const MatP &I, const Options::Pyramid *pPyramid, Pyramid &pyramid, bool isInit=false, MatLoggerType pLogger={});
 
     static int rgbConvert(const MatP &I, MatP &J, const std::string &cs, bool useSingle, bool isLuv=false);
     static int getScales(int nPerOct, int nOctUp, const cv::Size &minDs, int shrink, const cv::Size &sz, RealVec &scales, Size2dVec &scaleshw);
     static int convTri(const MatP &I, MatP &J, double r=1.0, int s=1);
-    static int gradientMag(const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel=0, int normRad=0, double normConst=0.005, int full=0, MatLoggerType logge=0);
+    static int gradientMag(const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel=0, int normRad=0, double normConst=0.005, int full=0, MatLoggerType logger={});
     static int gradientHist(const cv::Mat &M, const cv::Mat &O, MatP &H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full);
 
     virtual void setDetectionScorePruneRatio(double ratio)
@@ -498,34 +499,6 @@ inline void fuseChannels(Iterator begin, Iterator end, MatP &Ip)
 }
 
 DRISHTI_ACF_NAMESPACE_END
-
-// http://stackoverflow.com/questions/2111667/compile-time-string-hashing
-DRISHTI_BEGIN_NAMESPACE(string_hash)
-
-template<class> struct hasher;
-template<> struct hasher<std::string>
-{
-    std::size_t constexpr operator()(char const *input) const
-    {
-        return *input ? static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) : 5381;
-    }
-    std::size_t operator()( const std::string& str ) const
-    {
-        return (*this)(str.c_str());
-    }
-};
-template<typename T> std::size_t constexpr hash(T&& t)
-{
-    return hasher< typename std::decay<T>::type >()(std::forward<T>(t));
-}
-inline
-DRISHTI_BEGIN_NAMESPACE(literals)
-std::size_t constexpr operator "" _hash(const char* s,size_t)
-{
-    return hasher<std::string>()(s);
-}
-DRISHTI_END_NAMESPACE(literals)
-DRISHTI_END_NAMESPACE(string_hash)
 
 void imResample(const MatP &A, MatP &B, const cv::Size &size, double nrm);
 
