@@ -4,19 +4,15 @@ if(ANDROID)
   add_definitions(-DHALF_ENABLE_CPP11_CMATH=0)
 endif()
 
-# Disable Clang specific error
-message("CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
-message("=======")
-
 #### opencv_contrib stuff : tracking, etc
 sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
 set(LIB_TYPE STATIC)
 
 ## 3rd party boost pba
-include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
 add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
 target_link_libraries(boost-pba PUBLIC Boost::boost)
+target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
 set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
 add_library(boost-pba::boost-pba ALIAS boost-pba)
 
@@ -93,7 +89,11 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 
+###########
+### EOS ###
+###########
 # Experimental functionality:
+set(EOS_LIB "")
 if(DRISHTI_BUILD_EOS)
   hunter_add_package(eos)
   find_package(eos CONFIG REQUIRED)
@@ -101,6 +101,9 @@ if(DRISHTI_BUILD_EOS)
   set(EOS_LIB eos::eos)
 endif()
 
+############
+### DEST ###
+############
 # Experimental functionality:
 if(DRISHTI_BUILD_DEST)
   hunter_add_package(dest)
