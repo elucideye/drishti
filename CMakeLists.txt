@@ -108,14 +108,14 @@ option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
+option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
+option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." ON)
 option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
-option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
-option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 
 if(DRISHTI_BUILD_TESTS)
   if(ANDROID OR IOS)
@@ -234,6 +234,21 @@ endif()
 
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
+endif()
+
+# Look for WITH_JPEG=ON in Hunter/config.cmake
+# Dependency for OpenCV and cvmatio. Usually dependent packages are
+# installed automatically but current hardcoded version of OpenCV is not
+# hunterized enough so it doesn't know about Jpeg, i.e. there is no
+# `hunter_add_package(Jpeg)`.  But Jpeg is present in fresh version of Hunter with
+# custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
+# OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
+# FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
+# we manually download Jpeg before OpenCV.
+# TODO: remove after OpenCV version updated
+if(is_linux)
+  hunter_add_package(Jpeg)
+  find_package(JPEG CONFIG REQUIRED)
 endif()
 
 ### spdlog: Added logging library
