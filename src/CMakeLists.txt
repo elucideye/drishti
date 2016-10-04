@@ -113,6 +113,10 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
+if(is_linux)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS JPEG::jpeg)
+  )
+
 set(DRISHTI_SDK_3RDPARTY_LIBS
   ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
   ${DRISHTI_SDK_3RDPARTY_PKG_LIBS}
