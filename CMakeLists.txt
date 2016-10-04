@@ -236,19 +236,6 @@ if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 endif()
 
-# Look for WITH_JPEG=ON in Hunter/config.cmake
-# Dependency for OpenCV and cvmatio. Usually dependent packages are
-# installed automatically but current hardcoded version of OpenCV is not
-# hunterized enough so it doesn't know about Jpeg, i.e. there is no
-# `hunter_add_package(Jpeg)`.  But Jpeg is present in fresh version of Hunter with
-# custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
-# OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
-# FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
-# we manually download Jpeg before OpenCV.
-# TODO: remove after OpenCV version updated
-hunter_add_package(Jpeg)
-find_package(JPEG CONFIG REQUIRED)
-
 ### spdlog: Added logging library
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
