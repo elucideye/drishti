@@ -15,7 +15,7 @@
 
 #include "drishti/core/drishti_core.h"
 
-#include <String>
+#include <string>
 
 DRISHTI_BEGIN_NAMESPACE(string_hash)
 
