@@ -47,10 +47,11 @@ hunter_config(OpenCV VERSION 3.0.0-p6 CMAKE_ARGS "${OPENCV_CMAKE_ARGS}")
 ### Boost
 hunter_config(Boost VERSION 1.58.0-p1 CMAKE_ARGS IOSTREAMS_NO_BZIP2=1 )
 
+hunter_config(xgboost VERSION 0.40-p4)
 hunter_config(PNG VERSION 1.6.16-p4)
 hunter_config(TIFF VERSION 4.0.2-p3)
 hunter_config(cereal VERSION 1.1.2-p5)
-hunter_config(cvmatio VERSION 1.0.27-p2)
+hunter_config(cvmatio VERSION 1.0.27-p3)
 hunter_config(dlib VERSION 18.14-p1)
 hunter_config(Eigen VERSION 3.2.4-p0)
 hunter_config(spdlog VERSION 1.0.0-p0)
