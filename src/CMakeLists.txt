@@ -111,7 +111,7 @@ if(DRISHTI_BUILD_DEST)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dest::dest) # Add library        
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
+include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/simd)
 
 if(is_linux)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS JPEG::jpeg)
