@@ -9,10 +9,15 @@ include("cmake/HunterGate.cmake")
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.16.2.tar.gz"
-    SHA1 "defe8ce479f506010eaa602e626a42eb714066cf"
-    LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
-    )
+ 
+  #URL "https://github.com/ruslo/hunter/archive/v0.16.2.tar.gz"
+  #SHA1 "defe8ce479f506010eaa602e626a42eb714066cf"
+
+  URL "https://github.com/headupinclouds/hunter/archive/v.tmp.tar.gz"
+  SHA1 "e5f03b42bc564cd311e69e0cadb69b699995b20a"
+    
+  LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
+  )
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
 string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
@@ -120,6 +125,8 @@ option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
+
+message("DRISHTI_BUILD_EOS (1) ${DRISHTI_BUILD_EOS}")
 
 if(DRISHTI_BUILD_TESTS)
   if(ANDROID OR IOS)
