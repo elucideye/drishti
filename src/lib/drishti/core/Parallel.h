@@ -13,6 +13,7 @@
 
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>
+#include <functional>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 

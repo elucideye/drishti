@@ -11,30 +11,6 @@ endif()
 
 include(sugar_files)
 
-# if(BUILD_CV_TRACKING)
-#   set(DRISHTI_FACE_TRACKING_SRCS
-# 	FaceDetectorAndTrackerCorrelation.h
-# 	FaceDetectorAndTrackerCorrelation.cpp
-# 	)
-#   set(DRISHTI_FACE_TRACKING_HDRS_PUBLIC
-# 	FaceDetectorAndTrackerCV.h
-# 	FaceDetectorAndTrackerCV.cpp
-# 	)
-# endif()
-
-if(DRISHTI_BUILD_OGLES_GPGPU)
-  set(DRISHTI_FACE_GPU_HDRS
-    gpu/EyeFilter.h
-    gpu/FaceStabilizer.h
-    gpu/MultiTransformProc.h # move to generic
-    )
-  set(DRISHTI_FACE_GPU_SRCS
-    gpu/EyeFilter.cpp
-    gpu/FaceStabilizer.cpp
-    gpu/MultiTransformProc.cpp # move to generic
-    )
-endif()
-
 sugar_files(DRISHTI_FACE_SRCS
   Face.cpp
   FaceDetector.cpp
@@ -43,12 +19,9 @@ sugar_files(DRISHTI_FACE_SRCS
   FaceDetectorAndTrackerNN.cpp
   FaceDetectorFactory.cpp
   FaceIO.cpp
-  FaceLandmarkMeshMapper.cpp  
   FaceModelEstimator.cpp
   GazeEstimator.cpp
   face_util.cpp
-  ${DRISHTI_FACE_TRACKING_SRCS}
-  ${DRISHTI_FACE_GPU_HDRS}  
 )
 
 sugar_files(DRISHTI_FACE_HDRS_PUBLIC
@@ -60,10 +33,28 @@ sugar_files(DRISHTI_FACE_HDRS_PUBLIC
   FaceDetectorAndTrackerNN.h
   FaceDetectorFactory.h
   FaceIO.h
-  FaceLandmarkMeshMapper.h
   FaceModelEstimator.h
   GazeEstimator.h
   face_util.h
-  ${DRISHTI_FACE_TRACKING_HDRS_PUBLIC}
-  ${DRISHTI_FACE_GPU_SRCS}
   )
+
+if(DRISHTI_BUILD_OGLES_GPGPU)
+  sugar_Files(DRISHTI_FACE_HDRS_PUBLIC  
+    gpu/EyeFilter.h
+    gpu/FaceStabilizer.h
+    gpu/MultiTransformProc.h
+    )
+
+  sugar_files(DRISHTI_FACE_SRCS  
+    gpu/EyeFilter.cpp
+    gpu/FaceStabilizer.cpp
+    gpu/MultiTransformProc.cpp
+    )
+endif()
+
+if(DRISHTI_BUILD_EOS)
+  sugar_files(DRISHTI_FACE_SRCS
+    FaceLandmarkMeshMapper.cpp)
+  sugar_files(DRISHTI_FACE_HDRS_PUBLIC
+    FaceLandmarkMeshMapper.h)
+endif()

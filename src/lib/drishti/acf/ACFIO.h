@@ -264,9 +264,6 @@ struct ParserNode
         // read all of the variables in the file
         m_variables = m_matio.read();
 
-        // display the file info
-        m_matio.whos(m_variables);
-
         return 0;        
     }
 
@@ -282,9 +279,6 @@ struct ParserNode
         // read all of the variables in the file
         m_variables = m_matio.read();
         m_matio.close();
-
-        // display the file info
-        m_matio.whos(m_variables);
 
         return 0;
     }

@@ -41,6 +41,7 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   drishti_defs.hpp
   drishti_math.h
   drishti_serialize.h
+  drishti_string_hash.h
   infix_iterator.h
   make_unique.h
   padding.h

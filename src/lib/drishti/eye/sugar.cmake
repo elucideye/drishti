@@ -11,17 +11,6 @@ endif()
 
 include(sugar_files)
 
-if(DRISHTI_BUILD_OGLES_GPGPU)
-  set(DRISHTI_EYE_GPU_HDRS
-    gpu/EllipsoPolarWarp.h
-    gpu/TriangleStripWarp.h
-    )
-  set(DRISHTI_EYE_GPU_SRCS
-    gpu/EllipsoPolarWarp.cpp    
-    gpu/TriangleStripWarp.cpp
-    )
-endif()
-
 sugar_files(DRISHTI_EYE_SRCS
   Eye.cpp
   EyeIO.cpp
@@ -31,7 +20,6 @@ sugar_files(DRISHTI_EYE_SRCS
   EyeModelPupil.cpp
   NormalizedIris.cpp
   IrisNormalizer.cpp
-  ${DRISHTI_EYE_GPU_SRCS}
   )
 
 sugar_files(DRISHTI_EYE_HDRS_PUBLIC
@@ -42,5 +30,15 @@ sugar_files(DRISHTI_EYE_HDRS_PUBLIC
   NormalizedIris.h
   IrisNormalizer.h
   drishti_eye.h
-  ${DRISHTI_EYE_GPU_HDRS}  
   )
+
+if(DRISHTI_BUILD_OGLES_GPGPU)
+  sugar_files(DRISHTI_EYE_HDRS_PUBLIC
+    gpu/EllipsoPolarWarp.h
+    gpu/TriangleStripWarp.h
+    )
+  sugar_files(DRISHTI_EYE_SRCS
+    gpu/EllipsoPolarWarp.cpp    
+    gpu/TriangleStripWarp.cpp
+    )
+endif()

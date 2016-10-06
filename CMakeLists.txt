@@ -5,11 +5,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
 
+# drishti specific hunter cache pacakges:
+list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
+
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.16.2.tar.gz"
-    SHA1 "defe8ce479f506010eaa602e626a42eb714066cf"
-    LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
-    )
+  URL "https://github.com/ruslo/hunter/archive/v0.16.8.tar.gz"
+  SHA1 "3432a4ce48b1de653e15f6a21851599337b15202"
+  LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
+  )
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
 string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
@@ -78,7 +81,11 @@ message("OPENMP CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # The various compiler checks take > 10 seconds on ios "Try OpenMP CXX flag = [-openmp]" in xcode
 # TODO: Investigate why this is so much slower with ios toolchain
-if(NOT XCODE) # We'll never have openmp on ios, and this test is really slow
+
+# OpenMP also causes a compiler error in Eigen on vs-14-2015
+# http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1131
+
+if(NOT XCODE AND NOT MSVC) # We'll never have openmp on ios, and this test is really slow
   find_package( OpenMP )
   if(OPENMP_FOUND)
     message("OPENMP FOUND")
@@ -105,13 +112,16 @@ option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
-option(DRISHTI_BUILD_ACF "Drishti ACF lib." OFF)
-option(DRISHTI_BUILD_FACE "Drishti face lib." OFF)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
+option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
+option(DRISHTI_BUILD_ACF "Drishti ACF lib." ON)
+option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
-option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
+option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
+
+message("DRISHTI_BUILD_EOS (1) ${DRISHTI_BUILD_EOS}")
 
 if(DRISHTI_BUILD_TESTS)
   if(ANDROID OR IOS)
@@ -155,14 +165,16 @@ endif()
 # XGBoost has replaced all previous regression
 add_definitions(-DHAS_XGBOOST=1)
 
-# if(BUILD_DRISHTI_MOTION)
-#   add_definitions(-DHAS_DRISHTI_MOTION=1)
-# endif()
-
 # Desired behavior:
 set(PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
-set(INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-set(CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}")
+set(DRISHTI_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${DRISHTI_INSTALL_DIR}")
+
+message("DRISHTI_INSTALL_DIR=${DRISHTI_INSTALL_DIR}")
+message("CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
+if(MSVC)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 
 #######################################################################################
 #### https://github.com/forexample/github-binary-release/blob/master/CMakeLists.txt ###
@@ -232,16 +244,17 @@ if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 endif()
 
-if(MSVC OR is_linux) # Look for WITH_JPEG=ON in Hunter/config.cmake
-  # Dependency for OpenCV. Usually dependent packages installed automatically
-  # but current hardcoded version of OpenCV is not hunterized enough so
-  # don't know about Jpeg, i.e. there is no `hunter_add_package(Jpeg)`.
-  # But Jpeg is present in fresh version of Hunter with
-  # custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
-  # OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
-  # FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
-  # we manually download Jpeg before OpenCV.
-  # TODO: remove after OpenCV version updated
+# Look for WITH_JPEG=ON in Hunter/config.cmake
+# Dependency for OpenCV and cvmatio. Usually dependent packages are
+# installed automatically but current hardcoded version of OpenCV is not
+# hunterized enough so it doesn't know about Jpeg, i.e. there is no
+# `hunter_add_package(Jpeg)`.  But Jpeg is present in fresh version of Hunter with
+# custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
+# OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
+# FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
+# we manually download Jpeg before OpenCV.
+# TODO: remove after OpenCV version updated
+if(is_linux)
   hunter_add_package(Jpeg)
   find_package(JPEG CONFIG REQUIRED)
 endif()
@@ -249,7 +262,6 @@ endif()
 ### spdlog: Added logging library
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
-
 
 include(drishti_thread_local_storage)
 drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)

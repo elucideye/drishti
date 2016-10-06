@@ -14,12 +14,7 @@
 
 #include "drishti/core/IndentingOStreamBuffer.h"
 
-#include "cvmatio/MatlabIO.hpp"
-#include "cvmatio/MatlabIOContainer.hpp"
-
 #include <iomanip>
-
-#include <opencv2/highgui/highgui.hpp>
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
@@ -224,11 +219,6 @@ void Detector::computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLogger)
 
     // ((( channels )))
     fuseChannels(chns.data.begin(), chns.data.end(), Ip2);
-
-    //cv::Mat canvas;
-    //cv::normalize(Ip2.base(), canvas, 0, 1, cv::NORM_MINMAX, CV_32F);
-    //cv::imshow("p", canvas);
-    //cv::waitKey(0);
 }
 
 /*

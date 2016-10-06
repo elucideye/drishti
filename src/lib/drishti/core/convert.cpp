@@ -16,7 +16,7 @@
 #elif __APPLE__
 #  include "TargetConditionals.h"
 #  if !TARGET_IPHONE_SIMULATOR
-#    include "simd/NEONvsSSE.h"
+#    include "NEONvsSSE.h"
 #    define USE_SIMD 1
 #  else
 #    define USE_SIMD 0
@@ -24,7 +24,7 @@
 #else
 #  if (defined(__SSE2__) || defined(__x86_64__) || defined(__AVX2__)) && BUILD_REGRESSION_SIMD
 #    define USE_SIMD 1
-#    include "simd/NEONvsSSE.h"
+#    include "NEONvsSSE.h"
 #  else
 #    define USE_SIMD 0
 #  endif

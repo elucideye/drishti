@@ -50,24 +50,16 @@ matrix:
     # }
 
     # OSX {
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=libcxx STRIP=--strip
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=libcxx STRIP=--strip
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=osx-10-9
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=osx-10-9
+#    - os: osx
+#      env: CONFIG=Release TOOLCHAIN=libcxx STRIP=--strip
+#    - os: osx
+#      env: CONFIG=Debug TOOLCHAIN=libcxx STRIP=--strip
     - os: osx
       osx_image: xcode7.3
       env: CONFIG=Release TOOLCHAIN=osx-10-11
     - os: osx
       osx_image: xcode7.3
       env: CONFIG=Debug TOOLCHAIN=osx-10-11
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=ios-nocodesign
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign
     - os: osx
       osx_image: xcode7.3
       env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3
@@ -123,8 +115,8 @@ script:
       --fwd
       DRISHTI_BUILD_REGRESSION_SIMD=NO
       DRISHTI_BUILD_REGRESSION_FIXED_POINT=NO
-      HUNTER_USE_CACHE_SERVERS=ONLY
-      HUNTER_DISABLE_BUILDS=YES
+      HUNTER_USE_CACHE_SERVERS=YES
+      HUNTER_DISABLE_BUILDS=NO
       CMAKE_INSTALL_PREFIX="`pwd`/_install"
       --test
       --jobs 8

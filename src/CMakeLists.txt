@@ -4,19 +4,44 @@ if(ANDROID)
   add_definitions(-DHALF_ENABLE_CPP11_CMATH=0)
 endif()
 
-# Disable Clang specific error
-message("CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
-message("=======")
-
 #### opencv_contrib stuff : tracking, etc
 sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
-# DRISHTI_INTERNAL_DEPENDENCIES <= used to collect internal dependencies for install()
-set(DRISHTI_INTERNAL_DEPENDENCIES "")
-
 set(LIB_TYPE STATIC)
 
-### XGBOOST ### (SUBMODULE)
+## 3rd party boost pba
+add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
+target_link_libraries(boost-pba PUBLIC Boost::boost)
+target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
+set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
+add_library(boost-pba::boost-pba ALIAS boost-pba)
+
+# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
+
+######################################
+### Initial 3RDPARTY SRC libraries ###
+######################################
+set(DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
+
+######################################
+### Initial 3RDPARTY PKG libraries ###
+######################################
+set(DRISHTI_SDK_3RDPARTY_PKG_LIBS
+  dlib::dlib
+  ${DRISHTI_SDK_BOOST_LIBS}
+  ${OpenCV_LIBS}  
+  cereal::cereal
+  Eigen::eigen
+  spdlog::spdlog
+  )
+
+if(DRISHTI_BUILD_FACE)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cvmatio::cvmatio)
+endif()
+
+###############
+### XGBOOST ###
+###############
 option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
@@ -25,14 +50,18 @@ if(DRISHTI_USE_LOCAL_XGBOOST)
   add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost)
   unset(SKIP_INSTALL CACHE)
   add_library(xgboost::xgboost ALIAS xgboost)
-  list(APPEND DRISHTI_INTERNAL_DEPENDENCIES xgboost)
+  list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS xgboost::xgboost) # Add library
+  set_property(TARGET xgboost PROPERTY FOLDER "libs/3rdparty")  
 else()
   hunter_add_package(xgboost)
   find_package(xgboost CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS xgboost::xgboost) # Add library
 endif()
 
+###################
+### OGLES_GPGPU ###
+###################
 if(DRISHTI_BUILD_OGLES_GPGPU)
-
   # Support local submodule use or external package:
   option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
 
@@ -46,85 +75,52 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     add_subdirectory( "${CMAKE_SOURCE_DIR}/src/3rdparty/ogles_gpgpu" )
     set(OGLES_GPGPU_LIB ogles_gpgpu)
     unset(SKIP_INSTALL CACHE)
-    list(APPEND DRISHTI_INTERNAL_DEPENDENCIES ogles_gpgpu)
+    add_library(ogles_gpgpu::ogles_gpgpu ALIAS ogles_gpgpu)
+    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
+    set_property(TARGET ogles_gpgpu PROPERTY FOLDER "libs/3rdparty")      
   else()
     add_definitions(-DUSE_LOCAL_OGLES_GPGPU=0)
     hunter_add_package(ogles_gpgpu)
     find_package(ogles_gpgpu CONFIG REQUIRED)
-    # TODO: Fix package includes, shouldn't need these
     include_directories("${OGLES_GPGPU_ROOT}/include/ogles_gpgpu")
     include_directories("${OGLES_GPGPU_ROOT}/include/ogles_gpgpu/common")
-    set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
+    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ogles_gpgpu::ogles_gpgpu) # Add library    
   endif()
-
+  set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 
+###########
+### EOS ###
+###########
 # Experimental functionality:
-option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" ON)
+set(EOS_LIB "")
 if(DRISHTI_BUILD_EOS)
-  option(DRISHTI_USE_LOCAL_EOS "Use local eos" ON)
-  if(DRISHTI_USE_LOCAL_EOS)
-    ## Header only eos lib for 3D-to-2D model fitting
-    include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/include")
-    include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/eos/3rdparty/glm-0.9.7.0") # TODO: hunter package
-  else()
-    hunter_add_package(eos)
-    find_package(eos CONFIG REQUIRED)
-    # TODO: unify
-  endif()
+  hunter_add_package(eos)
+  find_package(eos CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS eos::eos) # Add library
+  set(EOS_LIB eos::eos)
 endif()
 
+############
+### DEST ###
+############
 # Experimental functionality:
 if(DRISHTI_BUILD_DEST)
-  option(DRISHTI_USE_LOCAL_DEST "Use local dest" OFF)
-  set(DEST_LIB dest::dest) # else ""
-
-  if(DRISHTI_USE_LOCAL_DEST)
-    set(DEST_BUILD_EXAMPLES OFF)
-    set(DEST_WITH_OPENCV OFF)
-    option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
-    include_directories("${CMAKE_SOURCE_DIR}/src/3rdparty/dest")
-    add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/dest)
-    unset(SKIP_INSTALL CACHE)
-    set_property(TARGET dest PROPERTY FOLDER "libs/3rdparty")
-    add_library(dest::dest ALIAS dest)
-    list(APPEND DRISHTI_INTERNAL_DEPENDENCIES dest)
-  else()
-    hunter_add_package(dest)
-    find_package(dest CONFIG REQUIRED)
-  endif()
+  hunter_add_package(dest)
+  find_package(dest CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dest::dest) # Add library        
 endif()
 
-## 3rd party boost pba
-include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
-add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
-target_link_libraries(boost-pba PUBLIC Boost::boost)
-list(APPEND DRISHTI_INTERNAL_DEPENDENCIES boost-pba)
+include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/simd)
 
-include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
+if(is_linux)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS JPEG::jpeg)
+endif()
 
-set(DRISHTI_SDK_3RDPARTY_SRC_LIBS
-  ${XGBOOST_LIB}
-  ${OGLES_GPGPU_LIB}
-  ${DEST_LIB}
-  boost-pba
-  )
-
-## After finding all these create our master dependency list ##
 set(DRISHTI_SDK_3RDPARTY_LIBS
-  dlib::dlib
-  ${CMATIO_LIB}
-  ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}  
-  ${DRISHTI_SDK_BOOST_LIBS}
-  ${OpenCV_LIBS}  
-  cereal::cereal
-  Eigen::eigen
-  spdlog::spdlog
+  ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
+  ${DRISHTI_SDK_3RDPARTY_PKG_LIBS}
   )
-
-if(cvmatio_FOUND)
-  list(APPEND DRISHTI_SDK_3RDPARTY_LIBS cvmatio::cvmatio)
-endif()
 
 # Add the sub-libraries
 add_subdirectory(lib)
@@ -142,8 +138,11 @@ if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-### install ###
+##########################
+### install: boost-pba ###
+##########################
 
+# This must be in the "${drishti_targets_export_name}" exports list for static builds
 if(NOT DRISHTI_BUILD_SHARED_SDK)
   message("boost-pba install")
   install(
