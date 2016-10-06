@@ -50,10 +50,10 @@ matrix:
     # }
 
     # OSX {
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=libcxx STRIP=--strip
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=libcxx STRIP=--strip
+#    - os: osx
+#      env: CONFIG=Release TOOLCHAIN=libcxx STRIP=--strip
+#    - os: osx
+#      env: CONFIG=Debug TOOLCHAIN=libcxx STRIP=--strip
     - os: osx
       osx_image: xcode7.3
       env: CONFIG=Release TOOLCHAIN=osx-10-11
