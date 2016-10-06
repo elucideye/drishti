@@ -1,5 +1,5 @@
 # drishti
-Real time eye tracking for mobile devices.
+Real time eye tracking for embedded and mobile devices.
 
 [![Build Status](https://travis-ci.com/elucideye/drishti.svg?token=2fYtPs8x4ziLvxfp2emx&branch=master)](https://travis-ci.com/elucideye/drishti)
 [![Build status](https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true)](https://ci.appveyor.com/project/elucideye/drishti)
