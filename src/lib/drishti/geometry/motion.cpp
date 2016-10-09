@@ -8,7 +8,7 @@
 
 */
 
-#include "motion.h"
+#include "drishti/geometry/motion.h"
 
 //============================
 //== Utility =================
