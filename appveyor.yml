@@ -28,10 +28,26 @@ install:
   # Install dependencies (CMake, Ninja)
   - cmd: python %POLLY_ROOT%\bin\install-ci-dependencies.py
 
+  # Tune locations
+  - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
+  - cmd: set PATH=%cd%\_ci\ninja;%PATH%
+
   - git submodule update --init --recursive
 
+  # Remove entry with sh.exe from PATH to fix error with MinGW toolchain
+  # (For MinGW make to work correctly sh.exe must NOT be in your path)
+  # * http://stackoverflow.com/a/3870338/2288008
+  - cmd: set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+
+  # Use MinGW from Qt tools because version is higher
+  # * http://www.appveyor.com/docs/installed-software#qt
+  - cmd: set MINGW_PATH=C:\Qt\Tools\mingw492_32\bin
+
+  # MSYS2 location
+  - cmd: set MSYS_PATH=C:\msys64\usr\bin
+
 build_script:
-  - cmd: call appveyor.cmd %POLLY_ROOT%\bin\polly.py% %CONFIG% %TOOLCHAIN%
+  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --test --fwd HUNTER_USE_CACHE_SERVERS=YES DRISHTI_USE_TEXT_ARCHIVES=YES
 
 artifacts:
   - path: _builds\*\drishti-*.tar.gz
@@ -40,7 +56,7 @@ artifacts:
 deploy:
   provider: GitHub
   auth_token:
-    secure: "vxFB/5hNPqLZTSyiD3YxQVMXMmjrOyk8r/sp1GYsJ1T8o9v+wi3hjfl0W/ioSfW6"
+    secure: "U5MPrdwVvE0Xyt7KNsBHp3e03qaBZ5UTV1s7GpTYy4Jxsx6EkKsXuZzBtaDtcU12"
   artifact: /drishti-.*\.tar.gz/
   draft: false
   prerelease: false
