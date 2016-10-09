@@ -47,7 +47,7 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
-  - cmd: appveyor.cmd
+  - cmd: appveyor.cmd %POLLY_ROOT%\bin\polly.py% %CONFIG% %TOOLCHAIN%
 
 artifacts:
   - path: _builds\*\drishti-*.tar.gz
