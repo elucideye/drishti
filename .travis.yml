@@ -112,6 +112,7 @@ script:
       --toolchain ${TOOLCHAIN}
       --config ${CONFIG}
       --verbose
+      --pack TGZ
       --fwd
       DRISHTI_BUILD_REGRESSION_SIMD=NO
       DRISHTI_BUILD_REGRESSION_FIXED_POINT=NO
