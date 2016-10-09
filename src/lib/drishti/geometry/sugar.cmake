@@ -20,8 +20,6 @@ sugar_files(DRISHTI_GEOMETRY_SRCS
 
   # http://research.microsoft.com/en-us/um/people/awf/ellipse/fitellipse.html
   fitEllipse.cpp
-  conicResidualSam.cpp
-  conicResidualGeo.cpp
   conicCen2Par.cpp
   conicPar2Cen.cpp
   )
