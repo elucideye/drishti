@@ -108,7 +108,7 @@ install:
 
 script:
     - >
-      build.py
+      travis_wait 30 build.py
       --toolchain ${TOOLCHAIN}
       --config ${CONFIG}
       --verbose
