@@ -6,7 +6,7 @@
   See: http://stackoverflow.com/a/23684632
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
-  \license{This project is released under the 3 Clause BSD License.}
+  \license{This file is released under the Creative Commons License.}
 
 */
 
