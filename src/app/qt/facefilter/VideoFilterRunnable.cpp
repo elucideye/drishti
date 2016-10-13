@@ -61,7 +61,7 @@ struct VideoFilterRunnable::Impl
     {
         // Retrieve sensor intrinsic calibration:
         auto manager = FrameHandlerManager::get();
-        
+
         // Allocate the face detector:
         std::shared_ptr<drishti::face::FaceDetectorFactory> resources = std::make_shared<QtFaceDetectorFactory>();
         
@@ -75,6 +75,7 @@ struct VideoFilterRunnable::Impl
         auto *settings = manager->getSettings();
         if(settings != nullptr)
         {
+            config.frameDelay = (*settings)["frameDelay"].get<int>();
             config.doLandmarks = (*settings)["doLandmarks"].get<bool>();
             config.doFlow = (*settings)["doFlow"].get<bool>();
             config.doFlash = (*settings)["doFlash"].get<bool>();

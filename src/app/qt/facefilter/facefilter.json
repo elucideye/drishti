@@ -2,6 +2,7 @@
     "doLandmarks": true,
     "doFlow": true,
     "doFlash": true,
+    "frameDelay": 2,
     
     "0x1a11000005ac8510": {
         "description": "FaceTime HD Camera (Built-in)",

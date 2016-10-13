@@ -125,7 +125,7 @@ void FaceFinder::init(const FrameInput &frame)
 
     {
         // ### Fifo ###
-        m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(2);
+        m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(m_scenes.size());
         m_fifo->init(inputSize.width, inputSize.height, INT_MAX, false);
         m_fifo->createFBOTex(false);
     }
