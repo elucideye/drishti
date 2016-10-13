@@ -1,15 +1,45 @@
 {
-    "sensor": {
-        "intrinsic": {
-            "size": {
-                "width": 640,
-                "height": 852
-            },
-            "principal": {
-                "x": 320.0,
-                "y": 426.0
-            },
-            "focal_length_x": 768.0
+    "doLandmarks": true,
+    "doFlow": true,
+    "doFlash": true,
+    
+    "0x1a11000005ac8510": {
+        "description": "FaceTime HD Camera (Built-in)",
+
+        "detectionRange": {
+            "minDepth": 0.264,
+            "maxDepth": 0.792
+        },
+        
+        "sensor": {
+            "intrinsic": {
+                "size": {
+                    "width": 1280,
+                    "height": 720
+                },
+                "principal": {
+                    "x": 640.0,
+                    "y": 360.0
+                },
+                "focal_length_x": 1000.0
+            }
+        }
+    },
+
+    "0xAAAAAAAAAAAAAAAA": {
+        "description": "iPhone 4",        
+        "sensor": {
+            "intrinsic": {
+                "size": {
+                    "width": 640,
+                    "height": 852
+                },
+                "principal": {
+                    "x": 320.0,
+                    "y": 426.0
+                },
+                "focal_length_x": 768.0
+            }
         }
     }
 }
