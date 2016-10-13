@@ -76,12 +76,18 @@ public:
         std::shared_ptr<spdlog::logger> logger;
         std::shared_ptr<ThreadPool<128>> threads;        
         int outputOrientation = 0;
-        int delay = 1;
+        int frameDelay = 1;
+        bool doLandmarks = true;
+        bool doFlow = true;
+        bool doFlash = false;
     };
 
     FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &config, void *glContext = nullptr);
 
     virtual GLuint operator()(const FrameInput &frame);
+    
+    void setMaxDistance(float meters);
+    void setMinDistance(float meters);
 
 protected:
 
@@ -112,11 +118,11 @@ protected:
 
     drishti::acf::Detector::Pyramid m_P;
 
-    bool m_doRegression = false;
-    int m_regressionWidth = 256;
+    float m_minDistanceMeters = 0.f;
+    float m_maxDistanceMeters = 10.0f;
 
-    bool m_doCorners = false;
-    int m_cornerWidth = 256;
+    bool m_doLandmarks = false;
+    int m_landmarksWidth = 256;
 
     bool m_doFlow = false;
     int m_flowWidth = 256;
