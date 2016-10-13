@@ -6,8 +6,6 @@ set -e
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_HOME
 echo $ANDROID_SDK_ROOT
 
-CMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
-
 CPACK_TYPE=TGZ
 
 HUNTER_CONFIGURATION_TYPES=Release
