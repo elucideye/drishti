@@ -70,9 +70,21 @@ struct VideoFilterRunnable::Impl
         config.logger = manager->getLogger();
         config.threads = manager->getThreadPool();
         config.outputOrientation = orientation;
-        config.delay = 1;
+        config.frameDelay = 1; // 1 frame delay
         
+        auto *settings = manager->getSettings();
+        if(settings != nullptr)
+        {
+            config.doLandmarks = (*settings)["doLandmarks"].get<bool>();
+            config.doFlow = (*settings)["doFlow"].get<bool>();
+            config.doFlash = (*settings)["doFlash"].get<bool>();
+        }
+
         m_detector = std::make_shared<FaceFinder>(resources, config, glContext);
+        
+        // Set detection range:
+        m_detector->setMinDistance(0.f);
+        m_detector->setMaxDistance(manager->getDetectionParameters().m_maxDepth);
     }
 
     GLuint operator()(const ogles_gpgpu::FrameInput &frame)
