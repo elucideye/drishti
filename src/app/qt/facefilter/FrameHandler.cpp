@@ -33,9 +33,18 @@
 
 FrameHandlerManager * FrameHandlerManager::m_instance = nullptr;
 
-FrameHandlerManager::FrameHandlerManager(Settings *settings) : m_settings(settings)
+FrameHandlerManager::FrameHandlerManager(Settings *settings, const std::string &name, const std::string &description)
+: m_settings(settings)
 {
-    const auto &intrinsic = (*settings)["sensor"]["intrinsic"];
+    // TODO: Exception on failure:
+    const auto &device = (*settings)[name];
+    
+    // Parse detection parameters (minDepth, maxDepth)
+    m_detectionParams.m_minDepth = device["detectionRange"]["minDepth"];
+    m_detectionParams.m_maxDepth = device["detectionRange"]["maxDepth"];
+
+    const auto &sensor = device["sensor"];
+    const auto &intrinsic = sensor["intrinsic"];
     
     cv::Size size;
     size.width = intrinsic["size"]["width"].get<int>();
@@ -48,13 +57,12 @@ FrameHandlerManager::FrameHandlerManager(Settings *settings) : m_settings(settin
     const auto fx = intrinsic["focal_length_x"].get<float>();
     
     drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
+    m_sensor = std::make_shared<drishti::sensor::SensorModel>(params);
     
     m_logger = drishti::core::Logger::create("drishti");
     m_logger->info() << "FaceFinder #################################################################";
     
     m_threads = std::unique_ptr<ThreadPool<128>>(new ThreadPool<128>);
-    
-    m_sensor = std::make_shared<drishti::sensor::SensorModel>(params);
 }
 
 FrameHandlerManager::~FrameHandlerManager()
@@ -79,11 +87,12 @@ cv::Size FrameHandlerManager::getSize() const
     return m_sensor ? m_sensor->intrinsic().getSize() : cv::Size(0,0);
 }
 
-FrameHandlerManager * FrameHandlerManager::get(nlohmann::json *settings)
+FrameHandlerManager *
+FrameHandlerManager::get(nlohmann::json *settings, const std::string &name, const std::string &description)
 {
     if(!m_instance)
     {
-        m_instance = new FrameHandlerManager(settings);
+        m_instance = new FrameHandlerManager(settings, name, description);
     }
     return m_instance;
 }
