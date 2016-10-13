@@ -84,7 +84,7 @@ struct VideoFilterRunnable::Impl
         m_detector = std::make_shared<FaceFinder>(resources, config, glContext);
         
         // Set detection range:
-        m_detector->setMinDistance(0.f);
+        m_detector->setMinDistance(manager->getDetectionParameters().m_minDepth);
         m_detector->setMaxDistance(manager->getDetectionParameters().m_maxDepth);
     }
 
