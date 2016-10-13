@@ -119,6 +119,16 @@ public:
     //===========================
     //========= LINES ===========
     //===========================
+    
+    // Get input line drawing list:
+    std::vector<LineDrawing>& getPermanentLineDrawings()
+    {
+        return m_permanentDrawings;
+    }
+    const std::vector<LineDrawing>& getPermanentLineDrawings() const
+    {
+        return m_permanentDrawings;
+    }
 
     // Get input line drawing list:
     std::vector<LineDrawing>& getLineDrawings()
@@ -154,7 +164,7 @@ public:
     void setFlashTexture(GLint texIdx, const ogles_gpgpu::Size2d &size)
     {
         const int flashWidth = outFrameW/4;
-        Size2d flashSize(flashWidth, flashWidth * m_flashInfo.size.height / m_flashInfo.size.width);
+        Size2d flashSize(flashWidth, flashWidth * size.height / size.width);
         Rect2d flashRoi(0, (outFrameH/2)-(flashSize.height/2), flashSize.width, flashSize.height);
         m_flashInfo = { texIdx, size, flashRoi };
     }
@@ -185,8 +195,8 @@ public:
         const int maxWidth = 480;
         const int width = std::min(maxWidth, outFrameW);
         Rect2d eyesRoi(0, 0, width, width * size.height/size.width);
-        eyesRoi.x = outFrameW / 2;
-        eyesRoi.y = eyesRoi.height / 2;
+        eyesRoi.x = (outFrameW / 2) - (size.width / 2);
+        eyesRoi.y = eyesRoi.height / 4;
 
         m_eyesInfo = { texIdx, size, eyesRoi };
 
@@ -204,7 +214,7 @@ public:
     void renderTex( DisplayTexture &texInfo);
     void filterRenderPrepareTex( DisplayTexture &texInfo);
     void filterRenderSetCoordsTex( DisplayTexture &texInfo);
-
+    
 private:
 
     cv::Matx33f uprightImageToTexture();
@@ -233,10 +243,11 @@ private:
     int m_outputOrientation = 0;
 
     uint64_t m_frameIndex = 0;
-
+    
     // Generic line drawings (debugging) and colors:
     std::vector<cv::Vec3f> m_colorBuf;
     std::vector<LineDrawing> m_drawings;
+    std::vector<LineDrawing> m_permanentDrawings; // not erased
 
     // #### Face list
     std::vector<drishti::face::FaceModel> m_faces;
