@@ -133,12 +133,13 @@ script:
       HUNTER_USE_CACHE_SERVERS=ONLY
       HUNTER_DISABLE_BUILDS=YES
       --test
+      --archive drishti
       --jobs 8
       ${INSTALL}
 
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
-    - export FILE_TO_UPLOAD=$(ls _builds/*/drishti*.tar.gz)
+    - export FILE_TO_UPLOAD=$(ls _archives/drishti-*.tar.gz)
 
 deploy:
   provider: releases
