@@ -82,11 +82,15 @@ env:
   global:
     - secure: "Ec8m7rRDtzKvwEQMGub9miWddxfp0AiSNTX7aRKI6zs/QSdo5gFnbCwC7DJHNnVxdDINke/ZmaPuE/Yopa079ODFY9aq9zdhNi96phTB2zVIWLfRt2e4lNTRE1zsEODuSc3aSQL56rifeqe25mXe9dhNsGxu3aLFeJZ7RhVJ1GnUoM8G7d9GqCSTJKo+nuM4Ujo39hDbqOZE0zTxjCcIbTcGuYkRJpMHland+8SjxSYR0D4+9JFRqJx/mEJh0cTrmS0lyR8+iRe2fscrPbVfnfkKzy//JSVGjkIJ/qvLHWq4eTIPPsDMaV9BgXfjmD94EFW1KTMxfJh6/v57ACLGnbzAD1wfVeI0MD0s3bPdLnG3QyokXmvxT4vM4xtl/TtnZyRok0rmyQGjUMDIr/P3lHAmGm35d3udM5FvC3m5+k/0VirZ2ghhAoCIxn+i2YHHMIvAO3GulfJpQ3VPQf3uqMCq2unMXaIWEh6/OlfDhJRV3vJxaQN2Rq/nNRcp3o4dNEuTbJdW1weBjJfEyBoLylhacU7KH/eCYwnk2DYxzY7UIfhJHGT1tv+E2Z+lrpVZSeumz8/Gz5Eo530+kd63Hgw0NJd2pL7cxWruCApNxj9B5Z6ca7QP9knvQ8NFnnFe9fRPJh7AELcm1QA78TgoGsuEi9mJ5pZQKeGtmGrNfiU="
 
+# disable the default submodule logic to support local modification of .gitmodules paths
+git:
+  submodules: false
+      
 # See https://docs.travis-ci.com/user/private-dependencies/#API-Token
 # CI_USER_TOKEN is added to .travis.yml settings
 before_install:
   - sed -i -E 's|https://github.com/elucideye/drishti-upload|https://${CI_USER_TOKEN}@github.com/elucideye/drishti-upload|g' .gitmodules
-  - echo -e "machine github.com\n  login $CI_USER_TOKEN" >> ~/.netrc
+  - git submodule update --init --recursive
 
 install:
   # Info about OS
