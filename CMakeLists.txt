@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/cmake/Modules")
 
 include("cmake/HunterGate.cmake")
 ### Hunter snapshot that will be used ###
@@ -11,7 +12,7 @@ list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 HunterGate(
   URL "https://github.com/ruslo/hunter/archive/v0.16.8.tar.gz"
   SHA1 "3432a4ce48b1de653e15f6a21851599337b15202"
-  LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
+  FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
