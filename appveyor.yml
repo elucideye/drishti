@@ -3,7 +3,7 @@ environment:
   global:
     CI_USER_TOKEN:
       secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
-  
+
   matrix:
 
     - TOOLCHAIN: "vs-14-2015"
@@ -17,7 +17,7 @@ environment:
 
     - TOOLCHAIN: "vs-14-2015-win64"
       CONFIG: Debug
-    
+
 install:
   # Python 3
   - cmd: set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
@@ -35,7 +35,8 @@ install:
 
   # Tune locations
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
-    
+  - cmd: set PATH=%cd%\_ci\ninja;%PATH%
+
   - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
 
   # Add '--quiet' to avoid leaking the token to logs
