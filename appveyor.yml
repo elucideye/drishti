@@ -34,6 +34,8 @@ install:
   - cmd: python %POLLY_ROOT%\bin\install-ci-dependencies.py
 
   # Tune locations
+  - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
+    
   - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
   - cmd: git submodule update --init --recursive --quiet
 
