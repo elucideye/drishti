@@ -37,6 +37,8 @@ install:
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
     
   - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
+
+  # Add '--quiet' to avoid leaking the token to logs
   - cmd: git submodule update --init --recursive --quiet
 
   # Remove entry with sh.exe from PATH to fix error with MinGW toolchain
