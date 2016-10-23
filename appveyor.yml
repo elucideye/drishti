@@ -1,6 +1,7 @@
 environment:
 
   global:
+    MY_USER_TOKEN: test_token
     CI_USER_TOKEN:
       secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
   
@@ -37,6 +38,7 @@ install:
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
   - cmd: set PATH=%cd%\_ci\ninja;%PATH%
 
+  - ps: Write-Host "CHECK " ${Env:MY_USER_TOKEN} " == test_token"
   - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
   - cmd: git submodule update --init --recursive
 
