@@ -13,6 +13,12 @@ environment:
     - TOOLCHAIN: "vs-14-2015-win64"
       CONFIG: Debug
 
+
+environment:
+  global:
+    CI_USER_TOKEN:
+      secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
+    
 install:
   # Python 3
   - cmd: set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
@@ -32,7 +38,8 @@ install:
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
   - cmd: set PATH=%cd%\_ci\ninja;%PATH%
 
-  - git submodule update --init --recursive
+  - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://%CI_USER_TOKEN%@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
+  - cmd: git submodule update --init --recursive
 
   # Remove entry with sh.exe from PATH to fix error with MinGW toolchain
   # (For MinGW make to work correctly sh.exe must NOT be in your path)
