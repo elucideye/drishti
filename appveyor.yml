@@ -1,4 +1,9 @@
 environment:
+
+  global:
+    CI_USER_TOKEN:
+      secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
+  
   matrix:
 
     - TOOLCHAIN: "vs-14-2015"
@@ -12,12 +17,6 @@ environment:
 
     - TOOLCHAIN: "vs-14-2015-win64"
       CONFIG: Debug
-
-
-environment:
-  global:
-    CI_USER_TOKEN:
-      secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
     
 install:
   # Python 3
