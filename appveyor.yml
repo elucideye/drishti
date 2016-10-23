@@ -37,7 +37,7 @@ install:
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
   - cmd: set PATH=%cd%\_ci\ninja;%PATH%
 
-  - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', "https://%CI_USER_TOKEN%@github.com/elucideye/drishti-upload") | Set-Content .gitmodules
+  - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', "https://$(CI_USER_TOKEN)@github.com/elucideye/drishti-upload") | Set-Content .gitmodules
   - cmd: git submodule update --init --recursive
 
   # Remove entry with sh.exe from PATH to fix error with MinGW toolchain
