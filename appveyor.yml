@@ -1,4 +1,9 @@
 environment:
+
+  global:
+    CI_USER_TOKEN:
+      secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
+
   matrix:
 
     - TOOLCHAIN: "vs-14-2015"
@@ -32,7 +37,10 @@ install:
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
   - cmd: set PATH=%cd%\_ci\ninja;%PATH%
 
-  - git submodule update --init --recursive
+  - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
+
+  # Add '--quiet' to avoid leaking the token to logs
+  - cmd: git submodule update --init --recursive --quiet
 
   # Remove entry with sh.exe from PATH to fix error with MinGW toolchain
   # (For MinGW make to work correctly sh.exe must NOT be in your path)
@@ -47,7 +55,7 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
-  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --test --fwd HUNTER_USE_CACHE_SERVERS=YES DRISHTI_USE_TEXT_ARCHIVES=YES --install
+  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --test --fwd HUNTER_USE_CACHE_SERVERS=ONLY HUNTER_DISABLE_BUILDS=YES DRISHTI_USE_TEXT_ARCHIVES=YES --install
 
 artifacts:
   - path: _builds\*\drishti-*.tar.gz
