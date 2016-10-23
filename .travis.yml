@@ -90,7 +90,7 @@ git:
 # CI_USER_TOKEN is added to .travis.yml settings
 before_install:
   - sed -i -E "s|https://github.com/elucideye/drishti-upload|https://${CI_USER_TOKEN}@github.com/elucideye/drishti-upload|g" .gitmodules
-  - git submodule update --init --recursive
+  - git submodule update --init --recursive --quiet
 
 install:
   # Info about OS

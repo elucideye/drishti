@@ -1,11 +1,6 @@
 environment:
 
   global:
-    MY_USER_TOKEN: test_token
-
-    MY_SECRET_TOKEN:
-      secure: aTBA8BGxAvi7Y35zQDG94g==
-
     CI_USER_TOKEN:
       secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
   
@@ -39,13 +34,8 @@ install:
   - cmd: python %POLLY_ROOT%\bin\install-ci-dependencies.py
 
   # Tune locations
-  - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
-  - cmd: set PATH=%cd%\_ci\ninja;%PATH%
-
-  - ps: Write-Host "MY_USER_TOKEN " ${Env:MY_USER_TOKEN} " == test_token"
-  - ps: Write-Host "MY_SECRET_TOKEN "  ${Env:MY_SECRET_TOKEN} " == test_token"
   - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
-  - cmd: git submodule update --init --recursive
+  - cmd: git submodule update --init --recursive --quiet
 
   # Remove entry with sh.exe from PATH to fix error with MinGW toolchain
   # (For MinGW make to work correctly sh.exe must NOT be in your path)
