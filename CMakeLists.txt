@@ -166,16 +166,7 @@ endif()
 # XGBoost has replaced all previous regression
 add_definitions(-DHAS_XGBOOST=1)
 
-# Desired behavior:
-set(PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
-set(DRISHTI_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-set(CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${DRISHTI_INSTALL_DIR}")
-
-message("DRISHTI_INSTALL_DIR=${DRISHTI_INSTALL_DIR}")
-message("CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
-if(MSVC)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
+message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 #######################################################################################
 #### https://github.com/forexample/github-binary-release/blob/master/CMakeLists.txt ###
