@@ -6,16 +6,16 @@ environment:
 
   matrix:
 
-    - TOOLCHAIN: "vs-14-2015"
+    - TOOLCHAIN: "vs-14-2015-sdk-8-1"
       CONFIG: Release
 
-    - TOOLCHAIN: "vs-14-2015"
+    - TOOLCHAIN: "vs-14-2015-sdk-8-1"
       CONFIG: Debug
 
-    - TOOLCHAIN: "vs-14-2015-win64"
+    - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Release
 
-    - TOOLCHAIN: "vs-14-2015-win64"
+    - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Debug
 
 install:
