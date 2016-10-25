@@ -62,10 +62,10 @@ matrix:
       env: CONFIG=Debug TOOLCHAIN=osx-10-11 INSTALL=--install
     - os: osx
       osx_image: xcode7.3
-      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3 INSTALL=--install
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3-device INSTALL=--install
     - os: osx
       osx_image: xcode7.3
-      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3 INSTALL=--install
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3-device INSTALL=--install
     - os: osx
       osx_image: xcode7.3
       env: CONFIG=Release TOOLCHAIN=osx-10-11-sanitize-address INSTALL=--install
