@@ -122,11 +122,13 @@ install:
   - export ANDROID_NDK_r10e="`pwd`/_ci/android-ndk-r10e"
 
 script:
+    # '--ios-{multiarch,combined}' do nothing for non-iOS builds
     - >
       build.py
       --toolchain ${TOOLCHAIN}
       --config ${CONFIG}
       --verbose
+      --ios-multiarch --ios-combined
       --fwd
       DRISHTI_BUILD_REGRESSION_SIMD=NO
       DRISHTI_BUILD_REGRESSION_FIXED_POINT=NO
