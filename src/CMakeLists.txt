@@ -66,7 +66,6 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
 
   if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
-    add_definitions(-DUSE_LOCAL_OGLES_GPGPU=1)
     option(SKIP_INSTALL "Avoid installation of submodule libraries"  ON)
     option(OGLES_GPGPU_BUILD_EXAMPLES "Don't build examples" OFF)
     add_subdirectory( "${CMAKE_SOURCE_DIR}/src/3rdparty/ogles_gpgpu" )
@@ -76,7 +75,6 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
     set_property(TARGET ogles_gpgpu PROPERTY FOLDER "libs/3rdparty")      
   else()
-    add_definitions(-DUSE_LOCAL_OGLES_GPGPU=0)
     hunter_add_package(ogles_gpgpu)
     find_package(ogles_gpgpu CONFIG REQUIRED)
     list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ogles_gpgpu::ogles_gpgpu) # Add library    
