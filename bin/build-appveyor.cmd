@@ -6,7 +6,7 @@
 ::
 :: See: http://stackoverflow.com/a/37647169
 
-python polly.py ^
+python %POLLY_ROOT%\bin\polly.py ^
 --verbose ^
 --pack TGZ ^
 --config "%1%" ^
