@@ -55,7 +55,7 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
   # Add path to polly.py for build_script
-  - cmd: set PATH=%PATH;%POLLY_ROOT%\bin
+  - cmd: set PATH=%PATH%;%POLLY_ROOT%\bin
 
 build_script:
   - cmd: bin\build-appveyor.cmd %CONFIG% %TOOLCHAIN%
