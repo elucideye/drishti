@@ -11,22 +11,22 @@ fi
 
 rename_tab drishti $TOOLCHAIN
 
-COMMAND=(
+COMMANDS=(
     "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=8.0 "
     "--config Release "
     "--framework-device "
+    "--ios-multiarch --ios-combined --archive drishti"
     "--install "
     "--jobs 8 "
     "--open "
     "--plist \"${DRISHTISDK}/cmake/framework/Info.plist\" "
-    "--identity "${IOS_IDENTITY}" "
     "${EXTRA_ARGS} "
 )
 
-build.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]}
+build.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]} --identity "${IOS_IDENTITY}"
 
 
 
