@@ -22,7 +22,7 @@ COMMANDS=(
     "--install "
     "--jobs 8 "
     "--open "
-    "--plist \"${DRISHTISDK}/cmake/framework/Info.plist\" "
+    "--plist ${DRISHTISDK}/cmake/framework/Info.plist "
     "${EXTRA_ARGS} "
 )
 
