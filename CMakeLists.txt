@@ -10,8 +10,8 @@ include("cmake/HunterGate.cmake")
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.16.8.tar.gz"
-  SHA1 "3432a4ce48b1de653e15f6a21851599337b15202"
+  URL "https://github.com/ruslo/hunter/archive/v0.16.18.tar.gz"
+  SHA1 "9982c662db74e977772dba6cc44ab703e9fc7c2b"
   FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
@@ -166,16 +166,7 @@ endif()
 # XGBoost has replaced all previous regression
 add_definitions(-DHAS_XGBOOST=1)
 
-# Desired behavior:
-set(PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
-set(DRISHTI_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-set(CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${DRISHTI_INSTALL_DIR}")
-
-message("DRISHTI_INSTALL_DIR=${DRISHTI_INSTALL_DIR}")
-message("CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
-if(MSVC)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
+message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 #######################################################################################
 #### https://github.com/forexample/github-binary-release/blob/master/CMakeLists.txt ###
