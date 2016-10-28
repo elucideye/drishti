@@ -5,6 +5,8 @@
 export DEVELOPER_DIR=/Applications/develop/ide/xcode/8.0/Xcode.app/Contents/Developer
 xcodebuild -version
 
+export XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="7E5VP8ABCU"
+
 . ${DRISHTISDK}/bin/toolchains.sh
 
 set -e
