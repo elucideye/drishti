@@ -54,6 +54,8 @@ install:
   # MSYS2 location
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
+  - cmd: echo OK HERE
+
 build_script:
   - cmd: bin\build-appveyor.cmd %CONFIG% %TOOLCHAIN%
 
