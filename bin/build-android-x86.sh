@@ -2,7 +2,7 @@
 
 . ${DRISHTISDK}/bin/build-common.sh
 
-TOOLCHAIN=android-ndk-r10e-api-16-x86-hid
+TOOLCHAIN=android-ndk-r10e-api-16-x86-hid-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then

@@ -29,7 +29,7 @@ done
 
 ### Model data
 mkdir -p ${DRISHTI_DIR}/assets
-cp  ${DRISHTISDK}/assets/drishti_npd_eye_full.pba.z ${DRISHTI_DIR}/assets/drishti_eye_eix.pba.z
+cp  ${DRISHTISDK}/assets/drishti_eye_full_npd_eix.pba.z ${DRISHTI_DIR}/assets/drishti_eye_eix.pba.z
 
 ### License
 

@@ -10,8 +10,8 @@ include("cmake/HunterGate.cmake")
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.16.18.tar.gz"
-  SHA1 "9982c662db74e977772dba6cc44ab703e9fc7c2b"
+  URL "https://github.com/ruslo/hunter/archive/v0.16.21.tar.gz"
+  SHA1 "9fc322a343686de97e32feb4b7445133253ee321"
   FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
@@ -23,7 +23,7 @@ if(travis_deploy)
 elseif(appveyor_deploy)
   set(version "$ENV{APPVEYOR_REPO_TAG_NAME}")
 else()
-  set(version "v0.7.1")
+  set(version "v0.7.2")
 endif()
 
 string(REGEX REPLACE "^v" "" version "${version}")

@@ -2,7 +2,7 @@
 
 . ${DRISHTISDK}/bin/build-common.sh
 
-TOOLCHAIN=libcxx-hid
+TOOLCHAIN=libcxx-hid-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
@@ -21,6 +21,7 @@ COMMAND=(
     "--pack ${CPACK_TYPE} "
     "--strip "
     "--jobs 8 "
+    "--test "
     "${EXTRA_ARGS} "
 )
 

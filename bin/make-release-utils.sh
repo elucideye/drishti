@@ -55,7 +55,7 @@ function export_dependencies
     HUNTER_INSTALL_DIR=$3
 
     ### Install opencv and common dependencies only (minimize export of utility libs)
-	EXCLUSION="dlib|boost|csv_parser|CsvParser|cvmatio|eigen3|cascades|yuv|simple-gbdt|xgboost|GPUImage|cereal|gtest|spdlog|half"
+	EXCLUSION="dlib|/boost|boost_|cvmatio|eigen3|cascades|yuv|simple-gbdt|GPUImage|cereal|gtest|gmock|spdlog|half|thread_pool|thread-pool"
     [ -f /tmp/staging.tar ] && rm /tmp/staging.tar
     (cd ${HUNTER_INSTALL_DIR}; find . | grep -i -E "${EXCLUSION}" > /tmp/Exclude && tar cfX /tmp/staging.tar /tmp/Exclude .)
     (cd ${EXPORT_DIR} && mkdir 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
@@ -67,6 +67,8 @@ function make_release
     EXPORT_DIR=$2
     IS_RELEASE=$3
     INSTALL_DIR=$4
+
+    echo $@
 
     ### Compute Hunter CONIG_ID and TOOLCHAIN_ID
     BUILD_DIR=${INSTALL_DIR}/_builds/${TOOLCHAIN}
@@ -86,7 +88,7 @@ function make_release
     ### Prerequisites
     [ ! -d ${INSTALL_DIR}/_install/${TOOLCHAIN} ] && >&2 echo "Requested build does not exist for toolchain ${TOOLCHAIN}.  Export failed" && exit 1 
     [ ! -d ${HUNTER_INSTALL_DIR} ] && >&2 echo "Hunter build tree does not exist for toolchain ${TOOLCHAIN}.  Export failed" && exit 1 
-
+    
     ### Install the drishti libs
     # Clean the existing deps and start anew
     [ -d ${EXPORT_DIR} ] && rm -rf ${EXPORT_DIR}
