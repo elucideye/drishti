@@ -64,7 +64,7 @@ artifacts:
 deploy:
   provider: GitHub
   auth_token:
-    secure: "iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX"
+    secure: "vxFB/5hNPqLZTSyiD3YxQVMXMmjrOyk8r/sp1GYsJ1T8o9v+wi3hjfl0W/ioSfW6"
   artifact: /drishti-.*\.tar.gz/
   draft: false
   prerelease: false
