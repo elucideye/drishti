@@ -26,8 +26,6 @@ std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel
     eyes[0].eye = face.eyeFullR;
     eyes[1].eye = face.eyeFullL;
 
-    //eyes[0].H = eyes[1].H = cv::Matx33f::eye();
-
     return eyes;
 }
 

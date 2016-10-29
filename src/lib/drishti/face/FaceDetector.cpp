@@ -44,8 +44,6 @@ static cv::Matx33f denormalize(const cv::Rect &roi)
     return (C2 * S * C1);
 }
 
-
-
 // ((((((((((((((( Impl )))))))))))))))
 class FaceDetector::Impl
 {

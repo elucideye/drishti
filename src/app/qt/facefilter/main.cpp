@@ -130,7 +130,7 @@ int main(int argc, char **argv)
     logger->info() << "device: " << qmlCameraManager->getDeviceName();
     logger->info() << "description: " << qmlCameraManager->getDescription();
     
-    auto frameHandlers = FrameHandlerManager::get(&json);
+    auto frameHandlers = FrameHandlerManager::get(&json, qmlCameraManager->getDeviceName(), qmlCameraManager->getDescription());
     if(frameHandlers && qmlCameraManager)
     {
         frameHandlers->setOrientation(qmlCameraManager->getOrientation());

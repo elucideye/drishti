@@ -30,21 +30,26 @@ namespace drishti
 };
 
 namespace spdlog { class logger; }
-
 // *INDENT-ON*
 
 class FrameHandlerManager
 {
 public:
-
+    
+    struct DetectionParams
+    {
+        float m_minDepth; // meters
+        float m_maxDepth; // meters
+    };
+    
     using Settings=nlohmann::json;
     typedef std::function<void(const cv::Mat &)> FrameHandler;
     
-    FrameHandlerManager(Settings *settings=nullptr);
+    FrameHandlerManager(Settings *settings, const std::string &name, const std::string &description);
     
     ~FrameHandlerManager();
     
-    static FrameHandlerManager *get(Settings *settings=nullptr);
+    static FrameHandlerManager *get(Settings *settings=nullptr, const std::string &name={}, const std::string &description={});
 
     int getOrientation() const
     {
@@ -54,6 +59,12 @@ public:
     void setOrientation(int orientation)
     {
         m_orientation = orientation;
+    }
+    
+    void setDeviceInfo(const std::string &name, const std::string &description)
+    {
+        m_deviceName = name;
+        m_deviceDescription = description;
     }
     
     void setSize(const cv::Size &size);
@@ -84,10 +95,24 @@ public:
     {
         return m_threads;
     }
+    
+    const DetectionParams & getDetectionParameters()
+    {
+        return m_detectionParams;
+    }
+    
+    Settings * getSettings() { return m_settings; }
+    const Settings * getSettings() const { return m_settings; }
 
 protected:
 
     Settings *m_settings = nullptr;
+    
+    DetectionParams m_detectionParams;
+    
+    std::string m_deviceName;
+    
+    std::string m_deviceDescription;
     
     int m_orientation = 0;
     

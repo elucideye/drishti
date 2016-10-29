@@ -8,8 +8,6 @@ echo $ANDROID_SDK_ROOT
 
 IOS_IDENTITY="iPhone Developer: David Hirvonen (7YLQXWH6FK)"
 
-CMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
-
 HUNTER_CONFIGURATION_TYPES=Release
 DRISHTI_BUILD_ACF=OFF
 DRISHTI_BUILD_FACE=OFF

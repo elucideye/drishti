@@ -175,6 +175,8 @@ cv::Matx33f FacePainter::uprightImageToTexture()
 void FacePainter::renderDrawings()
 {
     DrawingSpec lines(GL_LINES);
+    
+    std::copy(m_permanentDrawings.begin(), m_permanentDrawings.end(), std::back_inserter(m_drawings));
 
     glLineWidth(3.0);
     for(const auto &e : m_drawings)

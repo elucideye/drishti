@@ -87,7 +87,7 @@ int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Vec<T,3> &l, cv::Vec<
     }
     else
     {
-        const auto delta = (p1Cp2*p2Cp2) - (p1Cp1*p2Cp2);
+        const auto delta = (p1Cp2*p1Cp2) - (p1Cp1*p2Cp2);
         if(delta >= T(0.0))
         {
             n = 2;

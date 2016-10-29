@@ -9,7 +9,6 @@
 */
 
 #include "FaceFinder.h"
-#include "QtFaceDetectorFactory.h"
 #include "gpu/FacePainter.h"
 #include "gpu/FlashFilter.h"
 
@@ -17,6 +16,7 @@
 #include "drishti/eye/gpu/EllipsoPolarWarp.h"
 #include "drishti/eye/gpu/EyeWarp.h"
 #include "drishti/core/Logger.h"
+#include "drishti/core/drishti_operators.h"
 #include "drishti/face/FaceDetectorAndTracker.h"
 #include "drishti/face/FaceModelEstimator.h"
 #include "drishti/face/FaceDetector.h"
@@ -26,74 +26,67 @@
 
 #include <vector>
 
-#define DRISHTI_FACEFILTER_DO_TRACKING 1
-#define DRISHTI_FACEFILTER_DO_CORNERS 0
-#define DRISHTI_FACEFILTER_DO_FLASH 0
-#define DRISHTI_FACEFILTER_DO_REGRESSION 1
-#define DRISHTI_FACEFILTER_DO_FLOW 1
-#define DRISHTI_FACEFILTER_DO_FLOW_QUIVER 0
-#define DRISHTI_FACEFILTER_DO_ACF_MODIFY 0
+#define DRISHTI_FACEFILTER_LANDMARKS_WIDTH 1024
 
-// Macbook (iSight)
-#define DRISHTI_FACEFILTER_REGRESSION_WIDTH 1024
+#define DRISHTI_FACEFILTER_FLOW_WIDTH 256
+#define DRISHTI_FACEFILTER_DO_FLOW_QUIVER 0 // *** display ***
+#define DRISHTI_FACEFILTER_DO_CORNER_PLOT 1 // *** display ***
+
+#define DRISHTI_FACEFILTER_FLASH_WIDTH 128
+
 #define DRISHTI_FACEFILTER_DETECTION_WIDTH 512
-
-using drishti::face::operator*;
+#define DRISHTI_FACEFILTER_DO_TRACKING 1
+#define DRISHTI_FACEFILTER_DO_ACF_MODIFY 0
 
 static const char * sBar = "#################################################################";
 
-// Local template definitions:
-template <typename T1, typename T2>
-cv::Rect operator *(const cv::Rect_<T1> &roi, const T2 &scale)
-{
-    return cv::Rect_<T1>(roi.x * scale, roi.y * scale, roi.width * scale, roi.height * scale);
-}
+// === utility ===
 
-template <typename T1, typename T2>
-std::vector<T1> operator *(const std::vector<T1> &src, const T2 &scale)
-{
-    auto dst = src;
-    for(auto &r : dst)
-    {
-        r = r * scale;
-    }
-    return dst;
-}
+using drishti::face::operator*;
+using drishti::core::operator*;
 
-template <typename T1, typename T2>
-cv::Size_<T1> operator*(const cv::Size_<T1> &size, const T2 &scale)
-{
-    return cv::Size_<T1>(T2(size.width) * scale, T2(size.height) * scale);
-}
+static int getDetectionImageWidth(float, float, float, float, float);
 
-#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER
+#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
 static cv::Size uprightSize(const cv::Size &size, int orientation);
 static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, ScenePrimitives &scene, float flowScale = 1.f);
 static void extractCorners(const cv::Mat1b &corners, ScenePrimitives &scene, float flowScale = 1.f);
 #endif
 
-
-// === utility ===
-
 FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &args, void *glContext)
     : m_glContext(glContext)
     , m_hasInit(false)
     , m_outputOrientation(args.outputOrientation)
-    , m_doRegression(DRISHTI_FACEFILTER_DO_REGRESSION) // ########## DO REGRESSION #########
-    , m_regressionWidth(DRISHTI_FACEFILTER_REGRESSION_WIDTH)
-    , m_doCorners(DRISHTI_FACEFILTER_DO_CORNERS)
-    , m_cornerWidth(512)
-    , m_doFlow(DRISHTI_FACEFILTER_DO_FLOW)  // ######## DO FLOW #########
-    , m_flowWidth(128)
-    , m_doFlash(DRISHTI_FACEFILTER_DO_FLASH) // ###### DO FLASH ##########
-    , m_flashWidth(128)
-    , m_scenes(args.delay+1)
+
+    // ######## DO Landmarks #########
+    , m_doLandmarks(args.doLandmarks)
+    , m_landmarksWidth(DRISHTI_FACEFILTER_LANDMARKS_WIDTH)
+
+    // ######## DO FLOW #########
+    , m_doFlow(args.doFlow)
+    , m_flowWidth(DRISHTI_FACEFILTER_FLOW_WIDTH)
+
+    // ###### DO FLASH ##########
+    , m_doFlash(args.doFlash)
+    , m_flashWidth(DRISHTI_FACEFILTER_FLASH_WIDTH)
+
+    , m_scenes(args.frameDelay+1)
     , m_factory(factory)
     , m_sensor(args.sensor)
     , m_logger(args.logger)
     , m_threads(args.threads)
 {
-  
+    int pause = 1;
+}
+
+void FaceFinder::setMinDistance(float meters)
+{
+    m_minDistanceMeters = meters;
+}
+
+void FaceFinder::setMaxDistance(float meters)
+{
+    m_maxDistanceMeters = meters;
 }
 
 void FaceFinder::dump(std::vector<cv::Mat4b> &frames)
@@ -131,18 +124,24 @@ void FaceFinder::init(const FrameInput &frame)
 
     {
         // ### Fifo ###
-        m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(2);
+        m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(m_scenes.size());
         m_fifo->init(inputSize.width, inputSize.height, INT_MAX, false);
         m_fifo->createFBOTex(false);
     }
-
+    
+    std::vector<cv::Size> pyramidSizes;
+    
     {
         // ### ACF (Transpose) ###
+        // Find the detection image width required for object detection at the max distance:
+        int detectionWidth = DRISHTI_FACEFILTER_DETECTION_WIDTH;
+        {
+            const float faceWidthMeters = 0.120; // TODO
+            const float fx = m_sensor->intrinsic().m_fx;
+            const float winSize = m_detector->getWindowSize().width;
+            detectionWidth = getDetectionImageWidth(faceWidthMeters, fx, m_maxDistanceMeters, winSize, inputSizeUp.width);
+        }
 
-        // 120 iphone
-        // 1024 macbook
-        // Detection width should be set based on device focal length:
-        const int detectionWidth = DRISHTI_FACEFILTER_DETECTION_WIDTH;
         m_scale = float(inputSizeUp.width) / float(detectionWidth);
 
         // ACF implementation uses reduce resolution transposed image:
@@ -151,21 +150,22 @@ void FaceFinder::init(const FrameInput &frame)
         MatP Ip(I);
         m_detector->computePyramid(Ip, m_P);
 
-        std::vector<ogles_gpgpu::Size2d> sizes;
+        pyramidSizes.resize(m_P.nScales);
+        std::vector<ogles_gpgpu::Size2d> sizes(m_P.nScales);
         for(int i = 0; i < m_P.nScales; i++)
         {
             const auto size = m_P.data[i][0][0].size();
-            sizes.emplace_back(size.width * 4, size.height * 4); // undo ACF binning x4
-        }
-        // CPU processing works with tranposed images for col-major storage assumption.
-        // Undo that here:
-        for(auto &s : sizes)
-        {
-            std::swap(s.width, s.height); // leave here to make T explicit
+            sizes[i] = { size.width * 4, size.height * 4 }; // undo ACF binning x4
+            pyramidSizes[i] = { size.width * 4, size.height * 4 };
+
+            // CPU processing works with tranposed images for col-major storage assumption.
+            // Undo that here to map to row major representation.  Perform this step
+            // to make transpose operation explicit.
+            std::swap(sizes[i].width, sizes[i].height);
+            std::swap(pyramidSizes[i].width, pyramidSizes[i].height);
         }
 
-        //const int cornerWidth = m_doCorners ? m_cornerWidth : 0;
-        const int grayWidth = m_doRegression ? m_regressionWidth : 0;
+        const int grayWidth = m_doLandmarks ? m_landmarksWidth : 0;
         const int flowWidth = m_doFlow ? m_flowWidth : 0;
         const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
         m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, grayWidth, flowWidth, false);
@@ -179,6 +179,28 @@ void FaceFinder::init(const FrameInput &frame)
         m_rotater->setOutputRenderOrientation(outputOrientation);
 
         m_painter = std::make_shared<ogles_gpgpu::FacePainter>(0);
+        
+        // Project detection sizes to full resolution image:
+        const auto winSize = m_detector->getWindowSize();
+        for(int i = 0; i < pyramidSizes.size(); i++)
+        {
+            ogles_gpgpu::LineDrawing drawing;
+            drawing.color = {255,0,0};
+
+            const float wl0 = static_cast<float> (winSize.width * inputSizeUp.width) / pyramidSizes[i].width;
+            const float hl0 = static_cast<float> (winSize.height * inputSizeUp.height) / pyramidSizes[i].height;
+            drawing.contours =
+            {
+                {
+                    {0.f, 0.f},
+                    {wl0, 0.f},
+                    {wl0, hl0},
+                    {0.f, hl0}
+                }
+            };
+            m_painter->getPermanentLineDrawings().push_back(drawing);
+        }
+        
         m_painter->add(m_rotater.get());
         m_painter->prepare(inputSizeUp.width, inputSizeUp.height, GL_RGBA);
     }
@@ -233,7 +255,6 @@ void FaceFinder::init(const FrameInput &frame)
 
         m_eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
     }
-
 }
 
 // ogles_gpgpu::VideoSource can support list of subscribers
@@ -389,7 +410,7 @@ void FaceFinder::createColormap()
  * GPU preprocessing:
  * (1) FrameInpute -> texture -> ACF output image (P pyramid)
  * (2) Harris/Shi-Tomasi corners
- * (3) Resized grayscale image for face regression
+ * (3) Resized grayscale image for face landmarks
  */
 
 void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
@@ -414,7 +435,7 @@ void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
 
     auto thing = m_acf->getFlowPyramid();
 
-#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER
+#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
     if(m_acf->getFlowStatus())
     {
         cv::Size frameSize = uprightSize({frame.size.width, frame.size.height}, m_outputOrientation);
@@ -424,7 +445,7 @@ void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
 #endif
 
     // ### Grayscale image ###
-    if(m_doRegression)
+    if(m_doLandmarks)
     {
         scene.image() = m_acf->getGrayscale();
     }
@@ -480,7 +501,7 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
             scene.objects() = m_objects.second;
         }
 
-        if(m_doRegression && scene.objects().size())
+        if(m_doLandmarks && scene.objects().size())
         {
 #define LOG_DETECTIONS 0
 #if LOG_DETECTIONS
@@ -615,7 +636,19 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 
 // #### utilty: ####
 
-#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER
+static int
+getDetectionImageWidth(float objectWidthMeters, float fxPixels, float zMeters, float winSizePixels, float imageWidthPixels)
+{
+    // objectWidthPixels / fxPixels = objectWidthMeters / zMeters
+    // objectWidthPixels = (fxPixels * objectWidthMeters) / zMeters
+    const float objectWidthPixels = (fxPixels * objectWidthMeters) / zMeters;
+    
+    // objectWidthPixels / imageWidthPixels = winSizePixels / N
+    // N = winSizePixels / (objectWidthPixels / imageWidthPixels);
+    return winSizePixels / (objectWidthPixels / imageWidthPixels);
+}
+
+#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
 static cv::Size uprightSize(const cv::Size &size, int orientation)
 {
     cv::Size upSize = size;
@@ -648,6 +681,7 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
     cv::Rect flowRoi({0,0}, ayxb.size());
     flowRoi &= cv::Rect({0,0}, flowSize);
 
+#if DRISHTI_FACEFILTER_DO_FLOW_QUIVER
     const int step = 2;
     scene.flow().reserve(scene.flow().size() + (ayxb.rows/step * ayxb.cols/step));
 
@@ -663,11 +697,12 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
             scene.flow().emplace_back(cv::Vec4f(x, y, d.x, d.y) * flowScale);
         }
     }
+#endif // DRISHTI_FACEFILTER_DO_FLOW_QUIVER
 
     cv::Mat1b corners;
     cv::extractChannel(ayxb(flowRoi), corners, 0);
     extractCorners(corners, scene, flowScale);
 }
-#endif
+#endif // DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
 
 

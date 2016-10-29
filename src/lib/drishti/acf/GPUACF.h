@@ -34,10 +34,9 @@
 #include "drishti/acf/gpu/binomial.h"
 #include "drishti/acf/gpu/triangle.h"
 
-namespace spdlog
-{
-class logger;
-}
+// *INDENT-OFF*
+namespace spdlog { class logger; }
+// *INDENT-ON*
 
 BEGIN_OGLES_GPGPU
 
