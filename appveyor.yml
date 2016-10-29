@@ -27,25 +27,18 @@ install:
 
   # Install latest Polly toolchains and scripts
   - cmd: appveyor DownloadFile https://github.com/ruslo/polly/archive/master.zip
-  - cmd: echo CHECK1
   - cmd: 7z x master.zip
-  - cmd: echo CHECK2
   - cmd: set POLLY_ROOT=%cd%\polly-master
-  - cmd: echo CHECK3
 
   # Install dependencies (CMake, Ninja)
   - cmd: python %POLLY_ROOT%\bin\install-ci-dependencies.py
 
-  - cmd: echo CHECK4
-    
   # Tune locations
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
   - cmd: set PATH=%cd%\_ci\ninja;%PATH%
 
   - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
 
-  - cmd: echo CHECK5
-    
   # Add '--quiet' to avoid leaking the token to logs
   - cmd: git submodule update --init --recursive --quiet
 
@@ -61,11 +54,8 @@ install:
   # MSYS2 location
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
-  - cmd: echo OK HERE
-
 build_script:
-  #- bin\build-appveyor.cmd %CONFIG% %TOOLCHAIN%
-  - python %POLLY_ROOT%\bin\polly.py --verbose --pack TGZ --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --test --fwd HUNTER_USE_CACHE_SERVERS=ONLY HUNTER_DISABLE_BUILDS=YES DRISHTI_USE_TEXT_ARCHIVES=YES
+  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --archive drishti --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --test --fwd HUNTER_USE_CACHE_SERVERS=ONLY HUNTER_DISABLE_BUILDS=YES DRISHTI_USE_TEXT_ARCHIVES=YES
 
 artifacts:
   - path: _archives\drishti-*.tar.gz
