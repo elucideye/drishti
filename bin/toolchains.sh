@@ -25,12 +25,12 @@ NAMES=\
 TOOLCHAINS=\
 (
 #    gcc-hid-fpic
-    libcxx-hid 
-    ios-9-2-dep-8-0-hid
-    android-ndk-r10e-api-16-armeabi-v7a-neon-clang-35-hid
-    android-ndk-r10e-api-21-arm64-v8a-gcc-49-hid
-    android-ndk-r10e-api-16-x86-hid
-    android-ndk-r10e-api-21-x86-64-hid
+    libcxx-hid-sections
+    ios-10-0-dep-8-0-hid-sections
+    android-ndk-r10e-api-16-armeabi-v7a-neon-clang-35-hid-sections
+    android-ndk-r10e-api-21-arm64-v8a-gcc-49-hid-sections
+    android-ndk-r10e-api-16-x86-hid-sections
+    android-ndk-r10e-api-21-x86-64-hid-sections
 )
 
 RELEASES=\
@@ -48,7 +48,7 @@ BUILDER=\
 (
 #    build-centos-6.2.sh
 	build-libcxx.sh
-	build-ios-9-1-hid.sh
+	build-ios-10-0-hid.sh
 	build-android.sh
 	build-android-64.sh
 	build-android-x86.sh

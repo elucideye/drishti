@@ -2,7 +2,7 @@
 
 . ${DRISHTISDK}/bin/build-common.sh
 
-TOOLCHAIN=ios-9-2-dep-8-0-hid
+TOOLCHAIN=ios-10-0-dep-8-0-hid
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
@@ -12,7 +12,7 @@ fi
 rename_tab drishti $TOOLCHAIN
 
 COMMANDS=(
-    "--v`erbose --fwd "
+    "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=8.0 "

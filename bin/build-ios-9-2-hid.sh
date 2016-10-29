@@ -12,7 +12,7 @@ fi
 rename_tab drishti $TOOLCHAIN
 
 COMMANDS=(
-    "--v`erbose --fwd "
+    "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=8.0 "
