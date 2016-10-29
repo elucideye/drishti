@@ -64,7 +64,7 @@ install:
   - cmd: echo OK HERE
 
 build_script:
-  - cmd: bin\build-appveyor.cmd %CONFIG% %TOOLCHAIN%
+  - bin\build-appveyor.cmd %CONFIG% %TOOLCHAIN%
 
 artifacts:
   - path: _archives\drishti-*.tar.gz

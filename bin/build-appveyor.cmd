@@ -6,6 +6,8 @@
 ::
 :: See: http://stackoverflow.com/a/37647169
 
+echo POLLY_ROOT %POLLY_ROOT%
+
 python %POLLY_ROOT%\bin\polly.py ^
 --verbose ^
 --pack TGZ ^
