@@ -2,7 +2,7 @@ environment:
 
   global:
     CI_USER_TOKEN:
-      secure: iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX
+      secure: "iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX"
 
   matrix:
 
@@ -55,7 +55,7 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
-  - cmd: python %POLLY_ROOT%\bin\polly.py --verbose --archive drishti --config "%CONFIG%" --toolchain "%TOOLCHAIN%" --test --fwd HUNTER_USE_CACHE_SERVERS=ONLY HUNTER_DISABLE_BUILDS=YES DRISHTI_USE_TEXT_ARCHIVES=YES
+  - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%"
 
 artifacts:
   - path: _archives\drishti-*.tar.gz
@@ -64,7 +64,7 @@ artifacts:
 deploy:
   provider: GitHub
   auth_token:
-    secure: "vxFB/5hNPqLZTSyiD3YxQVMXMmjrOyk8r/sp1GYsJ1T8o9v+wi3hjfl0W/ioSfW6"
+    secure: "iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX"
   artifact: /drishti-.*\.tar.gz/
   draft: false
   prerelease: false
