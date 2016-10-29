@@ -55,21 +55,21 @@ DRISHTI_GEOMETRY_BEGIN
 template <typename T>
 void getPointsOnLine(const cv::Vec<T,3> &l, cv::Vec<T,3> &p1, cv::Vec<T,3> &p2)
 {
-    if (l[0] == T(0) && l[1] == T(0))
+    if ((l[0] == T(0.0)) && (l[1] == T(0.0)))
     {
         p1 = { T(1.0), T(0.0), T(0.0) };
         p2 = { T(0.0), T(1.0), T(0.0) };
     }
     else
     {
-        p2 = { -l[1], l[0], T(0) };
+        p2 = { -l[1], l[0], T(0.0) };
         if(std::abs(l[0]) < std::abs(l[1]))
         {
-            p1 = { T(0), -l[2], l[1] };
+            p1 = { T(0.0), -l[2], l[1] };
         }
         else
         {
-            p1 = { -l[2], T(0), l[0] };
+            p1 = { -l[2], T(0.0), l[0] };
         }
     }
 }
