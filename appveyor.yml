@@ -55,6 +55,9 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
+  - ps: Add-Content passwords.cmake "set(USERNAME jalandhara)"
+  - ps: Add-Content passwords.cmake "set(PASSWORD ${Env:CI_USER_TOKEN})"
+
   - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%"
 
 artifacts:

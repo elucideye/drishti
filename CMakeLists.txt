@@ -372,4 +372,15 @@ set(drishti_project_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config
 set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
 set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
 
+### Download 'faces'
+include(drishti_download_private_data)
+drishti_download_private_data(
+    URL "https://github.com/elucideye/drishti-faces/archive/v1.0.zip"
+    SHA1 "dc6d1447e16501a684eba8ccd84750b9dbda7ac0"
+    NAME "faces"
+    DIR faces_dir
+    PASSWORDS "${CMAKE_CURRENT_LIST_DIR}/passwords.cmake"
+)
+message("Faces directory: '${faces_dir}'")
+
 add_subdirectory(src)
