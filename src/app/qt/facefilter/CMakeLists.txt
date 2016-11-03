@@ -14,6 +14,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON) # for main.moc
 find_package(Qt5Quick REQUIRED) # Qt5::Quick
 find_package(Qt5Multimedia REQUIRED) # Qt5::QMultimediaDeclarativeModule
 
+set(facefilter_qrc "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.qrc")
+configure_file(facefilter.qrc.in "${facefilter_qrc}" ONLY)
+
 set(
   FACE_FILTER_SOURCES
   main.cpp
@@ -32,7 +35,7 @@ set(
   InfoFilterRunnable.cpp
   FPSCalculator.hpp
   FPSCalculator.cpp
-  facefilter.qrc
+  ${facefilter_qrc}
   main.qml
   QTRenderGL.hpp
   QTRenderGL.cpp
