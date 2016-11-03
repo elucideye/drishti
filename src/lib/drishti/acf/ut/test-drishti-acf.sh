@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# TODO
 ARGUMENTS=(
     "${DRISHTISDK}/assets/images/lena512color.png"
     "${DRISHTISDK}/assets/images/lena512gray.png"

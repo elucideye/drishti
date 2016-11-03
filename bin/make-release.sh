@@ -28,6 +28,7 @@ do
 done
 
 ### Model data
+# TODO
 mkdir -p ${DRISHTI_DIR}/assets
 cp  ${DRISHTISDK}/assets/drishti_eye_full_npd_eix.pba.z ${DRISHTI_DIR}/assets/drishti_eye_eix.pba.z
 
