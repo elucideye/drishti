@@ -89,11 +89,11 @@ if(DRISHTI_BUILD_WORLD)
     target_compile_definitions(drishti_world PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
   endif()
 
-  # Define a single drishti_world static library
-  set(DRISHTI_LIBS drishti_world)
-
   if(DRISHTI_COTIRE)  
     cotire(drishti_world)
+    set(DRISHTI_LIBS drishti_world_unity)
+  else()
+    set(DRISHTI_LIBS drishti_world)
   endif()
 
 else()
