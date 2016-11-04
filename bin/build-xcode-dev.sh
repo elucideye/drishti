@@ -6,9 +6,7 @@ TOOLCHAIN=xcode
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    #EXTRA_ARGS="--reconfig "
-    EXTRA_ARGS="--reconfig --clear"
-    #EXTRA_ARGS="--clear"
+    EXTRA_ARGS="--reconfig "
 fi
 
 DRISHTI_BUILD_QT=ON
