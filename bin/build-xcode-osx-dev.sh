@@ -2,7 +2,7 @@
 
 . ${DRISHTISDK}/bin/build-dev.sh
 
-TOOLCHAIN=xcode
+TOOLCHAIN=xcode-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
@@ -30,7 +30,8 @@ COMMAND=(
     "--open "
     "--install "
     "--test " 
-    "${EXTRA_ARGS}" 
+    "${EXTRA_ARGS}"
+    #  "--nobuild"
 )
 
 
