@@ -44,6 +44,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDirIterator>
+#include <QCameraExposure>
 
 #include "QMLCameraManager.h"
 #include "VideoFilterRunnable.hpp"

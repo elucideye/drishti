@@ -103,6 +103,12 @@ cv::Size QMLCameraManagerApple::configureCamera()
 #endif
     auto viewfinderSettings = m_camera->supportedViewfinderSettings();
     
+    auto pExposure = m_camera->exposure();
+    if(pExposure)
+    {
+        m_logger->info() << "Exposure avaialble: " << int(pExposure->isAvailable());
+    }
+    
     m_logger->info() << "# of settings: " << viewfinderSettings.size();
     
     std::pair<int, QCameraViewfinderSettings> best;
