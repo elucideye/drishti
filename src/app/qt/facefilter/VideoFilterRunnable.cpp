@@ -39,7 +39,8 @@
 
 #include "drishti/graphics/drishti_graphics.h"
 
-#include "FaceFinder.h"
+#include "drishti/hci/FaceFinder.h"
+
 #include "FrameHandler.h"
 #include "VideoFilter.hpp"
 #include "TextureBuffer.hpp"
@@ -65,7 +66,7 @@ struct VideoFilterRunnable::Impl
         // Allocate the face detector:
         std::shared_ptr<drishti::face::FaceDetectorFactory> resources = std::make_shared<QtFaceDetectorFactory>();
         
-        FaceFinder::Config config;
+        drishti::hci::FaceFinder::Config config;
         config.sensor = manager->getSensor();
         config.logger = manager->getLogger();
         config.threads = manager->getThreadPool();
@@ -81,7 +82,7 @@ struct VideoFilterRunnable::Impl
             config.doFlash = (*settings)["doFlash"].get<bool>();
         }
 
-        m_detector = std::make_shared<FaceFinder>(resources, config, glContext);
+        m_detector = std::make_shared<drishti::hci::FaceFinder>(resources, config, glContext);
         
         // Set detection range:
         m_detector->setMinDistance(manager->getDetectionParameters().m_minDepth);
@@ -94,7 +95,7 @@ struct VideoFilterRunnable::Impl
         return (*m_detector)(frame);
     }
 
-    std::shared_ptr<FaceFinder> m_detector;
+    std::shared_ptr<drishti::hci::FaceFinder> m_detector;
 };
 
 

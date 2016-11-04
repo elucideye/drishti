@@ -8,7 +8,7 @@
 
 */
 
-#include "gpu/FlashFilter.h"
+#include "drishti/hci/gpu/FlashFilter.h"
 
 BEGIN_OGLES_GPGPU
 

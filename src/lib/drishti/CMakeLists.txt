@@ -75,10 +75,20 @@ if(DRISHTI_BUILD_WORLD)
     source_group("face\\Header Files" FILES ${DRISHTI_FACE_HDRS_PUBLIC})
     source_group("face\\Source Files" FILES ${DRISHTI_FACE_SRCS})
     list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-  endif()  
+  endif()
 
   if(DRISHTI_BUILD_OGLES_GPGPU)
     list(APPEND DRISHTI_SDK_3RDPARTY_LIBS ${OGLES_GPGPU_LIB})
+
+    ### hci
+    # currently only works w/ ogles_gpgpu
+    # TODO: needs CPU only path
+    if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)    
+      source_group("hci\\Header Files" FILES ${DRISHTI_HCI_HDRS_PUBLIC})
+      source_group("hci\\Source Files" FILES ${DRISHTI_HCI_SRCS})
+      list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_HCI_SRCS} ${DRISHTI_HCI_HDRS_PUBLIC})
+    endif()
+    
   endif()
   
   add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
@@ -137,20 +147,27 @@ else()
     if(DRISHTI_BUILD_OGLES_GPGPU)
       target_link_libraries(drishti_acf PUBLIC ${OGLES_GPGPU_LIB} ${OpenCV_LIBS})
     endif()
-    set(OBJ_ACF drishti_acf)
+    set(DRISHTI_OBJ_ACF drishti_acf)
   endif()
 
   ## drishti_face
   if(DRISHTI_BUILD_FACE)
     add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-    target_link_libraries(drishti_face PUBLIC drishti_eye ${OBJ_ACF} ${OpenCV_LIBS} ${EOS_LIB})
-    set(OBJ_FACE drishti_face)
+    target_link_libraries(drishti_face PUBLIC drishti_eye ${DRISHTI_OBJ_ACF} ${OpenCV_LIBS} ${EOS_LIB})
+    set(DRISHTI_OBJ_FACE drishti_face)
+  endif()
+
+  if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
+    add_library(drishti_hci ${LIB_TYPE} ${DRISHTI_HCI_SRCS} ${DRISHTI_HCI_NDRS_PUBLIC})
+    target_link_libraries(drishti_hci PUBLIC ${DRISHTI_OBJ_FACE} ${DRISHTI_OBJ_ACF} drishti_eye ${OpenCV_LIBS} ${EOS_LIB})
+    set(DRISHTI_OBJ_HCI drishti_hci)
   endif()
 
   # Define a list of individual static libraries
-  set(DRISHTI_LIBS 
-    ${OBJ_ACF}
-    ${OBJ_FACE}
+  set(DRISHTI_LIBS
+    ${DRISHTI_OBJ_HCI}    
+    ${DRISHIT_OBJ_ACF}
+    ${DRISHTI_OBJ_FACE}
     drishti_eye
     drishti_rcpr
     drishti_ml

@@ -11,7 +11,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "gpu/LineDrawing.hpp"
+#include "drishti/hci/gpu/LineDrawing.hpp"
 #include "drishti/face/Face.h"
 #include "drishti/acf/ACF.h"
 #include <opencv2/core/core.hpp>
