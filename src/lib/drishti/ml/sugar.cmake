@@ -11,8 +11,6 @@ endif()
 
 include(sugar_files)
 
-project(drishti_ml)
-
 sugar_files(DRISHTI_ML_SRCS
   ObjectDetector.cpp
   PCA.cpp
