@@ -1,9 +1,9 @@
 #!/bin/bash
 
 . ${DRISHTISDK}/bin/build-dev.sh
+. ${DRISHTISDK}/bin/drishti-ios-development-team.sh
 
-TOOLCHAIN=ios-9-2-arm64
-#TOOLCHAIN=ios-9-2-hid
+TOOLCHAIN=ios-10-0-arm64
 
 if [ -z "${DRISHTISDK}" ]; then
     echo 2>&1 "Must have DRISHTISDK set"
@@ -15,7 +15,7 @@ fi
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear --reconfig"
+    EXTRA_ARGS="--reconfig"
 fi
 
 DRISHTI_BUILD_QT=ON
