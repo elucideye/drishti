@@ -78,7 +78,7 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
     , m_logger(args.logger)
     , m_threads(args.threads)
 {
-    int pause = 1;
+    
 }
 
 void FaceFinder::setMinDistance(float meters)
@@ -709,5 +709,3 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
 DRISHTI_HCI_NAMESPACE_END
 
 #endif // DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
-
-
