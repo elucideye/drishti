@@ -8,17 +8,17 @@ enable_testing()
 
 if(MSVC)
   add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
-    "${CMAKE_SOURCE_DIR}/assets/drishti_eye_full_npd_eix.txt"
-    "${CMAKE_SOURCE_DIR}/assets/images/2318-eye.png"
-    "${CMAKE_SOURCE_DIR}/assets/images/2318-eye.json"
+    "${assets_dir}/drishti_eye_full_npd_eix.txt"
+    "${assets_dir}/images/2318-eye.png"
+    "${assets_dir}/images/2318-eye.json"
     "1"
     )
 else()
   add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
-    "${CMAKE_SOURCE_DIR}/assets/drishti_eye_full_npd_eix.pba.z"
-    "${CMAKE_SOURCE_DIR}/assets/images/2318-eye.png"
-    "${CMAKE_SOURCE_DIR}/assets/images/2318-eye.json"
-    "0"    
+    "${assets_dir}/drishti_eye_full_npd_eix.pba.z"
+    "${assets_dir}/images/2318-eye.png"
+    "${assets_dir}/images/2318-eye.json"
+    "0"
     )
 endif()
 
