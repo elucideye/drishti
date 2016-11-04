@@ -117,6 +117,7 @@ option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." ON)
 option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
+option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
