@@ -49,6 +49,8 @@ public:
     
     ~FrameHandlerManager();
     
+    bool good() const;
+    
     static FrameHandlerManager *get(Settings *settings=nullptr, const std::string &name={}, const std::string &description={});
 
     int getOrientation() const
