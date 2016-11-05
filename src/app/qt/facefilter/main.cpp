@@ -152,6 +152,12 @@ int main(int argc, char **argv)
     logger->info() << "description: " << qmlCameraManager->getDescription();
     
     auto frameHandlers = FrameHandlerManager::get(&json, qmlCameraManager->getDeviceName(), qmlCameraManager->getDescription());
+    if(!frameHandlers || !frameHandlers->good())
+    {
+        logger->error() << "Failed to instantiate FrameHandlerManager";
+        return EXIT_FAILURE;
+    }
+    
     if(frameHandlers && qmlCameraManager)
     {
         frameHandlers->setOrientation(qmlCameraManager->getOrientation());
