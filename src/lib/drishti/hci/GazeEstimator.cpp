@@ -8,7 +8,7 @@
 
 */
 
-#include "drishti/face/GazeEstimator.h"
+#include "drishti/hci/GazeEstimator.h"
 #include "drishti/face/FaceIO.h"
 #include "drishti/face/face_util.h"
 #include "drishti/ml/XGBooster.h"
@@ -22,7 +22,7 @@
 
 #include <fstream>
 
-DRISHTI_FACE_NAMESPACE_BEGIN
+DRISHTI_HCI_NAMESPACE_BEGIN
 
 static void polyfit(const cv::Mat& src_x, const cv::Mat& src_y, cv::Mat& dst, int order);
 
@@ -119,7 +119,7 @@ public:
     }
 
     // Use the trained classifier on a normalized face image:
-    cv::Point2f operator()(const FaceModel &faceIn)
+    cv::Point2f operator()(const face::FaceModel &faceIn)
     {
         CV_Assert(forests.size() == 2);
         std::vector<float> params = getParams(faceIn);
@@ -127,9 +127,9 @@ public:
         return p;
     }
 
-    std::vector<float> getParams(const FaceModel &faceIn) const
+    std::vector<float> getParams(const face::FaceModel &faceIn) const
     {
-        FaceModel faceNorm = getNormalizedFace(faceIn).first;
+        face::FaceModel faceNorm = getNormalizedFace(faceIn).first;
         GazeMeasurement measurement = computeFeaturesOnNormalizedFace(faceNorm);
         measurement.position = get3DPosition(faceIn); // 3d position from face @ native resolution
 
@@ -224,7 +224,7 @@ public:
         return gaze;
     }
 
-    std::pair<FaceModel, cv::Matx33f> getNormalizedFace(const FaceModel &faceIn) const
+    std::pair<face::FaceModel, cv::Matx33f> getNormalizedFace(const face::FaceModel &faceIn) const
     {
         // Do similarity normalization on iris centers::
         std::array<cv::Point2f,2> ptsA {{ faceIn.eyeFullR->irisEllipse.center, faceIn.eyeFullL->irisEllipse.center }};
@@ -239,13 +239,13 @@ public:
     // #### Perform relative gaze ###
 
     // Extract 3d position of nose bridge from full resolution face:
-    cv::Point3f get3DPosition(const FaceModel &faceIn) const
+    cv::Point3f get3DPosition(const face::FaceModel &faceIn) const
     {
         std::array<cv::Point2f, 2> eyes {{ faceIn.eyeFullR->irisEllipse.center, faceIn.eyeFullL->irisEllipse.center }};
         return m_sensor.intrinsic().getDepth(eyes, 0.064);
     }
 
-    GazeMeasurement computeFeaturesOnNormalizedFace(const FaceModel &face) const
+    GazeMeasurement computeFeaturesOnNormalizedFace(const face::FaceModel &face) const
     {
         GazeMeasurement measurement;
 
@@ -299,7 +299,7 @@ public:
      * model can be applied for mapping to world coordinates.
      */
 
-    PointPair operator()(const FaceModel &faceIn, const cv::Mat &I, const cv::Matx33f &Hup, double time)
+    PointPair operator()(const face::FaceModel &faceIn, const cv::Mat &I, const cv::Matx33f &Hup, double time)
     {
         PointPair gaze;
 
@@ -343,7 +343,7 @@ public:
 
 protected:
 
-    void paint(const FaceModel &face, const cv::Mat &I, const cv::Matx33f &H, const GazeMeasurement &measurement, const cv::Point2f &t);
+    void paint(const face::FaceModel &face, const cv::Mat &I, const cv::Matx33f &H, const GazeMeasurement &measurement, const cv::Point2f &t);
 
     drishti::core::Field<GazeMeasurement> m_measurement; // accumulator
     drishti::core::Field<GazeMeasurement> m_measurementPrev; // previous gaze position (reference)
@@ -364,7 +364,7 @@ protected:
     std::vector<drishti::ml::XGBooster> forests;
 };
 
-void GazeEstimator::Impl::paint(const FaceModel &face, const cv::Mat &I, const cv::Matx33f &H, const GazeMeasurement &measurement, const cv::Point2f &t)
+void GazeEstimator::Impl::paint(const face::FaceModel &face, const cv::Mat &I, const cv::Matx33f &H, const GazeMeasurement &measurement, const cv::Point2f &t)
 {
     cv::Mat canvas;
     cv::warpAffine(I, canvas, H.get_minor<2,3>(0,0), m_targetSize);
@@ -443,12 +443,12 @@ void GazeEstimator::setGroundTruth(const cv::Point2f &p)
 }
 
 GazeEstimator::GazeEstimate
-GazeEstimator::operator()(const FaceModel &face, const cv::Mat &I, const cv::Matx33f &Hup, double time) const
+GazeEstimator::operator()(const face::FaceModel &face, const cv::Mat &I, const cv::Matx33f &Hup, double time) const
 {
     return (*m_pImpl)(face, I, Hup, time);
 }
 
-std::vector<float> GazeEstimator::getParams(const FaceModel &face) const
+std::vector<float> GazeEstimator::getParams(const face::FaceModel &face) const
 {
     return m_pImpl->getParams(face);
 }
@@ -556,5 +556,4 @@ static void polyfit(const cv::Mat& src_x, const cv::Mat& src_y, cv::Mat& dst, in
     W.copyTo(dst);
 }
 
-
-DRISHTI_FACE_NAMESPACE_END
+DRISHTI_HCI_NAMESPACE_END
