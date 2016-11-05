@@ -40,7 +40,7 @@ set_property(TARGET test-drishti-acf PROPERTY FOLDER "app/tests")
 
 enable_testing()
 add_test(NAME acf_test COMMAND test-drishti-acf
-  "${CMAKE_SOURCE_DIR}/assets/images/lena512color.png"
-  "${CMAKE_SOURCE_DIR}/assets/images/lena512gray.png"
-  "${CMAKE_SOURCE_DIR}/assets/drishti_face_inner_48x48.mat"
+  "${assets_dir}/images/lena512color.png"
+  "${assets_dir}/images/lena512gray.png"
+  "${assets_dir}/drishti_face_inner_48x48.mat"
   )
