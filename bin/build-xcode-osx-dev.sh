@@ -2,13 +2,11 @@
 
 . ${DRISHTISDK}/bin/build-dev.sh
 
-TOOLCHAIN=xcode
+TOOLCHAIN=xcode-hid-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    #EXTRA_ARGS="--reconfig "
-    EXTRA_ARGS="--reconfig --clear"
-    #EXTRA_ARGS="--clear"
+    EXTRA_ARGS="--reconfig "
 fi
 
 DRISHTI_BUILD_QT=ON
@@ -32,7 +30,8 @@ COMMAND=(
     "--open "
     "--install "
     "--test " 
-    "${EXTRA_ARGS}" 
+    "${EXTRA_ARGS}"
+    #  "--nobuild"
 )
 
 

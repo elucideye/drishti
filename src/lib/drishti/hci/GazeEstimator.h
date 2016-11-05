@@ -11,12 +11,12 @@
 #ifndef __drishtisdk__GazeEstimator__
 #define __drishtisdk__GazeEstimator__
 
-#include "drishti/face/drishti_face.h"
+#include "drishti/hci/drishti_hci.h"
 #include "drishti/face/Face.h"
 #include "drishti/core/boost_serialize_common.h"
 #include "drishti/sensor/Sensor.h"
 
-DRISHTI_FACE_NAMESPACE_BEGIN
+DRISHTI_HCI_NAMESPACE_BEGIN
 
 #define GAZE_NOSE 1
 #define GAZE_BROW 1
@@ -58,7 +58,7 @@ public:
     GazeEstimate end();
 
     // Note: face models must be specified at native resolution of the sensor model:
-    GazeEstimate operator()(const FaceModel &face, const cv::Mat &I, const cv::Matx33f &Hup, double time) const;
+    GazeEstimate operator()(const face::FaceModel &face, const cv::Mat &I, const cv::Matx33f &Hup, double time) const;
 
     void doImageFeatures(bool flag);
     bool doImageFeatures() const;
@@ -68,7 +68,7 @@ public:
 
     void setGroundTruth(const cv::Point2f &p);
 
-    std::vector<float> getParams(const FaceModel &face) const;
+    std::vector<float> getParams(const face::FaceModel &face) const;
 
     // Boost serialization:
     friend class boost::serialization::access;
@@ -79,6 +79,6 @@ protected:
     std::shared_ptr<Impl> m_pImpl;
 };
 
-DRISHTI_FACE_NAMESPACE_END
+DRISHTI_HCI_NAMESPACE_END
 
 #endif // __drishtisdk__GazeEstimator__

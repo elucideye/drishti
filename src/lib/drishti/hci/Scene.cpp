@@ -8,7 +8,7 @@
 
 */
 
-#include "Scene.hpp"
+#include "drishti/hci/Scene.hpp"
 
 static float getAngle(const cv::Point2f &p)
 {

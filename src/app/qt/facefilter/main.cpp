@@ -44,6 +44,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDirIterator>
+#include <QCameraExposure>
 
 #include "QMLCameraManager.h"
 #include "VideoFilterRunnable.hpp"
@@ -60,6 +61,8 @@
 
 #include <iostream>
 
+#define FACEFILTER_USE_LOCAL_RESOURCES 0
+
 #if defined(Q_OS_OSX)
 Q_IMPORT_PLUGIN(QtQuick2Plugin);
 Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
@@ -68,6 +71,7 @@ Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
 // Utilities
 static void printResources();
 static nlohmann::json loadJSON(spdlog::logger &logger);
+static std::string findResourcePath(const std::string &filename);
 
 #if defined(Q_OS_IOS)
 extern "C" int qtmn(int argc, char** argv)
@@ -100,7 +104,24 @@ int main(int argc, char **argv)
 #endif
 
     QQuickView view;
+    
+#if FACEFILTER_USE_LOCAL_RESOURCES
     view.setSource(QUrl("qrc:///main.qml"));
+#else
+    {
+        std::string mainQml = findResourcePath("main.qml");
+        if(mainQml.empty())
+        {
+            logger->error() << "Can't open main.qml";
+            return EXIT_FAILURE;
+        }
+        
+        mainQml = "qrc://" + mainQml.substr(1);
+        std::cout << mainQml << std::endl;
+        view.setSource(QUrl(QString::fromStdString(mainQml)));
+    }
+#endif
+
     view.setResizeMode( QQuickView::SizeRootObjectToView );
 
 #if defined(Q_OS_OSX)
@@ -131,6 +152,12 @@ int main(int argc, char **argv)
     logger->info() << "description: " << qmlCameraManager->getDescription();
     
     auto frameHandlers = FrameHandlerManager::get(&json, qmlCameraManager->getDeviceName(), qmlCameraManager->getDescription());
+    if(!frameHandlers || !frameHandlers->good())
+    {
+        logger->error() << "Failed to instantiate FrameHandlerManager";
+        return EXIT_FAILURE;
+    }
+    
     if(frameHandlers && qmlCameraManager)
     {
         frameHandlers->setOrientation(qmlCameraManager->getOrientation());
@@ -152,21 +179,49 @@ static void printResources()
     }
 }
 
+static std::string findResourcePath(const std::string &filename)
+{
+    QDirIterator it(":", QDirIterator::Subdirectories);
+    while (it.hasNext())
+    {
+        std::string pathname = it.next().toStdString();
+        if(pathname.find(filename) != std::string::npos)
+        {
+            return pathname;
+        }
+    }
+    return std::string();
+}
+
 static nlohmann::json loadJSON(spdlog::logger &logger)
 {
     nlohmann::json json;
-    
-    QFile inputFile(":/facefilter.json");
-    if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
+
+#if FACEFILTER_USE_LOCAL_RESOURCES
+    QString inputFilename(":/facefilter.json");
+#else
+    std::string filename = findResourcePath("facefilter.json");
+    if (filename.empty())
     {
-        logger.error() << "Can't open file";
+        logger.error() << "Can't find file: facefilter.json";
         return EXIT_FAILURE;
     }
+    QString inputFilename = QString::fromStdString(filename);
+#endif
     
-    QTextStream in(&inputFile);
-    std::stringstream stream;
-    stream <<  in.readAll().toStdString();
-    stream >> json;
+    {
+        QFile inputFile(inputFilename);
+        if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            logger.error() << "Can't open file";
+            return EXIT_FAILURE;
+        }
+        
+        QTextStream in(&inputFile);
+        std::stringstream stream;
+        stream <<  in.readAll().toStdString();
+        stream >> json;
+    }
     
     return json;
 }

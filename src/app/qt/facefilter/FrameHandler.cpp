@@ -36,8 +36,15 @@ FrameHandlerManager * FrameHandlerManager::m_instance = nullptr;
 FrameHandlerManager::FrameHandlerManager(Settings *settings, const std::string &name, const std::string &description)
 : m_settings(settings)
 {
-    // TODO: Exception on failure:
+    m_logger = drishti::core::Logger::create("drishti");
+    m_logger->info() << "FaceFinder #################################################################";
+    
     const auto &device = (*settings)[name];
+    if(device.empty())
+    {
+        m_logger->error() << "Failure to parse settings for device:" << name;
+        return;
+    }
     
     // Parse detection parameters (minDepth, maxDepth)
     m_detectionParams.m_minDepth = device["detectionRange"]["minDepth"];
@@ -58,10 +65,7 @@ FrameHandlerManager::FrameHandlerManager(Settings *settings, const std::string &
     
     drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
     m_sensor = std::make_shared<drishti::sensor::SensorModel>(params);
-    
-    m_logger = drishti::core::Logger::create("drishti");
-    m_logger->info() << "FaceFinder #################################################################";
-    
+
     m_threads = std::unique_ptr<ThreadPool<128>>(new ThreadPool<128>);
 }
 
@@ -72,6 +76,11 @@ FrameHandlerManager::~FrameHandlerManager()
         delete m_instance;
     }
     m_instance = 0;
+}
+
+bool FrameHandlerManager::good() const
+{
+    return (m_sensor.get() != nullptr && m_threads.get() != nullptr);
 }
 
 void FrameHandlerManager::setSize(const cv::Size &size)

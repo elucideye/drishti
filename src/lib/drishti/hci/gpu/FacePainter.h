@@ -16,13 +16,11 @@
  */
 
 #include "drishti/face/gpu/EyeFilter.h"
-//#include "drishti/face/gpu/EyePairStabilizer.h"
-
 #include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/transform.h"
 #include "ogles_gpgpu/common/common_includes.h"
 
-#include "gpu/LineDrawing.hpp"
+#include "drishti/hci/gpu/LineDrawing.hpp"
 
 #include "drishti/face/Face.h" // face model
 

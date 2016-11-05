@@ -21,8 +21,6 @@ set(
   FACE_FILTER_SOURCES
   main.cpp
 
-  Scene.hpp
-  Scene.cpp
   TextureBuffer.hpp
   VideoFilter.hpp
   VideoFilter.cpp
@@ -49,21 +47,8 @@ set(
   QtStream.h
 
   ## Application specific
-  FaceFinder.h
-  FaceFinder.cpp
-
   FrameHandler.h
   FrameHandler.cpp
-
-  ## UI
-  gpu/LineDrawing.hpp
-  gpu/LineDrawing.cpp
-
-  gpu/FacePainter.h
-  gpu/FacePainter.cpp
-
-  gpu/FlashFilter.h
-  gpu/FlashFilter.cpp
 
   ## Config
   facefilter.json

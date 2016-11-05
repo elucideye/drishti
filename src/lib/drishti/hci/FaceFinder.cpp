@@ -1,5 +1,5 @@
 /*!
-  @file   finder/FaceFinder.cpp
+  @file   drishti/hci/FaceFinder.cpp
   @author David Hirvonen
   @brief  Scene viewed by the camera represented by low level primitives: (corners, face, flow, etc.)
 
@@ -8,9 +8,9 @@
 
 */
 
-#include "FaceFinder.h"
-#include "gpu/FacePainter.h"
-#include "gpu/FlashFilter.h"
+#include "drishti/hci/FaceFinder.h"
+#include "drishti/hci/gpu/FacePainter.h"
+#include "drishti/hci/gpu/FlashFilter.h"
 
 #include "drishti/face/gpu/EyeFilter.h"
 #include "drishti/eye/gpu/EllipsoPolarWarp.h"
@@ -45,6 +45,8 @@ static const char * sBar = "####################################################
 using drishti::face::operator*;
 using drishti::core::operator*;
 
+DRISHTI_HCI_NAMESPACE_BEGIN
+
 static int getDetectionImageWidth(float, float, float, float, float);
 
 #if DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
@@ -76,7 +78,7 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
     , m_logger(args.logger)
     , m_threads(args.threads)
 {
-    int pause = 1;
+    
 }
 
 void FaceFinder::setMinDistance(float meters)
@@ -703,6 +705,7 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
     cv::extractChannel(ayxb(flowRoi), corners, 0);
     extractCorners(corners, scene, flowScale);
 }
+
+DRISHTI_HCI_NAMESPACE_END
+
 #endif // DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
-
-

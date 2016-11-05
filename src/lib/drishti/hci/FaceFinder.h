@@ -1,5 +1,5 @@
 /*!
-  @file   finder/FaceFinder.h
+  @file   drishti/hci/FaceFinder.h
   @author David Hirvonen
   @brief  Scene viewed by the camera represented by low level primitives: (corners, face, flow, etc.)
 
@@ -7,16 +7,17 @@
   \license{This project is released under the 3 Clause BSD License.}
 
 */
+
 #ifndef FACE_FINDER_H
 #define FACE_FINDER_H
 
+#include "drishti/hci/drishti_hci.h"
+#include "drishti/hci/Scene.hpp"
 #include "drishti/acf/GPUACF.h"
 #include "drishti/acf/ACF.h"
 #include "drishti/face/Face.h"
 #include "drishti/face/FaceDetectorFactory.h"
 #include "drishti/sensor/Sensor.h"
-
-#include "Scene.hpp"
 
 #include "ogles_gpgpu/common/proc/flow.h"
 
@@ -63,6 +64,8 @@ struct TimerInfo
     std::function<void(double second)> regressionTimeLogger;
     std::function<void(double second)> eyeRegressionTimeLogger;
 };
+
+DRISHTI_HCI_NAMESPACE_BEGIN
 
 class FaceFinder
 {
@@ -139,7 +142,6 @@ protected:
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
     std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL
-
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
 
 #if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
@@ -156,5 +158,7 @@ protected:
     std::shared_ptr<spdlog::logger> m_logger;
     std::shared_ptr<ThreadPool<128>> m_threads;
 };
+
+DRISHTI_HCI_NAMESPACE_END
 
 #endif // FACE_FINDER_H

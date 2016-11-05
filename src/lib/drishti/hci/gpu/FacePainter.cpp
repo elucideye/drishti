@@ -8,7 +8,7 @@
 
 */
 
-#include "gpu/FacePainter.h"
+#include "drishti/hci/gpu/FacePainter.h"
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/geometry/motion.h"
 

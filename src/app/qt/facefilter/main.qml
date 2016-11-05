@@ -52,6 +52,9 @@ Item {
     id: camera
     position: Camera.FrontFace
     objectName: "CameraObject"
+
+    exposure.exposureCompensation: -1.0
+    exposure.exposureMode: Camera.ExposureAuto
   }
 
   QTRenderGL {
