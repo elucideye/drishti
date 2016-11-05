@@ -2,7 +2,7 @@
 
 . ${DRISHTISDK}/bin/build-dev.sh
 
-TOOLCHAIN=xcode-sections
+TOOLCHAIN=xcode-hid-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
