@@ -28,7 +28,7 @@
     },
 
     "0x4015000005ac1112": {
-        "description": "FaceTime HD Camera (Built-in)",
+        "description": "FaceTime HD Camera (Built-in) (Thunderbolt)",
 
         "detectionRange": {
             "minDepth": 0.264,
