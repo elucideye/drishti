@@ -63,14 +63,14 @@ endif()
 ###################
 if(DRISHTI_BUILD_OGLES_GPGPU)
   # Support local submodule use or external package:
-  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
+  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" ON)
 
   if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
-    option(SKIP_INSTALL "Avoid installation of submodule libraries"  ON)
+    option(OGLES_GPGPU_INSTALL "Avoid installation of submodule libraries" OFF)
     option(OGLES_GPGPU_BUILD_EXAMPLES "Don't build examples" OFF)
+    option(OGLES_GPGPU_VERBOSE "Don't be verbose" OFF)
     add_subdirectory( "${CMAKE_SOURCE_DIR}/src/3rdparty/ogles_gpgpu" )
     set(OGLES_GPGPU_LIB ogles_gpgpu)
-    unset(SKIP_INSTALL CACHE)
     add_library(ogles_gpgpu::ogles_gpgpu ALIAS ogles_gpgpu)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
     set_property(TARGET ogles_gpgpu PROPERTY FOLDER "libs/3rdparty")      
