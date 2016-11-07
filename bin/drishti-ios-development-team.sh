@@ -1,2 +1,0 @@
-#!/bin/bash
-export POLLY_IOS_DEVELOPMENT_TEAM="7E5VP8ABCU"

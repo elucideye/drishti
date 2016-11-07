@@ -79,15 +79,6 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     find_package(ogles_gpgpu CONFIG REQUIRED)
     list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
   endif()
-
-  # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
-  if(APPLE AND NOT IOS)
-    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS
-      "-framework ImageIO"
-      "-framework CoreVideo"
-      )
-  endif()
-  
   set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 

@@ -5,8 +5,13 @@
 export DEVELOPER_DIR=/Applications/develop/ide/xcode/8.0/Xcode.app/Contents/Developer
 xcodebuild -version
 
-. ${DRISHTISDK}/bin/drishti-ios-develoment-team.sh
 . ${DRISHTISDK}/bin/toolchains.sh
+
+# Add explicit check for POLLY_IOS_DEVELOPMENT_TEAM before script launch,
+# although polly will complain in the build command if this is missing too.
+if [ -z "${POLLY_IOS_DEVELOPMENT_TEAM}" ]; then
+    echo 2>&1 "Must have POLLY_IOS_DEVELOPMENT_TEAM set"
+fi
 
 set -e
 
