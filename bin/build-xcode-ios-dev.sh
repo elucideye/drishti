@@ -1,9 +1,7 @@
 #!/bin/bash
 
 . ${DRISHTISDK}/bin/build-dev.sh
-. ${DRISHTISDK}/bin/drishti-ios-development-team.sh
 
-#TOOLCHAIN=ios-10-0-arm64
 TOOLCHAIN=ios-10-0-arm64-dep-8-0-hid-sections
 
 if [ -z "${DRISHTISDK}" ]; then
