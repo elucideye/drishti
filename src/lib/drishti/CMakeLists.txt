@@ -92,6 +92,7 @@ if(DRISHTI_BUILD_WORLD)
   endif()
   
   add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
+  set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")  
   
   target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
   target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
