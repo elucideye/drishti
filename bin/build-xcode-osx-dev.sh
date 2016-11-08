@@ -31,7 +31,6 @@ COMMAND=(
     "--install "
     "--test " 
     "${EXTRA_ARGS}"
-    #  "--nobuild"
 )
 
 
