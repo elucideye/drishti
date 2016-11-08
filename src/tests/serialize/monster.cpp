@@ -20,9 +20,8 @@
 // This file:
 // https://raw.githubusercontent.com/google/flatbuffers/master/samples/sample_binary.cpp
 
-#include "monster_generated.h" // Already includes "flatbuffers/flatbuffers.h".
 #include "Monster_c.h"
-
+#include "monster_generated.h" // Already includes "flatbuffers/flatbuffers.h".
 #include <flatbuffers/flatbuffers.h>
 
 using namespace MyGame::Sample;
