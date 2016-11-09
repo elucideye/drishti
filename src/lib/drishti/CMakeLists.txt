@@ -188,6 +188,7 @@ endif(DRISHTI_BUILD_WORLD)
 ##
 
 add_subdirectory(drishti)
+add_subdirectory(core)
 add_subdirectory(geometry)
 if(DRISHTI_BUILD_ACF)
   add_subdirectory(acf)
