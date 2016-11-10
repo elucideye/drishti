@@ -133,6 +133,8 @@ void Detector::computePyramid(const cv::Mat &I, Pyramid &P)
 
 void Detector::computePyramid(const MatP &Ip, Pyramid &P)
 {
+    CV_Assert(Ip[0].depth() == CV_32F);
+    
     auto &pPyramid = *(opts.pPyramid);
     auto pad = *(pPyramid.pad);
     auto modelDsPad = *(opts.modelDsPad);
@@ -261,6 +263,7 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
     {
         DetectionVec ds;
 
+        // ROI fields indicates row major storage, else column major:
         if(P.rois.size() > i)
         {
             acfDetect1(P.data[i][0], P.rois[i], shrink, modelDsPad, *(opts.stride), *(opts.cascThr), ds);
