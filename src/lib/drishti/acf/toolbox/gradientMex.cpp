@@ -16,6 +16,8 @@
 
 #define PI 3.14159265f
 
+#define DRISHTI_DEBUG_ACOS_TABLE 0
+
 // compute x and y gradients for just one column (uses sse)
 void grad1( float *I, float *Gx, float *Gy, int h, int w, int x )
 {
@@ -103,6 +105,20 @@ void grad2( float *I, float *Gx, float *Gy, int h, int w, int d )
     }
 }
 
+#if DRISHTI_DEBUG_ACOS_TABLE
+static bool isValid(const __m128 &value)
+{
+    for(int i = 0; i < 4; i++)
+    {
+        if(std::isnan(value[0]) || std::isinf(value[0]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+#endif
+
 class ACosTable
 {
 public:
@@ -115,7 +131,9 @@ public:
 
     float operator[](int i) const
     {
-        //assert( ((i+n+b) >= 0) && ((i+n+b) < n*2+b*2) );
+#if DRISHTI_DEBUG_ACOS_TABLE
+        CV_Assert( ((i+n+b) >= 0) && ((i+n+b) < n*2+b*2) );
+#endif
         return a1[i];
     }
 
@@ -141,10 +159,13 @@ private:
         {
             a1[i]=0;
         }
-        for( i=-n-b; i<n/10; i++ ) if( a1[i] > PI-1e-6f )
+        for( i=-n-b; i<n/10; i++ )
+        {
+            if( a1[i] > PI-1e-6f )
             {
                 a1[i]=PI-1e-6f;
             }
+        }
 
     }; // Constructor? (the {} brackets) are needed here.
 
