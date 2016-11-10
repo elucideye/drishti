@@ -91,11 +91,18 @@ public:
     
     void setMaxDistance(float meters);
     void setMinDistance(float meters);
-
+    void setDoCpuAcf(bool flag);
+    
 protected:
-
-    void createColormap(); // [0..359];
-
+    
+    void initACF(const cv::Size &inputSizeUp);
+    void initPainter(const cv::Size &inputSizeUp);
+    void initFIFO(const cv::Size &inputSize);
+    void initFlasher();
+    void initColormap(); // [0..359];
+    void initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &eyesSize);
+    void initIris(const cv::Size &size);
+    
     void init2(drishti::face::FaceDetectorFactory &resources);
     void detect2(const FrameInput &frame, ScenePrimitives &scene);
 
@@ -105,6 +112,8 @@ protected:
     virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);
 
+    int computeDetectionWidth(const cv::Size &inputSizeUp) const;
+    
     void fill(drishti::acf::Detector::Pyramid &P);
 
     cv::Mat3f m_colors32FC3; // map angles to colors
@@ -132,6 +141,14 @@ protected:
 
     bool m_doFlash = false;
     int m_flashWidth = 128;
+    
+    bool m_doIris = false;
+    
+    bool m_doCpuACF= false;
+    
+    cv::Size m_eyesSize = { 480, 240 };
+    
+    std::vector<cv::Size> m_pyramidSizes;
 
     std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo;
     std::shared_ptr<ogles_gpgpu::ACF> m_acf;
@@ -143,10 +160,7 @@ protected:
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
     std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
-
-#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
-#endif
 
     int m_index = 0;
     std::vector<std::future<ScenePrimitives>> m_scenes;
