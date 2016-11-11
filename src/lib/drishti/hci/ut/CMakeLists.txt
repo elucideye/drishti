@@ -2,7 +2,12 @@
 #include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(test-drishti-hci test-drishti-hci.cpp)
-target_link_libraries(test-drishti-hci drishtisdk ${OpenCV_LIBS} GTest::main)
+target_link_libraries(test-drishti-hci
+  drishtisdk
+  ${OpenCV_LIBS}
+  GTest::main
+  ${DRISHTI_OPENGL_LIBS}
+  )
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
 if(APPLE AND NOT IOS)
