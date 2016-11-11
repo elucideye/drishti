@@ -135,7 +135,7 @@ if(DRISHTI_BUILD_TESTS)
   find_package(GTest CONFIG REQUIRED)
 endif()
 
-option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
+option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
 drishti_mirror_definition(DRISHTI_BUILD_OGLES_GPGPU)
 
 # Note: OGLES_GPGPU handling moved to src folder
