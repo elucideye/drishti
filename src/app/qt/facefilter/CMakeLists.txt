@@ -18,7 +18,7 @@ file(COPY facefilter.json DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/generated")
 file(COPY main.qml DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 set(facefilter_qrc "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.qrc")
-configure_file(facefilter.qrc.in "${facefilter_qrc}" ONLY)
+configure_file(facefilter.qrc.in "${facefilter_qrc}" @ONLY)
 
 set(
   FACE_FILTER_SOURCES
