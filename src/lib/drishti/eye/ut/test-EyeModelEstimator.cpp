@@ -38,7 +38,6 @@ bool isTextArchive;
 BEGIN_EMPTY_NAMESPACE
 
 static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio);
-static void draw(cv::Mat &canvas, const drishti::eye::EyeModel &eye);
 static float PASCAL(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel &eyeB, const cv::Size &size, float scale);
 
 class EyeModelEstimatorTest : public ::testing::Test
