@@ -123,8 +123,6 @@ option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 
-message("DRISHTI_BUILD_EOS (1) ${DRISHTI_BUILD_EOS}")
-
 if(DRISHTI_BUILD_TESTS)
   if(ANDROID OR IOS)
     # FIXME: https://github.com/elucideye/drishti/issues/58
@@ -311,7 +309,6 @@ add_definitions(-DDLIB_NO_GUI_SUPPORT=1)
 ### Eigen3 (Header only)
 hunter_add_package(Eigen)
 find_package(Eigen REQUIRED) # <== not finding hunter provided eigen
-message("EIGEN3_INCLUDE_DIR = ${EIGEN3_INCLUDE_DIR}")
 
 ### CVMATIO
 if(DRISHTI_BUILD_ACF)
@@ -355,7 +352,6 @@ if(NOT IOS AND NOT ANDROID)
     )
   find_file(HAVE_VALGRIND "valgrind")
   message("HAVE_VALGRIND: ${HAVE_VALGRIND}")
-
 endif()
 
 include_directories(src/lib)
