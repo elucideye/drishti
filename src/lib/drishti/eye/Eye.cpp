@@ -207,8 +207,10 @@ cv::Mat EyeModel::mask(const cv::Size &size, bool sclera, float irisScale) const
     cv::Mat1b mask(size, 0);
 
     std::vector< std::vector<cv::Point> > contours(1);
-    contours[0].resize(eyelidsSpline.size());
-    std::copy(eyelidsSpline.begin(), eyelidsSpline.end(), contours[0].begin());
+    
+    const auto &curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
+    contours[0].resize(curve.size());
+    std::copy(curve.begin(), curve.end(), contours[0].begin());
     cv::fillPoly(mask, contours, 255, 4);
 
     if(sclera && irisEllipse.size.width)
