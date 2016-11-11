@@ -224,15 +224,18 @@ set(DRISHTI_SDK_LIBS ${DRISHTI_LIBS} ${DRISHTI_SDK_3RDPARTY_LIBS})
 ######################
 ####### OpenGL #######
 ######################
+
+set(DRISHTI_OPENGL_LIBS "")
 if(APPLE)
   if(IOS)
-    list(APPEND DRISHTI_SDK_LIBS "-framework OpenGLES")
+    set(DRISHTI_OPENGL_LIBS "-framework OpenGLES")
   else()
-    list(APPEND DRISHTI_SDK_LIBS "-framework OpenGL")
+    set(DRISHTI_OPENGL_LIBS "-framework OpenGL")
   endif()
 elseif(ANDROID)
-  list(APPEND DRISHTI_SDK_LIBS EGL GLESv2)
+  set(DRISHTI_OPENGL_LIBS EGL GLESv2)
 endif()
+list(APPEND DRISHTI_SDK_LIBS "${DRISHTI_OPENGL_LIBS}")
 
 ### drishtisdk (static)
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})
