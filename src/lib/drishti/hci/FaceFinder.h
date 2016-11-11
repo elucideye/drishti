@@ -1,7 +1,7 @@
 /*!
   @file   drishti/hci/FaceFinder.h
   @author David Hirvonen
-  @brief  Scene viewed by the camera represented by low level primitives: (corners, face, flow, etc.)
+  @brief  Face detection and tracking class with GPU acceleration.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
@@ -104,9 +104,11 @@ public:
     double getFaceFinderInterval() const;
     
 protected:
+
+    virtual void init(const FrameInput &frame);
+    virtual void initPainter(const cv::Size &inputSizeUp);
     
     void initACF(const cv::Size &inputSizeUp);
-    void initPainter(const cv::Size &inputSizeUp);
     void initFIFO(const cv::Size &inputSize);
     void initFlasher();
     void initColormap(); // [0..359];
@@ -116,7 +118,6 @@ protected:
     void init2(drishti::face::FaceDetectorFactory &resources);
     void detect2(const FrameInput &frame, ScenePrimitives &scene);
 
-    void init(const FrameInput &frame);
     void dump(std::vector<cv::Mat4b> &frames);
     virtual int detect(const FrameInput &frame, ScenePrimitives &scene);
     virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf

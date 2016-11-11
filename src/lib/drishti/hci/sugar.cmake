@@ -13,6 +13,7 @@ include(sugar_files)
 
 sugar_files(DRISHTI_HCI_SRCS
   FaceFinder.cpp
+  FaceFinderPainter.cpp
   GazeEstimator.cpp
   Scene.cpp
   gpu/LineDrawing.cpp
@@ -22,6 +23,7 @@ sugar_files(DRISHTI_HCI_SRCS
 
 sugar_files(DRISHTI_HCI_HDRS_PUBLIC
   FaceFinder.h
+  FaceFinderPainter.h
   GazeEstimator.h
   Scene.hpp
   gpu/LineDrawing.hpp

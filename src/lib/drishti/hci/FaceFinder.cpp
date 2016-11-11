@@ -1,7 +1,7 @@
 /*!
   @file   drishti/hci/FaceFinder.cpp
   @author David Hirvonen
-  @brief  Scene viewed by the camera represented by low level primitives: (corners, face, flow, etc.)
+  @brief  Face detection and tracking class with GPU acceleration.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
@@ -45,7 +45,17 @@ static const char * sBar = "####################################################
 using drishti::face::operator*;
 using drishti::core::operator*;
 
+static int foo()
+{
+    ogles_gpgpu::RenderOrientation outputOrientation;
+}
+
 DRISHTI_HCI_NAMESPACE_BEGIN
+
+static int foo()
+{
+    ogles_gpgpu::RenderOrientation outputOrientation;
+}
 
 static int getDetectionImageWidth(float, float, float, float, float);
 
@@ -194,40 +204,6 @@ void FaceFinder::initACF(const cv::Size &inputSizeUp)
     m_acf->setRotation(m_outputOrientation);
 }
 
-void FaceFinder::initPainter(const cv::Size &inputSizeUp)
-{
-    // ### Painter ###
-    ogles_gpgpu::RenderOrientation outputOrientation = ogles_gpgpu::degreesToOrientation(360 - m_outputOrientation);
-    m_rotater = std::make_shared<ogles_gpgpu::TransformProc>();
-    m_rotater->setOutputRenderOrientation(outputOrientation);
-    
-    m_painter = std::make_shared<ogles_gpgpu::FacePainter>(0);
-    
-    // Project detection sizes to full resolution image:
-    const auto winSize = m_detector->getWindowSize();
-    for(const auto &size : m_pyramidSizes)
-    {
-        ogles_gpgpu::LineDrawing drawing;
-        drawing.color = {255,0,0};
-        
-        const float wl0 = static_cast<float> (winSize.width * inputSizeUp.width) / size.width;
-        const float hl0 = static_cast<float> (winSize.height * inputSizeUp.height) / size.height;
-        drawing.contours =
-        {
-            {
-                {0.f, 0.f},
-                {wl0, 0.f},
-                {wl0, hl0},
-                {0.f, hl0}
-            }
-        };
-        m_painter->getPermanentLineDrawings().push_back(drawing);
-    }
-    
-    m_painter->add(m_rotater.get());
-    m_painter->prepare(inputSizeUp.width, inputSizeUp.height, GL_RGBA);
-}
-
 void FaceFinder::initFIFO(const cv::Size &inputSize)
 {
     // ### Fifo ###
@@ -289,6 +265,11 @@ void FaceFinder::initIris(const cv::Size &size)
         m_ellipsoPolar[i] = std::make_shared<ogles_gpgpu::EllipsoPolarWarp>();
         m_ellipsoPolar[i]->setOutputSize(size.width, size.height);
     }
+}
+
+void FaceFinder::initPainter(const cv::Size & /* inputSizeUp */ )
+{
+    
 }
 
 void FaceFinder::init(const FrameInput &frame)
@@ -405,59 +386,7 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
 
 GLuint FaceFinder::paint(const ScenePrimitives &scene, GLuint inputTexture)
 {
-    // Convert objects to line drawings
-    m_painter->getLineDrawings().clear();
-
-    if(scene.corners().size())
-    {
-        pointsToCrosses(scene.corners(), m_painter->getLineDrawings());
-    }
-
-    if(scene.faces().size())
-    {
-        facesToDrawings(scene.faces(), m_painter->getLineDrawings());
-        for(const auto &f : scene.faces())
-        {
-            m_painter->addFace(f);
-            m_eyeFilter->addFace(f);
-        }
-
-        // Configure eye enhancer
-        m_eyeFilter->process(inputTexture, 1, GL_TEXTURE_2D);
-        m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
-
-#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
-        //Draw the polar warp:
-        for(int i = 0; i < 2; i++)
-        {
-            m_painter->setIrisTexture(i, m_ellipsoPolar[i]->getOutputTexId(), m_ellipsoPolar[i]->getOutFrameSize());
-        }
-#endif
-    }
-    else if(scene.objects().size())
-    {
-        rectanglesToDrawings(scene.objects() * m_scale, m_painter->getLineDrawings());
-    }
-
-    if(m_doFlow)
-    {
-        if(scene.flow().size())
-        {
-            flowToDrawings(scene.flow(), m_painter->getLineDrawings(), m_colors32FC3);
-        }
-
-        // Add the flow for debugging:
-        m_painter->setFlowTexture(m_acf->flow.getOutputTexId(), m_acf->flow.getOutFrameSize());
-    }
-
-    if(m_doFlash)
-    {
-        m_painter->setFlashTexture(m_flasher->last()->getOutputTexId(), m_flasher->last()->getOutFrameSize());
-    }
-
-    m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
-    
-    return m_rotater->getOutputTexId();
+    return inputTexture;
 }
 
 void FaceFinder::initColormap()
