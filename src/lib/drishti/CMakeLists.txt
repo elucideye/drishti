@@ -188,10 +188,14 @@ endif(DRISHTI_BUILD_WORLD)
 ##
 
 if(DRISHTI_BUILD_TESTS)
+
   add_subdirectory(core)
   add_subdirectory(geometry)
-  add_subdirectory(eye)
+
+  # Run public SDK, then eye tests in that order
   add_subdirectory(drishti)  
+  add_subdirectory(eye)
+  
   if(DRISHTI_BUILD_ACF)
     add_subdirectory(acf)
   endif()
