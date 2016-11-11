@@ -101,9 +101,39 @@ void FaceFinder::setMinDistance(float meters)
     m_minDistanceMeters = meters;
 }
 
+float FaceFinder::getMinDistance() const
+{
+    return m_minDistanceMeters;
+}
+
 void FaceFinder::setMaxDistance(float meters)
 {
     m_maxDistanceMeters = meters;
+}
+
+float FaceFinder::getMaxDistance() const
+{
+    return m_maxDistanceMeters;
+}
+
+void FaceFinder::setDoCpuAcf(bool flag)
+{
+    m_doCpuACF = flag;
+}
+
+bool FaceFinder::getDoCpuAcf() const
+{
+    return m_doCpuACF;
+}
+
+void FaceFinder::setFaceFinderInterval(double interval)
+{
+    m_faceFinderInterval = interval;
+}
+
+double FaceFinder::getFaceFinderInterval() const
+{
+    return m_faceFinderInterval;
 }
 
 void FaceFinder::dump(std::vector<cv::Mat4b> &frames)
@@ -509,11 +539,6 @@ void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
     }
 }
 
-void FaceFinder::setDoCpuAcf(bool flag)
-{
-    m_doCpuACF = flag;
-}
-
 void FaceFinder::fill(drishti::acf::Detector::Pyramid &P)
 {
     auto crops = m_acf->getCropRegions();
@@ -550,11 +575,9 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
         // Fill in ACF Pyramid structure
         std::vector<double> scores;
 
-        // *m_detector
-
         std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - m_objects.first).count();
-        if(elapsed > 0.1)
+        if(elapsed > m_faceFinderInterval)
         {
             (*m_detector)(*scene.m_P, scene.objects(), &scores);
             m_objects = std::make_pair(std::chrono::high_resolution_clock::now(), scene.objects());

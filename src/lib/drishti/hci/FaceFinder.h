@@ -26,6 +26,7 @@
 #include <memory>
 #include <chrono>
 
+#define DRISHTI_FACEFINDER_INTERVAL 0.1
 #define DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR 0
 
 // *INDENT-OFF*
@@ -72,6 +73,7 @@ class FaceFinder
 public:
 
     using FrameInput = ogles_gpgpu::FrameInput;
+    using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
     
     struct Config
     {
@@ -85,13 +87,21 @@ public:
         bool doFlash = false;
     };
 
-    FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &config, void *glContext = nullptr);
+    FaceFinder(FaceDetectorFactoryPtr &factory, Config &config, void *glContext = nullptr);
 
     virtual GLuint operator()(const FrameInput &frame);
     
     void setMaxDistance(float meters);
+    float getMaxDistance() const;
+    
     void setMinDistance(float meters);
+    float getMinDistance() const;
+
     void setDoCpuAcf(bool flag);
+    bool getDoCpuAcf() const;
+
+    void setFaceFinderInterval(double interval);
+    double getFaceFinderInterval() const;
     
 protected:
     
@@ -113,7 +123,6 @@ protected:
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);
 
     int computeDetectionWidth(const cv::Size &inputSizeUp) const;
-    
     void fill(drishti::acf::Detector::Pyramid &P);
 
     cv::Mat3f m_colors32FC3; // map angles to colors
@@ -129,6 +138,8 @@ protected:
     std::pair<time_point, std::vector<cv::Rect>> m_objects;
 
     drishti::acf::Detector::Pyramid m_P;
+
+    double m_faceFinderInterval = DRISHTI_FACEFINDER_INTERVAL;
 
     float m_minDistanceMeters = 0.f;
     float m_maxDistanceMeters = 10.0f;
