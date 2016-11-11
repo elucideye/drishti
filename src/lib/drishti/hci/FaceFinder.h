@@ -167,6 +167,10 @@ protected:
     drishti::acf::Detector *m_detector = nullptr; // weak ref
 
     std::shared_ptr<drishti::face::FaceDetector> m_faceDetector;
+    
+    // Model estimator from pinhole camera model:
+    std::shared_ptr<drishti::face::FaceModelEstimator> m_faceEstimator;
+    
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
     std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL

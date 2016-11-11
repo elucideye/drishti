@@ -294,9 +294,8 @@ void FaceFinder::initIris(const cv::Size &size)
 void FaceFinder::init(const FrameInput &frame)
 {
     m_logger->info() << "FaceFinder::init()";
-
     m_logger->set_level(spdlog::level::err);
-
+    
     const cv::Size inputSize(frame.size.width, frame.size.height);
 
     auto inputSizeUp = inputSize;
@@ -307,6 +306,8 @@ void FaceFinder::init(const FrameInput &frame)
     }
 
     m_hasInit = true;
+    
+    m_faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*m_sensor);
 
     initColormap();
     initFIFO(inputSize);
@@ -616,21 +617,19 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
             drishti::face::FaceDetector::PaddedImage Ib(gray, {{0,0}, gray.size()});
 
             m_faceDetector->setDoIrisRefinement(true);
-
             m_faceDetector->setFaceStagesHint(8);
             m_faceDetector->setFace2StagesHint(4);
             m_faceDetector->setEyelidStagesHint(4);
             m_faceDetector->setIrisStagesHint(10);
             m_faceDetector->setIrisStagesRepetitionFactor(1);
-
             m_faceDetector->refine(Ib, faces, Hdr, isDetection);
 
             //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
 
             // Scale faces from regression to level 0
-            // The configuration sizes used in the ACF stcked channe image
+            // The configuration sizes used in the ACF stacked channe image
             // are all upright, but the output texture used for the display
-            // is still in teh native (potentially rotated) coordinate system,
+            // is still in the native (potentially rotated) coordinate system,
             // so we need to perform scaling wrt that.
 
             const float Srf = 1.0f / m_acf->getGrayscaleScale();
@@ -638,6 +637,12 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
             for(auto &f : faces)
             {
                 f = H0 * f;
+                
+                // Tag each face w/ approximate distance:
+                if(m_faceEstimator)
+                {
+                    (*f.eyesCenter) = (*m_faceEstimator)(f);
+                }
             }
 
             scene.faces() = faces;
