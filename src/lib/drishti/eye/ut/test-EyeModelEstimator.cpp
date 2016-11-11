@@ -134,14 +134,17 @@ protected:
         auto eye = std::make_shared<drishti::eye::EyeModel>();
         
         std::ifstream is(truthFilename);
-        cereal::JSONInputArchive ia(is);
-        typedef decltype(ia) Archive;
-        ia( GENERIC_NVP("eye", *eye) );
-        
-        m_eye = eye;
-        m_eye->refine();
+        if(is)
+        {
+            cereal::JSONInputArchive ia(is);
+            typedef decltype(ia) Archive;
+            ia( GENERIC_NVP("eye", *eye) );
+            
+            m_eye = eye;
+            m_eye->refine();
+        }
     }
-
+    
     void createImage(Entry &entry, int rows, int cols, const cv::Vec3b &color)
     {
         entry.image.create(rows, cols, CV_8UC3);
