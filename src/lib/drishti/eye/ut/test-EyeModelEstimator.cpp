@@ -209,13 +209,6 @@ static void checkValid(const drishti::eye::EyeModel &eye, const cv::Size &size)
     EXPECT_GT(eye.pupilEllipse.size.width, 0);
 }
 
-static void checkInvalid(const drishti::eye::EyeModel &eye)
-{
-    EXPECT_EQ(eye.eyelids.size(), 0);
-    EXPECT_EQ(eye.irisEllipse.size.width, 0);
-    EXPECT_EQ(eye.pupilEllipse.size.width, 0);
-}
-
 /*
  * Fixture tests
  */
