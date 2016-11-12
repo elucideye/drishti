@@ -6,6 +6,6 @@ target_link_libraries(test-drishti-core drishtisdk ${OpenCV_LIBS} GTest::main)
 
 enable_testing()
 
-add_test(NAME DrishtiGeometryTest COMMAND test-drishti-core)
+add_test(NAME DrishtiCoreTest COMMAND test-drishti-core)
 
 set_property(TARGET test-drishti-core PROPERTY FOLDER "app/tests")
