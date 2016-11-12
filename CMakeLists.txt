@@ -10,8 +10,8 @@ include("cmake/HunterGate.cmake")
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.16.24.tar.gz"
-  SHA1 "00ab627d3d4fe5151e15b6ab2b1b1da17650984a"    
+  URL "https://github.com/ruslo/hunter/archive/v0.16.25.tar.gz"
+  SHA1 "e02c1b104278f7fd24b4c3a3802013c5e1740ad0"
   FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
@@ -235,21 +235,6 @@ endif()
 
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
-endif()
-
-# Look for WITH_JPEG=ON in Hunter/config.cmake
-# Dependency for OpenCV and cvmatio. Usually dependent packages are
-# installed automatically but current hardcoded version of OpenCV is not
-# hunterized enough so it doesn't know about Jpeg, i.e. there is no
-# `hunter_add_package(Jpeg)`.  But Jpeg is present in fresh version of Hunter with
-# custom FindJPEG.cmake module which expect JPEGConfig.cmake installed.
-# OpenCV do use `find_package(JPEG)` without `hunter_add_package(Jpeg)`, hence
-# FindJPEG.cmake exits with error "JPEG::jpeg not found". As a workaround
-# we manually download Jpeg before OpenCV.
-# TODO: remove after OpenCV version updated
-if(is_linux)
-  hunter_add_package(Jpeg)
-  find_package(JPEG CONFIG REQUIRED)
 endif()
 
 ### spdlog: Added logging library
