@@ -19,6 +19,10 @@ if [ -z "${DRISHTISDK_REPO_OWNER}" ]; then
     echo 2>&1 "Must have DRISHTISDK_REPO_OWNER set"
 fi
 
+if [ -z "${GITHUB_USER_PASSWORD}" ]; then
+    echo 2>&1 "Must have GITHUB_USER_PASSWORD set"
+fi
+
 if [ -z "${HUNTER_ROOT}" ]; then
     echo 2>&1 "Must have HUNTER_ROOT set"
 fi
