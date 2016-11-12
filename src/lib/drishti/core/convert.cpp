@@ -149,7 +149,7 @@ void convertU8ToF32(const cv::Mat4b &input, std::vector<PlaneInfo> &planes)
 void unpack(const cv::Mat4b &input, std::vector<PlaneInfo> &planes)
 {
     std::vector<cv::Mat> channels;
-    cv::split(input, planes);
+    cv::split(input, channels);
     for(auto &p : planes)
     {
         channels[p.channel].copyTo(p.plane);
