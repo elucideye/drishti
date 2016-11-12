@@ -11,11 +11,18 @@ target_link_libraries(test-drishti-hci
   )
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
-if(APPLE AND NOT IOS)
-  target_link_libraries(test-drishti-hci
-    "-framework ImageIO"
-    "-framework CoreVideo"
-    )
+if(APPLE)
+  if(IOS)
+    target_link_libraries(test-drishti-hci
+      "-framework CoreFoundation"
+      "-framework Foundation"
+      )
+  else()
+    target_link_libraries(test-drishti-hci
+      "-framework ImageIO"
+      "-framework CoreVideo"
+      )
+  endif()
 endif()
 
 enable_testing()
