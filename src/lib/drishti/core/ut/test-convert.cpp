@@ -44,7 +44,7 @@ static std::vector<cv::Mat> unpack_test(const cv::Size &size)
     return dst;
 }
 
-TEST(EyeSegmenter, unpack_mul_16)
+TEST(ChannelConversion, unpack_mul_16)
 {
     auto dst = unpack_test({100,160});
     for(int i = 0; i < 4; i++)
@@ -54,7 +54,7 @@ TEST(EyeSegmenter, unpack_mul_16)
     }
 }
 
-TEST(EyeSegmenter, unpack_rem_16)
+TEST(ChannelConversion, unpack_rem_16)
 {
     auto dst = unpack_test({100,161});
     for(int i = 0; i < 4; i++)
@@ -83,7 +83,7 @@ static std::vector<cv::Mat> convert_test(const cv::Size &size)
     return dst;
 }
 
-TEST(EyeSegmenter, convert_mul_16)
+TEST(ChannelConversion, convert_mul_16)
 {
     auto dst = convert_test({100,160});
 
@@ -94,7 +94,7 @@ TEST(EyeSegmenter, convert_mul_16)
     }
 }
 
-TEST(EyeSegmenter, convert_rem_16)
+TEST(ChannelConversion, convert_rem_16)
 {
     auto dst = convert_test({100,161});
 
