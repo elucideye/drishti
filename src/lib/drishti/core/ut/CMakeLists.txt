@@ -2,7 +2,7 @@
 #include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(test-drishti-core test-convert.cpp test-drishti-core.cpp)
-target_link_libraries(test-drishti-core drishtisdk ${OpenCV_LIBS} GTest::main)
+target_link_libraries(test-drishti-core drishtisdk ${OpenCV_LIBS} GTest::gtest)
 
 enable_testing()
 

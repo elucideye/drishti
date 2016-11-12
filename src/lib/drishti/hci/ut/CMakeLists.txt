@@ -5,7 +5,7 @@ add_executable(test-drishti-hci test-drishti-hci.cpp)
 target_link_libraries(test-drishti-hci
   drishtisdk
   ${OpenCV_LIBS}
-  GTest::main
+  GTest::gtest
   ogles_gpgpu::ogles_gpgpu
   ${DRISHTI_OPENGL_LIBS}
   )
@@ -15,7 +15,7 @@ if(APPLE)
   if(IOS)
     target_link_libraries(test-drishti-hci
       "-framework CoreFoundation"
-      "-framework Foundation"
+      "-framework Foundation"  # _NSLog
       )
   else()
     target_link_libraries(test-drishti-hci

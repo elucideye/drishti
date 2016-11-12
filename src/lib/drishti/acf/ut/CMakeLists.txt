@@ -23,7 +23,7 @@ add_executable(test-drishti-acf ${SOURCES})
 
 target_link_libraries(test-drishti-acf
   ${OpenCV_LIBS}
-  GTest::main
+  GTest::gtest
   drishtisdk
   ${DRISHTI_OPENGL_LIBS}
   )
