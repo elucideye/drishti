@@ -6,7 +6,6 @@ target_link_libraries(test-drishti-hci
   drishtisdk
   ${OpenCV_LIBS}
   GTest::gtest
-  ogles_gpgpu::ogles_gpgpu
   ${DRISHTI_OPENGL_LIBS}
   )
 
