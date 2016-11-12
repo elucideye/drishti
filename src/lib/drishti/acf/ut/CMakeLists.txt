@@ -25,6 +25,7 @@ target_link_libraries(test-drishti-acf
   ${OpenCV_LIBS}
   GTest::main
   drishtisdk
+  ${DRISHTI_OPENGL_LIBS}
   )
 
 if(DRISHTI_ACF_DO_GPU)
