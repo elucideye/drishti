@@ -10,10 +10,8 @@ include("cmake/HunterGate.cmake")
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
 HunterGate(
-  #URL "https://github.com/ruslo/hunter/archive/v0.16.25.tar.gz"
-  #SHA1 "e02c1b104278f7fd24b4c3a3802013c5e1740ad0"
-  URL "https://github.com/headupinclouds/hunter/archive/ogles_gpgpu.msvc.fix2.tar.gz"
-  SHA1 "f26bd0d733aa1be71e8353017ce10719e4daa152"  
+  URL "https://github.com/headupinclouds/hunter/archive/v0.16.25-rc1.tar.gz"
+  SHA1 "1bdc986b028f8aa37e12c0ba8e1610ba10de8b64"  
   FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
