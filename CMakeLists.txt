@@ -10,8 +10,8 @@ include("cmake/HunterGate.cmake")
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.16.28.tar.gz"
-  SHA1 "f34c436061f5771af6b1b589c9d1a0f673d037df"
+  URL "https://github.com/ruslo/hunter/archive/v0.16.29.tar.gz"
+  SHA1 "309d7d8eedc5b1229b710f856dc7a19e04fb7737"
   FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
