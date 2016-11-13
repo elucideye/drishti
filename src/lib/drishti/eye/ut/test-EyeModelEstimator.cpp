@@ -38,7 +38,7 @@ bool isTextArchive;
 BEGIN_EMPTY_NAMESPACE
 
 static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio);
-static float PASCAL pascal_fn(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel &eyeB, const cv::Size &size, float scale);
+static float PASCAL(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel &eyeB, const cv::Size &size, float scale);
 
 class EyeModelEstimatorTest : public ::testing::Test
 {
@@ -248,7 +248,7 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
         {
             const float threshold = (i == m_targetWidth) ? m_scoreThreshold : 0.5;
             const float scaleGroundTruthToCurrent = float(m_images[i].image.cols) / float(m_targetWidth);
-            const float score = pascal_fn(*m_eye, eye, m_images[i].image.size(), scaleGroundTruthToCurrent);
+            const float score = PASCAL(*m_eye, eye, m_images[i].image.size(), scaleGroundTruthToCurrent);
             ASSERT_GT(score, threshold);
         }
     }
@@ -317,7 +317,7 @@ static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double 
 // eyeA: ground truth eye
 // eyeB: test eye
 static float
-PASCAL pascal_fn(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel &eyeB, const cv::Size &size, float scale)
+PASCAL(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel &eyeB, const cv::Size &size, float scale)
 {
     drishti::eye::EyeModel eyeGT = eyeA * scale;
     cv::Mat maskGT = scleraMask(eyeGT, size);
