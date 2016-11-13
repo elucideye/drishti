@@ -9,9 +9,12 @@ include("cmake/HunterGate.cmake")
 # drishti specific hunter cache pacakges:
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
+include(drishti_set_hunter_gate)
+drishti_set_hunter_version(DRISHTI_HUNTER_GATE_URL DRISHTI_HUNTER_GATE_SHA1)
+
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.16.29.tar.gz"
-  SHA1 "309d7d8eedc5b1229b710f856dc7a19e04fb7737"
+  URL "${DRISHTI_HUNTER_GATE_URL}"
+  SHA1 "${DRISHTI_HUNTER_GATE_SHA1}"
   FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
@@ -290,6 +293,10 @@ hunter_add_package(dlib)
 find_package(dlib CONFIG REQUIRED)
 include_directories(${DLIB_INCLUDE_DIRS})
 add_definitions(-DDLIB_NO_GUI_SUPPORT=1)
+
+### half (header only)
+hunter_add_package(half)
+find_package(half CONFIG REQUIRED)
 
 ### Eigen3 (Header only)
 hunter_add_package(Eigen)

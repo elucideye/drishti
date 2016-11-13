@@ -26,7 +26,6 @@ COMMAND=(
     "${DRISHTI_BUILD_ARGS[*]} "
     "DRISHTI_BUILD_QT=${DRISHTI_BUILD_QT} "
     "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
-    "--config Release "
     "--install "
     "--jobs 8 "
     "${EXTRA_ARGS} "

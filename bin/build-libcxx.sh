@@ -14,9 +14,6 @@ fi
 
 rename_tab drishti ${TOOLCHAIN}
 
-BUILD_TYPE=MinSizeRel
-#BUILD_TYPE=Release
-
 COMMAND=(
     "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
@@ -24,7 +21,6 @@ COMMAND=(
     "DRISHTI_BUILD_C_INTERFACE=ON "
     "DRISHTI_COTIRE=ON "
     "DRISHTI_BUILD_MIN_SIZE=ON "
-    "--config ${BUILD_TYPE} "
     "--pack ${CPACK_TYPE} "
     "--strip "
     "--jobs 8 "
