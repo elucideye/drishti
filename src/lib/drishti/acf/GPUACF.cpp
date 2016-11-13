@@ -28,6 +28,8 @@
 #  define TEXTURE_FORMAT GL_BGRA
 #endif
 
+#define GPU_ACF_DEBUG_CHANNELS 0
+
 #define DO_INLINE_MERGE 0
 
 BEGIN_OGLES_GPGPU
@@ -62,16 +64,14 @@ ACF::ACF(void *glContext, const Size2d &size, const std::vector<Size2d> &scales,
     , gradHistProcAOut(1.0f)
     , gradHistProcBOut(1.0f)
 
+    , luvTransposeOut()
+
       // Optical flow:
     , flow(0.004, 1.0, false)
     , m_doFlow(flowWidth > 0)
     , m_flowScale(float(flowWidth)/float(size.width)) // TODO: not when using pyramid
 
 {
-    // TODO: add rescale to width preserving aspect ratio
-
-    // Note: The pyramid step itself performs reductions:
-
     // Reduce base LUV image to highest resolution used in pyramid:
     rgb2luvProc.setOutputSize(scales[0].width, scales[0].height);
 
@@ -103,6 +103,10 @@ ACF::ACF(void *glContext, const Size2d &size, const std::vector<Size2d> &scales,
     reduceGradHistProcASmooth.setOutputRenderOrientation(RenderOrientationDiagonal);
     reduceGradHistProcBSmooth.setOutputRenderOrientation(RenderOrientationDiagonal);
 #endif
+    
+    // Add transposed Luv output for CPU processing (optional)
+    luvTransposeOut.setOutputRenderOrientation(RenderOrientationDiagonal);
+    rgb2luvProc.add(&luvTransposeOut);
 
     pyramidProc.setInterpolation(ogles_gpgpu::TransformProc::BICUBIC);
 
@@ -174,7 +178,6 @@ const cv::Mat & ACF::getGrayscale()
     return m_grayscale;
 }
 
-// TODO: more exact mechanism for resized rois from ogles_gpgpu filters:
 std::vector<cv::Mat> ACF::getFlowPyramid()
 {
     // Build flow pyramid:
@@ -184,14 +187,11 @@ std::vector<cv::Mat> ACF::getFlowPyramid()
     std::vector<cv::Mat> flow(m_crops.size());
     for(int i = 0; i < m_crops.size(); i++)
     {
-        const auto &c = m_crops[i]; // 72x894  vs crop[0] = {160x90}
+        const auto &c = m_crops[i];
         cv::Rect2f crop(c.x, c.y, c.width, c.height);
         cv::Rect roi(crop.tl() * scale, crop.br() * scale);
         flow[i] = m_flow(roi & bounds);
     }
-    //cv::imshow("flow0", flow[0]);
-    //cv::imshow("flow1", flow[1]);
-    //cv::waitKey(10);
 
     return flow;
 }
@@ -229,6 +229,7 @@ void ACF::operator()(const FrameInput &frame)
 
 void ACF::preConfig()
 {
+    m_hasLuvOutput = false;
     m_hasFlowOutput = false;
     m_hasChannelOutput = false;
     m_hasGrayscaleOutput = false;
@@ -364,22 +365,57 @@ void ACF::fill(drishti::acf::Detector::Pyramid &pyramid)
     }
 }
 
+static void unpackImage(const cv::Mat4b &frame, std::vector<drishti::core::PlaneInfo> &dst)
+{
+    switch(dst.front().plane.depth())
+    {
+        case CV_8UC1: drishti::core::unpack(frame, dst); break;
+        case CV_32FC1: drishti::core::convertU8ToF32(frame, dst); break;
+        default: break;
+    }
+}
+
 static void unpackImage(ProcInterface &proc, std::vector<drishti::core::PlaneInfo> &dst)
 {
     MemTransfer::FrameDelegate handler = [&](const Size2d &size, const void *pixels, size_t rowStride)
     {
         cv::Mat4b frame(size.height, size.width, (cv::Vec4b*)pixels, rowStride);
-        unpack(frame, dst);
+        switch(dst.front().plane.depth())
+        {
+            case CV_8UC1: drishti::core::unpack(frame, dst); break;
+            case CV_32FC1: drishti::core::convertU8ToF32(frame, dst); break;
+            default: break;
+        }
     };
     proc.getResultData(handler);
+}
+
+// NOTE: GPUACF::getLuvPlanar(), provides a direct/optimized alternative to
+// the following CV_8UC4 access and conversion:
+
+// const auto &LUVA = m_acf->getLuv(); // BGRA
+// cv::Mat LUV, LUVf;
+// cv::cvtColor(LUVA, LUV, cv::COLOR_BGRA2RGB);
+// LUV.convertTo(LUVf, CV_32FC3, 1.0/255.0);
+// MatP LUVp(LUVf.t());
+
+const MatP& ACF::getLuvPlanar()
+{
+    CV_Assert(m_hasLuvOutput);
+    return m_luvPlanar;
+}
+
+const cv::Mat& ACF::getLuv()
+{
+    m_luv = getImage(rgb2luvProc);
+    return m_luv;
 }
 
 cv::Mat ACF::getChannels()
 {
     auto tic = std::chrono::system_clock::now();
-
+    
     cv::Mat result = getChannelsImpl();
-
     std::chrono::duration<double> elapsedSeconds =  std::chrono::system_clock::now() - tic;
     if(m_logger)
     {
@@ -391,7 +427,6 @@ cv::Mat ACF::getChannels()
 
 cv::Mat ACF::getChannelsImpl()
 {
-
     using drishti::core::unpack;
 
     if(m_doFlow && !m_hasFlowOutput)
@@ -417,12 +452,11 @@ cv::Mat ACF::getChannelsImpl()
             std::swap(rgba[0], rgba[2]);
         }
 
-        MatP acf, gray, xy;
+        MatP acf, gray, luv;
 
         using PlaneInfoVec = std::vector<drishti::core::PlaneInfo>;
         std::vector<std::pair<PlaneInfoVec, ProcInterface *>> planeIndex;
 
-        if(1)
         {
             cv::Size acfSize(mergeProcLUVG.getOutFrameW(), mergeProcLUVG.getOutFrameH());
             acf.create(acfSize, CV_8UC1, getChannelCount(), GPU_ACF_TRANSPOSE);
@@ -441,13 +475,24 @@ cv::Mat ACF::getChannelsImpl()
             // Here we use the green channel:
             cv::Size graySize(reduceRgbSmoothProc.getOutFrameW(), reduceRgbSmoothProc.getOutFrameH());
             gray.create(graySize, CV_8UC1, 1);
-            planeIndex.emplace_back(PlaneInfoVec {{gray[0], rgba[1]}}, &reduceRgbSmoothProc );
+            PlaneInfoVec grayInfo {{gray[0], rgba[1]}};
+            planeIndex.emplace_back(grayInfo, &reduceRgbSmoothProc);
+        }
+        
+        if(m_doLuvTransfer)
+        {
+            const float alpha = 1.0f/255.0f;
+            cv::Size luvSize(luvTransposeOut.getOutFrameW(), luvTransposeOut.getOutFrameH());
+            luv.create(luvSize, CV_32FC1, 3);
+            PlaneInfoVec luvInfo {{luv[0],rgba[0],alpha},{luv[1],rgba[1],alpha},{luv[2],rgba[2],alpha}};
+            planeIndex.emplace_back(luvInfo, &luvTransposeOut);
         }
 
         // We can use either the direct MemTransferOptimized acces, or glReadPixels()
         if(dynamic_cast<MemTransferOptimized *>(rgb2luvProc.getMemTransferObj()))
         {
-            // TODO: confirm ios texture caches can be queried in parallel
+            // TODO: confirm in documentation that ios texture caches can be queried in parallel
+            // Experimentally this seems to be the case.
             std::function<void(int)> unpacker = [&](int i)
             {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
@@ -467,7 +512,7 @@ cv::Mat ACF::getChannelsImpl()
             std::function<void(int)> unpacker = [&](int i)
             {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
-                unpack(getImage(*planeIndex[i].second), planeIndex[i].first);
+                unpackImage(getImage(*planeIndex[i].second), planeIndex[i].first);
             };
             drishti::core::ParallelHomogeneousLambda harness(unpacker);
             harness({0, int(planeIndex.size())});
@@ -477,9 +522,16 @@ cv::Mat ACF::getChannelsImpl()
         if(m_doGray)
         {
             m_grayscale = gray[0];
+            m_hasGrayscaleOutput = true;
         }
 
-        if(0)
+        if(m_doLuvTransfer)
+        {
+            m_luvPlanar = luv;
+            m_hasLuvOutput = true;
+        }
+        
+#if GPU_ACF_DEBUG_CHANNELS
         {
             std::string home = getenv("HOME");
 #if ANDROID
@@ -492,6 +544,8 @@ cv::Mat ACF::getChannelsImpl()
             cv::imwrite(home + "/Documents/acf.png", m_channels);
 #endif
         }
+        
+#endif // GPU_ACF_DEBUG_CHANNELS
 
         if(m_timer)
         {

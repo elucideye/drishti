@@ -1,7 +1,7 @@
 /*!
   @file   drishti/hci/FaceFinder.cpp
   @author David Hirvonen
-  @brief  Scene viewed by the camera represented by low level primitives: (corners, face, flow, etc.)
+  @brief  Face detection and tracking class with GPU acceleration.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
@@ -45,7 +45,17 @@ static const char * sBar = "####################################################
 using drishti::face::operator*;
 using drishti::core::operator*;
 
+static int foo()
+{
+    ogles_gpgpu::RenderOrientation outputOrientation;
+}
+
 DRISHTI_HCI_NAMESPACE_BEGIN
+
+static int foo()
+{
+    ogles_gpgpu::RenderOrientation outputOrientation;
+}
 
 static int getDetectionImageWidth(float, float, float, float, float);
 
@@ -54,6 +64,19 @@ static cv::Size uprightSize(const cv::Size &size, int orientation);
 static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, ScenePrimitives &scene, float flowScale = 1.f);
 static void extractCorners(const cv::Mat1b &corners, ScenePrimitives &scene, float flowScale = 1.f);
 #endif
+
+#define DRISHTI_HCI_DEBUG_PYRAMIDS 1
+
+#if DRISHTI_HCI_DEBUG_PYRAMIDS
+static void logPyramid(const std::string &filename, const drishti::acf::Detector::Pyramid &P)
+{
+    cv::Mat Pgpu;
+    cv::vconcat(P.data[0][0].get(), Pgpu);
+    Pgpu = Pgpu.t();
+    cv::normalize(Pgpu, Pgpu, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+    cv::imwrite(filename, Pgpu);
+}
+#endif // DRISHTI_HCI_DEBUG_PYRAMIDS
 
 FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &args, void *glContext)
     : m_glContext(glContext)
@@ -72,6 +95,8 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
     , m_doFlash(args.doFlash)
     , m_flashWidth(DRISHTI_FACEFILTER_FLASH_WIDTH)
 
+    , m_doIris(DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR)
+
     , m_scenes(args.frameDelay+1)
     , m_factory(factory)
     , m_sensor(args.sensor)
@@ -86,9 +111,39 @@ void FaceFinder::setMinDistance(float meters)
     m_minDistanceMeters = meters;
 }
 
+float FaceFinder::getMinDistance() const
+{
+    return m_minDistanceMeters;
+}
+
 void FaceFinder::setMaxDistance(float meters)
 {
     m_maxDistanceMeters = meters;
+}
+
+float FaceFinder::getMaxDistance() const
+{
+    return m_maxDistanceMeters;
+}
+
+void FaceFinder::setDoCpuAcf(bool flag)
+{
+    m_doCpuACF = flag;
+}
+
+bool FaceFinder::getDoCpuAcf() const
+{
+    return m_doCpuACF;
+}
+
+void FaceFinder::setFaceFinderInterval(double interval)
+{
+    m_faceFinderInterval = interval;
+}
+
+double FaceFinder::getFaceFinderInterval() const
+{
+    return m_faceFinderInterval;
 }
 
 void FaceFinder::dump(std::vector<cv::Mat4b> &frames)
@@ -105,12 +160,123 @@ void FaceFinder::dump(std::vector<cv::Mat4b> &frames)
     }
 }
 
+int FaceFinder::computeDetectionWidth(const cv::Size &inputSizeUp) const
+{
+    const float faceWidthMeters = 0.120; // TODO
+    const float fx = m_sensor->intrinsic().m_fx;
+    const float winSize = m_detector->getWindowSize().width;
+    return getDetectionImageWidth(faceWidthMeters, fx, m_maxDistanceMeters, winSize, inputSizeUp.width);
+}
+
+// Side effect: set m_pyramdSizes
+void FaceFinder::initACF(const cv::Size &inputSizeUp)
+{
+    // ### ACF (Transpose) ###
+    // Find the detection image width required for object detection at the max distance:
+    int detectionWidth = computeDetectionWidth(inputSizeUp);
+    m_scale = float(inputSizeUp.width) / float(detectionWidth);
+    
+    // ACF implementation uses reduce resolution transposed image:
+    cv::Size detectionSize = inputSizeUp * (1.0f/m_scale);
+    cv::Mat I(detectionSize.width, detectionSize.height, CV_32FC3, cv::Scalar::all(0));
+    MatP Ip(I);
+    m_detector->computePyramid(Ip, m_P);
+    
+    m_pyramidSizes.resize(m_P.nScales);
+    std::vector<ogles_gpgpu::Size2d> sizes(m_P.nScales);
+    for(int i = 0; i < m_P.nScales; i++)
+    {
+        const auto size = m_P.data[i][0][0].size();
+        sizes[i] = { size.width * 4, size.height * 4 }; // undo ACF binning x4
+        m_pyramidSizes[i] = { size.width * 4, size.height * 4 };
+        
+        // CPU processing works with tranposed images for col-major storage assumption.
+        // Undo that here to map to row major representation.  Perform this step
+        // to make transpose operation explicit.
+        std::swap(sizes[i].width, sizes[i].height);
+        std::swap(m_pyramidSizes[i].width, m_pyramidSizes[i].height);
+    }
+    
+    const int grayWidth = m_doLandmarks ? m_landmarksWidth : 0;
+    const int flowWidth = m_doFlow ? m_flowWidth : 0;
+    const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
+    m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, grayWidth, flowWidth, false);
+    m_acf->setRotation(m_outputOrientation);
+}
+
+void FaceFinder::initFIFO(const cv::Size &inputSize)
+{
+    // ### Fifo ###
+    m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(m_scenes.size());
+    m_fifo->init(inputSize.width, inputSize.height, INT_MAX, false);
+    m_fifo->createFBOTex(false);
+}
+
+void FaceFinder::initFlasher()
+{
+    // ### Flash ###
+    m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>();
+    m_flasher->smoothProc.setOutputSize(48, 0);
+    m_acf->rgbSmoothProc.add(&m_flasher->smoothProc);
+}
+
+static ogles_gpgpu::Size2d convert(const cv::Size &size)
+{
+    return ogles_gpgpu::Size2d(size.width, size.height);
+}
+
+void FaceFinder::initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &eyesSize)
+{
+    // ### Eye enhancer ###
+    auto mode = ogles_gpgpu::EyeFilter::kLowPass;
+    const float upper = 0.5;
+    const float lower = 0.5;
+    const float gain = 1.f;
+    const float offset = 0.f;
+    
+    m_eyeFilter = std::make_shared<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, upper, lower, gain, offset);
+    m_eyeFilter->setAutoScaling(true);
+    m_eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
+    
+#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
+    // Add a callback to retrieve updated eye models automatically:
+    cv::Matx33f N = transformation::scale(0.5, 0.5) * transformation::translate(1.f, 1.f);
+    for(int i = 0; i < 2; i++)
+    {
+        std::function<EyeWarp()> eyeDelegate = [&, N, i]()
+        {
+            auto eye = m_eyeFilter->getEyeWarps()[i];
+            eye.eye = N * eye.H * eye.eye;
+            return eye;
+        };
+        m_ellipsoPolar[i]->addEyeDelegate(eyeDelegate);
+        m_eyeFilter->add(m_ellipsoPolar[i].get());
+    }
+#endif // DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
+    
+    m_eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
+}
+
+void FaceFinder::initIris(const cv::Size &size)
+{
+    // ### Ellipsopolar warper ####
+    for(int i = 0; i < 2; i++)
+    {
+        m_ellipsoPolar[i] = std::make_shared<ogles_gpgpu::EllipsoPolarWarp>();
+        m_ellipsoPolar[i]->setOutputSize(size.width, size.height);
+    }
+}
+
+void FaceFinder::initPainter(const cv::Size & /* inputSizeUp */ )
+{
+    
+}
+
 void FaceFinder::init(const FrameInput &frame)
 {
     m_logger->info() << "FaceFinder::init()";
-
     m_logger->set_level(spdlog::level::err);
-
+    
     const cv::Size inputSize(frame.size.width, frame.size.height);
 
     auto inputSizeUp = inputSize;
@@ -121,143 +287,25 @@ void FaceFinder::init(const FrameInput &frame)
     }
 
     m_hasInit = true;
-
-    createColormap();
-
-    {
-        // ### Fifo ###
-        m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(m_scenes.size());
-        m_fifo->init(inputSize.width, inputSize.height, INT_MAX, false);
-        m_fifo->createFBOTex(false);
-    }
     
-    std::vector<cv::Size> pyramidSizes;
-    
+    m_faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*m_sensor);
+
+    initColormap();
+    initFIFO(inputSize);
+    initACF(inputSizeUp);
+    initPainter(inputSizeUp);
+    initEyeEnhancer(inputSizeUp, m_eyesSize);
+
+    if(m_doFlash)
     {
-        // ### ACF (Transpose) ###
-        // Find the detection image width required for object detection at the max distance:
-        int detectionWidth = DRISHTI_FACEFILTER_DETECTION_WIDTH;
-        {
-            const float faceWidthMeters = 0.120; // TODO
-            const float fx = m_sensor->intrinsic().m_fx;
-            const float winSize = m_detector->getWindowSize().width;
-            detectionWidth = getDetectionImageWidth(faceWidthMeters, fx, m_maxDistanceMeters, winSize, inputSizeUp.width);
-        }
-
-        m_scale = float(inputSizeUp.width) / float(detectionWidth);
-
-        // ACF implementation uses reduce resolution transposed image:
-        cv::Size detectionSize = inputSizeUp * (1.0f/m_scale);
-        cv::Mat I(detectionSize.width, detectionSize.height, CV_32FC3, cv::Scalar::all(0));
-        MatP Ip(I);
-        m_detector->computePyramid(Ip, m_P);
-
-        pyramidSizes.resize(m_P.nScales);
-        std::vector<ogles_gpgpu::Size2d> sizes(m_P.nScales);
-        for(int i = 0; i < m_P.nScales; i++)
-        {
-            const auto size = m_P.data[i][0][0].size();
-            sizes[i] = { size.width * 4, size.height * 4 }; // undo ACF binning x4
-            pyramidSizes[i] = { size.width * 4, size.height * 4 };
-
-            // CPU processing works with tranposed images for col-major storage assumption.
-            // Undo that here to map to row major representation.  Perform this step
-            // to make transpose operation explicit.
-            std::swap(sizes[i].width, sizes[i].height);
-            std::swap(pyramidSizes[i].width, pyramidSizes[i].height);
-        }
-
-        const int grayWidth = m_doLandmarks ? m_landmarksWidth : 0;
-        const int flowWidth = m_doFlow ? m_flowWidth : 0;
-        const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
-        m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, grayWidth, flowWidth, false);
-        m_acf->setRotation(m_outputOrientation);
+        initFlasher();
     }
 
+    if(m_doIris)
     {
-        // ### Painter ###
-        ogles_gpgpu::RenderOrientation outputOrientation = ogles_gpgpu::degreesToOrientation(360 - m_outputOrientation);
-        m_rotater = std::make_shared<ogles_gpgpu::TransformProc>();
-        m_rotater->setOutputRenderOrientation(outputOrientation);
-
-        m_painter = std::make_shared<ogles_gpgpu::FacePainter>(0);
-        
-        // Project detection sizes to full resolution image:
-        const auto winSize = m_detector->getWindowSize();
-        for(int i = 0; i < pyramidSizes.size(); i++)
-        {
-            ogles_gpgpu::LineDrawing drawing;
-            drawing.color = {255,0,0};
-
-            const float wl0 = static_cast<float> (winSize.width * inputSizeUp.width) / pyramidSizes[i].width;
-            const float hl0 = static_cast<float> (winSize.height * inputSizeUp.height) / pyramidSizes[i].height;
-            drawing.contours =
-            {
-                {
-                    {0.f, 0.f},
-                    {wl0, 0.f},
-                    {wl0, hl0},
-                    {0.f, hl0}
-                }
-            };
-            m_painter->getPermanentLineDrawings().push_back(drawing);
-        }
-        
-        m_painter->add(m_rotater.get());
-        m_painter->prepare(inputSizeUp.width, inputSizeUp.height, GL_RGBA);
+        initIris({640, 240});
     }
-
-    {
-        // ### Flash ###
-        m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>();
-        m_flasher->smoothProc.setOutputSize(48, 0);
-        m_acf->rgbSmoothProc.add(&m_flasher->smoothProc);
-    }
-
-    ogles_gpgpu::Size2d eyesSize(480, 240);
-
-#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
-    {
-        // ### Ellipsopolar warper ####
-        for(int i = 0; i < 2; i++)
-        {
-            m_ellipsoPolar[i] = std::make_shared<ogles_gpgpu::EllipsoPolarWarp>();
-            m_ellipsoPolar[i]->setOutputSize(640, 240);
-        }
-    }
-#endif // DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
-
-    {
-        // ### Eye enhancer ###
-        auto mode = ogles_gpgpu::EyeFilter::kLowPass;
-        const float upper = 0.5;
-        const float lower = 0.5;
-        const float gain = 1.f;
-        const float offset = 0.f;
-
-        m_eyeFilter = std::make_shared<ogles_gpgpu::EyeFilter>(eyesSize, mode, upper, lower, gain, offset);
-        m_eyeFilter->setAutoScaling(true);
-        m_eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
-
-#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
-        // Add a callback to retrieve updated eye models automatically:
-        cv::Matx33f N = transformation::scale(0.5, 0.5) * transformation::translate(1.f, 1.f);
-        for(int i = 0; i < 2; i++)
-        {
-            std::function<EyeWarp()> eyeDelegate = [&, N, i]()
-            {
-                auto eye = m_eyeFilter->getEyeWarps()[i];
-                eye.eye = N * eye.H * eye.eye;
-                return eye;
-            };
-            m_ellipsoPolar[i]->addEyeDelegate(eyeDelegate);
-            m_eyeFilter->add(m_ellipsoPolar[i].get());
-        }
-#endif // DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
-
-        m_eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
-    }
-}
+ }
 
 // ogles_gpgpu::VideoSource can support list of subscribers
 //
@@ -338,62 +386,10 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
 
 GLuint FaceFinder::paint(const ScenePrimitives &scene, GLuint inputTexture)
 {
-    // Convert objects to line drawings
-    m_painter->getLineDrawings().clear();
-
-    if(scene.corners().size())
-    {
-        pointsToCrosses(scene.corners(), m_painter->getLineDrawings());
-    }
-
-    if(scene.faces().size())
-    {
-        facesToDrawings(scene.faces(), m_painter->getLineDrawings());
-        for(const auto &f : scene.faces())
-        {
-            m_painter->addFace(f);
-            m_eyeFilter->addFace(f);
-        }
-
-        // Configure eye enhancer
-        m_eyeFilter->process(inputTexture, 1, GL_TEXTURE_2D);
-        m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
-
-#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
-        //Draw the polar warp:
-        for(int i = 0; i < 2; i++)
-        {
-            m_painter->setIrisTexture(i, m_ellipsoPolar[i]->getOutputTexId(), m_ellipsoPolar[i]->getOutFrameSize());
-        }
-#endif
-    }
-    else if(scene.objects().size())
-    {
-        rectanglesToDrawings(scene.objects() * m_scale, m_painter->getLineDrawings());
-    }
-
-    if(m_doFlow)
-    {
-        if(scene.flow().size())
-        {
-            flowToDrawings(scene.flow(), m_painter->getLineDrawings(), m_colors32FC3);
-        }
-
-        // Add the flow for debugging:
-        m_painter->setFlowTexture(m_acf->flow.getOutputTexId(), m_acf->flow.getOutFrameSize());
-    }
-
-    if(m_doFlash)
-    {
-        m_painter->setFlashTexture(m_flasher->last()->getOutputTexId(), m_flasher->last()->getOutFrameSize());
-    }
-
-    m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
-    
-    return m_rotater->getOutputTexId();
+    return inputTexture;
 }
 
-void FaceFinder::createColormap()
+void FaceFinder::initColormap()
 {
     // ##### Create a colormap ######
     cv::Mat1b colorsU8(1, 360);
@@ -418,24 +414,44 @@ void FaceFinder::createColormap()
 void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
 {
     m_logger->info() << "FaceFinder::preprocess()  " <<  int(frame.textureFormat) << sBar;
-
+    
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
+    m_acf->setDoLuvTransfer(m_doCpuACF);
     (*m_acf)(frame);
 
     cv::Mat acf = m_acf->getChannels();
     assert(acf.type() == CV_8UC1);
     assert(acf.channels() == 1);
-
-    if(m_acf->getChannelStatus())
+    
+    auto &P = scene.m_P;
+    P = std::make_shared<decltype(m_P)>();
+    
+    if(m_doCpuACF) // gpu
     {
-        auto &P = scene.m_P;
-        P = std::make_shared<decltype(m_P)>();
-        fill(*P);
-    }
+        MatP LUVp = m_acf->getLuvPlanar();
+        m_detector->setIsLuv(true);
+        m_detector->setIsTranspose(true);
+        m_detector->computePyramid(LUVp, *P);
 
-    auto thing = m_acf->getFlowPyramid();
+#if DRISHTI_HCI_DEBUG_PYRAMIDS
+        logPyramid("/tmp/Pgpu.png", *P);
+#endif
+    }
+    else
+    {
+        if(m_acf->getChannelStatus())
+        {
+            fill(*P);
+            
+#if DRISHTI_HCI_DEBUG_PYRAMIDS
+            logPyramid("/tmp/Pgpu.png", *P);
+#endif
+        }
+    }
+    
+    auto flowPyramid = m_acf->getFlowPyramid();
 
 #if DRISHTI_FACEFILTER_DO_FLOW_QUIVER || DRISHTI_FACEFILTER_DO_CORNER_PLOT
     if(m_acf->getFlowStatus())
@@ -489,11 +505,9 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
         // Fill in ACF Pyramid structure
         std::vector<double> scores;
 
-        // *m_detector
-
         std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - m_objects.first).count();
-        if(elapsed > 0.1)
+        if(elapsed > m_faceFinderInterval)
         {
             (*m_detector)(*scene.m_P, scene.objects(), &scores);
             m_objects = std::make_pair(std::chrono::high_resolution_clock::now(), scene.objects());
@@ -532,21 +546,19 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
             drishti::face::FaceDetector::PaddedImage Ib(gray, {{0,0}, gray.size()});
 
             m_faceDetector->setDoIrisRefinement(true);
-
             m_faceDetector->setFaceStagesHint(8);
             m_faceDetector->setFace2StagesHint(4);
             m_faceDetector->setEyelidStagesHint(4);
             m_faceDetector->setIrisStagesHint(10);
             m_faceDetector->setIrisStagesRepetitionFactor(1);
-
             m_faceDetector->refine(Ib, faces, Hdr, isDetection);
 
             //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
 
             // Scale faces from regression to level 0
-            // The configuration sizes used in the ACF stcked channe image
+            // The configuration sizes used in the ACF stacked channe image
             // are all upright, but the output texture used for the display
-            // is still in teh native (potentially rotated) coordinate system,
+            // is still in the native (potentially rotated) coordinate system,
             // so we need to perform scaling wrt that.
 
             const float Srf = 1.0f / m_acf->getGrayscaleScale();
@@ -554,6 +566,12 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
             for(auto &f : faces)
             {
                 f = H0 * f;
+                
+                // Tag each face w/ approximate distance:
+                if(m_faceEstimator)
+                {
+                    (*f.eyesCenter) = (*m_faceEstimator)(f);
+                }
             }
 
             scene.faces() = faces;

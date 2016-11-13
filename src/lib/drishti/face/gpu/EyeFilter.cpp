@@ -157,7 +157,7 @@ static void convert(const EyeWarp &src, ogles_gpgpu::MappedTextureRegion &dst)
 {
     cv::Matx44f MVPt;
     transformation::R3x3To4x4(src.H.t(), MVPt);
-    dst.roi = { src.roi.x, src.roi.y, src.roi.width, src.roi.height };
+    dst.roi = Rect2d(src.roi.x, src.roi.y, src.roi.width, src.roi.height);
     for(int y = 0; y < 4; y++)
     {
         for(int x = 0; x < 4; x++)

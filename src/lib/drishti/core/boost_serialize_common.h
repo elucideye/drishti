@@ -14,7 +14,6 @@
 #include <opencv2/core.hpp>
 #include <fstream>
 
-
 // Boost serialization files:
 #if DRISHTI_USE_TEXT_ARCHIVES
 #  include <boost/archive/text_iarchive.hpp>

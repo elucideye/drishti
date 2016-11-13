@@ -10,8 +10,8 @@ include("cmake/HunterGate.cmake")
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.16.25.tar.gz"
-  SHA1 "e02c1b104278f7fd24b4c3a3802013c5e1740ad0"
+  URL "https://github.com/ruslo/hunter/archive/v0.16.29.tar.gz"
+  SHA1 "309d7d8eedc5b1229b710f856dc7a19e04fb7737"
   FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
   )
 
@@ -123,8 +123,6 @@ option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 
-message("DRISHTI_BUILD_EOS (1) ${DRISHTI_BUILD_EOS}")
-
 if(DRISHTI_BUILD_TESTS)
   if(ANDROID OR IOS)
     # FIXME: https://github.com/elucideye/drishti/issues/58
@@ -135,7 +133,7 @@ if(DRISHTI_BUILD_TESTS)
   find_package(GTest CONFIG REQUIRED)
 endif()
 
-option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" OFF)
+option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
 drishti_mirror_definition(DRISHTI_BUILD_OGLES_GPGPU)
 
 # Note: OGLES_GPGPU handling moved to src folder
@@ -296,7 +294,6 @@ add_definitions(-DDLIB_NO_GUI_SUPPORT=1)
 ### Eigen3 (Header only)
 hunter_add_package(Eigen)
 find_package(Eigen REQUIRED) # <== not finding hunter provided eigen
-message("EIGEN3_INCLUDE_DIR = ${EIGEN3_INCLUDE_DIR}")
 
 ### CVMATIO
 if(DRISHTI_BUILD_ACF)
@@ -340,7 +337,6 @@ if(NOT IOS AND NOT ANDROID)
     )
   find_file(HAVE_VALGRIND "valgrind")
   message("HAVE_VALGRIND: ${HAVE_VALGRIND}")
-
 endif()
 
 include_directories(src/lib)

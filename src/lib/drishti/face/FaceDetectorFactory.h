@@ -25,8 +25,21 @@ namespace drishti { namespace eye { class EyeModelEstimator; } };
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-struct FaceDetectorFactory // TODO: rename *Factory, remove filenames
+struct FaceDetectorFactory
 {
+    FaceDetectorFactory() {}
+    
+    FaceDetectorFactory(
+        const std::string &sFaceDetector,
+        const std::vector<std::string> &sFaceRegressors,
+        const std::string &sEyeRegressor,
+        const std::string &sFaceDetectorMean)
+    : sFaceDetector(sFaceDetector)
+    , sFaceRegressors(sFaceRegressors)
+    , sEyeRegressor(sEyeRegressor)
+    , sFaceDetectorMean(sFaceDetectorMean)
+    {}
+    
     std::string sFaceDetector;
     std::vector<std::string> sFaceRegressors;
     std::string sEyeRegressor;
