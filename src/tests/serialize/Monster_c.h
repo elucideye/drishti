@@ -3,6 +3,9 @@
 
 #include <opencv2/core.hpp>
 
+#include <iterator>
+#include <memory>
+
 #if defined(DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 #  include <flatbuffers/flatbuffers.h>
 #elif defined(DRISHTI_USE_BOOST_SERIALIZATION)
