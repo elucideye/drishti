@@ -63,11 +63,6 @@ endif()
 ###################
 if(DRISHTI_BUILD_OGLES_GPGPU)
 
-  if(MSVC)
-    hunter_add_package(glew)
-    find_package(glew CONFIG REQUIRED)
-  endif()
-  
   # Support local submodule use or external package:
   option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
 
