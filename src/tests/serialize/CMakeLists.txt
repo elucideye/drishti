@@ -16,7 +16,7 @@ set(FLATBUFFER_MONSTER_SRCS
 
 # Flatbuffers tutorial code:
 add_executable(tutorial-flatbuffers-monster ${FLATBUFFER_MONSTER_SRCS})
-target_link_libraries(tutorial-flatbuffers-monster flatbuffers::flatbuffers)
+target_link_libraries(tutorial-flatbuffers-monster flatbuffers::flatbuffers ${OpenCV_LIBS})
 target_compile_definitions(tutorial-flatbuffers-monster PUBLIC DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 set_property(TARGET tutorial-flatbuffers-monster PROPERTY FOLDER "app/tutorial")
 
