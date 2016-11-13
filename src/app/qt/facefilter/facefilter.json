@@ -1,7 +1,7 @@
 {
     "doLandmarks": true,
     "doFlow": true,
-    "doFlash": true,
+    "doFlash": false,
     "frameDelay": 2,
     
     "0x1a11000005ac8510": {

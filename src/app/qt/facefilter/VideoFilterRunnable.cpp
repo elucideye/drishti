@@ -40,6 +40,7 @@
 #include "drishti/graphics/drishti_graphics.h"
 
 #include "drishti/hci/FaceFinder.h"
+#include "drishti/hci/FaceFinderPainter.h"
 
 #include "FrameHandler.h"
 #include "VideoFilter.hpp"
@@ -82,7 +83,7 @@ struct VideoFilterRunnable::Impl
             config.doFlash = (*settings)["doFlash"].get<bool>();
         }
 
-        m_detector = std::make_shared<drishti::hci::FaceFinder>(resources, config, glContext);
+        m_detector = std::make_shared<drishti::hci::FaceFinderPainter>(resources, config, glContext);
         
         // Set detection range:
         m_detector->setMinDistance(manager->getDetectionParameters().m_minDepth);

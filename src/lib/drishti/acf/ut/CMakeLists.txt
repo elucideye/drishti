@@ -23,8 +23,9 @@ add_executable(test-drishti-acf ${SOURCES})
 
 target_link_libraries(test-drishti-acf
   ${OpenCV_LIBS}
-  GTest::main
+  GTest::gtest
   drishtisdk
+  ${DRISHTI_OPENGL_LIBS}
   )
 
 if(DRISHTI_ACF_DO_GPU)
@@ -39,7 +40,7 @@ set_property(TARGET test-drishti-acf PROPERTY FOLDER "app/tests")
 ##
 
 enable_testing()
-add_test(NAME acf_test COMMAND test-drishti-acf
+add_test(NAME DrishtiACFTest COMMAND test-drishti-acf
   "${assets_dir}/images/lena512color.png"
   "${assets_dir}/images/lena512gray.png"
   "${assets_dir}/drishti_face_inner_48x48.mat"

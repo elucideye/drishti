@@ -45,6 +45,9 @@ public:
     EyeModelEstimator(const std::string &eye, const std::string &iris= {}, const std::string &pupil=std::string());
     virtual ~EyeModelEstimator();
 
+    bool good() const;
+    operator bool() const;
+    
     void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
 
     virtual int operator()(const cv::Mat &crop, EyeModel &eye) const;

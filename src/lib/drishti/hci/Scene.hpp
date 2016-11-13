@@ -23,6 +23,8 @@ namespace drishti { namespace acf { class Detector; } };
 
 struct ScenePrimitives
 {
+    ScenePrimitives() : m_frameIndex(0) {}
+    
     ScenePrimitives(uint64_t frameIndex) : m_frameIndex(frameIndex) {}
 
     const std::vector<drishti::face::FaceModel> &faces() const

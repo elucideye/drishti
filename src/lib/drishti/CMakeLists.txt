@@ -92,6 +92,7 @@ if(DRISHTI_BUILD_WORLD)
   endif()
   
   add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
+  set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")  
   
   target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
   target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
@@ -186,10 +187,24 @@ endif(DRISHTI_BUILD_WORLD)
 ## Unit tests
 ##
 
-add_subdirectory(drishti)
-add_subdirectory(geometry)
-if(DRISHTI_BUILD_ACF)
-  add_subdirectory(acf)
+if(DRISHTI_BUILD_TESTS)
+
+  add_subdirectory(core)
+  add_subdirectory(geometry)
+
+  # Run public SDK, then eye tests in that order
+  add_subdirectory(drishti)  
+  add_subdirectory(eye)
+  
+  if(DRISHTI_BUILD_ACF)
+    add_subdirectory(acf)
+  endif()
+  if(DRISHTI_BUILD_FACE)
+    add_subdirectory(face)
+  endif()
+  if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
+    add_subdirectory(hci)
+  endif()
 endif()
 
 include_directories("${PROJECT_BINARY_DIR}")
@@ -209,15 +224,21 @@ set(DRISHTI_SDK_LIBS ${DRISHTI_LIBS} ${DRISHTI_SDK_3RDPARTY_LIBS})
 ######################
 ####### OpenGL #######
 ######################
+
+set(DRISHTI_OPENGL_LIBS "")
 if(APPLE)
   if(IOS)
-    list(APPEND DRISHTI_SDK_LIBS "-framework OpenGLES")
+    set(DRISHTI_OPENGL_LIBS "-framework OpenGLES")
   else()
-    list(APPEND DRISHTI_SDK_LIBS "-framework OpenGL")
+    set(DRISHTI_OPENGL_LIBS "-framework OpenGL")
   endif()
 elseif(ANDROID)
-  list(APPEND DRISHTI_SDK_LIBS EGL GLESv2)
+  set(DRISHTI_OPENGL_LIBS EGL GLESv2)
+else()
+  find_package(OpenGL REQUIRED)
+  set(DRISHTI_OPENGL_LIBS "${OPENGL_LIBRARIES}")
 endif()
+list(APPEND DRISHTI_SDK_LIBS "${DRISHTI_OPENGL_LIBS}")
 
 ### drishtisdk (static)
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})

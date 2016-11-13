@@ -86,6 +86,8 @@ struct FaceModel
 
     std::vector<cv::Rect2d> rois;
 
+    core::Field<cv::Point3f> eyesCenter;
+    
     template <typename T> FaceModel& operator +=(const cv::Point_<T> &p)
     {
         *this = *this + p;

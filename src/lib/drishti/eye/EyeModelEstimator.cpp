@@ -184,6 +184,16 @@ void EyeModelEstimator::setDoIndependentIrisAndPupil(bool flag)
     m_impl->setDoIndependentIrisAndPupil(flag);
 }
 
+bool EyeModelEstimator::good() const
+{
+    return static_cast<bool>(m_impl.get());
+}
+
+EyeModelEstimator::operator bool() const
+{
+    return good();
+}
+
 void EyeModelEstimator::setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
 {
     DRISHTI_STREAM_LOG_FUNC(2,8,m_streamLogger);
@@ -345,8 +355,13 @@ int EyeModelEstimator::getIrisStagesRepetitionFactor() const
 
 int EyeModelEstimator::loadPBA(const std::string &filename, EyeModelEstimator &eme)
 {
+    int status = -1;
     std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    return loadPBA(ifs, eme);
+    if(ifs)
+    {
+        return loadPBA(ifs, eme);
+    }
+    return status;
 }
 
 int EyeModelEstimator::loadPBA(std::istream &is, EyeModelEstimator &eme)

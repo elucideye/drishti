@@ -204,24 +204,30 @@ cv::Mat EyeModel::irisMask(const cv::Size &size, bool removeEyelids) const
 
 cv::Mat EyeModel::mask(const cv::Size &size, bool sclera, float irisScale) const
 {
-    cv::Mat1b mask(size, 0);
-
-    std::vector< std::vector<cv::Point> > contours(1);
-    contours[0].resize(eyelidsSpline.size());
-    std::copy(eyelidsSpline.begin(), eyelidsSpline.end(), contours[0].begin());
-    cv::fillPoly(mask, contours, 255, 4);
-
-    if(sclera && irisEllipse.size.width)
+    cv::Mat1b mask;
+    
+    const auto &curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
+    if(curve.size())
     {
-        cv::RotatedRect ellipse = irisEllipse;
-        ellipse.size = ellipse.size * irisScale;
-        try
+        mask = cv::Mat1b::zeros(size);
+        
+        std::vector< std::vector<cv::Point> > contours(1);
+        contours[0].resize(curve.size());
+        std::copy(curve.begin(), curve.end(), contours[0].begin());
+        cv::fillPoly(mask, contours, 255, 4);
+        
+        if(sclera && irisEllipse.size.width)
         {
-            cv::ellipse(mask, ellipse, 0, -1);
+            cv::RotatedRect ellipse = irisEllipse;
+            ellipse.size = ellipse.size * irisScale;
+            try
+            {
+                cv::ellipse(mask, ellipse, 0, -1);
+            }
+            catch (...) {}
         }
-        catch (...) {}
     }
-
+    
     return mask;
 }
 

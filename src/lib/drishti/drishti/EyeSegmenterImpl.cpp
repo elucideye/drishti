@@ -33,8 +33,6 @@
 
 _DRISHTI_SDK_BEGIN
 
-static Eye convert(DRISHTI_EYE::EyeModel &model);
-
 EyeSegmenter::Impl::Impl(bool doLoad)
 {
 
@@ -174,38 +172,7 @@ float EyeSegmenter::Impl::getRequiredAspectRatio()
     return EYE_ASPECT_RATIO;
 }
 
-static Eye convert(DRISHTI_EYE::EyeModel &model)
-{
-    Eye e;
+// ### Conversion routines ###
 
-    const auto & inner = model.getInnerCorner();
-    const auto & outer = model.getOuterCorner();
-
-    e.setIris(cvToDrishti(model.irisEllipse));
-    e.setPupil(cvToDrishti(model.pupilEllipse));
-    e.setEyelids(drishti::sdk::cvToDrishti(model.eyelidsSpline));
-    e.setCrease(drishti::sdk::cvToDrishti(model.creaseSpline));
-    e.setCorners(cvToDrishti(inner), cvToDrishti(outer));
-    e.setRoi(cvToDrishti(model.roi.has ? *model.roi : cv::Rect()));
-
-    return e;
-}
-
-static DRISHTI_EYE::EyeModel convert(drishti::sdk::Eye &eye)
-{
-    DRISHTI_EYE::EyeModel e;
-
-    const auto & inner = eye.getInnerCorner();
-    const auto & outer = eye.getOuterCorner();
-
-    e.irisEllipse = drishtiToCv(eye.getIris());
-    e.pupilEllipse = drishtiToCv(eye.getPupil());
-    e.eyelidsSpline = drishtiToCv(eye.getEyelids());
-    e.innerCorner = drishtiToCv(inner);
-    e.outerCorner = drishtiToCv(outer);
-
-    return e;
-}
 
 _DRISHTI_SDK_END
-

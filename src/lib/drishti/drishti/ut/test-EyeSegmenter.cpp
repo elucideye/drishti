@@ -19,6 +19,7 @@
 
 #include "drishti/EyeSegmenter.hpp"
 #include "drishti/drishti_cv.hpp"
+#include "drishti/EyeSegmenterImpl.hpp"
 
 // https://code.google.com/p/googletest/wiki/Primer
 
@@ -33,8 +34,7 @@ bool isTextArchive;
 BEGIN_EMPTY_NAMESPACE
 
 static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio);
-static void draw(cv::Mat &canvas, const drishti::sdk::Eye &eye);
-static float PASCAL(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB);
+static float detectionScore(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB);
 
 class EyeSegmenterTest : public ::testing::Test
 {
@@ -110,15 +110,37 @@ protected:
 
     void loadTruth()
     {
-        assert(truthFilename);
-
-        drishti::sdk::Eye eye;
-        drishti::sdk::EyeIStream adapter(eye, drishti::sdk::EyeStream::JSON);
-        std::ifstream is(truthFilename);
-        if(is)
         {
-            is >> adapter;
-            m_eye = std::make_shared<drishti::sdk::Eye>(eye);
+            assert(truthFilename);
+            drishti::sdk::Eye eye;
+            drishti::sdk::EyeIStream adapter(eye, drishti::sdk::EyeStream::JSON);
+            std::ifstream is(truthFilename);
+            if(is)
+            {
+                is >> adapter;
+                m_eye = std::make_shared<drishti::sdk::Eye>(eye);
+            }
+        }
+
+        if(m_eye)
+        {
+            // Convert this for use by private API
+            auto eye = drishti::sdk::convert(*m_eye);
+            eye.eyelids = eye.eyelidsSpline;
+            
+            std::string sTruthFilename(truthFilename);
+            auto pos = sTruthFilename.find(".json");
+            if(pos != std::string::npos)
+            {
+                std::string base = sTruthFilename.substr(0, pos);
+                std::ofstream os(base + "_private.json");
+                if(os)
+                {
+                    cereal::JSONOutputArchive oa(os);
+                    typedef decltype(oa) Archive;
+                    oa << GENERIC_NVP("eye", eye);
+                }
+            }
         }
     }
 
@@ -266,7 +288,7 @@ TEST_F(EyeSegmenterTest, ImageValid)
         if(i > 128)
         {
             const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
-            ASSERT_GT( PASCAL(eye, *m_eye), threshold );
+            ASSERT_GT( detectionScore(eye, *m_eye), threshold );
         }
     }
 }
@@ -322,28 +344,6 @@ static cv::Mat scleraMask(const drishti::sdk::Eye &eye)
     return mask;
 }
 
-static void draw(cv::Mat &canvas, const drishti::sdk::Eye &eye)
-{
-    using Vec2f=drishti::sdk::Vec2f;
-
-    // Draw eyelid contour:
-    std::vector<cv::Point2f> eyelids = drishti::sdk::drishtiToCv(eye.getEyelids());
-    std::vector<std::vector<cv::Point>> contours(1);
-    std::copy(eyelids.begin(), eyelids.end(), std::back_inserter(contours[0]));
-    cv::polylines(canvas, contours, false, {0,255,0}, 1);
-
-    // Draw iris ellipse:
-    cv::ellipse(canvas, drishti::sdk::drishtiToCv(eye.getIris()), {0,255,0}, 1, 8);
-
-    // Draw pupil ellipse:
-    cv::ellipse(canvas, drishti::sdk::drishtiToCv(eye.getPupil()), {0,255,0}, 1, 8);
-
-    // Draw eye corners:
-    const float radius = std::sqrt( std::pow(eye.getIris().size.width,2.0f) + std::pow(eye.getIris().size.height,2.0f)) / 16.f;
-    cv::circle(canvas, drishti::sdk::drishtiToCv(eye.getInnerCorner()), radius, {255,0,255}, 1, 8);
-    cv::circle(canvas, drishti::sdk::drishtiToCv(eye.getOuterCorner()), radius, {255,0,255}, 1, 8);
-}
-
 static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio)
 {
     CV_Assert(image.channels() == 3);
@@ -368,7 +368,7 @@ static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double 
     return cv::Point(left, top);
 }
 
-static float PASCAL(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB)
+static float detectionScore(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB)
 {
     cv::Mat maskA = scleraMask(eyeA);
     cv::Mat maskB = scleraMask(eyeB);
@@ -393,8 +393,8 @@ static float PASCAL(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB
     catch(...) {}
     float score = denominator ? float(numerator) / (denominator) : 0;
 
-#define DEBUG_PASCAL 0
-#if DEBUG_PASCAL
+#define DEBUG_DETECTION_SCORE 0
+#if DEBUG_DETECTION_SCORE
     std::cout << "SCORE: " << score << std::endl;
     cv::imshow("maskA", maskA); // opt
     cv::imshow("maskB", maskB); // opt

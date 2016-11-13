@@ -1,7 +1,7 @@
 /*!
   @file   drishti/hci/FaceFinder.h
   @author David Hirvonen
-  @brief  Scene viewed by the camera represented by low level primitives: (corners, face, flow, etc.)
+  @brief  Face detection and tracking class with GPU acceleration.
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
@@ -26,6 +26,7 @@
 #include <memory>
 #include <chrono>
 
+#define DRISHTI_FACEFINDER_INTERVAL 0.1
 #define DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR 0
 
 // *INDENT-OFF*
@@ -72,6 +73,7 @@ class FaceFinder
 public:
 
     using FrameInput = ogles_gpgpu::FrameInput;
+    using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
     
     struct Config
     {
@@ -85,26 +87,43 @@ public:
         bool doFlash = false;
     };
 
-    FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &config, void *glContext = nullptr);
+    FaceFinder(FaceDetectorFactoryPtr &factory, Config &config, void *glContext = nullptr);
 
     virtual GLuint operator()(const FrameInput &frame);
     
     void setMaxDistance(float meters);
+    float getMaxDistance() const;
+    
     void setMinDistance(float meters);
+    float getMinDistance() const;
 
+    void setDoCpuAcf(bool flag);
+    bool getDoCpuAcf() const;
+
+    void setFaceFinderInterval(double interval);
+    double getFaceFinderInterval() const;
+    
 protected:
 
-    void createColormap(); // [0..359];
-
+    virtual void init(const FrameInput &frame);
+    virtual void initPainter(const cv::Size &inputSizeUp);
+    
+    void initACF(const cv::Size &inputSizeUp);
+    void initFIFO(const cv::Size &inputSize);
+    void initFlasher();
+    void initColormap(); // [0..359];
+    void initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &eyesSize);
+    void initIris(const cv::Size &size);
+    
     void init2(drishti::face::FaceDetectorFactory &resources);
     void detect2(const FrameInput &frame, ScenePrimitives &scene);
 
-    void init(const FrameInput &frame);
     void dump(std::vector<cv::Mat4b> &frames);
     virtual int detect(const FrameInput &frame, ScenePrimitives &scene);
     virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);
 
+    int computeDetectionWidth(const cv::Size &inputSizeUp) const;
     void fill(drishti::acf::Detector::Pyramid &P);
 
     cv::Mat3f m_colors32FC3; // map angles to colors
@@ -121,6 +140,8 @@ protected:
 
     drishti::acf::Detector::Pyramid m_P;
 
+    double m_faceFinderInterval = DRISHTI_FACEFINDER_INTERVAL;
+
     float m_minDistanceMeters = 0.f;
     float m_maxDistanceMeters = 10.0f;
 
@@ -132,6 +153,14 @@ protected:
 
     bool m_doFlash = false;
     int m_flashWidth = 128;
+    
+    bool m_doIris = false;
+    
+    bool m_doCpuACF= false;
+    
+    cv::Size m_eyesSize = { 480, 240 };
+    
+    std::vector<cv::Size> m_pyramidSizes;
 
     std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo;
     std::shared_ptr<ogles_gpgpu::ACF> m_acf;
@@ -139,14 +168,15 @@ protected:
     drishti::acf::Detector *m_detector = nullptr; // weak ref
 
     std::shared_ptr<drishti::face::FaceDetector> m_faceDetector;
+    
+    // Model estimator from pinhole camera model:
+    std::shared_ptr<drishti::face::FaceModelEstimator> m_faceEstimator;
+    
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
     std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
-
-#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
-#endif
 
     int m_index = 0;
     std::vector<std::future<ScenePrimitives>> m_scenes;

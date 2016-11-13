@@ -75,6 +75,11 @@ public:
     void connect(std::shared_ptr<spdlog::logger> &logger);
 
     void setRotation(int degrees);
+    
+    void setDoLuvTransfer(bool flag)
+    {
+        m_doLuvTransfer = flag;
+    }
 
     static bool processImage(ProcInterface &proc, MemTransfer::FrameDelegate &delegate);
     int getChannelCount() const; // LUVM0123456
@@ -110,11 +115,24 @@ public:
 
 //protected:
 
+    // Retrieve Luv image as planar 3 channel CV_32F
+    const MatP & getLuvPlanar();
+    
+    // Retrieve Luv image in packed CV_8UC4 (RGBA) format
+    const cv::Mat& getLuv();
+    
     cv::Mat getChannelsImpl();
 
     Size2d m_size;
 
     bool m_debug = false;
+    
+    // Retriev input image:
+
+    cv::Mat m_luv;
+    MatP m_luvPlanar;
+    bool m_doLuvTransfer = false;
+    bool m_hasLuvOutput = false;
 
     // Grayscale stuff:
     bool m_doGray = false;
@@ -145,6 +163,8 @@ public:
     ogles_gpgpu::NoopProc gradProcOut; //(16.0);
     ogles_gpgpu::NoopProc gradHistProcAOut; //(1.0f);
     ogles_gpgpu::NoopProc gradHistProcBOut; //(1.0f);
+    
+    ogles_gpgpu::NoopProc luvTransposeOut; //  transposed LUV output
 
     // Multi-texture swizzle
     ogles_gpgpu::MergeProc mergeProcLUVG;

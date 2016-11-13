@@ -13,6 +13,7 @@
 #ifndef QML_CAMERA_MANAGER_H
 #define QML_CAMERA_MANAGER_H 1
 
+#include <memory> // std::shared_ptr
 #include <opencv2/core.hpp> // for cv::Size
 
 // *INDENT-OFF*

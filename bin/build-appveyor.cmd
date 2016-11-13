@@ -10,7 +10,7 @@ echo POLLY_ROOT %POLLY_ROOT%
 
 python %POLLY_ROOT%\bin\polly.py ^
 --verbose ^
---pack TGZ ^
+--archive drishti ^
 --config "%1%" ^
 --toolchain "%2%" ^
 --test ^

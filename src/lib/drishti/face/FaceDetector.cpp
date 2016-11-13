@@ -62,7 +62,10 @@ public:
     {
         m_detector = resources.getFaceDetector();
         m_regressor = resources.getInnerFaceEstimator();
-        m_regressor2 = resources.getOuterFaceEstimator();
+        if(resources.sFaceRegressors.size() > 1)
+        {
+            m_regressor2 = resources.getOuterFaceEstimator();
+        }
         m_eyeRegressor.resize(2);
         for(int i = 0; i < 2; i++)
         {
