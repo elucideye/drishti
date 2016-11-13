@@ -3,9 +3,9 @@
 
 #include <opencv2/core.hpp>
 
-#if defined(USE_FLAT_BUFFERS)
+#if defined(DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 #  include <flatbuffers/flatbuffers.h>
-#else
+#elif defined(DRISHTI_USE_BOOST_SERIALIZATION)
 #  include <boost/archive/binary_oarchive.hpp>
 #  include <boost/archive/binary_iarchive.hpp>
 #  include <boost/iostreams/filtering_stream.hpp>
@@ -14,11 +14,16 @@
 #  include <boost/iostreams/filter/bzip2.hpp>
 #  include <boost/iostreams/copy.hpp>
 #  include <boost/serialization/vector.hpp>
+#elif defined(DRISHTI_USE_CEREAL_SERIALIZATION)
+#  include "drishti/core/drishti_serialize.h"
+#  include <cereal/types/string.hpp>
+#  include <cereal/types/vector.hpp>
+#  include <cereal/types/memory.hpp>
 #endif
 
 // This provides an approximate C++ layout for monster.fbs
 
-#if !defined(USE_FLAT_BUFFERS)
+#if !defined(DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 namespace cv
 {
     template<class Archive>
@@ -41,7 +46,7 @@ namespace drishti
         std::string name;
         int16_t damage;
         
-#if !defined(USE_FLAT_BUFFERS)
+#if !defined(DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
         template <class Archive> void serialize(Archive & ar, const unsigned int version)
         {
             ar & name;
@@ -65,7 +70,7 @@ namespace drishti
         
         //std::unique_ptr<Equipment> equipped; // optional
         
-#if defined(USE_FLAT_BUFFERS)
+#if defined(DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
         void serialize(flatbuffers::FlatBufferBuilder &builder);
         void deserialize(unsigned char *buffer);
 #else

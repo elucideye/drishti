@@ -1,6 +1,5 @@
 #include "Monster_c.h"
 #include "monster_generated.h" // Already includes "flatbuffers/flatbuffers.h".
-#include <flatbuffers/flatbuffers.h>
 #include <iostream>
 #include <fstream>
 
