@@ -296,7 +296,7 @@ add_definitions(-DDLIB_NO_GUI_SUPPORT=1)
 
 ### half (header only)
 hunter_add_package(half)
-find_package(half CONFIG REQURIED)
+find_package(half CONFIG REQUIRED)
 
 ### Eigen3 (Header only)
 hunter_add_package(Eigen)
