@@ -47,7 +47,6 @@ COMMAND=(
     "DRISHTI_BUILD_WORLD=${DRISHTI_BUILD_WORLD} "
     "DRISHTI_BUILD_SHARED_SDK=${DRISHTI_BUILD_SHARED_SDK} "
     "DRISHTI_BUILD_ASAN_TEST=${DRISHTI_BUILD_ASAN_TEST} "
-    "--config Release "
     "--jobs 8 "
     "--open "
     "--install "

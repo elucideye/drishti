@@ -25,7 +25,6 @@ COMMAND=(
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=8.0 "
     "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
-    "--config Release "
     "--framework-device "
     "--ios-multiarch "
     "--install "

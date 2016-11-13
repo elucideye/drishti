@@ -16,7 +16,6 @@ COMMANDS=(
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=8.0 "
-    "--config Release "
     "--framework-device "
     "--ios-multiarch --ios-combined --archive drishti"
     "--install "

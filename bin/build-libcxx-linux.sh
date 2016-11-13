@@ -17,15 +17,16 @@ fi
 
 rename_tab drishti ${TOOLCHAIN}
 
+COMMAND=(
+    "--verbose --fwd "
+    "${DRISHTI_BUILD_ARGS[*]} "
+    "${DRISHTI_BUILD_HIDE[*]} "
+    "--config Release "
+    "--strip "
+    "--jobs 8 "
+    "--reconfig "
+    "${EXTRA_ARGS} "
+)
 
-build.py --toolchain ${TOOLCHAIN} --verbose --fwd \
-${DRISHTI_BUILD_ARGS[*]} \
-${DRISHTI_BUILD_HIDE[*]} \
---config Release \
---strip \
---jobs 8 \
---reconfig \
-${EXTRA_ARGS} # --test
-
-#--pack ${CPACK_TYPE} \
+eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 

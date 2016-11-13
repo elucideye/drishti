@@ -25,12 +25,12 @@ COMMAND=(
     "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
     "DRISHTI_BUILD_TESTS=${DRISHTI_BUILD_TESTS} "
     "DRISHTI_COTIRE=${DRISHTI_COTIRE} "
-    "--config Release "
+    
     "--jobs 8 "
     "--open "
     "--install "
     "--test " 
-    "${EXTRA_ARGS}"
+    "${EXTRA_ARGS}"  "--nobuild"
 )
 
 
