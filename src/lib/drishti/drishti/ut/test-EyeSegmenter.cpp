@@ -34,7 +34,7 @@ bool isTextArchive;
 BEGIN_EMPTY_NAMESPACE
 
 static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio);
-static float PASCAL(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB);
+static float PASCAL pascal_fn(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB);
 
 class EyeSegmenterTest : public ::testing::Test
 {
@@ -288,7 +288,7 @@ TEST_F(EyeSegmenterTest, ImageValid)
         if(i > 128)
         {
             const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
-            ASSERT_GT( PASCAL(eye, *m_eye), threshold );
+            ASSERT_GT( pascal_fn(eye, *m_eye), threshold );
         }
     }
 }
@@ -368,7 +368,7 @@ static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double 
     return cv::Point(left, top);
 }
 
-static float PASCAL(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB)
+static float PASCAL pascal_fn(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB)
 {
     cv::Mat maskA = scleraMask(eyeA);
     cv::Mat maskB = scleraMask(eyeB);
