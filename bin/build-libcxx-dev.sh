@@ -23,6 +23,7 @@ COMMAND=(
     "CMAKE_EXPORT_COMPILE_COMMANDS=ON "
     "DRISHTI_BUILD_QT=${DRISHTI_BUILD_QT} "
     "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
+    "${DRISHTI_POLLY_ARGS[*]} "
     "--strip "
     "--jobs 8 "
     "--reconfig "

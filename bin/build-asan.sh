@@ -25,7 +25,7 @@ COMMANDS=(
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "BUILD_UTILITIES=ON "
-    
+    "${DRISHTI_POLLY_ARGS[*]} "    
     "--install "
     "--jobs 8 "
     "${EXTRA_ARGS} "

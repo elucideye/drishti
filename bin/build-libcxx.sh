@@ -21,6 +21,7 @@ COMMAND=(
     "DRISHTI_BUILD_C_INTERFACE=ON "
     "DRISHTI_COTIRE=ON "
     "DRISHTI_BUILD_MIN_SIZE=ON "
+    "${DRISHTI_POLLY_ARGS[*]} "
     "--pack ${CPACK_TYPE} "
     "--strip "
     "--jobs 8 "

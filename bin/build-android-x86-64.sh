@@ -16,7 +16,7 @@ COMMAND=(
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
-    
+    "${DRISHTI_POLLY_ARGS[*]} "
     "--pack ${CPACK_TYPE} "
     "--jobs 8 "
     "--strip "

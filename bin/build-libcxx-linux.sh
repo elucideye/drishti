@@ -21,7 +21,7 @@ COMMAND=(
     "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
-    "--config Release "
+    "${DRISHTI_POLLY_ARGS[*]} "    
     "--strip "
     "--jobs 8 "
     "--reconfig "

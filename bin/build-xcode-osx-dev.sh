@@ -25,7 +25,7 @@ COMMAND=(
     "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
     "DRISHTI_BUILD_TESTS=${DRISHTI_BUILD_TESTS} "
     "DRISHTI_COTIRE=${DRISHTI_COTIRE} "
-    
+    "${DRISHTI_POLLY_ARGS[*]} "        
     "--jobs 8 "
     "--open "
     "--install "

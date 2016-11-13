@@ -30,6 +30,7 @@ COMMAND=(
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "${EXTRA_LD_FLAGS[*]} "
+    "${DRISHTI_POLLY_ARGS[*]} "
     "--strip "
     "--test "
     "--jobs 8 "
