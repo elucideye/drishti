@@ -1,6 +1,8 @@
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 
+#include "drishti/core/drishti_serialize.h"
+
 #include "Monster_c.h"
 
 #include <fstream>
