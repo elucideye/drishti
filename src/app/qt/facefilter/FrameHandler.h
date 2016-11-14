@@ -11,6 +11,8 @@
 #ifndef _frame_handler_h_
 #define _frame_handler_h_
 
+#include "drishti/hci/FaceMonitor.h"
+
 #include <opencv2/core/core.hpp>
 
 #include "thread_pool/thread_pool.hpp"
@@ -19,6 +21,7 @@
 
 #include <functional>
 #include <vector>
+#include <memory>
 
 // *INDENT-OFF*
 namespace drishti
@@ -103,6 +106,11 @@ public:
         return m_detectionParams;
     }
     
+    drishti::hci::FaceMonitor* getFaceMonitor()
+    {
+        return m_faceMonitor.get();
+    }
+    
     Settings * getSettings() { return m_settings; }
     const Settings * getSettings() const { return m_settings; }
 
@@ -124,9 +132,11 @@ protected:
 
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
     
+    std::vector<FrameHandler> m_handlers;
+    
+    std::unique_ptr<drishti::hci::FaceMonitor> m_faceMonitor;
+    
     static FrameHandlerManager * m_instance;
-
-    std::vector< FrameHandler>  m_handlers;
 };
 
 #endif // _frame_handler_h_

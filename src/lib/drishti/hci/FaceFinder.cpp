@@ -45,17 +45,7 @@ static const char * sBar = "####################################################
 using drishti::face::operator*;
 using drishti::core::operator*;
 
-static int foo()
-{
-    ogles_gpgpu::RenderOrientation outputOrientation;
-}
-
 DRISHTI_HCI_NAMESPACE_BEGIN
-
-static int foo()
-{
-    ogles_gpgpu::RenderOrientation outputOrientation;
-}
 
 static int getDetectionImageWidth(float, float, float, float, float);
 
@@ -144,6 +134,11 @@ void FaceFinder::setFaceFinderInterval(double interval)
 double FaceFinder::getFaceFinderInterval() const
 {
     return m_faceFinderInterval;
+}
+
+void FaceFinder::registerFaceMonitorCallback(FaceMonitor *callback)
+{
+    m_faceMonitorCallback.push_back(callback);
 }
 
 void FaceFinder::dump(std::vector<cv::Mat4b> &frames)
@@ -277,6 +272,8 @@ void FaceFinder::init(const FrameInput &frame)
     m_logger->info() << "FaceFinder::init()";
     m_logger->set_level(spdlog::level::err);
     
+    m_start = std::chrono::system_clock::now();
+    
     const cv::Size inputSize(frame.size.width, frame.size.height);
 
     auto inputSizeUp = inputSize;
@@ -367,6 +364,29 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
             // which has been running on the job queue.  This adds one frame
             // of latency, but allows us to keep the GPU and CPU utilized.
             scene = m_scenes[outputIndex].get();
+            
+            // Get current timestamp
+
+            const auto now = std::chrono::system_clock::now();
+            double elapsedTimeSinceStart = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count() / 1e3;
+            
+            // Perform optional frame grabbing
+            // NOTE: This must occur in the main OpenGL thread:
+            std::vector<cv::Mat4b> frames;
+            for(auto &face : scene.faces())
+            {
+                for(auto &callback : m_faceMonitorCallback)
+                {
+                    if(callback->isValid((*face.eyesCenter), elapsedTimeSinceStart))
+                    {
+                        if(!frames.size())
+                        {
+                            dump(frames);
+                        }
+                        callback->grab(frames);
+                    }
+                }
+            }
         }
         catch(...)
         {
@@ -570,7 +590,10 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
                 // Tag each face w/ approximate distance:
                 if(m_faceEstimator)
                 {
-                    (*f.eyesCenter) = (*m_faceEstimator)(f);
+                    if(f.eyeFullL.has && f.eyeFullR.has)
+                    {
+                        (*f.eyesCenter) = (*m_faceEstimator)(f);
+                    }
                 }
             }
 

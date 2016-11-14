@@ -13,6 +13,7 @@
 
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/Scene.hpp"
+#include "drishti/hci/FaceMonitor.h"
 #include "drishti/acf/GPUACF.h"
 #include "drishti/acf/ACF.h"
 #include "drishti/face/Face.h"
@@ -25,6 +26,7 @@
 
 #include <memory>
 #include <chrono>
+#include <functional>
 
 #define DRISHTI_FACEFINDER_INTERVAL 0.1
 #define DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR 0
@@ -102,6 +104,8 @@ public:
 
     void setFaceFinderInterval(double interval);
     double getFaceFinderInterval() const;
+    
+    void registerFaceMonitorCallback(FaceMonitor *callback);
     
 protected:
 
@@ -187,6 +191,10 @@ protected:
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
     std::shared_ptr<spdlog::logger> m_logger;
     std::shared_ptr<ThreadPool<128>> m_threads;
+    
+    std::chrono::time_point<std::chrono::system_clock> m_start;
+    
+    std::vector<FaceMonitor*> m_faceMonitorCallback;
 };
 
 DRISHTI_HCI_NAMESPACE_END

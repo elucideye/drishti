@@ -53,6 +53,7 @@
 #include "QTRenderGL.hpp"
 #include "FrameHandler.h"
 #include "QtStream.h"
+#include "QtFaceMonitor.h"
 
 #include "drishti/core/Logger.h"
 #include "drishti/core/drishti_core.h"

@@ -40,10 +40,10 @@ set(
   main.qml
   QTRenderGL.hpp
   QTRenderGL.cpp
-
   QtFaceDetectorFactory.h
   QtFaceDetectorFactory.cpp
-
+  QtFaceMonitor.h
+  QtFaceMonitor.cpp
   QMLCameraManager.h
   QMLCameraManager.cpp
 
