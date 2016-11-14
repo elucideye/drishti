@@ -64,7 +64,7 @@ endif()
 if(DRISHTI_BUILD_OGLES_GPGPU)
 
   # Support local submodule use or external package:
-  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" ON)
+  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
 
   if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
     option(OGLES_GPGPU_INSTALL "Avoid installation of submodule libraries" OFF)
