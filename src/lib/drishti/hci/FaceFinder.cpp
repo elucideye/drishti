@@ -272,6 +272,8 @@ void FaceFinder::init(const FrameInput &frame)
     m_logger->info() << "FaceFinder::init()";
     m_logger->set_level(spdlog::level::err);
     
+    m_start = std::chrono::system_clock::now();
+    
     const cv::Size inputSize(frame.size.width, frame.size.height);
 
     auto inputSizeUp = inputSize;
@@ -363,6 +365,11 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
             // of latency, but allows us to keep the GPU and CPU utilized.
             scene = m_scenes[outputIndex].get();
             
+            // Get current timestamp
+
+            const auto now = std::chrono::system_clock::now();
+            double elapsedTimeSinceStart = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count() / 1e3;
+            
             // Perform optional frame grabbing
             // NOTE: This must occur in the main OpenGL thread:
             std::vector<cv::Mat4b> frames;
@@ -370,7 +377,7 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
             {
                 for(auto &callback : m_faceMonitorCallback)
                 {
-                    if(callback->isValid((*face.eyesCenter)))
+                    if(callback->isValid((*face.eyesCenter), elapsedTimeSinceStart))
                     {
                         if(!frames.size())
                         {

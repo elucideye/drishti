@@ -90,7 +90,10 @@ struct VideoFilterRunnable::Impl
         m_detector->setMaxDistance(manager->getDetectionParameters().m_maxDepth);
 
         // Face filter:
-        m_detector->registerFaceMonitorCallback(manager->getFaceMonitor());
+        if(manager->getFaceMonitor())
+        {
+            m_detector->registerFaceMonitorCallback(manager->getFaceMonitor());
+        }
     }
 
     GLuint operator()(const ogles_gpgpu::FrameInput &frame)

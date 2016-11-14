@@ -192,6 +192,8 @@ protected:
     std::shared_ptr<spdlog::logger> m_logger;
     std::shared_ptr<ThreadPool<128>> m_threads;
     
+    std::chrono::time_point<std::chrono::system_clock> m_start;
+    
     std::vector<FaceMonitor*> m_faceMonitorCallback;
 };
 

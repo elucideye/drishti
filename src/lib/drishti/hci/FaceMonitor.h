@@ -22,7 +22,7 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceMonitor
 {
 public:
-    virtual bool isValid(const cv::Point3f &position) = 0;
+    virtual bool isValid(const cv::Point3f &position, double timeStamp) = 0;
     virtual void grab(std::vector<cv::Mat4b> &frames) = 0;
 };
 
