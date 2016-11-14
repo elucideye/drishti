@@ -9,11 +9,11 @@
 */
 
 #include "FrameHandler.h"
+#include "QtFaceMonitor.h"
 
 #include "drishti/sensor/Sensor.h"
-
 #include "drishti/core/Logger.h"
-
+#include "drishti/core/make_unique.h"
 
 // Sample:
 //
@@ -67,6 +67,8 @@ FrameHandlerManager::FrameHandlerManager(Settings *settings, const std::string &
     m_sensor = std::make_shared<drishti::sensor::SensorModel>(params);
 
     m_threads = std::unique_ptr<ThreadPool<128>>(new ThreadPool<128>);
+
+    m_faceMonitor = drishti::core::make_unique<QtFaceMonitor>(cv::Vec2d(0.1, 1.0));
 }
 
 FrameHandlerManager::~FrameHandlerManager()
