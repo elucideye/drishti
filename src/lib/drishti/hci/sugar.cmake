@@ -24,6 +24,7 @@ sugar_files(DRISHTI_HCI_SRCS
 sugar_files(DRISHTI_HCI_HDRS_PUBLIC
   FaceFinder.h
   FaceFinderPainter.h
+  FaceMonitor.h
   GazeEstimator.h
   Scene.hpp
   gpu/LineDrawing.hpp
