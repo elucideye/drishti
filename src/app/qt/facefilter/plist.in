@@ -77,5 +77,7 @@
   <array>
     <string>armv7</string>
   </array>
+  <key>NSCameraUsageDescription</key>
+  <string>CAMERA</string>  
 </dict>
 </plist>
