@@ -36,6 +36,9 @@ _framework/*
 _os/*
 _archives/*
 
+# octave
+src/octave/toolbox/detector/models/*
+
 # Store releases
 releases/*
 

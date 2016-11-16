@@ -46,7 +46,7 @@ set(
   QtFaceMonitor.cpp
   QMLCameraManager.h
   QMLCameraManager.cpp
-
+  
   QtStream.h
 
   ## Application specific
@@ -56,6 +56,13 @@ set(
   ## Config
   facefilter.json
   )
+
+if(IOS)
+  list(APPEND FACE_FILTER_SOURCES
+    QIOSViewController+Fix.h
+    QIOSViewController+Fix.mm    
+    )
+endif()
 
 if(ANDROID)
   add_library(facefilter SHARED ${FACE_FILTER_SOURCES})
