@@ -163,6 +163,21 @@ static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc)
 // test and a simple placeholder assert(true) test wil be added at the
 // end of the test.
 
+bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
+{
+    // TODO
+    return true;
+}
+
+TEST_F(ACFTest, ACFConstruct)
+{
+    const char *classifier = modelFilename;
+    drishti::acf::Detector detector2(classifier), detector;
+    save_pba_z("/tmp/acf.pba.z", detector2);
+    load_pba_z("/tmp/acf.pba.z", detector);
+    ASSERT_TRUE(isEqual(detector, detector2));
+}
+
 TEST_F(ACFTest, ACFDetection)
 {
     const char *classifier = modelFilename;
@@ -170,7 +185,7 @@ TEST_F(ACFTest, ACFDetection)
     WaitKey waitKey;
     
     drishti::acf::Detector detector(classifier);
-
+    
     // #### CPU ####
     cv::Mat I;
     cv::cvtColor(image, I, cv::COLOR_BGR2RGB);
