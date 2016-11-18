@@ -11,7 +11,46 @@
 #include "drishti/acf/ACFIO.h"
 #include "drishti/acf/ACF.h"
 
+#include "drishti/core/serialization.h"
+#include "drishti/core/cvmat_serialization.h"
+
 #include <iomanip>
+
+
+DRISHTI_BEGIN_NAMESPACE(cv)
+
+template< class Archive >
+void serialize(Archive & ar, cv::Rect &rect, const unsigned int version)
+{
+    ar & rect.x;
+    ar & rect.y;
+    ar & rect.width;
+    ar & rect.height;
+}
+
+template< class Archive >
+void serialize(Archive & ar, cv::Size &size, const unsigned int version)
+{
+    ar & size.width;
+    ar & size.height;
+}
+
+template< class Archive >
+void serialize(Archive & ar, cv::Size2f &size, const unsigned int version)
+{
+    ar & size.width;
+    ar & size.height;
+}
+
+template<class Archive>
+void serialize(Archive & ar, cv::Point2f & p, const unsigned int version)
+{
+    ar & p.x;
+    ar & p.y;
+}
+
+DRISHTI_END_NAMESPACE(cv)
+
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
@@ -107,7 +146,7 @@ int Detector::deserialize(ParserNodeDetector &detector_)
             pPyramid_.parse<decltype((*pPyramid_)->pad)>("pad", (*pPyramid_)->pad);
             pPyramid_.parse<decltype((*pPyramid_)->minDs)>("minDs", (*pPyramid_)->minDs);
             pPyramid_.parse<decltype((*pPyramid_)->smooth)>("smooth", (*pPyramid_)->smooth);
-            pPyramid_.parse<Field<double>, decltype((*pPyramid_)->nApprox)>("concat", (*pPyramid_)->concat);
+            pPyramid_.parse<Field<double>, decltype((*pPyramid_)->concat)>("concat", (*pPyramid_)->concat);
             pPyramid_.parse<Field<double>, decltype((*pPyramid_)->complete)>("complete", (*pPyramid_)->complete);
         }
 
@@ -135,8 +174,8 @@ int Detector::deserialize(ParserNodeDetector &detector_)
                 // ====pTree====
                 auto && pTree_ = pBoost_.create("pTree", (*pBoost_)->pTree);
                 pTree_.parse<Field<double>,decltype((*pTree_)->nBins)>("nBins", (*pTree_)->nBins);
-                pTree_.parse<Field<double>,decltype((*pTree_)->maxDepth)>("nBins", (*pTree_)->maxDepth);
-                pTree_.parse<decltype((*pTree_)->minWeight)>("nBins", (*pTree_)->minWeight);
+                pTree_.parse<Field<double>,decltype((*pTree_)->maxDepth)>("maxDepth", (*pTree_)->maxDepth);
+                pTree_.parse<decltype((*pTree_)->minWeight)>("minWeight", (*pTree_)->minWeight);
                 pTree_.parse<decltype((*pTree_)->fracFtrs)>("fracFtrs", (*pTree_)->fracFtrs);
                 pTree_.parse<Field<double>,decltype((*pTree_)->nThreads)>("nThreads", (*pTree_)->nThreads);
             }
@@ -171,7 +210,209 @@ int Detector::deserialize(ParserNodeDetector &detector_)
     return 0;
 }
 
+// ### Boost ####
 
+// Boost serialization:
+template<class Archive>
+void Detector::serialize(Archive & ar, const unsigned int version)
+{
+    ar & clf;
+    ar & opts;
+}
+
+template<class Archive>
+void Detector::Options::serialize(Archive & ar, const unsigned int version)
+{
+    ar & pPyramid; // *
+    ar & modelDs;
+    ar & modelDsPad;
+    ar & pNms; // *
+    ar & stride;
+    ar & cascThr;
+    ar & cascCal;
+    ar & nWeak;
+    ar & pBoost; // *
+    
+    // === TRAINING ===
+    ar & posGtDir;
+    ar & posImgDir;
+    ar & negImgDir;
+    ar & posWinDir;
+    ar & negWinDir;
+    ar & nPos;
+    ar & nNeg;
+    ar & nPerNeg;
+    ar & nAccNeg;
+    ar & pJitter;
+    ar & winsSave;
+}
+
+template<class Archive>
+void Detector::Options::Boost::serialize(Archive & ar, const unsigned int version)
+{
+    ar & pTree;
+    ar & nWeak;
+    ar & discrete;
+    ar & verbose;
+}
+
+template<class Archive>
+void Detector::Options::Boost::Tree::serialize(Archive & ar, const unsigned int version)
+{
+    ar & nBins;
+    ar & maxDepth;
+    ar & minWeight;
+    ar & fracFtrs;
+    ar & nThreads;
+}
+
+template<class Archive>
+void Detector::Options::Pyramid::serialize(Archive & ar, const unsigned int version)
+{
+    ar & pChns; // *
+    ar & nPerOct;
+    ar & nOctUp;
+    ar & nApprox;
+    ar & lambdas;
+    ar & pad;
+    ar & minDs;
+    ar & smooth;
+    ar & concat;
+    ar & complete;
+}
+
+template<class Archive>
+void Detector::Options::Nms::serialize(Archive & ar, const unsigned int version)
+{
+    ar & type;
+    ar & overlap;
+    ar & ovrDnm;
+}
+
+template<class Archive>
+void Detector::Options::Pyramid::Chns::serialize(Archive & ar, const unsigned int version)
+{
+    ar & shrink;
+    ar & complete;
+    ar & pColor; // *
+    ar & pGradMag; // *
+    ar & pGradHist; // *
+    
+    /* ar & pCustom */ // NA
+}
+
+template<class Archive>
+void Detector::Options::Pyramid::Chns::Color::serialize(Archive & ar, const unsigned int version)
+{
+    ar & enabled;
+    ar & smooth;
+    ar & colorSpace;
+}
+
+template<class Archive>
+void Detector::Options::Pyramid::Chns::GradMag::serialize(Archive & ar, const unsigned int version)
+{
+    ar & enabled;
+    ar & colorChn;
+    ar & normRad;
+    ar & normConst;
+    ar & full;
+}
+
+template<class Archive>
+void Detector::Options::Pyramid::Chns::GradHist::serialize(Archive & ar, const unsigned int version)
+{
+    ar & enabled;
+    ar & binSize;
+    ar & nOrients;
+    ar & softBin;
+    ar & useHog;
+    ar & clipHog;
+}
+
+template<class Archive> void Detector::Classifier::serialize(Archive & ar, const unsigned int version)
+{
+    ar & fids;
+    ar & thrs;
+    ar & child;
+    ar & hs;
+    ar & weights;
+    ar & depth;
+    ar & errs;
+    ar & losses;
+    ar & treeDepth;
+}
+
+template<class Archive> void Detector::Options::Jitter::serialize(Archive & ar, const unsigned int version)
+{
+    ar & flip;
+}
+
+// ##################################################################
+// #################### portable_binary_*archive ####################
+// ##################################################################
+
+#if !DRISHTI_BUILD_MIN_SIZE
+typedef portable_binary_oarchive OArchive;
+template void Detector::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Boost::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Boost::Tree::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Jitter::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Nms::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::Color::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradMag::serialize<OArchive>(OArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradHist::serialize<OArchive>(OArchive & ar, const unsigned int version);
+#endif
+
+typedef portable_binary_iarchive IArchive;
+template void Detector::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Boost::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Boost::Tree::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Jitter::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Nms::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::Color::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradMag::serialize<IArchive>(IArchive & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradHist::serialize<IArchive>(IArchive & ar, const unsigned int version);
+
+#if DRISHTI_USE_TEXT_ARCHIVES
+
+// ##################################################################
+// #################### text_*archive ###############################
+// ##################################################################
+
+typedef boost::archive::text_oarchive OArchiveTXT;
+template void Detector::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Boost::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Boost::Tree::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Jitter::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Nms::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::Color::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradMag::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradHist::serialize<OArchiveTXT>(OArchiveTXT & ar, const unsigned int version);
+
+typedef boost::archive::text_iarchive IArchiveTXT;
+template void Detector::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Boost::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Boost::Tree::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Jitter::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Nms::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::Color::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradMag::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+template void Detector::Options::Pyramid::Chns::GradHist::serialize<IArchiveTXT>(IArchiveTXT & ar, const unsigned int version);
+
+#endif
 
 DRISHTI_ACF_NAMESPACE_END
 
