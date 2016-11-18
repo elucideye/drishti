@@ -42,7 +42,7 @@ DRISHTI_BUILD_HIDE=\
 
 DRISHTI_POLLY_ARGS=\
 (
-    "--config={DRISHTI_BUILD_CONFIG}"    
+    "--config=${DRISHTI_BUILD_CONFIG}"    
 )
 
 function rename_tab
