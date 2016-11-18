@@ -14,8 +14,17 @@
 #include "drishti/core/serialization.h"
 #include "drishti/core/cvmat_serialization.h"
 
-#include <iomanip>
+#if defined(ANDROID)
+#  define HALF_ENABLE_CPP11_CMATH 0
+#endif
 
+#define DRISHTI_ACF_DO_HALF 1
+
+#if DRISHTI_ACF_DO_HALF
+#  include "half/half.hpp"
+#endif
+
+#include <iomanip>
 
 DRISHTI_BEGIN_NAMESPACE(cv)
 
@@ -330,14 +339,121 @@ void Detector::Options::Pyramid::Chns::GradHist::serialize(Archive & ar, const u
     ar & clipHog;
 }
 
-template<class Archive> void Detector::Classifier::serialize(Archive & ar, const unsigned int version)
+// ###############################################
+// ### CV_32F <=> half_float::detail::uint16   ###
+// ################################################
+
+static void float2half(const cv::Mat &src, std::vector<half_float::detail::uint16> &dst)
 {
-    ar & fids;
-    ar & thrs;
-    ar & child;
-    ar & hs;
-    ar & weights;
-    ar & depth;
+    int i = 0;
+    dst.resize(src.total());
+    for(auto iter = src.begin<float>(); iter != src.end<float>(); iter++, i++)
+    {
+        dst[i] = half_float::detail::float2half<std::round_to_nearest>(*iter);
+    }
+}
+
+static void half2float(int rows, int cols, const std::vector<half_float::detail::uint16> &src, cv::Mat &dst)
+{
+    int i = 0;
+    dst.create(rows, cols, CV_32F);
+    for(auto iter = dst.begin<float>(); iter != dst.end<float>(); iter++, i++)
+    {
+        (*iter) = half_float::detail::half2float(src[i]);
+    }
+}
+
+template <class Archive> void serialize32F(Archive &ar, cv::Mat &data)
+{
+    int rows_ = data.rows, cols_ = data.cols;
+    std::vector<half_float::detail::uint16> data_;
+    if(Archive::is_loading::value)
+    {
+        ar & rows_;
+        ar & cols_;
+        ar & data_;
+        half2float(rows_, cols_, data_, data);
+    }
+    else
+    {
+        float2half(data, data_);
+        ar & rows_;
+        ar & cols_;
+        ar & data_;
+    }
+}
+
+// ###############################################
+// ### CV_32S <=> uint16_t                     ###
+// ################################################
+
+static void transform32Sto16U(const cv::Mat &src, std::vector<uint16_t> &dst)
+{
+    std::cout << src.type() << std::endl;
+    std::cout << "CV_64F " << CV_64F << std::endl;
+    std::cout << "CV_32F " << CV_32F << std::endl;
+    std::cout << "CV_32S " << CV_32S << std::endl;
+    CV_Assert(src.type() == CV_32S);
+    
+    int i = 0;
+    
+    // Serialize to {w,h} [0][1]...[n]
+    dst.resize(src.total());
+    for(auto iter = src.begin<int32_t>(); iter != src.end<int32_t>(); iter++, i++)
+    {
+        dst[i] = static_cast<uint16_t>(*iter);
+    }
+}
+
+static void transform16Uto32S(int rows, int cols, const std::vector<uint16_t> &src, cv::Mat &dst)
+{
+    int i = 0;
+    dst.create(rows, cols, CV_32S);
+    for(auto iter = dst.begin<int32_t>(); iter != dst.end<int32_t>(); iter++, i++)
+    {
+        (*iter) = static_cast<int32_t>(src[i]);
+    }
+}
+
+template <class Archive> void serialize32S(Archive &ar, cv::Mat &data)
+{
+    int rows_ = data.rows, cols_ = data.cols;
+    std::vector<half_float::detail::uint16> data_;
+    if(Archive::is_loading::value)
+    {
+        ar & rows_;
+        ar & cols_;
+        ar & data_;
+        transform16Uto32S(rows_, cols_, data_, data);
+    }
+    else
+    {
+        transform32Sto16U(data, data_);
+        ar & rows_;
+        ar & cols_;
+        ar & data_;
+    }
+}
+
+template<class Archive>
+void Detector::Classifier::serialize(Archive & ar, const unsigned int version)
+{
+#if DRISHTI_ACF_DO_HALF
+    serialize32S(ar, fids);
+    serialize32F(ar, thrs);
+    serialize32S(ar, child);
+    serialize32F(ar, hs);
+    serialize32F(ar, weights);
+    serialize32S(ar, depth);
+#else
+    ar & fids;    // cv::Mat_<int>
+    ar & thrs;    // cv::Mat_<float>
+    ar & child;   // cv::Mat_<int>
+    ar & hs;      // cv::Mat_<float>
+    ar & weights; // cv::Mat_<float>
+    ar & depth;   // cv::Mat_<int>
+#endif
+
     ar & errs;
     ar & losses;
     ar & treeDepth;
