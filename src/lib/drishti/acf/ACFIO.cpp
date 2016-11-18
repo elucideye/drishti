@@ -389,15 +389,7 @@ template <class Archive> void serialize32F(Archive &ar, cv::Mat &data)
 
 static void transform32Sto16U(const cv::Mat &src, std::vector<uint16_t> &dst)
 {
-    std::cout << src.type() << std::endl;
-    std::cout << "CV_64F " << CV_64F << std::endl;
-    std::cout << "CV_32F " << CV_32F << std::endl;
-    std::cout << "CV_32S " << CV_32S << std::endl;
-    CV_Assert(src.type() == CV_32S);
-    
     int i = 0;
-    
-    // Serialize to {w,h} [0][1]...[n]
     dst.resize(src.total());
     for(auto iter = src.begin<int32_t>(); iter != src.end<int32_t>(); iter++, i++)
     {
