@@ -58,7 +58,8 @@
 #include "drishti/core/Logger.h"
 #include "drishti/core/drishti_core.h"
 
-#include "nlohmann/json.hpp" // nlohman-json
+// #include "nlohmann/json.hpp" // nlohman-json
+#include "nlohmann_json.hpp" // nlohman-json
 
 #include <iostream>
 
