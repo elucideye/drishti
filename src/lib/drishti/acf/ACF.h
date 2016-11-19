@@ -79,6 +79,10 @@ public:
 
             void merge(const Nms &src, int mode);
             friend std::ostream& operator<<(std::ostream &os, const Nms &src);
+            
+            // Boost serialization:
+            friend class boost::serialization::access;
+            template<class Archive> void serialize(Archive & ar, const unsigned int version);
         };
 
         struct Pyramid
@@ -105,6 +109,10 @@ public:
 
                     void merge(const Color &src, int mode);
                     friend std::ostream& operator<<(std::ostream &os, const Color &src);
+                    
+                    // Boost serialization:
+                    friend class boost::serialization::access;
+                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
                 };
                 Field<Color> pColor;
 
@@ -118,6 +126,10 @@ public:
 
                     void merge(const GradMag &src, int mode);
                     friend std::ostream& operator<<(std::ostream &os, const GradMag &src);
+                    
+                    // Boost serialization:
+                    friend class boost::serialization::access;
+                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
                 };
                 Field<GradMag> pGradMag;
 
@@ -132,6 +144,11 @@ public:
 
                     void merge(const GradHist &src, int mode);
                     friend std::ostream& operator<<(std::ostream &os, const GradHist &src);
+                    
+                    // Boost serialization:
+                    friend class boost::serialization::access;
+                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+
                 };
                 Field<GradHist> pGradHist;
 
@@ -140,12 +157,20 @@ public:
                     // TODO:
                     void merge(const Custom &src, int mode);
                     friend std::ostream& operator<<(std::ostream &os, const Custom &src);
+                    
+                    // Boost serialization:
+                    friend class boost::serialization::access;
+                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
                 };
                 Field<Custom> pCustom;
                 Field<int> complete;
 
                 void merge(const Chns &src, int mode);
                 friend std::ostream& operator<<(std::ostream &os, const Chns &src);
+                
+                // Boost serialization:
+                friend class boost::serialization::access;
+                template<class Archive> void serialize(Archive & ar, const unsigned int version);
             };
 
             Field<Chns> pChns;
@@ -162,8 +187,11 @@ public:
             Field<int> complete;
 
             void merge(const Pyramid &src, int mode);
-
             friend std::ostream& operator<<(std::ostream &os, const Pyramid &src);
+            
+            // Boost serialization:
+            friend class boost::serialization::access;
+            template<class Archive> void serialize(Archive & ar, const unsigned int version);
         };
 
         Field<Pyramid> pPyramid;
@@ -188,6 +216,10 @@ public:
 
                 void merge(const Tree &src, int mode);
                 friend std::ostream& operator<<(std::ostream &os, const Tree &src);
+                
+                // Boost serialization:
+                friend class boost::serialization::access;
+                template<class Archive> void serialize(Archive & ar, const unsigned int version);
             };
             Field<Tree> pTree;
             Field<int> nWeak;
@@ -196,6 +228,10 @@ public:
 
             void merge(const Boost &src, int mode);
             friend std::ostream& operator<<(std::ostream &os, const Boost &src);
+            
+            // Boost serialization:
+            friend class boost::serialization::access;
+            template<class Archive> void serialize(Archive & ar, const unsigned int version);
         };
 
         Field<Boost> pBoost;
@@ -220,12 +256,19 @@ public:
             void merge(const Jitter &src, int mode);
             friend std::ostream& operator<<(std::ostream &os, const Jitter &src);
 
+            // Boost serialization:
+            friend class boost::serialization::access;
+            template<class Archive> void serialize(Archive & ar, const unsigned int version);
         };
         Field<Jitter> pJitter;
         Field<int> winsSave;
 
         void merge(const Options &src, int mode);
         friend std::ostream& operator<<(std::ostream &os, const Options &src);
+        
+        // Boost serialization:
+        friend class boost::serialization::access;
+        template<class Archive> void serialize(Archive & ar, const unsigned int version);
     };
 
     Options opts;
@@ -258,6 +301,9 @@ public:
 
         cv::Mat thrsU8;  // prescaled threshold (x255) for uint8_t input
         const cv::Mat & getScaledThresholds(int type);
+
+        friend class boost::serialization::access;
+        template<class Archive> void serialize(Archive & ar, const unsigned int version);        
     };
 
     Classifier clf;
@@ -397,6 +443,10 @@ public:
     int deserialize(const char * filename);
     int deserialize(std::istream &is);
     int deserialize(ParserNodeDetector &detector_);
+    
+    // Boost serialization:
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive & ar, const unsigned int version);
 
     // Additional configuration parameters:
     void setIsLuv(bool flag)

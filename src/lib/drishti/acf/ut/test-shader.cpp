@@ -54,6 +54,7 @@
 const char* imageFilename;
 const char* truthFilename;
 const char* modelFilename;
+const char* outputDirectory;
 
 #ifdef ANDROID
 #  define DFLT_TEXTURE_FORMAT GL_RGBA
@@ -163,6 +164,42 @@ static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc)
 // test and a simple placeholder assert(true) test wil be added at the
 // end of the test.
 
+// http://stackoverflow.com/a/32647694
+bool isEqual(const cv::Mat& a, const cv::Mat& b)
+{
+    cv::Mat temp;
+    cv::bitwise_xor(a,b,temp); //It vectorizes well with SSE/NEON
+    return !(cv::countNonZero(temp) );
+}
+
+bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
+{
+    return // The float -> uint16_t -> float will not be an exact match
+        isEqual(a.clf.fids, b.clf.fids) &&
+        isEqual(a.clf.child, b.clf.child) &&
+        isEqual(a.clf.depth, b.clf.depth);
+        //isEqual(a.clf.thrs, b.clf.thrs) &&
+        //isEqual(a.clf.hs, b.clf.hs) &&
+        //isEqual(a.clf.weights, b.clf.weights) &&
+}
+
+TEST_F(ACFTest, ACFSerialize)
+{
+    // Load from cvmat
+    drishti::acf::Detector detector(modelFilename), detector2;
+    
+    std::string filename = outputDirectory;
+    filename += "/acf.pba.z";
+    
+    // Write to pba.z
+    save_pba_z(filename, detector);
+    
+    // Load from pba.z
+    load_pba_z(filename, detector2);
+    
+    ASSERT_TRUE(isEqual(detector, detector2));
+}
+
 TEST_F(ACFTest, ACFDetection)
 {
     const char *classifier = modelFilename;
@@ -170,7 +207,7 @@ TEST_F(ACFTest, ACFDetection)
     WaitKey waitKey;
     
     drishti::acf::Detector detector(classifier);
-
+    
     // #### CPU ####
     cv::Mat I;
     cv::cvtColor(image, I, cv::COLOR_BGR2RGB);

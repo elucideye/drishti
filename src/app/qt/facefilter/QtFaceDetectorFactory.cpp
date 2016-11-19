@@ -7,6 +7,7 @@
 #include "QtStream.h"
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/drishti_string_hash.h"
 #include "drishti/core/make_unique.h"
 #include "drishti/acf/ACF.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
@@ -14,8 +15,10 @@
 
 #include <iostream>
 
+using namespace string_hash;
+
 // TODO: Move these regressor names to a config file
-#define DRISHTI_FACE_INNER_DETECT "drishti_face_inner_48x48.mat"
+#define DRISHTI_FACE_INNER_DETECT "drishti_face_inner_48x48.pba.z"
 #define DRISHTI_FACE_MEAN_5_POINT "drishti_face_5_point_mean_48x48.xml"
 #define DRISHTI_FACE_INNER "drishti_face_inner.pba.z"
 #define DRISHTI_EYE_FULL "drishti_eye_full_npd_eix.pba.z"
@@ -66,12 +69,52 @@ QtFaceDetectorFactory::QtFaceDetectorFactory()
 std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetector()
 {
     std::unique_ptr<drishti::ml::ObjectDetector> ptr;
-    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
+    
+    // Android is missing std::regex, so do search:
+    
+    int index = -1;
+    std::vector<std::string> kinds { ".mat", ".pba.z" }; // cereal...
+    for(int i = 0; i < kinds.size(); i++)
     {
-        ptr = drishti::core::make_unique<drishti::acf::Detector>(is);
-        return true;
-    };
+        const auto &k = kinds[i];
+        auto pos = sFaceDetector.find(k);
+        if(pos != std::string::npos)
+        {
+            index = i;
+            break;
+        }
+    }
+    
+    if(index < 0)
+    {
+        return ptr;
+    }
+    
+    std::function<bool(std::istream &is)> loader;
+    switch( string_hash::hash(kinds[index]) )
+    {
+        case ".mat"_hash   :
+        {
+            loader = [&](std::istream &is)
+            {
+                ptr = drishti::core::make_unique<drishti::acf::Detector>(is);
+                return true;
+            };
+        } break;
+            
+        case ".pba.z"_hash  :
+        {
+            loader = [&](std::istream &is)
+            {
+                ptr = drishti::core::make_unique<drishti::acf::Detector>();
+                load_pba_z(is, dynamic_cast<drishti::acf::Detector &>(*ptr));
+                return true;
+            };
+        } break;
+    }
+    
     load(sFaceDetector, loader);
+    
     return ptr;
 }
 

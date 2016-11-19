@@ -17,6 +17,7 @@
 extern const char* imageFilename;
 extern const char* truthFilename;
 extern const char* modelFilename;
+extern const char* outputDirectory;
 
 int main(int argc, char** argv)
 {
@@ -25,9 +26,10 @@ int main(int argc, char** argv)
 #endif
 
     ::testing::InitGoogleTest(&argc, argv);
-    assert(argc == 4);
+    assert(argc == 5);
     imageFilename = argv[1];
     truthFilename = argv[2];
     modelFilename = argv[3];
+    outputDirectory = argv[4];
     return RUN_ALL_TESTS();
 }

@@ -30,7 +30,7 @@ COMMAND=(
     "--open "
     "--install "
     "--test " 
-    "${EXTRA_ARGS}"  "--nobuild"
+    "${EXTRA_ARGS}" #  "--nobuild"
 )
 
 
