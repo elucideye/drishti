@@ -47,7 +47,7 @@ public:
     XGBooster();
     XGBooster(const Recipe &recipe);
     float operator()(const std::vector<float> &features);
-    void train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask= {});
+    void train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask={});
 
     void read(const std::string &filename);
     void write(const std::string &filename) const;
