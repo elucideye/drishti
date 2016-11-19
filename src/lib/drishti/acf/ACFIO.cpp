@@ -60,7 +60,6 @@ void serialize(Archive & ar, cv::Point2f & p, const unsigned int version)
 
 DRISHTI_END_NAMESPACE(cv)
 
-
 DRISHTI_ACF_NAMESPACE_BEGIN
 
 int Detector::deserialize(const std::string &filename)
