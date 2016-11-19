@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 
+#include "drishti/ml/XGBooster.h"
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
@@ -18,6 +20,6 @@ int main(int argc, char** argv)
 
 TEST(XGBooster, XGBoosterInit)
 {
-    XGBooster booster;
+    drishti::ml::XGBooster booster;
     ASSERT_EQ(true, true);
 }
