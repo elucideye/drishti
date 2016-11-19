@@ -191,6 +191,7 @@ if(DRISHTI_BUILD_TESTS)
 
   add_subdirectory(core)
   add_subdirectory(geometry)
+  add_subdirectory(ml)
 
   # Run public SDK, then eye tests in that order
   add_subdirectory(drishti)  
