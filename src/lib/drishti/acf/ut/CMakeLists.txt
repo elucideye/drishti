@@ -44,4 +44,5 @@ add_test(NAME DrishtiACFTest COMMAND test-drishti-acf
   "${assets_dir}/images/lena512color.png"
   "${assets_dir}/images/lena512gray.png"
   "${assets_dir}/drishti_face_inner_48x48.mat"
+  "${CMAKE_CURRENT_BINARY_DIR}" # Used as portable temp folder
   )
