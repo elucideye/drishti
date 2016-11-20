@@ -33,11 +33,12 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   arithmetic.h
   boost_serialize_common.h
   convert.h
-  cvmat_serialization.h
   drawing.h
   drishti_algorithm.h
   drishti_core.h
   drishti_csv.h
+  drishti_cvmat_boost.h
+  drishti_cvmat_cereal.h  
   drishti_defs.hpp
   drishti_math.h
   drishti_operators.h

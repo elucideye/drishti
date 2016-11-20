@@ -13,7 +13,7 @@
 
 #include "drishti/core/drishti_core.h"
 #include "drishti/ml/drishti_ml.h"
-#include "drishti/core/cvmat_serialization.h"
+#include "drishti/core/drishti_cvmat_boost.h"
 
 #include <opencv2/core/core.hpp>
 

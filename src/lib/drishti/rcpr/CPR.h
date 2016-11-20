@@ -25,7 +25,7 @@
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/acf/ACFField.h"
 #include "drishti/ml/XGBooster.h"
-#include "drishti/core/cvmat_serialization.h"
+#include "drishti/core/drishti_cvmat_boost.h"
 #include "drishti/core/serialization.h"
 #include "drishti/core/Logger.h"
 

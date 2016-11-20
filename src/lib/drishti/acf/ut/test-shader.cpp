@@ -27,6 +27,15 @@
 #  define DO_ACF_GPU_TEST 0
 #endif
 
+#define DRISHTI_ACF_TEST_BOOST 1
+#define DRISHTI_ACF_TEST_CEREAL 1
+
+#if DRISHTI_ACF_TEST_CEREAL
+// http://uscilab.github.io/cereal/serialization_archives.html
+#  include <cereal/archives/portable_binary.hpp>
+#  include <cereal/types/vector.hpp>
+#endif
+
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!# Work in progress !#!#!#!#!#!#!#!#!#!#!#!#!
@@ -174,6 +183,33 @@ bool isEqual(const cv::Mat& a, const cv::Mat& b)
 
 bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
 {
+    if(!isEqual(a.clf.fids, b.clf.fids))
+    {
+        std::cout << cv::Mat1b(a.clf.fids == b.clf.fids) << std::endl;
+
+        cv::Mat tmp;
+        cv::hconcat(a.clf.fids, b.clf.fids, tmp);
+        std::cout << tmp << std::endl;
+    }
+    
+    if(!isEqual(a.clf.child, b.clf.child))
+    {
+        std::cout << cv::Mat1b(a.clf.child == b.clf.child) << std::endl;
+        
+        cv::Mat tmp;
+        cv::hconcat(a.clf.fids, b.clf.fids, tmp);
+        std::cout << tmp << std::endl;
+    }
+    
+    if(!isEqual(a.clf.depth, b.clf.depth))
+    {
+        std::cout << cv::Mat1b(a.clf.depth == b.clf.depth) << std::endl;
+        
+        cv::Mat tmp;
+        cv::hconcat(a.clf.fids, b.clf.fids, tmp);
+        std::cout << tmp << std::endl;
+    }
+    
     return // The float -> uint16_t -> float will not be an exact match
         isEqual(a.clf.fids, b.clf.fids) &&
         isEqual(a.clf.child, b.clf.child) &&
@@ -183,7 +219,8 @@ bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
         //isEqual(a.clf.weights, b.clf.weights) &&
 }
 
-TEST_F(ACFTest, ACFSerialize)
+#if DRISHTI_ACF_TEST_BOOST
+TEST_F(ACFTest, ACFSerializeBoost)
 {
     // Load from cvmat
     drishti::acf::Detector detector(modelFilename), detector2;
@@ -199,6 +236,38 @@ TEST_F(ACFTest, ACFSerialize)
     
     ASSERT_TRUE(isEqual(detector, detector2));
 }
+#endif // DRISHTI_ACF_TEST_BOOST
+
+#if DRISHTI_ACF_TEST_CEREAL
+TEST_F(ACFTest, ACFSerializeCereal)
+{
+    // Load from cvmat
+    drishti::acf::Detector detector(modelFilename), detector2;
+    
+    std::string filename = outputDirectory;
+    filename += "/acf.pba.c";
+    
+    { // save
+        std::ofstream file(filename, std::ios::binary);
+        if(file)
+        {
+            cereal::PortableBinaryOutputArchive ar(file);
+            ar(detector);
+        }
+    }
+    
+    { // load
+        std::ifstream file(filename, std::ios::binary);
+        if(file)
+        {
+            cereal::PortableBinaryInputArchive ar(file);
+            ar(detector2);
+        }
+    }
+    
+    ASSERT_TRUE(isEqual(detector, detector2));
+}
+#endif // DRISHTI_ACF_TEST_CEREAL
 
 TEST_F(ACFTest, ACFDetection)
 {

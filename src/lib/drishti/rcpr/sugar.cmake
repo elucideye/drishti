@@ -13,23 +13,23 @@ include(sugar_files)
 
 project(drishti_rcpr)
 
-if(NOT DRISHTI_BUILD_MIN_SIZE)
-  set(DRISHTI_RCPR_OPT_SOURCE
-    cprTrain.cpp
-    )
-endif()
-
 sugar_files(DRISHTI_RCPR_SRCS
   CPR.cpp
   CPRIO.cpp
+  CPRIOArchiveBoost.cpp
+  #CPRIOArchiveCereal.cpp
   cprApply.cpp
   poseGt.cpp
-  "${DRISHTI_RCPR_OPT_SOURCE}"
   )
+
+if(NOT DRISHTI_BUILD_MIN_SIZE)
+  sugar_files(DRISHTI_RCPR_SRCS cprTrain.cpp)
+endif()
 
 sugar_files(DRISHTI_RCPR_HDRS_PUBLIC
   CPR.h
   CPRIO.h
+  CPRIOArchive.h
   ImageMaskPair.h
   PointHalf.h
   Regressor.h

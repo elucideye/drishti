@@ -17,6 +17,8 @@ sugar_files(DRISHTI_ML_SRCS
   RegressionTreeEnsembleShapeEstimator.cpp  
   ShapeEstimator.cpp
   XGBooster.cpp
+  XGBoosterIOArchiveBoost.cpp
+  #XGBoosterIOArchiveCereal.cpp
   )
 
 sugar_files(DRISHTI_ML_HDRS_PUBLIC
@@ -27,4 +29,6 @@ sugar_files(DRISHTI_ML_HDRS_PUBLIC
   drishti_ml.h
   shape_predictor.h
   XGBooster.h
+  XGBoosterImpl.h  
+  Booster.h
   )

@@ -82,7 +82,7 @@ public:
             
             // Boost serialization:
             friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         struct Pyramid
@@ -112,7 +112,7 @@ public:
                     
                     // Boost serialization:
                     friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Color> pColor;
 
@@ -129,7 +129,7 @@ public:
                     
                     // Boost serialization:
                     friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<GradMag> pGradMag;
 
@@ -147,7 +147,7 @@ public:
                     
                     // Boost serialization:
                     friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
                 };
                 Field<GradHist> pGradHist;
@@ -160,7 +160,7 @@ public:
                     
                     // Boost serialization:
                     friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Custom> pCustom;
                 Field<int> complete;
@@ -170,7 +170,7 @@ public:
                 
                 // Boost serialization:
                 friend class boost::serialization::access;
-                template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
 
             Field<Chns> pChns;
@@ -191,7 +191,7 @@ public:
             
             // Boost serialization:
             friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         Field<Pyramid> pPyramid;
@@ -219,7 +219,7 @@ public:
                 
                 // Boost serialization:
                 friend class boost::serialization::access;
-                template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
             Field<Tree> pTree;
             Field<int> nWeak;
@@ -231,7 +231,7 @@ public:
             
             // Boost serialization:
             friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         Field<Boost> pBoost;
@@ -258,7 +258,7 @@ public:
 
             // Boost serialization:
             friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
         Field<Jitter> pJitter;
         Field<int> winsSave;
@@ -268,7 +268,7 @@ public:
         
         // Boost serialization:
         friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version);
+        template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
     Options opts;
@@ -303,7 +303,7 @@ public:
         const cv::Mat & getScaledThresholds(int type);
 
         friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version);        
+        template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
     Classifier clf;
@@ -446,7 +446,7 @@ public:
     
     // Boost serialization:
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+    template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
     // Additional configuration parameters:
     void setIsLuv(bool flag)
