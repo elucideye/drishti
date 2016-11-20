@@ -10,47 +10,6 @@
 
 #include "drishti/rcpr/CPRIOArchive.h"
 
-BOOST_SERIALIZATION_SPLIT_FREE(cv::Point2f)
-
-DRISHTI_BEGIN_NAMESPACE(boost)
-DRISHTI_BEGIN_NAMESPACE(serialization)
-
-template<class Archive>
-void save(Archive &ar, const cv::Point2f &p, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
-{
-    drishti::rcpr::PointHalf q(p);
-    ar & q.x;
-    ar & q.y;
-}
-
-template<class Archive>
-void load(Archive &ar, cv::Point2f &p, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
-{
-    drishti::rcpr::PointHalf q;
-    ar & q.x;
-    ar & q.y;
-    p = q;
-}
-
-DRISHTI_END_NAMESPACE(serialization)
-DRISHTI_END_NAMESPACE(boost)
-
-//#if DRISHTI_CPR_DO_HALF_FLOAT
-//    std::vector<PointHalf> xs_;
-//    if(Archive::is_loading::value)
-//    {
-//        ar & xs_;
-//        copy(xs_, (*xs));
-//    }
-//    else
-//    {
-//        copy((*xs), xs_);
-//        ar & xs_;
-//    }
-//#else
-//    ar & xs;
-//#endif
-
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
 // explicit instantiation:

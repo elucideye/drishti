@@ -94,23 +94,21 @@ void CPR::RegModel::Regs::FtrData::serialize(Archive & ar, const unsigned int ve
     ar & F;
     ar & nChn;
     
-    ar & xs; // std::vector<cv::Point2f> <=> std::vector<PointHalf>
-   
-//#if DRISHTI_CPR_DO_HALF_FLOAT
-//    std::vector<PointHalf> xs_;
-//    if(Archive::is_loading::value)
-//    {
-//        ar & xs_;
-//        copy(xs_, (*xs));
-//    }
-//    else
-//    {
-//        copy((*xs), xs_);
-//        ar & xs_;
-//    }
-//#else
-//    ar & xs;
-//#endif
+#if DRISHTI_CPR_DO_HALF_FLOAT
+    std::vector<PointHalf> xs_;
+    if(Archive::is_loading::value)
+    {
+        ar & xs_;
+        copy(xs_, (*xs));
+    }
+    else
+    {
+        copy((*xs), xs_);
+        ar & xs_;
+    }
+#else
+    ar & xs;
+#endif
     
     ar & pids;
 }
