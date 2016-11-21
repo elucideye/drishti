@@ -45,6 +45,7 @@
 #include <gtest/gtest.h>
 
 #include "drishti/core/drawing.h"
+#include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/acf/ACF.h"
 #include "drishti/acf/MatP.h"
 #include "drishti/core/Logger.h"
@@ -251,7 +252,7 @@ TEST_F(ACFTest, ACFSerializeCereal)
         std::ofstream file(filename, std::ios::binary);
         if(file)
         {
-            cereal::PortableBinaryOutputArchive ar(file);
+            cereal::PortableBinaryOutputArchive3 ar(file);
             ar(detector);
         }
     }
@@ -260,7 +261,7 @@ TEST_F(ACFTest, ACFSerializeCereal)
         std::ifstream file(filename, std::ios::binary);
         if(file)
         {
-            cereal::PortableBinaryInputArchive ar(file);
+            cereal::PortableBinaryInputArchive3 ar(file);
             ar(detector2);
         }
     }
