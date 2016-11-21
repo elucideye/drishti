@@ -1,10 +1,6 @@
 #include "ACFIOArchive.h"
 
-// http://uscilab.github.io/cereal/serialization_archives.html
-//#include <cereal/archives/binary.hpp>
-#include <cereal/archives/portable_binary.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/string.hpp>
+#include "drishti/core/drishti_cereal_pba.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -63,7 +59,7 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 // ##################################################################
 
 #if !DRISHTI_BUILD_MIN_SIZE
-typedef cereal::PortableBinaryOutputArchive OArchive;
+typedef cereal::PortableBinaryOutputArchive3 OArchive;
 template void Detector::serialize<OArchive>(OArchive & ar, const std::uint32_t);
 template void Detector::Options::serialize<OArchive>(OArchive & ar, const std::uint32_t);
 template void Detector::Options::Boost::serialize<OArchive>(OArchive & ar, const std::uint32_t);
@@ -77,7 +73,7 @@ template void Detector::Options::Pyramid::Chns::GradMag::serialize<OArchive>(OAr
 template void Detector::Options::Pyramid::Chns::GradHist::serialize<OArchive>(OArchive & ar, const std::uint32_t);
 #endif
 
-typedef  cereal::PortableBinaryInputArchive IArchive;
+typedef  cereal::PortableBinaryInputArchive3 IArchive;
 template void Detector::serialize<IArchive>(IArchive & ar, const std::uint32_t version);
 template void Detector::Options::serialize<IArchive>(IArchive & ar, const std::uint32_t version);
 template void Detector::Options::Boost::serialize<IArchive>(IArchive & ar, const std::uint32_t version);
