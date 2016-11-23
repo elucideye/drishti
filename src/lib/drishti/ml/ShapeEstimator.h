@@ -67,7 +67,6 @@ public:
     }
 
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version) {}
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
@@ -75,6 +74,7 @@ public:
 
 DRISHTI_ML_NAMESPACE_END
 
+#include "drishti/core/boost_serialize_common.h"
 BOOST_CLASS_EXPORT_KEY(drishti::ml::ShapeEstimator);
 
 #endif

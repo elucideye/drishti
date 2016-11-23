@@ -168,7 +168,6 @@ typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Ma
 typedef Eigen::Map< MatrixRowMajor > MapMatrixRowMajor;
 typedef Eigen::Map< MatrixColMajor, Eigen::Unaligned, DynamicStride > MapMatrixColMajor;
 
-
 cv::Mat StandardizedPCA::backProject(const cv::Mat &projection) const
 {
     cv::Mat result;

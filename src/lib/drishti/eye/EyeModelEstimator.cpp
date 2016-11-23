@@ -384,37 +384,6 @@ int EyeModelEstimator::loadTXT(std::istream &is, EyeModelEstimator &eme)
 }
 #endif
 
-// Boost serialization:
-template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
-{
-    assert(version >= 1);
-    ar & m_impl;
-}
-
-// ##################################################################
-// #################### portable_binary_*archive ####################
-// ##################################################################
-
-#if !DRISHTI_BUILD_MIN_SIZE
-template void EyeModelEstimator::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-#endif
-
-template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
-// ##################################################################
-// #################### text_*archive ###############################
-// ##################################################################
-
-#if DRISHTI_USE_TEXT_ARCHIVES
-template void EyeModelEstimator::Impl::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
-
-template void EyeModelEstimator::Impl::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
-#endif
-
 static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)
 {
     float scale = 1.f;
@@ -443,5 +412,3 @@ static cv::Mat getDarkChannel(const cv::Mat &I)
 
 DRISHTI_EYE_NAMESPACE_END
 
-BOOST_CLASS_EXPORT_IMPLEMENT(DRISHTI_EYE::EyeModelEstimator);
-BOOST_CLASS_EXPORT_IMPLEMENT(DRISHTI_EYE::EyeModelEstimator::Impl);

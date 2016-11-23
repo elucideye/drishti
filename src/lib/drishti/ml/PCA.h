@@ -13,29 +13,12 @@
 
 #include "drishti/core/drishti_core.h"
 #include "drishti/ml/drishti_ml.h"
-#include "drishti/core/drishti_cvmat_boost.h"
+
+#include "drishti/core/serialization.h"// for export
 
 #include <opencv2/core/core.hpp>
 
 #include <memory>
-
-//# include <boost/archive/xml_oarchive.hpp>
-//# define BOOST_NVP(name, value) boost::serialization::make_nvp(name, value)
-#define BOOST_NVP(name, value) value
-
-DRISHTI_BEGIN_NAMESPACE(boost)
-DRISHTI_BEGIN_NAMESPACE(serialization)
-
-template<class Archive>
-void serialize(Archive & ar, cv::PCA &pca, const unsigned int version)
-{
-    ar & BOOST_NVP("eigenvalues", pca.eigenvalues);
-    ar & BOOST_NVP("eigenvectors", pca.eigenvectors);
-    ar & BOOST_NVP("mean", pca.mean);
-}
-
-DRISHTI_END_NAMESPACE(boost)
-DRISHTI_END_NAMESPACE(serialization)
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
@@ -56,11 +39,13 @@ public:
         cv::Mat mu, sigma;
 
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
+        void serialize(Archive & ar, const unsigned int version);
+#if 0
         {
-            ar & BOOST_NVP("mu", mu);
-            ar & BOOST_NVP("sigma", sigma);
+            ar & mu;
+            ar & sigma;
         }
+#endif
     };
 
     StandardizedPCA(); // null constructor for file loading
@@ -74,16 +59,18 @@ public:
     cv::Mat backProject(const cv::Mat &projection) const;
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    void serialize(Archive & ar, const unsigned int version);
+#if 0
     {
-        ar & BOOST_NVP("transform", m_transform);
-        ar & BOOST_NVP("pca", m_pca);
+        ar & m_transform;
+        ar & m_pca;
 
         if(Archive::is_loading::value)
         {
             init();
         }
     }
+#endif
 
     Standardizer m_transform;
     std::shared_ptr<cv::PCA> m_pca;
@@ -92,5 +79,7 @@ public:
 };
 
 DRISHTI_ML_NAMESPACE_END
+
+BOOST_CLASS_EXPORT_KEY(drishti::ml::StandardizedPCA);
 
 #endif

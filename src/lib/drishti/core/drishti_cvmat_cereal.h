@@ -10,6 +10,7 @@
 
 #include "drishti/core/drishti_core.h" // for DRISHTI_BEGIN_NAMESPACE()
 #include <opencv2/opencv.hpp>
+#include <cereal/cereal.hpp>
 
 DRISHTI_BEGIN_NAMESPACE(cv)
 

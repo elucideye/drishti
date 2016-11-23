@@ -17,7 +17,7 @@ sugar_files(DRISHTI_RCPR_SRCS
   CPR.cpp
   CPRIO.cpp
   CPRIOArchiveBoost.cpp
-  #CPRIOArchiveCereal.cpp
+  CPRIOArchiveCereal.cpp
   cprApply.cpp
   poseGt.cpp
   )

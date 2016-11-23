@@ -216,6 +216,7 @@ std::ostream & operator<<(std::ostream &os, const cv::RotatedRect &e)
 
 int CPR::cprApplyTree(const cv::Mat &I, const RegModel &regModel, const Vector1d &pIn, CPRResult &result, bool doPreview) const
 {
+    assert(false);
     return cprApplyTree(I, regModel, pIn, result, doPreview);
 }
 

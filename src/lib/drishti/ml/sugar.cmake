@@ -14,17 +14,21 @@ include(sugar_files)
 sugar_files(DRISHTI_ML_SRCS
   ObjectDetector.cpp
   PCA.cpp
-  RegressionTreeEnsembleShapeEstimator.cpp  
+  PCAArchiveBoost.cpp
+  RegressionTreeEnsembleShapeEstimator.cpp
+  RTEShapeEstimatorArchiveBoost.cpp
   ShapeEstimator.cpp
   XGBooster.cpp
   XGBoosterIOArchiveBoost.cpp
-  #XGBoosterIOArchiveCereal.cpp
+  XGBoosterIOArchiveCereal.cpp
   )
 
 sugar_files(DRISHTI_ML_HDRS_PUBLIC
   ObjectDetector.h
   PCA.h
+  PCAImpl.h
   RegressionTreeEnsembleShapeEstimator.h
+  RTEShapeEstimatorImpl.h
   ShapeEstimator.h
   drishti_ml.h
   shape_predictor.h

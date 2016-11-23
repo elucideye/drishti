@@ -116,6 +116,8 @@ protected:
 
 DRISHTI_EYE_NAMESPACE_END
 
+#include "drishti/core/boost_serialize_common.h"
+
 BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator);
 BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator::Impl);
 

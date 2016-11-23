@@ -44,16 +44,17 @@ public:
     void loadImpl(const std::string &filename);
 
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version);
-
-    friend class boost::serialization::access;
     template< class Archive> void serializeModel(Archive &ar, const unsigned int version);
 
     std::shared_ptr<Impl> m_impl;
 };
 
+typedef RegressionTreeEnsembleShapeEstimator RTEShapeEstimator;
+
 DRISHTI_ML_NAMESPACE_END
+
+#include "drishti/core/boost_serialize_common.h"
 
 BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);

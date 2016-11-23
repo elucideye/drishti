@@ -9,10 +9,9 @@
 */
 
 #include "drishti/rcpr/CPRIOArchive.h"
+#include "drishti/core/drishti_cvmat_boost.h"
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
-
-// explicit instantiation:
 
 // ##################################################################
 // #################### portable_binary_*archive ####################

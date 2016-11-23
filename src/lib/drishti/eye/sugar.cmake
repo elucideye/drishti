@@ -15,6 +15,7 @@ sugar_files(DRISHTI_EYE_SRCS
   Eye.cpp
   EyeIO.cpp
   EyeModelEstimator.cpp
+  EyeModelEstimatorArchiveBoost.cpp
   EyeModelIris.cpp
   EyeModelEyelids.cpp
   EyeModelPupil.cpp

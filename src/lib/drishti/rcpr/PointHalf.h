@@ -48,4 +48,4 @@ struct PointHalf
 
 DRISHTI_RCPR_NAMESPACE_END
 
-#endif // #define DRISHTI_RCPR_POINT_HALF_H 1
+#endif // DRISHTI_RCPR_POINT_HALF_H 1

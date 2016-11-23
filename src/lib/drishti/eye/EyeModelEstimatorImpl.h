@@ -245,6 +245,13 @@ protected:
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
 
+// Boost serialization:
+template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
+{
+    assert(version >= 1);
+    ar & m_impl;
+}
+
 DRISHTI_EYE_NAMESPACE_END
 
 #endif /* defined(__drishtisdk__EyeModelEstimatorImpl__) */
