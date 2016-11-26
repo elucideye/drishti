@@ -27,13 +27,15 @@
 #  define DO_ACF_GPU_TEST 0
 #endif
 
-#define DRISHTI_ACF_TEST_BOOST 1
-#define DRISHTI_ACF_TEST_CEREAL 1
 
-#if DRISHTI_ACF_TEST_CEREAL
+#if DRISHTI_SERIALIZE_WITH_CEREAL
 // http://uscilab.github.io/cereal/serialization_archives.html
 #  include <cereal/archives/portable_binary.hpp>
 #  include <cereal/types/vector.hpp>
+#endif
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialize_boost.h"
 #endif
 
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
@@ -220,7 +222,7 @@ bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
         //isEqual(a.clf.weights, b.clf.weights) &&
 }
 
-#if DRISHTI_ACF_TEST_BOOST
+#if DRISHTI_SERIALIZE_WITH_BOOST
 TEST_F(ACFTest, ACFSerializeBoost)
 {
     // Load from cvmat
@@ -237,9 +239,9 @@ TEST_F(ACFTest, ACFSerializeBoost)
     
     ASSERT_TRUE(isEqual(detector, detector2));
 }
-#endif // DRISHTI_ACF_TEST_BOOST
+#endif // DRISHTI_SERIALIZE_WITH_BOOST
 
-#if DRISHTI_ACF_TEST_CEREAL
+#if DRISHTI_SERIALIZE_WITH_CEREAL
 TEST_F(ACFTest, ACFSerializeCereal)
 {
     // Load from cvmat
@@ -268,7 +270,7 @@ TEST_F(ACFTest, ACFSerializeCereal)
     
     ASSERT_TRUE(isEqual(detector, detector2));
 }
-#endif // DRISHTI_ACF_TEST_CEREAL
+#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 TEST_F(ACFTest, ACFDetection)
 {
