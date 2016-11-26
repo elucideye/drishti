@@ -183,6 +183,16 @@ else()
 
 endif(DRISHTI_BUILD_WORLD)
 
+# Set the serialization mode preprocessor floags (boost and/or cereal)
+foreach(library ${DRISHTI_LIBS})
+  if(DRISHTI_SERIALIZE_WITH_BOOST)
+    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_BOOST=1)
+  endif()
+  if(DRISHTI_SERIALIZE_WITH_CEREAL)
+    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_CEREAL=1)
+  endif()  
+endforeach()  
+
 ##
 ## Unit tests
 ##

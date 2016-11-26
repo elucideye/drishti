@@ -17,7 +17,6 @@
 // If your type is already registered and you still see this error, you may need to use
 // CEREAL_REGISTER_DYNAMIC_INIT." thrown in the test body.
 
-
 DRISHTI_ML_NAMESPACE_BEGIN
 
 void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger> &logger)

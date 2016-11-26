@@ -259,5 +259,3 @@ cv::Mat estimateMotionLeastSquares(const FaceModel &a, const FaceModel &b)
 }
 
 DRISHTI_FACE_NAMESPACE_END
-
-//CEREAL_CLASS_VERSION(DRISHTI_FACE::FaceModel, 2);

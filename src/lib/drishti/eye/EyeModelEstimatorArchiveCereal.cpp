@@ -8,6 +8,9 @@
 // CEREAL_NOTE: We place this here since the ones in CPRIOArchiveCereal.cpp leads to missing symbosl
 CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
 
+CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator, 1);
+CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator::Impl, 1);
+
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 // ##################################################################

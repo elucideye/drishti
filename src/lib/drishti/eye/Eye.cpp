@@ -633,5 +633,3 @@ static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, c
 }
 
 DRISHTI_EYE_NAMESPACE_END
-
-//CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModel, 1);

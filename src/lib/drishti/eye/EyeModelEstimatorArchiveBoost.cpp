@@ -1,6 +1,9 @@
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 
+BOOST_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator, 1);
+BOOST_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator::Impl, 1);
+
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 // ##################################################################

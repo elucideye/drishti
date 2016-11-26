@@ -411,9 +411,3 @@ static cv::Mat getDarkChannel(const cv::Mat &I)
 #endif
 
 DRISHTI_EYE_NAMESPACE_END
-
-BOOST_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator, 1);
-BOOST_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator::Impl, 1);
-
-CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator, 1);
-CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator::Impl, 1);
