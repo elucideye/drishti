@@ -20,9 +20,12 @@
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
 #include "drishti/acf/MatP.h"
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/IndentingOStreamBuffer.h"
 #include "drishti/core/Logger.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+# include "drishti/core/boost_serialize_common.h" // optional
+#endif
 
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -79,7 +82,6 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Nms &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
             template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
@@ -109,7 +111,6 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const Color &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
                     template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Color> pColor;
@@ -126,7 +127,6 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const GradMag &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
                     template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<GradMag> pGradMag;
@@ -144,7 +144,6 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const GradHist &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
                     template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
                 };
@@ -157,7 +156,6 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const Custom &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
                     template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Custom> pCustom;
@@ -167,7 +165,6 @@ public:
                 friend std::ostream& operator<<(std::ostream &os, const Chns &src);
                 
                 // Boost serialization:
-                friend class boost::serialization::access;
                 template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
 
@@ -188,7 +185,6 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Pyramid &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
             template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
@@ -216,7 +212,6 @@ public:
                 friend std::ostream& operator<<(std::ostream &os, const Tree &src);
                 
                 // Boost serialization:
-                friend class boost::serialization::access;
                 template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
             Field<Tree> pTree;
@@ -228,7 +223,6 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Boost &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
             template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
@@ -255,7 +249,6 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Jitter &src);
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
         Field<Jitter> pJitter;
@@ -265,7 +258,6 @@ public:
         friend std::ostream& operator<<(std::ostream &os, const Options &src);
         
         // Boost serialization:
-        friend class boost::serialization::access;
         template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
@@ -300,7 +292,6 @@ public:
         cv::Mat thrsU8;  // prescaled threshold (x255) for uint8_t input
         const cv::Mat & getScaledThresholds(int type);
 
-        friend class boost::serialization::access;
         template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
@@ -443,7 +434,6 @@ public:
     int deserialize(ParserNodeDetector &detector_);
     
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
     // Additional configuration parameters:

@@ -51,6 +51,8 @@ int ShapeEstimator::operator()(const cv::Mat &image, const cv::Rect &roi, Point2
 
 DRISHTI_ML_NAMESPACE_END
 
-#include "drishti/core/boost_serialize_common.h"
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/boost_serialize_common.h"
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::ShapeEstimator);
+#endif 
 

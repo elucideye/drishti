@@ -19,7 +19,10 @@
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/core/timing.h"
-#include "drishti/core/drishti_serialization_boost.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialization_boost.h"
+#endif
 
 typedef std::vector<float> T_VECTOR;
 typedef std::vector<T_VECTOR> T_MATRIX;

@@ -8,13 +8,15 @@
 
 */
 
-#ifndef drishtisdk_PCA_h
-#define drishtisdk_PCA_h
+#ifndef DRISHTI_ML_PCA_H
+#define DRISHTI_ML_PCA_H
 
 #include "drishti/core/drishti_core.h"
 #include "drishti/ml/drishti_ml.h"
 
-#include "drishti/core/drishti_serialization_boost.h"// for export
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialization_boost.h"// for export
+#endif
 
 #include <opencv2/core/core.hpp>
 
@@ -63,6 +65,8 @@ public:
 
 DRISHTI_ML_NAMESPACE_END
 
-BOOST_CLASS_EXPORT_KEY(drishti::ml::StandardizedPCA);
-
+#if DRISHTI_SERIALIZE_WITH_BOOST
+BOOST_CLASS_EXPORT_KEY(drishti::ml::StandardizedPCA); // (optional)
 #endif
+
+#endif // DRISHTI_ML_PCA_H

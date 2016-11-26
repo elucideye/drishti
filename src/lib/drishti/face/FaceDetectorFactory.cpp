@@ -7,6 +7,8 @@
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
 
+#include <fstream>
+
 DRISHTI_FACE_NAMESPACE_BEGIN
 
 std::unique_ptr<drishti::ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
@@ -27,7 +29,11 @@ std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEs
 std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
 {
     std::unique_ptr<DRISHTI_EYE::EyeModelEstimator> regressor(new DRISHTI_EYE::EyeModelEstimator);
+#if DRISHTI_SERIALIZE_WITH_BOOST        
     load_pba_z(sEyeRegressor, *regressor);
+#else
+    assert(false); exit(-1);
+#endif
     return regressor;
 }
 

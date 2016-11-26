@@ -11,8 +11,8 @@
 
 */
 
-#ifndef drishti_eyeio_h
-#define drishti_eyeio_h
+#ifndef DRISHTI_EYE_EYE_IO_H
+#define DRISHTI_EYE_EYE_IO_H 1
 
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/eye/Eye.h"
@@ -51,4 +51,4 @@ std::vector<float>& cat(std::vector<float> &src, const std::vector<float> &param
 
 DRISHTI_EYE_NAMESPACE_END
 
-#endif // drishti_eye_drishti_serialization_boost.h
+#endif // DRISHTI_EYE_EYE_IO_H

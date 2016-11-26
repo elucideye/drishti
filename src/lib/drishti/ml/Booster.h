@@ -35,8 +35,11 @@ using namespace std;
 #include "xgboost/src/gbm/gbtree-inl.hpp"
 #include "xgboost/src/learner/objective-inl.hpp"
 
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/Logger.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/boost_serialize_common.h"
+#endif
 
 #include <random>
 #include <iostream>

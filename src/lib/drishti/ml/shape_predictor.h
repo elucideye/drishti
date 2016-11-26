@@ -56,7 +56,11 @@
 #endif
 
 #include "drishti/core/arithmetic.h"
-#include "drishti/core/boost_serialize_common.h"
+
+
+#if DRISHTI_SERIALIZE_WITH_BOOST        
+#  include "drishti/core/boost_serialize_common.h"
+#endif
 
 // OpenCV
 #include <opencv2/core/core.hpp>
@@ -2149,11 +2153,16 @@ struct PointHalf
 };
 #endif
 
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+
 DRISHTI_BEGIN_NAMESPACE(boost)
 DRISHTI_BEGIN_NAMESPACE(serialization)
 #include "drishti/ml/shape_predictor_archive.h"
 DRISHTI_END_NAMESPACE(serialization) // namespace serialization
 DRISHTI_END_NAMESPACE(boost) // namespace boost
+
+#endif // DRISHTI_SERIALIZE_WITH_BOOST
 
 DRISHTI_BEGIN_NAMESPACE(cereal)
 #include "drishti/ml/shape_predictor_archive.h"

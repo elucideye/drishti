@@ -12,7 +12,12 @@
 */
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
-#include "drishti/core/boost_serialize_common.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/boost_serialize_common.h" // (optional)
+#endif
+
+#include <fstream>
 
 #define DRISHTI_EYE_USE_DARK_CHANNEL 0
 
@@ -364,27 +369,40 @@ int EyeModelEstimator::loadPBA(const std::string &filename, EyeModelEstimator &e
     std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
     if(ifs)
     {
+#if DRISHTI_SERIALIZE_WITH_BOOST           
         return loadPBA(ifs, eme);
+#endif
     }
     return status;
 }
 
 int EyeModelEstimator::loadPBA(std::istream &is, EyeModelEstimator &eme)
 {
+#if DRISHTI_SERIALIZE_WITH_BOOST    
     load_pba_z(is, eme);
+#endif
     return 0;
 }
 
 #if DRISHTI_USE_TEXT_ARCHIVES
 int EyeModelEstimator::loadTXT(const std::string &filename, EyeModelEstimator &eme)
 {
+    int status = -1;
     std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    return loadTXT(ifs, eme);
+    if(ifs)
+    {
+#if DRISHTI_SERIALIZE_WITH_BOOST               
+        return loadTXT(ifs, eme);
+#endif
+    }
+    return status;
 }
 
 int EyeModelEstimator::loadTXT(std::istream &is, EyeModelEstimator &eme)
 {
+#if DRISHTI_SERIALIZE_WITH_BOOST
     load_txt_z(is, eme);
+#endif
     return 0;
 }
 #endif

@@ -16,8 +16,10 @@
 #define _SHAPE_PREDICTOR drishti::ml::shape_predictor
 //#define _SHAPE_PREDICTOR dlib
 
+#if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
 BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
+#endif // DRISHTI_SERIALIZE_WITH_BOOST
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
@@ -31,7 +33,7 @@ public:
 
     Impl(const std::string &filename)
     {
-#if USE_BOOST
+#if DRISHTI_SERIALIZE_WITH_BOOST && USE_BOOST
         auto sp = std::make_shared<_SHAPE_PREDICTOR>();
         load_pba_z(filename, *sp);
         sp->populate_f16();
@@ -41,7 +43,7 @@ public:
 
     Impl(std::istream &is)
     {
-#if USE_BOOST
+#if DRISHTI_SERIALIZE_WITH_BOOST && USE_BOOST
         auto sp = std::make_shared<_SHAPE_PREDICTOR>();
         load_pba_z(is, *sp);
         sp->populate_f16();

@@ -24,7 +24,9 @@
 #include "cvmatio/MatlabIOContainer.hpp"
 
 // Boost serialization:
-#include "drishti/core/drishti_serialization_boost.h"
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialization_boost.h" // (optional)
+#endif
 
 #include <string>
 #include <iostream>

@@ -11,8 +11,10 @@
 #include "drishti/acf/ACFIO.h"
 #include "drishti/acf/ACF.h"
 
-#include "drishti/core/drishti_serialization_boost.h"
-#include "drishti/core/drishti_cvmat_boost.h"
+#if DRISHTI_SERIALIZE_WITH_BOOST
+//#  include "drishti/core/drishti_serialization_boost.h" // (optional)
+//#  include "drishti/core/drishti_cvmat_boost.h" // (optional)
+#endif
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
