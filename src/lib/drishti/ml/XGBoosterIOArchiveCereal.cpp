@@ -1,4 +1,3 @@
-#if 1
 #include "drishti/ml/XGBooster.h"
 #include "drishti/ml/Booster.h"
 #include "drishti/ml/XGBoosterImpl.h"
@@ -25,24 +24,35 @@ using namespace xgboost::io;
 #include <cereal/types/memory.hpp>
 
 CEREAL_REGISTER_TYPE(xgboost::wrapper::Booster);
-CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(xgboost::wrapper::Booster, cereal::specialization::non_member_load_save);
+
+CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(xgboost::wrapper::Booster, cereal::specialization::non_member_serialize);
 
 DRISHTI_BEGIN_NAMESPACE(xgboost)
 DRISHTI_BEGIN_NAMESPACE(wrapper)
+
 template<class Archive>
-void save(Archive &ar, const Booster &m, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
+void serialize(Archive & ar, xgboost::wrapper::Booster &m, const unsigned int version)
 {
-    std::string model_str;
-    bst_ulong length = 0;
-    const_cast<Booster&>(m).GetModelRaw(&length); // uses internal model_str
-    ar & m.model_str;
+#if 0
+    // CEREAL_NOTE: XGBoost requires serialization of raw pointers, which boost::serialization
+    // can handle but cereal does not.
+    ar & dynamic_cast<xgboost::learner::BoostLearner&>(m);
+#else
+    if (Archive::is_loading::value)
+    {
+        ar & m.model_str;
+        m.LoadModelFromBuffer(&m.model_str[0], m.model_str.size());
+    }
+    else
+    {
+        bst_ulong length = 0;
+        m.GetModelRaw(&length); // uses internal model_str
+        ar & m.model_str;
+    }
+#endif
 }
-template<class Archive>
-void load(Archive &ar, Booster &m, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
-{
-    ar & m.model_str;
-    m.LoadModelFromBuffer(&m.model_str[0], m.model_str.size());
-}
+
+
 DRISHTI_END_NAMESPACE(wrapper)
 DRISHTI_END_NAMESPACE(xgboost)
 
@@ -63,7 +73,6 @@ DRISHTI_ML_NAMESPACE_BEGIN
 template void XGBooster::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void XGBooster::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
-
 #endif
 
 template void XGBooster::serialize<IArchive>(IArchive &ar, const unsigned int);
@@ -71,4 +80,3 @@ template void XGBooster::Recipe::serialize<IArchive>(IArchive &ar, const unsigne
 template void XGBooster::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
 
 DRISHTI_ML_NAMESPACE_END
-#endif

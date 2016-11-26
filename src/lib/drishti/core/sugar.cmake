@@ -51,7 +51,6 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   infix_iterator.h
   make_unique.h
   padding.h
-  serialization.h
   string_utils.h
   timing.h
 )
