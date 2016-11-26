@@ -197,7 +197,7 @@ endforeach()
 ## Unit tests
 ##
 
-if(DRISHTI_BUILD_TESTS)
+if(DRISHTI_BUILD_TESTS AND DRISHTI_SERIALIZE_WITH_BOOST)
 
   add_subdirectory(core)
   add_subdirectory(geometry)

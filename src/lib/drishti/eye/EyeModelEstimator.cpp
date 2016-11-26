@@ -28,6 +28,7 @@ EyeModelEstimator::Impl::Impl(const std::string &eyeRegressor, const std::string
 {
     DRISHTI_STREAM_LOG_FUNC(2,1,m_streamLogger);
 
+#if DRISHTI_SERIALIZE_WITH_BOOST 
     m_eyeEstimator = std::make_shared<ml::RegressionTreeEnsembleShapeEstimator>(eyeRegressor);
     if(!irisRegressor.empty())
     {
@@ -42,6 +43,10 @@ EyeModelEstimator::Impl::Impl(const std::string &eyeRegressor, const std::string
             m_pupilEstimator = pupilEstimator;
         }
     }
+#else
+    assert(false);
+    std::cerr << "Warning: WIP build without boost" << std::endl;
+#endif
 
     init();
 }

@@ -179,15 +179,15 @@ public:
             int maxDepth = 4;
             int treesPerLevel = 500;
             int featurePoolSize = 400;
-            int featureSampleSize = 40; // NEW
-            double learningRate = 0.1; // NEW
-            double dataSampleRatio = 0.5; // NEW
-            bool doMask = false; // NEW
+            int featureSampleSize = 40;
+            double learningRate = 0.1;
+            double dataSampleRatio = 0.5;
+            bool doMask = false;
 
             double featureRadius = 1.66;
-            double lambda = RealType(0.1); // experimental
+            double lambda = RealType(0.1);
 
-            bool useNPD = false;          // NEW
+            bool useNPD = false;
 
             std::vector<int> paramIndex;
 

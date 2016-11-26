@@ -235,7 +235,7 @@ endif()
 ##################
 
 # NOTE: see corresponding target_compile_definitions() in src/libdrishti/CMakeLists.txt
-option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
+option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" OFF)
 option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with boost" ON)
 
 if(NOT MSVC)

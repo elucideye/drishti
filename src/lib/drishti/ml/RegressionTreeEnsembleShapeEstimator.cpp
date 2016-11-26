@@ -80,4 +80,6 @@ DRISHTI_ML_NAMESPACE_END
 // Including BOOST_CLASS_EXPORT_IMPLEMENT in multiple files could result in a failure to link due to
 // duplicated symbols or the throwing of a runtime exception.
 
-#include "RTEShapeEstimatorArchiveBoost.cpp"
+#if DRISHTI_SERIALIZE_WITH_BOOST 
+#  include "RTEShapeEstimatorArchiveBoost.cpp"
+#endif

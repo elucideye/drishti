@@ -9,31 +9,38 @@ sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
 set(LIB_TYPE STATIC)
 
-## 3rd party boost pba
-add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
-target_link_libraries(boost-pba PUBLIC Boost::boost)
-target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
-set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
-add_library(boost-pba::boost-pba ALIAS boost-pba)
-
-# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
-
 ######################################
 ### Initial 3RDPARTY SRC libraries ###
 ######################################
-set(DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
+set(DRISHTI_SDK_3RDPARTY_SRC_LIBS )
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  ## 3rd party boost pba
+  add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
+  target_link_libraries(boost-pba PUBLIC Boost::boost)
+  target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
+  set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
+  add_library(boost-pba::boost-pba ALIAS boost-pba)
+
+  list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
+endif()
+
+# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
 
 ######################################
 ### Initial 3RDPARTY PKG libraries ###
 ######################################
 set(DRISHTI_SDK_3RDPARTY_PKG_LIBS
   dlib::dlib
-  ${DRISHTI_SDK_BOOST_LIBS}
   ${OpenCV_LIBS}  
   cereal::cereal
   Eigen::eigen
   spdlog::spdlog
   )
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${DRISHTI_SDK_BOOST_LIBS})
+endif()
 
 if(DRISHTI_BUILD_FACE)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cvmatio::cvmatio)
