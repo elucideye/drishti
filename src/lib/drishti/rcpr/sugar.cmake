@@ -16,11 +16,17 @@ project(drishti_rcpr)
 sugar_files(DRISHTI_RCPR_SRCS
   CPR.cpp
   CPRIO.cpp
-  CPRIOArchiveBoost.cpp
-  CPRIOArchiveCereal.cpp
   cprApply.cpp
   poseGt.cpp
   )
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  sugar_files(DRISHTI_RCPR_SRCS CPRIOArchiveBoost.cpp)
+endif()
+
+if(DRISHTI_SERIALIZE_WITH_CEREAL)
+  sugar_files(DRISHTI_RCPR_SRCS CPRIOArchiveCereal.cpp)
+endif()
 
 if(NOT DRISHTI_BUILD_MIN_SIZE)
   sugar_files(DRISHTI_RCPR_SRCS cprTrain.cpp)

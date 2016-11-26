@@ -17,14 +17,20 @@ sugar_files(DRISHTI_EYE_SRCS
   EyeArchiveCereal.cpp
   EyeIO.cpp
   EyeModelEstimator.cpp
-  EyeModelEstimatorArchiveBoost.cpp
-  EyeModelEstimatorArchiveCereal.cpp  
   EyeModelIris.cpp
   EyeModelEyelids.cpp
   EyeModelPupil.cpp
   NormalizedIris.cpp
   IrisNormalizer.cpp
   )
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  sugar_files(DRISHTI_EYE_SRCS EyeModelEstimatorArchiveBoost.cpp)
+endif()
+
+if(DRISHTI_SERIALIZE_WITH_CEREAL)
+  sugar_files(DRISHTI_EYE_SRCS EyeModelEstimatorArchiveCereal.cpp)
+endif()
 
 sugar_files(DRISHTI_EYE_HDRS_PUBLIC
   Eye.h

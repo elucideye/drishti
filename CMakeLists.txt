@@ -234,6 +234,9 @@ endif()
 ### PACKAGES #####
 ##################
 
+option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
+option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with boost" ON)
+
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 endif()
@@ -261,6 +264,7 @@ endif()
 hunter_add_package(cereal)
 find_package(cereal CONFIG REQUIRED)
 
+### OpenCV
 hunter_add_package(OpenCV)
 find_package(OpenCV REQUIRED)
 
