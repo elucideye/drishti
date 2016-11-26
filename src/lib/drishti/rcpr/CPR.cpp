@@ -20,8 +20,6 @@
 #  include "drishti/acf/ACFIO.h"
 #endif
 
-#include "drishti/core/serialization.h"
-
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
 bool CPR::usesMask() const

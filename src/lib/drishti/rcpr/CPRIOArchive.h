@@ -8,8 +8,8 @@
 
 */
 
-#ifndef drishtisdk_CPRIO_ARCHIVE_h
-#define drishtisdk_CPRIO_ARCHIVE_h
+#ifndef DRISHTI_RCPR_CPRIO_ARCHIVE_H
+#define DRISHTI_RCPR_CPRIO_ARCHIVE_H
 
 #include "drishti/rcpr/drishti_rcpr.h"
 #include "drishti/rcpr/CPR.h"
@@ -150,4 +150,4 @@ void CPR::serialize(Archive & ar, const unsigned int version)
 
 DRISHTI_RCPR_NAMESPACE_END
 
-#endif // drishtisdk_CPRIO_ARCHIVE_h
+#endif // DRISHTI_RCPR_CPRIO_ARCHIVE_H

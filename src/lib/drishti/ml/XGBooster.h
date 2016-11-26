@@ -16,7 +16,6 @@
 
 #include <opencv2/core.hpp>
 
-#include <boost/serialization/serialization.hpp>
 #include <boost/serialization/export.hpp>
 
 #include <memory>
@@ -39,7 +38,6 @@ public:
         double featureSubsample = 0.1;
         bool regression = true;
 
-        friend class boost::serialization::access;
         template<class Archive> void serialize(Archive & ar, const unsigned int version);
     };
 
@@ -53,7 +51,6 @@ public:
     void write(const std::string &filename) const;
 
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version);
 
     void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);

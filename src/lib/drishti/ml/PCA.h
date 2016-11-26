@@ -14,7 +14,7 @@
 #include "drishti/core/drishti_core.h"
 #include "drishti/ml/drishti_ml.h"
 
-#include "drishti/core/serialization.h"// for export
+#include "drishti/core/drishti_serialization_boost.h"// for export
 
 #include <opencv2/core/core.hpp>
 
@@ -40,12 +40,6 @@ public:
 
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version);
-#if 0
-        {
-            ar & mu;
-            ar & sigma;
-        }
-#endif
     };
 
     StandardizedPCA(); // null constructor for file loading
@@ -60,17 +54,6 @@ public:
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);
-#if 0
-    {
-        ar & m_transform;
-        ar & m_pca;
-
-        if(Archive::is_loading::value)
-        {
-            init();
-        }
-    }
-#endif
 
     Standardizer m_transform;
     std::shared_ptr<cv::PCA> m_pca;

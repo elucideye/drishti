@@ -15,10 +15,12 @@
 #define drishtisdk_ShapeEstimator_h
 
 #include "drishti/ml/drishti_ml.h"
-#include "drishti/core/serialization.h"
 #include "drishti/core/Logger.h"
 
 #include <opencv2/core/core.hpp>
+
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <memory>
 #include <vector>
@@ -74,7 +76,7 @@ public:
 
 DRISHTI_ML_NAMESPACE_END
 
-#include "drishti/core/boost_serialize_common.h"
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(drishti::ml::ShapeEstimator);
 BOOST_CLASS_EXPORT_KEY(drishti::ml::ShapeEstimator);
 
 #endif

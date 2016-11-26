@@ -10,6 +10,7 @@
 
 #include "drishti/face/Face.h"
 #include "drishti/core/Shape.h"
+#include "drishti/core/drishti_serialize.h"
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
 
@@ -258,3 +259,5 @@ cv::Mat estimateMotionLeastSquares(const FaceModel &a, const FaceModel &b)
 }
 
 DRISHTI_FACE_NAMESPACE_END
+
+//CEREAL_CLASS_VERSION(DRISHTI_FACE::FaceModel, 2);

@@ -12,8 +12,6 @@
 #ifndef __DRISHTI__ACF__
 #define __DRISHTI__ACF__
 
-#pragma once
-
 #include <stdio.h>
 
 #include "drishti/core/drishti_defs.hpp"

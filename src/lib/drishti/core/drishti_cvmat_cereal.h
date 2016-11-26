@@ -73,4 +73,4 @@ void load(Archive& ar, cv::Mat& mat, const std::uint32_t version)
 
 DRISHTI_END_NAMESPACE(cv)
 
-#endif // __DRISHIT_CVMAT_CEREAL_HPP_INCLUDED__
+#endif

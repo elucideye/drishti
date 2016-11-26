@@ -13,6 +13,7 @@
 
 #include "drishti/eye/Eye.h"
 #include "drishti/core/Shape.h"
+#include "drishti/core/drishti_serialize.h"
 #include "drishti/geometry/Ellipse.h"
 
 #if !DRISHTI_BUILD_MIN_SIZE
@@ -632,3 +633,5 @@ static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, c
 }
 
 DRISHTI_EYE_NAMESPACE_END
+
+//CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModel, 1);

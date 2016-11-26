@@ -133,6 +133,6 @@ int CPR::deserialize(const char *filename)
 
 DRISHTI_RCPR_NAMESPACE_END
 
-#endif
+#endif // DRISHTI_CPR_DO_LEAN
 
 

@@ -5,6 +5,9 @@
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
+ 
+  NOTE: GENERIC_NVP should be defined prior to including this class for either
+  boost or cereal archives.
 
 */
 
@@ -12,7 +15,9 @@
 #define __drishtisdk__Field__
 
 #include "drishti/core/drishti_core.h"
-#include "drishti/core/drishti_serialize.h"
+#include "drishti/core/drishti_serialize.h" // needed for GENERIC_NVP()
+
+#include <opencv2/core.hpp>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 

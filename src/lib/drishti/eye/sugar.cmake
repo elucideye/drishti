@@ -13,9 +13,12 @@ include(sugar_files)
 
 sugar_files(DRISHTI_EYE_SRCS
   Eye.cpp
+  EyeArchiveBoost.cpp
+  EyeArchiveCereal.cpp
   EyeIO.cpp
   EyeModelEstimator.cpp
   EyeModelEstimatorArchiveBoost.cpp
+  EyeModelEstimatorArchiveCereal.cpp  
   EyeModelIris.cpp
   EyeModelEyelids.cpp
   EyeModelPupil.cpp
@@ -25,6 +28,7 @@ sugar_files(DRISHTI_EYE_SRCS
 
 sugar_files(DRISHTI_EYE_HDRS_PUBLIC
   Eye.h
+  EyeImpl.h
   EyeIO.h
   EyeModelEstimator.h
   EyeModelEstimatorImpl.h

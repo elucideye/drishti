@@ -1,18 +1,16 @@
 #include "drishti/acf/ACFIOArchive.h"
 
-//#include "drishti/core/drishti_cvmat_boost.h"
-
-//----
-
 #include "drishti/core/drishti_core.h"
+
 #include <opencv2/opencv.hpp>
+
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
 
+
+#if 0
 BOOST_SERIALIZATION_SPLIT_FREE(cv::Mat)
-
 // Macros fix some IDE formatting
-
 DRISHTI_BEGIN_NAMESPACE(boost)
 DRISHTI_BEGIN_NAMESPACE(serialization)
 
@@ -61,9 +59,11 @@ void load(Archive &ar, cv::Mat &m, const std::uint32_t BOOST_ATTRIBUTE_UNUSED ve
         default : assert(false);
     }
 }
-
 DRISHTI_END_NAMESPACE(serialization)
 DRISHTI_END_NAMESPACE(boost)
+#else
+#include "drishti/core/drishti_cvmat_boost.h"
+#endif
 
 //----
 

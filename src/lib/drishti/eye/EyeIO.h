@@ -51,4 +51,4 @@ std::vector<float>& cat(std::vector<float> &src, const std::vector<float> &param
 
 DRISHTI_EYE_NAMESPACE_END
 
-#endif // drishti_eye_serialization_h
+#endif // drishti_eye_drishti_serialization_boost.h

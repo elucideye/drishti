@@ -8,9 +8,15 @@
 
 */
 
-#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
-
 #include "drishti/ml/RTEShapeEstimatorImpl.h"
+
+// C++ exception with description:
+// "Trying to save an unregistered polymorphic type (drishti::ml::RegressionTreeEnsembleShapeEstimator).
+// Make sure your type is registered with CEREAL_REGISTER_TYPE and that the archive you are using was
+// included (and registered with CEREAL_REGISTER_ARCHIVE) prior to calling CEREAL_REGISTER_TYPE.
+// If your type is already registered and you still see this error, you may need to use
+// CEREAL_REGISTER_DYNAMIC_INIT." thrown in the test body.
+
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
@@ -70,3 +76,9 @@ std::vector<cv::Point2f> RTEShapeEstimator::getMeanShape() const
 }
 
 DRISHTI_ML_NAMESPACE_END
+
+// http://www.boost.org/doc/libs/1_46_1/libs/serialization/doc/special.html
+// Including BOOST_CLASS_EXPORT_IMPLEMENT in multiple files could result in a failure to link due to
+// duplicated symbols or the throwing of a runtime exception.
+
+#include "RTEShapeEstimatorArchiveBoost.cpp"

@@ -2,7 +2,11 @@
 #include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(test-drishti-drishti test-EyeSegmenter.cpp test-drishti-drishti.cpp)
-target_link_libraries(test-drishti-drishti drishti ${OpenCV_LIBS} GTest::gtest)
+target_link_libraries(test-drishti-drishti drishti
+  ${OpenCV_LIBS}
+  GTest::gtest
+  drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
+  ) 
 
 enable_testing()
 

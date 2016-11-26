@@ -1,6 +1,8 @@
 #ifndef RTE_SHAPE_ESTIMATOR_IMPL_H
 #define RTE_SHAPE_ESTIMATOR_IMPL_H
 
+#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
+
 // This type uses the multi-variate gradient boosted regression trees from dlib
 // modified to support shape space model regression to reduce memory requirements.
 // In addition, a few other options have been added such as normalized pixel
@@ -17,9 +19,9 @@
 BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
 BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
 
-#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
-
 DRISHTI_ML_NAMESPACE_BEGIN
+
+#define USE_BOOST 0
 
 class RegressionTreeEnsembleShapeEstimator::Impl
 {
@@ -29,18 +31,22 @@ public:
 
     Impl(const std::string &filename)
     {
+#if USE_BOOST
         auto sp = std::make_shared<_SHAPE_PREDICTOR>();
         load_pba_z(filename, *sp);
         sp->populate_f16();
         m_predictor = sp;
+#endif
     }
 
     Impl(std::istream &is)
     {
+#if USE_BOOST
         auto sp = std::make_shared<_SHAPE_PREDICTOR>();
         load_pba_z(is, *sp);
         sp->populate_f16();
         m_predictor = sp;
+#endif
     }
     
     void packPointsInShape(const std::vector<cv::Point2f> &points, int ellipseCount, float *shape) const
@@ -122,7 +128,6 @@ public:
         }
     }
 
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version)
     {
         if (Archive::is_loading::value)
@@ -147,8 +152,8 @@ public:
 };
 
 // Boost serialization:
-template<class Archive> void
-RTEShapeEstimator::serialize(Archive & ar, const unsigned int version)
+template<class Archive>
+void RTEShapeEstimator::serialize(Archive & ar, const unsigned int version)
 {
     boost::serialization::void_cast_register<RTEShapeEstimator, ShapeEstimator>();
     ar & m_impl;

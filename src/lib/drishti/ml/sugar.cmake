@@ -15,8 +15,10 @@ sugar_files(DRISHTI_ML_SRCS
   ObjectDetector.cpp
   PCA.cpp
   PCAArchiveBoost.cpp
+  PCAArchiveCereal.cpp
   RegressionTreeEnsembleShapeEstimator.cpp
   RTEShapeEstimatorArchiveBoost.cpp
+  RTEShapeEstimatorArchiveCereal.cpp
   ShapeEstimator.cpp
   XGBooster.cpp
   XGBoosterIOArchiveBoost.cpp

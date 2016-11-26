@@ -20,9 +20,19 @@
 #include "drishti/EyeSegmenter.hpp"
 #include "drishti/drishti_cv.hpp"
 #include "drishti/EyeSegmenterImpl.hpp"
+#include "drishti/core/drishti_cv_cereal.h"
+
+#ifdef DRISHTI_CEREAL_XML_JSON
+#  undef DRISHTI_CEREAL_XML_JSON
+#  define DRISHTI_CEREAL_XML_JSON 1
+#endif
+
+#if DRISHTI_CEREAL_XML_JSON
+# include <cereal/archives/json.hpp>
+# include <cereal/archives/xml.hpp>
+#endif
 
 // https://code.google.com/p/googletest/wiki/Primer
-
 const char* modelFilename;
 const char* imageFilename;
 const char* truthFilename;
@@ -136,9 +146,13 @@ protected:
                 std::ofstream os(base + "_private.json");
                 if(os)
                 {
+#if DRISHTI_CEREAL_XML_JSON
                     cereal::JSONOutputArchive oa(os);
                     typedef decltype(oa) Archive;
                     oa << GENERIC_NVP("eye", eye);
+#else
+                    std::cerr << "SKIP JSONOutputArchive" << std::endl;
+#endif
                 }
             }
         }
@@ -225,12 +239,16 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
     drishti::sdk::Eye eye;
     int code = (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
 
+#if DRISHTI_CEREAL_XML_JSON
     drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
     std::ofstream os("/tmp/right_eye.json");
     if(os)
     {
         os << adapter;
     }
+#else
+    std::cerr << "Skip JSON archive" << std::endl;
+#endif
 }
 
 TEST_F(EyeSegmenterTest, ImageEmpty)
@@ -405,5 +423,3 @@ static float detectionScore(const drishti::sdk::Eye &eyeA, const drishti::sdk::E
 }
 
 END_EMPTY_NAMESPACE
-
-

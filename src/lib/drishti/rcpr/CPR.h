@@ -9,8 +9,8 @@
 
 */
 
-#ifndef __drishtisdk__CPR__
-#define __drishtisdk__CPR__
+#ifndef DRISHTI_RCPR_CPR_H
+#define DRISHTI_RCPR_CPR_H
 
 #define DRISHTI_CPR_DO_LEAN 1
 #define DRISHTI_CPR_DO_HALF_FLOAT 1
@@ -21,14 +21,9 @@
 #  define HALF_ENABLE_CPP11_CMATH 0
 #endif
 #include "half/half.hpp"
-#include "drishti/rcpr/drishti_rcpr.h"
-#include "drishti/ml/ShapeEstimator.h"
-#include "drishti/acf/ACFField.h"
-#include "drishti/ml/XGBooster.h"
-#include "drishti/core/serialization.h"
-#include "drishti/core/Logger.h"
 
-#include <boost/serialization/export.hpp>
+#include "drishti/rcpr/drishti_rcpr.h"
+#include "drishti/acf/ACFField.h"
 
 #if DRISHTI_CPR_DO_HALF_FLOAT
 #  include "drishti/rcpr/PointHalf.h"
@@ -36,10 +31,17 @@
 
 #include "drishti/rcpr/ImageMaskPair.h"
 #include "drishti/rcpr/Vector1d.h"
+#include "drishti/ml/ShapeEstimator.h"
+#include "drishti/ml/XGBooster.h"
+#include "drishti/core/Logger.h"
+
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/version.hpp>
+
+#include <cereal/cereal.hpp>
+
 
 #include <memory>
-
-#define PTR_TYPE std
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
@@ -331,7 +333,10 @@ public:
     {
         m_windowName = name;
     }
-
+    
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version);
+    
 protected:
 
     std::string m_windowName = "debug";
@@ -356,11 +361,6 @@ protected:
     int deserialize(const std::string &filename);
     int deserialize(const char *filename);
 #endif
-
-    // Boost serialization:
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version);
 
     int stagesHint = std::numeric_limits<int>::max();
     int stagesRepetitionFactor = 1;
@@ -394,6 +394,14 @@ template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<
 DRISHTI_RCPR_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
-BOOST_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
 
-#endif /* defined(__drishtisdk__CPR__) */
+// CEREAL_NOTE: Placing the CEREAL_REGISTER_TYPE() leads to undefined symbols for serialize methods
+// for the JSON{Input,Output}Archive and XML{Input,Output}Archive types.  For now we can
+// move this into CPRIOARchiveCereal.cpp until we can introdeuce a
+// CEREAL_REGISTER_TYPE_FOR_ARCHIVE() call
+//
+//#include <cereal/types/polymorphic.hpp>
+//CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
+//CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
+
+#endif /* DRISHTI_RCPR_CRP_H */

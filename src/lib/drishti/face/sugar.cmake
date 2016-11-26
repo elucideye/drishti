@@ -13,6 +13,8 @@ include(sugar_files)
 
 sugar_files(DRISHTI_FACE_SRCS
   Face.cpp
+  FaceArchiveBoost.cpp
+  FaceArchiveCereal.cpp
   FaceDetector.cpp
   FaceDetectorAndTracker.cpp
   FaceDetectorAndTrackerImpl.cpp
@@ -26,6 +28,7 @@ sugar_files(DRISHTI_FACE_SRCS
 sugar_files(DRISHTI_FACE_HDRS_PUBLIC
   drishti_face.h
   Face.h
+  FaceImpl.h  
   FaceDetector.h
   FaceDetectorAndTracker.h
   FaceDetectorAndTrackerImpl.h

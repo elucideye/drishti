@@ -37,9 +37,13 @@ drishti::face::FaceModel FaceDetectorFactory::getMeanFace()
     std::ifstream is(sFaceDetectorMean);
     if(is)
     {
+#if DRISHTI_CEREAL_XML_JSON
         cereal::XMLInputArchive ia(is);
         typedef decltype(ia) Archive;
         ia >> faceDetectorMean;
+#else
+        std::cerr << "Skipping JSON archive" << std::endl;
+#endif
     }
     return faceDetectorMean;
 }

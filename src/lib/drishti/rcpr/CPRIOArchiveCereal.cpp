@@ -8,38 +8,30 @@
 
 */
 
-#if 0
-
-#include "drishti/rcpr/CPRIOArchive.h"
-#include "drishti/core/drishti_cvmat_cereal.h"
-#include "drishti/core/drishti_cereal_pba.h"
-
-#include <cereal/types/vector.hpp>
+#include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp> // required for XGBooster
 
-CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(cv::Mat, cereal::specialization::non_member_load_save);
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cvmat_cereal.h"
+#include "drishti/acf/ACFField.h"
+#include "drishti/rcpr/CPR.h"
+#include "drishti/rcpr/CPRIOArchive.h"
 
-#if 0
-DRISHTI_BEGIN_NAMESPACE(cv)
-template<class Archive>
-void save(Archive &ar, const cv::Point2f &p, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
-{
-    drishti::rcpr::PointHalf q(p);
-    ar & q.x;
-    ar & q.y;
-}
+CEREAL_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
 
-template<class Archive>
-void load(Archive &ar, cv::Point2f &p, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
-{
-    drishti::rcpr::PointHalf q;
-    ar & q.x;
-    ar & q.y;
-    p = q;
-}
-DRISHTI_END_NAMESPACE(cv)
-#endif
+// CEREAL_NOTE: See similar code block in (CPR.h)
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
+
+// Workaround:
+// cereal found more than one compatible output serialization function for the provided type and archive combination.
+#include <opencv2/core.hpp>
+CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::acf::Field<cv::Mat>, cereal::specialization::member_serialize);
+CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::rcpr::CPR, cereal::specialization::member_serialize);
+CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(std::shared_ptr<drishti::rcpr::CPR>, cereal::specialization::non_member_load_save);
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
@@ -74,6 +66,4 @@ template void CPR::RegModel::serialize<IArchive>(IArchive &ar, const unsigned in
 template void CPR::serialize<IArchive>(IArchive &ar, const unsigned int);
 
 DRISHTI_RCPR_NAMESPACE_END
-
-#endif
 

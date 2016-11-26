@@ -8,29 +8,28 @@
 #ifndef DRISHTI_CORE_CEREAL_PBA_H_
 #define DRISHTI_CORE_CEREAL_PBA_H_
 
+#include "drishti/core/drishti_core.h"
+
 // http://uscilab.github.io/cereal/serialization_archives.html
-//#include <cereal/archives/binary.hpp>
+#include <cereal/cereal.hpp>
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
+#include <cereal/types/memory.hpp>
 
 DRISHTI_BEGIN_NAMESPACE(cereal)
 
-template< bool C_ > struct bool_
-{
-    static const bool value = C_;
-    typedef bool_ type;
-    typedef bool value_type;
-    operator bool() const { return this->value; }
-};
-
+#if 1
+typedef PortableBinaryOutputArchive PortableBinaryOutputArchive3;
+typedef PortableBinaryInputArchive PortableBinaryInputArchive3;
+#else
 class PortableBinaryOutputArchive3 : public OutputArchive<PortableBinaryOutputArchive3, AllowEmptyClassElision>
 {
 public:
-
-    typedef bool_<false> is_loading;
-    typedef bool_<true> is_saving;
     
+    using is_loading = std::false_type;
+    using is_saving  = std::true_type;
+
     //! Construct, outputting to the provided stream
     /*! @param stream The stream to output to.  Can be a stringstream, a file stream, or
      even cout! */
@@ -57,9 +56,9 @@ private:
 class PortableBinaryInputArchive3 : public InputArchive<PortableBinaryInputArchive3, AllowEmptyClassElision>
 {
 public:
-
-    typedef bool_<true> is_loading;
-    typedef bool_<false> is_saving;
+    
+    using is_loading = std::true_type;
+    using is_saving  = std::false_type;
     
     //! Construct, loading from the provided stream
     /*! @param stream The stream to read from. */
@@ -166,15 +165,14 @@ void CEREAL_LOAD_FUNCTION_NAME(PortableBinaryInputArchive3 & ar, BinaryData<T> &
     ar.template loadBinary<sizeof(TT)>( bd.data, static_cast<std::size_t>( bd.size ) );
 }
 
-DRISHTI_END_NAMESPACE(cereal)
-
 // register archives for polymorphic support
 CEREAL_REGISTER_ARCHIVE(cereal::PortableBinaryOutputArchive3)
 CEREAL_REGISTER_ARCHIVE(cereal::PortableBinaryInputArchive3)
 
 // tie input and output archives together
 CEREAL_SETUP_ARCHIVE_TRAITS(cereal::PortableBinaryInputArchive3, cereal::PortableBinaryOutputArchive3)
+#endif
 
-
+DRISHTI_END_NAMESPACE(cereal)
 
 #endif // DRISHTI_CORE_CEREAL_PBA_H_

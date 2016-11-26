@@ -12,10 +12,10 @@
 #define __DRISHTI__ACF_ACFFIELD__
 
 #include "drishti/acf/drishti_acf.h"
-#include "drishti/core/boost_serialize_common.h"
 
 #include <string>
 #include <vector>
+#include <cassert>
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
@@ -90,7 +90,7 @@ template <typename T> struct Field
 
     operator T() const
     {
-        CV_Assert(has);
+        assert(has);
         return value;
     }
     const T &get() const
@@ -124,8 +124,6 @@ template <typename T> struct Field
     //friend template<typename T2> std::ostream& operator<<(std::ostream &os, const Field<T2>& src);
     //friend template<typename T2> std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src);
 
-    // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {

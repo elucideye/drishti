@@ -1,11 +1,12 @@
 #if 1
 
-#include "ACFIOArchive.h"
-
+#include "drishti/acf/ACFIOArchive.h"
 #include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cvmat_cereal.h"
 
 #include <opencv2/opencv.hpp>
 
+#if 0
 DRISHTI_BEGIN_NAMESPACE(cv)
 
 template<class Archive>
@@ -53,6 +54,9 @@ void load(Archive &ar, cv::Mat &m, const std::uint32_t BOOST_ATTRIBUTE_UNUSED ve
 }
 
 DRISHTI_END_NAMESPACE(cv)
+#else
+#include "drishti/core/drishti_cvmat_cereal.h"
+#endif
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 

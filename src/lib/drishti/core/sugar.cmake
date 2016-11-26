@@ -35,14 +35,18 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   convert.h
   drawing.h
   drishti_algorithm.h
+  drishti_cereal_pba.h
   drishti_core.h
   drishti_csv.h
+  drishti_cv_boost.h
+  drishti_cv_cereal.h    
   drishti_cvmat_boost.h
   drishti_cvmat_cereal.h  
   drishti_defs.hpp
   drishti_math.h
   drishti_operators.h
   drishti_serialize.h
+  drishti_stdlib_string.h
   drishti_string_hash.h
   infix_iterator.h
   make_unique.h

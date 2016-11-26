@@ -1,9 +1,30 @@
-#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
-#include "drishti/ml/RTEShapeEstimatorImpl.h"
-#include "drishti/core/drishti_cvmat_boost.h" 
+#include "drishti/core/drishti_cvmat_boost.h"
+#include "drishti/core/drishti_pca_boost.h"
 
-//BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
-//BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
+#include "drishti/ml/RTEShapeEstimatorImpl.h"
+
+BOOST_CLASS_VERSION(drishti::ml::shape_predictor, 4);
+
+typedef portable_binary_oarchive OArchive;
+typedef portable_binary_iarchive IArchive;
+
+//DRISHTI_BEGIN_NAMESPACE(boost)
+//DRISHTI_BEGIN_NAMESPACE(serialization)
+//#include "drishti/ml/shape_predictor_archive.h"
+//#if !DRISHTI_BUILD_MIN_SIZE
+//template void serialize(OArchive & ar, drishti::ml::fshape &g, const unsigned int version);
+//template void serialize(OArchive & ar, dlib::vector<float,2> &g, const unsigned int version);
+//template void serialize(OArchive & ar, drishti::ml::impl::split_feature &g, const unsigned int version);
+//template void serialize(OArchive & ar, drishti::ml::impl::regression_tree &g, const unsigned int version);
+//template void serialize(OArchive & ar, drishti::ml::shape_predictor &sp, const unsigned int version);
+//#endif
+//template void serialize(IArchive & ar, drishti::ml::fshape &g, const unsigned int version);
+//template void serialize(IArchive & ar, dlib::vector<float,2> &g, const unsigned int version);
+//template void serialize(IArchive & ar, drishti::ml::impl::split_feature &g, const unsigned int version);
+//template void serialize(IArchive & ar, drishti::ml::impl::regression_tree &g, const unsigned int version);
+//template void serialize(IArchive & ar, drishti::ml::shape_predictor &sp, const unsigned int version);
+//DRISHTI_END_NAMESPACE(serialization) // namespace serialization
+//DRISHTI_END_NAMESPACE(boost) // namespace boost
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
@@ -12,13 +33,11 @@ DRISHTI_ML_NAMESPACE_BEGIN
 // ##################################################################
 
 #if !DRISHTI_BUILD_MIN_SIZE
-typedef portable_binary_oarchive OArchive;
 template void RTEShapeEstimator::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
-typedef portable_binary_iarchive IArchive;
 template void RTEShapeEstimator::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<IArchive>(IArchive &ar, const unsigned int);
@@ -41,6 +60,5 @@ template void RTEShapeEstimator::serializeModel<IArchiveTXT>(IArchiveTXT &ar, co
 
 DRISHTI_ML_NAMESPACE_END
 
-#include "drishti/core/boost_serialize_common.h"
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);

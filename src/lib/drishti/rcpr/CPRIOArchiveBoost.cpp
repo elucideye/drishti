@@ -8,8 +8,19 @@
 
 */
 
-#include "drishti/rcpr/CPRIOArchive.h"
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/utility.hpp>
+
 #include "drishti/core/drishti_cvmat_boost.h"
+//#include "drishti/core/drishti_cv_boost.h"
+
+#include "drishti/rcpr/CPRIOArchive.h"
+
+#include "portable_binary_oarchive.hpp"
+#include "portable_binary_iarchive.hpp"
+
+BOOST_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 

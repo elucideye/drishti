@@ -35,14 +35,13 @@ void save(Archive &ar, const Booster &m, const std::uint32_t BOOST_ATTRIBUTE_UNU
     std::string model_str;
     bst_ulong length = 0;
     const_cast<Booster&>(m).GetModelRaw(&length); // uses internal model_str
-    ar & model_str;
+    ar & m.model_str;
 }
 template<class Archive>
 void load(Archive &ar, Booster &m, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
 {
-    std::string model_str;
-    ar & model_str;
-    m.LoadModelFromBuffer(&model_str[0], model_str.size());
+    ar & m.model_str;
+    m.LoadModelFromBuffer(&m.model_str[0], m.model_str.size());
 }
 DRISHTI_END_NAMESPACE(wrapper)
 DRISHTI_END_NAMESPACE(xgboost)
@@ -60,15 +59,16 @@ typedef cereal::PortableBinaryInputArchive3 IArchive;
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-template void XGBooster::serialize<OArchive>(OArchive &ar, const unsigned int);
 #if !DRISHTI_BUILD_MIN_SIZE
-template void XGBooster::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void XGBooster::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void XGBooster::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
+
 #endif
 
 template void XGBooster::serialize<IArchive>(IArchive &ar, const unsigned int);
-template void XGBooster::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void XGBooster::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
 
 DRISHTI_ML_NAMESPACE_END
 #endif

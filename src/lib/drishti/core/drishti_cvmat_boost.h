@@ -25,7 +25,6 @@
 BOOST_SERIALIZATION_SPLIT_FREE(cv::Mat)
 
 // Macros fix some IDE formatting
-
 DRISHTI_BEGIN_NAMESPACE(boost)
 DRISHTI_BEGIN_NAMESPACE(serialization)
 
@@ -67,3 +66,4 @@ DRISHTI_END_NAMESPACE(serialization)
 DRISHTI_END_NAMESPACE(boost)
 
 #endif // __DRISHTI_CVMAT_BOOST_HPP_INCLUDED__
+

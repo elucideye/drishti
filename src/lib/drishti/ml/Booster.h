@@ -201,21 +201,21 @@ public:
     }
     inline void LoadModel(const char *fname)
     {
+        this->init_model = true;
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
 #else
         learner::BoostLearner::LoadModel(fname);
-        this->init_model = true;
 #endif
     }
     inline void LoadModelFromBuffer(const void *buf, size_t size)
     {
+        this->init_model = true;
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
 #else
         utils::MemoryFixSizeBuffer fs((void*)buf, size);
         learner::BoostLearner::LoadModel(fs, true);
-        this->init_model = true;
 #endif
     }
     inline const char *GetModelRaw(bst_ulong *out_len)

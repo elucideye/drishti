@@ -38,7 +38,6 @@
 #include "drishti/ml/PCA.h"
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/core/Parallel.h"
-#include "drishti/core/drishti_serialize.h"
 #include "drishti/core/Logger.h"
 
 // Check input preprocessor definitions for SIMD and FIXED_POINT behavior:
@@ -158,12 +157,8 @@ void add32F(const drishti::ml::fshape &a, const fshape &b, fshape &c)
 
 template <typename T> T compute_npd(const T &a, const T &b)
 {
-    return (a - b)/(a + b);
-}
-
-template <> float compute_npd(const float &a, const float &b)
-{
-    return ((a == 0.f) && (b == 0.f)) ? std::numeric_limits<float>::lowest() : (a - b)/(a + b);
+    //return (a - b)/(a + b);
+    return ((a + b) == T(0.0)) ? std::numeric_limits<float>::lowest() : (a - b)/(a + b);
 }
 
 // struct Ellipse { double xs, ys, ang, scl, asp; };
@@ -2117,8 +2112,6 @@ void deserialize(drishti::ml::shape_predictor& item, std::istream& in);
 
 DRISHTI_ML_NAMESPACE_END
 
-BOOST_CLASS_VERSION(drishti::ml::shape_predictor, 4);
-
 typedef drishti::ml::impl::regression_tree RTType;
 typedef dlib::vector<float,2> Vec2Type;
 
@@ -2158,169 +2151,13 @@ struct PointHalf
 
 DRISHTI_BEGIN_NAMESPACE(boost)
 DRISHTI_BEGIN_NAMESPACE(serialization)
-
-template<class Archive>
-void serialize(Archive & ar, drishti::ml::fshape &g, const unsigned int version)
-{
-    if(Archive::is_loading::value)
-    {
-        // #### READING
-        std::vector<float> values;
-#if DRISHTI_DLIB_DO_HALF
-        std::vector<half_float::detail::uint16> half;
-        ar & half;
-        values.resize(half.size());
-        std::transform(half.begin(), half.end(), values.begin(), [](half_float::detail::uint16 a)
-        {
-            return half_float::detail::half2float(a);
-        });
-#else
-        ar & values;
-#endif
-        g.set_size(values.size(), 1);
-        memcpy(&g(0), &values[0], sizeof(float) * values.size());
-    }
-    else
-    {
-        // #### WRITING
-        std::vector<float> values(&g(0), &g(0) + g.size());
-#if DRISHTI_DLIB_DO_HALF
-        std::vector<half_float::detail::uint16> half(values.size());
-        std::transform(values.begin(), values.end(), half.begin(), [](float a)
-        {
-            return half_float::detail::float2half<std::round_to_nearest>(a);
-        });
-        ar & half;
-#else
-        ar & values;
-#endif
-    }
-}
-
-template<class Archive>
-void serialize(Archive & ar, dlib::vector<float,2> &g, const unsigned int version)
-{
-#if DRISHTI_DLIB_DO_HALF
-    half_float::detail::uint16 half1, half2;
-    if(Archive::is_loading::value)
-    {
-        ar & half1;
-        ar & half2;
-        g(0) = half_float::detail::half2float(half1);
-        g(1) = half_float::detail::half2float(half2);
-    }
-    else
-    {
-        half1 = half_float::detail::float2half<std::round_to_nearest>(g(0));
-        half2 = half_float::detail::float2half<std::round_to_nearest>(g(1));
-        ar & half1;
-        ar & half2;
-    }
-#else
-    ar & g(0);
-    ar & g(1);
-#endif
-}
-
-template<class Archive>
-void serialize(Archive & ar, drishti::ml::impl::split_feature &g, const unsigned int version)
-{
-    // TODO :compress storage type (unsigned short)
-    ar & g.idx1;
-    ar & g.idx2;
-
-#if DRISHTI_DLIB_DO_HALF
-    half_float::detail::uint16 thresh;
-    if (Archive::is_loading::value)
-    {
-        ar & thresh;
-        g.thresh = half_float::detail::half2float(thresh);
-    }
-    else
-    {
-        thresh = half_float::detail::float2half<std::round_to_nearest>(g.thresh);
-        ar & thresh;
-    }
-#else
-    ar & g.thresh;
-#endif
-}
-
-// 0
-// 1 2
-// 3 4 5 6               = (n+1)/2-1
-// 7 8 9 10 11 12 13 14  = n - ((n+1)/2-1)
-
-template<class Archive>
-void serialize(Archive & ar, drishti::ml::impl::regression_tree &g, const unsigned int version)
-{
-    ar & g.splits;
-    ar & g.leaf_values;
-
-    if(Archive::is_loading::value)
-    {
-        g.leaf_values_16.resize(g.leaf_values.size());
-        for(int i = 0; i < g.leaf_values.size(); i++)
-        {
-            g.leaf_values_16[i].set_size( g.leaf_values[i].size() );
-            drishti::core::convertFixedPoint(&g.leaf_values[i](0,0), &g.leaf_values_16[i](0,0), int(g.leaf_values[i].size()), FIXED_PRECISION);
-        }
-    }
-}
-
-template<class Archive> void serialize(Archive & ar, drishti::ml::shape_predictor &sp, const unsigned int version)
-{
-    drishti::ml::fshape &initial_shape = sp.initial_shape;
-    std::vector<std::vector<RTType>> &forests = sp.forests;
-    std::vector<std::vector<unsigned short>> &anchor_idx = sp.anchor_idx;
-    std::vector<std::vector<Vec2Type>> &deltas = sp.deltas;
-
-    // Without forests a 2.3 MB compressed archive drops to 48K//
-    CV_Assert(version >= 1);
-    ar & initial_shape;
-    ar & forests;
-    ar & anchor_idx;
-
-#if DRISHTI_DLIB_DO_HALF
-    std::vector<std::vector<PointHalf>>  deltas_;
-    if(Archive::is_loading::value)
-    {
-        ar & deltas_;
-        drishti::ml::copy(deltas_, deltas);
-    }
-    else
-    {
-        drishti::ml::copy(deltas, deltas_);
-        ar & deltas_;
-    }
-#else
-    ar & deltas;
-#endif
-
-    if(version >= 1)
-    {
-        ar & sp.m_pca;
-    }
-
-    if(version >= 2)
-    {
-        ar & sp.m_npd;
-        ar & sp.m_do_affine;
-    }
-
-    if(version >= 3)
-    {
-        ar & sp.m_ellipse_count;
-    }
-
-    if(version >= 4)
-    {
-        ar & sp.interpolated_features;
-    }
-}
-
+#include "drishti/ml/shape_predictor_archive.h"
 DRISHTI_END_NAMESPACE(serialization) // namespace serialization
 DRISHTI_END_NAMESPACE(boost) // namespace boost
+
+DRISHTI_BEGIN_NAMESPACE(cereal)
+#include "drishti/ml/shape_predictor_archive.h"
+DRISHTI_END_NAMESPACE(cereal)
 
 #endif // DLIB_SHAPE_PREDICTOR_MODIFIED_H_
 

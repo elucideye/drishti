@@ -15,9 +15,8 @@
 #include "drishti/eye/IrisNormalizer.h"
 #include "drishti/eye/EyeIO.h"
 #include "drishti/ml/ShapeEstimator.h"
-#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/rcpr/CPR.h"
-#include "drishti/core/serialization.h"
+#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/core/Shape.h"
 #include "drishti/core/timing.h"
@@ -198,6 +197,16 @@ public:
         m_optimizationLevel = level;
     }
 
+    // Boost serialization:
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        assert(version >= 1); // drop support for older versions
+        ar & m_eyeEstimator;
+        ar & m_irisEstimator;
+        ar & m_pupilEstimator;
+    }
+    
 private:
 
     cv::RotatedRect estimateCentralIris(const cv::Mat &I, const cv::Mat &M, const EllipseVec &irses) const;
@@ -207,17 +216,6 @@ private:
     void segmentEyelids(const cv::Mat &I, EyeModel &eye) const;
     void segmentEyelids_(const cv::Mat &I, EyeModel &eye) const; // deprecated (shape based jitter)
     std::vector< std::vector<cv::Point2f> > createInitialEyelidPoses() const;
-
-    // Boost serialization:
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-        assert(version >= 1); // drop support for older versions
-        ar & m_eyeEstimator;
-        ar & m_irisEstimator;
-        ar & m_pupilEstimator;
-    }
 
 protected:
 
@@ -246,7 +244,8 @@ protected:
 };
 
 // Boost serialization:
-template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
+template<class Archive>
+void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
 {
     assert(version >= 1);
     ar & m_impl;

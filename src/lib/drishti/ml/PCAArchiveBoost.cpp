@@ -1,7 +1,7 @@
 #include "drishti/ml/PCA.h"
 #include "drishti/ml/PCAImpl.h"
 
-#include "drishti/core/serialization.h"
+#include "drishti/core/drishti_serialization_boost.h"
 #include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/drishti_cvmat_boost.h"
 
@@ -9,7 +9,6 @@
 
 DRISHTI_BEGIN_NAMESPACE(boost)
 DRISHTI_BEGIN_NAMESPACE(serialization)
-
 template<class Archive>
 void serialize(Archive & ar, cv::PCA &pca, const unsigned int version)
 {
@@ -17,7 +16,6 @@ void serialize(Archive & ar, cv::PCA &pca, const unsigned int version)
     ar & pca.eigenvectors;
     ar & pca.mean;
 }
-
 DRISHTI_END_NAMESPACE(boost)
 DRISHTI_END_NAMESPACE(serialization)
 
@@ -32,8 +30,10 @@ typedef portable_binary_iarchive IArchive;
 
 #if !DRISHTI_BUILD_MIN_SIZE
 template void StandardizedPCA::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void StandardizedPCA::Standardizer::serialize(OArchive & ar, const unsigned int version);
 #endif
 template void StandardizedPCA::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void StandardizedPCA::Standardizer::serialize(IArchive & ar, const unsigned int version);
 
 // ##################################################################
 // #################### text_*archive ###############################

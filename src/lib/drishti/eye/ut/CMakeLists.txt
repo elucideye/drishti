@@ -16,13 +16,15 @@ if(MSVC)
     "${assets_dir}/drishti_eye_full_npd_eix.txt"
     "${DRISHTI_TEST_EYE}"
     "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
     "1"
     )
 else()
   add_test(NAME DrishtiEyeTest COMMAND test-drishti-eye
     "${assets_dir}/drishti_eye_full_npd_eix.pba.z"
     "${DRISHTI_TEST_EYE}"    
-    "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"    
+    "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
     "0"
     )
 endif()

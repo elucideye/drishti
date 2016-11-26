@@ -42,12 +42,13 @@ endif()
 ###############
 ### XGBOOST ###
 ###############
-option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
+option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
   option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
   add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost)
+  include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
   unset(SKIP_INSTALL CACHE)
   add_library(xgboost::xgboost ALIAS xgboost)
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS xgboost::xgboost) # Add library

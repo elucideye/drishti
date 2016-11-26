@@ -12,8 +12,8 @@
 #define DRISHTI_RCPR_POINT_HALF_H 1
 
 #include "drishti/rcpr/drishti_rcpr.h"
-#include "drishti/core/serialization.h"
 #include "half/half.hpp"
+#include <opencv2/core.hpp>
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 

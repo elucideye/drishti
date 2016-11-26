@@ -16,7 +16,6 @@
 
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/core/Field.h"
-#include "drishti/core/drishti_serialize.h"
 #include "drishti/geometry/Rectangle.h"
 
 DRISHTI_EYE_NAMESPACE_BEGIN
@@ -112,24 +111,8 @@ struct EyeModel
     void read(const std::string &filename);
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-        ar & GENERIC_NVP("roi", roi);
-
-        ar & GENERIC_NVP ("eyelids", eyelids);
-        ar & GENERIC_NVP ("crease", crease);
-
-        ar & GENERIC_NVP ("iris", irisEllipse);
-        ar & GENERIC_NVP ("pupil", pupilEllipse);
-
-        ar & GENERIC_NVP("inner", innerCorner);
-        ar & GENERIC_NVP("outer", outerCorner);
-
-        ar & GENERIC_NVP("irisCenter", irisCenter);
-        ar & GENERIC_NVP("irisInner", irisInner);
-        ar & GENERIC_NVP("irisOuter", irisOuter); // was irisInner
-    }
-
+    void serialize(Archive & ar, const unsigned int version);
+    
     // ### data
 
     core::Field<float> angle; // radians
@@ -260,9 +243,5 @@ void write(cv::FileStorage& fs, const std::string&, const EyeModel& x);
 void read(const cv::FileNode& node, EyeModel& x, const EyeModel & default_value = {});
 
 DRISHTI_EYE_NAMESPACE_END
-
-CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModel, 1);
-
-namespace dsdki = DRISHTI_EYE;
 
 #endif
