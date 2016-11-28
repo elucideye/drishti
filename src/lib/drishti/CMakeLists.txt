@@ -251,6 +251,17 @@ else()
 endif()
 list(APPEND DRISHTI_SDK_LIBS "${DRISHTI_OPENGL_LIBS}")
 
+if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
+  if(APPLE)
+    # These frameworks are needed for  optimized texture cache in GPGPU build
+    # of the final shared library
+    list(APPEND DRISHTI_SDK_LIBS
+      "-framework ImageIO"
+      "-framework CoreVideo"    
+      )
+  endif(APPLE)
+endif()
+
 ### drishtisdk (static)
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})
 target_link_libraries(drishtisdk PUBLIC ${DRISHTI_SDK_LIBS})
