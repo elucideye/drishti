@@ -14,24 +14,43 @@ include(sugar_files)
 sugar_files(DRISHTI_DRISHTI_SRCS
   Eye.cpp
   EyeSegmenter.cpp
-  EyeSegmenterImpl.cpp  
+  EyeSegmenterImpl.cpp
   Image.cpp
   drishti_sdk.cpp
-)
+  )
 
 sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
   Eye.hpp
   EyeSegmenter.hpp
-  ### Exclude private header from install
-  ### This could be included in the IDE headers
-  # EyeSegmenterImpl.hpp
   Image.hpp
   drishti_cv.hpp
   drishti_sdk.hpp
-)
+  drishti_gl.hpp
+  ### Exclude private header from install
+  ### This could be included in the IDE headers
+  # EyeSegmenterImpl.hpp
+  )
 
 if(DRISHTI_BUILD_ACF)
-  sugar_files(DRISHTI_DRISHTI_SRCS EyeDetector.cpp)
-  sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC EyeDetector.hpp)
+  sugar_files(DRISHTI_DRISHTI_SRCS
+    EyeDetector.cpp)
+  sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
+    EyeDetector.hpp)
 endif()
+
+if(DRISHTI_BUILD_HCI)
+  sugar_files(DRISHTI_DRISHTI_SRCS
+    FaceTracker.cpp
+    Manager.cpp
+    )
+  sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
+    Face.hpp
+    FaceTracker.hpp    
+    VideoFrame.hpp
+    Manager.hpp
+    dristhi_gl.hpp    
+    )
+endif()
+
+
 
