@@ -237,6 +237,7 @@ endif()
 # NOTE: see corresponding target_compile_definitions() in src/libdrishti/CMakeLists.txt
 option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
 option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with boost" ON)
+option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perofmr serialization with cvmatio" OFF)
 
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
@@ -309,8 +310,10 @@ find_package(Eigen REQUIRED) # <== not finding hunter provided eigen
 
 ### CVMATIO
 if(DRISHTI_BUILD_ACF)
-  hunter_add_package(cvmatio)
-  find_package(cvmatio REQUIRED CONFIG)
+  if(DRISHTI_SERIALIZE_WITH_CVMATIO)
+    hunter_add_package(cvmatio)
+    find_package(cvmatio REQUIRED CONFIG)
+  endif()
 endif()
 
 #####################

@@ -190,7 +190,10 @@ foreach(library ${DRISHTI_LIBS})
   endif()
   if(DRISHTI_SERIALIZE_WITH_CEREAL)
     target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_CEREAL=1)
-  endif()  
+  endif()
+  if(DRISHTI_SERIALIZE_WITH_CVMATIO)
+    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_CVMATIO=1)
+  endif()
 endforeach()  
 
 ##

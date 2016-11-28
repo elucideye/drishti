@@ -11,12 +11,9 @@
 #include "drishti/acf/ACFIO.h"
 #include "drishti/acf/ACF.h"
 
-#if DRISHTI_SERIALIZE_WITH_BOOST
-//#  include "drishti/core/drishti_serialization_boost.h" // (optional)
-//#  include "drishti/core/drishti_cvmat_boost.h" // (optional)
-#endif
-
 DRISHTI_ACF_NAMESPACE_BEGIN
+
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
 
 int Detector::deserialize(const std::string &filename)
 {
@@ -173,6 +170,11 @@ int Detector::deserialize(ParserNodeDetector &detector_)
 
     return 0;
 }
+#else
+int Detector::deserialize(const std::string &filename) { return -1; }
+int Detector::deserialize(const char *filename) { return -1; }
+int Detector::deserialize(std::istream &is) { return -1; }
+int Detector::deserialize(ParserNodeDetector &detector_) { return -1; }
+#endif // DRISHTI_SERIALIZE_WITH_CVMATIO
 
 DRISHTI_ACF_NAMESPACE_END
-
