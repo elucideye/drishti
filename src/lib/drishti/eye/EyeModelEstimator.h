@@ -20,8 +20,12 @@
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/eye/Eye.h"
 #include "drishti/eye/NormalizedIris.h"
-#include "drishti/core/serialization.h"
+
 #include "drishti/core/Logger.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialization_boost.h" // (optional)
+#endif
 
 #include <memory>
 
@@ -103,23 +107,21 @@ public:
 
     EyeModel getMeanShape(const cv::Size &size) const;
 
+    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+    
 protected:
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
-
-    // Boost serialization:
-    friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
 
     std::shared_ptr<Impl> m_impl;
 };
 
 DRISHTI_EYE_NAMESPACE_END
 
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator);
 BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator::Impl);
-
-BOOST_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator, 1);
-BOOST_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator::Impl, 1);
+#endif
 
 #endif /* defined(__drishtisdk__EyeModelEstimator__) */

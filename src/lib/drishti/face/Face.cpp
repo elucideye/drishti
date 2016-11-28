@@ -10,6 +10,7 @@
 
 #include "drishti/face/Face.h"
 #include "drishti/core/Shape.h"
+#include "drishti/core/drishti_serialize.h"
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
 

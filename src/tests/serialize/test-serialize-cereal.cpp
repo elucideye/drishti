@@ -13,6 +13,31 @@
 //#include <cereal/archives/binary.hpp>
 #include <cereal/archives/portable_binary.hpp>
 
+#include "drishti/core/drishti_cereal_pba.h"
+
+typedef cereal::PortableBinaryOutputArchive3 OArchive;
+typedef cereal::PortableBinaryInputArchive3 IArchive;
+
+struct Bar
+{
+    template <typename Archive> void serialize(Archive &ar, const std::uint32_t version)
+    {
+        std::int16_t tmp = foo;
+        if(Archive::is_loading::value)
+        {
+            ar & tmp;
+            foo = tmp;
+        }
+        else
+        {
+            tmp = foo;
+            ar & tmp;
+        }
+        ar & foo;
+    }
+    std::int32_t foo;
+};
+
 int main(int argc, char **argv)
 {
     if(argc != 2)
@@ -29,8 +54,8 @@ int main(int argc, char **argv)
         std::ofstream ofs(filename, std::ios_base::out | std::ios_base::binary);
         if(ofs)
         {
-            cereal::PortableBinaryOutputArchive oa(ofs);
-            oa << monsterSrc;
+            OArchive oa(ofs);
+            oa(monsterSrc);
         }
     }
 
@@ -40,8 +65,9 @@ int main(int argc, char **argv)
         std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
         if(ifs)
         {
-            cereal::PortableBinaryInputArchive ia(ifs);
-            ia >> monsterDst;
+            IArchive ia(ifs);
+            ia(monsterDst);
+            //ia >> monsterDst;
         }
     }
 }

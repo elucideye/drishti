@@ -9,7 +9,6 @@
 */
 
 #include "drishti/core/drishti_core.h"
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/timing.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/face/FaceDetector.h"
@@ -21,6 +20,10 @@
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/geometry/Rectangle.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST    
+#  include "drishti/core/boost_serialize_common.h" // (optional)
+#endif
 
 #include <stdio.h>
 

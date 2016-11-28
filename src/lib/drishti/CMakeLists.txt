@@ -183,11 +183,24 @@ else()
 
 endif(DRISHTI_BUILD_WORLD)
 
+# Set the serialization mode preprocessor floags (boost and/or cereal)
+foreach(library ${DRISHTI_LIBS})
+  if(DRISHTI_SERIALIZE_WITH_BOOST)
+    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_BOOST=1)
+  endif()
+  if(DRISHTI_SERIALIZE_WITH_CEREAL)
+    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_CEREAL=1)
+  endif()
+  if(DRISHTI_SERIALIZE_WITH_CVMATIO)
+    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_CVMATIO=1)
+  endif()
+endforeach()  
+
 ##
 ## Unit tests
 ##
 
-if(DRISHTI_BUILD_TESTS)
+if(DRISHTI_BUILD_TESTS AND DRISHTI_SERIALIZE_WITH_BOOST)
 
   add_subdirectory(core)
   add_subdirectory(geometry)
@@ -240,6 +253,17 @@ else()
   set(DRISHTI_OPENGL_LIBS "${OPENGL_LIBRARIES}")
 endif()
 list(APPEND DRISHTI_SDK_LIBS "${DRISHTI_OPENGL_LIBS}")
+
+if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
+  if(APPLE)
+    # These frameworks are needed for  optimized texture cache in GPGPU build
+    # of the final shared library
+    list(APPEND DRISHTI_SDK_LIBS
+      "-framework ImageIO"
+      "-framework CoreVideo"    
+      )
+  endif(APPLE)
+endif()
 
 ### drishtisdk (static)
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})

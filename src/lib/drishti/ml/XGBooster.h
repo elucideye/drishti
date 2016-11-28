@@ -8,15 +8,14 @@
 
 */
 
-#ifndef __drishtisdk__XGBooster__
-#define __drishtisdk__XGBooster__
+#ifndef DRISHTI_ML_XGBOOSTER_H
+#define DRISHTI_ML_XGBOOSTER_H
 
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/core/Logger.h"
 
 #include <opencv2/core.hpp>
 
-#include <boost/serialization/serialization.hpp>
 #include <boost/serialization/export.hpp>
 
 #include <memory>
@@ -39,7 +38,6 @@ public:
         double featureSubsample = 0.1;
         bool regression = true;
 
-        friend class boost::serialization::access;
         template<class Archive> void serialize(Archive & ar, const unsigned int version);
     };
 
@@ -53,7 +51,6 @@ public:
     void write(const std::string &filename) const;
 
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version);
 
     void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
@@ -70,4 +67,4 @@ DRISHTI_ML_NAMESPACE_END
 BOOST_CLASS_EXPORT_KEY(drishti::ml::XGBooster);
 BOOST_CLASS_EXPORT_KEY(drishti::ml::XGBooster::Impl);
 
-#endif /* defined(__drishtisdk__XGBooster__) */
+#endif // DRISHTI_ML_XGBOOSTER_H

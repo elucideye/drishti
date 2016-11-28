@@ -12,8 +12,6 @@
 #ifndef __DRISHTI__ACF__
 #define __DRISHTI__ACF__
 
-#pragma once
-
 #include <stdio.h>
 
 #include "drishti/core/drishti_defs.hpp"
@@ -22,9 +20,12 @@
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
 #include "drishti/acf/MatP.h"
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/IndentingOStreamBuffer.h"
 #include "drishti/core/Logger.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+# include "drishti/core/boost_serialize_common.h" // optional
+#endif
 
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -81,8 +82,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Nms &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         struct Pyramid
@@ -111,8 +111,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const Color &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Color> pColor;
 
@@ -128,8 +127,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const GradMag &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<GradMag> pGradMag;
 
@@ -146,8 +144,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const GradHist &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
                 };
                 Field<GradHist> pGradHist;
@@ -159,8 +156,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const Custom &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Custom> pCustom;
                 Field<int> complete;
@@ -169,8 +165,7 @@ public:
                 friend std::ostream& operator<<(std::ostream &os, const Chns &src);
                 
                 // Boost serialization:
-                friend class boost::serialization::access;
-                template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
 
             Field<Chns> pChns;
@@ -190,8 +185,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Pyramid &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         Field<Pyramid> pPyramid;
@@ -218,8 +212,7 @@ public:
                 friend std::ostream& operator<<(std::ostream &os, const Tree &src);
                 
                 // Boost serialization:
-                friend class boost::serialization::access;
-                template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
             Field<Tree> pTree;
             Field<int> nWeak;
@@ -230,8 +223,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Boost &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         Field<Boost> pBoost;
@@ -257,8 +249,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Jitter &src);
 
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
         Field<Jitter> pJitter;
         Field<int> winsSave;
@@ -267,8 +258,7 @@ public:
         friend std::ostream& operator<<(std::ostream &os, const Options &src);
         
         // Boost serialization:
-        friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version);
+        template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
     Options opts;
@@ -302,8 +292,7 @@ public:
         cv::Mat thrsU8;  // prescaled threshold (x255) for uint8_t input
         const cv::Mat & getScaledThresholds(int type);
 
-        friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version);        
+        template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
     Classifier clf;
@@ -445,8 +434,7 @@ public:
     int deserialize(ParserNodeDetector &detector_);
     
     // Boost serialization:
-    friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+    template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
     // Additional configuration parameters:
     void setIsLuv(bool flag)

@@ -24,7 +24,9 @@
 #include "cvmatio/MatlabIOContainer.hpp"
 
 // Boost serialization:
-#include "drishti/core/serialization.h"
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialization_boost.h" // (optional)
+#endif
 
 #include <string>
 #include <iostream>
@@ -34,7 +36,8 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 typedef std::vector< MatlabIOContainer > VecContainer;
 typedef std::vector< VecContainer > VecVecContainer;
 
-template <typename T2> std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
+template <typename T2>
+std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
 {
     os << src.name << ":";
     if(src.has)
@@ -61,7 +64,8 @@ template <typename T2> std::ostream& operator<<(std::ostream &os, const Field<T2
     return os;
 }
 
-template <typename T2> std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src)
+template <typename T2>
+std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src)
 {
     os << src.name << ":";
     if(src.has)
@@ -88,7 +92,8 @@ template <typename T1, typename T2> struct Cast
     }
 };
 
-template <typename T1, typename T2> struct Cast<std::vector<T1>, std::vector<T2>>
+template <typename T1, typename T2>
+struct Cast<std::vector<T1>, std::vector<T2>>
 {
     std::vector<T2> operator()(const std::vector<T1> &t1)
     {
@@ -96,7 +101,8 @@ template <typename T1, typename T2> struct Cast<std::vector<T1>, std::vector<T2>
     }
 };
 
-template <typename T1, typename T2> struct Cast<std::vector<T1>, Field<std::vector<T2>> >
+template <typename T1, typename T2>
+struct Cast<std::vector<T1>, Field<std::vector<T2>> >
 {
     std::vector<T2> operator()(const std::vector<T1> &t1)
     {
@@ -284,12 +290,14 @@ struct ParserNode
     }
 
     // Return single instance
-    template <typename T2> ParserNode<T2> create(const std::string &name, T2 &object)
+    template <typename T2>
+    ParserNode<T2> create(const std::string &name, T2 &object)
     {
         return ParserNode<T2>(name, object, m_matio.find< VecVecContainer >(m_variables, name)[0]);
     }
 
-    template <typename T2> ParserNode<Field<T2>> create(const std::string &name, Field<T2> &object)
+    template <typename T2>
+    ParserNode<Field<T2>> create(const std::string &name, Field<T2> &object)
     {
         object.set(name);
         object.mark(true);
@@ -297,7 +305,8 @@ struct ParserNode
     }
 
     // Return single instance
-    template <typename T2> std::vector<ParserNode<Field<typename T2::value_type>>> createVec(const std::string &name, Field<T2> &object)
+    template <typename T2>
+    std::vector<ParserNode<Field<typename T2::value_type>>> createVec(const std::string &name, Field<T2> &object)
     {
 
     }
@@ -308,7 +317,8 @@ struct ParserNode
         return m_object;
     }
 
-    template <typename T1, typename T2 > bool parse(const std::string &name, T2 &value)
+    template <typename T1, typename T2 >
+    bool parse(const std::string &name, T2 &value)
     {
         Finder<T1, T2>()(m_matio, m_variables, name, value);
         return true;

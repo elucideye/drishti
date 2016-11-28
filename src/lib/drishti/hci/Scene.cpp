@@ -10,6 +10,8 @@
 
 #include "drishti/hci/Scene.hpp"
 
+DRISHTI_HCI_NAMESPACE_BEGIN
+
 static float getAngle(const cv::Point2f &p)
 {
     return (std::atan2(p.y, p.x) + M_PI) * 180.0 / M_PI;
@@ -105,3 +107,6 @@ void facesToDrawings(const std::vector<drishti::face::FaceModel> &faces, LineDra
         }
     }
 }
+
+DRISHTI_HCI_NAMESPACE_END
+

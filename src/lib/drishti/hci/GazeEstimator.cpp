@@ -14,7 +14,10 @@
 #include "drishti/ml/XGBooster.h"
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
-#include "drishti/core/boost_serialize_common.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/boost_serialize_common.h"
+#endif
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/video/video.hpp>
@@ -101,7 +104,13 @@ public:
     static std::shared_ptr<GazeEstimator::Impl> construct(std::ifstream &is, bool nose, bool brows, bool crease)
     {
         std::shared_ptr<GazeEstimator::Impl> ptr = std::make_shared<GazeEstimator::Impl>();
+
+#if DRISHTI_SERIALIZE_WITH_BOOST            
         load_pba_z(is, ptr->forests);
+#else
+        assert(false); exit(-1);
+#endif
+        
         ptr->m_doNose = nose;
         ptr->m_doBrows = brows;
         ptr->m_doCrease = crease;
@@ -481,13 +490,21 @@ GazeEstimator::GazeEstimator(const sensor::SensorModel &sensor)
 
 GazeEstimator::GazeEstimator(const sensor::SensorModel &sensor, const std::string &filename)
 {
+#if DRISHTI_SERIALIZE_WITH_BOOST
     load_pba_z(filename, m_pImpl);
+#else
+    assert(false); exit(-1);
+#endif
     m_pImpl->setSensorModel(sensor);
 }
 
 GazeEstimator::GazeEstimator(const sensor::SensorModel &sensor, std::ifstream &is)
 {
+#if DRISHTI_SERIALIZE_WITH_BOOST    
     load_pba_z(is, m_pImpl);
+#else
+    assert(false); exit(-1);
+#endif
     m_pImpl->setSensorModel(sensor);
 }
 

@@ -15,19 +15,31 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "drishti/eye/EyeModelEstimator.h"
+#include "drishti/rcpr/CPR.h"
+#include "drishti/core/drishti_serialize.h"
+#include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/boost_serialize_common.h"
+#include "drishti/core/drishti_cereal_pba.h"
+
+#ifdef DRISHTI_CEREAL_XML_JSON
+#  undef DRISHTI_CEREAL_XML_JSON
+#  define DRISHTI_CEREAL_XML_JSON 1
+#endif
+
+#if DRISHTI_CEREAL_XML_JSON
+# include <cereal/archives/json.hpp>
+# include <cereal/archives/xml.hpp>
+#endif
 
 #include <fstream>
-
-#include "drishti/eye/EyeModelEstimator.h"
-
-#include "drishti/core/drishti_serialize.h"
 
 // https://code.google.com/p/googletest/wiki/Primer
 
 const char* modelFilename;
 const char* imageFilename;
 const char* truthFilename;
+const char* outputDirectory;
 bool isTextArchive;
 
 #define BEGIN_EMPTY_NAMESPACE namespace {
@@ -136,12 +148,21 @@ protected:
         std::ifstream is(truthFilename);
         if(is)
         {
+#if DRISHTI_CEREAL_XML_JSON
             cereal::JSONInputArchive ia(is);
             typedef decltype(ia) Archive;
             ia( GENERIC_NVP("eye", *eye) );
-            
             m_eye = eye;
-            m_eye->refine();
+            m_eye->refine();            
+#else
+            std::cerr << "Skipping JSON archive" << std::endl;
+#endif
+
+        }
+        else
+        {
+            std::cerr << "Unable to find ground truth file: " << truthFilename << std::endl;
+            std::cerr << "Make sure test-drishti-drishti is run first." << std::endl;
         }
     }
     
@@ -184,6 +205,34 @@ TEST(EyeModelEstimator, StringConstructor)
     ASSERT_EQ(segmenter->good(), true);
 }
 
+TEST(EyeModelEstimator, CerealSerialization)
+{
+    // Make sure modelFilename is not null:
+    ASSERT_NE(modelFilename, (const char *)NULL);
+    
+    auto segmenter = EyeModelEstimatorTest::create(modelFilename, isTextArchive);
+    
+    {
+        std::ofstream ofs("/tmp/foo.pba.c", std::ios::binary);
+        if(ofs)
+        {
+            cereal::PortableBinaryOutputArchive3 oa(ofs);
+            oa << *segmenter;
+        }
+    }
+    
+    drishti::eye::EyeModelEstimator segmenter2;
+    {
+        std::ifstream ifs("/tmp/foo.pba.c", std::ios::binary);
+        if(ifs)
+        {
+            cereal::PortableBinaryInputArchive3 ia(ifs);
+            ia >> segmenter2;
+        }
+    }
+}
+
+
 TEST(EyeModelEstimator, StreamConstructor)
 {
     // Make sure modelFilename is not null:
@@ -219,11 +268,15 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
     
     assert(m_images[m_targetWidth].isRight);
     /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
-    
+            
+#if DRISHTI_CEREAL_XML_JSON    
     std::ofstream os("/tmp/right_eye_2.json");
     cereal::JSONOutputArchive oa(os);
     typedef decltype(oa) Archive;
     oa << GENERIC_NVP("eye", eye);
+#else
+    std::cerr << "Skipping JSON archive" << std::endl;
+#endif
 }
 
 // TODO: Add ground truth comparison
@@ -239,6 +292,10 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
         drishti::eye::EyeModel eye;
         int code = (*m_eyeSegmenter)(m_images[i].image, eye);
         EXPECT_EQ(code, 0);
+        
+        //cv::Mat mask = cv::Mat(m_images[i].image.size(), CV_8UC3, cv::Scalar::all(0));
+        //eye.draw(mask);
+        //cv::imshow("mask", mask); cv::waitKey(0);
         
         eye.refine();
         checkValid(eye, m_images[i].image.size());

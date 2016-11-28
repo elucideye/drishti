@@ -1,5 +1,5 @@
 /*!
-  @file   serialization.h
+  @file   drishti_serialization_boost.h
   @author David Hirvonen
   @brief  Common include for boost serialization headers.
 
@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __SERIALIZATION_H__
-#define __SERIALIZATION_H__
+#ifndef __DRISHTI_SERIALIZATION_BOOST_H__
+#define __DRISHTI_SERIALIZATION_BOOST_H__
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>

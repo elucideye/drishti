@@ -13,6 +13,7 @@
 extern const char* modelFilename;
 extern const char* imageFilename;
 extern const char* truthFilename;
+extern const char* outputDirectory;
 extern bool isTextArchive;
 
 int main(int argc, char** argv)
@@ -22,6 +23,8 @@ int main(int argc, char** argv)
     modelFilename = argv[1];
     imageFilename = argv[2];
     truthFilename = argv[3];
-    isTextArchive = (argc > 4) ? (std::atoi(argv[4]) > 0) : false;
+    outputDirectory = argv[4];
+    isTextArchive = (argc > 5) ? (std::atoi(argv[5]) > 0) : false;
+
     return RUN_ALL_TESTS();
 }
