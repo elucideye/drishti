@@ -28,14 +28,14 @@ template<class Archive> void serialize(Archive & ar, xgboost::wrapper::Booster &
 #else
     if (Archive::is_loading::value)
     {
-        ar & m.model_str;
-        m.LoadModelFromBuffer(&m.model_str[0], m.model_str.size());
+        ar & booster.model_str;
+        booster.LoadModelFromBuffer(&booster.model_str[0], booster.model_str.size());
     }
     else
     {
         bst_ulong length = 0;
-        m.GetModelRaw(&length); // uses internal model_str
-        ar & m.model_str;
+        booster.GetModelRaw(&length); // uses internal model_str
+        ar & booster.model_str;
     }
 #endif
 }
