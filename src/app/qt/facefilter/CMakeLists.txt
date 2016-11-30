@@ -14,8 +14,16 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON) # for main.moc
 find_package(Qt5Quick REQUIRED) # Qt5::Quick
 find_package(Qt5Multimedia REQUIRED) # Qt5::QMultimediaDeclarativeModule
 
-file(COPY facefilter.json DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/generated")
-file(COPY main.qml DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/generated")
+configure_file(
+    facefilter.json
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.json"
+    COPYONLY
+)
+configure_file(
+    main.qml
+    "${CMAKE_CURRENT_BINARY_DIR}/generated"
+    COPYONLY
+)
 
 set(facefilter_qrc "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.qrc")
 configure_file(facefilter.qrc.in "${facefilter_qrc}" @ONLY)
