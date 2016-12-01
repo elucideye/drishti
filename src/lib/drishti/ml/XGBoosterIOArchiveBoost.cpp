@@ -23,21 +23,7 @@ DRISHTI_BEGIN_NAMESPACE(serialization)
 
 template<class Archive> void serialize(Archive & ar, xgboost::wrapper::Booster &booster, const unsigned int version)
 {
-#if USE_XGBOOST_WITH_BOOST
     ar & boost::serialization::base_object<learner::BoostLearner>(booster);
-#else
-    if (Archive::is_loading::value)
-    {
-        ar & booster.model_str;
-        booster.LoadModelFromBuffer(&booster.model_str[0], booster.model_str.size());
-    }
-    else
-    {
-        bst_ulong length = 0;
-        booster.GetModelRaw(&length); // uses internal model_str
-        ar & booster.model_str;
-    }
-#endif
 }
 
 DRISHTI_END_NAMESPACE(serialization)
