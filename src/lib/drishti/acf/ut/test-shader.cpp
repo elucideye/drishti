@@ -35,7 +35,7 @@
 #endif
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialize_boost.h"
+#  include "drishti/core/drishti_serialization_boost.h"
 #endif
 
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
@@ -246,9 +246,11 @@ TEST_F(ACFTest, ACFSerializeCereal)
 {
     // Load from cvmat
     drishti::acf::Detector detector(modelFilename), detector2;
-    
+
     std::string filename = outputDirectory;
-    filename += "/acf.pba.c";
+    filename += "/acf.cpb";
+    
+    std::cout << "FILENAME: " << filename << std::endl;
     
     { // save
         std::ofstream file(filename, std::ios::binary);
