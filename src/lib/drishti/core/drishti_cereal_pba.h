@@ -17,162 +17,64 @@
 #include <cereal/types/string.hpp>
 #include <cereal/types/memory.hpp>
 
-DRISHTI_BEGIN_NAMESPACE(cereal)
+#include <cassert>
+#include <fstream>
 
-#if 1
+
+
+DRISHTI_BEGIN_NAMESPACE(cereal)
 typedef PortableBinaryOutputArchive PortableBinaryOutputArchive3;
 typedef PortableBinaryInputArchive PortableBinaryInputArchive3;
-#else
-class PortableBinaryOutputArchive3 : public OutputArchive<PortableBinaryOutputArchive3, AllowEmptyClassElision>
-{
-public:
-    
-    using is_loading = std::false_type;
-    using is_saving  = std::true_type;
-
-    //! Construct, outputting to the provided stream
-    /*! @param stream The stream to output to.  Can be a stringstream, a file stream, or
-     even cout! */
-    PortableBinaryOutputArchive3(std::ostream & stream) :
-    OutputArchive<PortableBinaryOutputArchive3, AllowEmptyClassElision>(this),
-    itsStream(stream)
-    {
-        this->operator()( portable_binary_detail::is_little_endian() );
-    }
-    
-    //! Writes size bytes of data to the output stream
-    void saveBinary( const void * data, std::size_t size )
-    {
-        auto const writtenSize = static_cast<std::size_t>( itsStream.rdbuf()->sputn( reinterpret_cast<const char*>( data ), size ) );
-        
-        if(writtenSize != size)
-            throw Exception("Failed to write " + std::to_string(size) + " bytes to output stream! Wrote " + std::to_string(writtenSize));
-    }
-    
-private:
-    std::ostream & itsStream;
-};
-
-class PortableBinaryInputArchive3 : public InputArchive<PortableBinaryInputArchive3, AllowEmptyClassElision>
-{
-public:
-    
-    using is_loading = std::true_type;
-    using is_saving  = std::false_type;
-    
-    //! Construct, loading from the provided stream
-    /*! @param stream The stream to read from. */
-    PortableBinaryInputArchive3(std::istream & stream) :
-    InputArchive<PortableBinaryInputArchive3, AllowEmptyClassElision>(this),
-    itsStream(stream),
-    itsConvertEndianness( false )
-    {
-        bool streamLittleEndian;
-        this->operator()( streamLittleEndian );
-        itsConvertEndianness = portable_binary_detail::is_little_endian() ^ streamLittleEndian;
-    }
-    
-    //! Reads size bytes of data from the input stream
-    /*! @param data The data to save
-     @param size The number of bytes in the data
-     @tparam DataSize T The size of the actual type of the data elements being loaded */
-    template <std::size_t DataSize>
-    void loadBinary( void * const data, std::size_t size )
-    {
-        // load data
-        auto const readSize = static_cast<std::size_t>( itsStream.rdbuf()->sgetn( reinterpret_cast<char*>( data ), size ) );
-        
-        if(readSize != size)
-            throw Exception("Failed to read " + std::to_string(size) + " bytes from input stream! Read " + std::to_string(readSize));
-        
-        // flip bits if needed
-        if( itsConvertEndianness )
-        {
-            std::uint8_t * ptr = reinterpret_cast<std::uint8_t*>( data );
-            for( std::size_t i = 0; i < size; i += DataSize )
-                portable_binary_detail::swap_bytes<DataSize>( ptr );
-        }
-    }
-    
-private:
-    std::istream & itsStream;
-    bool itsConvertEndianness; //!< If set to true, we will need to swap bytes upon loading
-};
-
-
-// ######################################################################
-// Common BinaryArchive serialization functions
-
-//! Saving for POD types to portable binary
-template<class T> inline
-typename std::enable_if<std::is_arithmetic<T>::value, void>::type
-CEREAL_SAVE_FUNCTION_NAME(PortableBinaryOutputArchive3 & ar, T const & t)
-{
-    static_assert( !std::is_floating_point<T>::value ||
-                  (std::is_floating_point<T>::value && std::numeric_limits<T>::is_iec559),
-                  "Portable binary only supports IEEE 754 standardized floating point" );
-    ar.saveBinary(std::addressof(t), sizeof(t));
-}
-
-//! Loading for POD types from portable binary
-template<class T> inline
-typename std::enable_if<std::is_arithmetic<T>::value, void>::type
-CEREAL_LOAD_FUNCTION_NAME(PortableBinaryInputArchive3 & ar, T & t)
-{
-    static_assert( !std::is_floating_point<T>::value ||
-                  (std::is_floating_point<T>::value && std::numeric_limits<T>::is_iec559),
-                  "Portable binary only supports IEEE 754 standardized floating point" );
-    ar.template loadBinary<sizeof(T)>(std::addressof(t), sizeof(t));
-}
-
-//! Serializing NVP types to portable binary
-template <class Archive, class T> inline
-CEREAL_ARCHIVE_RESTRICT(PortableBinaryInputArchive3, PortableBinaryOutputArchive3)
-CEREAL_SERIALIZE_FUNCTION_NAME( Archive & ar, NameValuePair<T> & t )
-{
-    ar( t.value );
-}
-
-//! Serializing SizeTags to portable binary
-template <class Archive, class T> inline
-CEREAL_ARCHIVE_RESTRICT(PortableBinaryInputArchive3, PortableBinaryOutputArchive3)
-CEREAL_SERIALIZE_FUNCTION_NAME( Archive & ar, SizeTag<T> & t )
-{
-    ar( t.size );
-}
-
-//! Saving binary data to portable binary
-template <class T> inline
-void CEREAL_SAVE_FUNCTION_NAME(PortableBinaryOutputArchive3 & ar, BinaryData<T> const & bd)
-{
-    typedef typename std::remove_pointer<T>::type TT;
-    static_assert( !std::is_floating_point<TT>::value ||
-                  (std::is_floating_point<TT>::value && std::numeric_limits<TT>::is_iec559),
-                  "Portable binary only supports IEEE 754 standardized floating point" );
-    
-    ar.saveBinary( bd.data, static_cast<std::size_t>( bd.size ) );
-}
-
-//! Loading binary data from portable binary
-template <class T> inline
-void CEREAL_LOAD_FUNCTION_NAME(PortableBinaryInputArchive3 & ar, BinaryData<T> & bd)
-{
-    typedef typename std::remove_pointer<T>::type TT;
-    static_assert( !std::is_floating_point<TT>::value ||
-                  (std::is_floating_point<TT>::value && std::numeric_limits<TT>::is_iec559),
-                  "Portable binary only supports IEEE 754 standardized floating point" );
-    
-    ar.template loadBinary<sizeof(TT)>( bd.data, static_cast<std::size_t>( bd.size ) );
-}
-
-// register archives for polymorphic support
-CEREAL_REGISTER_ARCHIVE(cereal::PortableBinaryOutputArchive3)
-CEREAL_REGISTER_ARCHIVE(cereal::PortableBinaryInputArchive3)
-
-// tie input and output archives together
-CEREAL_SETUP_ARCHIVE_TRAITS(cereal::PortableBinaryInputArchive3, cereal::PortableBinaryOutputArchive3)
-#endif
-
 DRISHTI_END_NAMESPACE(cereal)
+
+inline bool is_cpb(std::istream &is)
+{
+    bool ok = false;
+    is.seekg(0, std::ios_base::beg);
+    try
+    {
+        cereal::PortableBinaryInputArchive ia(is);
+        ok = true;
+    } catch (...) { }
+    
+    is.seekg(0, std::ios_base::beg);
+    is.clear();
+    return ok;
+}
+
+template <typename T>
+void load_cpb(std::istream &is, T &object)
+{
+    cereal::PortableBinaryInputArchive3 ia(is);
+    ia >> object;
+}
+
+template <typename T>
+void load_cpb(const std::string &filename, T &object)
+{
+    std::ifstream ifs(filename, std::ios::binary);
+    assert(ifs);
+    load_cpb(ifs, object);
+}
+
+template <typename T>
+void save_cpb(std::ostream &os, T &object)
+{
+#if !DRISHTI_BUILD_MIN_SIZE
+    cereal::PortableBinaryOutputArchive3 oa(os);
+    oa << object;
+#endif
+}
+
+template <typename T>
+void save_cpb(const std::string &filename, T &object)
+{
+#if !DRISHTI_BUILD_MIN_SIZE
+    std::ofstream ofs(filename, std::ios::binary);
+    assert(ofs);
+    save_pba_z(ofs, object);
+#endif
+}
+
 
 #endif // DRISHTI_CORE_CEREAL_PBA_H_
