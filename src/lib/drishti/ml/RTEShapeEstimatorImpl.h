@@ -18,7 +18,6 @@
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);
-
 BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
 BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
 BOOST_CLASS_VERSION(drishti::ml::shape_predictor, 4);

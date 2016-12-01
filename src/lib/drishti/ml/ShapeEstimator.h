@@ -76,7 +76,9 @@ public:
 
 DRISHTI_ML_NAMESPACE_END
 
+#if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(drishti::ml::ShapeEstimator);
 BOOST_CLASS_EXPORT_KEY(drishti::ml::ShapeEstimator);
+#endif
 
 #endif

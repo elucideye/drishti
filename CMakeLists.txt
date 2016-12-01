@@ -237,7 +237,7 @@ endif()
 # NOTE: see corresponding target_compile_definitions() in src/libdrishti/CMakeLists.txt
 option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
 option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with boost" ON)
-option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perofmr serialization with cvmatio" OFF)
+option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
 
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")

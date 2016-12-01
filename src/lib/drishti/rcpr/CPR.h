@@ -393,7 +393,9 @@ template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<
 
 DRISHTI_RCPR_NAMESPACE_END
 
+#if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
+#endif
 
 // CEREAL_NOTE: Placing the CEREAL_REGISTER_TYPE() leads to undefined symbols for serialize methods
 // for the JSON{Input,Output}Archive and XML{Input,Output}Archive types.  For now we can
