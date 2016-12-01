@@ -11,7 +11,7 @@
             "minDepth": 0.1,
             "maxDepth": 0.5
         },
-        
+
         "sensor": {
             "intrinsic": {
                 "size": {
@@ -26,7 +26,7 @@
             }
         }
     },
-    
+
     "0x1a11000005ac8510": {
         "description": "FaceTime HD Camera (Built-in)",
 
@@ -34,7 +34,7 @@
             "minDepth": 0.264,
             "maxDepth": 0.792
         },
-        
+
         "sensor": {
             "intrinsic": {
                 "size": {
@@ -57,7 +57,7 @@
             "minDepth": 0.264,
             "maxDepth": 0.792
         },
-        
+
         "sensor": {
             "intrinsic": {
                 "size": {
@@ -73,8 +73,31 @@
         }
     },
 
+    "0xfa12000018ec3399": {
+        "description": "Defender C-090",
+
+        "detectionRange": {
+            "minDepth": 0.264,
+            "maxDepth": 0.792
+        },
+
+        "sensor": {
+            "intrinsic": {
+                "size": {
+                    "width": 640,
+                    "height": 480
+                },
+                "principal": {
+                    "x": 320.0,
+                    "y": 240.0
+                },
+                "focal_length_x": 1000.0
+            }
+        }
+    },
+
     "0xAAAAAAAAAAAAAAAA": {
-        "description": "iPhone 4",        
+        "description": "iPhone 4",
         "sensor": {
             "intrinsic": {
                 "size": {
