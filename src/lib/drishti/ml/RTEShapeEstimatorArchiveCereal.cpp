@@ -1,12 +1,10 @@
+#include "drishti/ml/drishti_ml.h"
 #include "drishti/core/drishti_cvmat_cereal.h"
 #include "drishti/core/drishti_pca_cereal.h"
-
 #include "drishti/ml/RTEShapeEstimatorImpl.h"
 #include "drishti/ml/PCAImpl.h"
-
 #include "drishti/core/drishti_cereal_pba.h"
 
-CEREAL_CLASS_VERSION(drishti::ml::shape_predictor, 4);
 
 typedef cereal::PortableBinaryOutputArchive3 OArchive;
 typedef cereal::PortableBinaryInputArchive3 IArchive;

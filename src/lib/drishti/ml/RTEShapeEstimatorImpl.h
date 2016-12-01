@@ -10,46 +10,33 @@
 // A half precision (16 bit) floating point representation is used to store
 // the regression trees.
 
+#include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/shape_predictor.h"
 
 #define _SHAPE_PREDICTOR drishti::ml::shape_predictor
-//#define _SHAPE_PREDICTOR dlib
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
+BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);
+
 BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
 BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
+BOOST_CLASS_VERSION(drishti::ml::shape_predictor, 4);
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
 
-DRISHTI_ML_NAMESPACE_BEGIN
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+CEREAL_CLASS_VERSION(drishti::ml::shape_predictor, 4);
+#endif
 
-#define USE_BOOST 0
+DRISHTI_ML_NAMESPACE_BEGIN
 
 class RegressionTreeEnsembleShapeEstimator::Impl
 {
 public:
 
     Impl() {}
-
-    Impl(const std::string &filename)
-    {
-#if DRISHTI_SERIALIZE_WITH_BOOST && USE_BOOST
-        auto sp = std::make_shared<_SHAPE_PREDICTOR>();
-        load_pba_z(filename, *sp);
-        sp->populate_f16();
-        m_predictor = sp;
-#endif
-    }
-
-    Impl(std::istream &is)
-    {
-#if DRISHTI_SERIALIZE_WITH_BOOST && USE_BOOST
-        auto sp = std::make_shared<_SHAPE_PREDICTOR>();
-        load_pba_z(is, *sp);
-        sp->populate_f16();
-        m_predictor = sp;
-#endif
-    }
+    Impl(const std::string &filename);
+    Impl(std::istream &is);
     
     void packPointsInShape(const std::vector<cv::Point2f> &points, int ellipseCount, float *shape) const
     {

@@ -1,9 +1,7 @@
+#include "drishti/ml/drishti_ml.h"
 #include "drishti/core/drishti_cvmat_boost.h"
 #include "drishti/core/drishti_pca_boost.h"
-
 #include "drishti/ml/RTEShapeEstimatorImpl.h"
-
-BOOST_CLASS_VERSION(drishti::ml::shape_predictor, 4);
 
 typedef portable_binary_oarchive OArchive;
 typedef portable_binary_iarchive IArchive;
@@ -25,6 +23,23 @@ typedef portable_binary_iarchive IArchive;
 //template void serialize(IArchive & ar, drishti::ml::shape_predictor &sp, const unsigned int version);
 //DRISHTI_END_NAMESPACE(serialization) // namespace serialization
 //DRISHTI_END_NAMESPACE(boost) // namespace boost
+
+std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(const std::string &filename)
+{
+    auto sp = std::make_shared<_SHAPE_PREDICTOR>();
+    load_pba_z(filename, *sp);
+    sp->populate_f16();
+    return sp;
+}
+
+std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(std::istream &is)
+{
+    auto sp = std::make_shared<_SHAPE_PREDICTOR>();
+    load_pba_z(is, *sp);
+    sp->populate_f16();
+    return sp;
+}
+
 
 DRISHTI_ML_NAMESPACE_BEGIN
 

@@ -55,7 +55,7 @@ typedef RegressionTreeEnsembleShapeEstimator RTEShapeEstimator;
 DRISHTI_ML_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator);
-BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);
+
 
 // NOTE: Initial attempt to move this code to the RTEShapeEstimatorArchiveCereal.cpp failed
 #include <cereal/types/polymorphic.hpp>

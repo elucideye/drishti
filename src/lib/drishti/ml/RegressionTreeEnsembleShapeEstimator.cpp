@@ -10,6 +10,11 @@
 
 #include "drishti/ml/RTEShapeEstimatorImpl.h"
 
+#if DRISHTI_SERIALIZE_WITH_BOOST
+std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(const std::string &filename);
+std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(std::istream &is);
+#endif
+
 // C++ exception with description:
 // "Trying to save an unregistered polymorphic type (drishti::ml::RegressionTreeEnsembleShapeEstimator).
 // Make sure your type is registered with CEREAL_REGISTER_TYPE and that the archive you are using was
@@ -18,6 +23,46 @@
 // CEREAL_REGISTER_DYNAMIC_INIT." thrown in the test body.
 
 DRISHTI_ML_NAMESPACE_BEGIN
+
+RTEShapeEstimator::Impl::Impl(const std::string &filename)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if((filename.find(".pba.z") != std::string::npos) && !m_predictor)
+    {
+        m_predictor = load_pba_z(filename);
+    }
+#endif
+    
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    if((filename.find(".cpb") != std::string::npos) && !m_predictor)
+    {
+        auto sp = std::make_shared<_SHAPE_PREDICTOR>();
+        load_cpb(filename, *sp);
+        sp->populate_f16();
+        m_predictor = sp;
+    }
+#endif
+}
+
+RTEShapeEstimator::Impl::Impl(std::istream &is)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if(is_pba_z(is) && !m_predictor)
+    {
+        m_predictor = load_pba_z(is);
+    }
+#endif
+    
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    if(is_cpb(is) && !m_predictor)
+    {
+        auto sp = std::make_shared<_SHAPE_PREDICTOR>();
+        load_cpb(is, *sp);
+        sp->populate_f16();
+        m_predictor = sp;
+    }
+#endif
+}
 
 void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
 {
@@ -80,6 +125,6 @@ DRISHTI_ML_NAMESPACE_END
 // Including BOOST_CLASS_EXPORT_IMPLEMENT in multiple files could result in a failure to link due to
 // duplicated symbols or the throwing of a runtime exception.
 
-#if DRISHTI_SERIALIZE_WITH_BOOST 
-#  include "RTEShapeEstimatorArchiveBoost.cpp"
-#endif
+//#if DRISHTI_SERIALIZE_WITH_BOOST
+//#  include "RTEShapeEstimatorArchiveBoost.cpp"
+//#endif
