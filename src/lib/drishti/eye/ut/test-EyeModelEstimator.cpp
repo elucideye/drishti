@@ -205,15 +205,17 @@ TEST(EyeModelEstimator, StringConstructor)
     ASSERT_EQ(segmenter->good(), true);
 }
 
-TEST(EyeModelEstimator, CerealSerialization)
+TEST_F(EyeModelEstimatorTest, CerealSerialization)
 {
     // Make sure modelFilename is not null:
     ASSERT_NE(modelFilename, (const char *)NULL);
     
     auto segmenter = EyeModelEstimatorTest::create(modelFilename, isTextArchive);
-    
+
+    std::string filename = std::string(outputDirectory) + "/eye.cpb";
     {
-        std::ofstream ofs("/tmp/foo.pba.c", std::ios::binary);
+
+        std::ofstream ofs(filename, std::ios::binary);
         if(ofs)
         {
             cereal::PortableBinaryOutputArchive3 oa(ofs);
@@ -223,13 +225,24 @@ TEST(EyeModelEstimator, CerealSerialization)
     
     drishti::eye::EyeModelEstimator segmenter2;
     {
-        std::ifstream ifs("/tmp/foo.pba.c", std::ios::binary);
+        std::ifstream ifs(filename, std::ios::binary);
         if(ifs)
         {
             cereal::PortableBinaryInputArchive3 ia(ifs);
             ia >> segmenter2;
         }
     }
+    
+//    int i = 128;
+//    
+//    assert(m_images[i].isRight);
+//    drishti::eye::EyeModel eye;
+//    int code = segmenter2(m_images[i].image, eye);
+//    EXPECT_EQ(code, 0);
+//    
+//    cv::Mat mask = cv::Mat(m_images[i].image.size(), CV_8UC3, cv::Scalar::all(0));
+//    eye.draw(mask);
+//    cv::imshow("mask", mask); cv::waitKey(0);
 }
 
 
