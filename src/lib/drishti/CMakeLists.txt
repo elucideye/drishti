@@ -183,19 +183,6 @@ else()
 
 endif(DRISHTI_BUILD_WORLD)
 
-# Set the serialization mode preprocessor floags (boost and/or cereal)
-foreach(library ${DRISHTI_LIBS})
-  if(DRISHTI_SERIALIZE_WITH_BOOST)
-    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_BOOST=1)
-  endif()
-  if(DRISHTI_SERIALIZE_WITH_CEREAL)
-    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_CEREAL=1)
-  endif()
-  if(DRISHTI_SERIALIZE_WITH_CVMATIO)
-    target_compile_definitions(${library} PRIVATE DRISHTI_SERIALIZE_WITH_CVMATIO=1)
-  endif()
-endforeach()  
-
 ##
 ## Unit tests
 ##
@@ -287,6 +274,20 @@ if(NOT IOS)
     VERSION "${drishtisdk_VERSION}"
     )
 endif()
+
+# Set the serialization mode preprocessor flags (boost and/or cereal)
+set(DRISHTI_LIBRARY_LIST ${DRISHTI_LIBS} drishtisdk)
+foreach(library ${DRISHTI_LIBRARY_LIST})
+  if(DRISHTI_SERIALIZE_WITH_BOOST)
+    target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_BOOST=1)
+  endif()
+  if(DRISHTI_SERIALIZE_WITH_CEREAL)
+    target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_CEREAL=1)
+  endif()
+  if(DRISHTI_SERIALIZE_WITH_CVMATIO)
+    target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_CVMATIO=1)
+  endif()
+endforeach()  
 
 ############################
 ###### PUBLIC API ##########
