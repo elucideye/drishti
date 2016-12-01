@@ -41,6 +41,22 @@
 // ######################## PBA ###############################
 // ############################################################
 
+inline bool is_pba_z(std::istream& is)
+{
+    bool ok = false;
+    is.seekg(0, std::ios_base::beg);
+    try
+    {
+        portable_binary_iarchive ia(is);
+        /* unsigned test = */ ia.get_library_version();
+        ok = true;
+    } catch (...) { }
+    
+    is.seekg(0, std::ios_base::beg);
+    is.clear();
+    return ok;
+}
+
 template <typename T>
 void load_pba_z(std::istream &is, T &object)
 {
