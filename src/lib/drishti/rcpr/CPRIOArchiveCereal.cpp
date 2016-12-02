@@ -8,6 +8,7 @@
 
 */
 
+#include "drishti/core/drishti_stdlib_string.h"
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/utility.hpp>

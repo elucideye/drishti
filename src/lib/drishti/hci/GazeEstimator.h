@@ -15,6 +15,8 @@
 #include "drishti/face/Face.h"
 #include "drishti/sensor/Sensor.h"
 
+#include <memory>
+
 DRISHTI_HCI_NAMESPACE_BEGIN
 
 #define GAZE_NOSE 1

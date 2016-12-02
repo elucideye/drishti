@@ -60,6 +60,7 @@ BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 
 #if DRISHTI_SERIALIZE_WITH_CEREAL
 // NOTE: Initial attempt to move this code to the RTEShapeEstimatorArchiveCereal.cpp failed
+#include "drishti/core/drishti_stdlib_string.h"
 #include <cereal/types/polymorphic.hpp>
 CEREAL_REGISTER_TYPE(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::ml::RegressionTreeEnsembleShapeEstimator);

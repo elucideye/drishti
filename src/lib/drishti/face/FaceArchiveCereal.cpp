@@ -1,3 +1,4 @@
+#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/drishti_cereal_pba.h"
 

@@ -11,6 +11,7 @@
 */
 
 #include "drishti/Eye.hpp"
+#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/drishti_cv.hpp"
 #include "drishti/eye/Eye.h"

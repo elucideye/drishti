@@ -1,19 +1,16 @@
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cvmat_cereal.h"
 #include "drishti/core/drishti_pca_cereal.h"
-#include <opencv2/core.hpp>
 
 typedef cereal::PortableBinaryOutputArchive3 OArchive;
 typedef cereal::PortableBinaryInputArchive3 IArchive;
 
-typedef cereal::PortableBinaryOutputArchive OArchive_;
-typedef cereal::PortableBinaryInputArchive IArchive_;
-
-// ====
-
 #include "drishti/ml/PCA.h"
 #include "drishti/ml/PCAImpl.h"
+
+#include <opencv2/core.hpp>
 
 DRISHTI_ML_NAMESPACE_BEGIN
 // ##################################################################

@@ -16,6 +16,7 @@
 
 #include "drishti/core/drishti_defs.hpp"
 #include "drishti/core/drishti_string_hash.h"
+
 #include "drishti/ml/ObjectDetector.h"
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"

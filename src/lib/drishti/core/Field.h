@@ -79,8 +79,10 @@ template <typename T> struct Field
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        ar & GENERIC_NVP("has", has);
-        ar & GENERIC_NVP("value", value);
+        //ar & GENERIC_NVP("has", has);
+        //ar & GENERIC_NVP("value", value);
+        ar & has;
+        ar & value;
     }
 
     T value;

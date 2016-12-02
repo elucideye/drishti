@@ -27,8 +27,8 @@
 #  define DO_ACF_GPU_TEST 0
 #endif
 
-
 #if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_stdlib_string.h"
 // http://uscilab.github.io/cereal/serialization_archives.html
 #  include <cereal/archives/portable_binary.hpp>
 #  include <cereal/types/vector.hpp>

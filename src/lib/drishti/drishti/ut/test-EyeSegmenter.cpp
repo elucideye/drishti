@@ -18,6 +18,7 @@
 #include <fstream>
 
 #include "drishti/EyeSegmenter.hpp"
+#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/drishti_cv.hpp"
 #include "drishti/EyeSegmenterImpl.hpp"
 #include "drishti/core/drishti_cv_cereal.h"

@@ -15,22 +15,28 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "drishti/eye/EyeModelEstimator.h"
-#include "drishti/rcpr/CPR.h"
-#include "drishti/core/drishti_serialize.h"
-#include "drishti/core/drishti_cv_cereal.h"
-#include "drishti/core/boost_serialize_common.h"
-#include "drishti/core/drishti_cereal_pba.h"
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialize.h"
+#  include "drishti/core/boost_serialize_common.h"
+#endif
 
 #ifdef DRISHTI_CEREAL_XML_JSON
 #  undef DRISHTI_CEREAL_XML_JSON
 #  define DRISHTI_CEREAL_XML_JSON 1
 #endif
 
-#if DRISHTI_CEREAL_XML_JSON
-# include <cereal/archives/json.hpp>
-# include <cereal/archives/xml.hpp>
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_stdlib_string.h"
+#  include "drishti/core/drishti_cereal_pba.h"
+#  include "drishti/core/drishti_cv_cereal.h"
+#  if DRISHTI_CEREAL_XML_JSON
+#    include <cereal/archives/json.hpp>
+#    include <cereal/archives/xml.hpp>
 #endif
+#endif
+
+#include "drishti/eye/EyeModelEstimator.h"
+#include "drishti/rcpr/CPR.h"
 
 #include <fstream>
 
@@ -59,6 +65,7 @@ public:
     static std::shared_ptr<drishti::eye::EyeModelEstimator> create(const std::string &filename, bool textArchive)
     {
         auto estimator = std::make_shared<drishti::eye::EyeModelEstimator>();
+#if DRISHTI_SERIALIZE_WITH_BOOST        
 #if DRISHTI_USE_TEXT_ARCHIVES
         if(textArchive)
         {
@@ -69,6 +76,7 @@ public:
         {
             drishti::eye::EyeModelEstimator::loadPBA(modelFilename, *estimator);
         }
+#endif
         return estimator;
     }
     
@@ -205,6 +213,7 @@ TEST(EyeModelEstimator, StringConstructor)
     ASSERT_EQ(segmenter->good(), true);
 }
 
+#if DRISHTI_SERIALIZE_WITH_CEREAL
 TEST_F(EyeModelEstimatorTest, CerealSerialization)
 {
     // Make sure modelFilename is not null:
@@ -244,6 +253,7 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
 //    eye.draw(mask);
 //    cv::imshow("mask", mask); cv::waitKey(0);
 }
+#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 
 TEST(EyeModelEstimator, StreamConstructor)
@@ -281,7 +291,8 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
     
     assert(m_images[m_targetWidth].isRight);
     /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
-            
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL    
 #if DRISHTI_CEREAL_XML_JSON    
     std::ofstream os("/tmp/right_eye_2.json");
     cereal::JSONOutputArchive oa(os);
@@ -289,6 +300,7 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
     oa << GENERIC_NVP("eye", eye);
 #else
     std::cerr << "Skipping JSON archive" << std::endl;
+#endif
 #endif
 }
 

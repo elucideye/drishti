@@ -1,5 +1,4 @@
-#if 1
-
+#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/acf/ACFIOArchive.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cvmat_cereal.h"
@@ -93,5 +92,3 @@ template void Detector::Options::Pyramid::Chns::GradMag::serialize<IArchive>(IAr
 template void Detector::Options::Pyramid::Chns::GradHist::serialize<IArchive>(IArchive & ar, const std::uint32_t version);
 
 DRISHTI_ACF_NAMESPACE_END
-
-#endif

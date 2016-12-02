@@ -9,7 +9,7 @@
 */
 
 #ifndef DRISHTI_STDLIB_STRING_H
-#define DRISHTI_STDLIB_STRTNG_H
+#define DRISHTI_STDLIB_STRING_H 
 
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>

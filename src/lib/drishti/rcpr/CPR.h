@@ -38,9 +38,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/version.hpp>
 
-#include <cereal/cereal.hpp>
-
-
 #include <memory>
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
