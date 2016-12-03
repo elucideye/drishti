@@ -13,28 +13,23 @@
 
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
-
 #include "drishti/core/drishti_defs.hpp"
 #include "drishti/core/IndentingOStreamBuffer.h"
 
 #include <opencv2/core/core.hpp>
 
-// TODO: Work on making these private but also sharable
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
 #include "cvmatio/MatlabIO.hpp"
 #include "cvmatio/MatlabIOContainer.hpp"
-
-// Boost serialization:
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialization_boost.h" // (optional)
-#endif
+#endif // DRISHTI_SERIALIZE_WITH_CVMATIO
 
 #include <string>
 #include <iostream>
 
-DRISHTI_ACF_NAMESPACE_BEGIN
+#define DO_DEBUG_LOAD 0
+#define USE_INDENTING_STREAM 0
 
-typedef std::vector< MatlabIOContainer > VecContainer;
-typedef std::vector< VecContainer > VecVecContainer;
+DRISHTI_ACF_NAMESPACE_BEGIN
 
 template <typename T2>
 std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
@@ -83,6 +78,15 @@ std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src)
     }
     return os;
 }
+
+// ###############################################################################
+// #################### CVMATIO ##################################################
+// ###############################################################################
+
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
+
+typedef std::vector<MatlabIOContainer> VecContainer;
+typedef std::vector<VecContainer> VecVecContainer;
 
 template <typename T1, typename T2> struct Cast
 {
@@ -189,10 +193,6 @@ template <typename T1, typename T2 > struct Finder<Field<T1>, Field<T2> >
         return status;
     }
 };
-
-#define DO_DEBUG_LOAD 0
-
-#define USE_INDENTING_STREAM 0
 
 template <typename T>
 struct ParserNode
@@ -355,6 +355,8 @@ struct ParserNode
 
     MatlabIO m_matio;
 };
+
+#endif // DRISHTI_SERIALIZE_WITH_CVMATIO
 
 DRISHTI_ACF_NAMESPACE_END
 
