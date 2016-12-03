@@ -20,19 +20,16 @@
 #  include "drishti/core/boost_serialize_common.h"
 #endif
 
-#ifdef DRISHTI_CEREAL_XML_JSON
-#  undef DRISHTI_CEREAL_XML_JSON
-#  define DRISHTI_CEREAL_XML_JSON 1
-#endif
+// DRISHTI_SERIALIZE_EYE_WITH_CEREAL: provides local json serialization of the eye type
+// and this setting may be used independently from DRISHTI_SERIALIZE_WITH_CEREAL
+#define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
 #  include "drishti/core/drishti_stdlib_string.h"
 #  include "drishti/core/drishti_cereal_pba.h"
 #  include "drishti/core/drishti_cv_cereal.h"
-#  if DRISHTI_CEREAL_XML_JSON
-#    include <cereal/archives/json.hpp>
-#    include <cereal/archives/xml.hpp>
-#endif
+#  include <cereal/archives/json.hpp>
+#  include <cereal/archives/xml.hpp>
 #endif
 
 #include "drishti/eye/EyeModelEstimator.h"
@@ -151,12 +148,11 @@ protected:
     void loadTruth()
     {
         assert(truthFilename);
-        auto eye = std::make_shared<drishti::eye::EyeModel>();
-        
         std::ifstream is(truthFilename);
-        if(is)
+        if(is.good())
         {
-#if DRISHTI_CEREAL_XML_JSON
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+            auto eye = std::make_shared<drishti::eye::EyeModel>();
             cereal::JSONInputArchive ia(is);
             typedef decltype(ia) Archive;
             ia( GENERIC_NVP("eye", *eye) );
@@ -292,15 +288,16 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
     assert(m_images[m_targetWidth].isRight);
     /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL    
-#if DRISHTI_CEREAL_XML_JSON    
-    std::ofstream os("/tmp/right_eye_2.json");
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+    std::string filename(outputDirectory);
+    filename += "/right_eye_2.json";
+
+    std::ofstream os(filename);
     cereal::JSONOutputArchive oa(os);
     typedef decltype(oa) Archive;
     oa << GENERIC_NVP("eye", eye);
 #else
     std::cerr << "Skipping JSON archive" << std::endl;
-#endif
 #endif
 }
 
@@ -308,6 +305,10 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
 // * hamming distance for sclera and iris masks components
 TEST_F(EyeModelEstimatorTest, ImageValid)
 {
+    if(!m_eye)
+    {
+        return;
+    }
     for(int i = 32; i < m_images.size(); i++)
     {
         // Make sure image has the expected size:
