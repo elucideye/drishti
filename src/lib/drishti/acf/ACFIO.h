@@ -25,6 +25,7 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 
 #define DO_DEBUG_LOAD 0
 #define USE_INDENTING_STREAM 0
