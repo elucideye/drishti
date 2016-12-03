@@ -146,7 +146,7 @@ drishti_mirror_definition(DRISHTI_BUILD_QT)
 if(DRISHTI_BUILD_QT)
   message("=== BUILD QT #!#!@#$ ===== ")
   # Do this first for success/fail
-  hunter_add_package(Qt COMPONENTS qtmultimedia qtdeclarative qtsensors qtquickcontrols)
+  hunter_add_package(Qt COMPONENTS qtmultimedia qtsensors qtquickcontrols)
   find_package(Qt5Widgets REQUIRED)
   find_package(Qt5Multimedia REQUIRED)
   find_package(Qt5MultimediaWidgets REQUIRED)
