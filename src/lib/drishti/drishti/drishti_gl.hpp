@@ -6,43 +6,41 @@
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
-  This file provides standard OpenGL includes.
+  This file provides standard OpenGL includes. 
+
+  Lineage: ogles_gpgpu/platform/opengl/gl_includes.h
 */
 
 #ifndef DRISHTI_DRISHTI_GL_H
 #define DRISHTI_DRISHTI_GL_H 1
 
-#ifdef _WIN64
 //define something for Windows (64-bit)
-#elif _WIN32
-//define something for Windows (32-bit)
+#if defined(_WIN32) || defined(_WIN64)
+#  include <algorithm> // min/max
+#  include <windows.h> // CMakeLists.txt defines NOMINMAX
+#  include <gl/glew.h>
+#  inclyude <GL/gl.h>
+#  include <GL/glu.h>
 #elif __APPLE__
 #  include "TargetConditionals.h"
-#if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
-#  define DRISHTI_IOS 1
-// define something for simulator
-#elif TARGET_OS_IPHONE
-#  define DRISHTI_IOS 1
-#  include <OpenGLES/ES2/gl.h>
-#  include <OpenGLES/ES2/glext.h>
-#  include <arm_neon.h>
-#  define DO_GRAPHICS_SIMD 1
-#else
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glext.h>
-#  define DO_GRAPHICS_SIMD 0
-#endif
-#elif __ANDROID__ || ANDROID
-//#include <GLES3/gl3.h>
-//#include <GLES3/gl3ext.h>
+#  if (TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR) || TARGET_OS_IPHONE
+#    include <OpenGLES/ES2/gl.h>
+#    include <OpenGLES/ES2/glext.h>
+#  else
+#    include <OpenGL/gl.h>
+#    include <OpenGL/glu.h>
+#    include <OpenGL/glext.h>
+#  endif
+#elif defined(__ANDROID__) || defined(ANDROID)
 #  include <GLES2/gl2.h>
 #  include <GLES2/gl2ext.h>
-#elif __linux
-// linux
-#elif __unix // all unices not caught above
-// Unix
-#elif __posix
-// POSIX
+#elif defined(__linux__) || defined(__unix__) || defined(__posix__)
+#  define GL_GLEXT_PROTOTYPES 1
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#  include <GL/glext.h>
+#else
+#  error platform not supported.
 #endif
 
 #endif // DRISHTI_DRISHTI_GL_H
