@@ -119,11 +119,6 @@ set(DRISHTI_SDK_3RDPARTY_LIBS
 # Add the sub-libraries
 add_subdirectory(lib)
 
-if(DRISHTI_BUILD_QT)
-  # Some background: https://github.com/ruslo/hunter/issues/253
-  hunter_add_package(Qt COMPONENTS qtmultimedia qtdeclarative)
-endif()
-
 # Include *nix style console apps (some will run on iOS and Android)
 add_subdirectory(app)
 
