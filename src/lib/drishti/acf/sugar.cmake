@@ -13,6 +13,7 @@ include(sugar_files)
 
 sugar_files(DRISHTI_ACF_SRCS
   ACF.cpp
+  ACFIO.cpp # optional
   MatP.cpp
   acfModify.cpp
   bbNms.cpp
@@ -40,11 +41,6 @@ endif()
 
 if(DRISHTI_SERIALIZE_WITH_CEREAL)
   sugar_files(DRISHTI_ACF_SRCS ACFIOArchiveCereal.cpp)
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CVMATIO)
-  sugar_files(DRISHTI_ACF_SRCS ACFIO.cpp)
-  sugar_files(DRISHTI_ACF_HDRS_PUBLIC)
 endif()
 
 sugar_files(DRISHTI_ACF_HDRS_PUBLIC
