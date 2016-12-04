@@ -247,15 +247,24 @@ endif()
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
 
-include(drishti_thread_local_storage)
-drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)
+# If true C++11 thread_local support exists, we will use it:
+include(drishti_thread_local_storage_cpp11)
+drishti_thread_local_storage_cpp11(DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
+if(NOT DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
+  # Else, we will check for backups
+  include(drishti_thread_local_storage)
+  drishti_thread_local_storage(DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
+endif()
+
+message("DRISHTI_HAVE_THREAD_LOCAL_STORAGE : ${DRISHTI_HAVE_THREAD_LOCAL_STORAGE}")
 
 ### Thread-pool-cpp
-drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
+drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
   
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
+  include_directories(src/3rdparty/thread-pool-cpp)
   add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
 else()
   hunter_add_package(thread-pool-cpp)
