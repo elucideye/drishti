@@ -24,10 +24,13 @@
 // and this setting may be used independently from DRISHTI_SERIALIZE_WITH_CEREAL
 #define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
 
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+#if DRISHTI_SERIALIZE_WITH_CEREAL || DRISHTI_SERIALIZE_EYE_WITH_CEREAL
 #  include "drishti/core/drishti_stdlib_string.h"
 #  include "drishti/core/drishti_cereal_pba.h"
 #  include "drishti/core/drishti_cv_cereal.h"
+#endif
+
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
 #  include <cereal/archives/json.hpp>
 #  include <cereal/archives/xml.hpp>
 #endif
@@ -88,7 +91,6 @@ protected:
     // Setup
     EyeModelEstimatorTest()
     {
-        
         // Create the segmenter (constructor tests performed prior to this)
         m_eyeSegmenter = create(modelFilename, isTextArchive);
 
@@ -215,16 +217,13 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
     // Make sure modelFilename is not null:
     ASSERT_NE(modelFilename, (const char *)NULL);
     
-    auto segmenter = EyeModelEstimatorTest::create(modelFilename, isTextArchive);
-
     std::string filename = std::string(outputDirectory) + "/eye.cpb";
     {
-
         std::ofstream ofs(filename, std::ios::binary);
         if(ofs)
         {
             cereal::PortableBinaryOutputArchive3 oa(ofs);
-            oa << *segmenter;
+            oa << *m_eyeSegmenter;
         }
     }
     
