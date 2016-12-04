@@ -16,7 +16,7 @@ DRISHTI_BUILD_OGLES_GPGPU=ON
 DRISHTI_BUILD_TESTS=ON
 DRISHTI_SERIALIZE_WITH_BOOST=ON
 DRISHTI_SERIALIZE_WITH_CEREAL=ON
-DRISHTI_SERIALIZE_WITH_CVMATIO=ON
+DRISHTI_SERIALIZE_WITH_CVMATIO=OFF
 DRISHTI_COTIRE=OFF
 
 rename_tab drishti ${TOOLCHAIN}
@@ -38,8 +38,8 @@ COMMAND=(
     "--jobs 8 "
     "--open "
     "--install "
-    "--test " 
-    "${EXTRA_ARGS}" # "--nobuild"
+#    "--test " 
+    "${EXTRA_ARGS}"  "--nobuild"
 )
 
 build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
