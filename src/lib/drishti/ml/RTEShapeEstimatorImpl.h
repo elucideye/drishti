@@ -69,7 +69,8 @@ public:
 
         // Zero copy cv::Mat wrapper:
         auto img = dlib::cv_image<uint8_t>(crop);
-        dlib::full_object_detection shape = (*m_predictor)(img, dlib::rectangle(0,0,crop.cols,crop.rows), initial_shape, m_iters, m_stagesHint);
+        dlib::rectangle roi(0,0,crop.cols,crop.rows);
+        dlib::full_object_detection shape = (*m_predictor)(img, roi, initial_shape, m_iters, m_stagesHint);
 
         points.clear();
         points.reserve(initial_shape.size()/2);
