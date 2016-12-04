@@ -48,7 +48,7 @@ if(DRISHTI_BUILD_HCI)
     FaceTracker.hpp    
     VideoFrame.hpp
     Manager.hpp
-    dristhi_gl.hpp    
+    drishti_gl.hpp    
     )
 endif()
 
