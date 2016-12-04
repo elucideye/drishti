@@ -8,7 +8,7 @@
 
 */
 
-#ifndef DRISHTI_CORE_THREAD_POOL_H 
+#ifndef DRISHTI_CORE_THREAD_POOL_H
 #define DRISHTI_CORE_THREAD_POOL_H 1
 
 #include "drishti/core/drishti_core.h"
