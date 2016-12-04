@@ -37,18 +37,6 @@ static ogles_gpgpu::FrameInput convert(const VideoFrame &frame)
     return input;
 }
 
-//    struct Config
-//    {
-//        std::shared_ptr<drishti::sensor::SensorModel> sensor;
-//        std::shared_ptr<spdlog::logger> logger;
-//        std::shared_ptr<ThreadPool<128>> threads;
-//        int outputOrientation = 0;
-//        int frameDelay = 1;
-//        bool doLandmarks = true;
-//        bool doFlow = true;
-//        bool doFlash = false;
-//    };
-
 class FaceTracker::Impl
 {
 public:
