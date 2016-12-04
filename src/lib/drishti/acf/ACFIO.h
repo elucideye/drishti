@@ -27,8 +27,8 @@
 #include <iostream>
 #include <memory>
 
-#define DO_DEBUG_LOAD 0
-#define USE_INDENTING_STREAM 0
+#define DRISHTI_ACF_DO_DEBUG_LOAD 0
+#define DRISHTI_ACF_USE_INDENTING_STREAM 0
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
@@ -210,7 +210,7 @@ struct ParserNode
         : m_name("root")
         , m_object(&object)
     {
-#if USE_INDENTING_STREAM
+#if DRISHTI_ACF_USE_INDENTING_STREAM
         m_indent = std::make_shared<IndentingOStreambuf>(std::cout);
 #endif
         open(filename);
@@ -222,7 +222,7 @@ struct ParserNode
         , m_object(&object)
         , m_variables(variables)
     {
-#if USE_INDENTING_STREAM
+#if DRISHTI_ACF_USE_INDENTING_STREAM
         m_indent = std::make_shared<IndentingOStreambuf>(std::cout);
 #endif
         log();
@@ -233,7 +233,7 @@ struct ParserNode
         : m_name("root")
         , m_object(&object)
     {
-#if USE_INDENTING_STREAM
+#if DRISHTI_ACF_USE_INDENTING_STREAM
         m_indent = std::make_shared<IndentingOStreambuf>(std::cout);
 #endif
         open(is);
@@ -251,7 +251,7 @@ struct ParserNode
 
     void log()
     {
-#if DO_DEBUG_LOAD
+#if DRISHTI_ACF_DO_DEBUG_LOAD
         std::cout << "====" << m_name << "====" << std::endl;
         for(auto &v : m_variables)
         {
