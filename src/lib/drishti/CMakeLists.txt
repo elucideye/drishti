@@ -245,26 +245,28 @@ if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
   if(APPLE)
     # These frameworks are needed for  optimized texture cache in GPGPU build
     # of the final shared library
-    list(APPEND DRISHTI_SDK_LIBS
-      "-framework ImageIO"
-      "-framework CoreVideo"    
-      )
+    if(IOS)
+      list(APPEND DRISHTI_SDK_LIBS
+        "-framework ImageIO"
+        "-framework CoreFoundation"
+        "-framework Foundation" # NSLog
+        )
+    else()
+      list(APPEND DRISHTI_SDK_LIBS
+        "-framework ImageIO"
+        "-framework CoreVideo"    
+        )
+    endif()
   endif(APPLE)
 endif()
 
 ### drishtisdk (static)
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})
 target_link_libraries(drishtisdk PUBLIC ${DRISHTI_SDK_LIBS})
-
-# Build internal lib for console apps, etc.
+drishti_strip(drishtisdk)
 set_target_properties(drishtisdk
   PROPERTIES
   PUBLIC_HEADER "${DRISHTISDK_PUBLIC_HDRS}"
-  XCODE_ATTRIBUTE_COPY_PHASE_STRIP "YES"
-  XCODE_ATTRIBUTE_STRIP_INSTALLED_PRODUCT "YES"
-  XCODE_ATTRIBUTE_STRIP_STYLE "non-global"
-  XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING "YES"
-  XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING "YES"
   )
 
 if(NOT IOS)
@@ -352,6 +354,8 @@ endforeach()
 ##### install #####
 ###################
 
+# See: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
+
 if(DRISHTI_BUILD_SHARED_SDK)
   set(DRISHTI_INSTALL_TARGETS "")  
 else()
@@ -378,6 +382,7 @@ install(
   ARCHIVE DESTINATION "lib"
   RUNTIME DESTINATION "bin"
   INCLUDES DESTINATION "${drishti_include_install_dir}"
+  PUBLIC_HEADER DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
   )
 
 install(
