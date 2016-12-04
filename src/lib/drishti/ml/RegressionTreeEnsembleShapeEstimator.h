@@ -45,7 +45,7 @@ public:
 
     // Boost serialization:
     template<class Archive> void serialize(Archive & ar, const unsigned int version);
-    template< class Archive> void serializeModel(Archive &ar, const unsigned int version);
+    template<class Archive> void serializeModel(Archive &ar, const unsigned int version);
 
     std::shared_ptr<Impl> m_impl;
 };
