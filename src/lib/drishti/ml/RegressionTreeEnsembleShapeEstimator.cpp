@@ -30,6 +30,7 @@ RTEShapeEstimator::Impl::Impl(const std::string &filename)
     if((filename.find(".pba.z") != std::string::npos) && !m_predictor)
     {
         m_predictor = load_pba_z(filename);
+        return;
     }
 #endif
     
@@ -50,6 +51,7 @@ RTEShapeEstimator::Impl::Impl(std::istream &is)
     if(is_pba_z(is) && !m_predictor)
     {
         m_predictor = load_pba_z(is);
+        return;
     }
 #endif
     
