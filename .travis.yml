@@ -108,8 +108,8 @@ install:
 
   # Install latest Polly toolchains and scripts
   - wget https://github.com/headupinclouds/polly/archive/custom.zip
-  - unzip master.zip
-  - POLLY_ROOT="`pwd`/polly-master"
+  - unzip custom.zip
+  - POLLY_ROOT="`pwd`/polly-custom"
   - export PATH="${POLLY_ROOT}/bin:${PATH}"
 
   # Install dependencies (CMake, Android NDK)
