@@ -6,7 +6,7 @@ Goal: SDK size <= 2 MB and combined resources (object detection + regression mod
 [![Build Status](https://travis-ci.com/elucideye/drishti.svg?token=2fYtPs8x4ziLvxfp2emx&branch=master)](https://travis-ci.com/elucideye/drishti)
 [![Build status](https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true)](https://ci.appveyor.com/project/elucideye/drishti)
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square)](http://opensource.org/licenses/BSD-3-Clause)
-[![HUNTER](https://img.shields.io/badge/hunter-v0.16.29-blue.svg)](http://github.com/ruslo/hunter)
+[![HUNTER](https://img.shields.io/badge/hunter-v0.16.36-blue.svg)](http://github.com/ruslo/hunter)
 
 * A C++ implementation of [Fast Feature Pyramids for Object Detection](https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf) (see [Piotr's Matlab Toolbox](https://pdollar.github.io/toolbox)) is used for face and eye detection (w/ OpengL ES GPU acceleration)
 * Iris ellipse fitting via [Cascaded Pose Regression](https://pdollar.github.io/files/papers/DollarCVPR10pose.pdf) (Piotr Dollar, et al) + [XGBoost](https://github.com/dmlc/xgboost) regression (Tianqi Chen, et al) 
