@@ -13,8 +13,6 @@
 #include <boost/serialization/utility.hpp>
 
 #include "drishti/core/drishti_cvmat_boost.h"
-//#include "drishti/core/drishti_cv_boost.h"
-
 #include "drishti/rcpr/CPRIOArchive.h"
 
 #include "portable_binary_oarchive.hpp"

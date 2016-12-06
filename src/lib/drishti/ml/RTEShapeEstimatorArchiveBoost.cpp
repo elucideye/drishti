@@ -40,12 +40,11 @@ std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(std::istream &is)
     return sp;
 }
 
-
-DRISHTI_ML_NAMESPACE_BEGIN
-
 // ##################################################################
 // #################### portable_binary_*archive ####################
 // ##################################################################
+
+DRISHTI_ML_NAMESPACE_BEGIN
 
 #if !DRISHTI_BUILD_MIN_SIZE
 template void RTEShapeEstimator::serialize<OArchive>(OArchive &ar, const unsigned int);
@@ -57,13 +56,19 @@ template void RTEShapeEstimator::serialize<IArchive>(IArchive &ar, const unsigne
 template void RTEShapeEstimator::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<IArchive>(IArchive &ar, const unsigned int);
 
+DRISHTI_ML_NAMESPACE_END
+
 // ##################################################################
 // #################### text_*archive ###############################
 // ##################################################################
 
 #if DRISHTI_USE_TEXT_ARCHIVES
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
+DRISHTI_ML_NAMESPACE_BEGIN
 typedef boost::archive::text_oarchive OArchiveTXT;
-template void RTEShapeEstimator::serialize<IArchive>(OArchiveTXT &ar, const unsigned int);
+template void RTEShapeEstimator::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 
@@ -71,9 +76,8 @@ typedef IArchiveTXT IArchiveTXT;
 template void RTEShapeEstimator::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
-#endif
-
 DRISHTI_ML_NAMESPACE_END
+#endif
 
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);
