@@ -222,7 +222,7 @@ bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
         //isEqual(a.clf.weights, b.clf.weights) &&
 }
 
-#if DRISHTI_SERIALIZE_WITH_BOOST
+#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_SERIALIZE_WITH_CVMATIO
 TEST_F(ACFTest, ACFSerializeBoost)
 {
     // Load from cvmat
@@ -241,7 +241,7 @@ TEST_F(ACFTest, ACFSerializeBoost)
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL
+#if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_SERIALIZE_WITH_CVMATIO
 TEST_F(ACFTest, ACFSerializeCereal)
 {
     // Load from cvmat
@@ -280,7 +280,15 @@ TEST_F(ACFTest, ACFDetection)
     
     WaitKey waitKey;
     
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
     drishti::acf::Detector detector(classifier);
+#elif DRISHTI_SERIALIZE_WITH_CEREAL
+    drishti::acf::Detector detector;
+    std::ifstream is(classifier, std::ios::binary);
+    cereal::PortableBinaryInputArchive ia(is);
+    ia >> detector;
+
+#endif
     
     // #### CPU ####
     cv::Mat I;
