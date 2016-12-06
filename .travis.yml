@@ -107,9 +107,9 @@ install:
   - if [[ "`uname`" == "Linux" ]]; then travis_retry easy_install3 --user requests==2.10.0; fi
 
   # Install latest Polly toolchains and scripts
-  - wget https://github.com/headupinclouds/polly/archive/custom.zip
+  - wget https://github.com/headupinclouds/polly/archive/custom.zip # for custom toolchains
   - unzip custom.zip
-  - POLLY_ROOT="`pwd`/polly-custom"
+  - POLLY_ROOT="`pwd`/polly-custom" 
   - export PATH="${POLLY_ROOT}/bin:${PATH}"
 
   # Install dependencies (CMake, Android NDK)
