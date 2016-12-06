@@ -52,12 +52,17 @@ template void CPR::RegModel::Regs::serialize<IArchive>(IArchive &ar, const unsig
 template void CPR::RegModel::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::serialize<IArchive>(IArchive &ar, const unsigned int);
 
-#if DRISHTI_USE_TEXT_ARCHIVES
+DRISHTI_RCPR_NAMESPACE_END
 
 // ##################################################################
 // #################### text_*archive ###############################
 // ##################################################################
 
+#if DRISHTI_USE_TEXT_ARCHIVES
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
+DRISHTI_RCPR_NAMESPACE_BEGIN
 typedef boost::archive::text_oarchive OArchiveTXT;
 template void CPR::Model::Parts::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::Model::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
@@ -81,9 +86,8 @@ template void CPR::RegModel::Regs::FtrData::serialize<IArchiveTXT>(IArchiveTXT &
 template void CPR::RegModel::Regs::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::RegModel::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
+DRISHTI_RCPR_NAMESPACE_END
 
 #endif // DRISHTI_USE_TEXT_ARCHIVES
-
-DRISHTI_RCPR_NAMESPACE_END
 
 BOOST_CLASS_EXPORT_IMPLEMENT(drishti::rcpr::CPR);
