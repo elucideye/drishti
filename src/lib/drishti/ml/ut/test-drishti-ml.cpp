@@ -20,7 +20,6 @@ extern bool isTextArchive;
 #include "drishti/ml/XGBooster.h"
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialize.h"
 #  include "drishti/core/boost_serialize_common.h"
 #endif
 

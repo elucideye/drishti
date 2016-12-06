@@ -18,7 +18,6 @@
 #  include <boost/iostreams/copy.hpp>
 #  include <boost/serialization/vector.hpp>
 #elif defined(DRISHTI_USE_CEREAL_SERIALIZATION)
-#  include "drishti/core/drishti_serialize.h"
 #  include <cereal/types/string.hpp>
 #  include <cereal/types/vector.hpp>
 #  include <cereal/types/memory.hpp>

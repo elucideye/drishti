@@ -15,7 +15,6 @@
 #define __drishtisdk__Field__
 
 #include "drishti/core/drishti_core.h"
-#include "drishti/core/drishti_serialize.h" // needed for GENERIC_NVP()
 
 #include <opencv2/core.hpp>
 

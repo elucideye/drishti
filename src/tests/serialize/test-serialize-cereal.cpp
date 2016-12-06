@@ -1,5 +1,4 @@
 #include "drishti/core/drishti_stdlib_string.h"
-#include "drishti/core/drishti_serialize.h"
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/memory.hpp>

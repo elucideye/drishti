@@ -144,7 +144,9 @@ public:
 template<class Archive>
 void RTEShapeEstimator::serialize(Archive & ar, const unsigned int version)
 {
+#if DRISHTI_SERIALIZE_WITH_BOOST
     boost::serialization::void_cast_register<RTEShapeEstimator, ShapeEstimator>();
+#endif
     ar & m_impl;
 }
 

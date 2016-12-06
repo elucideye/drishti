@@ -16,7 +16,6 @@
 #include <opencv2/highgui.hpp>
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialize.h"
 #  include "drishti/core/boost_serialize_common.h"
 #endif
 
@@ -24,8 +23,6 @@
 #  include "drishti/core/drishti_stdlib_string.h"
 #  include "drishti/core/drishti_cereal_pba.h"
 #  include "drishti/core/drishti_cv_cereal.h"
-//include <cereal/archives/json.hpp>
-//include <cereal/archives/xml.hpp>
 #endif
 
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"

@@ -13,7 +13,6 @@
 
 #include "drishti/eye/Eye.h"
 #include "drishti/core/Shape.h"
-#include "drishti/core/drishti_serialize.h"
 #include "drishti/geometry/Ellipse.h"
 
 #if !DRISHTI_BUILD_MIN_SIZE
