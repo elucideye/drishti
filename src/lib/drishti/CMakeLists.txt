@@ -92,7 +92,8 @@ if(DRISHTI_BUILD_WORLD)
   endif()
   
   add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
-  set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")  
+  set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
+  drishti_hide(drishti_world)
   
   target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
   target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
@@ -107,6 +108,7 @@ if(DRISHTI_BUILD_WORLD)
     set(DRISHTI_LIBS drishti_world)
   endif()
 
+  
 else()
 
   ## drishti_core
@@ -124,7 +126,7 @@ else()
   ## drishti_sensors
   add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
   target_link_libraries(drishti_sensor PUBLIC ${OpenCV_LIBS})
-
+  
   ## drishti_ml
   add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
   target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} xgboost::xgboost)
@@ -179,6 +181,7 @@ else()
 
   foreach(library ${DRISHTI_LIBS})
     target_link_libraries(${library} PUBLIC Eigen::eigen)
+    drishti_hide(${library})
   endforeach()  
 
 endif(DRISHTI_BUILD_WORLD)
@@ -264,6 +267,7 @@ endif()
 add_library(drishtisdk ${DRISHTI_SDK_SRCS})
 target_link_libraries(drishtisdk PUBLIC ${DRISHTI_SDK_LIBS})
 drishti_strip(drishtisdk)
+drishti_hide(drishtisdk)
 set_target_properties(drishtisdk
   PROPERTIES
   PUBLIC_HEADER "${DRISHTISDK_PUBLIC_HDRS}"
@@ -326,7 +330,7 @@ endif()
 ## Always static for ios (we'll build dynamic framework from within xcode)
 
 # Create the public shared library
-add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
 target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
 drishti_hide(drishti)
@@ -364,7 +368,7 @@ endif()
 
 # Export minimal public SDK or full internal SDK
 set(TARGET_SDK "drishti") 
-set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC})
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${drishti_version_config}"
@@ -409,7 +413,7 @@ install(
 ##################
 
 if(DRISHTI_BUILD_C_INTERFACE)
-  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISTHI_HDRS_PUBLIC})
+  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
   target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
   drishti_hide(drishti_c)
