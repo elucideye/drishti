@@ -72,7 +72,7 @@ template void RTEShapeEstimator::serialize<OArchiveTXT>(OArchiveTXT &ar, const u
 template void RTEShapeEstimator::Impl::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 
-typedef IArchiveTXT IArchiveTXT;
+typedef boost::archive::text_iarchive IArchiveTXT;
 template void RTEShapeEstimator::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
