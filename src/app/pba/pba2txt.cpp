@@ -8,9 +8,8 @@
 
 */
 
-#include "core/serialization.h"
-#include "core/boost_serialize_common.h"
-#include "eye/EyeModelEstimator.h"
+#include "drishti/core/boost_serialize_common.h"
+#include "drishti/eye/EyeModelEstimator.h"
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
