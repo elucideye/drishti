@@ -105,10 +105,9 @@ protected:
     // Setup
     ACFTest()
     {
-        m_logger = drishti::core::Logger::create("test-acf");
+        m_logger = drishti::core::Logger::create("test-drishti-acf");
 
         // Load the ground truth data:
-
         image = loadImage(imageFilename);
         if(m_hasTranspose)
         {
@@ -130,6 +129,33 @@ protected:
         drishti::core::Logger::drop("test-drishti-acf");
     }
 
+    std::shared_ptr<drishti::acf::Detector> create(const std::string &filename)
+    {
+#if DRISHTI_SERIALIZE_WITH_CVMATIO        
+        if(filename.find(".mat") != std::string::npos) // cvmatio
+        {
+            return std::make_shared<drishti::acf::Detector>(filename);
+        }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+        if(filename.find(".cpb") != std::string::npos) // cereal
+        {
+            auto detector = std::make_shared<drishti::acf::Detector>();
+            load_cpb(filename, *detector);
+            return detector;
+        }
+#endif
+#if DRISHTI_SERIALIZE_WITH_BOOST
+        if(filename.find(".pba.z") != std::string::npos) // boost
+        {
+            auto detector = std::make_shared<drishti::acf::Detector>();
+            load_pba_z(filename, *detector);
+            return detector;
+        }
+#endif
+        return nullptr;
+    }
+    
     // Called after constructor for each test
     virtual void SetUp() {}
 
@@ -142,7 +168,6 @@ protected:
         cv::Mat image = cv::imread(filename, cv::IMREAD_COLOR);
 
         assert(!image.empty() && image.type() == CV_8UC3);
-
         cv::Mat tmp;
         cv::cvtColor(image, tmp, cv::COLOR_BGR2BGRA);
         cv::swap(image, tmp);
@@ -177,14 +202,14 @@ static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc)
 // end of the test.
 
 // http://stackoverflow.com/a/32647694
-bool isEqual(const cv::Mat& a, const cv::Mat& b)
+static bool isEqual(const cv::Mat& a, const cv::Mat& b)
 {
     cv::Mat temp;
     cv::bitwise_xor(a,b,temp); //It vectorizes well with SSE/NEON
     return !(cv::countNonZero(temp) );
 }
 
-bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
+static bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
 {
     if(!isEqual(a.clf.fids, b.clf.fids))
     {
@@ -225,18 +250,15 @@ bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b)
 #if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_SERIALIZE_WITH_CVMATIO
 TEST_F(ACFTest, ACFSerializeBoost)
 {
-    // Load from cvmat
-    drishti::acf::Detector detector(modelFilename), detector2;
+    // Load from operative format:
+    auto detector = create(modelFilename);
+    drishti::acf::Detector detector2;
     
+    // Test *.pba.z serialization (write and load)
     std::string filename = outputDirectory;
     filename += "/acf.pba.z";
-    
-    // Write to pba.z
-    save_pba_z(filename, detector);
-    
-    // Load from pba.z
+    save_pba_z(filename, *detector);
     load_pba_z(filename, detector2);
-    
     ASSERT_TRUE(isEqual(detector, detector2));
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
@@ -244,51 +266,24 @@ TEST_F(ACFTest, ACFSerializeBoost)
 #if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_SERIALIZE_WITH_CVMATIO
 TEST_F(ACFTest, ACFSerializeCereal)
 {
-    // Load from cvmat
-    drishti::acf::Detector detector(modelFilename), detector2;
+    // Load from operative format:
+    auto detector = create(modelFilename);
+    drishti::acf::Detector detector2;
 
+    // Test *.cpb serialization (write and load)
     std::string filename = outputDirectory;
     filename += "/acf.cpb";
-    
-    std::cout << "FILENAME: " << filename << std::endl;
-    
-    { // save
-        std::ofstream file(filename, std::ios::binary);
-        if(file)
-        {
-            cereal::PortableBinaryOutputArchive3 ar(file);
-            ar(detector);
-        }
-    }
-    
-    { // load
-        std::ifstream file(filename, std::ios::binary);
-        if(file)
-        {
-            cereal::PortableBinaryInputArchive3 ar(file);
-            ar(detector2);
-        }
-    }
-    
+    save_cpb(filename, *detector);
+    load_cpb(filename, detector2);
     ASSERT_TRUE(isEqual(detector, detector2));
 }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 TEST_F(ACFTest, ACFDetection)
 {
-    const char *classifier = modelFilename;
-    
     WaitKey waitKey;
     
-#if DRISHTI_SERIALIZE_WITH_CVMATIO
-    drishti::acf::Detector detector(classifier);
-#elif DRISHTI_SERIALIZE_WITH_CEREAL
-    drishti::acf::Detector detector;
-    std::ifstream is(classifier, std::ios::binary);
-    cereal::PortableBinaryInputArchive ia(is);
-    ia >> detector;
-
-#endif
+    auto detector = create(modelFilename);
     
     // #### CPU ####
     cv::Mat I;
@@ -299,8 +294,8 @@ TEST_F(ACFTest, ACFDetection)
     {  // Test CPU detection w/ cv::Mat
         std::vector<double> scores;
         std::vector<cv::Rect> objects;
-        detector.setIsTranspose(m_hasTranspose);
-        detector(I, objects, &scores);
+        detector->setIsTranspose(m_hasTranspose);
+        (*detector)(I, objects, &scores);
         
 #if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
         cv::Mat canvas = image.clone();
@@ -321,8 +316,8 @@ TEST_F(ACFTest, ACFDetection)
         std::vector<double> scores;
         std::vector<cv::Rect> objects;
         
-        detector.setIsTranspose(true);
-        detector(Ip, objects, &scores);
+        detector->setIsTranspose(true);
+        (*detector)(Ip, objects, &scores);
 
 #if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
         cv::Mat canvas = m_hasTranspose ? image : image.t();
@@ -370,7 +365,7 @@ TEST_F(ACFTest, ACFDetection)
         }
         return 0;
     };
-    detector.setLogger(logger);
+    detector->setLogger(logger);
 
     drishti::acf::Detector::Pyramid Pcpu;
 
@@ -382,7 +377,7 @@ TEST_F(ACFTest, ACFDetection)
 #endif
     
     {
-        detector.computePyramid(Ip, Pcpu);
+        detector->computePyramid(Ip, Pcpu);
         scales = Pcpu.scales;
         scaleshw = Pcpu.scaleshw;
         
@@ -405,7 +400,7 @@ TEST_F(ACFTest, ACFDetection)
 
     {
         MatP Ich;
-        detector.computeChannels(Ip, Ich, logger);
+        detector->computeChannels(Ip, Ich, logger);
         cv::Mat d = Ich.base().clone(), canvas;
         canvas = d.t();
         //cv::imshow("acf_cpu_native", d);
@@ -466,7 +461,7 @@ TEST_F(ACFTest, ACFDetection)
 #endif // DRISHTI_ACF_TEST_DISPLAY_OUTPUT
 
     drishti::acf::Detector::Pyramid Pgpu;
-    Pgpu.pPyramid = detector.opts.pPyramid;
+    Pgpu.pPyramid = detector->opts.pPyramid;
     Pgpu.nTypes = video.getChannelCount();
     Pgpu.nScales = scales.size();
     Pgpu.scales = scales;
@@ -549,7 +544,7 @@ TEST_F(ACFTest, ACFDetection)
             drishti::acf::Detector::Modify dflt;
             dflt.cascThr = { "cascThr", -1.0 };
             dflt.cascCal = { "cascCal", +0.002 };
-            detector.acfModify(dflt);
+            detector->acfModify(dflt);
         }
 
         std::vector<double> scores;
