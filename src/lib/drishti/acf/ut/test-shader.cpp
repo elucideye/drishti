@@ -259,7 +259,7 @@ TEST_F(ACFTest, ACFSerializeBoost)
     filename += "/acf.pba.z";
     save_pba_z(filename, *detector);
     load_pba_z(filename, detector2);
-    ASSERT_TRUE(isEqual(detector, detector2));
+    ASSERT_TRUE(isEqual(*detector, detector2));
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
 
@@ -275,7 +275,7 @@ TEST_F(ACFTest, ACFSerializeCereal)
     filename += "/acf.cpb";
     save_cpb(filename, *detector);
     load_cpb(filename, detector2);
-    ASSERT_TRUE(isEqual(detector, detector2));
+    ASSERT_TRUE(isEqual(*detector, detector2));
 }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
