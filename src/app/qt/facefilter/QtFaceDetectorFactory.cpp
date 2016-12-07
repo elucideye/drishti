@@ -23,7 +23,7 @@ using namespace string_hash;
 #define DRISHTI_FACE_INNER "drishti_face_inner.pba.z"
 #define DRISHTI_EYE_FULL "drishti_eye_full_npd_eix.pba.z"
 
-static bool load(const std::string &filename, std::function<bool(std::istream &is)> &loader)
+bool QtFaceDetectorFactory::load(const std::string &filename, std::function<bool(std::istream &is)> &loader)
 {
     std::string resource;
     
@@ -69,50 +69,12 @@ QtFaceDetectorFactory::QtFaceDetectorFactory()
 std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetector()
 {
     std::unique_ptr<drishti::ml::ObjectDetector> ptr;
-    
-    // Android is missing std::regex, so do search:
-    
-    int index = -1;
-    std::vector<std::string> kinds { ".mat", ".pba.z" }; // cereal...
-    for(int i = 0; i < kinds.size(); i++)
+    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
     {
-        const auto &k = kinds[i];
-        auto pos = sFaceDetector.find(k);
-        if(pos != std::string::npos)
-        {
-            index = i;
-            break;
-        }
-    }
-    
-    if(index < 0)
-    {
-        return ptr;
-    }
-    
-    std::function<bool(std::istream &is)> loader;
-    switch( string_hash::hash(kinds[index]) )
-    {
-        case ".mat"_hash   :
-        {
-            loader = [&](std::istream &is)
-            {
-                ptr = drishti::core::make_unique<drishti::acf::Detector>(is);
-                return true;
-            };
-        } break;
-            
-        case ".pba.z"_hash  :
-        {
-            loader = [&](std::istream &is)
-            {
-                ptr = drishti::core::make_unique<drishti::acf::Detector>();
-                load_pba_z(is, dynamic_cast<drishti::acf::Detector &>(*ptr));
-                return true;
-            };
-        } break;
-    }
-    
+        ptr = drishti::core::make_unique<drishti::acf::Detector>(is);
+        return true;
+    };
+
     load(sFaceDetector, loader);
     
     return ptr;
@@ -159,18 +121,4 @@ std::unique_ptr<drishti::eye::EyeModelEstimator> QtFaceDetectorFactory::getEyeEs
     };
     load(sEyeRegressor, loader);
     return ptr;
-}
-
-drishti::face::FaceModel QtFaceDetectorFactory::getMeanFace()
-{
-    drishti::face::FaceModel faceDetectorMean;
-    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
-    {
-        cereal::XMLInputArchive ia(is);
-        typedef decltype(ia) Archive;
-        ia >> faceDetectorMean;
-        return true;
-    };
-    load(sFaceDetectorMean, loader);
-    return faceDetectorMean;
 }

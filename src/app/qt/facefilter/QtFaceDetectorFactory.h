@@ -23,6 +23,8 @@ public:
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
     
     virtual  drishti::face::FaceModel getMeanFace();
+
+    static bool load(const std::string &filename, std::function<bool(std::istream &is)> &loader);
 };
 
 #endif // ASSET_MANAGER_H
