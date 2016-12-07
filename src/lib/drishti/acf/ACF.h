@@ -48,14 +48,12 @@ public:
     typedef std::vector<cv::Size2d> Size2dVec;
     typedef std::vector<double> RealVec;
     typedef std::vector<cv::Rect> RectVec;
-
     typedef std::function<int(const cv::Mat&, const std::string &tag)> MatLoggerType;
 
     Detector() {}
     Detector(const Detector &src);
     Detector(std::istream &is);
     Detector(const std::string &filename);
-    Detector(const char *filename);
 
     struct Options
     {
@@ -433,6 +431,9 @@ public:
     int deserialize(const char * filename);
     int deserialize(std::istream &is);
     int deserialize(ParserNodeDetector &detector_);
+    
+    int deserializeAny(const std::string &filename);
+    int deserializeAny(std::istream &is);
     
     // Boost serialization:
     template<class Archive> void serialize(Archive & ar, const uint32_t version);

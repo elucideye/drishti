@@ -25,17 +25,15 @@ Detector::Detector(const Detector &src)
     clf = src.clf;
     opts = src.opts;
 }
+
 Detector::Detector(std::istream &is)
 {
-    deserialize(is);
+    deserializeAny(is);
 }
+
 Detector::Detector(const std::string &filename)
 {
-    deserialize(filename);
-}
-Detector::Detector(const char * filename)
-{
-    deserialize(filename);
+    deserializeAny(filename);
 }
 
 int Detector::initializeOpts() // Seems to be required

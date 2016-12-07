@@ -170,11 +170,55 @@ int Detector::deserialize(ParserNodeDetector &detector_)
 
     return 0;
 }
-#else
-int Detector::deserialize(const std::string &filename) { return -1; }
+#else // DRISHTI_SERIALIZE_WITH_CVMATIO
 int Detector::deserialize(const char *filename) { return -1; }
+int Detector::deserialize(const std::string &filename) { return -1; }
 int Detector::deserialize(std::istream &is) { return -1; }
 int Detector::deserialize(ParserNodeDetector &detector_) { return -1; }
 #endif // DRISHTI_SERIALIZE_WITH_CVMATIO
+
+DRISHTI_ACF_NAMESPACE_END
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_cereal_pba.h"
+#endif
+
+DRISHTI_ACF_NAMESPACE_BEGIN
+
+int Detector::deserializeAny(const std::string &filename)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if(filename.find(".pba.z") != std::string::npos)
+    {
+        load_pba_z(filename, *this);
+        return 0;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    if(filename.find(".cpb") != std::string::npos)
+    {
+        load_cpb(filename, *this);
+        return 0;
+    }
+#endif
+    return -1;
+}
+int Detector::deserializeAny(std::istream &is)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if(is_pba_z(is))
+    {
+        load_pba_z(is, *this);
+        return 0;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    {
+        load_cpb(is, *this);
+        return 0;
+    }
+#endif
+    return -1;
+}
 
 DRISHTI_ACF_NAMESPACE_END
