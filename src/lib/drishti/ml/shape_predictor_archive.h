@@ -120,7 +120,7 @@ template<class Archive> void serialize(Archive & ar, drishti::ml::shape_predicto
     std::vector<std::vector<Vec2Type>> &deltas = sp.deltas;
 
     // Without forests a 2.3 MB compressed archive drops to 48K//
-    CV_Assert(version >= 1);
+    //CV_Assert(version >= 1);
     ar & initial_shape;
     ar & forests;
     ar & anchor_idx;
