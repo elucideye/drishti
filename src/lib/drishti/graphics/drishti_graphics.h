@@ -20,7 +20,7 @@
 #  include <algorithm> // min/max
 #  include <windows.h> // CMakeLists.txt defines NOMINMAX
 #  include <gl/glew.h>
-#  inclyude <GL/gl.h>
+#  include <GL/gl.h>
 #  include <GL/glu.h>
 #  define DRISHTI_MSVC 1
 #elif __APPLE__
