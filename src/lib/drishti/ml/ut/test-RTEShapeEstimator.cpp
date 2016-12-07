@@ -122,10 +122,7 @@ TEST(RTEShapeEstimator, StringConstructor)
 {
     // Make sure modelFilename is not null:
     ASSERT_NE(modelFilename, (const char *)NULL);
-
     auto predictor = RTEShapeEstimatorTest::create(modelFilename, isTextArchive);
-    
-    // Make sure we reached this point (no exceptions):
     ASSERT_NE(predictor, nullptr);
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
@@ -135,16 +132,13 @@ TEST(RTEShapeEstimator, StreamConstructor)
 {
     // Make sure modelFilename is not null:
     ASSERT_NE(modelFilename, (const char *)NULL);
-
-    std::ifstream is(modelFilename, std::ios::binary);
-
-    // Make sure file could be opened:
-    ASSERT_TRUE((bool)is);
-
-    auto predictor = std::make_shared<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is);
-
-    // Make sure we reached this point (no exceptions):
-    ASSERT_NE(predictor, nullptr);
+    if(std::string(modelFilename).find(".pba.z") != std::string::npos)
+    {
+        std::ifstream is(modelFilename, std::ios::binary);
+        ASSERT_TRUE((bool)is);
+        auto predictor = std::make_shared<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is);
+        ASSERT_NE(predictor, nullptr);
+    }
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
 
@@ -152,24 +146,9 @@ TEST(RTEShapeEstimator, StreamConstructor)
 TEST_F(RTEShapeEstimatorTest, CerealSerialization)
 {
     std::string filename = std::string(outputDirectory) + "/shape.cpb";
-    {
-        std::ofstream ofs(filename, std::ios::binary);
-        if(ofs)
-        {
-            cereal::PortableBinaryOutputArchive oa(ofs);
-            oa << *m_shapePredictor;
-        }
-    }
-    
-    drishti::ml::RegressionTreeEnsembleShapeEstimator estimator2;
-    {
-        std::ifstream ifs(filename, std::ios::binary);
-        if(ifs)
-        {
-            cereal::PortableBinaryInputArchive3 ia(ifs);
-            ia >> estimator2;
-        }
-    }   
+    save_cpb(filename, *m_shapePredictor);
+    drishti::ml::RegressionTreeEnsembleShapeEstimator shapePredictor2;
+    load_cpb(filename, shapePredictor2);
 }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
