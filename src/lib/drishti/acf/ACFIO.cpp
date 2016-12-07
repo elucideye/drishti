@@ -180,6 +180,7 @@ int Detector::deserialize(ParserNodeDetector &detector_) { return -1; }
 DRISHTI_ACF_NAMESPACE_END
 
 #if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_stdlib_string.h"
 #  include "drishti/core/drishti_cereal_pba.h"
 #endif
 
