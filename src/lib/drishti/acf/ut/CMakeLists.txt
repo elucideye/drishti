@@ -39,10 +39,20 @@ set_property(TARGET test-drishti-acf PROPERTY FOLDER "app/tests")
 ## GTest + CTest
 ##
 
+if(DRISHTI_SERIALIZE_WITH_CEREAL AND EXISTS "${assets_dir}/drishti_face_inner_48x48.cpb")  
+  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.cpb")  
+elseif(DRISHTI_SERIALIZE_WITH_BOOST AND EXISTS "${assets_dir}/drishti_face_inner_48x48.pba.z")
+  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.pba.z")
+elseif(DRISHTI_SERIALIZE_WITH_CVMATIO AND EXISTS "${assets_dir}/drishti_face_inner_48x48.mat")
+  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.mat")
+else()
+  message(FATAL_ERROR "Failed to find suitable ACF detector")
+endif()
+
 enable_testing()
 add_test(NAME DrishtiACFTest COMMAND test-drishti-acf
   "${assets_dir}/images/lena512color.png"
   "${assets_dir}/images/lena512gray.png"
-  "${assets_dir}/drishti_face_inner_48x48.cpb"
+  "${DRISHTI_ACF_FACE_MODEL}"
   "${CMAKE_CURRENT_BINARY_DIR}" # Used as portable temp folder
   )
