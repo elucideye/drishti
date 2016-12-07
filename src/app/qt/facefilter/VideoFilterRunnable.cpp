@@ -55,6 +55,35 @@
 #include <QDateTime>
 #include <QFile>
 
+namespace detail
+{
+    inline bool isIOS()
+    {
+#if defined(Q_OS_IOS)
+        return true;
+#endif
+        return false;
+    }
+
+    inline GLenum getTextureFormat()
+    {
+#if defined(Q_OS_IOS) || defined(Q_OS_OSX)
+        return GL_BGRA;
+#else
+        return GL_RGBA;
+#endif
+    }
+
+    inline void * getPixels(QVideoFrame *input)
+    {
+#if defined(Q_OS_IOS)
+        return input->pixelBufferRef();
+#else
+        return input->bits();
+#endif
+    }
+}
+
 struct VideoFilterRunnable::Impl
 {
     using FrameInput = ogles_gpgpu::FrameInput;
@@ -233,27 +262,19 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
     }
     else
     {
-        // Scope based pixel buffer lock for non ios platforms
-        QVideoFrameScopeMap scopeMap(DRISHTI_IOS ? nullptr : input, QAbstractVideoBuffer::ReadOnly);
-        if((DRISHTI_IOS && !scopeMap) || !DRISHTI_IOS) // for non ios platforms
+        static const bool isIOS = detail::isIOS();
+        
+        // Scope based pixel buffer lock for non ios platforms        
+        QVideoFrameScopeMap scopeMap(isIOS ? nullptr : input, QAbstractVideoBuffer::ReadOnly);
+        if((isIOS && !scopeMap) || !isIOS) // for non ios platforms
         {
-            assert((input->pixelFormat() == QVideoFrame::Format_ARGB32) || (DRISHTI_IOS && input->pixelFormat() == QVideoFrame::Format_NV12));
-
-#if defined(Q_OS_IOS) || defined(Q_OS_OSX)
-            const GLenum rgbaFormat = GL_BGRA;
-#else
-            const GLenum rgbaFormat = GL_RGBA;
-#endif
-
-#if defined(Q_OS_IOS)
-            pixelBuffer = input->pixelBufferRef();
-#else
-            pixelBuffer = input->bits();
-#endif
+            assert((input->pixelFormat() == QVideoFrame::Format_ARGB32) || (isIOS && input->pixelFormat() == QVideoFrame::Format_NV12));
+            static const GLenum rgbaFormat = detail::getTextureFormat();
+            pixelBuffer = detail::getPixels(input);
 
             // 0 indicates YUV
             textureFormat = (input->pixelFormat() == QVideoFrame::Format_ARGB32) ? rgbaFormat : 0;
-            useRawPixels = !(DRISHTI_IOS); // ios uses texture cache / pixel buffer
+            useRawPixels = !(isIOS); // ios uses texture cache / pixel buffer
             inputTexture = 0;
             assert(pixelBuffer != nullptr);
 
