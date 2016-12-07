@@ -33,16 +33,6 @@ RTEShapeEstimator::Impl::Impl(const std::string &filename)
         return;
     }
 #endif
-    
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-    if((filename.find(".cpb") != std::string::npos) && !m_predictor)
-    {
-        auto sp = std::make_shared<_SHAPE_PREDICTOR>();
-        load_cpb(filename, *sp);
-        sp->populate_f16();
-        m_predictor = sp;
-    }
-#endif
 }
 
 RTEShapeEstimator::Impl::Impl(std::istream &is)
@@ -52,16 +42,6 @@ RTEShapeEstimator::Impl::Impl(std::istream &is)
     {
         m_predictor = load_pba_z(is);
         return;
-    }
-#endif
-    
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-    if(is_cpb(is) && !m_predictor)
-    {
-        auto sp = std::make_shared<_SHAPE_PREDICTOR>();
-        load_cpb(is, *sp);
-        sp->populate_f16();
-        m_predictor = sp;
     }
 #endif
 }
@@ -77,12 +57,39 @@ void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
 
 RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string &filename)
 {
-    m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(filename);
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if(filename.find(".pba.z") != std::string::npos)
+    {
+        // Legacy format (Impl serialization):
+        m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(filename);
+        return;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    if((filename.find(".cpb") != std::string::npos))
+    {
+        load_cpb(filename, *this);
+        return;
+    }
+#endif
 }
 
 RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream &is)
 {
-    m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(is);
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if(is_pba_z(is))
+    {
+        // Legacy format (Impl serialization):
+        m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(is);
+        return;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    {
+        load_cpb(is, *this);
+        return;
+    }
+#endif
 }
 
 void RTEShapeEstimator::setStagesHint(int stages)
