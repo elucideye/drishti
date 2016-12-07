@@ -20,5 +20,13 @@ template void FaceModel::serialize<OArchive>(OArchive &ar, const unsigned int);
 
 typedef cereal::PortableBinaryInputArchive3 IArchive;
 template void FaceModel::serialize<IArchive>(IArchive &ar, const unsigned int);
+DRISHTI_FACE_NAMESPACE_END
 
-DRISHTI_EYE_NAMESPACE_END
+
+#include <cereal/archives/xml.hpp>
+DRISHTI_FACE_NAMESPACE_BEGIN
+typedef cereal::XMLInputArchive IArchiveXML;
+typedef cereal::XMLOutputArchive OArchiveXML;
+template void FaceModel::serialize<OArchiveXML>(OArchiveXML &ar, const unsigned int);
+template void FaceModel::serialize<IArchiveXML>(IArchiveXML &ar, const unsigned int);
+DRISHTI_FACE_NAMESPACE_END
