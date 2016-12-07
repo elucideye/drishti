@@ -20,8 +20,6 @@
 #include <cassert>
 #include <fstream>
 
-
-
 DRISHTI_BEGIN_NAMESPACE(cereal)
 typedef PortableBinaryOutputArchive PortableBinaryOutputArchive3;
 typedef PortableBinaryInputArchive PortableBinaryInputArchive3;
@@ -72,7 +70,7 @@ void save_cpb(const std::string &filename, T &object)
 #if !DRISHTI_BUILD_MIN_SIZE
     std::ofstream ofs(filename, std::ios::binary);
     assert(ofs);
-    save_pba_z(ofs, object);
+    save_cpb(ofs, object);
 #endif
 }
 
