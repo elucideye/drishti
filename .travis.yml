@@ -40,9 +40,6 @@ matrix:
   include:
     - os: osx
       osx_image: xcode8.1
-      env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
-    - os: osx
-      osx_image: xcode8.1
       env: CONFIG=Debug TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
 
 env:
@@ -106,7 +103,7 @@ script:
       HUNTER_DISABLE_BUILDS=YES
       --test
       --archive drishti
-      --jobs 8
+      --jobs 2
       ${INSTALL}
 
 before_deploy:
