@@ -40,13 +40,13 @@ matrix:
   include:
     # Linux {
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic INSTALL=--strip
+      env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic-hid-sections INSTALL=--strip
     - os: linux
-      env: CONFIG=Debug TOOLCHAIN=gcc-4-8-pic INSTALL=--strip
+      env: CONFIG=Debug TOOLCHAIN=gcc-4-8-pic-hid-sections INSTALL=--strip
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon INSTALL=--strip
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
     - os: linux
-      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon INSTALL=--strip
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
     # }
 
     # OSX {
@@ -55,13 +55,13 @@ matrix:
 #    - os: osx
 #      env: CONFIG=Debug TOOLCHAIN=libcxx INSTALL=--strip
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=osx-10-11 INSTALL=--install
+      env: CONFIG=Release TOOLCHAIN=osx-10-11-hid-sections INSTALL=--install
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=osx-10-11 INSTALL=--install
+      env: CONFIG=Debug TOOLCHAIN=osx-10-11-hid-sections INSTALL=--install
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3-device INSTALL=--install
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3-device-hid-sections INSTALL=--install
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3-device INSTALL=--install
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3-device-hid-sections INSTALL=--install
     - os: osx
       osx_image: xcode8.1
       env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
@@ -69,19 +69,19 @@ matrix:
       osx_image: xcode8.1
       env: CONFIG=Debug TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon INSTALL=--strip
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon INSTALL=--strip
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
     # }
 
 env:
   global:
-    - secure: "m+dNB+eUPoBGCoHpr4xy2gI+6CpYka1Osy3ZoZ8kaN8ROtatGkr3CKUAWmiA8Hh6nzgGCZEV5VnTbMZXW9IIHItAbueNhi0BTJJRLDUV+I7UvdNbeOypggT39GyI086LGS/dNC3jp/MI6aATE+UxXzrxeCnGgBJb0ytKlE2FR9mUhPfctVDFA+t1eftBxPHRFV9t5iZJIwOQ8V7Aos7EMb5CS8wpwu7KGneaPnspKDM9iyrCoqqPa77acnBCwGijBRtMXmvvnL1tEMU7V97dsHLTqKQef2Aez3T1xxw22Xg5Zk16EfPg3/jPBf93Nms/pl0iaFl5JIvmsqEA3TNYNSY3fG29hXAiOB7/DPB/I7h7LeuLAH1qjFKYD6nzjvJV71RspSgj+yZ6elye+4FvhELEZpBUInRR4fT+Pf9PQFmkqDGlsaezqkzwIELhCej+1FLX+Zy806kwm13Y/5HfSVu7B2YJOM2eX5k7ie9ulRrhR/9+tri2N5bYjYOCFVguWq/jyos41R3IBns6dIP+NYo79sfoCCHsZDb9XorqfgzVVtJQBmRfa6M6y4t+AOyhTs0EBcqps4gnHZyWaKQAMAzUf61DpmRoc4hgPcNdhGV5ba7ekyc4sovLoxZVpAaUcBvz+Eu5k+ereUlK4gEd2r2gul82KDaSfTdHjC9KQyI="    
+    - secure: "m+dNB+eUPoBGCoHpr4xy2gI+6CpYka1Osy3ZoZ8kaN8ROtatGkr3CKUAWmiA8Hh6nzgGCZEV5VnTbMZXW9IIHItAbueNhi0BTJJRLDUV+I7UvdNbeOypggT39GyI086LGS/dNC3jp/MI6aATE+UxXzrxeCnGgBJb0ytKlE2FR9mUhPfctVDFA+t1eftBxPHRFV9t5iZJIwOQ8V7Aos7EMb5CS8wpwu7KGneaPnspKDM9iyrCoqqPa77acnBCwGijBRtMXmvvnL1tEMU7V97dsHLTqKQef2Aez3T1xxw22Xg5Zk16EfPg3/jPBf93Nms/pl0iaFl5JIvmsqEA3TNYNSY3fG29hXAiOB7/DPB/I7h7LeuLAH1qjFKYD6nzjvJV71RspSgj+yZ6elye+4FvhELEZpBUInRR4fT+Pf9PQFmkqDGlsaezqkzwIELhCej+1FLX+Zy806kwm13Y/5HfSVu7B2YJOM2eX5k7ie9ulRrhR/9+tri2N5bYjYOCFVguWq/jyos41R3IBns6dIP+NYo79sfoCCHsZDb9XorqfgzVVtJQBmRfa6M6y4t+AOyhTs0EBcqps4gnHZyWaKQAMAzUf61DpmRoc4hgPcNdhGV5ba7ekyc4sovLoxZVpAaUcBvz+Eu5k+ereUlK4gEd2r2gul82KDaSfTdHjC9KQyI="
 
 # disable the default submodule logic to support local modification of .gitmodules paths
 git:
   submodules: false
-      
+
 # See https://docs.travis-ci.com/user/private-dependencies/#API-Token
 # CI_USER_TOKEN is added to .travis.yml settings
 before_install:
