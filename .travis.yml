@@ -135,7 +135,7 @@ script:
       HUNTER_DISABLE_BUILDS=YES
       --test
       --archive drishti
-      --jobs 8
+      --jobs 2
       ${INSTALL}
 
 before_deploy:
