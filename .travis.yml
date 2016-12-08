@@ -123,7 +123,7 @@ script:
 
     # '--ios-{multiarch,combined}' do nothing for non-iOS builds
     - >
-      travis_wait 30 polly.py
+      polly.py
       --toolchain ${TOOLCHAIN}
       --config ${CONFIG}
       --verbose
