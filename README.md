@@ -1,7 +1,7 @@
 # drishti
 Real time eye tracking for embedded and mobile devices in C++ (>= C++11).
 
-Goal: SDK size <= 2 MB and combined resources (object detection + regression models) <= 4 MB.
+Goal: SDK size <= 1 MB and combined resources (object detection + regression models) <= 4 MB.
 
 [![Build Status](https://travis-ci.com/elucideye/drishti.svg?token=2fYtPs8x4ziLvxfp2emx&branch=master)](https://travis-ci.com/elucideye/drishti)
 [![Build status](https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true)](https://ci.appveyor.com/project/elucideye/drishti)
