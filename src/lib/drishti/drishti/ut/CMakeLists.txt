@@ -6,7 +6,15 @@ target_link_libraries(test-drishti-drishti drishti
   ${OpenCV_LIBS}
   GTest::gtest
   drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
-  ) 
+  )
+
+include(drishti_set_unit_test_assets)
+drishti_set_unit_test_assets(
+    DRISHTI_ACF_FACE_MODEL
+    DRISHTI_FACE_LANDMARKER
+    DRISHTI_EYE_MODEL
+    DRISHTI_MEAN_FACE_LANDMARKS
+    )
 
 enable_testing()
 
@@ -19,7 +27,7 @@ if(MSVC)
     )
 else()
   add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
-    "${assets_dir}/drishti_eye_full_npd_eix.pba.z"
+    "${DRISHTI_EYE_MODEL}"
     "${assets_dir}/images/2318-eye.png"
     "${assets_dir}/images/2318-eye.json"
     "0"

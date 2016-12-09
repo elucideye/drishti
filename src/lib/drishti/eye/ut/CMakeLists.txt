@@ -4,6 +4,14 @@
 add_executable(test-drishti-eye test-drishti-eye.cpp test-EyeModelEstimator.cpp)
 target_link_libraries(test-drishti-eye drishtisdk ${OpenCV_LIBS} GTest::gtest)
 
+include(drishti_set_unit_test_assets)
+drishti_set_unit_test_assets(
+    DRISHTI_ACF_FACE_MODEL
+    DRISHTI_FACE_LANDMARKER
+    DRISHTI_EYE_MODEL
+    DRISHTI_MEAN_FACE_LANDMARKS
+    )
+
 enable_testing()
 
 set(DRISHTI_TEST_EYE "${assets_dir}/images/2318-eye.png")
@@ -13,7 +21,7 @@ message("CONVERT ${DRISHTI_TEST_EYE_MODEL} => ${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
 
 if(MSVC)
   add_test(NAME DrishtiEyeTest COMMAND test-drishti-eye
-    "${assets_dir}/drishti_eye_full_npd_eix.txt"
+    "${assets_dir}/drishti_eye_full_npd_eix.txt" # use TXT or CPB on windows
     "${DRISHTI_TEST_EYE}"
     "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
     "${CMAKE_CURRENT_BINARY_DIR}"
@@ -21,8 +29,8 @@ if(MSVC)
     )
 else()
   add_test(NAME DrishtiEyeTest COMMAND test-drishti-eye
-    "${assets_dir}/drishti_eye_full_npd_eix.pba.z"
-    "${DRISHTI_TEST_EYE}"    
+    "${DRISHTI_EYE_MODEL}"
+    "${DRISHTI_TEST_EYE}"
     "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
     "${CMAKE_CURRENT_BINARY_DIR}"
     "0"

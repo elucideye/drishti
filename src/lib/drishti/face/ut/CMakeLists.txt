@@ -12,23 +12,21 @@ if(APPLE AND NOT IOS)
     )
 endif()
 
-if(DRISHTI_SERIALIZE_WITH_CEREAL AND EXISTS "${assets_dir}/drishti_face_inner_48x48.cpb")  
-  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.cpb")  
-elseif(DRISHTI_SERIALIZE_WITH_BOOST AND EXISTS "${assets_dir}/drishti_face_inner_48x48.pba.z")
-  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.pba.z")
-elseif(DRISHTI_SERIALIZE_WITH_CVMATIO AND EXISTS "${assets_dir}/drishti_face_inner_48x48.mat")
-  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.mat")
-else()
-  message(FATAL_ERROR "Failed to find suitable ACF detector")
-endif()
+include(drishti_set_unit_test_assets)
+drishti_set_unit_test_assets(
+    DRISHTI_ACF_FACE_MODEL
+    DRISHTI_FACE_LANDMARKER
+    DRISHTI_EYE_MODEL
+    DRISHTI_MEAN_FACE_LANDMARKS
+    )
 
 enable_testing()
 
 add_test(NAME DrishtiFaceTest COMMAND test-drishti-face
-  "${assets_dir}/drishti_face_inner_48x48.mat"
-  "${assets_dir}/drishti_face_5_point_mean_48x48.xml"
   "${DRISHTI_ACF_FACE_MODEL}"
-  "${assets_dir}/drishti_eye_full_npd_eix.pba.z"
+  "${DRISHTI_MEAN_FACE_LANDMARKS}"
+  "${DRISHTI_FACE_LANDMARKER}"
+  "${DRISHTI_EYE_MODEL}"
   )
 
 set_property(TARGET test-drishti-face PROPERTY FOLDER "app/tests")

@@ -4,6 +4,14 @@
 add_executable(test-drishti-ml test-drishti-ml.cpp test-RTEShapeEstimator.cpp)
 target_link_libraries(test-drishti-ml drishtisdk ${OpenCV_LIBS} GTest::gtest)
 
+include(drishti_set_unit_test_assets)
+drishti_set_unit_test_assets(
+    DRISHTI_ACF_FACE_MODEL
+    DRISHTI_FACE_LANDMARKER
+    DRISHTI_EYE_MODEL
+    DRISHTI_MEAN_FACE_LANDMARKS
+    )
+
 enable_testing()
 
 #####
@@ -21,7 +29,7 @@ if(MSVC)
     )
 else()
   add_test(NAME DrishtMlTest COMMAND test-drishti-ml
-    "${assets_dir}/drishti_face_inner.pba.z"
+    "${DRISHTI_FACE_LANDMARKER}"
     "${DRISHTI_TEST_FACE}"    
     "${DRISHTI_TEST_FACE_MODEL}"
     "${CMAKE_CURRENT_BINARY_DIR}"
