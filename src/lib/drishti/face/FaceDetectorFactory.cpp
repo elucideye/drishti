@@ -18,29 +18,29 @@ drishti::face::FaceModel loadFaceModel(const std::string &filename);
  * FaceDetectorFactor (string)
  */
 
-std::unique_ptr<drishti::ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
+std::unique_ptr<ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
 {
-    return drishti::core::make_unique<drishti::acf::Detector>(sFaceDetector);
+    return core::make_unique<acf::Detector>(sFaceDetector);
 }
 
-std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactory::getInnerFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getInnerFaceEstimator()
 {
-    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[0]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[0]);
 }
 
-std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEstimator()
 {
-    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[1]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[1]);
 }
 
-std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
+std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
 {
-    return drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>(sFaceDetector, drishti::eye::EyeModelEstimator::kFull);
+    return core::make_unique<eye::EyeModelEstimator>(sFaceDetector);
 }
 
-drishti::face::FaceModel FaceDetectorFactory::getMeanFace()
+face::FaceModel FaceDetectorFactory::getMeanFace()
 {
-    drishti::face::FaceModel faceDetectorMean;    
+    face::FaceModel faceDetectorMean;    
     if(sFaceDetectorMean.empty())
     {
         faceDetectorMean = loadFaceModel(sFaceDetectorMean);
@@ -52,29 +52,29 @@ drishti::face::FaceModel FaceDetectorFactory::getMeanFace()
  * FaceDetectorFactorStream (std::istream)
  */
 
-std::unique_ptr<drishti::ml::ObjectDetector> FaceDetectorFactoryStream::getFaceDetector()
+std::unique_ptr<ml::ObjectDetector> FaceDetectorFactoryStream::getFaceDetector()
 {
-    return drishti::core::make_unique<drishti::acf::Detector>(*iFaceDetector);
+    return core::make_unique<acf::Detector>(*iFaceDetector);
 }
 
-std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactoryStream::getInnerFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getInnerFaceEstimator()
 {
-    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[0]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[0]);
 }
 
-std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactoryStream::getOuterFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getOuterFaceEstimator()
 {
-    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[1]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[1]);
 }
 
-std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
+std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
 {
-    return drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>(*iFaceDetector, sFaceDetector);
+    return core::make_unique<DRISHTI_EYE::EyeModelEstimator>(*iFaceDetector, sFaceDetector);
 }
 
-drishti::face::FaceModel FaceDetectorFactoryStream::getMeanFace()
+face::FaceModel FaceDetectorFactoryStream::getMeanFace()
 {
-    drishti::face::FaceModel faceDetectorMean;
+    face::FaceModel faceDetectorMean;
     if(iFaceDetectorMean && *iFaceDetectorMean)
     {
         faceDetectorMean = loadFaceModel(*iFaceDetectorMean);
