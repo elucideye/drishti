@@ -43,10 +43,10 @@ public:
         std::string pupilRegressor;
     };
 
-    // TODO: stream input
     EyeModelEstimator() {}
+    EyeModelEstimator(std::istream &is, const std::string &hint={});
     EyeModelEstimator(const RegressorConfig &config);
-    EyeModelEstimator(const std::string &eye, const std::string &iris= {}, const std::string &pupil=std::string());
+    EyeModelEstimator(const std::string &eye, const std::string &iris={}, const std::string &pupil=std::string());
     virtual ~EyeModelEstimator();
 
     bool good() const;

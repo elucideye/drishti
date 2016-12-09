@@ -17,6 +17,10 @@
 #  include "drishti/core/boost_serialize_common.h" // (optional)
 #endif
 
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_cereal_pba.h"
+#endif
+
 #include <fstream>
 
 #define DRISHTI_EYE_USE_DARK_CHANNEL 0
@@ -172,8 +176,24 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat &crop, EyeModel &eye) cons
 
 //====
 
-// Public API:
-// TODO: support for stream input
+EyeModelEstimator::EyeModelEstimator(std::istream &is, const std::string &hint)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
+    {
+        // Legacy format (Impl serialization):
+        load_pba_z(is, *this);
+        return;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    {
+        load_cpb(is, *this);
+        return;
+    }
+#endif    
+}
+
 EyeModelEstimator::EyeModelEstimator(const RegressorConfig &config)
 {
     DRISHTI_STREAM_LOG_FUNC(2,5,m_streamLogger);
