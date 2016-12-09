@@ -43,8 +43,11 @@ public:
         std::string pupilRegressor;
     };
 
+    enum EyeKind { kFull };
+
     EyeModelEstimator() {}
     EyeModelEstimator(std::istream &is, const std::string &hint={});
+    EyeModelEstimator(const std::string &filename, EyeKind kind);
     EyeModelEstimator(const RegressorConfig &config);
     EyeModelEstimator(const std::string &eye, const std::string &iris={}, const std::string &pupil=std::string());
     virtual ~EyeModelEstimator();

@@ -196,6 +196,24 @@ EyeModelEstimator::EyeModelEstimator(std::istream &is, const std::string &hint)
 #endif    
 }
 
+EyeModelEstimator::EyeModelEstimator(const std::string &filename, EyeKind flag)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if(filename.find(".pba.z") != std::string::npos)
+    {
+        // Legacy format (Impl serialization):
+        load_pba_z(filename, *this);
+        return;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    {
+        load_cpb(filename, *this);
+        return;
+    }
+#endif
+}
+
 EyeModelEstimator::EyeModelEstimator(const RegressorConfig &config)
 {
     DRISHTI_STREAM_LOG_FUNC(2,5,m_streamLogger);
