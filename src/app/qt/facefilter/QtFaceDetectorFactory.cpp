@@ -12,18 +12,23 @@
 #include "drishti/acf/ACF.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/eye/EyeModelEstimator.h"
+#include "drishti/core/drishti_cereal_pba.h"
 
 #include <iostream>
 
 using namespace string_hash;
 
 // TODO: Move these regressor names to a config file
-#define DRISHTI_FACE_INNER_DETECT "drishti_face_inner_48x48.pba.z"
-#define DRISHTI_FACE_MEAN_5_POINT "drishti_face_5_point_mean_48x48.xml"
-#define DRISHTI_FACE_INNER "drishti_face_inner.pba.z"
-#define DRISHTI_EYE_FULL "drishti_eye_full_npd_eix.pba.z"
 
-bool QtFaceDetectorFactory::load(const std::string &filename, std::function<bool(std::istream &is)> &loader)
+// { "cpb", "pba.z", "mat" }
+#define DRISHTI_ARCHIVE "cpb"
+
+#define DRISHTI_FACE_MEAN_5_POINT "drishti_face_5_point_mean_48x48.xml"
+#define DRISHTI_FACE_INNER_DETECT "drishti_face_inner_48x48." DRISHTI_ARCHIVE
+#define DRISHTI_FACE_INNER "drishti_face_inner." DRISHTI_ARCHIVE
+#define DRISHTI_EYE_FULL "drishti_eye_full_npd_eix." DRISHTI_ARCHIVE
+
+bool QtFaceDetectorFactory::load(const std::string &filename, LoaderFunction &loader)
 {
     std::string resource;
     
@@ -52,10 +57,10 @@ bool QtFaceDetectorFactory::load(const std::string &filename, std::function<bool
         return false;
     }
     
-    QByteArray raw(inputFile.readAll());  std::cout << "SIZE: " << raw.size() << std::endl;
+    QByteArray raw(inputFile.readAll());
     QtStream streambuf(raw);
     std::istream is(&streambuf);
-    return loader(is);
+    return loader(is, filename);
 }
 
 QtFaceDetectorFactory::QtFaceDetectorFactory()
@@ -69,9 +74,9 @@ QtFaceDetectorFactory::QtFaceDetectorFactory()
 std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetector()
 {
     std::unique_ptr<drishti::ml::ObjectDetector> ptr;
-    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
+    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
     {
-        ptr = drishti::core::make_unique<drishti::acf::Detector>(is);
+        ptr = drishti::core::make_unique<drishti::acf::Detector>(is, hint);
         return true;
     };
 
@@ -83,9 +88,9 @@ std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetec
 std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getInnerFaceEstimator()
 {
     std::unique_ptr<drishti::ml::ShapeEstimator> ptr;
-    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
+    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
     {
-        ptr = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is);
+        ptr = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is, hint);
         return true;
     };
     if(sFaceRegressors.size())
@@ -98,7 +103,7 @@ std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getInnerFace
 std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getOuterFaceEstimator()
 {
     std::unique_ptr<drishti::ml::ShapeEstimator> ptr;
-    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
+    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
     {
         ptr = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is);
         return true;
@@ -113,11 +118,19 @@ std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getOuterFace
 std::unique_ptr<drishti::eye::EyeModelEstimator> QtFaceDetectorFactory::getEyeEstimator()
 {
     std::unique_ptr<drishti::eye::EyeModelEstimator> ptr;
-    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
+    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
     {
-        ptr = std::unique_ptr<DRISHTI_EYE::EyeModelEstimator>(new DRISHTI_EYE::EyeModelEstimator);
-        load_pba_z(is, *ptr);
-        return true;
+        ptr = drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>();
+        if((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
+        {
+            load_pba_z(is, *ptr);
+            return true;
+        }
+        { // CPB format:
+            load_cpb(is, *ptr);
+            return true;
+        }
+        return false;
     };
     load(sEyeRegressor, loader);
     return ptr;
