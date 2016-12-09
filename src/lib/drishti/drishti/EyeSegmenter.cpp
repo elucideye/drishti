@@ -11,6 +11,8 @@
 
 #include "drishti/EyeSegmenter.hpp"
 #include "drishti/EyeSegmenterImpl.hpp"
+#include "drishti/core/make_unique.h"
+#include "drishti/core/drishti_serialize.h"
 
 #include <string>
 #include <fstream>
@@ -19,6 +21,8 @@
 #include <sstream>
 
 _DRISHTI_SDK_BEGIN
+
+static bool isArchiveSupported(ArchiveKind kind);
 
 /*
  * EyeSegmenter
@@ -32,14 +36,20 @@ EyeSegmenter::EyeSegmenter(const std::string &filename, ArchiveKind kind)
 
 EyeSegmenter::EyeSegmenter(std::istream &is, ArchiveKind kind)
 {
+    assert(is.good());
     init(is, kind);
 }
 
 void EyeSegmenter::init(std::istream &is, ArchiveKind kind)
 {
+    if(!isArchiveSupported(kind))
+    {
+        return;
+    }
+    
     try
     {
-        m_impl = std::unique_ptr<Impl>(new Impl(is, kind));
+        m_impl = drishti::core::make_unique<Impl>(is, kind);
     }
     catch(std::exception &e)
     {
@@ -112,6 +122,26 @@ void EyeSegmenter::setOptimizationLevel(int level)
     m_impl->setOptimizationLevel(level);
 }
 
+// ### utility ###
+
+static bool isArchiveSupported(ArchiveKind kind)
+{
+    switch(kind)
+    {
+#if DRISHTI_SERIALIZE_WITH_BOOST
+        case kPBA: return true;
+#endif
+#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES
+        case kTXT: return true;
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+        case kCPB: return true;
+#endif
+        case kAuto: return true;
+    }
+    return false;
+}
+
 _DRISHTI_SDK_END
 
 /*
@@ -146,4 +176,5 @@ drishti_eye_segmenter_segment(drishti::sdk::EyeSegmenter *segmenter, const drish
     (*segmenter)(image, eye, isRight);
 }
 DRISHTI_EXTERN_C_END
+
 

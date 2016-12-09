@@ -22,6 +22,7 @@
 #include "drishti/drishti_cv.hpp"
 #include "drishti/EyeSegmenterImpl.hpp"
 #include "drishti/core/drishti_cv_cereal.h"
+#include "drishti/core/drishti_serialize.h"
 
 #ifdef DRISHTI_CEREAL_XML_JSON
 #  undef DRISHTI_CEREAL_XML_JSON
@@ -47,8 +48,42 @@ BEGIN_EMPTY_NAMESPACE
 static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio);
 static float detectionScore(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB);
 
+static drishti::sdk::ArchiveKind getArchiveKind(const std::string &filename)
+{
+    if(filename.find(".txt") != std::string::npos)
+    {
+        return drishti::sdk::kTXT;
+    }
+    if(filename.find(".pba.z") != std::string::npos)
+    {
+        return drishti::sdk::kPBA;
+    }
+    if(filename.find(".cpb") != std::string::npos)
+    {
+        return drishti::sdk::kCPB;
+    }
+    return drishti::sdk::kPBA;
+}
+
 class EyeSegmenterTest : public ::testing::Test
 {
+public:
+    
+    static std::shared_ptr<drishti::sdk::EyeSegmenter> create(const std::string &filename)
+    {
+        if(isArchiveSupported(filename))
+        {
+            auto kind = getArchiveKind(filename);
+            auto segmenter = std::make_shared<drishti::sdk::EyeSegmenter>(filename, kind);
+            return (segmenter && segmenter->good()) ? segmenter : nullptr;
+        }
+        else
+        {
+            std::cerr << "DRISHTI_DRISHTI_TEST: archive not supported: " << filename << std::endl;
+            return nullptr;
+        }
+    }
+    
 protected:
 
     using Vec3b = drishti::sdk::Vec3b;
@@ -61,12 +96,12 @@ protected:
         bool isRight;
     };
 
+    
     // Setup
     EyeSegmenterTest()
     {
         // Create the segmenter (constructor tests performed prior to this)
-        auto kind = isTextArchive ? drishti::sdk::kTXT : drishti::sdk::kPBA;
-        m_eyeSegmenter = std::make_shared<drishti::sdk::EyeSegmenter>(modelFilename, kind);
+        m_eyeSegmenter = create(modelFilename);
 
         // Load the ground truth data:
         loadTruth();
@@ -187,31 +222,25 @@ protected:
 
 TEST(EyeSegmenter, StringConstructor)
 {
-    // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char *)NULL);
-
-    auto kind = isTextArchive ? drishti::sdk::kTXT : drishti::sdk::kPBA;
-    drishti::sdk::EyeSegmenter segmenter(modelFilename, kind);
-
-    // Make sure we reached this point (no exceptions):
-    ASSERT_EQ(segmenter.good(), true);
+    if(isArchiveSupported(modelFilename))
+    {
+        ASSERT_NE(modelFilename, (const char *)NULL);
+        auto segmenter = EyeSegmenterTest::create(modelFilename);
+        ASSERT_EQ(segmenter && segmenter->good(), true);
+    }
 }
 
 TEST(EyeSegmenter, StreamConstructor)
 {
-    // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char *)NULL);
-
-    std::ifstream is(modelFilename);
-
-    // Make sure file could be opened:
-    ASSERT_TRUE((bool)is);
-
-    auto kind = isTextArchive ? drishti::sdk::kTXT : drishti::sdk::kPBA;    
-    drishti::sdk::EyeSegmenter segmenter(is, kind);
-
-    // Make sure we reached this point (no exceptions):
-    EXPECT_EQ(segmenter.good(), true);
+    if(isArchiveSupported(modelFilename))
+    {
+        // Make sure modelFilename is not null:
+        ASSERT_NE(modelFilename, (const char *)NULL);
+        std::ifstream is(modelFilename);
+        ASSERT_TRUE((bool)is);
+        drishti::sdk::EyeSegmenter segmenter(is, getArchiveKind(modelFilename));
+        EXPECT_EQ(segmenter.good(), true);
+    }
 }
 
 static void checkValid(const drishti::sdk::Eye &eye, const cv::Size &size)
@@ -236,50 +265,59 @@ static void checkInvalid(const drishti::sdk::Eye &eye)
 
 TEST_F(EyeSegmenterTest, EyeSerialization)
 {
-    int targetWidth = 127;
-    drishti::sdk::Eye eye;
-    int code = (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
-
-#if DRISHTI_CEREAL_XML_JSON
-    drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
-    std::ofstream os("/tmp/right_eye.json");
-    if(os)
+    if(m_eyeSegmenter)
     {
-        os << adapter;
-    }
+        int targetWidth = 127;
+        drishti::sdk::Eye eye;
+        int code = (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
+        
+#if DRISHTI_CEREAL_XML_JSON
+        drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
+        std::ofstream os("/tmp/right_eye.json");
+        if(os)
+        {
+            os << adapter;
+        }
 #else
-    std::cerr << "Skip JSON archive" << std::endl;
+        std::cerr << "Skip JSON archive" << std::endl;
 #endif
+    }
 }
 
 TEST_F(EyeSegmenterTest, ImageEmpty)
 {
-    // Requires at least 1 image:
-    ASSERT_GE(m_images.size(), 1);
-
-    // Make sure image is empty:
-    ASSERT_EQ(m_images[0].image.getCols(), 0);
-
-    drishti::sdk::Eye eye;
-    int code = (*m_eyeSegmenter)(m_images[0].image, eye, m_images[0].isRight);
-    EXPECT_EQ(code, 1);
-    checkInvalid(eye);
+    if(m_eyeSegmenter)
+    {
+        // Requires at least 1 image:
+        ASSERT_GE(m_images.size(), 1);
+        
+        // Make sure image is empty:
+        ASSERT_EQ(m_images[0].image.getCols(), 0);
+        
+        drishti::sdk::Eye eye;
+        int code = (*m_eyeSegmenter)(m_images[0].image, eye, m_images[0].isRight);
+        EXPECT_EQ(code, 1);
+        checkInvalid(eye);
+    }
 }
 
 TEST_F(EyeSegmenterTest, ImageTooSmall)
 {
-    // Requires at least 1 image:
-    EXPECT_GE(m_images.size(), m_eyeSegmenter->getMinWidth());
-
-    for(int i = 1; i < m_eyeSegmenter->getMinWidth(); i++)
+    if(m_eyeSegmenter)
     {
-        // Make sure image has the expected size:
-        ASSERT_EQ(m_images[i].image.getCols(), i);
-
-        drishti::sdk::Eye eye;
-        int code = (*m_eyeSegmenter)(m_images[i].image, eye, m_images[i].isRight);
-        EXPECT_EQ(code, 1);
-        checkInvalid(eye);
+        // Requires at least 1 image:
+        EXPECT_GE(m_images.size(), m_eyeSegmenter->getMinWidth());
+        
+        for(int i = 1; i < m_eyeSegmenter->getMinWidth(); i++)
+        {
+            // Make sure image has the expected size:
+            ASSERT_EQ(m_images[i].image.getCols(), i);
+            
+            drishti::sdk::Eye eye;
+            int code = (*m_eyeSegmenter)(m_images[i].image, eye, m_images[i].isRight);
+            EXPECT_EQ(code, 1);
+            checkInvalid(eye);
+        }
     }
 }
 
@@ -287,27 +325,30 @@ TEST_F(EyeSegmenterTest, ImageTooSmall)
 // * hamming distance for sclera and iris masks components
 TEST_F(EyeSegmenterTest, ImageValid)
 {
-    // Requires at least m_eyeSegmenter->getMinWidth() + 1
-    ASSERT_GT(m_images.size(), m_eyeSegmenter->getMinWidth());
-
-    for(int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
+    if(m_eyeSegmenter)
     {
-        // Make sure image has the expected size:
-        EXPECT_EQ(m_images[i].image.getCols(), i);
-
-        drishti::sdk::Eye eye;
-        int code = (*m_eyeSegmenter)(m_images[i].image, eye, m_images[i].isRight);
-
-        // Sanity check on each model:
-
-        EXPECT_EQ(code, 0);
-        checkValid(eye, m_images[i].storage.size());
-
-        // Ground truth comparison for reasonable resolutions
-        if(i > 128)
+        // Requires at least m_eyeSegmenter->getMinWidth() + 1
+        ASSERT_GT(m_images.size(), m_eyeSegmenter->getMinWidth());
+        
+        for(int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
         {
-            const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
-            ASSERT_GT( detectionScore(eye, *m_eye), threshold );
+            // Make sure image has the expected size:
+            EXPECT_EQ(m_images[i].image.getCols(), i);
+            
+            drishti::sdk::Eye eye;
+            int code = (*m_eyeSegmenter)(m_images[i].image, eye, m_images[i].isRight);
+            
+            // Sanity check on each model:
+            
+            EXPECT_EQ(code, 0);
+            checkValid(eye, m_images[i].storage.size());
+            
+            // Ground truth comparison for reasonable resolutions
+            if(i > 128)
+            {
+                const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
+                ASSERT_GT( detectionScore(eye, *m_eye), threshold );
+            }
         }
     }
 }
@@ -315,28 +356,34 @@ TEST_F(EyeSegmenterTest, ImageValid)
 // Currently there is no internal quality check, but this is included for regression:
 TEST_F(EyeSegmenterTest, ImageIsBlack)
 {
-    Entry entry;
-    int width = 256;
-    int height = int(float(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
-    createImage(entry, height, width, {0,0,0});
-
-    drishti::sdk::Eye eye;
-    int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
-    EXPECT_EQ(code, 0);
-    checkValid(eye, entry.storage.size());
+    if(m_eyeSegmenter)
+    {
+        Entry entry;
+        int width = 256;
+        int height = int(float(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
+        createImage(entry, height, width, {0,0,0});
+        
+        drishti::sdk::Eye eye;
+        int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
+        EXPECT_EQ(code, 0);
+        checkValid(eye, entry.storage.size());
+    }
 }
 
 TEST_F(EyeSegmenterTest, ImageIsWhite)
 {
-    Entry entry;
-    int width = 256;
-    int height = int(float(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
-    createImage(entry, height, width, {0,0,0});
-
-    drishti::sdk::Eye eye;
-    int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
-    EXPECT_EQ(code, 0);
-    checkValid(eye, entry.storage.size());
+    if(m_eyeSegmenter)
+    {
+        Entry entry;
+        int width = 256;
+        int height = int(float(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
+        createImage(entry, height, width, {0,0,0});
+        
+        drishti::sdk::Eye eye;
+        int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
+        EXPECT_EQ(code, 0);
+        checkValid(eye, entry.storage.size());
+    }
 }
 
 // #######

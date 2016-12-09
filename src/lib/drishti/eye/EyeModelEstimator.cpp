@@ -183,47 +183,57 @@ EyeModelEstimator::EyeModelEstimator(std::istream &is, const std::string &hint)
 #if DRISHTI_SERIALIZE_WITH_BOOST
     if((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
     {
-        // Legacy format (Impl serialization):
         load_pba_z(is, *this);
         return;
     }
-#endif
+#if DRISHTI_USE_TEXT_ARCHIVES
+    if(!hint.empty() && hint.find(".txt"))
+    {
+        load_txt(is, *this);
+        return;
+    }
+#endif // DRISHTI_USE_TEXT_ARCHIVES
+#endif // DRISHTI_SERIALIZE_WITH_BOOST
 #if DRISHTI_SERIALIZE_WITH_CEREAL
+    if(hint.empty() || (hint.find(".cpb") != std::string::npos))
     {
         load_cpb(is, *this);
         return;
     }
-#endif    
+#endif // DRISHTI_SERIALIZE_WITH_CEREAL
+    assert(false);
 }
 
-EyeModelEstimator::EyeModelEstimator(const std::string &filename, EyeKind flag)
+EyeModelEstimator::EyeModelEstimator(const std::string &filename)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
     if(filename.find(".pba.z") != std::string::npos)
     {
-        // Legacy format (Impl serialization):
         load_pba_z(filename, *this);
         return;
     }
-#endif
+#if DRISHTI_USE_TEXT_ARCHIVES
+    if(filename.find(".txt") != std::string::npos)
+    {
+        load_txt(filename, *this);
+        return;
+    }
+#endif // DRISHTI_USE_TEXT_ARCHIVES
+#endif // DRISHTI_SERIALIZE_WITH_BOOST
 #if DRISHTI_SERIALIZE_WITH_CEREAL
+    if(filename.find(".cpb") != std::string::npos)
     {
         load_cpb(filename, *this);
         return;
     }
 #endif
+    assert(false);
 }
 
 EyeModelEstimator::EyeModelEstimator(const RegressorConfig &config)
 {
     DRISHTI_STREAM_LOG_FUNC(2,5,m_streamLogger);
     m_impl = std::make_shared<EyeModelEstimator::Impl>(config.eyeRegressor, config.irisRegressor, config.pupilRegressor);
-}
-
-EyeModelEstimator::EyeModelEstimator(const std::string &eyeRegressor, const std::string &irisRegressor, const std::string &pupilRegressor)
-{
-    DRISHTI_STREAM_LOG_FUNC(2,6,m_streamLogger);
-    m_impl = std::make_shared<EyeModelEstimator::Impl>(eyeRegressor, irisRegressor, pupilRegressor);
 }
 
 EyeModelEstimator::~EyeModelEstimator() {}
@@ -403,49 +413,6 @@ int EyeModelEstimator::getIrisStagesRepetitionFactor() const
     return m_impl->getIrisStagesRepetitionFactor();
 }
 
-int EyeModelEstimator::loadPBA(const std::string &filename, EyeModelEstimator &eme)
-{
-    int status = -1;
-    std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    if(ifs)
-    {
-#if DRISHTI_SERIALIZE_WITH_BOOST           
-        return loadPBA(ifs, eme);
-#endif
-    }
-    return status;
-}
-
-int EyeModelEstimator::loadPBA(std::istream &is, EyeModelEstimator &eme)
-{
-#if DRISHTI_SERIALIZE_WITH_BOOST    
-    load_pba_z(is, eme);
-#endif
-    return 0;
-}
-
-#if DRISHTI_USE_TEXT_ARCHIVES
-int EyeModelEstimator::loadTXT(const std::string &filename, EyeModelEstimator &eme)
-{
-    int status = -1;
-    std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    if(ifs)
-    {
-#if DRISHTI_SERIALIZE_WITH_BOOST               
-        return loadTXT(ifs, eme);
-#endif
-    }
-    return status;
-}
-
-int EyeModelEstimator::loadTXT(std::istream &is, EyeModelEstimator &eme)
-{
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    load_txt_z(is, eme);
-#endif
-    return 0;
-}
-#endif
 
 static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)
 {
