@@ -18,6 +18,7 @@ sugar_files(DRISHTI_FACE_SRCS
   FaceDetectorAndTrackerImpl.cpp
   FaceDetectorAndTrackerNN.cpp
   FaceDetectorFactory.cpp
+  FaceDetectorFactoryCereal.cpp
   FaceIO.cpp
   FaceModelEstimator.cpp
   face_util.cpp
