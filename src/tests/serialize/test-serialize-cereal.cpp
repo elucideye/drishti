@@ -51,7 +51,7 @@ int main(int argc, char **argv)
         std::ofstream ofs(filename, std::ios_base::out | std::ios_base::binary);
         if(ofs)
         {
-            OArchive oa(ofs);
+            cereal::PortableBinaryOutputArchive oa(ofs);
             oa(monsterSrc);
         }
     }
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
         if(ifs)
         {
-            IArchive ia(ifs);
+            cereal::PortableBinaryInputArchive ia(ifs);
             ia(monsterDst);
             //ia >> monsterDst;
         }
