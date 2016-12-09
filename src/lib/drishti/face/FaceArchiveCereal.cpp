@@ -14,11 +14,11 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 // ##################################################################
 
 #if !DRISHTI_BUILD_MIN_SIZE
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
+typedef cereal::PortableBinaryOutputArchive OArchive;
 template void FaceModel::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
-typedef cereal::PortableBinaryInputArchive3 IArchive;
+typedef cereal::PortableBinaryInputArchive IArchive;
 template void FaceModel::serialize<IArchive>(IArchive &ar, const unsigned int);
 DRISHTI_FACE_NAMESPACE_END
 
