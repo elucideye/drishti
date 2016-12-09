@@ -6,7 +6,10 @@
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
-  This file contains the Manager public API class.
+  This file contains the public API of the Manager class.  This class 
+  will store and allocate internal state necessary for real time 
+  face tracking.
+  
 */
 
 #ifndef __drishtisdk__Manager__

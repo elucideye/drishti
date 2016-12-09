@@ -9,30 +9,18 @@
 */
 
 #include "drishti/Manager.hpp"
+#include "drishti/ManagerImpl.h"
 
-#include "drishti/hci/FaceFinder.h"
-#include "drishti/core/make_unique.h"
-#include "drishti/core/Logger.h" // spdlog::logger
-#include "drishti/sensor/Sensor.h" 
-#include "thread_pool/thread_pool.hpp"
+#define DRISHTI_LOGGER_NAME "drishti"
 
 _DRISHTI_SDK_BEGIN
 
-class Manager::Impl
+Manager::Impl::Impl(const drishti::sensor::SensorModel &sensor)
 {
-public:
-    
-    Impl(const drishti::sensor::SensorModel &sensor)
-    {
-        m_sensor = std::make_shared<drishti::sensor::SensorModel>(sensor);
-        m_logger = drishti::core::Logger::create("drishti");
-        m_threads = std::make_shared<ThreadPool<128>>(); // thread-pool
-    }
-    
-    std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
-    std::shared_ptr<spdlog::logger> m_logger;
-    std::shared_ptr<ThreadPool<128>> m_threads; 
-};
+    m_sensor = std::make_shared<drishti::sensor::SensorModel>(sensor);
+    m_logger = drishti::core::Logger::create(DRISHTI_LOGGER_NAME);
+    m_threads = std::make_shared<ThreadPool<128>>(); // thread-pool
+}
 
 Manager::Manager(const drishti::sensor::SensorModel &sensor)
 {
