@@ -20,11 +20,6 @@
 #include <cassert>
 #include <fstream>
 
-DRISHTI_BEGIN_NAMESPACE(cereal)
-typedef PortableBinaryOutputArchive PortableBinaryOutputArchive3;
-typedef PortableBinaryInputArchive PortableBinaryInputArchive3;
-DRISHTI_END_NAMESPACE(cereal)
-
 inline bool is_cpb(std::istream &is)
 {
     bool ok = false;
@@ -43,7 +38,7 @@ inline bool is_cpb(std::istream &is)
 template <typename T>
 void load_cpb(std::istream &is, T &object)
 {
-    cereal::PortableBinaryInputArchive3 ia(is);
+    cereal::PortableBinaryInputArchive ia(is);
     ia >> object;
 }
 
@@ -59,7 +54,7 @@ template <typename T>
 void save_cpb(std::ostream &os, T &object)
 {
 #if !DRISHTI_BUILD_MIN_SIZE
-    cereal::PortableBinaryOutputArchive3 oa(os);
+    cereal::PortableBinaryOutputArchive oa(os);
     oa << object;
 #endif
 }

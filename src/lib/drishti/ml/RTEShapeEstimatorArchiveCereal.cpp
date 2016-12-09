@@ -6,8 +6,8 @@
 #include "drishti/ml/PCAImpl.h"
 #include "drishti/core/drishti_cereal_pba.h"
 
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
-typedef cereal::PortableBinaryInputArchive3 IArchive;
+typedef cereal::PortableBinaryOutputArchive OArchive;
+typedef cereal::PortableBinaryInputArchive IArchive;
 
 DRISHTI_ML_NAMESPACE_BEGIN
 

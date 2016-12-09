@@ -22,11 +22,6 @@
 
 CEREAL_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
 
-// CEREAL_NOTE: See similar code block in (CPR.h)
-#include <cereal/types/polymorphic.hpp>
-CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
-
 // Workaround:
 // cereal found more than one compatible output serialization function for the provided type and archive combination.
 #include <opencv2/core.hpp>
@@ -41,7 +36,7 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 // ##################################################################
 
 #if !DRISHTI_BUILD_MIN_SIZE
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
+typedef cereal::PortableBinaryOutputArchive OArchive;
 template void CPR::Model::Parts::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::Model::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<OArchive>(OArchive &ar, const unsigned int);
@@ -54,7 +49,7 @@ template void CPR::RegModel::serialize<OArchive>(OArchive &ar, const unsigned in
 template void CPR::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
-typedef cereal::PortableBinaryInputArchive3 IArchive;
+typedef cereal::PortableBinaryInputArchive IArchive;
 template void CPR::Model::Parts::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::Model::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<IArchive>(IArchive &ar, const unsigned int);

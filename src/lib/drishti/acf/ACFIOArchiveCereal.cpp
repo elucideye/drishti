@@ -64,7 +64,7 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 // ##################################################################
 
 #if !DRISHTI_BUILD_MIN_SIZE
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
+typedef cereal::PortableBinaryOutputArchive OArchive;
 template void Detector::serialize<OArchive>(OArchive & ar, const std::uint32_t);
 template void Detector::Options::serialize<OArchive>(OArchive & ar, const std::uint32_t);
 template void Detector::Options::Boost::serialize<OArchive>(OArchive & ar, const std::uint32_t);
@@ -78,7 +78,7 @@ template void Detector::Options::Pyramid::Chns::GradMag::serialize<OArchive>(OAr
 template void Detector::Options::Pyramid::Chns::GradHist::serialize<OArchive>(OArchive & ar, const std::uint32_t);
 #endif
 
-typedef  cereal::PortableBinaryInputArchive3 IArchive;
+typedef cereal::PortableBinaryInputArchive IArchive;
 template void Detector::serialize<IArchive>(IArchive & ar, const std::uint32_t version);
 template void Detector::Options::serialize<IArchive>(IArchive & ar, const std::uint32_t version);
 template void Detector::Options::Boost::serialize<IArchive>(IArchive & ar, const std::uint32_t version);

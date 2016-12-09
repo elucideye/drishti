@@ -144,8 +144,8 @@ typedef xgboost::tree::TreeModel<bst_float, RTreeNodeStat> TreeModel;
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
-typedef cereal::PortableBinaryInputArchive3 IArchive;
+typedef cereal::PortableBinaryOutputArchive OArchive;
+typedef cereal::PortableBinaryInputArchive IArchive;
 
 DRISHTI_ML_NAMESPACE_BEGIN
 

@@ -15,15 +15,15 @@ CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModel, 1);
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 // ##################################################################
-// ############ PortableBinary{Input,Output}Archive3 ################
+// ############ PortableBinary{Input,Output}Archive ################
 // ##################################################################
 
 #if !DRISHTI_BUILD_MIN_SIZE
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
+typedef cereal::PortableBinaryOutputArchive OArchive;
 template void EyeModel::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
-typedef cereal::PortableBinaryInputArchive3 IArchive;
+typedef cereal::PortableBinaryInputArchive IArchive;
 template void EyeModel::serialize<IArchive>(IArchive &ar, const unsigned int);
 
 // ##################################################################

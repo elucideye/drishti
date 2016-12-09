@@ -4,8 +4,8 @@
 #include "drishti/core/drishti_cvmat_cereal.h"
 #include "drishti/core/drishti_pca_cereal.h"
 
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
-typedef cereal::PortableBinaryInputArchive3 IArchive;
+typedef cereal::PortableBinaryOutputArchive OArchive;
+typedef cereal::PortableBinaryInputArchive IArchive;
 
 #include "drishti/ml/PCA.h"
 #include "drishti/ml/PCAImpl.h"

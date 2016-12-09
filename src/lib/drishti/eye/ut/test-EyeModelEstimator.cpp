@@ -221,7 +221,7 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
         std::ofstream ofs(filename, std::ios::binary);
         if(ofs)
         {
-            cereal::PortableBinaryOutputArchive3 oa(ofs);
+            cereal::PortableBinaryOutputArchive oa(ofs);
             oa << *m_eyeSegmenter;
         }
     }
@@ -231,7 +231,7 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
         std::ifstream ifs(filename, std::ios::binary);
         if(ifs)
         {
-            cereal::PortableBinaryInputArchive3 ia(ifs);
+            cereal::PortableBinaryInputArchive ia(ifs);
             ia >> segmenter2;
         }
     }
