@@ -119,17 +119,20 @@ _DRISHTI_SDK_END
  */
 
 DRISHTI_EXTERN_C_BEGIN
-drishti::sdk::EyeSegmenter* drishti_create_from_file(const std::string &filename)
+drishti::sdk::EyeSegmenter*
+drishti_eye_segmenter_create_from_file(const std::string &filename)
 {
     return new drishti::sdk::EyeSegmenter(filename);
 }
 
-drishti::sdk::EyeSegmenter* drishti_create_from_stream(std::istream &is)
+drishti::sdk::EyeSegmenter*
+drishti_eye_segmenter_create_from_stream(std::istream &is)
 {
     return new drishti::sdk::EyeSegmenter(is);
 }
 
-void drishti_destroy(drishti::sdk::EyeSegmenter *segmenter)
+void
+drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter *segmenter)
 {
     if(segmenter)
     {
@@ -137,7 +140,8 @@ void drishti_destroy(drishti::sdk::EyeSegmenter *segmenter)
     }
 }
 
-void drishti_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight)
+void
+drishti_eye_segmenter_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight)
 {
     (*segmenter)(image, eye, isRight);
 }
