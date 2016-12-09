@@ -8,12 +8,14 @@
 
 */
 
+// Include string definitions first for ANDROID platforms
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
+
 #include "drishti/rcpr/CPR.h"
 #include "drishti/rcpr/CPRIOArchive.h"
 #include "drishti/acf/ACFField.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cvmat_cereal.h"
-#include "drishti/core/drishti_stdlib_string.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>
