@@ -62,6 +62,7 @@ inline int PointVecSize(const PointVec &v)
 typedef cv::Matx<RealType,3,3> Matx33Real;
 typedef std::vector<RealType> Vector1d;
 typedef std::vector<cv::Mat> ImageVec;
+typedef std::vector<int> IntVec;
 typedef std::vector<ImageMaskPair> ImageMaskPairVec;
 typedef std::vector<Vector1d> EllipseVec;
 typedef std::vector<cv::Matx33f> HVec;
@@ -274,7 +275,6 @@ public:
         // Boost serialization:
         friend class boost::serialization::access;
         template<class Archive> void serialize(Archive & ar, const unsigned int version);
-
     };
     acf::Field<RegModel> regModel;
 
@@ -380,7 +380,7 @@ Matx33Real phisToHs(const Vector1d &phis);
 double normAng(double ang, double rng);
 double dist( const CPR::Model &model, const Vector1d &phis0, const Vector1d &phis1 );
 void print(const Vector1d &p, bool eol=false);
-void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale=1.f, bool doTranspose=DRISHTI_CPR_TRANSPOSE);
+void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const IntVec &features, float scale=1.f, bool doTranspose=DRISHTI_CPR_TRANSPOSE);
 
 template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<T2> &dst)
 {
@@ -390,17 +390,16 @@ template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<
 
 DRISHTI_RCPR_NAMESPACE_END
 
+// ### BOOST ###
 #if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
 #endif
 
-// CEREAL_NOTE: Placing the CEREAL_REGISTER_TYPE() leads to undefined symbols for serialize methods
-// for the JSON{Input,Output}Archive and XML{Input,Output}Archive types.  For now we can
-// move this into CPRIOARchiveCereal.cpp until we can introdeuce a
-// CEREAL_REGISTER_TYPE_FOR_ARCHIVE() call
-//
-//#include <cereal/types/polymorphic.hpp>
-//CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
-//CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
+// ### CEREAL ###
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
+#endif
 
 #endif /* DRISHTI_RCPR_CRP_H */
