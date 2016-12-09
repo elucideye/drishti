@@ -13,6 +13,7 @@
 #include "drishti/face/Face.h"
 #include "drishti/hci/FaceFinder.h"
 #include "drishti/core/make_unique.h"
+#include "drishti/core/Logger.h"
 
 #include <string>
 #include <fstream>
@@ -42,15 +43,30 @@ class FaceTracker::Impl
 public:
 
     using Config = drishti::hci::FaceFinder::Config;
-
-    Impl(Manager *manager, const FaceTrackerResources &resources)
+    
+    /*
+     * WIP: We will need to provide some configurable options here
+     */
+    
+    Impl(Manager *manager, const FaceTracker::Resources &resources)
     {
         Config config;
-        
-        assert(false);
+        config.sensor = std::make_shared<drishti::sensor::SensorModel>();
+        config.logger = drishti::core::Logger::create("drishti");
+        config.threads = std::make_shared<ThreadPool<128>>();
+        config.outputOrientation = 0;
+        config.frameDelay = 1;
+        config.doLandmarks = true;
+        config.doFlow = true;
+        config.doFlash = false;
 
-        // TODO: convert resources to factory:
-        std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
+        auto stream = std::make_shared<drishti::face::FaceDetectorFactoryStream>();
+        stream->iEyeRegressor = resources.sEyeRegressor;
+        stream->iFaceDetector = resources.sFaceDetector;
+        stream->iFaceRegressors = { resources.sFaceRegressor };
+        stream->iFaceDetectorMean = resources.sFaceModel;
+
+        std::shared_ptr<drishti::face::FaceDetectorFactory> factory = stream;
         
         m_faceFinder = drishti::core::make_unique<drishti::hci::FaceFinder>(factory, config, nullptr);
     }
@@ -74,7 +90,7 @@ int FaceTracker::operator()(const VideoFrame &image)
     return (*m_impl)(image);
 }
 
-FaceTracker::FaceTracker(Manager *manager, const FaceTrackerResources &factory)
+FaceTracker::FaceTracker(Manager *manager, const Resources &factory)
 {
     m_impl = drishti::core::make_unique<Impl>(manager, factory);
 }
@@ -102,7 +118,8 @@ _DRISHTI_SDK_END
 
 DRISHTI_EXTERN_C_BEGIN
 
-drishti::sdk::FaceTracker* drishti_face_tracker_create_from_file(drishti::sdk::Manager *manager, const FaceTrackerResources &resources)
+drishti::sdk::FaceTracker*
+drishti_face_tracker_create_from_file(drishti::sdk::Manager *manager, const drishti::sdk::FaceTracker::Resources &resources)
 {
     return new drishti::sdk::FaceTracker(manager, resources);
 }

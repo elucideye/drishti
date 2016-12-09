@@ -20,14 +20,6 @@
 
 #include <memory>
 
-struct FaceTrackerResources
-{
-    std::string sFaceDetector;
-    std::string sFaceRegressor;
-    std::string sEyeRegressor;
-    std::string sFaceModel;
-};
-
 _DRISHTI_SDK_BEGIN
 
 /**
@@ -39,9 +31,17 @@ class DRISHTI_EXPORTS FaceTracker
 {
 public:
     
+    struct Resources
+    {
+        std::istream *sFaceDetector;
+        std::istream *sFaceRegressor;
+        std::istream *sEyeRegressor;
+        std::istream *sFaceModel;
+    };
+    
     class Impl;
     
-    FaceTracker(Manager *manager, const FaceTrackerResources &factory);
+    FaceTracker(Manager *manager, const Resources &factory);
 
     // FaceTracker cannot be moved or copied:
     FaceTracker(const FaceTracker &) = delete;
@@ -68,7 +68,8 @@ _DRISHTI_SDK_END
 
 DRISHTI_EXTERN_C_BEGIN
 
-drishti::sdk::FaceTracker* drishti_face_tracker_create_from_file(drishti::sdk::Manager *manager, const FaceTrackerResources &resources);
+drishti::sdk::FaceTracker*
+drishti_face_tracker_create_from_file(drishti::sdk::Manager *manager, const drishti::sdk::FaceTracker::Resources &resources);
 void drishti_face_tracker_destroy(drishti::sdk::FaceTracker *tracker);
 void drishti_face_tracker_track(drishti::sdk::FaceTracker *tracker, const drishti::sdk::VideoFrame &frame, drishti::sdk::Face &face);
 
