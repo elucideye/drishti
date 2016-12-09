@@ -7,7 +7,7 @@ drishti::face::FaceModel QtFaceDetectorFactory::getMeanFace()
 {
     drishti::face::FaceModel faceDetectorMean;
 
-    std::function<bool(std::istream &is)> loader = [&](std::istream &is)
+    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
     {
         cereal::XMLInputArchive ia(is);
         typedef decltype(ia) Archive;
