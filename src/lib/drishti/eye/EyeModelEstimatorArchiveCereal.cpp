@@ -4,12 +4,6 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/drishti_cereal_pba.h"
 
-#include <cereal/types/polymorphic.hpp>
-
-// Duplicate polymorphic relation for CPR class
-CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
-
 CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator, 1);
 CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator::Impl, 1);
 
