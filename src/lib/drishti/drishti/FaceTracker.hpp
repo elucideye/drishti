@@ -68,10 +68,12 @@ _DRISHTI_SDK_END
 
 DRISHTI_EXTERN_C_BEGIN
 
-drishti::sdk::FaceTracker*
+DRISHTI_EXPORTS drishti::sdk::FaceTracker*
 drishti_face_tracker_create_from_file(drishti::sdk::Manager *manager, const drishti::sdk::FaceTracker::Resources &resources);
-void drishti_face_tracker_destroy(drishti::sdk::FaceTracker *tracker);
-void drishti_face_tracker_track(drishti::sdk::FaceTracker *tracker, const drishti::sdk::VideoFrame &frame, drishti::sdk::Face &face);
+DRISHTI_EXPORTS void
+drishti_face_tracker_destroy(drishti::sdk::FaceTracker *tracker);
+DRISHTI_EXPORTS void
+drishti_face_tracker_track(drishti::sdk::FaceTracker *tracker, const drishti::sdk::VideoFrame &frame, drishti::sdk::Face &face);
 
 DRISHTI_EXTERN_C_END
 
