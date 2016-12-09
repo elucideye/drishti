@@ -1,11 +1,19 @@
 function(drishti_symbol_list drishti_library)
   set(
     DRISHTI_SDK_SYMBOLS
-    drishti_create_from_file
-    drishti_create_from_stream
-    drishti_destroy
-    drishti_segment
+    drishti_eye_segmenter_create_from_file
+    drishti_eye_segmenter_create_from_stream
+    drishti_eye_segmenter_destroy
+    drishti_eye_segmenter_segment
     )
+
+  if(DRISHTI_BUILD_HCI)
+    list(APPEND DRISHTI_SDK_SYMBOLS
+      drishti_face_tracker_create_from_file
+      drishti_face_tracker_destroy
+      drishti_face_tracker_track
+      )
+  endif()
 
   get_target_property(x ${drishti_library} LINK_FLAGS)
   if(x)
