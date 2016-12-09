@@ -395,4 +395,11 @@ DRISHTI_RCPR_NAMESPACE_END
 BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
 #endif
 
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
+#endif
+
+
 #endif /* DRISHTI_RCPR_CRP_H */

@@ -24,8 +24,6 @@
 #include <opencv2/core.hpp>
 
 CEREAL_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
-CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
 
 // Workaround:
 // cereal found more than one compatible output serialization function for the provided type and archive combination.
