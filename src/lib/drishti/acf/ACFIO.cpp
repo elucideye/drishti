@@ -204,10 +204,11 @@ int Detector::deserializeAny(const std::string &filename)
 #endif
     return -1;
 }
-int Detector::deserializeAny(std::istream &is)
+int Detector::deserializeAny(std::istream &is, const std::string &hint)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
-    if(is_pba_z(is))
+    
+    if((!hint.empty() && hint.find(".pba.z") != std::string::npos) || (hint.empty() && is_pba_z(is)))
     {
         load_pba_z(is, *this);
         return 0;

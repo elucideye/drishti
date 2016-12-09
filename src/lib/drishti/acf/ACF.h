@@ -52,7 +52,7 @@ public:
 
     Detector() {}
     Detector(const Detector &src);
-    Detector(std::istream &is);
+    Detector(std::istream &is, const std::string &hint={});
     Detector(const std::string &filename);
 
     struct Options
@@ -433,7 +433,7 @@ public:
     int deserialize(ParserNodeDetector &detector_);
     
     int deserializeAny(const std::string &filename);
-    int deserializeAny(std::istream &is);
+    int deserializeAny(std::istream &is, const std::string &hint={});
     
     // Boost serialization:
     template<class Archive> void serialize(Archive & ar, const uint32_t version);

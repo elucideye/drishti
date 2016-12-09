@@ -26,9 +26,9 @@ Detector::Detector(const Detector &src)
     opts = src.opts;
 }
 
-Detector::Detector(std::istream &is)
+Detector::Detector(std::istream &is, const std::string &hint)
 {
-    deserializeAny(is);
+    deserializeAny(is, hint);
 }
 
 Detector::Detector(const std::string &filename)
