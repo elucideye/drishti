@@ -11,6 +11,13 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
+drishti::face::FaceModel loadFaceModel(std::istream &is);
+drishti::face::FaceModel loadFaceModel(const std::string &filename);
+
+/*
+ * FaceDetectorFactor (string)
+ */
+
 std::unique_ptr<drishti::ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
 {
     return drishti::core::make_unique<drishti::acf::Detector>(sFaceDetector);
@@ -29,27 +36,53 @@ std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEs
 std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
 {
     std::unique_ptr<DRISHTI_EYE::EyeModelEstimator> regressor(new DRISHTI_EYE::EyeModelEstimator);
-#if DRISHTI_SERIALIZE_WITH_BOOST        
-    load_pba_z(sEyeRegressor, *regressor);
-#else
-    assert(false); exit(-1);
-#endif
+
+    assert(false);
     return regressor;
 }
 
 drishti::face::FaceModel FaceDetectorFactory::getMeanFace()
 {
-    drishti::face::FaceModel faceDetectorMean;
-    std::ifstream is(sFaceDetectorMean);
-    if(is)
+    drishti::face::FaceModel faceDetectorMean;    
+    if(sFaceDetectorMean.empty())
     {
-#if DRISHTI_CEREAL_XML_JSON
-        cereal::XMLInputArchive ia(is);
-        typedef decltype(ia) Archive;
-        ia >> faceDetectorMean;
-#else
-        std::cerr << "Skipping JSON archive" << std::endl;
-#endif
+        faceDetectorMean = loadFaceModel(sFaceDetectorMean);
+    }
+    return faceDetectorMean;
+}
+
+/*
+ * FaceDetectorFactorStream (std::istream)
+ */
+
+std::unique_ptr<drishti::ml::ObjectDetector> FaceDetectorFactoryStream::getFaceDetector()
+{
+    return drishti::core::make_unique<drishti::acf::Detector>(*iFaceDetector);
+}
+
+std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactoryStream::getInnerFaceEstimator()
+{
+    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[0]);
+}
+
+std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactoryStream::getOuterFaceEstimator()
+{
+    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[1]);
+}
+
+std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
+{
+    std::unique_ptr<DRISHTI_EYE::EyeModelEstimator> regressor(new DRISHTI_EYE::EyeModelEstimator);
+    assert(false);
+    return regressor;
+}
+
+drishti::face::FaceModel FaceDetectorFactoryStream::getMeanFace()
+{
+    drishti::face::FaceModel faceDetectorMean;
+    if(iFaceDetectorMean && *iFaceDetectorMean)
+    {
+        faceDetectorMean = loadFaceModel(*iFaceDetectorMean);
     }
     return faceDetectorMean;
 }
