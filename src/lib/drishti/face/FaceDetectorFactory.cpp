@@ -35,10 +35,7 @@ std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEs
 
 std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
 {
-    std::unique_ptr<DRISHTI_EYE::EyeModelEstimator> regressor(new DRISHTI_EYE::EyeModelEstimator);
-
-    assert(false);
-    return regressor;
+    return drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>(sFaceDetector, drishti::eye::EyeModelEstimator::kFull);
 }
 
 drishti::face::FaceModel FaceDetectorFactory::getMeanFace()
@@ -72,9 +69,7 @@ std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactoryStream::getOuter
 
 std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
 {
-    std::unique_ptr<DRISHTI_EYE::EyeModelEstimator> regressor(new DRISHTI_EYE::EyeModelEstimator);
-    assert(false);
-    return regressor;
+    return drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>(*iFaceDetector, sFaceDetector);
 }
 
 drishti::face::FaceModel FaceDetectorFactoryStream::getMeanFace()

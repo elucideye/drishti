@@ -12,7 +12,14 @@
 #include "drishti/acf/ACF.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/eye/EyeModelEstimator.h"
-#include "drishti/core/drishti_cereal_pba.h"
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_cereal_pba.h"
+#endif
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/boost_serialize_common.h"
+#endif
 
 #include <iostream>
 
@@ -120,17 +127,8 @@ std::unique_ptr<drishti::eye::EyeModelEstimator> QtFaceDetectorFactory::getEyeEs
     std::unique_ptr<drishti::eye::EyeModelEstimator> ptr;
     LoaderFunction loader = [&](std::istream &is, const std::string &hint)
     {
-        ptr = drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>();
-        if((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
-        {
-            load_pba_z(is, *ptr);
-            return true;
-        }
-        { // CPB format:
-            load_cpb(is, *ptr);
-            return true;
-        }
-        return false;
+        ptr = drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>(is, hint);
+        return true;
     };
     load(sEyeRegressor, loader);
     return ptr;
