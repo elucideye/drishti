@@ -10,6 +10,7 @@
 */
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
 #include "drishti/rcpr/CPR.h"
 #include "drishti/acf/ACFField.h"
 

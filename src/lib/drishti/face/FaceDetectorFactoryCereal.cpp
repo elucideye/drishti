@@ -1,4 +1,5 @@
 #include "drishti/face/FaceDetectorFactory.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
 
 #include <cereal/archives/xml.hpp>
 #include <istream>

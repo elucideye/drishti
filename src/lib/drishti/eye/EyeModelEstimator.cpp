@@ -13,6 +13,8 @@
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
+
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h" // (optional)
 #endif

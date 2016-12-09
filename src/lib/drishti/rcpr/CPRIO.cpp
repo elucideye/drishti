@@ -9,6 +9,7 @@
 */
 
 #include "drishti/rcpr/CPR.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
 
 #if !DRISHTI_CPR_DO_LEAN
 

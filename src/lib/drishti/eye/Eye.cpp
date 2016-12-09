@@ -12,6 +12,7 @@
 */
 
 #include "drishti/eye/Eye.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
 #include "drishti/core/Shape.h"
 #include "drishti/geometry/Ellipse.h"
 

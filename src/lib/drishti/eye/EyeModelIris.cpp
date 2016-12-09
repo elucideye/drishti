@@ -13,6 +13,8 @@
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
+
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 #define DRISHTI_CPR_DEBUG_PHI_ESTIMATE 0
