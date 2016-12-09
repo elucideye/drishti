@@ -15,9 +15,6 @@
 
 #include "drishti/core/drishti_cereal_pba.h"
 
-typedef cereal::PortableBinaryOutputArchive3 OArchive;
-typedef cereal::PortableBinaryInputArchive3 IArchive;
-
 struct Bar
 {
     template <typename Archive> void serialize(Archive &ar, const std::uint32_t version)
