@@ -8,12 +8,7 @@
 
 */
 
-#include <gtest/gtest.h>
-
-// These must come before drishti_cv.hpp
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
+#include "drishti/eye/EyeModelEstimator.h"
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h"
@@ -34,8 +29,12 @@
 #  include <cereal/archives/xml.hpp>
 #endif
 
-#include "drishti/eye/EyeModelEstimator.h"
-#include "drishti/rcpr/CPR.h"
+// These must come before drishti_cv.hpp
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+
+#include <gtest/gtest.h>
 
 #include <fstream>
 
