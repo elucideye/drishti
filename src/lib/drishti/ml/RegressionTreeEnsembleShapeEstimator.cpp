@@ -74,10 +74,10 @@ RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string &filen
 #endif
 }
 
-RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream &is)
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream &is, const std::string &hint)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
-    if(is_pba_z(is))
+    if((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
     {
         // Legacy format (Impl serialization):
         m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(is);
