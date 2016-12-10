@@ -19,7 +19,7 @@
 #  include <algorithm> // min/max
 #  include <windows.h> // CMakeLists.txt defines NOMINMAX
 #  include <gl/glew.h>
-#  inclyude <GL/gl.h>
+#  include <GL/gl.h>
 #  include <GL/glu.h>
 #elif __APPLE__
 #  include "TargetConditionals.h"
