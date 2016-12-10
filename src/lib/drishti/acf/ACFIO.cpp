@@ -215,6 +215,7 @@ int Detector::deserializeAny(std::istream &is, const std::string &hint)
     }
 #endif
 #if DRISHTI_SERIALIZE_WITH_CEREAL
+    if(hint.empty() || (hint.find(".cpb") != std::string::npos))
     {
         load_cpb(is, *this);
         return 0;
