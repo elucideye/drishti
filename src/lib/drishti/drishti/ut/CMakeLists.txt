@@ -16,23 +16,21 @@ drishti_set_unit_test_assets(
     DRISHTI_MEAN_FACE_LANDMARKS
     )
 
+# Legacy
+if(MSVC)
+  set(DRISHTI_TXT_ARCHIVE 1)
+else()
+  set(DRISHTI_TXT_ARCHIVE 0)
+endif()  
+
 enable_testing()
 
-if(MSVC)
-  add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
-    "${assets_dir}/drishti_eye_full_npd_eix.txt"
-    "${assets_dir}/images/2318-eye.png"
-    "${assets_dir}/images/2318-eye.json"
-    "1"
-    )
-else()
-  add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
-    "${DRISHTI_EYE_MODEL}"
-    "${assets_dir}/images/2318-eye.png"
-    "${assets_dir}/images/2318-eye.json"
-    "0"
-    )
-endif()
+add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
+  "${DRISHTI_EYE_MODEL}"
+  "${assets_dir}/images/2318-eye.png"
+  "${assets_dir}/images/2318-eye.json"
+  "${DRISHTI_TXT_ARCHIVE}"
+  )
 
 if(WIN32)
   set_property(
