@@ -247,7 +247,6 @@ protected:
 template<class Archive>
 void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
 {
-    assert(version >= 1);
     ar & m_impl;
 }
 
