@@ -186,14 +186,14 @@ EyeModelEstimator::EyeModelEstimator(std::istream &is, const std::string &hint)
         load_pba_z(is, *this);
         return;
     }
-#if DRISHTI_USE_TEXT_ARCHIVES
+#endif
+#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST 
     if(!hint.empty() && hint.find(".txt"))
     {
-        load_txt(is, *this);
+        load_txt_z(is, *this);
         return;
     }
-#endif // DRISHTI_USE_TEXT_ARCHIVES
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
+#endif
 #if DRISHTI_SERIALIZE_WITH_CEREAL
     if(hint.empty() || (hint.find(".cpb") != std::string::npos))
     {
@@ -212,14 +212,14 @@ EyeModelEstimator::EyeModelEstimator(const std::string &filename)
         load_pba_z(filename, *this);
         return;
     }
-#if DRISHTI_USE_TEXT_ARCHIVES
+#endif // DRISHTI_SERIALIZE_WITH_BOOST    
+#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST 
     if(filename.find(".txt") != std::string::npos)
     {
-        load_txt(filename, *this);
+        load_txt_z(filename, *this);
         return;
     }
-#endif // DRISHTI_USE_TEXT_ARCHIVES
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
+#endif
 #if DRISHTI_SERIALIZE_WITH_CEREAL
     if(filename.find(".cpb") != std::string::npos)
     {
