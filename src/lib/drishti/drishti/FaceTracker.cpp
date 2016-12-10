@@ -9,6 +9,7 @@
  */
 
 #include "drishti/FaceTracker.hpp"
+#include "drishti/ManagerImpl.h"
 
 #include "drishti/face/Face.h"
 #include "drishti/hci/FaceFinder.h"
