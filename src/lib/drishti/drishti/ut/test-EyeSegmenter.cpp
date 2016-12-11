@@ -40,6 +40,17 @@ const char* imageFilename;
 const char* truthFilename;
 bool isTextArchive;
 
+int main(int argc, char** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    assert(argc >= 4);
+    modelFilename = argv[1];
+    imageFilename = argv[2];
+    truthFilename = argv[3];
+    isTextArchive = (argc > 4) ? (std::atoi(argv[4]) > 0) : false;
+    return RUN_ALL_TESTS();
+}
+
 #define BEGIN_EMPTY_NAMESPACE namespace {
 #define END_EMPTY_NAMESPACE }
 

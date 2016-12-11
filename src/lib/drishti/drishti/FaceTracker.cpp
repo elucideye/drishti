@@ -64,7 +64,7 @@ public:
         auto stream = std::make_shared<drishti::face::FaceDetectorFactoryStream>();
         stream->iEyeRegressor = resources.sEyeRegressor;
         stream->iFaceDetector = resources.sFaceDetector;
-        stream->iFaceRegressors = { resources.sFaceRegressor };
+        stream->iFaceRegressors = resources.sFaceRegressors;
         stream->iFaceDetectorMean = resources.sFaceModel;
 
         std::shared_ptr<drishti::face::FaceDetectorFactory> factory = stream;

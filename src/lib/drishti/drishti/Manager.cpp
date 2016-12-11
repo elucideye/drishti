@@ -27,5 +27,10 @@ Manager::Manager(const drishti::sensor::SensorModel &sensor)
     m_impl = drishti::core::make_unique<Impl>(sensor);
 }
 
+Manager::~Manager()
+{
+
+}
+
 _DRISHTI_SDK_END
 

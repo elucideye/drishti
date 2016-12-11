@@ -46,7 +46,7 @@ class RTEShapeEstimatorTest : public ::testing::Test
 {
 public:
     
-    static std::shared_ptr<drishti::ml::RegressionTreeEnsembleShapeEstimator> create(const std::string &filename, bool textArchive)
+    static std::shared_ptr<drishti::ml::RegressionTreeEnsembleShapeEstimator> create(const std::string &filename)
     {
         return std::make_shared<drishti::ml::RegressionTreeEnsembleShapeEstimator>(filename);
     }
@@ -57,7 +57,7 @@ protected:
     RTEShapeEstimatorTest()
     {
         // Create the segmenter (constructor tests performed prior to this)
-        m_shapePredictor = create(modelFilename, isTextArchive);
+        m_shapePredictor = create(modelFilename);
 
         // Load the ground truth data:
         loadTruth();
@@ -122,7 +122,7 @@ TEST(RTEShapeEstimator, StringConstructor)
 {
     // Make sure modelFilename is not null:
     ASSERT_NE(modelFilename, (const char *)NULL);
-    auto predictor = RTEShapeEstimatorTest::create(modelFilename, isTextArchive);
+    auto predictor = RTEShapeEstimatorTest::create(modelFilename);
     ASSERT_NE(predictor, nullptr);
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST

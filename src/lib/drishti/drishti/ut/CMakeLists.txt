@@ -1,8 +1,17 @@
 # found variable?
 #include_directories(${GTEST_INCLUDE_DIRS})
 
-add_executable(test-drishti-drishti test-EyeSegmenter.cpp test-drishti-drishti.cpp)
-target_link_libraries(test-drishti-drishti drishti
+#add_executable(test-drishti-drishti test-EyeSegmenter.cpp test-drishti-drishti.cpp)
+
+add_executable(test-drishti-drishti-eye test-EyeSegmenter.cpp)
+target_link_libraries(test-drishti-drishti-eye drishti
+  ${OpenCV_LIBS}
+  GTest::gtest
+  drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
+  )
+
+add_executable(test-drishti-drishti-face test-FaceTracker.cpp)
+target_link_libraries(test-drishti-drishti-face drishti
   ${OpenCV_LIBS}
   GTest::gtest
   drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
@@ -25,7 +34,7 @@ endif()
 
 enable_testing()
 
-add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
+add_test(NAME DrishtiDrishtiEyeTest COMMAND test-drishti-drishti-eye
   "${DRISHTI_EYE_MODEL}"
   "${assets_dir}/images/2318-eye.png"
   "${assets_dir}/images/2318-eye.json"
@@ -34,11 +43,11 @@ add_test(NAME DrishtiDrishtiTest COMMAND test-drishti-drishti
 
 if(WIN32)
   set_property(
-      TEST DrishtiDrishtiTest
+      TEST DrishtiDrishtiEyeTest
       PROPERTY
       ENVIRONMENT
       "PATH=$<TARGET_FILE_DIR:drishti>;$ENV{PATH}"
   )
 endif()
 
-set_property(TARGET test-drishti-drishti PROPERTY FOLDER "app/tests")
+set_property(TARGET test-drishti-drishti-eye PROPERTY FOLDER "app/tests")

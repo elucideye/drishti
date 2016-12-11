@@ -34,7 +34,7 @@ public:
     struct Resources
     {
         std::istream *sFaceDetector;
-        std::istream *sFaceRegressor;
+        std::vector<std::istream *> sFaceRegressors;
         std::istream *sEyeRegressor;
         std::istream *sFaceModel;
     };

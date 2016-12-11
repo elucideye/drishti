@@ -31,6 +31,7 @@ class DRISHTI_EXPORTS Manager
 public:
     class Impl;
     Manager(const drishti::sensor::SensorModel &sensor);
+    ~Manager();
 protected:
     std::unique_ptr<Impl> m_impl;
 };
