@@ -10,6 +10,7 @@
 */
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
 #include "drishti/rcpr/CPR.h"
 #include "drishti/acf/ACFField.h"
 
@@ -19,8 +20,6 @@
 #  include "cvmatio/MatlabIOContainer.hpp"
 #  include "drishti/acf/ACFIO.h"
 #endif
-
-#include "drishti/core/serialization.h"
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 

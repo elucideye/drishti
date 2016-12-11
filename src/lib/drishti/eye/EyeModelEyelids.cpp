@@ -14,6 +14,7 @@
 */
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
 #include "drishti/eye/EyeIO.h"
 
 #define DRISHTI_EYE_DEBUG_INITS 0

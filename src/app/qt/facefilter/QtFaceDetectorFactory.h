@@ -15,6 +15,9 @@ namespace drishti
 class QtFaceDetectorFactory : public drishti::face::FaceDetectorFactory
 {
 public:
+    
+    using LoaderFunction = std::function<bool(std::istream &is, const std::string &hint)>;
+    
     QtFaceDetectorFactory();
     
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
@@ -23,6 +26,8 @@ public:
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
     
     virtual  drishti::face::FaceModel getMeanFace();
+
+    static bool load(const std::string &filename, LoaderFunction &loader);
 };
 
 #endif // ASSET_MANAGER_H

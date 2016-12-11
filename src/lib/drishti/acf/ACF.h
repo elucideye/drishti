@@ -12,19 +12,21 @@
 #ifndef __DRISHTI__ACF__
 #define __DRISHTI__ACF__
 
-#pragma once
-
 #include <stdio.h>
 
 #include "drishti/core/drishti_defs.hpp"
 #include "drishti/core/drishti_string_hash.h"
+
 #include "drishti/ml/ObjectDetector.h"
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
 #include "drishti/acf/MatP.h"
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/IndentingOStreamBuffer.h"
 #include "drishti/core/Logger.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+# include "drishti/core/boost_serialize_common.h" // optional
+#endif
 
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -46,14 +48,12 @@ public:
     typedef std::vector<cv::Size2d> Size2dVec;
     typedef std::vector<double> RealVec;
     typedef std::vector<cv::Rect> RectVec;
-
     typedef std::function<int(const cv::Mat&, const std::string &tag)> MatLoggerType;
 
     Detector() {}
     Detector(const Detector &src);
-    Detector(std::istream &is);
+    Detector(std::istream &is, const std::string &hint={});
     Detector(const std::string &filename);
-    Detector(const char *filename);
 
     struct Options
     {
@@ -81,8 +81,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Nms &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         struct Pyramid
@@ -111,8 +110,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const Color &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Color> pColor;
 
@@ -128,8 +126,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const GradMag &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<GradMag> pGradMag;
 
@@ -146,8 +143,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const GradHist &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
                 };
                 Field<GradHist> pGradHist;
@@ -159,8 +155,7 @@ public:
                     friend std::ostream& operator<<(std::ostream &os, const Custom &src);
                     
                     // Boost serialization:
-                    friend class boost::serialization::access;
-                    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
                 };
                 Field<Custom> pCustom;
                 Field<int> complete;
@@ -169,8 +164,7 @@ public:
                 friend std::ostream& operator<<(std::ostream &os, const Chns &src);
                 
                 // Boost serialization:
-                friend class boost::serialization::access;
-                template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
 
             Field<Chns> pChns;
@@ -190,8 +184,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Pyramid &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         Field<Pyramid> pPyramid;
@@ -218,8 +211,7 @@ public:
                 friend std::ostream& operator<<(std::ostream &os, const Tree &src);
                 
                 // Boost serialization:
-                friend class boost::serialization::access;
-                template<class Archive> void serialize(Archive & ar, const unsigned int version);
+                template<class Archive> void serialize(Archive & ar, const uint32_t version);
             };
             Field<Tree> pTree;
             Field<int> nWeak;
@@ -230,8 +222,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Boost &src);
             
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
 
         Field<Boost> pBoost;
@@ -257,8 +248,7 @@ public:
             friend std::ostream& operator<<(std::ostream &os, const Jitter &src);
 
             // Boost serialization:
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
+            template<class Archive> void serialize(Archive & ar, const uint32_t version);
         };
         Field<Jitter> pJitter;
         Field<int> winsSave;
@@ -267,8 +257,7 @@ public:
         friend std::ostream& operator<<(std::ostream &os, const Options &src);
         
         // Boost serialization:
-        friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version);
+        template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
     Options opts;
@@ -302,8 +291,7 @@ public:
         cv::Mat thrsU8;  // prescaled threshold (x255) for uint8_t input
         const cv::Mat & getScaledThresholds(int type);
 
-        friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version);        
+        template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
 
     Classifier clf;
@@ -444,9 +432,11 @@ public:
     int deserialize(std::istream &is);
     int deserialize(ParserNodeDetector &detector_);
     
+    int deserializeAny(const std::string &filename);
+    int deserializeAny(std::istream &is, const std::string &hint={});
+    
     // Boost serialization:
-    friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+    template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
     // Additional configuration parameters:
     void setIsLuv(bool flag)
@@ -506,23 +496,23 @@ inline cv::Vec3f rgb2luv(const cv::Vec3f &rgb)
     cv::Matx33f RGBtoXYZ(0.430574, 0.222015, 0.020183, 0.341550, 0.706655, 0.129553, 0.178325, 0.071330, 0.939180);
     RGBtoXYZ = RGBtoXYZ.t(); // to row major
 
-    const float y0 = 0.00885645167; //pow(6.0/29.0, 3.0);
-    const float a = 903.296296296;  //pow(29.0/3.0, 3.0);
-    const float un = 0.197833;
-    const float vn = 0.468331;
-    const float maxi = 0.0037037037;  // 1.0/270.0;
-    const float minu = maxi * -88.0;
-    const float minv = maxi * -134.0;
-    const cv::Vec3f k(1.0, 15.0, 3.0);
+    const float y0 = 0.00885645167f; //pow(6.0/29.0, 3.0);
+    const float a = 903.296296296f;  //pow(29.0/3.0, 3.0);
+    const float un = 0.197833f;
+    const float vn = 0.468331f;
+    const float maxi = 0.0037037037f;  // 1.0/270.0;
+    const float minu = maxi * -88.0f;
+    const float minv = maxi * -134.0f;
+    const cv::Vec3f k(1.0f, 15.0f, 3.0f);
 
     cv::Vec3f xyz = (RGBtoXYZ * rgb); // make like glsl col major
     const float c = ( xyz.dot(k) + 1e-35 );
-    const float z = 1.0/c;
+    const float z = 1.0f/c;
 
     cv::Vec3f luv;
-    luv[0] = ((xyz[1] > y0) ? (116.0 * std::pow(xyz[1], 0.3333333333) - 16.0) : (xyz[1] * a)) * maxi;
-    luv[1] = luv[0] * ((52.0 * xyz[0] * z) - (13.0*un)) - minu;
-    luv[2] = luv[0] * ((117.0 * xyz[1] * z) - (13.0*vn)) - minv;
+    luv[0] = ((xyz[1] > y0) ? (116.0f * std::pow(xyz[1], 0.3333333333f) - 16.0f) : (xyz[1] * a)) * maxi;
+    luv[1] = luv[0] * ((52.0f * xyz[0] * z) - (13.0f*un)) - minu;
+    luv[2] = luv[0] * ((117.0f * xyz[1] * z) - (13.0f*vn)) - minv;
 
     return luv;
 }

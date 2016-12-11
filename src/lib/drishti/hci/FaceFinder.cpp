@@ -366,7 +366,6 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
             scene = m_scenes[outputIndex].get();
             
             // Get current timestamp
-
             const auto now = std::chrono::system_clock::now();
             double elapsedTimeSinceStart = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count() / 1e3;
             
@@ -576,7 +575,7 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
             //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
 
             // Scale faces from regression to level 0
-            // The configuration sizes used in the ACF stacked channe image
+            // The configuration sizes used in the ACF stacked channel image
             // are all upright, but the output texture used for the display
             // is still in the native (potentially rotated) coordinate system,
             // so we need to perform scaling wrt that.
@@ -622,7 +621,6 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
     {
         this->m_timerInfo.eyeRegressionTime = seconds;
     };
-
 
 #if DRISHTI_FACEFILTER_DO_TRACKING
     auto faceDetectorAndTracker = std::make_shared<drishti::face::FaceDetectorAndTracker>(resources);

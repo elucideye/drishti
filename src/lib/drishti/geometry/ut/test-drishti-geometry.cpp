@@ -1,5 +1,5 @@
 /*!
-  @file   test-geometry.cpp
+  @file   test-drishti-geometry.cpp
   @author David Hirvonen
   @brief  Google test for public drishti API.
 

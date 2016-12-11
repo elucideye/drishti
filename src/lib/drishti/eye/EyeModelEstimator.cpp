@@ -12,7 +12,18 @@
 */
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
-#include "drishti/core/boost_serialize_common.h"
+
+#include "drishti/core/drishti_stdlib_string.h" // FIRST
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/boost_serialize_common.h" // (optional)
+#endif
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_cereal_pba.h"
+#endif
+
+#include <fstream>
 
 #define DRISHTI_EYE_USE_DARK_CHANNEL 0
 
@@ -28,6 +39,7 @@ EyeModelEstimator::Impl::Impl(const std::string &eyeRegressor, const std::string
 {
     DRISHTI_STREAM_LOG_FUNC(2,1,m_streamLogger);
 
+#if DRISHTI_SERIALIZE_WITH_BOOST 
     m_eyeEstimator = std::make_shared<ml::RegressionTreeEnsembleShapeEstimator>(eyeRegressor);
     if(!irisRegressor.empty())
     {
@@ -42,6 +54,10 @@ EyeModelEstimator::Impl::Impl(const std::string &eyeRegressor, const std::string
             m_pupilEstimator = pupilEstimator;
         }
     }
+#else
+    assert(false);
+    std::cerr << "Warning: WIP build without boost" << std::endl;
+#endif
 
     init();
 }
@@ -162,18 +178,62 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat &crop, EyeModel &eye) cons
 
 //====
 
-// Public API:
-// TODO: support for stream input
+EyeModelEstimator::EyeModelEstimator(std::istream &is, const std::string &hint)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
+    {
+        load_pba_z(is, *this);
+        return;
+    }
+#endif
+#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST 
+    if(!hint.empty() && (hint.find(".txt") != std::string::npos))
+    {
+        load_txt_z(is, *this);
+        return;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    if(hint.empty() || (hint.find(".cpb") != std::string::npos))
+    {
+        load_cpb(is, *this);
+        return;
+    }
+#endif // DRISHTI_SERIALIZE_WITH_CEREAL
+    assert(false);
+}
+
+EyeModelEstimator::EyeModelEstimator(const std::string &filename)
+{
+#if DRISHTI_SERIALIZE_WITH_BOOST
+    if(filename.find(".pba.z") != std::string::npos)
+    {
+        load_pba_z(filename, *this);
+        return;
+    }
+#endif // DRISHTI_SERIALIZE_WITH_BOOST    
+#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST 
+    if(filename.find(".txt") != std::string::npos)
+    {
+        load_txt_z(filename, *this);
+        return;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+    if(filename.find(".cpb") != std::string::npos)
+    {
+        load_cpb(filename, *this);
+        return;
+    }
+#endif
+    assert(false);
+}
+
 EyeModelEstimator::EyeModelEstimator(const RegressorConfig &config)
 {
     DRISHTI_STREAM_LOG_FUNC(2,5,m_streamLogger);
     m_impl = std::make_shared<EyeModelEstimator::Impl>(config.eyeRegressor, config.irisRegressor, config.pupilRegressor);
-}
-
-EyeModelEstimator::EyeModelEstimator(const std::string &eyeRegressor, const std::string &irisRegressor, const std::string &pupilRegressor)
-{
-    DRISHTI_STREAM_LOG_FUNC(2,6,m_streamLogger);
-    m_impl = std::make_shared<EyeModelEstimator::Impl>(eyeRegressor, irisRegressor, pupilRegressor);
 }
 
 EyeModelEstimator::~EyeModelEstimator() {}
@@ -353,67 +413,6 @@ int EyeModelEstimator::getIrisStagesRepetitionFactor() const
     return m_impl->getIrisStagesRepetitionFactor();
 }
 
-int EyeModelEstimator::loadPBA(const std::string &filename, EyeModelEstimator &eme)
-{
-    int status = -1;
-    std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    if(ifs)
-    {
-        return loadPBA(ifs, eme);
-    }
-    return status;
-}
-
-int EyeModelEstimator::loadPBA(std::istream &is, EyeModelEstimator &eme)
-{
-    load_pba_z(is, eme);
-    return 0;
-}
-
-#if DRISHTI_USE_TEXT_ARCHIVES
-int EyeModelEstimator::loadTXT(const std::string &filename, EyeModelEstimator &eme)
-{
-    std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-    return loadTXT(ifs, eme);
-}
-
-int EyeModelEstimator::loadTXT(std::istream &is, EyeModelEstimator &eme)
-{
-    load_txt_z(is, eme);
-    return 0;
-}
-#endif
-
-// Boost serialization:
-template<class Archive> void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
-{
-    assert(version >= 1);
-    ar & m_impl;
-}
-
-// ##################################################################
-// #################### portable_binary_*archive ####################
-// ##################################################################
-
-#if !DRISHTI_BUILD_MIN_SIZE
-template void EyeModelEstimator::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-#endif
-
-template void EyeModelEstimator::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-
-// ##################################################################
-// #################### text_*archive ###############################
-// ##################################################################
-
-#if DRISHTI_USE_TEXT_ARCHIVES
-template void EyeModelEstimator::Impl::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<boost::archive::text_oarchive>(boost::archive::text_oarchive &ar, const unsigned int);
-
-template void EyeModelEstimator::Impl::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<boost::archive::text_iarchive>(boost::archive::text_iarchive &ar, const unsigned int);
-#endif
 
 static float resizeEye(const cv::Mat &src, cv::Mat &dst, float width)
 {
@@ -442,6 +441,3 @@ static cv::Mat getDarkChannel(const cv::Mat &I)
 #endif
 
 DRISHTI_EYE_NAMESPACE_END
-
-BOOST_CLASS_EXPORT_IMPLEMENT(DRISHTI_EYE::EyeModelEstimator);
-BOOST_CLASS_EXPORT_IMPLEMENT(DRISHTI_EYE::EyeModelEstimator::Impl);

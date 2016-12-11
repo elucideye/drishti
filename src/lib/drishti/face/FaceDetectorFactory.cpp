@@ -7,39 +7,77 @@
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
 
+#include <fstream>
+
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-std::unique_ptr<drishti::ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
+drishti::face::FaceModel loadFaceModel(std::istream &is);
+drishti::face::FaceModel loadFaceModel(const std::string &filename);
+
+/*
+ * FaceDetectorFactor (string)
+ */
+
+std::unique_ptr<ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
 {
-    return drishti::core::make_unique<drishti::acf::Detector>(sFaceDetector);
+    return core::make_unique<acf::Detector>(sFaceDetector);
 }
 
-std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactory::getInnerFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getInnerFaceEstimator()
 {
-    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[0]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[0]);
 }
 
-std::unique_ptr<drishti::ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEstimator()
 {
-    return drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[1]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[1]);
 }
 
-std::unique_ptr<drishti::eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
+std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
 {
-    std::unique_ptr<DRISHTI_EYE::EyeModelEstimator> regressor(new DRISHTI_EYE::EyeModelEstimator);
-    load_pba_z(sEyeRegressor, *regressor);
-    return regressor;
+    return core::make_unique<eye::EyeModelEstimator>(sFaceDetector);
 }
 
-drishti::face::FaceModel FaceDetectorFactory::getMeanFace()
+face::FaceModel FaceDetectorFactory::getMeanFace()
 {
-    drishti::face::FaceModel faceDetectorMean;
-    std::ifstream is(sFaceDetectorMean);
-    if(is)
+    face::FaceModel faceDetectorMean;    
+    if(sFaceDetectorMean.empty())
     {
-        cereal::XMLInputArchive ia(is);
-        typedef decltype(ia) Archive;
-        ia >> faceDetectorMean;
+        faceDetectorMean = loadFaceModel(sFaceDetectorMean);
+    }
+    return faceDetectorMean;
+}
+
+/*
+ * FaceDetectorFactorStream (std::istream)
+ */
+
+std::unique_ptr<ml::ObjectDetector> FaceDetectorFactoryStream::getFaceDetector()
+{
+    return core::make_unique<acf::Detector>(*iFaceDetector);
+}
+
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getInnerFaceEstimator()
+{
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[0]);
+}
+
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getOuterFaceEstimator()
+{
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[1]);
+}
+
+std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
+{
+    return core::make_unique<DRISHTI_EYE::EyeModelEstimator>(*iFaceDetector, sFaceDetector);
+}
+
+face::FaceModel FaceDetectorFactoryStream::getMeanFace()
+{
+    face::FaceModel faceDetectorMean;
+    if(iFaceDetectorMean && *iFaceDetectorMean)
+    {
+        faceDetectorMean = loadFaceModel(*iFaceDetectorMean);
     }
     return faceDetectorMean;
 }

@@ -51,9 +51,7 @@ std::shared_ptr<spdlog::logger> Logger::create(const char* name)
 #if defined(__ANDROID__)
     sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
 #endif
-    auto logger = std::make_shared<spdlog::logger>(
-                      name, begin(sinks), end(sinks)
-                  );
+    auto logger = std::make_shared<spdlog::logger>(name, begin(sinks), end(sinks));
     spdlog::register_logger(logger);
     spdlog::set_pattern("[%H:%M:%S.%e | thread:%t | %n | %l]: %v");
     return logger;

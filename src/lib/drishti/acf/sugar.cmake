@@ -13,7 +13,7 @@ include(sugar_files)
 
 sugar_files(DRISHTI_ACF_SRCS
   ACF.cpp
-  ACFIO.cpp
+  ACFIO.cpp # optional
   MatP.cpp
   acfModify.cpp
   bbNms.cpp
@@ -35,10 +35,19 @@ sugar_files(DRISHTI_ACF_SRCS
   toolbox/wrappers.cpp
   )
 
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  sugar_files(DRISHTI_ACF_SRCS ACFIOArchiveBoost.cpp)
+endif()
+
+if(DRISHTI_SERIALIZE_WITH_CEREAL)
+  sugar_files(DRISHTI_ACF_SRCS ACFIOArchiveCereal.cpp)
+endif()
+
 sugar_files(DRISHTI_ACF_HDRS_PUBLIC
   ACF.h
   ACFField.h
   ACFIO.h
+  ACFIOArchive.h
   ACFObject.h
   MatP.h
   drishti_acf.h

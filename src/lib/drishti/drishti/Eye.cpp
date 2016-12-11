@@ -11,8 +11,10 @@
 */
 
 #include "drishti/Eye.hpp"
-#include "drishti/core/drishti_serialize.h"
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/drishti_cv.hpp"
+#include "drishti/eye/Eye.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -20,6 +22,16 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+
+#ifdef DRISHTI_CEREAL_XML_JSON
+#  undef DRISHTI_CEREAL_XML_JSON
+#  define DRISHTI_CEREAL_XML_JSON 1
+#endif
+
+#if DRISHTI_CEREAL_XML_JSON
+#  include <cereal/archives/xml.hpp>
+#  include <cereal/archives/json.hpp>
+#endif
 
 CEREAL_CLASS_VERSION(drishti::sdk::Eye, 1);
 
@@ -104,7 +116,8 @@ void serialize(Archive & ar, drishti::sdk::Eye & eye, const unsigned int version
  */
 
 Eye::Eye()
-{}
+{
+}
 
 Eye::Eye(const Eye &src)
     : iris(src.iris)
@@ -136,6 +149,7 @@ std::ostream& operator<<(std::ostream &os, const Eye::Ellipse &e)
 
 std::ostream& operator<<(std::ostream &os, const EyeOStream &eye)
 {
+#if DRISHTI_CEREAL_XML_JSON
     switch(eye.format)
     {
         case EyeStream::XML:
@@ -153,11 +167,16 @@ std::ostream& operator<<(std::ostream &os, const EyeOStream &eye)
             break;
         }
     }
+#else
+    std::cerr << "Skipping JSON archive" << std::endl;
+#endif
+    
     return os;
 }
 
 std::istream& operator>>(std::istream &is, EyeIStream &eye)
 {
+#if DRISHTI_CEREAL_XML_JSON
     switch(eye.format)
     {
         case EyeStream::XML:
@@ -175,6 +194,9 @@ std::istream& operator>>(std::istream &is, EyeIStream &eye)
             break;
         }
     }
+#else
+    std::cerr << "Skipping JSON archive" << std::endl;
+#endif
     return is;
 }
 

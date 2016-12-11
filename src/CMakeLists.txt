@@ -9,45 +9,53 @@ sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
 set(LIB_TYPE STATIC)
 
-## 3rd party boost pba
-add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
-target_link_libraries(boost-pba PUBLIC Boost::boost)
-target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
-set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
-add_library(boost-pba::boost-pba ALIAS boost-pba)
-
-# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
-
 ######################################
 ### Initial 3RDPARTY SRC libraries ###
 ######################################
-set(DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
+set(DRISHTI_SDK_3RDPARTY_SRC_LIBS )
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  ## 3rd party boost pba
+  add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
+  target_link_libraries(boost-pba PUBLIC Boost::boost)
+  target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
+  set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
+  add_library(boost-pba::boost-pba ALIAS boost-pba)
+
+  list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
+endif()
+
+# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
 
 ######################################
 ### Initial 3RDPARTY PKG libraries ###
 ######################################
 set(DRISHTI_SDK_3RDPARTY_PKG_LIBS
   dlib::dlib
-  ${DRISHTI_SDK_BOOST_LIBS}
   ${OpenCV_LIBS}  
   cereal::cereal
   Eigen::eigen
   spdlog::spdlog
   )
 
-if(DRISHTI_BUILD_FACE)
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${DRISHTI_SDK_BOOST_LIBS})
+endif()
+
+if(DRISHTI_BUILD_ACF AND DRISHTI_SERIALIZE_WITH_CVMATIO)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cvmatio::cvmatio)
 endif()
 
 ###############
 ### XGBOOST ###
 ###############
-option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
+option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   # Note: Use either XGBOOST
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
   option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
   add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost)
+  include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
   unset(SKIP_INSTALL CACHE)
   add_library(xgboost::xgboost ALIAS xgboost)
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS xgboost::xgboost) # Add library
@@ -64,7 +72,7 @@ endif()
 if(DRISHTI_BUILD_OGLES_GPGPU)
 
   # Support local submodule use or external package:
-  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" OFF)
+  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" ON)
 
   if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
     option(OGLES_GPGPU_INSTALL "Avoid installation of submodule libraries" OFF)

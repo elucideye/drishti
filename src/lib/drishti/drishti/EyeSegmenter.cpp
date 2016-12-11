@@ -11,6 +11,8 @@
 
 #include "drishti/EyeSegmenter.hpp"
 #include "drishti/EyeSegmenterImpl.hpp"
+#include "drishti/core/make_unique.h"
+#include "drishti/core/drishti_serialize.h"
 
 #include <string>
 #include <fstream>
@@ -20,26 +22,34 @@
 
 _DRISHTI_SDK_BEGIN
 
+static bool isArchiveSupported(ArchiveKind kind);
+
 /*
  * EyeSegmenter
  */
 
 EyeSegmenter::EyeSegmenter(const std::string &filename, ArchiveKind kind)
 {
-    std::ifstream is(filename);
+    std::ifstream is(filename, std::ios_base::binary | std::ios::in);
     init(is, kind);
 }
 
 EyeSegmenter::EyeSegmenter(std::istream &is, ArchiveKind kind)
 {
+    assert(is.good());
     init(is, kind);
 }
 
 void EyeSegmenter::init(std::istream &is, ArchiveKind kind)
 {
+    if(!isArchiveSupported(kind))
+    {
+        return;
+    }
+    
     try
     {
-        m_impl = std::unique_ptr<Impl>(new Impl(is, kind));
+        m_impl = drishti::core::make_unique<Impl>(is, kind);
     }
     catch(std::exception &e)
     {
@@ -112,6 +122,26 @@ void EyeSegmenter::setOptimizationLevel(int level)
     m_impl->setOptimizationLevel(level);
 }
 
+// ### utility ###
+
+static bool isArchiveSupported(ArchiveKind kind)
+{
+    switch(kind)
+    {
+#if DRISHTI_SERIALIZE_WITH_BOOST
+        case kPBA: return true;
+#endif
+#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES
+        case kTXT: return true;
+#endif
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+        case kCPB: return true;
+#endif
+        case kAuto: return true;
+    }
+    return false;
+}
+
 _DRISHTI_SDK_END
 
 /*
@@ -119,17 +149,20 @@ _DRISHTI_SDK_END
  */
 
 DRISHTI_EXTERN_C_BEGIN
-drishti::sdk::EyeSegmenter* drishti_create_from_file(const std::string &filename)
+drishti::sdk::EyeSegmenter*
+drishti_eye_segmenter_create_from_file(const std::string &filename)
 {
     return new drishti::sdk::EyeSegmenter(filename);
 }
 
-drishti::sdk::EyeSegmenter* drishti_create_from_stream(std::istream &is)
+drishti::sdk::EyeSegmenter*
+drishti_eye_segmenter_create_from_stream(std::istream &is)
 {
     return new drishti::sdk::EyeSegmenter(is);
 }
 
-void drishti_destroy(drishti::sdk::EyeSegmenter *segmenter)
+void
+drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter *segmenter)
 {
     if(segmenter)
     {
@@ -137,9 +170,11 @@ void drishti_destroy(drishti::sdk::EyeSegmenter *segmenter)
     }
 }
 
-void drishti_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight)
+void
+drishti_eye_segmenter_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight)
 {
     (*segmenter)(image, eye, isRight);
 }
 DRISHTI_EXTERN_C_END
+
 

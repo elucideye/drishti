@@ -18,14 +18,24 @@ sugar_files(DRISHTI_FACE_SRCS
   FaceDetectorAndTrackerImpl.cpp
   FaceDetectorAndTrackerNN.cpp
   FaceDetectorFactory.cpp
+  FaceDetectorFactoryCereal.cpp
   FaceIO.cpp
   FaceModelEstimator.cpp
   face_util.cpp
-)
+  )
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  sugar_files(DRISHTI_FACE_SRCS FaceArchiveBoost.cpp)
+endif()
+
+if(DRISHTI_SERIALIZE_WITH_CEREAL)
+  sugar_files(DRISHTI_FACE_SRCS FaceArchiveCereal.cpp)
+endif()
 
 sugar_files(DRISHTI_FACE_HDRS_PUBLIC
   drishti_face.h
   Face.h
+  FaceImpl.h  
   FaceDetector.h
   FaceDetectorAndTracker.h
   FaceDetectorAndTrackerImpl.h

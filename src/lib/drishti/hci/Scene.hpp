@@ -11,6 +11,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/gpu/LineDrawing.hpp"
 #include "drishti/face/Face.h"
 #include "drishti/acf/ACF.h"
@@ -20,6 +21,8 @@
 // *INDENT-OFF*
 namespace drishti { namespace acf { class Detector; } };
 // *INDENT-ON*
+
+DRISHTI_HCI_NAMESPACE_BEGIN
 
 struct ScenePrimitives
 {
@@ -109,5 +112,7 @@ void rectanglesToDrawings(const std::vector<cv::Rect> &rectangles, LineDrawingVe
 void facesToDrawings(const std::vector<drishti::face::FaceModel> &faces, LineDrawingVec &drawings);
 void rectangleToDrawing(const cv::Rect &r, ogles_gpgpu::LineDrawing &drawing, bool closed=true);
 void flowToDrawings(const std::vector<cv::Vec4f> &flow, LineDrawingVec &drawings, const cv::Mat3f &colorMap);
+
+DRISHTI_HCI_NAMESPACE_END
 
 #endif // SCENE_H

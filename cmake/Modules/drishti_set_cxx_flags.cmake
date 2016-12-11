@@ -24,6 +24,11 @@ macro(drishti_set_cxx_flags)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-attributes")
     endif()
 
+    CHECK_CXX_COMPILER_FLAG(-Wno-shorten-64-to-32 COMPILER_SUPPORTS_NO_SHORTEN_64_TO_32)
+    if(COMPILER_SUPPORTS_NO_SHORTEN_64_TO_32)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shorten-64-to-32")
+    endif()
+
   endif()
 
 endmacro()

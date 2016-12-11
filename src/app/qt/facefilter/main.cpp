@@ -184,5 +184,3 @@ static nlohmann::json loadJSON(spdlog::logger &logger)
     
     return json;
 }
-
-

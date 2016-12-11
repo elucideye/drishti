@@ -29,7 +29,7 @@ public:
 
     RegressionTreeEnsembleShapeEstimator() {}
     RegressionTreeEnsembleShapeEstimator(const std::string &filename);
-    RegressionTreeEnsembleShapeEstimator(std::istream &is);
+    RegressionTreeEnsembleShapeEstimator(std::istream &is, const std::string &hint={});
 
     virtual void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
     virtual int operator()(const cv::Mat &I, const cv::Mat &M, Point2fVec &points, BoolVec &mask) const;
@@ -44,18 +44,26 @@ public:
     void loadImpl(const std::string &filename);
 
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version);
-
-    friend class boost::serialization::access;
-    template< class Archive> void serializeModel(Archive &ar, const unsigned int version);
+    template<class Archive> void serializeModel(Archive &ar, const unsigned int version);
 
     std::shared_ptr<Impl> m_impl;
 };
 
+typedef RegressionTreeEnsembleShapeEstimator RTEShapeEstimator;
+
 DRISHTI_ML_NAMESPACE_END
 
+#if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator);
-BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);
+#endif
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+// NOTE: Initial attempt to move this code to the RTEShapeEstimatorArchiveCereal.cpp failed
+#include "drishti/core/drishti_stdlib_string.h"
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(drishti::ml::RegressionTreeEnsembleShapeEstimator);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::ml::RegressionTreeEnsembleShapeEstimator);
+#endif
 
 #endif // drishtisdk_RegressionTreeEnsembleShapeEstimator_h

@@ -8,26 +8,44 @@
 
 */
 
-#include <gtest/gtest.h>
+#include "drishti/eye/EyeModelEstimator.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/boost_serialize_common.h"
+#endif
+
+// DRISHTI_SERIALIZE_EYE_WITH_CEREAL: provides local json serialization of the eye type
+// and this setting may be used independently from DRISHTI_SERIALIZE_WITH_CEREAL
+#define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL || DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+#  include "drishti/core/drishti_stdlib_string.h"
+#  include "drishti/core/drishti_cereal_pba.h"
+#  include "drishti/core/drishti_cv_cereal.h"
+#endif
+
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+#  include <cereal/archives/json.hpp>
+#  include <cereal/archives/xml.hpp>
+#endif
+
+#include "drishti/core/drishti_serialize.h"
 
 // These must come before drishti_cv.hpp
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "drishti/core/boost_serialize_common.h"
+#include <gtest/gtest.h>
 
 #include <fstream>
-
-#include "drishti/eye/EyeModelEstimator.h"
-
-#include "drishti/core/drishti_serialize.h"
 
 // https://code.google.com/p/googletest/wiki/Primer
 
 const char* modelFilename;
 const char* imageFilename;
 const char* truthFilename;
+const char* outputDirectory;
 bool isTextArchive;
 
 #define BEGIN_EMPTY_NAMESPACE namespace {
@@ -44,24 +62,14 @@ class EyeModelEstimatorTest : public ::testing::Test
 {
 public:
     
-    static std::shared_ptr<drishti::eye::EyeModelEstimator> create(const std::string &filename, bool textArchive)
+    static std::shared_ptr<drishti::eye::EyeModelEstimator> create(const std::string &filename)
     {
-        auto estimator = std::make_shared<drishti::eye::EyeModelEstimator>();
-#if DRISHTI_USE_TEXT_ARCHIVES
-        if(textArchive)
-        {
-            drishti::eye::EyeModelEstimator::loadTXT(modelFilename, *estimator);
-        }
-        else
-#endif
-        {
-            drishti::eye::EyeModelEstimator::loadPBA(modelFilename, *estimator);
-        }
-        return estimator;
+        auto segmenter = std::make_shared<drishti::eye::EyeModelEstimator>(filename);
+        return (segmenter && segmenter->good()) ? segmenter: nullptr;
     }
     
 protected:
-
+    
     struct Entry
     {
         cv::Mat image;
@@ -71,9 +79,8 @@ protected:
     // Setup
     EyeModelEstimatorTest()
     {
-        
         // Create the segmenter (constructor tests performed prior to this)
-        m_eyeSegmenter = create(modelFilename, isTextArchive);
+        m_eyeSegmenter = create(modelFilename);
 
         // Load the ground truth data:
         loadTruth();
@@ -131,17 +138,24 @@ protected:
     void loadTruth()
     {
         assert(truthFilename);
-        auto eye = std::make_shared<drishti::eye::EyeModel>();
-        
         std::ifstream is(truthFilename);
-        if(is)
+        if(is.good())
         {
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+            auto eye = std::make_shared<drishti::eye::EyeModel>();
             cereal::JSONInputArchive ia(is);
             typedef decltype(ia) Archive;
             ia( GENERIC_NVP("eye", *eye) );
-            
             m_eye = eye;
-            m_eye->refine();
+            m_eye->refine();            
+#else
+            std::cerr << "Skipping JSON archive" << std::endl;
+#endif
+        }
+        else
+        {
+            std::cerr << "Unable to find ground truth file: " << truthFilename << std::endl;
+            std::cerr << "Make sure test-drishti-drishti is run first." << std::endl;
         }
     }
     
@@ -175,30 +189,50 @@ protected:
 
 TEST(EyeModelEstimator, StringConstructor)
 {
-    // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char *)NULL);
-
-    auto segmenter = EyeModelEstimatorTest::create(modelFilename, isTextArchive);
-    
-    // Make sure we reached this point (no exceptions):
-    ASSERT_EQ(segmenter->good(), true);
+    if(isArchiveSupported(modelFilename))
+    {
+        ASSERT_NE(modelFilename, (const char *)NULL);
+        auto segmenter = EyeModelEstimatorTest::create(modelFilename);
+        ASSERT_EQ(segmenter->good(), true);
+    }
 }
 
 TEST(EyeModelEstimator, StreamConstructor)
 {
-    // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char *)NULL);
-
-    std::ifstream is(modelFilename);
-
-    // Make sure file could be opened:
-    ASSERT_TRUE((bool)is);
-
-    auto segmenter = EyeModelEstimatorTest::create(modelFilename, isTextArchive);
-
-    // Make sure we reached this point (no exceptions):
-    EXPECT_EQ(segmenter->good(), true);
+    if(isArchiveSupported(modelFilename))
+    {
+        ASSERT_NE(modelFilename, (const char *)NULL);
+        std::ifstream is(modelFilename);
+        ASSERT_TRUE((bool)is);
+        auto segmenter = EyeModelEstimatorTest::create(modelFilename);
+        EXPECT_EQ(segmenter->good(), true);
+    }
 }
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+TEST_F(EyeModelEstimatorTest, CerealSerialization)
+{
+    if(m_eyeSegmenter)
+    {
+        std::string filename = std::string(outputDirectory) + "/eye.cpb";
+        save_cpb(filename, *m_eyeSegmenter);
+        
+        drishti::eye::EyeModelEstimator segmenter2;
+        load_cpb(filename, segmenter2);
+        
+        //    int i = 128;
+        //
+        //    assert(m_images[i].isRight);
+        //    drishti::eye::EyeModel eye;
+        //    int code = segmenter2(m_images[i].image, eye);
+        //    EXPECT_EQ(code, 0);
+        //
+        //    cv::Mat mask = cv::Mat(m_images[i].image.size(), CV_8UC3, cv::Scalar::all(0));
+        //    eye.draw(mask);
+        //    cv::imshow("mask", mask); cv::waitKey(0);
+    }
+}
+#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 static void checkValid(const drishti::eye::EyeModel &eye, const cv::Size &size)
 {
@@ -215,21 +249,36 @@ static void checkValid(const drishti::eye::EyeModel &eye, const cv::Size &size)
 
 TEST_F(EyeModelEstimatorTest, EyeSerialization)
 {
-    drishti::eye::EyeModel eye;
-    
-    assert(m_images[m_targetWidth].isRight);
-    /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
-    
-    std::ofstream os("/tmp/right_eye_2.json");
-    cereal::JSONOutputArchive oa(os);
-    typedef decltype(oa) Archive;
-    oa << GENERIC_NVP("eye", eye);
+    if(m_eyeSegmenter)
+    {
+        drishti::eye::EyeModel eye;
+        
+        assert(m_images[m_targetWidth].isRight);
+        /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
+        
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+        std::string filename(outputDirectory);
+        filename += "/right_eye_2.json";
+        
+        std::ofstream os(filename);
+        cereal::JSONOutputArchive oa(os);
+        typedef decltype(oa) Archive;
+        oa << GENERIC_NVP("eye", eye);
+#else
+        std::cerr << "Skipping JSON archive" << std::endl;
+#endif
+    }
 }
 
 // TODO: Add ground truth comparison
 // * hamming distance for sclera and iris masks components
 TEST_F(EyeModelEstimatorTest, ImageValid)
 {
+    if(!m_eye || !m_eyeSegmenter)
+    {
+        return;
+    }
+    
     for(int i = 32; i < m_images.size(); i++)
     {
         // Make sure image has the expected size:
@@ -239,6 +288,10 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
         drishti::eye::EyeModel eye;
         int code = (*m_eyeSegmenter)(m_images[i].image, eye);
         EXPECT_EQ(code, 0);
+        
+        //cv::Mat mask = cv::Mat(m_images[i].image.size(), CV_8UC3, cv::Scalar::all(0));
+        //eye.draw(mask);
+        //cv::imshow("mask", mask); cv::waitKey(0);
         
         eye.refine();
         checkValid(eye, m_images[i].image.size());
@@ -257,30 +310,36 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
 // Currently there is no internal quality check, but this is included for regression:
 TEST_F(EyeModelEstimatorTest, ImageIsBlack)
 {
-    Entry entry;
-    int width = 256;
-    int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
-    createImage(entry, height, width, {0,0,0});
-
-    assert(entry.isRight);
-    drishti::eye::EyeModel eye;
-    int code = (*m_eyeSegmenter)(entry.image, eye);
-    EXPECT_EQ(code, 0);
-    checkValid(eye, entry.image.size());
+    if(m_eyeSegmenter)
+    {
+        Entry entry;
+        int width = 256;
+        int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
+        createImage(entry, height, width, {0,0,0});
+        
+        assert(entry.isRight);
+        drishti::eye::EyeModel eye;
+        int code = (*m_eyeSegmenter)(entry.image, eye);
+        EXPECT_EQ(code, 0);
+        checkValid(eye, entry.image.size());
+    }
 }
 
 TEST_F(EyeModelEstimatorTest, ImageIsWhite)
 {
-    Entry entry;
-    int width = 256;
-    int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
-    createImage(entry, height, width, {0,0,0});
-
-    assert(entry.isRight);
-    drishti::eye::EyeModel eye;
-    int code = (*m_eyeSegmenter)(entry.image, eye);
-    EXPECT_EQ(code, 0);
-    checkValid(eye, entry.image.size());
+    if(m_eyeSegmenter)
+    {
+        Entry entry;
+        int width = 256;
+        int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
+        createImage(entry, height, width, {0,0,0});
+        
+        assert(entry.isRight);
+        drishti::eye::EyeModel eye;
+        int code = (*m_eyeSegmenter)(entry.image, eye);
+        EXPECT_EQ(code, 0);
+        checkValid(eye, entry.image.size());
+    }
 }
 
 // #######

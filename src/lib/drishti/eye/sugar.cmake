@@ -22,8 +22,23 @@ sugar_files(DRISHTI_EYE_SRCS
   IrisNormalizer.cpp
   )
 
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  sugar_files(DRISHTI_EYE_SRCS
+    EyeModelEstimatorArchiveBoost.cpp
+    EyeArchiveBoost.cpp
+    )
+endif()
+
+if(DRISHTI_SERIALIZE_WITH_CEREAL)
+  sugar_files(DRISHTI_EYE_SRCS
+    EyeModelEstimatorArchiveCereal.cpp
+    EyeArchiveCereal.cpp
+    )
+endif()
+
 sugar_files(DRISHTI_EYE_HDRS_PUBLIC
   Eye.h
+  EyeImpl.h
   EyeIO.h
   EyeModelEstimator.h
   EyeModelEstimatorImpl.h

@@ -15,6 +15,7 @@
 #include "drishti/eye/Eye.h" // internal sdk eye model
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/core/Logger.h"
+#include "drishti/core/make_unique.h"
 
 // OpenCV inlucdes must come before drishti_cv.hpp
 #include <opencv2/core/core.hpp>
@@ -32,6 +33,8 @@
 #define MINIMUM_EYE_WIDTH 32
 
 _DRISHTI_SDK_BEGIN
+
+static std::string kindToHint(ArchiveKind kind);
 
 EyeSegmenter::Impl::Impl(bool doLoad)
 {
@@ -51,16 +54,9 @@ EyeSegmenter::Impl::Impl(std::istream &is, ArchiveKind kind)
 
 void EyeSegmenter::Impl::init(std::istream &is, ArchiveKind kind)
 {
-    // First try loading from resource
-    m_eme = std::unique_ptr<DRISHTI_EYE::EyeModelEstimator>(new DRISHTI_EYE::EyeModelEstimator());
+    auto hint = kindToHint(kind);
+    m_eme = core::make_unique<eye::EyeModelEstimator>(is, hint);
 
-    switch(kind)
-    {
-#if DRISHTI_USE_TEXT_ARCHIVES        
-        case kTXT: DRISHTI_EYE::EyeModelEstimator::loadTXT(is, (*m_eme)); break;
-#endif
-        default: DRISHTI_EYE::EyeModelEstimator::loadPBA(is, (*m_eme)); break;
-    }
     m_eme->setDoPupil(false);
     m_eme->setDoVerbose(false);
     m_eme->setTargetWidth(128);
@@ -172,7 +168,17 @@ float EyeSegmenter::Impl::getRequiredAspectRatio()
     return EYE_ASPECT_RATIO;
 }
 
-// ### Conversion routines ###
+// ### utility ###
 
+static std::string kindToHint(ArchiveKind kind)
+{
+    switch(kind)
+    {
+        case kTXT: return "hint.txt";
+        case kPBA: return "hint.pba.z";
+        case kCPB: return "hint.cpb";
+        default: assert(0 && "Archive is not supported");
+    }
+}
 
 _DRISHTI_SDK_END

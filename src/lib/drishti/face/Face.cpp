@@ -12,7 +12,6 @@
 #include "drishti/core/Shape.h"
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
-
 #include "drishti/face/FaceIO.h"
 
 #include <opencv2/videostab/global_motion.hpp>

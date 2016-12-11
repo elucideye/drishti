@@ -13,28 +13,27 @@
 
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
-
 #include "drishti/core/drishti_defs.hpp"
 #include "drishti/core/IndentingOStreamBuffer.h"
 
 #include <opencv2/core/core.hpp>
 
-// TODO: Work on making these private but also sharable
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
 #include "cvmatio/MatlabIO.hpp"
 #include "cvmatio/MatlabIOContainer.hpp"
-
-// Boost serialization:
-#include "drishti/core/serialization.h"
+#endif // DRISHTI_SERIALIZE_WITH_CVMATIO
 
 #include <string>
 #include <iostream>
+#include <memory>
+
+#define DRISHTI_ACF_DO_DEBUG_LOAD 0
+#define DRISHTI_ACF_USE_INDENTING_STREAM 0
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-typedef std::vector< MatlabIOContainer > VecContainer;
-typedef std::vector< VecContainer > VecVecContainer;
-
-template <typename T2> std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
+template <typename T2>
+std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
 {
     os << src.name << ":";
     if(src.has)
@@ -61,7 +60,8 @@ template <typename T2> std::ostream& operator<<(std::ostream &os, const Field<T2
     return os;
 }
 
-template <typename T2> std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src)
+template <typename T2>
+std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src)
 {
     os << src.name << ":";
     if(src.has)
@@ -80,6 +80,15 @@ template <typename T2> std::ostream& operator<<(std::ostream &os, const Field<st
     return os;
 }
 
+// ###############################################################################
+// #################### CVMATIO ##################################################
+// ###############################################################################
+
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
+
+typedef std::vector<MatlabIOContainer> VecContainer;
+typedef std::vector<VecContainer> VecVecContainer;
+
 template <typename T1, typename T2> struct Cast
 {
     T2 operator()(const T1 &t1)
@@ -88,7 +97,8 @@ template <typename T1, typename T2> struct Cast
     }
 };
 
-template <typename T1, typename T2> struct Cast<std::vector<T1>, std::vector<T2>>
+template <typename T1, typename T2>
+struct Cast<std::vector<T1>, std::vector<T2>>
 {
     std::vector<T2> operator()(const std::vector<T1> &t1)
     {
@@ -96,7 +106,8 @@ template <typename T1, typename T2> struct Cast<std::vector<T1>, std::vector<T2>
     }
 };
 
-template <typename T1, typename T2> struct Cast<std::vector<T1>, Field<std::vector<T2>> >
+template <typename T1, typename T2>
+struct Cast<std::vector<T1>, Field<std::vector<T2>> >
 {
     std::vector<T2> operator()(const std::vector<T1> &t1)
     {
@@ -184,10 +195,6 @@ template <typename T1, typename T2 > struct Finder<Field<T1>, Field<T2> >
     }
 };
 
-#define DO_DEBUG_LOAD 0
-
-#define USE_INDENTING_STREAM 0
-
 template <typename T>
 struct ParserNode
 {
@@ -203,7 +210,7 @@ struct ParserNode
         : m_name("root")
         , m_object(&object)
     {
-#if USE_INDENTING_STREAM
+#if DRISHTI_ACF_USE_INDENTING_STREAM
         m_indent = std::make_shared<IndentingOStreambuf>(std::cout);
 #endif
         open(filename);
@@ -215,7 +222,7 @@ struct ParserNode
         , m_object(&object)
         , m_variables(variables)
     {
-#if USE_INDENTING_STREAM
+#if DRISHTI_ACF_USE_INDENTING_STREAM
         m_indent = std::make_shared<IndentingOStreambuf>(std::cout);
 #endif
         log();
@@ -226,7 +233,7 @@ struct ParserNode
         : m_name("root")
         , m_object(&object)
     {
-#if USE_INDENTING_STREAM
+#if DRISHTI_ACF_USE_INDENTING_STREAM
         m_indent = std::make_shared<IndentingOStreambuf>(std::cout);
 #endif
         open(is);
@@ -244,7 +251,7 @@ struct ParserNode
 
     void log()
     {
-#if DO_DEBUG_LOAD
+#if DRISHTI_ACF_DO_DEBUG_LOAD
         std::cout << "====" << m_name << "====" << std::endl;
         for(auto &v : m_variables)
         {
@@ -284,12 +291,14 @@ struct ParserNode
     }
 
     // Return single instance
-    template <typename T2> ParserNode<T2> create(const std::string &name, T2 &object)
+    template <typename T2>
+    ParserNode<T2> create(const std::string &name, T2 &object)
     {
         return ParserNode<T2>(name, object, m_matio.find< VecVecContainer >(m_variables, name)[0]);
     }
 
-    template <typename T2> ParserNode<Field<T2>> create(const std::string &name, Field<T2> &object)
+    template <typename T2>
+    ParserNode<Field<T2>> create(const std::string &name, Field<T2> &object)
     {
         object.set(name);
         object.mark(true);
@@ -297,7 +306,8 @@ struct ParserNode
     }
 
     // Return single instance
-    template <typename T2> std::vector<ParserNode<Field<typename T2::value_type>>> createVec(const std::string &name, Field<T2> &object)
+    template <typename T2>
+    std::vector<ParserNode<Field<typename T2::value_type>>> createVec(const std::string &name, Field<T2> &object)
     {
 
     }
@@ -308,7 +318,8 @@ struct ParserNode
         return m_object;
     }
 
-    template <typename T1, typename T2 > bool parse(const std::string &name, T2 &value)
+    template <typename T1, typename T2 >
+    bool parse(const std::string &name, T2 &value)
     {
         Finder<T1, T2>()(m_matio, m_variables, name, value);
         return true;
@@ -345,6 +356,8 @@ struct ParserNode
 
     MatlabIO m_matio;
 };
+
+#endif // DRISHTI_SERIALIZE_WITH_CVMATIO
 
 DRISHTI_ACF_NAMESPACE_END
 

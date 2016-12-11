@@ -35,7 +35,8 @@ template<typename T> std::size_t constexpr hash(T&& t)
 {
     return hasher< typename std::decay<T>::type >()(std::forward<T>(t));
 }
-inline
+
+inline /* inline namespace */
 DRISHTI_BEGIN_NAMESPACE(literals)
 std::size_t constexpr operator "" _hash(const char* s,size_t)
 {

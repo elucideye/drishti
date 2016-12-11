@@ -41,6 +41,26 @@
 // ######################## PBA ###############################
 // ############################################################
 
+// minimal test for valid *.pba.z format
+inline bool is_pba_z(std::istream& is)
+{
+    bool ok = false;
+    is.seekg(0, std::ios_base::beg);
+    try
+    {
+        boost::iostreams::filtering_stream<boost::iostreams::input> buffer;
+        buffer.push(boost::iostreams::zlib_decompressor());
+        buffer.push(is);
+        portable_binary_iarchive ia(buffer);
+        /* unsigned test = */ ia.get_library_version();
+        ok = true;
+    } catch (...) { }
+    
+    is.seekg(0, std::ios_base::beg);
+    is.clear();
+    return ok;
+}
+
 template <typename T>
 void load_pba_z(std::istream &is, T &object)
 {

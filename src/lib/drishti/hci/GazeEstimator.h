@@ -13,8 +13,9 @@
 
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/face/Face.h"
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/sensor/Sensor.h"
+
+#include <memory>
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
@@ -71,7 +72,6 @@ public:
     std::vector<float> getParams(const face::FaceModel &face) const;
 
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version);
 
 protected:

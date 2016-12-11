@@ -234,6 +234,11 @@ endif()
 ### PACKAGES #####
 ##################
 
+# NOTE: see corresponding target_compile_definitions() in src/libdrishti/CMakeLists.txt
+option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
+option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with boost" ON)
+option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
+
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 endif()
@@ -242,15 +247,24 @@ endif()
 hunter_add_package(spdlog)
 find_package(spdlog CONFIG REQUIRED)
 
-include(drishti_thread_local_storage)
-drishti_thread_local_storage(HAVE_THREAD_LOCAL_STORAGE)
+# If true C++11 thread_local support exists, we will use it:
+include(drishti_thread_local_storage_cpp11)
+drishti_thread_local_storage_cpp11(DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
+if(NOT DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
+  # Else, we will check for backups
+  include(drishti_thread_local_storage)
+  drishti_thread_local_storage(DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
+endif()
+
+message("DRISHTI_HAVE_THREAD_LOCAL_STORAGE : ${DRISHTI_HAVE_THREAD_LOCAL_STORAGE}")
 
 ### Thread-pool-cpp
-drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(HAVE_THREAD_LOCAL_STORAGE))
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
+drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
   
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
+  include_directories(src/3rdparty/thread-pool-cpp)
   add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
 else()
   hunter_add_package(thread-pool-cpp)
@@ -261,6 +275,7 @@ endif()
 hunter_add_package(cereal)
 find_package(cereal CONFIG REQUIRED)
 
+### OpenCV
 hunter_add_package(OpenCV)
 find_package(OpenCV REQUIRED)
 
@@ -304,8 +319,10 @@ find_package(Eigen REQUIRED) # <== not finding hunter provided eigen
 
 ### CVMATIO
 if(DRISHTI_BUILD_ACF)
-  hunter_add_package(cvmatio)
-  find_package(cvmatio REQUIRED CONFIG)
+  if(DRISHTI_SERIALIZE_WITH_CVMATIO)
+    hunter_add_package(cvmatio)
+    find_package(cvmatio REQUIRED CONFIG)
+  endif()
 endif()
 
 #####################
@@ -374,8 +391,8 @@ message("Faces directory: '${faces_dir}'")
 
 ### Download 'assets'
 drishti_download_private_data(
-    URL "https://github.com/elucideye/drishti-assets/archive/v1.1.tar.gz"
-    SHA1 "974ea5bcbae1c60d4ee829eb9f534e80e2137fc7"
+    URL "https://github.com/elucideye/drishti-assets/archive/v1.2.tar.gz"
+    SHA1 "c23f805e8b5f5bca999c8d2e5179558d36371a0a"
     NAME "assets"
     DIR assets_dir
     PASSWORDS "${CMAKE_CURRENT_LIST_DIR}/passwords.cmake"

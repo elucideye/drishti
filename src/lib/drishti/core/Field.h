@@ -5,6 +5,9 @@
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
+ 
+  NOTE: GENERIC_NVP should be defined prior to including this class for either
+  boost or cereal archives.
 
 */
 
@@ -12,7 +15,8 @@
 #define __drishtisdk__Field__
 
 #include "drishti/core/drishti_core.h"
-#include "drishti/core/drishti_serialize.h"
+
+#include <opencv2/core.hpp>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
@@ -74,8 +78,10 @@ template <typename T> struct Field
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        ar & GENERIC_NVP("has", has);
-        ar & GENERIC_NVP("value", value);
+        //ar & GENERIC_NVP("has", has);
+        //ar & GENERIC_NVP("value", value);
+        ar & has;
+        ar & value;
     }
 
     T value;

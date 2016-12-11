@@ -9,8 +9,8 @@
 
 */
 
-#ifndef __drishtisdk__CPR__
-#define __drishtisdk__CPR__
+#ifndef DRISHTI_RCPR_CPR_H
+#define DRISHTI_RCPR_CPR_H
 
 #define DRISHTI_CPR_DO_LEAN 1
 #define DRISHTI_CPR_DO_HALF_FLOAT 1
@@ -21,15 +21,9 @@
 #  define HALF_ENABLE_CPP11_CMATH 0
 #endif
 #include "half/half.hpp"
-#include "drishti/rcpr/drishti_rcpr.h"
-#include "drishti/ml/ShapeEstimator.h"
-#include "drishti/acf/ACFField.h"
-#include "drishti/ml/XGBooster.h"
-#include "drishti/core/cvmat_serialization.h"
-#include "drishti/core/serialization.h"
-#include "drishti/core/Logger.h"
 
-#include <boost/serialization/export.hpp>
+#include "drishti/rcpr/drishti_rcpr.h"
+#include "drishti/acf/ACFField.h"
 
 #if DRISHTI_CPR_DO_HALF_FLOAT
 #  include "drishti/rcpr/PointHalf.h"
@@ -37,10 +31,14 @@
 
 #include "drishti/rcpr/ImageMaskPair.h"
 #include "drishti/rcpr/Vector1d.h"
+#include "drishti/ml/ShapeEstimator.h"
+#include "drishti/ml/XGBooster.h"
+#include "drishti/core/Logger.h"
+
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/version.hpp>
 
 #include <memory>
-
-#define PTR_TYPE std
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
@@ -64,6 +62,7 @@ inline int PointVecSize(const PointVec &v)
 typedef cv::Matx<RealType,3,3> Matx33Real;
 typedef std::vector<RealType> Vector1d;
 typedef std::vector<cv::Mat> ImageVec;
+typedef std::vector<int> IntVec;
 typedef std::vector<ImageMaskPair> ImageMaskPairVec;
 typedef std::vector<Vector1d> EllipseVec;
 typedef std::vector<cv::Matx33f> HVec;
@@ -178,15 +177,15 @@ public:
             int maxDepth = 4;
             int treesPerLevel = 500;
             int featurePoolSize = 400;
-            int featureSampleSize = 40; // NEW
-            double learningRate = 0.1; // NEW
-            double dataSampleRatio = 0.5; // NEW
-            bool doMask = false; // NEW
+            int featureSampleSize = 40;
+            double learningRate = 0.1;
+            double dataSampleRatio = 0.5;
+            bool doMask = false;
 
             double featureRadius = 1.66;
-            double lambda = RealType(0.1); // experimental
+            double lambda = RealType(0.1);
 
-            bool useNPD = false;          // NEW
+            bool useNPD = false;
 
             std::vector<int> paramIndex;
 
@@ -276,7 +275,6 @@ public:
         // Boost serialization:
         friend class boost::serialization::access;
         template<class Archive> void serialize(Archive & ar, const unsigned int version);
-
     };
     acf::Field<RegModel> regModel;
 
@@ -332,7 +330,10 @@ public:
     {
         m_windowName = name;
     }
-
+    
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version);
+    
 protected:
 
     std::string m_windowName = "debug";
@@ -358,11 +359,6 @@ protected:
     int deserialize(const char *filename);
 #endif
 
-    // Boost serialization:
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version);
-
     int stagesHint = std::numeric_limits<int>::max();
     int stagesRepetitionFactor = 1;
 };
@@ -384,7 +380,7 @@ Matx33Real phisToHs(const Vector1d &phis);
 double normAng(double ang, double rng);
 double dist( const CPR::Model &model, const Vector1d &phis0, const Vector1d &phis1 );
 void print(const Vector1d &p, bool eol=false);
-void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale=1.f, bool doTranspose=DRISHTI_CPR_TRANSPOSE);
+void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const IntVec &features, float scale=1.f, bool doTranspose=DRISHTI_CPR_TRANSPOSE);
 
 template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<T2> &dst)
 {
@@ -394,7 +390,17 @@ template <typename T1, typename T2> void copy(std::vector<T1> &src, std::vector<
 
 DRISHTI_RCPR_NAMESPACE_END
 
+// ### BOOST ###
+#if DRISHTI_SERIALIZE_WITH_BOOST
 BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
-BOOST_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
+#endif
 
-#endif /* defined(__drishtisdk__CPR__) */
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_stdlib_string.h" // FIRST
+#  include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
+#endif
+
+
+#endif /* DRISHTI_RCPR_CRP_H */

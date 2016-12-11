@@ -19,7 +19,10 @@
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/core/timing.h"
-#include "drishti/core/serialization.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+#  include "drishti/core/drishti_serialization_boost.h"
+#endif
 
 typedef std::vector<float> T_VECTOR;
 typedef std::vector<T_VECTOR> T_MATRIX;
@@ -348,7 +351,7 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
             phiIndexToRegressor[ regressorToPhiIndex[i] ] = i;
         }
 
-        std::vector< PTR_TYPE::shared_ptr< ml::XGBooster > > xgbdt(regressorToPhiIndex.size());
+        std::vector<std::shared_ptr<ml::XGBooster>> xgbdt(regressorToPhiIndex.size());
 
         //% train independent 1D regressors for each r, keep best
         //std::vector<double> losses(R, 0.0);

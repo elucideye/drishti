@@ -106,7 +106,7 @@ install:
   - wget https://github.com/ruslo/polly/archive/master.zip
   - unzip master.zip
   - POLLY_ROOT="`pwd`/polly-master"
-  - export PATH="${POLLY_ROOT}/bin:${PATH}"
+  - export PATH="${POLLY_ROOT}/bin:${PATH}"  
 
   # Install dependencies (CMake, Android NDK)
   - install-ci-dependencies.py

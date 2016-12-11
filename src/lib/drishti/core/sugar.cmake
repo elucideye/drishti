@@ -14,6 +14,7 @@ include(sugar_files)
 sugar_files(DRISHTI_CORE_SRCS
   Logger.cpp
   Shape.cpp
+  ThreadPool.cpp
   arithmetic.cpp
   convert.cpp
   drawing.cpp
@@ -30,23 +31,28 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   Logger.h
   Parallel.h
   Shape.h
+  ThreadPool.h
   arithmetic.h
   boost_serialize_common.h
   convert.h
-  cvmat_serialization.h
   drawing.h
   drishti_algorithm.h
+  drishti_cereal_pba.h
   drishti_core.h
   drishti_csv.h
+  drishti_cv_boost.h
+  drishti_cv_cereal.h    
+  drishti_cvmat_boost.h
+  drishti_cvmat_cereal.h  
   drishti_defs.hpp
   drishti_math.h
   drishti_operators.h
   drishti_serialize.h
+  drishti_stdlib_string.h
   drishti_string_hash.h
   infix_iterator.h
   make_unique.h
   padding.h
-  serialization.h
   string_utils.h
   timing.h
 )

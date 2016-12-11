@@ -17,6 +17,8 @@
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Eye.hpp"
 
+#include <opencv2/core.hpp>
+
 #include <algorithm>
 
 _DRISHTI_SDK_BEGIN

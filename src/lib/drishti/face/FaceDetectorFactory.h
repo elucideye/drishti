@@ -25,8 +25,10 @@ namespace drishti { namespace eye { class EyeModelEstimator; } };
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-struct FaceDetectorFactory
+class FaceDetectorFactory
 {
+public:
+    
     FaceDetectorFactory() {}
     
     FaceDetectorFactory(
@@ -40,16 +42,45 @@ struct FaceDetectorFactory
     , sFaceDetectorMean(sFaceDetectorMean)
     {}
     
-    std::string sFaceDetector;
-    std::vector<std::string> sFaceRegressors;
-    std::string sEyeRegressor;
-    std::string sFaceDetectorMean;
-    
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
     virtual std::unique_ptr<drishti::ml::ShapeEstimator> getInnerFaceEstimator();
     virtual std::unique_ptr<drishti::ml::ShapeEstimator> getOuterFaceEstimator();
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
     virtual drishti::face::FaceModel getMeanFace();
+
+    std::string sFaceDetector;
+    std::vector<std::string> sFaceRegressors;
+    std::string sEyeRegressor;
+    std::string sFaceDetectorMean;
+};
+
+class FaceDetectorFactoryStream : public FaceDetectorFactory
+{
+public:
+
+    FaceDetectorFactoryStream() {}
+    
+    FaceDetectorFactoryStream(
+        std::istream *iFaceDetector,
+        std::vector<std::istream*> &iFaceRegressors,
+        std::istream *iEyeRegressor,
+        std::istream *iFaceDetectorMean)
+    : iFaceDetector(iFaceDetector)
+    , iFaceRegressors(iFaceRegressors)
+    , iEyeRegressor(iEyeRegressor)
+    , iFaceDetectorMean(iFaceDetectorMean)
+    {}
+        
+    virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
+    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getInnerFaceEstimator();
+    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getOuterFaceEstimator();
+    virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
+    virtual drishti::face::FaceModel getMeanFace();
+
+    std::istream *iFaceDetector = nullptr;
+    std::vector<std::istream *> iFaceRegressors;
+    std::istream *iEyeRegressor = nullptr;
+    std::istream *iFaceDetectorMean = nullptr;    
 };
 
 DRISHTI_FACE_NAMESPACE_END

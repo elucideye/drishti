@@ -50,6 +50,7 @@ set(
   QTRenderGL.cpp
   QtFaceDetectorFactory.h
   QtFaceDetectorFactory.cpp
+  QtFaceDetectorFactoryCereal.cpp
   QtFaceMonitor.h
   QtFaceMonitor.cpp
   QMLCameraManager.h

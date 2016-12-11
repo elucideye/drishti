@@ -1,4 +1,4 @@
-#include "drishti/core/drishti_serialize.h"
+#include "drishti/core/drishti_stdlib_string.h"
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/memory.hpp>
@@ -12,6 +12,28 @@
 // http://uscilab.github.io/cereal/serialization_archives.html
 //#include <cereal/archives/binary.hpp>
 #include <cereal/archives/portable_binary.hpp>
+
+#include "drishti/core/drishti_cereal_pba.h"
+
+struct Bar
+{
+    template <typename Archive> void serialize(Archive &ar, const std::uint32_t version)
+    {
+        std::int16_t tmp = foo;
+        if(Archive::is_loading::value)
+        {
+            ar & tmp;
+            foo = tmp;
+        }
+        else
+        {
+            tmp = foo;
+            ar & tmp;
+        }
+        ar & foo;
+    }
+    std::int32_t foo;
+};
 
 int main(int argc, char **argv)
 {
@@ -30,7 +52,7 @@ int main(int argc, char **argv)
         if(ofs)
         {
             cereal::PortableBinaryOutputArchive oa(ofs);
-            oa << monsterSrc;
+            oa(monsterSrc);
         }
     }
 
@@ -41,7 +63,8 @@ int main(int argc, char **argv)
         if(ifs)
         {
             cereal::PortableBinaryInputArchive ia(ifs);
-            ia >> monsterDst;
+            ia(monsterDst);
+            //ia >> monsterDst;
         }
     }
 }

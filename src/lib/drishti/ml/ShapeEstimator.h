@@ -15,10 +15,12 @@
 #define drishtisdk_ShapeEstimator_h
 
 #include "drishti/ml/drishti_ml.h"
-#include "drishti/core/serialization.h"
 #include "drishti/core/Logger.h"
 
 #include <opencv2/core/core.hpp>
+
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <memory>
 #include <vector>
@@ -67,7 +69,6 @@ public:
     }
 
     // Boost serialization:
-    friend class boost::serialization::access;
     template<class Archive> void serialize(Archive & ar, const unsigned int version) {}
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
@@ -75,6 +76,9 @@ public:
 
 DRISHTI_ML_NAMESPACE_END
 
+#if DRISHTI_SERIALIZE_WITH_BOOST
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(drishti::ml::ShapeEstimator);
 BOOST_CLASS_EXPORT_KEY(drishti::ml::ShapeEstimator);
+#endif
 
 #endif

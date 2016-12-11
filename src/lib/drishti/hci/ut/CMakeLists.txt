@@ -24,13 +24,21 @@ if(APPLE)
   endif()
 endif()
 
+include(drishti_set_unit_test_assets)
+drishti_set_unit_test_assets(
+    DRISHTI_ACF_FACE_MODEL
+    DRISHTI_FACE_LANDMARKER
+    DRISHTI_EYE_MODEL
+    DRISHTI_MEAN_FACE_LANDMARKS
+    )
+
 enable_testing()
 
 add_test(NAME DrishtiHciTest COMMAND test-drishti-hci
-  "${assets_dir}/drishti_face_inner_48x48.mat"
-  "${assets_dir}/drishti_face_5_point_mean_48x48.xml"
-  "${assets_dir}/drishti_face_inner.pba.z"
-  "${assets_dir}/drishti_eye_full_npd_eix.pba.z"
+  "${DRISHTI_ACF_FACE_MODEL}"
+  "${DRISHTI_MEAN_FACE_LANDMARKS}"
+  "${DRISHTI_FACE_LANDMARKER}"
+  "${DRISHTI_EYE_MODEL}"
   )
 
 set_property(TARGET test-drishti-hci PROPERTY FOLDER "app/tests")
