@@ -496,23 +496,23 @@ inline cv::Vec3f rgb2luv(const cv::Vec3f &rgb)
     cv::Matx33f RGBtoXYZ(0.430574, 0.222015, 0.020183, 0.341550, 0.706655, 0.129553, 0.178325, 0.071330, 0.939180);
     RGBtoXYZ = RGBtoXYZ.t(); // to row major
 
-    const float y0 = 0.00885645167; //pow(6.0/29.0, 3.0);
-    const float a = 903.296296296;  //pow(29.0/3.0, 3.0);
-    const float un = 0.197833;
-    const float vn = 0.468331;
-    const float maxi = 0.0037037037;  // 1.0/270.0;
-    const float minu = maxi * -88.0;
-    const float minv = maxi * -134.0;
-    const cv::Vec3f k(1.0, 15.0, 3.0);
+    const float y0 = 0.00885645167f; //pow(6.0/29.0, 3.0);
+    const float a = 903.296296296f;  //pow(29.0/3.0, 3.0);
+    const float un = 0.197833f;
+    const float vn = 0.468331f;
+    const float maxi = 0.0037037037f;  // 1.0/270.0;
+    const float minu = maxi * -88.0f;
+    const float minv = maxi * -134.0f;
+    const cv::Vec3f k(1.0f, 15.0f, 3.0f);
 
     cv::Vec3f xyz = (RGBtoXYZ * rgb); // make like glsl col major
     const float c = ( xyz.dot(k) + 1e-35 );
-    const float z = 1.0/c;
+    const float z = 1.0f/c;
 
     cv::Vec3f luv;
-    luv[0] = ((xyz[1] > y0) ? (116.0 * std::pow(xyz[1], 0.3333333333) - 16.0) : (xyz[1] * a)) * maxi;
-    luv[1] = luv[0] * ((52.0 * xyz[0] * z) - (13.0*un)) - minu;
-    luv[2] = luv[0] * ((117.0 * xyz[1] * z) - (13.0*vn)) - minv;
+    luv[0] = ((xyz[1] > y0) ? (116.0f * std::pow(xyz[1], 0.3333333333f) - 16.0f) : (xyz[1] * a)) * maxi;
+    luv[1] = luv[0] * ((52.0f * xyz[0] * z) - (13.0f*un)) - minu;
+    luv[2] = luv[0] * ((117.0f * xyz[1] * z) - (13.0f*vn)) - minv;
 
     return luv;
 }
