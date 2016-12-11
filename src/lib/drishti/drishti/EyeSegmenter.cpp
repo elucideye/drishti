@@ -30,7 +30,7 @@ static bool isArchiveSupported(ArchiveKind kind);
 
 EyeSegmenter::EyeSegmenter(const std::string &filename, ArchiveKind kind)
 {
-    std::ifstream is(filename);
+    std::ifstream is(filename, std::ios_base::binary | std::ios::in);
     init(is, kind);
 }
 
