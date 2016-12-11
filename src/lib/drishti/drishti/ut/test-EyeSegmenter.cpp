@@ -247,7 +247,7 @@ TEST(EyeSegmenter, StreamConstructor)
     {
         // Make sure modelFilename is not null:
         ASSERT_NE(modelFilename, (const char *)NULL);
-        std::ifstream is(modelFilename);
+        std::ifstream is(modelFilename, std::ios_base::binary | std::ios::in);
         ASSERT_TRUE((bool)is);
         drishti::sdk::EyeSegmenter segmenter(is, getArchiveKind(modelFilename));
         EXPECT_EQ(segmenter.good(), true);
