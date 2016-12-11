@@ -4,6 +4,7 @@
 #add_executable(test-drishti-drishti test-EyeSegmenter.cpp test-drishti-drishti.cpp)
 
 add_executable(test-drishti-drishti-eye test-EyeSegmenter.cpp)
+set_property(TARGET test-drishti-drishti-eye PROPERTY FOLDER "app/tests")
 target_link_libraries(test-drishti-drishti-eye drishti
   ${OpenCV_LIBS}
   GTest::gtest
@@ -11,6 +12,7 @@ target_link_libraries(test-drishti-drishti-eye drishti
   )
 
 add_executable(test-drishti-drishti-face test-FaceTracker.cpp)
+set_property(TARGET test-drishti-drishti-face PROPERTY FOLDER "app/tests")
 target_link_libraries(test-drishti-drishti-face drishti
   ${OpenCV_LIBS}
   GTest::gtest
@@ -53,4 +55,3 @@ if(WIN32)
   )
 endif()
 
-set_property(TARGET test-drishti-drishti-eye PROPERTY FOLDER "app/tests")
