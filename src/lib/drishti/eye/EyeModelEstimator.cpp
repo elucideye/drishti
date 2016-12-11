@@ -188,7 +188,7 @@ EyeModelEstimator::EyeModelEstimator(std::istream &is, const std::string &hint)
     }
 #endif
 #if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST 
-    if(!hint.empty() && hint.find(".txt"))
+    if(!hint.empty() && (hint.find(".txt") != std::string::npos))
     {
         load_txt_z(is, *this);
         return;
