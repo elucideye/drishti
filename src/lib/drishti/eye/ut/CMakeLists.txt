@@ -12,12 +12,7 @@ drishti_set_unit_test_assets(
     )
 
 #######################################################################
-#######################################################################
-#######################################################################
-message("DRISHTI_ACF_FACE_MODEL : ${DRISHTI_ACF_FACE_MODEL}")
-message("DRISHTI_FACE_LANDMARKER : ${DRISHTI_ACF_FACE_MODEL}")
 message("DRISHTI_EYE_MODEL : ${DRISHTI_EYE_MODEL}")
-message("DRISHTI_MEAN_FACE_LANDMARKS : ${DRISHTI_MEAN_FACE_LANDMARKS}")
 
 # Legacy
 if(MSVC)

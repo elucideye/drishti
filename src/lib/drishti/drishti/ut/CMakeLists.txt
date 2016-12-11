@@ -25,6 +25,9 @@ drishti_set_unit_test_assets(
     DRISHTI_MEAN_FACE_LANDMARKS
     )
 
+#######################################################################
+message("DRISHTI_EYE_MODEL : ${DRISHTI_EYE_MODEL}")
+
 # Legacy
 if(MSVC)
   set(DRISHTI_TXT_ARCHIVE 1)
