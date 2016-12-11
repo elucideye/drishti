@@ -15,5 +15,5 @@ python %POLLY_ROOT%\bin\polly.py --reconfig ^
 --test ^
 --fwd HUNTER_USE_CACHE_SERVERS=YES ^
 DRISHTI_USE_TEXT_ARCHIVES=YES  ^
---nobuild ^
 --open
+::--nobuild -open
