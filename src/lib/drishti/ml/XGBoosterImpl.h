@@ -8,8 +8,8 @@
  
  */
 
-#ifndef DRISHTI_ML_XGBOOSTER_IMPL_H
-#define DRISHTI_ML_XGBOOSTER_IMPL_H
+#ifndef __drishti_ml_XGBoosterImpl_h__
+#define __drishti_ml_XGBoosterImpl_h__
 
 #include "drishti/ml/Booster.h"
 
@@ -169,4 +169,4 @@ template<class Archive> void XGBooster::serialize(Archive & ar, const unsigned i
 
 DRISHTI_ML_NAMESPACE_END
 
-#endif // DRISHTI_ML_XGBOOSTER_IMPL_H
+#endif // __drishti_ml_XGBoosterImpl_h__

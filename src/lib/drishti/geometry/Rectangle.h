@@ -7,8 +7,8 @@
 
 */
 
-#ifndef __drishtisdk__Rectangle__
-#define __drishtisdk__Rectangle__
+#ifndef __drishti_geometry_Rectangle_h__
+#define __drishti_geometry_Rectangle_h__
 
 #include "drishti/geometry/drishti_geometry.h"
 #include "drishti/geometry/Ellipse.h"
@@ -40,4 +40,4 @@ inline cv::Point_<T2> centroid(const cv::Rect_<T1> &roi)
 }
 DRISHTI_GEOMETRY_END
 
-#endif /* defined(__drishtisdk__Rectangle__) */
+#endif /* defined(__drishti_geometry_Rectangle_h__) */

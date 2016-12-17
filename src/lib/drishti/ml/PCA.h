@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_ML_PCA_H
-#define DRISHTI_ML_PCA_H
+#ifndef __drishti_ml_PCA_h__
+#define __drishti_ml_PCA_h__
 
 #include "drishti/core/drishti_core.h"
 #include "drishti/ml/drishti_ml.h"
@@ -69,4 +69,4 @@ DRISHTI_ML_NAMESPACE_END
 BOOST_CLASS_EXPORT_KEY(drishti::ml::StandardizedPCA); // (optional)
 #endif
 
-#endif // DRISHTI_ML_PCA_H
+#endif // __drishti_ml_PCA_h__

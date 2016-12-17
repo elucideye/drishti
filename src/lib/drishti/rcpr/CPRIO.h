@@ -25,8 +25,8 @@
 
  */
 
-#ifndef drishtisdk_CPRIO_h
-#define drishtisdk_CPRIO_h
+#ifndef __drishti_rcpr_CPRIO_h__
+#define __drishti_rcpr_CPRIO_h__
 
 #include "drishti/rcpr/drishti_rcpr.h"
 

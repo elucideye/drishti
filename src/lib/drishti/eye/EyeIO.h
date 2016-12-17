@@ -11,8 +11,8 @@
 
 */
 
-#ifndef DRISHTI_EYE_EYE_IO_H
-#define DRISHTI_EYE_EYE_IO_H 1
+#ifndef __drishti_eye_EyeIO_h__
+#define __drishti_eye_EyeIO_h__ 1
 
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/eye/Eye.h"
@@ -51,4 +51,4 @@ std::vector<float>& cat(std::vector<float> &src, const std::vector<float> &param
 
 DRISHTI_EYE_NAMESPACE_END
 
-#endif // DRISHTI_EYE_EYE_IO_H
+#endif // __drishti_eye_EyeIO_h__

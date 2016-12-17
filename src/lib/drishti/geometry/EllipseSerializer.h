@@ -1,5 +1,5 @@
-#ifndef EllipseSerializer_h
-#define EllipseSerializer_h 1
+#ifndef __drishti_geometry_EllipseSerializer_h__
+#define __drishti_geometry_EllipseSerializer_h__ 1
 
 #include "drishti/geometry/Ellipse.h"
 
@@ -20,4 +20,4 @@ void read(const cv::FileNode& node, EllipseSerializer& x, const EllipseSerialize
 
 DRISHTI_GEOMETRY_END
 
-#endif // EllipseSerializer_h 1
+#endif // __drishti_geometry_EllipseSerializer_h__ 1

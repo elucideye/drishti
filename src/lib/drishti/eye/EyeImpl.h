@@ -1,5 +1,5 @@
-#ifndef DRISHTI_EYE_IMPL_H
-#define DRISHTI_EYE_IMPL_H 1
+#ifndef __drishti_eye_EyeImpl_h__
+#define __drishti_eye_EyeImpl_h__ 1
 
 #include "drishti/eye/Eye.h"
 
@@ -26,4 +26,4 @@ void EyeModel::serialize(Archive & ar, const unsigned int version)
 
 DRISHTI_EYE_NAMESPACE_END
 
-#endif // DRISHTI_EYE_IMPL_H 1
+#endif // __drishti_eye_EyeImpl_h__ 1

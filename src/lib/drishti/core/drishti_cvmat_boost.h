@@ -14,8 +14,8 @@
 
 */
 
-#ifndef __DRISHTI_CVMAT_BOOST_HPP_INCLUDED__
-#define __DRISHTI_CVMAT_BOOST_HPP_INCLUDED__
+#ifndef __drishti_core_drishti_cvmat_boost_h__
+#define __drishti_core_drishti_cvmat_boost_h__
 
 #include "drishti/core/drishti_core.h"
 #include <opencv2/opencv.hpp>
@@ -65,5 +65,5 @@ void load(Archive &ar, cv::Mat &m, const unsigned int BOOST_ATTRIBUTE_UNUSED ver
 DRISHTI_END_NAMESPACE(serialization)
 DRISHTI_END_NAMESPACE(boost)
 
-#endif // __DRISHTI_CVMAT_BOOST_HPP_INCLUDED__
+#endif // __drishti_core_drishti_cvmat_boost_h__
 

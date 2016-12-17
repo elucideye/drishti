@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CV_CEREAL_H
-#define DRISHTI_CV_CEREAL_H
+#ifndef __drishti_core_drishti_cv_cereal_h__
+#define __drishti_core_drishti_cv_cereal_h__
 
 #include "drishti/core/drishti_core.h"
 
@@ -78,4 +78,4 @@ void serialize(Archive & ar, cv::RotatedRect & e, const unsigned int version)
 
 DRISHTI_END_NAMESPACE(cv)
 
-#endif // DRISHTI_CV_CEREAL_H
+#endif // __drishti_core_drishti_cv_cereal_h__

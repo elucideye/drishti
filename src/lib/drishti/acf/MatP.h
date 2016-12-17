@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__MatP__
-#define __DRISHTI__MatP__
+#ifndef __drishti_acf_MatP_h__
+#define __drishti_acf_MatP_h__
 
 #include <stdio.h>
 
@@ -186,4 +186,4 @@ int numel(const MatP &src);
 void copyMakeBorder(const MatP& src, MatP &dst, int t, int b, int l, int r, int type);
 
 
-#endif /* defined(__DRISHTI__MatP__) */
+#endif /* defined(__drishti_acf_MatP_h__) */

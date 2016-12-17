@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_OPERATOR_H
-#define DRISHTI_CORE_OPERATOR_H 1
+#ifndef __drishti_core_drishti_operators_h__
+#define __drishti_core_drishti_operators_h__ 1
 
 #include "drishti/core/drishti_core.h"
 
@@ -43,4 +43,4 @@ cv::Size_<T1> operator*(const cv::Size_<T1> &size, const T2 &scale)
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // DRISHTI_CORE_OPERATOR_H
+#endif // __drishti_core_drishti_operators_h__

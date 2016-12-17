@@ -8,8 +8,8 @@
 
 */
 
-#ifndef SCENE_H
-#define SCENE_H
+#ifndef __drishti_hci_Scene_hpp__
+#define __drishti_hci_Scene_hpp__
 
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/gpu/LineDrawing.hpp"
@@ -115,4 +115,4 @@ void flowToDrawings(const std::vector<cv::Vec4f> &flow, LineDrawingVec &drawings
 
 DRISHTI_HCI_NAMESPACE_END
 
-#endif // SCENE_H
+#endif // __drishti_hci_Scene_hpp__

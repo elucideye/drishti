@@ -11,8 +11,8 @@
 
 */
 
-#ifndef __drishtisdk__EyeModelEstimator__
-#define __drishtisdk__EyeModelEstimator__
+#ifndef __drishti_eye_EyeModelEstimator_h__
+#define __drishti_eye_EyeModelEstimator_h__
 
 #include <stdio.h>
 
@@ -115,4 +115,4 @@ BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator);
 BOOST_CLASS_EXPORT_KEY(DRISHTI_EYE::EyeModelEstimator::Impl);
 #endif
 
-#endif /* defined(__drishtisdk__EyeModelEstimator__) */
+#endif /* defined(__drishti_eye_EyeModelEstimator_h__) */

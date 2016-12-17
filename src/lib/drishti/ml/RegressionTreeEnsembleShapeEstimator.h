@@ -8,8 +8,8 @@
 
 */
 
-#ifndef drishtisdk_RegressionTreeEnsembleShapeEstimator_h
-#define drishtisdk_RegressionTreeEnsembleShapeEstimator_h
+#ifndef __drishti_ml_RegressionTreeEnsembleShapeEstimator_h__
+#define __drishti_ml_RegressionTreeEnsembleShapeEstimator_h__
 
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/ShapeEstimator.h"
@@ -66,4 +66,4 @@ CEREAL_REGISTER_TYPE(drishti::ml::RegressionTreeEnsembleShapeEstimator);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::ml::RegressionTreeEnsembleShapeEstimator);
 #endif
 
-#endif // drishtisdk_RegressionTreeEnsembleShapeEstimator_h
+#endif // __drishti_ml_RegressionTreeEnsembleShapeEstimator_h__

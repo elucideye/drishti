@@ -8,8 +8,8 @@
 
 */
 
-#ifndef FACE_FINDER_H
-#define FACE_FINDER_H
+#ifndef __drishti_hci_FaceFinder_h__
+#define __drishti_hci_FaceFinder_h__
 
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/Scene.hpp"
@@ -199,4 +199,4 @@ protected:
 
 DRISHTI_HCI_NAMESPACE_END
 
-#endif // FACE_FINDER_H
+#endif // __drishti_hci_FaceFinder_h__

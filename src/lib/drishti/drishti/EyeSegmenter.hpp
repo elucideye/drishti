@@ -9,8 +9,8 @@
   This file contains the Eyesegmenter public API class for eye model estimation.
 */
 
-#ifndef __drishtisdk__DrishtiEyeSegmenter__
-#define __drishtisdk__DrishtiEyeSegmenter__
+#ifndef __drishti_drishti_EyeSegmenter_hpp__
+#define __drishti_drishti_EyeSegmenter_hpp__
 
 #include "drishti/drishti_sdk.hpp" // TODO: get rid of this
 #include "drishti/Image.hpp"
@@ -93,4 +93,4 @@ DRISHTI_EXPORTS void
 drishti_eye_segmenter_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight);
 DRISHTI_EXTERN_C_END
 
-#endif /* defined(__drishtisdk__DrishtiEyeSegmenter__) */
+#endif /* defined(__drishti_drishti_EyeSegmenter_hpp__) */

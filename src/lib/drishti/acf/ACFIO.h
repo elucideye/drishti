@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__ACFIO__
-#define __DRISHTI__ACFIO__
+#ifndef __drishti_acf_ACFIO_h__
+#define __drishti_acf_ACFIO_h__
 
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
@@ -361,4 +361,4 @@ struct ParserNode
 
 DRISHTI_ACF_NAMESPACE_END
 
-#endif /* defined(__DRISHTI__ACFIO__) */
+#endif /* defined(__drishti_acf_ACFIO_h__) */

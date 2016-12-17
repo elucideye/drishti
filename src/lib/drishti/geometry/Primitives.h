@@ -7,8 +7,8 @@
 
 */
 
-#ifndef drishtisdk_Primitives_h
-#define drishtisdk_Primitives_h
+#ifndef __drishti_geometry_Primitives_h__
+#define __drishti_geometry_Primitives_h__
 
 #include "drishti/geometry/drishti_geometry.h"
 

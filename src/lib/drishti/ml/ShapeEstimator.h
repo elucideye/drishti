@@ -11,8 +11,8 @@
 
 */
 
-#ifndef drishtisdk_ShapeEstimator_h
-#define drishtisdk_ShapeEstimator_h
+#ifndef __drishti_ml_ShapeEstimator_h__
+#define __drishti_ml_ShapeEstimator_h__
 
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/core/Logger.h"

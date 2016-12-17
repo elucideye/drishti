@@ -10,8 +10,8 @@
 
 #include "drishti/face/FaceDetectorAndTrackerImpl.h"
 
-#ifndef FACE_DETECTOR_AND_TRACKER_NN
-#define FACE_DETECTOR_AND_TRACKER_NN 1
+#ifndef __drishti_face_FaceDetectorAndTrackerNN_h__
+#define __drishti_face_FaceDetectorAndTrackerNN_h__ 1
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 

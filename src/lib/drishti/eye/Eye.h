@@ -11,8 +11,8 @@
 
 */
 
-#ifndef drishtisdk_Eye_h
-#define drishtisdk_Eye_h
+#ifndef __drishti_eye_Eye_h__
+#define __drishti_eye_Eye_h__
 
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/core/Field.h"

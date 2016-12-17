@@ -1,5 +1,5 @@
-#ifndef RTE_SHAPE_ESTIMATOR_IMPL_H
-#define RTE_SHAPE_ESTIMATOR_IMPL_H
+#ifndef __drishti_ml_RTEShapeEstimatorImpl_h__
+#define __drishti_ml_RTEShapeEstimatorImpl_h__
 
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 
@@ -158,4 +158,4 @@ void RTEShapeEstimator::serializeModel(Archive &ar, const unsigned int version)
 
 DRISHTI_ML_NAMESPACE_END
 
-#endif // RTE_SHAPE_ESTIMATOR_IMPL_H
+#endif // __drishti_ml_RTEShapeEstimatorImpl_h__

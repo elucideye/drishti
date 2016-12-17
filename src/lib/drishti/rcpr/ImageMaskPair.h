@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_RCPR_IMAGE_MASK_PAIR_H
-#define DRISHTI_RCPR_IMAGE_MASK_PAIR_H 1
+#ifndef __drishti_rcpr_ImageMaskPair_h__
+#define __drishti_rcpr_ImageMaskPair_h__ 1
 
 #include "drishti/rcpr/drishti_rcpr.h"
 
@@ -53,4 +53,4 @@ protected:
 
 DRISHTI_RCPR_NAMESPACE_END
 
-#endif // DRISHTI_RCPR_IMAGE_MASK_PAIR_H 1
+#endif // __drishti_rcpr_ImageMaskPair_h__ 1

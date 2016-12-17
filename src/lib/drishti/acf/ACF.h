@@ -9,8 +9,8 @@
 
 */
 
-#ifndef __DRISHTI__ACF__
-#define __DRISHTI__ACF__
+#ifndef __drishti_acf_ACF_h__
+#define __drishti_acf_ACF_h__
 
 #include <stdio.h>
 
@@ -542,4 +542,4 @@ DRISHTI_ACF_NAMESPACE_END
 
 void imResample(const MatP &A, MatP &B, const cv::Size &size, double nrm);
 
-#endif /* defined(__DRISHTI__ACF__) */
+#endif /* defined(__drishti_acf_ACF_h__) */

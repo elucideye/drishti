@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_ARITHMETIC_H
-#define DRISHTI_CORE_ARITHMETIC_H
+#ifndef __drishti_core_arithmetic_h__
+#define __drishti_core_arithmetic_h__
 
 #include "drishti/core/drishti_core.h"
 

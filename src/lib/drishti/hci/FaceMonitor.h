@@ -8,8 +8,8 @@
 
 */
 
-#ifndef FACE_MONITOR_H
-#define FACE_MONITOR_H
+#ifndef __drishti_hci_FaceMonitor_h__
+#define __drishti_hci_FaceMonitor_h__
 
 #include "drishti/hci/drishti_hci.h"
 
@@ -28,4 +28,4 @@ public:
 
 DRISHTI_HCI_NAMESPACE_END
 
-#endif // FACE_MONITOR_H
+#endif // __drishti_hci_FaceMonitor_h__

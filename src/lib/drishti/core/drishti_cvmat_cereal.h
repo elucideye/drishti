@@ -5,8 +5,8 @@
 
 */
 
-#ifndef __DRISHTI_CVMAT_CEREAL_HPP_INCLUDED__
-#define __DRISHTI_CVMAT_CEREAL_HPP_INCLUDED__
+#ifndef __drishti_core_drishti_cvmat_cereal_h__
+#define __drishti_core_drishti_cvmat_cereal_h__
 
 #include "drishti/core/drishti_core.h" // for DRISHTI_BEGIN_NAMESPACE()
 #include <opencv2/opencv.hpp>

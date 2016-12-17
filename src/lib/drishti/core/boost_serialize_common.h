@@ -8,8 +8,8 @@
 
 */
 
-#ifndef drishtisdk_boost_serialize_common_h
-#define drishtisdk_boost_serialize_common_h
+#ifndef __drishti_core_boost_serialize_common_h__
+#define __drishti_core_boost_serialize_common_h__
 
 #include <opencv2/core.hpp>
 #include <fstream>

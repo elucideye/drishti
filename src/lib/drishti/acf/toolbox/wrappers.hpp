@@ -4,8 +4,8 @@
 * Please email me if you find bugs, or have suggestions or questions!
 * Licensed under the Simplified BSD License [see external/bsd.txt]
 *******************************************************************************/
-#ifndef _WRAPPERS_HPP_
-#define _WRAPPERS_HPP_
+#ifndef __drishti_acf_toolbox_wrappers_hpp__
+#define __drishti_acf_toolbox_wrappers_hpp__
 
 #ifdef MATLAB_MEX_FILE
 

@@ -10,8 +10,8 @@
 
 */
 
-#ifndef drishti_core_timing_h
-#define drishti_core_timing_h
+#ifndef __drishti_core_timing_h__
+#define __drishti_core_timing_h__
 
 #include <opencv2/core/core.hpp>
 #include <string>

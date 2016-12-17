@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishtisdk__cv__
-#define __drishtisdk__cv__
+#ifndef __drishti_drishti_drishti_cv_hpp__
+#define __drishti_drishti_drishti_cv_hpp__
 
 // TODO: preprocessor test for opencv?
 
@@ -119,4 +119,4 @@ inline drishti::sdk::Eye::Ellipse cvToDrishti(const cv::RotatedRect &src)
 
 _DRISHTI_SDK_END
 
-#endif // __drishtisdk__cv__
+#endif // __drishti_drishti_drishti_cv_hpp__

@@ -1,5 +1,5 @@
-#ifndef DRISHTI_ML_PCA_IMPL
-#define DRISHTI_ML_PCA_IMPL
+#ifndef __drishti_ml_PCAImpl_h__
+#define __drishti_ml_PCAImpl_h__
 
 #include "drishti/ml/PCA.h"
 
@@ -26,4 +26,4 @@ void StandardizedPCA::serialize(Archive & ar, const unsigned int version)
 
 DRISHTI_ML_NAMESPACE_END
 
-#endif // DRISHTI_ML_PCA_IMPL
+#endif // __drishti_ml_PCAImpl_h__

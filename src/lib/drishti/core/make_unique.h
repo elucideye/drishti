@@ -7,8 +7,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_MAKE_UNIQUE_H
-#define DRISHTI_CORE_MAKE_UNIQUE_H 1
+#ifndef __drishti_core_make_unique_h__
+#define __drishti_core_make_unique_h__ 1
 
 #include "drishti/core/drishti_core.h"
 
@@ -24,4 +24,4 @@ std::unique_ptr<Value> make_unique(Arguments && ... arguments_for_constructor)
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // DRISHTI_CORE_MAKE_UNIQUE_H
+#endif // __drishti_core_make_unique_h__

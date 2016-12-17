@@ -10,8 +10,8 @@
   to report results for the top level SDK.
 */
 
-#ifndef __drishtisdk__Eye__
-#define __drishtisdk__Eye__
+#ifndef __drishti_drishti_Eye_hpp__
+#define __drishti_drishti_Eye_hpp__
 
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Image.hpp"
@@ -172,5 +172,5 @@ void DRISHTI_EXPORTS createMask(Image1b &mask, const Eye &eye, int components=kI
 
 _DRISHTI_SDK_END
 
-#endif // __drishtisdk__Eye__
+#endif // __drishti_drishti_Eye_hpp__
 

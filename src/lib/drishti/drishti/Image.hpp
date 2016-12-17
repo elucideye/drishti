@@ -10,8 +10,8 @@
   to store images that are processed by the top level SDK.
 */
 
-#ifndef __drishtisdk__Image__
-#define __drishtisdk__Image__
+#ifndef __drishti_drishti_Image_hpp__
+#define __drishti_drishti_Image_hpp__
 
 #include "drishti/drishti_sdk.hpp"
 #include <cstdint>
@@ -129,4 +129,4 @@ typedef Image<Vec3f> Image3f;
 
 _DRISHTI_SDK_END
 
-#endif // __drishtisdk__Image__
+#endif // __drishti_drishti_Image_hpp__

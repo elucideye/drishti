@@ -11,8 +11,8 @@
   and improve build times.
 */
 
-#ifndef __drishtisdk__DrishtiEyeSegmenterImpl__
-#define __drishtisdk__DrishtiEyeSegmenterImpl__
+#ifndef __drishti_drishti_EyeSegmenterImpl_hpp__
+#define __drishti_drishti_EyeSegmenterImpl_hpp__
 
 #include "drishti/EyeSegmenter.hpp"
 #include "drishti/core/Logger.h"
@@ -94,4 +94,4 @@ inline drishti::eye::EyeModel convert(drishti::sdk::Eye &eye)
 
 _DRISHTI_SDK_END
 
-#endif /* defined(__drishtisdk__DrishtiEyeSegmenterImpl__) */
+#endif /* defined(__drishti_drishti_EyeSegmenterImpl_hpp__) */

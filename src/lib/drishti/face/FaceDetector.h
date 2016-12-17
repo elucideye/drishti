@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__FaceDetector__
-#define __DRISHTI__FaceDetector__
+#ifndef __drishti_face_FaceDetector_h__
+#define __drishti_face_FaceDetector_h__
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/FaceDetectorFactory.h"
@@ -115,4 +115,4 @@ void splitContour(const std::vector<cv::Point2f> &points, std::vector<std::vecto
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif /* defined(__DRISHTI__FaceDetector__) */
+#endif /* defined(__drishti_face_FaceDetector_h__) */

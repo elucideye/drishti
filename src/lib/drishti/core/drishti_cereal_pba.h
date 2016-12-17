@@ -5,8 +5,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_CEREAL_PBA_H_
-#define DRISHTI_CORE_CEREAL_PBA_H_
+#ifndef __drishti_core_drishti_cereal_pba_h__
+#define __drishti_core_drishti_cereal_pba_h__
 
 #include "drishti/core/drishti_core.h"
 
@@ -70,4 +70,4 @@ void save_cpb(const std::string &filename, T &object)
 }
 
 
-#endif // DRISHTI_CORE_CEREAL_PBA_H_
+#endif // __drishti_core_drishti_cereal_pba_h__

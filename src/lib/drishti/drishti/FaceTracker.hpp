@@ -9,8 +9,8 @@
   This file contains the FaceTracker public API class.
 */
 
-#ifndef DRISHTI_DRISHTI_FACE_TRACKER_H
-#define DRISHTI_DRISHTI_FACE_TRACKER_H 1
+#ifndef __drishti_drishti_FaceTracker_hpp__
+#define __drishti_drishti_FaceTracker_hpp__ 1
 
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Image.hpp"
@@ -77,4 +77,4 @@ drishti_face_tracker_track(drishti::sdk::FaceTracker *tracker, const drishti::sd
 
 DRISHTI_EXTERN_C_END
 
-#endif // DRISHTI_DRISHTI_FACE_TRACKER_H
+#endif // __drishti_drishti_FaceTracker_hpp__
