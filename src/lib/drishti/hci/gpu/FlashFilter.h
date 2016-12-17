@@ -8,8 +8,8 @@
 
 */
 
-#ifndef FLASH_FILTER_H
-#define FLASH_FILTER_H
+#ifndef __drishti_hci_gpu_FlashFilter_h__
+#define __drishti_hci_gpu_FlashFilter_h__
 
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/proc/fifo.h"
@@ -38,4 +38,4 @@ public:
 
 END_OGLES_GPGPU
 
-#endif // FLASH_FILTER_H
+#endif // __drishti_hci_gpu_FlashFilter_h__

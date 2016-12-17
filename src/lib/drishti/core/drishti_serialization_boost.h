@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI_SERIALIZATION_BOOST_H__
-#define __DRISHTI_SERIALIZATION_BOOST_H__
+#ifndef __drishti_core_drishti_serialization_boost_h__
+#define __drishti_core_drishti_serialization_boost_h__
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>

@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__Shape__
-#define __DRISHTI__Shape__
+#ifndef __drishti_core_Shape_h__
+#define __drishti_core_Shape_h__
 
 #include "drishti/core/drishti_core.h"
 
@@ -198,4 +198,4 @@ std::vector<cv::Vec3b> makeRainbow();
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif /* defined(__DRISHTI__Shape__) */
+#endif /* defined(__drishti_core_Shape_h__) */

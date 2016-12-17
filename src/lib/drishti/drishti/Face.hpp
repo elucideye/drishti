@@ -10,8 +10,8 @@
   to report results for the top level SDK.
 */
 
-#ifndef DRISHTI_DRISHTI_FACE_H
-#define DRISHTI_DRISHTI_FACE_H 1
+#ifndef __drishti_drishti_Face_hpp__
+#define __drishti_drishti_Face_hpp__ 1
 
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Eye.hpp"
@@ -42,4 +42,4 @@ protected:
 
 _DRISHTI_SDK_END
 
-#endif // DRISHTI_DRISHTI_FACE_H
+#endif // __drishti_drishti_Face_hpp__

@@ -16,8 +16,8 @@
 
 */
 
-#ifndef __drishtisdk__Ellipse__
-#define __drishtisdk__Ellipse__
+#ifndef __drishti_geometry_Ellipse_h__
+#define __drishti_geometry_Ellipse_h__
 
 #include "drishti/geometry/drishti_geometry.h"
 #include "drishti/geometry/fitEllipse.h"
@@ -165,4 +165,4 @@ inline std::vector<cv::RotatedRect> pointsToEllipses(const std::vector<cv::Point
 
 DRISHTI_GEOMETRY_END
 
-#endif /* defined(__drishtisdk__Ellipse__) */
+#endif /* defined(__drishti_geometry_Ellipse_h__) */

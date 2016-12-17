@@ -9,8 +9,8 @@
   Lineage: ogles_gpgpu/platform/opengl/gl_includes.h
 */
 
-#ifndef DRISHTI_drishti_graphics_h
-#define DRISHTI_drishti_graphics_h
+#ifndef __drishti_graphics_drishti_graphics_h__
+#define __drishti_graphics_drishti_graphics_h__
 
 #define DRISHTI_GRAPHICS_BEGIN namespace drishti { namespace graphics {
 #define DRISHTI_GRAPHICS_END } }

@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_HCI_H
-#define DRISHTI_HCI_H
+#ifndef __drishti_hci_drishti_hci_h__
+#define __drishti_hci_drishti_hci_h__
 
 #define DRISHTI_HCI_NAMESPACE_BEGIN namespace drishti { namespace hci {
 #define DRISHTI_HCI_NAMESPACE_END } }

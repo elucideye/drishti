@@ -4,8 +4,8 @@
 * Please email me if you find bugs, or have suggestions or questions!
 * Licensed under the Simplified BSD License [see external/bsd.txt]
 *******************************************************************************/
-#ifndef _SSE_HPP_
-#define _SSE_HPP_
+#ifndef __drishti_acf_toolbox_sse_hpp__
+#define __drishti_acf_toolbox_sse_hpp__
 
 #include <iostream>
 

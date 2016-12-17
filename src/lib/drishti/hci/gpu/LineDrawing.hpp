@@ -8,8 +8,8 @@
 
 */
 
-#ifndef LINE_DRAWING_H
-#define LINE_DRAWING_H
+#ifndef __drishti_hci_gpu_LineDrawing_hpp__
+#define __drishti_hci_gpu_LineDrawing_hpp__
 
 #include <opencv2/core/core.hpp>
 #include <vector>
@@ -29,4 +29,4 @@ struct LineDrawing
 
 END_OGLES_GPGPU
 
-#endif // LINE_DRAWING_H
+#endif // __drishti_hci_gpu_LineDrawing_hpp__

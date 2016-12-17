@@ -11,8 +11,8 @@
   Lineage: ogles_gpgpu/platform/opengl/gl_includes.h
 */
 
-#ifndef DRISHTI_DRISHTI_GL_H
-#define DRISHTI_DRISHTI_GL_H 1
+#ifndef __drishti_drishti_drishti_gl_hpp__
+#define __drishti_drishti_drishti_gl_hpp__ 1
 
 //define something for Windows (64-bit)
 #if defined(_WIN32) || defined(_WIN64)
@@ -43,4 +43,4 @@
 #  error platform not supported.
 #endif
 
-#endif // DRISHTI_DRISHTI_GL_H
+#endif // __drishti_drishti_drishti_gl_hpp__

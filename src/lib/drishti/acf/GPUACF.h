@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__GPUACF__
-#define __DRISHTI__GPUACF__
+#ifndef __drishti_acf_GPUACF_h__
+#define __drishti_acf_GPUACF_h__
 
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACF.h"
@@ -196,4 +196,4 @@ public:
 END_OGLES_GPGPU
 
 
-#endif // __DRISHTI__GPUACF__
+#endif // __drishti_acf_GPUACF_h__

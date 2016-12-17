@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__FaceDetectorFactory__
-#define __DRISHTI__FaceDetectorFactory__
+#ifndef __drishti_face_FaceDetectorFactory_h__
+#define __drishti_face_FaceDetectorFactory_h__
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
@@ -85,4 +85,4 @@ public:
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // __DRISHTI__FaceDetectorFactory__
+#endif // __drishti_face_FaceDetectorFactory_h__

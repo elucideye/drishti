@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_drishti_geometry_h
-#define DRISHTI_drishti_geometry_h
+#ifndef __drishti_geometry_drishti_geometry_h__
+#define __drishti_geometry_drishti_geometry_h__
 
 #define DRISHTI_GEOMETRY_BEGIN namespace drishti { namespace geometry {
 #define DRISHTI_GEOMETRY_END } }

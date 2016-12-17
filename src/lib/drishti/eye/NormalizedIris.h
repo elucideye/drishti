@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishtisdk__NormalizedIris__
-#define __drishtisdk__NormalizedIris__
+#ifndef __drishti_eye_NormalizedIris_h__
+#define __drishti_eye_NormalizedIris_h__
 
 #include <stdio.h>
 
@@ -79,4 +79,4 @@ protected:
 
 DRISHTI_EYE_NAMESPACE_END
 
-#endif /* defined(__drishtisdk__NormalizedIris__) */
+#endif /* defined(__drishti_eye_NormalizedIris_h__) */

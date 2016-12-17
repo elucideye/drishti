@@ -10,8 +10,8 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-#ifndef DRISHTI_CORE_FIXED_FIELD_H
-#define DRISHTI_CORE_FIXED_FIELD_H 1
+#ifndef __drishti_core_FixedField_h__
+#define __drishti_core_FixedField_h__ 1
 
 struct FixedField
 {
@@ -27,6 +27,6 @@ inline std::ostream& operator<<(std::ostream &os, const FixedField &f)
     return os;
 }
 
-#endif // DRISHTI_CORE_FIXED_FIELD_H 
+#endif // __drishti_core_FixedField_h__ 
 
 DRISHTI_CORE_NAMESPACE_END

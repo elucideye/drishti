@@ -8,8 +8,8 @@
 
 */
 
-#ifndef TRIANGLE_STRIP_WARP_H
-#define TRIANGLE_STRIP_WARP_H
+#ifndef __drishti_eye_gpu_TriangleStripWarp_h__
+#define __drishti_eye_gpu_TriangleStripWarp_h__
 
 #include "ogles_gpgpu/common/proc/transform.h"
 #include "ogles_gpgpu/common/common_includes.h"
@@ -51,4 +51,4 @@ public:
 
 END_OGLES_GPGPU
 
-#endif // TRIANGLE_STRIP_WARP_H
+#endif // __drishti_eye_gpu_TriangleStripWarp_h__

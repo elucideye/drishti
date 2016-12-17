@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__drawing__
-#define __DRISHTI__drawing__
+#ifndef __drishti_core_drawing_h__
+#define __drishti_core_drawing_h__
 
 #include <iostream>
 #include "drishti_core.h"
@@ -21,4 +21,4 @@ void quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int ste
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif /* defined(__DRISHTI__drawing__) */
+#endif /* defined(__drishti_core_drawing_h__) */

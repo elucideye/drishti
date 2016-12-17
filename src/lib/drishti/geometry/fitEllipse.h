@@ -1,5 +1,16 @@
-#ifndef drishti_geometry_fit_ellipse_h
-#define drishti_geometry_fit_ellipse_h 1
+/*!
+  @file   fitEllipse.h
+  @author David Hirvonen
+  @brief  Declaration of ellipse fitting routines.
+
+  Lineage: 
+  http://research.microsoft.com/en-us/um/people/awf/ellipse/fitellipse.html
+  Copyright (c) 1999, Andrew Fitzgibbon, Maurizio Pilu, Bob Fisher  
+
+*/
+
+#ifndef __drishti_geometry_fitEllipse_h__
+#define __drishti_geometry_fitEllipse_h__ 1
 
 #include "drishti/geometry/drishti_geometry.h"
 
@@ -28,4 +39,4 @@ cv::RotatedRect fitEllipse(const std::vector<cv::Point2d> &points, const cv::Poi
 
 DRISHTI_GEOMETRY_END
 
-#endif // drishti_geometry_fit_ellipse_h 1
+#endif // d__drishti_geometry_fitEllipse_h__ 1

@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishtisdk__FaceIO__
-#define __drishtisdk__FaceIO__
+#ifndef __drishti_face_FaceIO_h__
+#define __drishti_face_FaceIO_h__
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
@@ -54,4 +54,4 @@ FaceModel shapeToFace(drishti::core::Shape &shape, FaceSpecification::Format kin
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // __drishtisdk__FaceIO__
+#endif // __drishti_face_FaceIO_h__

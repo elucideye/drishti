@@ -8,7 +8,8 @@
 
 */
 
-#ifndef drishtisdk_drishti_serialize_h
+#ifndef __drishti_core_drishti_serialize_h__
+#define __drishti_core_drishti_serialize_h__
 
 inline bool isArchiveSupported(const std::string &filename)
 {
@@ -26,7 +27,5 @@ inline bool isArchiveSupported(const std::string &filename)
     
     return false;
 }
-
-#define drishtisdk_drishti_serialize_h
 
 #endif

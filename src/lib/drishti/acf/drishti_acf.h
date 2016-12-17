@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_drishti_acf_h
-#define DRISHTI_drishti_acf_h
+#ifndef __drishti_acf_drishti_acf_h__
+#define __drishti_acf_drishti_acf_h__
 
 #define DRISHTI_ACF_NAMESPACE_BEGIN namespace drishti { namespace acf {
 #define DRISHTI_ACF_NAMESPACE_END } }

@@ -8,8 +8,8 @@
 
 */
 
-#ifndef OGLES_GPGPU_GAIN_H
-#define OGLES_GPGPU_GAIN_H
+#ifndef __drishti_acf_gpu_gain_h__
+#define __drishti_acf_gpu_gain_h__
 
 #include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/base/filterprocbase.h"
@@ -46,4 +46,4 @@ private:
 
 END_OGLES_GPGPU
 
-#endif //  OGLES_GPGPU_GAIN_H
+#endif //  __drishti_acf_gpu_gain_h__

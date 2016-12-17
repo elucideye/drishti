@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_MATH_H
-#define DRISHTI_CORE_MATH_H 1
+#ifndef __drishti_core_drishti_math_h__
+#define __drishti_core_drishti_math_h__ 1
 
 #include "drishti/core/drishti_core.h"
 

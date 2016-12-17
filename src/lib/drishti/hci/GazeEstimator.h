@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishtisdk__GazeEstimator__
-#define __drishtisdk__GazeEstimator__
+#ifndef __drishti_hci_GazeEstimator_h__
+#define __drishti_hci_GazeEstimator_h__
 
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/face/Face.h"
@@ -81,4 +81,4 @@ protected:
 
 DRISHTI_HCI_NAMESPACE_END
 
-#endif // __drishtisdk__GazeEstimator__
+#endif // __drishti_hci_GazeEstimator_h__

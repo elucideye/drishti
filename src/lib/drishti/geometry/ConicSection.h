@@ -1,5 +1,5 @@
-#ifndef drishti_ConicSection_h
-#define drishti_ConicSection_h 1
+#ifndef __drishti_geometry_ConicSection_h__
+#define __drishti_geometry_ConicSection_h__ 1
 
 #include "drishti/geometry/drishti_geometry.h"
 
@@ -123,4 +123,4 @@ protected:
 
 DRISHTI_GEOMETRY_END
 
-#endif // drishti_ConicSection_h 1
+#endif // __drishti_geometry_ConicSection_h__ 1

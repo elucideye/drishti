@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishtisdk__EyeModelEstimatorImpl__
-#define __drishtisdk__EyeModelEstimatorImpl__
+#ifndef __drishti_eye_EyeModelEstimatorImpl_h__
+#define __drishti_eye_EyeModelEstimatorImpl_h__
 
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/eye/IrisNormalizer.h"
@@ -252,4 +252,4 @@ void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
 
 DRISHTI_EYE_NAMESPACE_END
 
-#endif /* defined(__drishtisdk__EyeModelEstimatorImpl__) */
+#endif /* defined(__drishti_eye_EyeModelEstimatorImpl_h__) */

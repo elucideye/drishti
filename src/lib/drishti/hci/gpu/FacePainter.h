@@ -8,8 +8,8 @@
 
 */
 
-#ifndef FACE_PAINTER_H
-#define FACE_PAINTER_H
+#ifndef __drishti_hci_gpu_FacePainter_h__
+#define __drishti_hci_gpu_FacePainter_h__
 
 /**
  * GPGPU transform processor.
@@ -281,4 +281,4 @@ private:
 
 END_OGLES_GPGPU
 
-#endif // FACE_PAINTER_H
+#endif // __drishti_hci_gpu_FacePainter_h__

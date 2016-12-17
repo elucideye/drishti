@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_drishti_face_h
-#define DRISHTI_drishti_face_h
+#ifndef __drishti_face_drishti_face_h__
+#define __drishti_face_drishti_face_h__
 
 #define DRISHTI_FACE_NAMESPACE_BEGIN namespace drishti { namespace face {
 #define DRISHTI_FACE_NAMESPACE_END } }

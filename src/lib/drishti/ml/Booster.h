@@ -8,8 +8,8 @@
  
  */
 
-#ifndef DRISHTI_ML_BOOSTER_H
-#define DRISHTI_ML_BOOSTER_H
+#ifndef __drishti_ml_Booster_h__
+#define __drishti_ml_Booster_h__
 
 // implementations in ctypes
 #define _CRT_SECURE_NO_WARNINGS
@@ -281,4 +281,4 @@ private:
 DRISHTI_END_NAMESPACE(wrapper)
 DRISHTI_END_NAMESPACE(xgboost)
 
-#endif // DRISHTI_ML_BOOSTER_H
+#endif // __drishti_ml_Booster_h__

@@ -10,8 +10,8 @@
 
 */
 
-#ifndef drishtisdk_string_hash_h
-#define drishtisdk_string_hash_h
+#ifndef __drishti_core_drishti_string_hash_h__
+#define __drishti_core_drishti_string_hash_h__
 
 #include "drishti/core/drishti_core.h"
 

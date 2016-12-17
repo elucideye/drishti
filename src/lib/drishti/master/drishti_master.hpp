@@ -9,8 +9,8 @@
 
 */
 
-#ifndef DRISHTI_SDK_MASTER_H
-#define DRISHTI_SDK_MASTER_H 1
+#ifndef __drishti_master_drishti_master_hpp__
+#define __drishti_master_drishti_master_hpp__ 1
 
 #define DRISHTI_MASTER_BEGIN namespace master {
 #define DRISHTI_MASTER_END }
@@ -25,4 +25,4 @@ struct VersionInfo
 
 DRISHTI_MASTER_END
 
-#endif // DRISHTI_SDK_MASTER_H
+#endif // __drishti_master_drishti_master_hpp__

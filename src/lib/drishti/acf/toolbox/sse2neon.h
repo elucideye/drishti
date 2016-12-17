@@ -1,5 +1,5 @@
-#ifndef SSE2NEON_H
-#define SSE2NEON_H
+#ifndef __drishti_acf_toolbox_sse2neon_h__
+#define __drishti_acf_toolbox_sse2neon_h__
 
 // This header file provides a simple API translation layer
 // between SSE intrinsics to their corresponding ARM NEON versions

@@ -9,8 +9,8 @@
 
 */
 
-#ifndef DRISHTI_RCPR_CPR_H
-#define DRISHTI_RCPR_CPR_H
+#ifndef __drishti_rcpr_CPR_h__
+#define __drishti_rcpr_CPR_h__
 
 #define DRISHTI_CPR_DO_LEAN 1
 #define DRISHTI_CPR_DO_HALF_FLOAT 1

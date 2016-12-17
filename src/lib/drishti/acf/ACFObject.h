@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__ACFOBJECT__
-#define __DRISHTI__ACFOBJECT__
+#ifndef __drishti_acf_ACFObject_h__
+#define __drishti_acf_ACFObject_h__
 
 #include "drishti/acf/drishti_acf.h"
 
@@ -93,4 +93,4 @@ inline std::ostream & operator<<(std::ostream &os, const ACFObjectSet &src)
 
 DRISHTI_ACF_NAMESPACE_END
 
-#endif /* defined(__DRISHTI__ACFOBJECT__) */
+#endif /* defined(__drishti_acf_ACFObject_h__) */

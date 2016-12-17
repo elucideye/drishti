@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_FACE_IMPL_H
-#define DRISHTI_FACE_IMPL_H
+#ifndef __drishti_face_FaceImpl_h__
+#define __drishti_face_FaceImpl_h__
 
 #include "drishti/face/Face.h"
 
@@ -59,4 +59,4 @@ void FaceModel::serialize(Archive & ar, const unsigned int version)
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // DRISHTI_FACE_IMPL_H
+#endif // __drishti_face_FaceImpl_h__

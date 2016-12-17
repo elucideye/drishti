@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_STDLIB_STRING_H
-#define DRISHTI_STDLIB_STRING_H 
+#ifndef __drishti_core_drishti_stdlib_string_h__
+#define __drishti_core_drishti_stdlib_string_h__ 
 
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>
@@ -69,4 +69,4 @@ inline long double stold(const std::string &s)
 DRISHTI_END_NAMESPACE(std)
 #endif
 
-#endif // DRISHTI_STDLIB_STRING_H
+#endif // __drishti_core_drishti_stdlib_string_h__
