@@ -38,8 +38,8 @@ COMMAND=(
     "--jobs 8 "
     "--open "
     "--install "
-#    "--test " 
-    "${EXTRA_ARGS}"  "--nobuild"
+    "--test " 
+    "${EXTRA_ARGS}" #  "--nobuild"
 )
 
 build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
