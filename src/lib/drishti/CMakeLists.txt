@@ -96,10 +96,6 @@ if(DRISHTI_BUILD_WORLD)
   drishti_hide(drishti_world)
   
   target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
-  target_compile_definitions(drishti_world PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-  if(DRISHTI_USE_TEXT_ARCHIVES)
-    target_compile_definitions(drishti_world PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
-  endif()
 
   if(DRISHTI_COTIRE)  
     cotire(drishti_world)
@@ -114,14 +110,10 @@ else()
   ## drishti_core
   add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
   target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
-  if(DRISHTI_USE_TEXT_ARCHIVES)
-    target_compile_definitions(drishti_core PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
-  endif()
 
   ## drishti_geometry
   add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
   target_link_libraries(drishti_geometry PUBLIC ${OpenCV_LIBS})
-  target_compile_definitions(drishti_geometry PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
   ## drishti_sensors
   add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
@@ -130,7 +122,6 @@ else()
   ## drishti_ml
   add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
   target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} xgboost::xgboost)
-  target_compile_definitions(drishti_ml PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 
   ## drishti_rcpr
   add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
@@ -139,9 +130,6 @@ else()
   ## drishti_eye
   add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
   target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} xgboost::xgboost)
-  if(DRISHTI_USE_TEXT_ARCHIVES)
-    target_compile_definitions(drishti_eye PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
-  endif()
 
   ## drishti_acf
   if(DRISHTI_BUILD_ACF)
@@ -284,15 +272,33 @@ endif()
 # Set the serialization mode preprocessor flags (boost and/or cereal)
 set(DRISHTI_LIBRARY_LIST ${DRISHTI_LIBS} drishtisdk)
 foreach(library ${DRISHTI_LIBRARY_LIST})
+
+  # define M_PI_2 for MSVC
+  target_compile_definitions(${library} PUBLIC _USE_MATH_DEFINES) 
+
   if(DRISHTI_SERIALIZE_WITH_BOOST)
     target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_BOOST=1)
+    if(DRISHTI_USE_TEXT_ARCHIVES)
+      target_compile_definitions(${library} PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
+    endif()
   endif()
+
   if(DRISHTI_SERIALIZE_WITH_CEREAL)
     target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_CEREAL=1)
   endif()
+
   if(DRISHTI_SERIALIZE_WITH_CVMATIO)
     target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_CVMATIO=1)
   endif()
+
+  if(DRISHTI_BUILD_OGLES_GPGPU)
+    target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_OGLES_GPGPU=1)
+  endif()
+
+  if(DRISHTI_BUILD_QT)
+    target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_QT=1)
+  endif()  
+  
 endforeach()  
 
 ############################

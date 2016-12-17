@@ -31,6 +31,7 @@ target_link_libraries(test-drishti-acf
 if(DRISHTI_ACF_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)  
   target_link_libraries(test-drishti-acf ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
+  target_compile_definitions(test-drishti-acf PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
 endif()
 
 set_property(TARGET test-drishti-acf PROPERTY FOLDER "app/tests")

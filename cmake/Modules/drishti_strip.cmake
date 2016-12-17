@@ -15,6 +15,6 @@ function(drishti_strip drishti_library)
     # file /Library/Caches/com.apple.xbs/Sources/ld64/ld64-264.3.102/src/ld/LinkEditClassic.hpp, line 1907.
     #
     # This should can be enabled optionally for modules that do not require thread_local.
-    # XCODE_ATTRIBUTE_GENERATE_MASTER_OBJECT_FILE "YES" # "Perform Single-Object Prelink"
+    XCODE_ATTRIBUTE_GENERATE_MASTER_OBJECT_FILE "YES" # "Perform Single-Object Prelink"
     )
 endfunction(drishti_strip)
