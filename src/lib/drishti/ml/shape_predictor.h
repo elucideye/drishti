@@ -1,8 +1,8 @@
 // Copyright (C) 2014  Davis E. King (davis@dlib.net)
 // Copyright (C) 2015-2016  David Hirvonen
 // License: Boost Software License   See LICENSE.txt for the full license.
-#ifndef DLIB_SHAPE_PREDICTOR_MODIFIED_H_
-#define DLIB_SHAPE_PREDICTOR_MODIFIED_H_
+#ifndef __drishti_ml_shape_predictor_h__
+#define __drishti_ml_shape_predictor_h__
 
 #define DRISHTI_DLIB_DO_DEBUG_ELLIPSE 0
 #define DRISHTI_DLIB_DO_VISUALIZE_FEATURE_POINTS 0
@@ -2168,5 +2168,5 @@ DRISHTI_BEGIN_NAMESPACE(cereal)
 #include "drishti/ml/shape_predictor_archive.h"
 DRISHTI_END_NAMESPACE(cereal)
 
-#endif // DLIB_SHAPE_PREDICTOR_MODIFIED_H_
+#endif // __drishti_ml_shape_predictor_h__
 

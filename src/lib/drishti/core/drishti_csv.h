@@ -8,8 +8,8 @@
 
 */
 
-#ifndef drishtisdk_drishti_csv_h
-#define drishtisdk_drishti_csv_h
+#ifndef __drishti_core_drishti_csv_h__
+#define __drishti_core_drishti_csv_h__
 
 #include "drishti/core/drishti_core.h"
 #include <boost/spirit/include/qi.hpp>

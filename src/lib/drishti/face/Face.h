@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishtisdk__Face__
-#define __drishtisdk__Face__
+#ifndef __drishti_face_Face_h__
+#define __drishti_face_Face_h__
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/core/Field.h"
@@ -229,4 +229,4 @@ cv::Mat estimateMotionLeastSquares(const FaceModel &a, const FaceModel &b);
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif /* defined(__drishtisdk__Face__) */
+#endif /* defined(__drishti_face_Face_h__) */

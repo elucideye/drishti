@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__FaceDetectorAndTracker__
-#define __DRISHTI__FaceDetectorAndTracker__
+#ifndef __drishti_face_FaceDetectorAndTracker_h__
+#define __drishti_face_FaceDetectorAndTracker_h__
 
 #include "drishti/face/FaceDetector.h"
 
@@ -32,4 +32,4 @@ protected:
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // __DRISHTI__FaceDetectorAndTracker__
+#endif // __drishti_face_FaceDetectorAndTracker_h__

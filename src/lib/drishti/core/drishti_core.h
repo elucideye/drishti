@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_H
-#define DRISHTI_CORE_H
+#ifndef __drishti_core_drishti_core_h__
+#define __drishti_core_drishti_core_h__
 
 #define DRISHTI_BEGIN_NAMESPACE(X) namespace X {
 #define DRISHTI_END_NAMESPACE(X) }

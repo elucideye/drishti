@@ -8,8 +8,8 @@
 
 */
 
-#ifndef drishtisdk_ObjectDetector_h
-#define drishtisdk_ObjectDetector_h
+#ifndef __drishti_ml_ObjectDetector_h__
+#define __drishti_ml_ObjectDetector_h__
 
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/acf/MatP.h"

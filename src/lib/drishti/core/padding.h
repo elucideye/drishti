@@ -11,8 +11,8 @@
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>
 
-#ifndef CORE_PADDING_H
-#define CORE_PADDING_H
+#ifndef __drishti_core_padding_h__
+#define __drishti_core_padding_h__
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
@@ -24,4 +24,4 @@ void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask);
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // CORE_PADDING_H
+#endif // __drishti_core_padding_h__

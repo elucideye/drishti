@@ -9,8 +9,8 @@
 
 */
 
-#ifndef __drishti_core__Logger__
-#define __drishti_core__Logger__
+#ifndef __drishti_core_Logger_h__
+#define __drishti_core_Logger_h__
 
 #include <spdlog/spdlog.h>
 
@@ -72,4 +72,4 @@ protected:
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // __drishti_core__Logger__
+#endif // __drishti_core_Logger_h__

@@ -9,8 +9,8 @@
 
 */
 
-#ifndef drishtisdk_Sensor_h
-#define drishtisdk_Sensor_h
+#ifndef __drishti_sensor_Sensor_h__
+#define __drishti_sensor_Sensor_h__
 
 #include "drishti/sensor/drishti_sensor.h"
 #include "drishti/core/Field.h"

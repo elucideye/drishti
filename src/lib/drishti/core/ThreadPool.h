@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_THREAD_POOL_H
-#define DRISHTI_CORE_THREAD_POOL_H 1
+#ifndef __drishti_core_ThreadPool_h__
+#define __drishti_core_ThreadPool_h__ 1
 
 #include "drishti/core/drishti_core.h"
 #include "thread_pool/thread_pool.hpp"
@@ -34,4 +34,4 @@ public:
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // DRISHTI_CORE_THREAD_POOL_H 
+#endif // __drishti_core_ThreadPool_h__ 

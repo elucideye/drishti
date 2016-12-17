@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_CONVERT_H
-#define DRISHTI_CORE_CONVERT_H 1
+#ifndef __drishti_core_convert_h__
+#define __drishti_core_convert_h__ 1
 
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>
@@ -30,4 +30,4 @@ void unpack(const cv::Mat4b &input, std::vector<PlaneInfo> &planes);
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // DRISHTI_CORE_CONVERT_H
+#endif // __drishti_core_convert_h__

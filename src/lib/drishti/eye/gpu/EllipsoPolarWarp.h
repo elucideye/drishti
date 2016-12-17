@@ -8,8 +8,8 @@
 
 */
 
-#ifndef ELLIPSO_POLAR_WARP_H
-#define ELLIPSO_POLAR_WARP_H
+#ifndef __drishti_eye_gpu_EllipsoPolarWarp_h__
+#define __drishti_eye_gpu_EllipsoPolarWarp_h__
 
 #include "drishti/eye/gpu/TriangleStripWarp.h"
 #include "drishti/eye/gpu/EyeWarp.h"
@@ -48,4 +48,4 @@ protected:
 
 END_OGLES_GPGPU
 
-#endif // ELLIPSO_POLAR_WARP_H
+#endif // __drishti_eye_gpu_EllipsoPolarWarp_h__

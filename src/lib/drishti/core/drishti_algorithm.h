@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CORE_ALGORITHM_H
-#define DRISHTI_CORE_ALGORITHM_H 1
+#ifndef __drishti_core_drishti_algorithm_h__
+#define __drishti_core_drishti_algorithm_h__ 1
 
 #include <vector>
 #include <numeric>
@@ -31,4 +31,4 @@ std::vector<size_t> ordered(const std::vector<T> & values, const Comp &C)
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // DRISHTI_CORE_ALGORITHM_H 1
+#endif // __drishti_core_drishti_algorithm_h__ 1

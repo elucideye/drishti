@@ -10,8 +10,8 @@
   for the top level SDK.
 */
 
-#ifndef __drishtisdk__EyeDetector__
-#define __drishtisdk__EyeDetector__
+#ifndef __drishti_drishti_EyeDetector_hpp__
+#define __drishti_drishti_EyeDetector_hpp__
 
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Image.hpp"
@@ -51,4 +51,4 @@ protected:
 _DRISHTI_SDK_END
 
 
-#endif /* defined(__drishtisdk__EyeDetector__) */
+#endif /* defined(__drishti_drishti_EyeDetector_hpp__) */

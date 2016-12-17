@@ -5,8 +5,8 @@
 
 */
 
-#ifndef __DRISHTI_PCA_CEREAL_HPP_INCLUDED__
-#define __DRISHTI_PCA_CEREAL_HPP_INCLUDED__
+#ifndef __drishti_core_drishti_pca_cereal_h__
+#define __drishti_core_drishti_pca_cereal_h__
 
 #include "drishti/core/drishti_core.h" // for DRISHTI_BEGIN_NAMESPACE()
 #include <opencv2/opencv.hpp>
@@ -22,4 +22,4 @@ void serialize(Archive & ar, cv::PCA &pca, const unsigned int version)
 }
 DRISHTI_END_NAMESPACE(cv)
 
-#endif // __DRISHTI_PCA_CEREAL_HPP_INCLUDED__
+#endif // __drishti_core_drishti_pca_cereal_h__

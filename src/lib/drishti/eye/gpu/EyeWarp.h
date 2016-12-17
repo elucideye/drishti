@@ -8,8 +8,8 @@
 
 */
 
-#ifndef EYE_WARP_H
-#define EYE_WARP_H 1
+#ifndef __drishti_eye_gpu_EyeWarp_h__
+#define __drishti_eye_gpu_EyeWarp_h__ 1
 
 #include "drishti/eye/Eye.h"
 
@@ -25,4 +25,4 @@ struct EyeWarp
     DRISHTI_EYE::EyeModel eye;
 };
 
-#endif // EYE_WARP_H 
+#endif // __drishti_eye_gpu_EyeWarp_h__ 

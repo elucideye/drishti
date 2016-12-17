@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI_ACFIO_ARCHIVE_H_
-#define __DRISHTI_ACFIO_ARCHIVE_H_
+#ifndef __drishti_acf_ACFIOArchive_h__
+#define __drishti_acf_ACFIOArchive_h__
 
 #include "drishti/core/drishti_core.h"
 #include "drishti/acf/drishti_acf.h"
@@ -264,4 +264,4 @@ inline void transform16Uto32S(int rows, int cols, const std::vector<uint16_t> &s
 
 DRISHTI_ACF_NAMESPACE_END
 
-#endif //  __DRISHTI_ACFIO_ARCHIVE_H_
+#endif //  __drishti_acf_ACFIOArchive_h__

@@ -5,8 +5,8 @@
 
 */
 
-#ifndef __DRISHTI_PCA_BOOST_HPP_INCLUDED__
-#define __DRISHTI_PCA_BOOST_HPP_INCLUDED__
+#ifndef __drishti_core_drishti_pca_boost_h__
+#define __drishti_core_drishti_pca_boost_h__
 
 #include "drishti/core/drishti_core.h" // for DRISHTI_BEGIN_NAMESPACE()
 #include <opencv2/opencv.hpp>
@@ -27,4 +27,4 @@ DRISHTI_END_NAMESPACE(serialization)
 DRISHTI_END_NAMESPACE(boost)
 #endif
 
-#endif // __DRISHTI_PCA_BOOST_HPP_INCLUDED__
+#endif // __drishti_core_drishti_pca_boost_h__

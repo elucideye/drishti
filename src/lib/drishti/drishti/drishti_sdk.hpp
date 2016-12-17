@@ -10,8 +10,8 @@
   names themselves will be visible if RTTI and exceptions are enabled.
 */
 
-#ifndef __drishtisdk__SDK__
-#define __drishtisdk__SDK__
+#ifndef __drishti_drishti_drishti_sdk_hpp__
+#define __drishti_drishti_drishti_sdk_hpp__
 
 #if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__)
 # ifdef drishti_EXPORTS
@@ -55,4 +55,4 @@ std::string getVersion();
 
 _DRISHTI_SDK_END
 
-#endif // __drishtisdk__SDK__
+#endif // __drishti_drishti_drishti_sdk_hpp__

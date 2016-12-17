@@ -8,8 +8,8 @@
 
 */
 
-#ifndef drishtisdk_Parallel_h
-#define drishtisdk_Parallel_h
+#ifndef __drishti_core_Parallel_h__
+#define __drishti_core_Parallel_h__
 
 #include "drishti/core/drishti_core.h"
 #include <opencv2/core/core.hpp>

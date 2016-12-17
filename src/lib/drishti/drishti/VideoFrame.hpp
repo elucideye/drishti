@@ -9,8 +9,8 @@
   This file contains the VideoFrame public API class.
 */
 
-#ifndef __drishtisdk__VideoFrame__
-#define __drishtisdk__VideoFrame__
+#ifndef __drishti_drishti_VideoFrame_hpp__
+#define __drishti_drishti_VideoFrame_hpp__
 
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/drishti_gl.hpp"
@@ -38,4 +38,4 @@ struct DRISHTI_EXPORTS VideoFrame
 
 _DRISHTI_SDK_END
 
-#endif // __drishtisdk__VideoFrame__
+#endif // __drishti_drishti_VideoFrame_hpp__

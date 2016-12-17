@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_CV_BOOST_H
-#define DRISHTI_CV_BOOST_H
+#ifndef __drishti_core_drishti_cv_boost_h__
+#define __drishti_core_drishti_cv_boost_h__
 
 #include "drishti/core/drishti_core.h"
 

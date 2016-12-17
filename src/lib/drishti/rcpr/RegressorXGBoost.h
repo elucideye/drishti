@@ -8,8 +8,8 @@
 
 */
 
-#ifndef _DRISHTI_SDK_REGRESSOR_XGBOOST_
-#define _DRISHTI_SDK_REGRESSOR_XGBOOST_
+#ifndef __drishti_rcpr_RegressorXGBoost_h__
+#define __drishti_rcpr_RegressorXGBoost_h__
 
 #include "drishti/rcpr/Regressor.h"
 #include "drishti/ml/XGBooster.h"
@@ -50,4 +50,4 @@ public:
 
 DRISHTI_RCPR_NAMESPACE_END
 
-#endif // _DRISHTI_SDK_REGRESSOR_XGBOOST_
+#endif // __drishti_rcpr_RegressorXGBoost_h__

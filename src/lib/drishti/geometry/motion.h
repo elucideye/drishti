@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_MOTION_H
-#define DRISHTI_MOTION_H
+#ifndef __drishti_geometry_motion_h__
+#define __drishti_geometry_motion_h__
 
 #include <opencv2/core.hpp>
 #include <array>
@@ -108,4 +108,4 @@ inline cv::Matx33f denormalize(const cv::Size &sizeIn)
 
 DRISHTI_TRANSFORMATION_NAMESPACE_END
 
-#endif // DRISHTI_MOTION_H
+#endif // __drishti_geometry_motion_h__

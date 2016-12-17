@@ -11,8 +11,8 @@
 
 */
 
-#ifndef __DRISHTI__FaceModelEstimator__
-#define __DRISHTI__FaceModelEstimator__
+#ifndef __drishti_face_FaceModelEstimator_h__
+#define __drishti_face_FaceModelEstimator_h__
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
@@ -49,4 +49,4 @@ protected:
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif /* defined(__DRISHTI__FaceModelEstimator__) */
+#endif /* defined(__drishti_face_FaceModelEstimator_h__) */

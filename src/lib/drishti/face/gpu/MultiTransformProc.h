@@ -8,8 +8,8 @@
 
 */
 
-#ifndef MULTI_TRANSFORM_PROC_H
-#define MULTI_TRANSFORM_PROC_H
+#ifndef __drishti_face_gpu_MultiTransformProc_h__
+#define __drishti_face_gpu_MultiTransformProc_h__
 
 #include "ogles_gpgpu/common/proc/transform.h"
 
@@ -43,4 +43,4 @@ protected:
 
 END_OGLES_GPGPU
 
-#endif // MULTI_TRANSFORM_PROC_H
+#endif // __drishti_face_gpu_MultiTransformProc_h__

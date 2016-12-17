@@ -8,8 +8,8 @@
 
 */
 
-#ifndef EYE_FILTER_H
-#define EYE_FILTER_H
+#ifndef __drishti_face_gpu_EyeFilter_h__
+#define __drishti_face_gpu_EyeFilter_h__
 
 #include "ogles_gpgpu/common/proc/base/multipassproc.h"
 #include "ogles_gpgpu/common/proc/transform.h"
@@ -123,4 +123,4 @@ protected:
 
 END_OGLES_GPGPU
 
-#endif // EYE_FILTER_H
+#endif // __drishti_face_gpu_EyeFilter_h__

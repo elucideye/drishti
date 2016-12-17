@@ -8,8 +8,8 @@
 
 */
 
-#ifndef FACE_STABILIZER_H
-#define FACE_STABILIZER_H
+#ifndef __drishti_face_gpu_FaceStabilizer_h__
+#define __drishti_face_gpu_FaceStabilizer_h__
 
 #include "drishti/face/Face.h"
 #include "drishti/eye/Eye.h"
@@ -52,4 +52,4 @@ protected:
 
 //END_OGLES_GPGPU
 
-#endif // FACE_STABILIZER_H
+#endif // __drishti_face_gpu_FaceStabilizer_h__

@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __DRISHTI__ACF_ACFFIELD__
-#define __DRISHTI__ACF_ACFFIELD__
+#ifndef __drishti_acf_ACFField_h__
+#define __drishti_acf_ACFField_h__
 
 #include "drishti/acf/drishti_acf.h"
 
@@ -141,5 +141,5 @@ template <typename T> struct Field
 
 DRISHTI_ACF_NAMESPACE_END
 
-#endif // __DRISHTI__ACF_ACFFIELD__
+#endif // __drishti_acf_ACFField_h__
 

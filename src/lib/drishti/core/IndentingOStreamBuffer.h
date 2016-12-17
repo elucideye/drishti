@@ -10,8 +10,8 @@
 
 */
 
-#ifndef DRISHTI_IndentinOStreamBuffer_h
-#define DRISHTI_IndentinOStreamBuffer_h
+#ifndef __drishti_core_IndentingOStreamBuffer_h__
+#define __drishti_core_IndentingOStreamBuffer_h__
 
 #include <iostream>
 

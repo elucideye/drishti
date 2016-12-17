@@ -11,8 +11,8 @@
 
 */
 
-#ifndef __drishtisdk__Field__
-#define __drishtisdk__Field__
+#ifndef __drishti_core_Field_h__
+#define __drishti_core_Field_h__
 
 #include "drishti/core/drishti_core.h"
 
@@ -90,6 +90,6 @@ template <typename T> struct Field
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // __drishtisdk__Field__
+#endif // __drishti_core_Field_h__
 
 

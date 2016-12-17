@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_ML_XGBOOSTER_H
-#define DRISHTI_ML_XGBOOSTER_H
+#ifndef __drishti_ml_XGBooster_h__
+#define __drishti_ml_XGBooster_h__
 
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/core/Logger.h"
@@ -69,4 +69,4 @@ BOOST_CLASS_EXPORT_KEY(drishti::ml::XGBooster);
 BOOST_CLASS_EXPORT_KEY(drishti::ml::XGBooster::Impl);
 #endif
 
-#endif // DRISHTI_ML_XGBOOSTER_H
+#endif // __drishti_ml_XGBooster_h__

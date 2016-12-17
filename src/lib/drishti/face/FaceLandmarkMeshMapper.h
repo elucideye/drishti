@@ -12,8 +12,8 @@
 
 */
 
-#ifndef FACE_LANDMARK_MESH_MAPPER_H
-#define FACE_LANDMARK_MESH_MAPPER_H 1
+#ifndef __drishti_face_FaceLandmarkMeshMapper_h__
+#define __drishti_face_FaceLandmarkMeshMapper_h__ 1
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
@@ -53,4 +53,4 @@ protected:
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // FACE_LANDMARK_MESH_MAPPER_H 
+#endif // __drishti_face_FaceLandmarkMeshMapper_h__ 

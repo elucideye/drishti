@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_RCPR_VECTOR1D_H
-#define DRISHTI_RCPR_VECTOR1D_H 1
+#ifndef __drishti_rcpr_Vector1d_h__
+#define __drishti_rcpr_Vector1d_h__ 1
 
 #include "drishti/rcpr/drishti_rcpr.h"
 
@@ -81,4 +81,4 @@ std::vector<T>& operator*=(std::vector<T> &a, const T &value)
 
 DRISHTI_RCPR_NAMESPACE_END
 
-#endif // DRISHTI_RCPR_VECTOR1D_H
+#endif // __drishti_rcpr_Vector1d_h__

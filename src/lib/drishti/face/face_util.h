@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishtisdk__face_util__
-#define __drishtisdk__face_util__
+#ifndef __drishti_face_face_util_h__
+#define __drishti_face_face_util_h__
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
@@ -28,4 +28,4 @@ cv::Point2f estimateGaze(const DRISHTI_FACE::FaceModel &face);
 DRISHTI_FACE_NAMESPACE_END
 
 
-#endif /* defined(__drishtisdk__face_util__) */
+#endif /* defined(__drishti_face_face_util_h__) */

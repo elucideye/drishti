@@ -8,8 +8,8 @@
 
 */
 
-#ifndef CORE_STRING_UTILS_H
-#define CORE_STRING_UTILS_H
+#ifndef __drishti_core_string_utils_h__
+#define __drishti_core_string_utils_h__
 
 #include "drishti/core/drishti_core.h"
 #include <sstream>
@@ -30,4 +30,4 @@ bool replace(std::string& str, const std::string& from, const std::string& to);
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif /* CORE_STRING_UTILS_H_ */
+#endif /* __drishti_core_string_utils_h___ */

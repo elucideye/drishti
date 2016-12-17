@@ -21,8 +21,8 @@
 
 #include <chrono>
 
-#ifndef FACE_DETECTOR_AND_TRACKER_IMPL
-#define FACE_DETECTOR_AND_TRACKER_IMPL 1
+#ifndef __drishti_face_FaceDetectorAndTrackerImpl_h__
+#define __drishti_face_FaceDetectorAndTrackerImpl_h__ 1
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
@@ -94,5 +94,5 @@ protected:
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // FACE_DETECTOR_AND_TRACKER_IMPL
+#endif // __drishti_face_FaceDetectorAndTrackerImpl_h__
 

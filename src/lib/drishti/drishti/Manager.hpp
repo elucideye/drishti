@@ -12,8 +12,8 @@
   
 */
 
-#ifndef __drishtisdk__Manager__
-#define __drishtisdk__Manager__
+#ifndef __drishti_drishti_Manager_hpp__
+#define __drishti_drishti_Manager_hpp__
 
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/drishti_gl.hpp"
@@ -38,4 +38,4 @@ protected:
 
 _DRISHTI_SDK_END
 
-#endif // __drishtisdk__Manager__
+#endif // __drishti_drishti_Manager_hpp__

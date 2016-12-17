@@ -8,8 +8,8 @@
 
 */
 
-#ifndef OGLES_GPGPU_BINOMIAL_H
-#define OGLES_GPGPU_BINOMIAL_H
+#ifndef __drishti_acf_gpu_binomial_h__
+#define __drishti_acf_gpu_binomial_h__
 
 #include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/filter3x3.h"
@@ -42,5 +42,5 @@ private:
 
 END_OGLES_GPGPU
 
-#endif //  OGLES_GPGPU_BINOMIAL_H
+#endif //  __drishti_acf_gpu_binomial_h__
 

@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_RCPR_POINT_HALF_H
-#define DRISHTI_RCPR_POINT_HALF_H 1
+#ifndef __drishti_rcpr_PointHalf_h__
+#define __drishti_rcpr_PointHalf_h__ 1
 
 #include "drishti/rcpr/drishti_rcpr.h"
 #include "half/half.hpp"
@@ -48,4 +48,4 @@ struct PointHalf
 
 DRISHTI_RCPR_NAMESPACE_END
 
-#endif // DRISHTI_RCPR_POINT_HALF_H 1
+#endif // __drishti_rcpr_PointHalf_h__ 1

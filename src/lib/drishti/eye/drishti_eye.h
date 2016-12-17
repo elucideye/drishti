@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_drishti_eye_h
-#define DRISHTI_drishti_eye_h
+#ifndef __drishti_eye_drishti_eye_h__
+#define __drishti_eye_drishti_eye_h__
 
 #define DRISHTI_EYE_NAMESPACE_BEGIN namespace drishti { namespace eye {
 #define DRISHTI_EYE_NAMESPACE_END } }

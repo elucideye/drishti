@@ -8,8 +8,8 @@
 
 */
 
-#ifndef DRISHTI_DRISHTI_MANAGER_IMPL_H
-#define DRISHTI_DRISHTI_MANAGER_IMPL_H 1
+#ifndef __drishti_drishti_ManagerImpl_h__
+#define __drishti_drishti_ManagerImpl_h__ 1
 
 #include "drishti/Manager.hpp"
 
@@ -41,4 +41,4 @@ protected:
 
 _DRISHTI_SDK_END
 
-#endif // DRISHTI_DRISHTI_MANAGER_IMPL_H 
+#endif // __drishti_drishti_ManagerImpl_h__ 

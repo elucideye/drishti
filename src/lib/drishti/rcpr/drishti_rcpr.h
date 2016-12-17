@@ -9,8 +9,8 @@
 
 */
 
-#ifndef DRISHTI_drishti_rcpr_h
-#define DRISHTI_drishti_rcpr_h
+#ifndef __drishti_rcpr_drishti_rcpr_h__
+#define __drishti_rcpr_drishti_rcpr_h__
 
 #define DRISHTI_RCPR_NAMESPACE_BEGIN namespace drishti { namespace rcpr {
 #define DRISHTI_RCPR_NAMESPACE_END } }

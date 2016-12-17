@@ -8,8 +8,8 @@
 
 */
 
-#ifndef CORE_LINE_H
-#define CORE_LINE_H
+#ifndef __drishti_core_Line_h__
+#define __drishti_core_Line_h__
 
 #include "drishti/core/drishti_core.h"
 #include <sstream>
@@ -62,6 +62,6 @@ struct csv_reader: std::ctype<char>
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // CORE_LINE_H
+#endif // __drishti_core_Line_h__
 
 
