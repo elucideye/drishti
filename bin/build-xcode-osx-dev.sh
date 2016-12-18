@@ -45,5 +45,3 @@ COMMAND=(
 )
 
 build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
-
-
