@@ -323,9 +323,17 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
       AND NOT "${library}" MATCHES "Eigen::eigen") 
     add_custom_command(TARGET drishtisdk POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
+      COMMENT "Copying " $<TARGET_FILE:${library}>
       )
   endif()
 endforeach()
+
+##
+## Install license files:
+##
+
+include(drishti_copy_3rdparty_licenses)
+drishti_copy_3rdparty_licenses("${THIRD_PARTY_INSTALL_DIR}/licenses")
 
 if(DRISHTI_BUILD_SHARED_SDK)
   set(API_LIB_TYPE SHARED)
