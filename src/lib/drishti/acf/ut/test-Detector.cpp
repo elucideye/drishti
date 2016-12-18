@@ -190,6 +190,8 @@ protected:
         m_IpT = MatP(m_I.t());
         m_hasTranspose = false;
     }
+    
+#if DRISHTI_ACF_DO_GPU
 
     static std::vector<ogles_gpgpu::Size2d> getPyramidSizes(drishti::acf::Detector::Pyramid &Pcpu)
     {
@@ -202,7 +204,6 @@ protected:
         return sizes;
     }
     
-#if DRISHTI_ACF_DO_GPU
     // Utility method for code reuse in common GPU tests:
     //
     // Output:
