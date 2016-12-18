@@ -11,7 +11,7 @@ else()
 endif()
 
 set(SOURCES
-  test-shader.cpp
+  test-Detector.cpp
   test-drishti-acf.cpp
   )
 
@@ -48,6 +48,10 @@ elseif(DRISHTI_SERIALIZE_WITH_CVMATIO AND EXISTS "${assets_dir}/drishti_face_inn
   set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.mat")
 else()
   message(FATAL_ERROR "Failed to find suitable ACF detector")
+endif()
+
+if(NOT EXISTS "${assets_dir}/images/lena512color.png")
+  message(FATAL_ERROR "Failed to find test face image: ${assets_dir}/images/lena512color.png") 
 endif()
 
 enable_testing()

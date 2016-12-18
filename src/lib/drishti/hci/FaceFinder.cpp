@@ -490,28 +490,7 @@ void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
 
 void FaceFinder::fill(drishti::acf::Detector::Pyramid &P)
 {
-    auto crops = m_acf->getCropRegions();
-    assert(crops.size() > 1);
-
-    P.pPyramid = m_P.pPyramid;
-    P.nTypes = m_P.nTypes;
-    P.nScales = m_P.nScales;
-    P.info = m_P.info;
-    P.lambdas = m_P.lambdas;
-    P.scales = m_P.scales;
-    P.scaleshw = m_P.scaleshw;
-
-    P.rois.resize(crops.size());
-    for(int i = 0; i < crops.size(); i++)
-    {
-        P.rois[i].resize(crops[i].size());
-        for(int j = 0; j < crops[i].size(); j++)
-        {
-            const auto &r = crops[i][j];
-            P.rois[i][j] = cv::Rect(r.x, r.y, r.width, r.height);
-        }
-    }
-    m_acf->fill(P);
+    m_acf->fill(P, m_P);
 }
 
 int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)

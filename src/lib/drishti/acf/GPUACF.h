@@ -87,6 +87,7 @@ public:
     std::vector<Rect2d> getChannelCropRegions(int level = 0) const;
     void prepare();
     void fill(drishti::acf::Detector::Pyramid &pyramid);
+    void fill(drishti::acf::Detector::Pyramid &Pout, const drishti::acf::Detector::Pyramid &Pin);
 
     // GPU => CPU for ACF:
     cv::Mat getChannels();

@@ -16,9 +16,8 @@
 
 // https://code.google.com/p/googletest/wiki/Primer
 
-#define DRISHTI_ACF_TEST_DISPLAY_OUTPUT 1
-#define DRISHTI_ACF_TEST_COMPARE_CPU_GPU_ORIENTATION 0
-#define DRISHTI_ACF_TEST_COMPARE_CPU_GPU_CHANNELS 1
+#define DRISHTI_ACF_TEST_DISPLAY_OUTPUT 0
+#define DRISHTI_ACF_TEST_WARP_UP_GPU 0 // for timing only
 
 #if DRISHTI_ACF_DO_GPU
 #  include "drishti/acf/GPUACF.h" 
@@ -188,12 +187,67 @@ protected:
         cv::Mat I = loadImage(filename);
         cv::cvtColor(I, m_I, cv::COLOR_BGR2RGB);
         m_I.convertTo(m_I, CV_32FC3, (1.0/255.0));
-        m_I = m_I.t();
-        m_Ip = MatP(m_I);
+        m_IpT = MatP(m_I.t());
+        m_hasTranspose = false;
+    }
+
+    static std::vector<ogles_gpgpu::Size2d> getPyramidSizes(drishti::acf::Detector::Pyramid &Pcpu)
+    {
+        std::vector<ogles_gpgpu::Size2d> sizes;
+        for(int i = 0; i < Pcpu.nScales; i++)
+        {
+            const auto size = Pcpu.data[i][0][0].size();
+            sizes.emplace_back(size.height * 4, size.width * 4); // transpose
+        }
+        return sizes;
     }
     
 #if DRISHTI_ACF_DO_GPU
+    // Utility method for code reuse in common GPU tests:
+    //
+    // Output:
+    // 1) drishti::acf::Detector::Pyramid from GPU
+    //
+    // State:
+    // 1) Allocates drishti::acf::Detector
+    // 2) Allocates ogles_gpgpu::ACF
+    
+    void initGPUAndCreatePyramid(drishti::acf::Detector::Pyramid &Pgpu)
+    {
+        m_detector = create(modelFilename);
+
+        // Compute a reference pyramid on the CPU:
+        drishti::acf::Detector::Pyramid Pcpu;
+        m_detector->computePyramid(m_IpT, Pcpu);
+        
+        ASSERT_NE(m_detector, nullptr);
+        
+        m_pyramid = std::make_shared<drishti::acf::Detector::Pyramid>();
+        m_detector->setIsTranspose(true);
+        m_detector->computePyramid(m_IpT, Pcpu);
+        auto sizes = getPyramidSizes(Pcpu);
+        static const bool doGrayscale = false;
+        static const bool doCorners = false;
+        ogles_gpgpu::Size2d inputSize(image.cols, image.rows);
+        
+        m_acf = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, doGrayscale, doCorners, false);
+        m_acf->setRotation(0);
+        
+        cv::Mat input = image;
+        
+#if DRISHTI_ACF_TEST_WARP_UP_GPU
+        for(int i = 0; i < 10; i++)
+        {
+            (*m_acf)({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+        }
+#endif
+        
+        (*m_acf)({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+        m_acf->fill(Pgpu, Pcpu);
+    }
+
     std::shared_ptr<QGLContext> m_context;
+    std::shared_ptr<ogles_gpgpu::ACF> m_acf;
 #endif
     
     std::shared_ptr<spdlog::logger> m_logger;
@@ -205,7 +259,7 @@ protected:
     
     // ACF inputs: RGB single precision floating point
     cv::Mat m_I;
-    MatP m_Ip;
+    MatP m_IpT;
     
     std::shared_ptr<drishti::acf::Detector::Pyramid> m_pyramid;
 };
@@ -263,6 +317,14 @@ TEST_F(ACFTest, ACFSerializeCereal)
 }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
+static void draw(cv::Mat &canvas, const std::vector<cv::Rect> &objects)
+{
+    for(const auto &r : objects)
+    {
+        cv::rectangle(canvas, r, {0,255,0}, 1, 8);
+    }
+}
+
 TEST_F(ACFTest, ACFDetectionCPUMat)
 {
     WaitKey waitKey;
@@ -272,15 +334,12 @@ TEST_F(ACFTest, ACFDetectionCPUMat)
     
     std::vector<double> scores;
     std::vector<cv::Rect> objects;
-    detector->setIsTranspose(m_hasTranspose);
+    detector->setIsTranspose(false);
     (*detector)(m_I, objects, &scores);
     
 #if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     cv::Mat canvas = image.clone();
-    for(auto &r : objects)
-    {
-        cv::rectangle(canvas, r, {0,255,0}, 1, 8);
-    }
+    draw(canvas, objects);
     cv::imshow("acf_cpu_detection_mat", canvas);
 #endif
     
@@ -296,16 +355,14 @@ TEST_F(ACFTest, ACFDetectionCPUMatP)
     
     std::vector<double> scores;
     std::vector<cv::Rect> objects;
-        
+    
+    // Input is transposed, but objects will be returned in upright coordinate system
     detector->setIsTranspose(true);
-    (*detector)(m_Ip, objects, &scores);
+    (*detector)(m_IpT, objects, &scores);
         
 #if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
-    cv::Mat canvas = m_hasTranspose ? image : image.t();
-    for(auto &r : objects)
-    {
-        cv::rectangle(canvas, r, {0,255,0}, 1, 8);
-    }
+    cv::Mat canvas = image.clone();
+    draw(canvas, objects);
     cv::imshow("acf_cpu_detection_matp", canvas);
 #endif
         
@@ -335,16 +392,18 @@ TEST_F(ACFTest, ACFChannelsCPU)
     ASSERT_NE(detector, nullptr);
  
     MatP Ich;
-    detector->computeChannels(m_Ip, Ich);
-    cv::Mat d = Ich.base().clone(), canvas = d.t();
-    
+    detector->setIsTranspose(true);
+    detector->computeChannels(m_IpT, Ich);
+
 #if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+    cv::Mat canvas = Ich.base().t();
     WaitKey waitKey;
     cv::imshow("acf_channel_cpu", canvas);
 #endif
     
     // TODO: comparison for channels:
     // load cereal pba cv::Mat, compare precision, etc
+    ASSERT_EQ(Ich.base().empty(), false);
 }
 
 // NOTE: side-effect, set's the CPU pyramid for GPU tests:
@@ -354,64 +413,61 @@ TEST_F(ACFTest, ACFPyramidCPU)
     ASSERT_NE(detector, nullptr);
     
     auto pyramid = std::make_shared<drishti::acf::Detector::Pyramid>();
-    detector->computePyramid(m_Ip, *pyramid);
-    cv::Mat canvas = draw(*pyramid);
-    
+    detector->setIsTranspose(true);
+    detector->computePyramid(m_IpT, *pyramid);
+
 #if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     WaitKey waitKey;
+    cv::Mat canvas = draw(*pyramid);
     cv::imshow("acf_pyramid_cpu", canvas.t());
 #endif
     
     // TODO: comparision for pyramid:
     // load cereal pba cv::Mat, compare precision, etc
+    ASSERT_GT(pyramid->data.max_size(), 0);
 }
 
 #if DRISHTI_ACF_DO_GPU
 TEST_F(ACFTest, ACFPyramidGPU)
 {
-    auto detector = create(modelFilename);
-    ASSERT_NE(detector, nullptr);
-    
-    m_pyramid = std::make_shared<drishti::acf::Detector::Pyramid>();
-    detector->computePyramid(m_Ip, *m_pyramid);
-    
-    const auto &Pcpu = (*m_pyramid);
-    std::vector<ogles_gpgpu::Size2d> sizes;
-    for(int i = 0; i < Pcpu.nScales; i++)
-    {
-        const auto size = Pcpu.data[i][0][0].size();
-        sizes.emplace_back(size.height * 4, size.width * 4); // transpose
-    }
-    
-    static const bool doGrayscale = false;
-    static const bool doCorners = false;
-    ogles_gpgpu::Size2d inputSize(image.cols, image.rows);
-    ogles_gpgpu::ACF acf(nullptr, inputSize, sizes, doGrayscale, doCorners, false);
-    
-    // Note: The syntax for creating transposed output within the shader is like this:
-    acf.rgb2luvProc.setOutputRenderOrientation(ogles_gpgpu::RenderOrientationDiagonal);//Flipped);
-    
-    cv::Mat input = image;// image.t();
-    
-#define WARP_UP_GPU 1
-#if WARP_UP_GPU
-    for(int i = 0; i < 10; i++)
-    {
-        acf({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
-    }
-#endif
-        
-    acf({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
-
-    // Get channels and apply transpoare to match CPU output:
-    cv::Mat channels = acf.getChannels().t();
+    drishti::acf::Detector::Pyramid Pgpu;
+    initGPUAndCreatePyramid(Pgpu);
+    ASSERT_NE(m_detector, nullptr);
+    ASSERT_NE(m_acf, nullptr);
     
 #if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
     WaitKey waitKey;
-    cv::imshow("acf_gpu", channels.t());
+    cv::Mat channels = m_acf->getChannels();
+    cv::imshow("acf_gpu", channels);
 #endif
+    
+    // TODO: comparision for pyramid:
+    // load cereal pba cv::Mat, compare precision, etc
+    ASSERT_GT(Pgpu.data.max_size(), 0);
+    
+    // Compare precision with CPU implementation (very loose)
 }
 
+TEST_F(ACFTest, ACFDetectionGPU)
+{
+    drishti::acf::Detector::Pyramid Pgpu;
+    initGPUAndCreatePyramid(Pgpu);
+    ASSERT_NE(m_detector, nullptr);
+    ASSERT_NE(m_acf, nullptr);
+    
+    std::vector<double> scores;
+    std::vector<cv::Rect> objects;
+    (*m_detector)(Pgpu, objects);
+    
+#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+    WaitKey waitKey;
+    cv::Mat canvas = image.clone();
+    draw(canvas, objects);
+    cv::imshow("acf_gpu_detections", canvas);
+#endif
+    
+    ASSERT_GT(objects.size(), 0); // Very weak test!!!
+}
 #endif // DRISHTI_ACF_DO_GPU
 
 // ### utility ###
@@ -468,11 +524,18 @@ static cv::Mat draw(drishti::acf::Detector::Pyramid &pyramid)
     std::vector<cv::Mat> levels;
     for(int i = 0; i < pyramid.nScales; i++)
     {
+        // Concatenate the transposed faces, so they are compatible with the GPU layout
         cv::Mat Ccpu;
-        cv::vconcat(pyramid.data[i][0].get(), Ccpu);
-        //cv::imshow("channel", Ccpu); cv::waitKey(0);
-        //Ccpu = Ccpu.t();
+        std::vector<cv::Mat> images;
+        for(const auto &image : pyramid.data[i][0].get())
+        {
+            images.push_back(image.t());
+        }
+        cv::vconcat(images, Ccpu);
         
+        // Instead of upright:
+        //cv::vconcat(pyramid.data[i][0].get(), Ccpu);
+
         if(levels.size())
         {
             cv::copyMakeBorder(Ccpu, Ccpu, 0, levels.front().rows - Ccpu.rows, 0, 0, cv::BORDER_CONSTANT);

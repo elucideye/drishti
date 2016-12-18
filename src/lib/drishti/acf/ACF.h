@@ -346,10 +346,10 @@ public:
         int nTypes = 0;
         int nScales = 0;
         array_type data;
-        std::vector< Channels::Info > info;
-        std::vector< double > lambdas;
-        std::vector< double > scales;
-        std::vector< cv::Size2d > scaleshw;
+        std::vector<Channels::Info> info;
+        std::vector<double> lambdas;
+        std::vector<double> scales;
+        std::vector<cv::Size2d> scaleshw;
 
         // .rois   - [ LEVELS x CHANNELS ] array for channel access
         std::vector<std::vector<cv::Rect>> rois;
