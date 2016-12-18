@@ -16,10 +16,6 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-// The static ThreadPool access works around a linker problem with thread_local storage 
-// on iOS platforms which shows up when a class containing thread_local storage is dynamically
-// allocated within a shared library (dynamic framework)
-
 class ThreadPoolSource
 {
 public:

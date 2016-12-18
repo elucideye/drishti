@@ -304,6 +304,34 @@ std::vector<std::vector<Rect2d>> ACF::getCropRegions() const
     return crops;
 }
 
+// Copy the parameters from a reference pyramid
+void ACF::fill(drishti::acf::Detector::Pyramid &Pout, const drishti::acf::Detector::Pyramid &Pin)
+{
+    Pout.pPyramid = Pin.pPyramid;
+    Pout.nTypes = Pin.nTypes;
+    Pout.nScales = Pin.nScales;
+    Pout.info = Pin.info;
+    Pout.lambdas = Pin.lambdas;
+    Pout.scales = Pin.scales;
+    Pout.scaleshw = Pin.scaleshw;
+    
+    auto crops = getCropRegions();
+    assert(crops.size() > 1);
+    
+    Pout.rois.resize(crops.size());
+    for(int i = 0; i < crops.size(); i++)
+    {
+        Pout.rois[i].resize(crops[i].size());
+        for(int j = 0; j < crops[i].size(); j++)
+        {
+            const auto &r = crops[i][j];
+            Pout.rois[i][j] = cv::Rect(r.x, r.y, r.width, r.height);
+        }
+    }
+    fill(Pout);
+}
+
+
 // Channels crops are vertically concatenated in the master image:
 std::vector<Rect2d> ACF::getChannelCropRegions(int level) const
 {

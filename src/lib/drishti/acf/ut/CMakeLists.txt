@@ -11,7 +11,7 @@ else()
 endif()
 
 set(SOURCES
-  test-shader.cpp
+  test-Detector.cpp
   test-drishti-acf.cpp
   )
 
@@ -31,6 +31,7 @@ target_link_libraries(test-drishti-acf
 if(DRISHTI_ACF_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)  
   target_link_libraries(test-drishti-acf ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
+  target_compile_definitions(test-drishti-acf PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
 endif()
 
 set_property(TARGET test-drishti-acf PROPERTY FOLDER "app/tests")
@@ -47,6 +48,10 @@ elseif(DRISHTI_SERIALIZE_WITH_CVMATIO AND EXISTS "${assets_dir}/drishti_face_inn
   set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.mat")
 else()
   message(FATAL_ERROR "Failed to find suitable ACF detector")
+endif()
+
+if(NOT EXISTS "${assets_dir}/images/lena512color.png")
+  message(FATAL_ERROR "Failed to find test face image: ${assets_dir}/images/lena512color.png") 
 endif()
 
 enable_testing()
