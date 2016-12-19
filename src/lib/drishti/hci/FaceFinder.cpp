@@ -38,6 +38,8 @@
 #define DRISHTI_FACEFILTER_DO_TRACKING 1
 #define DRISHTI_FACEFILTER_DO_ACF_MODIFY 0
 
+#define DRISHTI_FACEFILTER_DIFFERENCE_EYES 1
+
 static const char * sBar = "#################################################################";
 
 // === utility ===
@@ -93,7 +95,7 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
     , m_logger(args.logger)
     , m_threads(args.threads)
 {
-    
+
 }
 
 void FaceFinder::setMinDistance(float meters)
@@ -210,9 +212,19 @@ void FaceFinder::initFIFO(const cv::Size &inputSize)
 void FaceFinder::initFlasher()
 {
     // ### Flash ###
-    m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>();
-    m_flasher->smoothProc.setOutputSize(48, 0);
-    m_acf->rgbSmoothProc.add(&m_flasher->smoothProc);
+#if DRISHTI_FACEFILTER_DIFFERENCE_EYES
+    assert(m_eyeFilter.get());
+    m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>(ogles_gpgpu::FlashFilter::kCenteredDifference);
+    m_flasher->init(128, 64, INT_MAX, false); // smoothProc.setOutputSize(48, 0);
+    m_flasher->createFBOTex(false);
+    m_eyeFilter->getOutputFilter()->add(m_flasher->getInputFilter());
+#else
+    assert(m_acf.get())
+    m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>(ogles_gpgpu::FlashFilter::kLaplacian);
+    m_flasher->init(48, 48, INT_MAX, false); // smoothProc.setOutputSize(48, 0);
+    m_flasher->createFBOTex(false);
+    m_acf->rgbSmoothProc.add(m_flasher->getInputFilter());
+#endif
 }
 
 static ogles_gpgpu::Size2d convert(const cv::Size &size)
@@ -291,10 +303,13 @@ void FaceFinder::init(const FrameInput &frame)
     initFIFO(inputSize);
     initACF(inputSizeUp);
     initPainter(inputSizeUp);
+    
+    // Must initial eye filter before flasher:
     initEyeEnhancer(inputSizeUp, m_eyesSize);
-
+    
     if(m_doFlash)
     {
+        // Must initialize flasher after eye filter:
         initFlasher();
     }
 
