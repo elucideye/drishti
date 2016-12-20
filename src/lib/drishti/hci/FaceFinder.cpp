@@ -196,8 +196,10 @@ void FaceFinder::initACF(const cv::Size &inputSizeUp)
     
     const int grayWidth = m_doLandmarks ? m_landmarksWidth : 0;
     const int flowWidth = m_doFlow ? m_flowWidth : 0;
+    const bool do10Channel = true;
+    const auto featureKind = do10Channel ? ogles_gpgpu::ACF::kLUVM012345 : ogles_gpgpu::ACF::kLM012345;
     const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
-    m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, grayWidth, flowWidth, false);
+    m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, featureKind, grayWidth, flowWidth, false);
     m_acf->setRotation(m_outputOrientation);
 }
 

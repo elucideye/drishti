@@ -11,7 +11,6 @@
 #ifndef __drishti_acf_gpu_swizzle2_h__
 #define __drishti_acf_gpu_swizzle2_h__
 
-#include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/two.h"
 
 BEGIN_OGLES_GPGPU
@@ -23,11 +22,12 @@ public:
 
     enum SwizzleKind
     {
-        kSwizzleABC1,
-        kSwizzleAB12
+        kSwizzleABC1, // {ABCD} {1234}
+        kSwizzleAB12, // ...
+        kSwizzleAD12, // ...
     };
 
-    MergeProc() {}
+    MergeProc(SwizzleKind swizzleKind = kSwizzleABC1) : swizzleKind(swizzleKind) {}
     virtual const char *getProcName()
     {
         return "MergeProc";
@@ -55,14 +55,16 @@ private:
                 return fshaderMergeSrcABC1;
             case kSwizzleAB12:
                 return fshaderMergeSrcAB12;
+            case kSwizzleAD12:
+                return fshaderMergeSrcAD12;
             default:
                 assert(false);
         }
     }
     static const char *fshaderMergeSrcABC1;   // fragment shader source
     static const char *fshaderMergeSrcAB12;   // fragment shader source
+    static const char *fshaderMergeSrcAD12;   // fragment shader source
 };
-
 
 END_OGLES_GPGPU
 

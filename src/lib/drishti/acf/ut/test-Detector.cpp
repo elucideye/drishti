@@ -1,5 +1,5 @@
 /*!
-  @file   test-shader.cpp
+  @file   test-Detector.cpp
   @author David Hirvonen
   @brief  CPU ACF shader tests using a google test fixture.
 
@@ -17,7 +17,7 @@
 // https://code.google.com/p/googletest/wiki/Primer
 
 #define DRISHTI_ACF_TEST_DISPLAY_OUTPUT 0
-#define DRISHTI_ACF_TEST_WARP_UP_GPU 0 // for timing only
+#define DRISHTI_ACF_TEST_WARM_UP_GPU 0 // for timing only
 
 #if DRISHTI_ACF_DO_GPU
 #  include "drishti/acf/GPUACF.h" 
@@ -89,6 +89,11 @@ struct WaitKey
     }
 };
 
+// http://stackoverflow.com/a/32647694
+static bool isEqual(const cv::Mat& a, const cv::Mat& b);
+static bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b);
+static cv::Mat draw(drishti::acf::Detector::Pyramid &pyramid);
+
 class ACFTest : public ::testing::Test
 {
 protected:
@@ -127,7 +132,7 @@ protected:
         drishti::core::Logger::drop("test-drishti-acf");
     }
 
-    std::shared_ptr<drishti::acf::Detector> create(const std::string &filename)
+    std::shared_ptr<drishti::acf::Detector> create(const std::string &filename, bool do10Channel=true)
     {
 #if DRISHTI_SERIALIZE_WITH_CVMATIO        
         if(filename.find(".mat") != std::string::npos) // cvmatio
@@ -223,28 +228,43 @@ protected:
         
         ASSERT_NE(m_detector, nullptr);
         
-        m_pyramid = std::make_shared<drishti::acf::Detector::Pyramid>();
         m_detector->setIsTranspose(true);
         m_detector->computePyramid(m_IpT, Pcpu);
         auto sizes = getPyramidSizes(Pcpu);
         static const bool doGrayscale = false;
         static const bool doCorners = false;
         ogles_gpgpu::Size2d inputSize(image.cols, image.rows);
-        
-        m_acf = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, doGrayscale, doCorners, false);
+       
+        m_acf = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, ogles_gpgpu::ACF::kLUVM012345, doGrayscale, doCorners, false);
         m_acf->setRotation(0);
         
         cv::Mat input = image;
-        
-#if DRISHTI_ACF_TEST_WARP_UP_GPU
+#if DRISHTI_ACF_TEST_WARM_UP_GPU
         for(int i = 0; i < 10; i++)
         {
             (*m_acf)({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
         }
 #endif
-        
+
         (*m_acf)({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
         m_acf->fill(Pgpu, Pcpu);
+        
+        {
+            // This code block is a place holder for 8 channel ACF output, which conveniently fits in 2 textures
+            // for faster transfers on low performing Android devices.  Currently there is no 8 channel ACF
+            // classifier/detector, so this is used as a place holder to illustrate the raw channel extraction
+            // and pyramid formatting until equivalent CPU formatting is in place.
+            auto acf8 = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, ogles_gpgpu::ACF::kLM012345, doGrayscale, doCorners, false);
+            (*acf8)({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+
+            drishti::acf::Detector::Pyramid Pgpu8;
+            acf8->fill(Pgpu8, Pcpu);
+            
+            //cv::imshow("Pgpu8", draw(Pgpu8);
+            //cv::imshow("LM012345", acf8->getChannels());
+            //cv::imshow("LUVM012345", m_acf->getChannels());
+            //cv::waitKey(0);
+        }
     }
 
     std::shared_ptr<QGLContext> m_context;
@@ -261,8 +281,6 @@ protected:
     // ACF inputs: RGB single precision floating point
     cv::Mat m_I;
     MatP m_IpT;
-    
-    std::shared_ptr<drishti::acf::Detector::Pyramid> m_pyramid;
 };
 
 #if DRISHTI_ACF_DO_GPU
@@ -280,11 +298,6 @@ static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc)
 // such as CPU vs GPU error bounds.  For now the simple detection success
 // test and a simple placeholder assert(true) test wil be added at the
 // end of the test.
-
-// http://stackoverflow.com/a/32647694
-static bool isEqual(const cv::Mat& a, const cv::Mat& b);
-static bool isEqual(const drishti::acf::Detector &a, const drishti::acf::Detector &b);
-static cv::Mat draw(drishti::acf::Detector::Pyramid &pyramid);
 
 #if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_SERIALIZE_WITH_CVMATIO
 TEST_F(ACFTest, ACFSerializeBoost)
@@ -429,7 +442,7 @@ TEST_F(ACFTest, ACFPyramidCPU)
 }
 
 #if DRISHTI_ACF_DO_GPU
-TEST_F(ACFTest, ACFPyramidGPU)
+TEST_F(ACFTest, ACFPyramidGPU10)
 {
     drishti::acf::Detector::Pyramid Pgpu;
     initGPUAndCreatePyramid(Pgpu);
@@ -449,7 +462,7 @@ TEST_F(ACFTest, ACFPyramidGPU)
     // Compare precision with CPU implementation (very loose)
 }
 
-TEST_F(ACFTest, ACFDetectionGPU)
+TEST_F(ACFTest, ACFDetectionGPU10)
 {
     drishti::acf::Detector::Pyramid Pgpu;
     initGPUAndCreatePyramid(Pgpu);

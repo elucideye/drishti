@@ -65,4 +65,24 @@ const char *MergeProc::fshaderMergeSrcAB12 = OG_TO_STR
  });
 // *INDENT-ON*
 
+// *INDENT-OFF*
+const char *MergeProc::fshaderMergeSrcAD12 = OG_TO_STR
+(
+#if defined(OGLES_GPGPU_OPENGLES)
+ precision mediump float;
+#endif
+ 
+ varying vec2 textureCoordinate;
+ uniform sampler2D inputImageTexture;
+ uniform sampler2D inputImageTexture2;
+ 
+ void main()
+ {
+     vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
+     vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate);
+     
+     gl_FragColor = vec4(textureColor.ra, textureColor2.rg);
+ });
+// *INDENT-ON*
+
 END_OGLES_GPGPU

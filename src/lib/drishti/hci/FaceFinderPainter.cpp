@@ -114,7 +114,7 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
         }
 
         // Add the flow for debugging:
-        m_painter->setFlowTexture(m_acf->flow.getOutputTexId(), m_acf->flow.getOutFrameSize());
+        m_painter->setFlowTexture(m_acf->flow->getOutputTexId(), m_acf->flow->getOutFrameSize());
     }
 
     if(m_doFlash)
