@@ -5,7 +5,7 @@
 #TOOLCHAIN=android-ndk-r10e-api-16-armeabi-v7a-neon-clang-35-hid
 #TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
 
-TOOLCHAIN=android-ndk-r13b-api-19-armeabi-v7a-neon
+TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
@@ -13,7 +13,7 @@ if [ $# -ge 1 ]; then
 fi
 
 DRISHTI_BUILD_C_INTERFACE=ON
-DRISHTI_BUILD_QT=OFF
+DRISHTI_BUILD_QT=ON
 DRISHTI_BUILD_OGLES_GPGPU=ON
 DRISHTI_BUILD_TESTS=ON
 DRISHTI_SERIALIZE_WITH_BOOST=ON
