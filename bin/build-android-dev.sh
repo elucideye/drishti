@@ -9,7 +9,7 @@ TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear"
+    EXTRA_ARGS="--reconfig "
 fi
 
 DRISHTI_BUILD_C_INTERFACE=ON
@@ -43,6 +43,7 @@ COMMAND=(
     "${DRISHTI_POLLY_ARGS[*]} "    
     "--install "
     "--jobs 8 "
+    "--test "
     "${EXTRA_ARGS} "
 )
 

@@ -180,6 +180,12 @@ endif(DRISHTI_BUILD_WORLD)
 
 if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
 
+  if(ANDROID)
+    message("Add Android-Apk")
+    hunter_add_package(Android-Apk)
+    list(APPEND CMAKE_MODULE_PATH "${ANDROID-APK_ROOT}")
+  endif()
+
   add_subdirectory(core)
   add_subdirectory(geometry)
   add_subdirectory(ml)
