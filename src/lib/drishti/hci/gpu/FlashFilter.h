@@ -20,20 +20,34 @@
 // #### Simple flash filter ####
 BEGIN_OGLES_GPGPU
 
-class FlashFilter
+class FlashFilter : public MultiPassProc
 {
 public:
-    FlashFilter();
-    ProcInterface *last()
+    
+    enum FilterKind
     {
-        return &fir3Proc;
-    }
-
-    ogles_gpgpu::GaussOptProc smoothProc;
-    ogles_gpgpu::LowPassFilterProc lowPassProc;;
-    ogles_gpgpu::MedianProc medianProc;
-    ogles_gpgpu::FIFOPRoc fifoProc;
-    ogles_gpgpu::Fir3Proc fir3Proc;
+        kCenteredDifference,
+        kLaplacian
+    };
+    
+    class Impl;
+    
+    FlashFilter(FilterKind kind=kLaplacian);
+    ~FlashFilter();
+    
+    virtual ProcInterface* getInputFilter() const;
+    virtual ProcInterface* getOutputFilter() const;
+    
+    /**
+     * Return the processor's name.
+     */
+    virtual const char *getProcName() { return "FlashFilter"; }
+    
+    virtual int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false);
+    virtual int reinit(int inW, int inH, bool prepareForExternalInput = false);
+    virtual int render(int position);
+    
+    std::shared_ptr<Impl> m_impl;
 };
 
 END_OGLES_GPGPU

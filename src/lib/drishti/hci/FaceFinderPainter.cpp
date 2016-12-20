@@ -119,7 +119,7 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
 
     if(m_doFlash)
     {
-        m_painter->setFlashTexture(m_flasher->last()->getOutputTexId(), m_flasher->last()->getOutFrameSize());
+        m_painter->setFlashTexture(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize());
     }
 
     m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
