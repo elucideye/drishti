@@ -33,6 +33,14 @@ template <typename T> inline T stringTo(const std::string &s)
     return t;
 }
 
+inline long double strtold(const std::string &s)
+{
+    return stringTo<long double>(s);
+}
+inline long double strtold(const char * str, char ** str_end)
+{
+    return strtod(str, str_end);
+}
 inline long long stoll(const std::string &s)
 {
     return stringTo<long long>(s);

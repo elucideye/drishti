@@ -1,5 +1,6 @@
 #include "QtFaceDetectorFactory.h"
 #include "drishti/face/Face.h"
+#include "drishti/core/drishti_stdlib_string.h"
 
 #include <cereal/archives/xml.hpp>
 
