@@ -13,6 +13,7 @@
 
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACF.h"
+#include "drishti/core/convert.h" // for drishti::core::PlaneInfo
 
 #include "ogles_gpgpu/common/proc/video.h"
 #include "ogles_gpgpu/common/proc/grayscale.h"
@@ -52,9 +53,18 @@ struct ACF : public ogles_gpgpu::VideoSource
 {
 public:
 
-    using array_type = drishti::acf::Detector::Pyramid::array_type;
+    enum FeatureKind
+    {
+        kLM012345,   // 8
+        kLUVM012345, // 10
+    };
 
-    ACF(void *glContext, const Size2d &size, const std::vector<Size2d> &scales, int grayWidth=0, int flowWidth = 0, bool debug=false);
+    using array_type = drishti::acf::Detector::Pyramid::array_type;
+    using SizeVec = std::vector<Size2d>;
+    using PlaneInfoVec = std::vector<drishti::core::PlaneInfo>;
+    using ChannelSpecification = std::vector<std::pair<PlaneInfoVec, ProcInterface *>>;
+    
+    ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind kind, int grayWidth=0, int flowWidth = 0, bool debug=false);
     virtual void preConfig();
     virtual void postConfig();
     static cv::Mat getImage(ProcInterface &proc);
@@ -115,7 +125,11 @@ public:
     ProcInterface * first();
 
 //protected:
+    
+    void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
 
+    ChannelSpecification getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const;
+    
     // Retrieve Luv image as planar 3 channel CV_32F
     const MatP & getLuvPlanar();
     
@@ -123,6 +137,8 @@ public:
     const cv::Mat& getLuv();
     
     cv::Mat getChannelsImpl();
+
+    FeatureKind m_featureKind = kLUVM012345;
 
     Size2d m_size;
 
@@ -141,34 +157,35 @@ public:
     bool m_hasGrayscaleOutput = false;
     cv::Mat m_grayscale;
     
-    ogles_gpgpu::NoopProc rotationProc; // make sure we have an unmodified upright image
-    ogles_gpgpu::GaussOptProc rgbSmoothProc;
-    ogles_gpgpu::NoopProc reduceRgbSmoothProc;  // reduce
-    ogles_gpgpu::Rgb2LuvProc rgb2luvProc;
-    ogles_gpgpu::PyramidProc pyramidProc;
-    ogles_gpgpu::GaussOptProc smoothProc; // (1);
-    ogles_gpgpu::NoopProc reduceLuvProc;
-    ogles_gpgpu::GradProc gradProc; // (1.0);
-    ogles_gpgpu::GaussOptProc gradSmoothProc;
-    ogles_gpgpu::NoopProc reduceGradProc;
-    ogles_gpgpu::GaussOptProc normProc; // (5, true, 0.015);
-    ogles_gpgpu::GradHistProc gradHistProcA; // (6, 0, 1.f);
-    ogles_gpgpu::GradHistProc gradHistProcB; // (6, 4, 1.f);
-    ogles_gpgpu::GaussOptProc gradHistProcASmooth; // (1);
-    ogles_gpgpu::GaussOptProc gradHistProcBSmooth; // (1);
-    ogles_gpgpu::NoopProc reduceGradHistProcASmooth; // (1);
-    ogles_gpgpu::NoopProc reduceGradHistProcBSmooth; // (1);
+    std::unique_ptr<ogles_gpgpu::NoopProc> rotationProc; // make sure we have an unmodified upright image
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> rgbSmoothProc;
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceRgbSmoothProc;  // reduce
+    std::unique_ptr<ogles_gpgpu::Rgb2LuvProc> rgb2luvProc;
+    std::unique_ptr<ogles_gpgpu::PyramidProc> pyramidProc;
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> smoothProc; // (1);
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceLuvProc;
+    std::unique_ptr<ogles_gpgpu::GradProc> gradProc; // (1.0);
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> gradSmoothProc;
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradProc;
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> normProc; // (5, true, 0.015);
+    std::unique_ptr<ogles_gpgpu::GradHistProc> gradHistProcA; // (6, 0, 1.f);
+    std::unique_ptr<ogles_gpgpu::GradHistProc> gradHistProcB; // (6, 4, 1.f);
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> gradHistProcASmooth; // (1);
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> gradHistProcBSmooth; // (1);
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradHistProcASmooth; // (1);
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradHistProcBSmooth; // (1);
 
     // #### OUTPUT ###
-    ogles_gpgpu::NoopProc normProcOut; //(0.33);
-    ogles_gpgpu::NoopProc gradProcOut; //(16.0);
-    ogles_gpgpu::NoopProc gradHistProcAOut; //(1.0f);
-    ogles_gpgpu::NoopProc gradHistProcBOut; //(1.0f);
+    std::unique_ptr<ogles_gpgpu::NoopProc> normProcOut; //(0.33);
+    std::unique_ptr<ogles_gpgpu::NoopProc> gradProcOut; //(16.0);
+    std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcAOut; //(1.0f);
+    std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcBOut; //(1.0f);
     
-    ogles_gpgpu::NoopProc luvTransposeOut; //  transposed LUV output
+    std::unique_ptr<ogles_gpgpu::NoopProc> luvTransposeOut; //  transposed LUV output
 
-    // Multi-texture swizzle
-    ogles_gpgpu::MergeProc mergeProcLUVG;
+    // Multi-texture swizzle (one or the other for 8 vs 10 channels)
+    std::unique_ptr<ogles_gpgpu::MergeProc> mergeProcLUVG;
+    std::unique_ptr<ogles_gpgpu::MergeProc> mergeProcLG56;
 
     uint64_t frameIndex = 0;
 
@@ -177,7 +194,7 @@ public:
     bool m_runFlow = true;
 
     // Experimental (flow)
-    FlowOptPipeline flow;
+    std::unique_ptr<FlowOptPipeline> flow;
 
     std::vector<Rect2d> m_crops;
 
