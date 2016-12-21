@@ -12,5 +12,3 @@ if(ANDROID)
 else()
   add_test(NAME DrishtiGeometryTest COMMAND test-drishti-geometry)
 endif()
-
-
