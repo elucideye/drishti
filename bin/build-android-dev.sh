@@ -41,10 +41,9 @@ COMMAND=(
     "DRISHTI_SERIALIZE_WITH_CEREAL=${DRISHTI_SERIALIZE_WITH_CEREAL} "
     "DRISHTI_SERIALIZE_WITH_CVMATIO=${DRISHTI_SERIALIZE_WITH_CVMATIO} "
     "${DRISHTI_POLLY_ARGS[*]} "    
-    "--install "
     "--jobs 8 "
     "--test "
-    "${EXTRA_ARGS} "
+    "${EXTRA_ARGS} " #    "--install "
 )
 
 eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
