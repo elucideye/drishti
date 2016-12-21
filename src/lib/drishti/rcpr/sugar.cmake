@@ -11,8 +11,6 @@ endif()
 
 include(sugar_files)
 
-project(drishti_rcpr)
-
 sugar_files(DRISHTI_RCPR_SRCS
   CPR.cpp
   CPRIO.cpp
