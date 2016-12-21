@@ -184,6 +184,7 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
     message("Add Android-Apk")
     hunter_add_package(Android-Apk)
     list(APPEND CMAKE_MODULE_PATH "${ANDROID-APK_ROOT}")
+    include(AndroidApk) # android_add_test    
   endif()
 
   add_subdirectory(core)
