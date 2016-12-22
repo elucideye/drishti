@@ -9,9 +9,8 @@ function(drishti_android_copy_files TARGET LOCAL_FILES REMOTE_DIRECTORY)
   
   set(VALID_LOCAL_FILES "")
   foreach(local_file ${LOCAL_FILES})
-    message("?EXISTS: ${local_file}")
     if(EXISTS "${local_file}")
-      message("EXISTS: ${local_file}")
+      message("EXISTS: ${local_file} -> ${REMOTE_DIRECTORY}")
       list(APPEND VALID_LOCAL_FILES "${local_file}")
 
       # NOTE: Currently running adb push one at a time...
