@@ -8,7 +8,7 @@ set_property(TARGET test-drishti-geometry PROPERTY FOLDER "app/tests")
 enable_testing()
 
 if(ANDROID)
-  android_add_test(NAME DrishtiGeometryTestAndroid COMMAND test-drishti-geometry)
+  android_add_test(NAME DrishtiGeometryTest COMMAND test-drishti-geometry)
 else()
   add_test(NAME DrishtiGeometryTest COMMAND test-drishti-geometry)
 endif()
