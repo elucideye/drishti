@@ -22,6 +22,13 @@ if(is_empty)
   message(FATAL_ERROR "Expected APP_DESTINATION_DIR")
 endif()
 
+# Make sure the specified directory exists
+set(cmd "@ADB_COMMAND@" shell mkdir -p "@APP_DESTINATION_DIR@")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed: ${cmd}")
+endif()
+
 message("Push application to device: ${APP_SOURCE} -> @APP_DESTINATION@")
 set(cmd "@ADB_COMMAND@" push "${APP_SOURCE}" "@APP_DESTINATION@")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
