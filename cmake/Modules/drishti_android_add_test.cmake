@@ -13,6 +13,8 @@
 ##   Command to test
 ## @param DEPENDENCIES
 ##   Files to be copied to the same directory as the application
+## @param CLEAN
+##   Remove installed files after the test
 ##
 ## This will set LD_LIBRARY_PATH to the installation
 ## path of the executable, so that dynamic linking
@@ -40,13 +42,11 @@ function(drishti_android_add_test)
   # * x_NAME
   # * x_COMMAND
   # * x_DEPENDENCIES
-  # * x_SET_LD_LIBRARY_PATH
+  # * x_CLEAN  
 
-  set(options SET_LD_LIBRARY_PATH)
+  set(options CLEAN)
   set(oneValueArgs NAME)
   set(multiValueArgs COMMAND DEPENDENCIES)
-  
-  #cmake_parse_arguments(x "" "NAME" "COMMAND" ${ARGV})
   cmake_parse_arguments(x "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
   
   string(COMPARE NOTEQUAL "${x_UNPARSED_ARGUMENTS}" "" has_unparsed)
