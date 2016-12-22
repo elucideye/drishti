@@ -43,7 +43,6 @@ function(drishti_android_add_test)
   # * x_COMMAND
   # * x_DEPENDENCIES
   # * x_CLEAN  
-
   set(options CLEAN)
   set(oneValueArgs NAME)
   set(multiValueArgs COMMAND DEPENDENCIES)

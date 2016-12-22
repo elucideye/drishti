@@ -130,11 +130,16 @@ if(DRISHTI_BUILD_TESTS)
   # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
   # ${DRISHTISDK}/src/tests  
   if(ANDROID)
-    message("Add Android-Apk")
-    enable_testing()            
-    hunter_add_package(Android-Apk)
-    list(APPEND CMAKE_MODULE_PATH "${ANDROID-APK_ROOT}")
-    include(AndroidApk) # android_add_test
+
+    enable_testing()
+
+    # Android-Apk dependency removed, using drishti_android_add_test()
+    # for local development:
+    #
+    # hunter_add_package(Android-Apk)
+    # list(APPEND CMAKE_MODULE_PATH "${ANDROID-APK_ROOT}")
+    # include(AndroidApk) # android_add_test
+    
     include(drishti_android_add_test)
     include(drishti_android_copy_files)
 
