@@ -18,12 +18,13 @@ set(SOURCES
   test-drishti-acf.cpp
   )
 
+### PRE_BUILD GPU ADDITIONS ###
 if(DRISHTI_ACF_DO_GPU)
-  list(APPEND SOURCES QGLContext.h QGLContext.cpp)
+  list(APPEND SOURCES ${DRISHTI_QTPLUS_HDRS} ${DRISHTI_QTPLUS_SRCS})
 endif()
-
+  
 add_executable(${DRISHTI_ACF_TEST_APP} ${SOURCES})
-
+set_property(TARGET ${DRISHTI_ACF_TEST_APP} PROPERTY FOLDER "app/tests")
 target_link_libraries(${DRISHTI_ACF_TEST_APP}
   ${OpenCV_LIBS}
   GTest::gtest
@@ -31,13 +32,12 @@ target_link_libraries(${DRISHTI_ACF_TEST_APP}
   ${DRISHTI_OPENGL_LIBS}
   )
 
+### POST_BUILD GPU ADDITIONS ###
 if(DRISHTI_ACF_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)  
   target_link_libraries(${DRISHTI_ACF_TEST_APP} ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
   target_compile_definitions(${DRISHTI_ACF_TEST_APP} PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
 endif()
-
-set_property(TARGET ${DRISHTI_ACF_TEST_APP} PROPERTY FOLDER "app/tests")
 
 ##
 ## GTest + CTest

@@ -16,6 +16,10 @@
 
 #include "drishti/hci/FaceFinder.h"
 
+#if DRISHTI_HCI_DO_GPU
+#  include "drishti/qtplus/QGLContext.h"
+#endif
+
 const char *sFaceDetector;
 const char *sFaceDetectorMean;
 const char *sFaceRegressor;

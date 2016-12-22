@@ -8,7 +8,10 @@
 
 */
 
-#include <QApplication>
+#ifndef __drishti_qtplus_QGLContext_h__
+#define __drishti_qtplus_QGLContext_h__
+
+#include <QApplication> 
 #include <QDesktopWidget>
 #include <QSurfaceFormat>
 #include <QtGlobal> // Q_OS_IOS
@@ -27,3 +30,4 @@ protected:
     std::shared_ptr<QOpenGLContext> m_context;
 };
 
+#endif // __drishti_qtplus_QGLContext_h__

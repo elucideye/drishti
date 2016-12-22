@@ -4,14 +4,34 @@
 set(DRISHTI_HCI_TEST_NAME DrishtiHciTest)
 set(DRISHTI_HCI_TEST_APP test-drishti-hci)
 
-add_executable(${DRISHTI_HCI_TEST_APP} test-drishti-hci.cpp)
+if(DRISHTI_BUILD_QT AND DRISHTI_BUILD_OGLES_GPGPU)
+  set(DRISHTI_HCI_DO_GPU 1)
+else()
+  set(DRISHTI_HCI_DO_GPU 0)
+endif()
+
+set(SOURCES test-drishti-hci.cpp)
+
+### PRE_BUILD GPU ADDITIONS ###
+if(DRISHTI_HCI_DO_GPU)
+  list(APPEND SOURCES ${DRISHTI_QTPLUS_HDRS} ${DRISHTI_QTPLUS_SRCS})
+endif()
+
+add_executable(${DRISHTI_HCI_TEST_APP} ${SOURCES})
 set_property(TARGET ${DRISHTI_HCI_TEST_APP} PROPERTY FOLDER "app/tests")
 target_link_libraries(${DRISHTI_HCI_TEST_APP}
-  drishtisdk
-  ${OpenCV_LIBS}
+  ${OpenCV_LIBS}  
   GTest::gtest
+  drishtisdk  
   ${DRISHTI_OPENGL_LIBS}
   )
+
+### POST_BUILD GPU ADDITIONS ###
+if(DRISHTI_HCI_DO_GPU)
+  find_package(Qt5PrintSupport REQUIRED)
+  target_link_libraries(${DRISHTI_HCI_TEST_APP} ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
+  target_compile_definitions(${DRISHTI_HCI_TEST_APP} PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
+endif()
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
 if(APPLE)

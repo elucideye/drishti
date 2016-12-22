@@ -8,7 +8,7 @@
 
 */
 
-#include "QGLContext.h"
+#include "drishti/qtplus/QGLContext.h"
 #include <QDebug>
 
 QGLContext::QGLContext()
