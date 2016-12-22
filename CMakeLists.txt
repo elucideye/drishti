@@ -127,7 +127,18 @@ option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 
 if(DRISHTI_BUILD_TESTS)
-  if(ANDROID OR IOS)
+  # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
+  # ${DRISHTISDK}/src/tests  
+  if(ANDROID)
+    message("Add Android-Apk")
+    enable_testing()            
+    hunter_add_package(Android-Apk)
+    list(APPEND CMAKE_MODULE_PATH "${ANDROID-APK_ROOT}")
+    include(AndroidApk) # android_add_test
+    include(drishti_android_add_test)
+    include(drishti_android_copy_files)
+
+  elseif(IOS)
     # FIXME: https://github.com/elucideye/drishti/issues/58
   else()
     enable_testing()
