@@ -27,11 +27,6 @@ endif()
 enable_testing()
 
 set(DRISHTI_TEST_EYE "${assets_dir}/images/2318-eye.png")
-
-#set(DRISHTI_TEST_EYE_MODEL "${assets_dir}/images/2318-eye.json")
-#string(REGEX REPLACE "\\.json" "_private.json" DRISHTI_TEST_EYE_MODEL_PRIVATE "${DRISHTI_TEST_EYE_MODEL}")
-#message("CONVERT ${DRISHTI_TEST_EYE_MODEL} => ${DRISHTI_TEST_EYE_MODEL_PRIVATE}")
-
 set(DRISHTI_TEST_EYE_MODEL_PRIVATE "${assets_dir}/images/2318-eye_private.json")
 message("DRISHTI_TEST_EYE_MODEL_PRIVATE ${DRISHTI_TEST_EYE_MODEL_PRIVATE}")
 
