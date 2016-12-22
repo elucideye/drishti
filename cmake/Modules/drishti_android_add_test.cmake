@@ -2,7 +2,7 @@
 # Local copy of android_add_test() to extend functionality
 # Changes/proposals to be submitted back to source
 
-##################################################
+####################################################################
 ## FUNCTION: android_add_test
 ##
 ## Run test on device (similar to add_test)
@@ -11,7 +11,14 @@
 ##   Name of the test
 ## @param COMMAND
 ##   Command to test
-##################################################
+## @param DEPENDENCIES
+##   Files to be copied to the same directory as the application
+##
+## This will set LD_LIBRARY_PATH to the installation
+## path of the executable, so that dynamic linking
+## with shared libraries copied to the same directory
+## will succeed.
+####################################################################
 
 function(drishti_android_add_test)
 
@@ -32,7 +39,16 @@ function(drishti_android_add_test)
   # Introduce:
   # * x_NAME
   # * x_COMMAND
-  cmake_parse_arguments(x "" "NAME" "COMMAND" ${ARGV})
+  # * x_DEPENDENCIES
+  # * x_SET_LD_LIBRARY_PATH
+
+  set(options SET_LD_LIBRARY_PATH)
+  set(oneValueArgs NAME)
+  set(multiValueArgs COMMAND DEPENDENCIES)
+  
+  #cmake_parse_arguments(x "" "NAME" "COMMAND" ${ARGV})
+  cmake_parse_arguments(x "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
+  
   string(COMPARE NOTEQUAL "${x_UNPARSED_ARGUMENTS}" "" has_unparsed)
 
   if(has_unparsed)
