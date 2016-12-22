@@ -4,6 +4,9 @@
 # Currently uses QT for windows-less context (GPGPU stuff),
 # but should also tests CPU based ACF code in isolation.
 
+set(DRISHTI_ACF_TEST_NAME DrishtiACFTest)
+set(DRISHTI_ACF_TEST_APP test-drishti-acf)
+
 if(DRISHTI_BUILD_QT AND DRISHTI_BUILD_OGLES_GPGPU)
   set(DRISHTI_ACF_DO_GPU 1)
 else()
@@ -19,9 +22,9 @@ if(DRISHTI_ACF_DO_GPU)
   list(APPEND SOURCES QGLContext.h QGLContext.cpp)
 endif()
 
-add_executable(test-drishti-acf ${SOURCES})
+add_executable(${DRISHTI_ACF_TEST_APP} ${SOURCES})
 
-target_link_libraries(test-drishti-acf
+target_link_libraries(${DRISHTI_ACF_TEST_APP}
   ${OpenCV_LIBS}
   GTest::gtest
   drishtisdk
@@ -30,34 +33,65 @@ target_link_libraries(test-drishti-acf
 
 if(DRISHTI_ACF_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)  
-  target_link_libraries(test-drishti-acf ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
-  target_compile_definitions(test-drishti-acf PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
+  target_link_libraries(${DRISHTI_ACF_TEST_APP} ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
+  target_compile_definitions(${DRISHTI_ACF_TEST_APP} PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
 endif()
 
-set_property(TARGET test-drishti-acf PROPERTY FOLDER "app/tests")
+set_property(TARGET ${DRISHTI_ACF_TEST_APP} PROPERTY FOLDER "app/tests")
 
 ##
 ## GTest + CTest
 ##
 
-if(DRISHTI_SERIALIZE_WITH_CEREAL AND EXISTS "${assets_dir}/drishti_face_inner_48x48.cpb")  
-  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.cpb")  
-elseif(DRISHTI_SERIALIZE_WITH_BOOST AND EXISTS "${assets_dir}/drishti_face_inner_48x48.pba.z")
-  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.pba.z")
-elseif(DRISHTI_SERIALIZE_WITH_CVMATIO AND EXISTS "${assets_dir}/drishti_face_inner_48x48.mat")
-  set(DRISHTI_ACF_FACE_MODEL "${assets_dir}/drishti_face_inner_48x48.mat")
-else()
-  message(FATAL_ERROR "Failed to find suitable ACF detector")
-endif()
+include(drishti_set_unit_test_assets)
+drishti_set_unit_test_assets(
+    DRISHTI_ACF_FACE_MODEL
+    DRISHTI_FACE_LANDMARKER
+    DRISHTI_EYE_MODEL
+    DRISHTI_MEAN_FACE_LANDMARKS
+    )
 
-if(NOT EXISTS "${assets_dir}/images/lena512color.png")
-  message(FATAL_ERROR "Failed to find test face image: ${assets_dir}/images/lena512color.png") 
+set(DRISHTI_TEST_FACE_IMAGE_COLOR "${assets_dir}/images/lena512color.png")
+
+if(NOT EXISTS "${DRISHTI_TEST_FACE_IMAGE_COLOR}")
+  message(FATAL_ERROR "Failed to find test face image: ${DRISHTI_TEST_FACE_IMAGE_COLOR}")
 endif()
 
 enable_testing()
-add_test(NAME DrishtiACFTest COMMAND test-drishti-acf
-  "${assets_dir}/images/lena512color.png"
-  "${assets_dir}/images/lena512gray.png"
-  "${DRISHTI_ACF_FACE_MODEL}"
-  "${CMAKE_CURRENT_BINARY_DIR}" # Used as portable temp folder
-  )
+
+if(ANDROID)
+
+  set(DRISHTI_ACF_TEST_DATA
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
+    "${DRISHTI_ACF_FACE_MODEL}"    
+    )
+  
+  # Extract filenames:
+  get_filename_component(DRISHTI_TEST_FACE_IMAGE_COLOR_ "${DRISHTI_TEST_FACE_IMAGE_COLOR}" NAME)
+  get_filename_component(DRISHTI_ACF_FACE_MODEL_ "${DRISHTI_ACF_FACE_MODEL}" NAME) 
+
+  # Will set ${DRISHTI_ACF_TEST_NAME}_INSTALL_PATH
+  drishti_android_add_test(NAME ${DRISHTI_ACF_TEST_NAME} COMMAND ${DRISHTI_ACF_TEST_APP}
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR_}"
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR_}" #= legacy
+    "${DRISHTI_ACF_FACE_MODEL_}"
+    "." # output to install path (current working directory)
+    )
+
+  drishti_android_copy_files(
+    "${DRISHTI_ACF_TEST_APP}"
+    "${DRISHTI_ACF_TEST_DATA}"
+    "${${DRISHTI_ACF_TEST_NAME}_INSTALL_PATH}"
+    )
+  
+else()
+
+  add_test(NAME ${DRISHTI_ACF_TEST_NAME} COMMAND ${DRISHTI_ACF_TEST_APP}
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
+    "${DRISHTI_ACF_FACE_MODEL}"
+    "${CMAKE_CURRENT_BINARY_DIR}" # Used as portable temp folder
+    )
+
+endif()
+
