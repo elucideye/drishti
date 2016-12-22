@@ -1,11 +1,14 @@
 function(drishti_android_copy_files TARGET LOCAL_FILES REMOTE_DIRECTORY)
 
-  if(HUNTER_ENABLED)
-    hunter_add_package(Android-SDK)
-    set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
-  else()
-    set(ADB_COMMAND "adb")
-  endif()
+  # if(HUNTER_ENABLED)
+  #   hunter_add_package(Android-SDK)
+  #   set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
+  # else()
+  #   set(ADB_COMMAND "adb")
+  # endif()
+
+  # Avoid installation of Android-SDK on Travis
+  set(ADB_COMMAND "adb")    
   
   set(VALID_LOCAL_FILES "")
   foreach(local_file ${LOCAL_FILES})

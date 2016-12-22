@@ -14,12 +14,16 @@
 ##################################################
 
 function(drishti_android_add_test)
-  if(HUNTER_ENABLED)
-    hunter_add_package(Android-SDK)
-    set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
-  else()
-    set(ADB_COMMAND "adb")
-  endif()
+
+  # if(HUNTER_ENABLED)
+  #   hunter_add_package(Android-SDK)
+  #   set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
+  # else()
+  #   set(ADB_COMMAND "adb")
+  # endif()
+
+  # Avoid installation of Android-SDK on Travis
+  set(ADB_COMMAND "adb")  
 
   # Directory on device for storing applications
   # FIXME: user control
