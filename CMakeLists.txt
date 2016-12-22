@@ -99,7 +99,14 @@ if(NOT XCODE AND NOT MSVC) # We'll never have openmp on ios, and this test is re
   endif()
 endif()
 
+
+# Include macros:
+include(drishti_print_env_var)
+include(ExternalProject)
+include(drishti_always_full_rpath)
+include(GenerateExportHeader)
 include(drishti_mirror_definition)
+include(drishti_option)
 
 option(DRISHTI_BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
 drishti_mirror_definition(DRISHTI_BUILD_REGRESSION_SIMD)
@@ -117,7 +124,6 @@ option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
-option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." ON)
 option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
 option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
@@ -126,12 +132,41 @@ option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 
+# Testing 
+option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
+
 if(DRISHTI_BUILD_TESTS)
-  if(ANDROID OR IOS)
+  # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
+  # ${DRISHTISDK}/src/tests  
+
+  if(ANDROID)
+    # Android-Apk dependency removed, using drishti_android_add_test()
+    # for local development:
+    #
+    # hunter_add_package(Android-Apk)
+    # list(APPEND CMAKE_MODULE_PATH "${ANDROID-APK_ROOT}")
+    # include(AndroidApk) # android_add_test
+
+    find_program(DRISHTI_ADB_COMMAND adb)
+    if(DRISHTI_ADB_COMMAND MATCHES "NOTFOUND")
+      message("Can't find adb command")
+      set(DRISHTI_HAS_TEST_TOOLS FALSE)
+    else()
+      message("Found adb command : ${DRISHTI_ADB_COMMAND}")
+      enable_testing()
+      include(drishti_android_add_test)
+      include(drishti_android_copy_files)
+      set(DRISHTI_HAS_TEST_TOOLS TRUE)
+    endif()
+
+  elseif(IOS)
     # FIXME: https://github.com/elucideye/drishti/issues/58
+    set(DRISHTI_HAS_TEST_TOOLS FALSE)
   else()
     enable_testing()
+    set(DRISHTI_HAS_TEST_TOOLS TRUE)
   endif()
+  
   hunter_add_package(GTest)
   find_package(GTest CONFIG REQUIRED)
 endif()
@@ -188,13 +223,6 @@ if(travis_deploy OR appveyor_deploy)
 endif()
 
 #######################################################################################
-
-# Include macros:
-include(drishti_print_env_var)
-include(ExternalProject)
-include(drishti_always_full_rpath)
-include(GenerateExportHeader)
-include(drishti_option)
 
 include(CheckTypeSize)
 check_type_size("__fp16" FP16)

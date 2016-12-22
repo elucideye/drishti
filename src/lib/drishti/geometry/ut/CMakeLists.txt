@@ -3,9 +3,12 @@
 
 add_executable(test-drishti-geometry test-drishti-geometry.cpp)
 target_link_libraries(test-drishti-geometry drishtisdk ${OpenCV_LIBS} GTest::gtest)
+set_property(TARGET test-drishti-geometry PROPERTY FOLDER "app/tests")
 
 enable_testing()
 
-add_test(NAME DrishtiGeometryTest COMMAND test-drishti-geometry)
-
-set_property(TARGET test-drishti-geometry PROPERTY FOLDER "app/tests")
+if(ANDROID)
+  drishti_android_add_test(NAME DrishtiGeometryTest COMMAND test-drishti-geometry)
+else()
+  add_test(NAME DrishtiGeometryTest COMMAND test-drishti-geometry)
+endif()

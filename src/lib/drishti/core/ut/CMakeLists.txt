@@ -3,9 +3,16 @@
 
 add_executable(test-drishti-core test-convert.cpp test-drishti-core.cpp)
 target_link_libraries(test-drishti-core drishtisdk ${OpenCV_LIBS} GTest::gtest)
+set_property(TARGET test-drishti-core PROPERTY FOLDER "app/tests")
 
 enable_testing()
 
-add_test(NAME DrishtiCoreTest COMMAND test-drishti-core)
-
-set_property(TARGET test-drishti-core PROPERTY FOLDER "app/tests")
+if(ANDROID)
+  drishti_android_add_test(
+    NAME DrishtiCoreTest
+    COMMAND test-drishti-core
+    CLEAN
+    )
+else()
+  add_test(NAME DrishtiCoreTest COMMAND test-drishti-core)
+endif()

@@ -9,11 +9,11 @@ TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear"
+    EXTRA_ARGS="--reconfig " #--clear"
 fi
 
 DRISHTI_BUILD_C_INTERFACE=ON
-DRISHTI_BUILD_QT=ON
+DRISHTI_BUILD_QT=OFF
 DRISHTI_BUILD_OGLES_GPGPU=ON
 DRISHTI_BUILD_TESTS=ON
 DRISHTI_SERIALIZE_WITH_BOOST=ON
@@ -41,9 +41,9 @@ COMMAND=(
     "DRISHTI_SERIALIZE_WITH_CEREAL=${DRISHTI_SERIALIZE_WITH_CEREAL} "
     "DRISHTI_SERIALIZE_WITH_CVMATIO=${DRISHTI_SERIALIZE_WITH_CVMATIO} "
     "${DRISHTI_POLLY_ARGS[*]} "    
-    "--install "
     "--jobs 8 "
-    "${EXTRA_ARGS} "
+    "--test "
+    "${EXTRA_ARGS} " #    "--install "
 )
 
 eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

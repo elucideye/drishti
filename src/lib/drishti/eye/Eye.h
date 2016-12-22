@@ -123,7 +123,7 @@ struct EyeModel
     cv::RotatedRect irisEllipse;
     cv::RotatedRect pupilEllipse;
 
-    int cornerIndices[2] = { 0, 4 }; // assuming 8 point contour
+    int cornerIndices[2] = { 0, 8 }; // assuming 16 point contour
     std::vector<cv::Point2f> eyelids;
     std::vector<cv::Point2f> eyelidsSpline;
 
@@ -139,34 +139,99 @@ struct EyeModel
     core::Field<cv::Point2f> irisOuter;
 };
 
-template <typename T>
-EyeModel operator *(const cv::Matx<T, 3, 3> &H, const EyeModel & src)
+inline std::vector<std::vector<cv::Point2f>*> getEyeModelContours(EyeModel &dst)
 {
-    auto dst = src;
-
-    // TODO: angle
-
-    if(dst.roi.has)
-    {
-        dst.roi = H * *dst.roi;
-    }
-
-    std::vector< std::vector<cv::Point2f>* > contours
+    return std::vector<std::vector<cv::Point2f>*>
     {
         &dst.eyelids,
         &dst.eyelidsSpline,
         &dst.crease,
         &dst.creaseSpline
     };
+}
+
+inline std::vector<cv::Point2f*> getEyeModelLandmarks(EyeModel &dst)
+{
+    return std::vector<cv::Point2f*>
+    {
+        &dst.irisCenter.value,
+        &dst.irisInner.value,
+        &dst.irisOuter.value
+    };
+}
+
+inline std::vector<cv::RotatedRect*> getEyeModelEllipses(EyeModel &dst)
+{
+    return std::vector<cv::RotatedRect*> 
+    {
+        &dst.irisEllipse,
+        &dst.pupilEllipse
+    };
+}
+
+inline std::vector<cv::Vec3f *> getEyeModelCircles(EyeModel &dst)
+{
+    return std::vector<cv::Vec3f *> 
+    {
+        &dst.pupil,
+        &dst.iris
+    };
+}
+
+inline bool operator==(const cv::RotatedRect &a, const cv::RotatedRect &b)
+{
+    return (a.center == b.center) && (a.size == b.size) && (a.angle == b.angle);
+}
+
+inline bool operator==(const std::vector<cv::Point2f> &a, const std::vector<cv::Point2f> &b)
+{
+    if(a.size() != b.size())
+    {
+        return false;
+    }
+    for(int i = 0; i < a.size(); i++)
+    {
+        if(a[i] != b[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+inline bool operator==(const core::Field<cv::Point2f> &a, const core::Field<cv::Point2f> &b)
+{
+    return (a.has && b.has) && (*a == *b);
+}
+
+inline bool operator==(const EyeModel &a, const EyeModel &b)
+{
+    return (a.eyelids == b.eyelids) && // contours
+    (a.eyelidsSpline == b.eyelidsSpline) &&
+    (a.crease == b.crease) &&
+    (a.creaseSpline == b.creaseSpline) &&
+    (a.irisCenter == b.irisCenter) &&
+    (a.irisInner == b.irisInner) && // landmarks
+    (a.irisOuter == b.irisOuter) &&
+    (a.irisEllipse == b.irisEllipse) && // ellipse models
+    (a.pupilEllipse == b.pupilEllipse) &&
+    (a.iris == b.iris) && // circle models
+    (a.pupil == b.pupil);
+}
+
+template <typename T>
+EyeModel operator *(const cv::Matx<T, 3, 3> &H, const EyeModel & src)
+{
+    auto dst = src;
+
+    if(dst.roi.has)
+    {
+        dst.roi = H * *dst.roi;
+    }
 
     if(dst.irisCenter.has)
     {
-        std::vector< cv::Point2f* > landmarks
-        {
-            &dst.irisCenter.value,
-            &dst.irisInner.value,
-            &dst.irisOuter.value
-        };
+        auto landmarks = getEyeModelLandmarks(dst);
         for(const auto &p : landmarks)
         {
             cv::Point3f q = H * cv::Point3f(p->x, p->y, 1.f);
@@ -174,6 +239,7 @@ EyeModel operator *(const cv::Matx<T, 3, 3> &H, const EyeModel & src)
         }
     }
 
+    auto contours = getEyeModelContours(dst);    
     for(auto &c : contours)
     {
         if(c->size())
@@ -186,12 +252,7 @@ EyeModel operator *(const cv::Matx<T, 3, 3> &H, const EyeModel & src)
         }
     }
 
-    std::vector< cv::RotatedRect * > ellipses
-    {
-        &dst.irisEllipse,
-        &dst.pupilEllipse
-    };
-
+    auto ellipses = getEyeModelEllipses(dst);
     for(auto &e : ellipses)
     {
         if(e->size.area())
@@ -200,12 +261,7 @@ EyeModel operator *(const cv::Matx<T, 3, 3> &H, const EyeModel & src)
         }
     }
 
-    std::vector< cv::Vec3f * > circles
-    {
-        &dst.pupil,
-        &dst.iris
-    };
-
+    auto circles = getEyeModelCircles(dst);
     for(auto &c : circles)
     {
         if( (*c)[2] )

@@ -51,9 +51,25 @@ set_property(TARGET test-serialize-cereal PROPERTY FOLDER "app/tests")
 
 enable_testing()
 
-add_test(NAME DrishtiSerializationFlatbuffersTest
-  COMMAND test-serialize-flatbuffers "${CMAKE_CURRENT_BINARY_DIR}/monster.fb")
-add_test(NAME DrishtiSerializationCerealTest
-  COMMAND test-serialize-cereal "${CMAKE_CURRENT_BINARY_DIR}/monster.cereal")
-add_test(NAME DrishtiSerializationBoostTest
-  COMMAND test-serialize-boost "${CMAKE_CURRENT_BINARY_DIR}/monster.pba.z")
+if(ANDROID)
+  
+  drishti_android_add_test(
+    NAME DrishtiSerializationFlatbuffersTest
+    COMMAND test-serialize-flatbuffers "monster.fb")
+  drishti_android_add_test(
+    NAME DrishtiSerializationCerealTest
+    COMMAND test-serialize-cereal "monster.cereal")
+  drishti_android_add_test(
+    NAME DrishtiSerializationBoostTest
+    COMMAND test-serialize-boost "$monster.pba.z")
+else()
+  add_test(
+    NAME DrishtiSerializationFlatbuffersTest
+    COMMAND test-serialize-flatbuffers "${CMAKE_CURRENT_BINARY_DIR}/monster.fb")
+  add_test(
+    NAME DrishtiSerializationCerealTest
+    COMMAND test-serialize-cereal "${CMAKE_CURRENT_BINARY_DIR}/monster.cereal")
+  add_test(
+    NAME DrishtiSerializationBoostTest
+    COMMAND test-serialize-boost "${CMAKE_CURRENT_BINARY_DIR}/monster.pba.z")
+endif()
