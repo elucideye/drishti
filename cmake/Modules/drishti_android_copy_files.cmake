@@ -18,8 +18,9 @@ function(drishti_android_copy_files TARGET LOCAL_FILES REMOTE_DIRECTORY)
       # pending correct syntax (see below, escape issues, etc)
       add_custom_command(
         TARGET ${TARGET}
-        PRE_BUILD # Make sure this runs before the ctest step (POST_BUILD OK?)
-        COMMAND ${ADB_COMMAND} push "${local_file}" "${REMOTE_DIRECTORY}"
+        POST_BUILD # Make sure this runs before the ctest step (POST_BUILD OK?)
+        COMMAND ${ADB_COMMAND} shell mkdir -p "${REMOTE_DIRECTORY}/"
+        COMMAND ${ADB_COMMAND} push "${local_file}" "${REMOTE_DIRECTORY}/"
         )
       
     endif()
