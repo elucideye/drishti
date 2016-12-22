@@ -131,7 +131,7 @@ add_subdirectory(lib)
 add_subdirectory(app)
 
 # (Optional) build unit tests
-if(DRISHTI_BUILD_TESTS)
+if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS})
   add_subdirectory(tests)
 endif()
 
