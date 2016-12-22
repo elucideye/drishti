@@ -29,6 +29,21 @@ if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed: ${cmd}")
 endif()
 
+string(COMPARE EQUAL "@x_DEPENDENCIES@" "" is_empty)
+if(NOT is_empty)
+  # Copy any required dependencies into the working directory
+  foreach(local_file @x_DEPENDENCIES@)
+    if(EXISTS "${local_file}")
+      message("DEPENDENCY: ${local_file} -> @APP_DESTINATION_DIR@/")
+      set(cmd @ADB_COMMAND@ push "${local_file}" "@APP_DESTINATION_DIR@/")
+      execute_process(COMMAND ${ADB_COMMAND} ${cmd} RESULT_VARIABLE result)
+      if(NOT result EQUAL 0)
+        message(FATAL_ERROR "Command failed: ${cmd}")
+      endif()
+    endif()
+  endforeach()
+endif()
+
 message("Push application to device: ${APP_SOURCE} -> @APP_DESTINATION@")
 set(cmd "@ADB_COMMAND@" push "${APP_SOURCE}" "@APP_DESTINATION@")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
@@ -51,10 +66,9 @@ endforeach()
 
 message("Set working directory: \"@APP_DESTINATION_DIR@\"")
 message("Run application: \"@APP_DESTINATION@\" ${arguments}")
-
 execute_process(
     COMMAND
-    "@ADB_COMMAND@" shell "cd \"@APP_DESTINATION_DIR@\";  \"@APP_DESTINATION@\" ${arguments}; echo $?"
+    "@ADB_COMMAND@" shell "cd \"@APP_DESTINATION_DIR@\"; export LD_LIBRARY_PATH=\"@APP_DESTINATION_DIR@\"; \"@APP_DESTINATION@\" ${arguments}; echo $?"
     RESULT_VARIABLE result
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output
@@ -62,7 +76,7 @@ execute_process(
     ERROR_STRIP_TRAILING_WHITESPACE
 )
 if(NOT result EQUAL 0)
-  message(FATAL_ERROR "Command failed: ${cmd}")
+  message(FATAL_ERROR "Command failed")
 endif()
 
 message("Command output (with exit code):")
