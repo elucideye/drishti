@@ -25,30 +25,23 @@ set(DRISHTI_TEST_FACE_MODEL "${assets_dir}/images/lena512color.json") # missing
 
 if(ANDROID)
 
-  set(DRISHTI_ML_TEST_DATA
-    "${DRISHTI_FACE_LANDMARKER}"
-    "${DRISHTI_TEST_FACE}"    
-    "${DRISHTI_TEST_FACE_MODEL}"
-    )
-  
   # Extract filenames:
   get_filename_component(DRISHTI_FACE_LANDMARKER_ "${DRISHTI_FACE_LANDMARKER}" NAME)
   get_filename_component(DRISHTI_TEST_FACE_ "${DRISHTI_TEST_FACE}" NAME)
   get_filename_component(DRISHTI_TEST_FACE_MODEL_ "${DRISHTI_TEST_FACE_MODEL}" NAME)
 
   # Will set ${DRISHTI_ML_TEST_NAME}_INSTALL_PATH
-  drishti_android_add_test(NAME ${DRISHTI_ML_TEST_NAME} COMMAND ${DRISHTI_ML_TEST_APP}
+  drishti_android_add_test(NAME ${DRISHTI_ML_TEST_NAME}
+    COMMAND ${DRISHTI_ML_TEST_APP}
     "${DRISHTI_FACE_LANDMARKER_}"
     "${DRISHTI_TEST_FACE_}"    
     "${DRISHTI_TEST_FACE_MODEL_}"
     "." # output to install path (current working directory)
     "0"
-    )
-
-  drishti_android_copy_files(
-    "${DRISHTI_ML_TEST_APP}"
-    "${DRISHTI_ML_TEST_DATA}"
-    "${${DRISHTI_ML_TEST_NAME}_INSTALL_PATH}"
+    DEPENDENCIES
+    "${DRISHTI_FACE_LANDMARKER}"
+    "${DRISHTI_TEST_FACE}"    
+    "${DRISHTI_TEST_FACE_MODEL}"
     )
 
 else()

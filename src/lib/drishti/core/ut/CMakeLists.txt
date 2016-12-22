@@ -8,7 +8,11 @@ set_property(TARGET test-drishti-core PROPERTY FOLDER "app/tests")
 enable_testing()
 
 if(ANDROID)
-  android_add_test(NAME DrishtiCoreTest COMMAND test-drishti-core)
+  android_add_test(
+    NAME DrishtiCoreTest
+    COMMAND test-drishti-core
+    CLEAN
+    )
 else()
   add_test(NAME DrishtiCoreTest COMMAND test-drishti-core)
 endif()

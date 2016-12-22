@@ -31,12 +31,6 @@ set(DRISHTI_TEST_EYE_MODEL_PRIVATE "${assets_dir}/images/2318-eye_private.json")
 message("DRISHTI_TEST_EYE_MODEL_PRIVATE ${DRISHTI_TEST_EYE_MODEL_PRIVATE}")
 
 if(ANDROID)
-
-  set(DRISHTI_EYE_TEST_DATA
-    "${DRISHTI_EYE_MODEL}"
-    "${DRISHTI_TEST_EYE}"
-    "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
-    )
   
   # Extract filenames:
   get_filename_component(DRISHTI_TEST_EYE_ "${DRISHTI_TEST_EYE}" NAME)
@@ -44,19 +38,18 @@ if(ANDROID)
   get_filename_component(DRISHTI_TEST_EYE_MODEL_PRIVATE_ "${DRISHTI_TEST_EYE_MODEL_PRIVATE}" NAME) 
 
   # Will set ${DRISHTI_ML_TEST_NAME}_INSTALL_PATH
-  drishti_android_add_test(NAME ${DRISHTI_EYE_TEST_NAME} COMMAND ${DRISHTI_EYE_TEST_APP}
+  drishti_android_add_test(NAME ${DRISHTI_EYE_TEST_NAME}
+    COMMAND ${DRISHTI_EYE_TEST_APP}
     "${DRISHTI_EYE_MODEL_}"
     "${DRISHTI_TEST_EYE_}"
     "${DRISHTI_TEST_EYE_MODEL_PRIVATE_}"
     "." # output to install path (current working directory)
     "0"
+    DEPENDENCIES
+    "${DRISHTI_EYE_MODEL}"
+    "${DRISHTI_TEST_EYE}"
+    "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
     )
-
-  drishti_android_copy_files(
-    "${DRISHTI_EYE_TEST_APP}"
-    "${DRISHTI_EYE_TEST_DATA}"
-    "${${DRISHTI_EYE_TEST_NAME}_INSTALL_PATH}"
-    )  
   
 else()
 
