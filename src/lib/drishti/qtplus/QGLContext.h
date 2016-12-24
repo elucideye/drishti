@@ -25,6 +25,7 @@ class QGLContext
 {
 public:
     QGLContext();
+    ~QGLContext();
 protected:
     std::shared_ptr<QOffscreenSurface> m_surface;
     std::shared_ptr<QOpenGLContext> m_context;
