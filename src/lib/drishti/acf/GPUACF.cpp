@@ -69,7 +69,6 @@ ACF::ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind
         pyramidProc->add(flow.get());
         flow->setOutputSize(pyramidToFlow);
     }
-    
     if(m_doLuvTransfer)
     {
         // Add transposed Luv output for CPU processing (optional)
@@ -81,7 +80,6 @@ ACF::ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind
 
 void ACF::initACF(const SizeVec &scales, FeatureKind kind, bool debug)
 {
-    
     rotationProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
     rgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(2.0f);
     rgb2luvProc = drishti::core::make_unique<ogles_gpgpu::Rgb2LuvProc>();
@@ -241,12 +239,23 @@ void ACF::operator()(const Size2d &size, void* pixelBuffer, bool useRawPixels, G
     return (*this)(frame);
 }
 
+void ACF::initLuvTransposeOutput()
+{
+    // Add transposed Luv output for CPU processing (optional)
+    luvTransposeOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+    luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
+    
+    rgb2luvProc->add(luvTransposeOut.get());
+}
+
 // Implement virtual API to toggle detection + tracking:
 void ACF::operator()(const FrameInput &frame)
 {
-    //m_runFlow = (frameIndex % 2);
-    //m_runChannels = !runFlow;
-
+    if(m_doLuvTransfer & !luvTransposeOut.get())
+    {
+        initLuvTransposeOutput();
+    }
+    
     m_runFlow = true;
     m_runFlow = true;
 
