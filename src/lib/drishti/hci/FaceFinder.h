@@ -28,8 +28,8 @@
 #include <chrono>
 #include <functional>
 
-#define DRISHTI_FACEFINDER_INTERVAL 0.1
-#define DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR 0
+#define DRISHTI_HCI_FACEFINDER_INTERVAL 0.1
+#define DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR 0
 
 // *INDENT-OFF*
 namespace ogles_gpgpu
@@ -74,6 +74,7 @@ class FaceFinder
 {
 public:
 
+    using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
     using FrameInput = ogles_gpgpu::FrameInput;
     using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
     
@@ -108,6 +109,9 @@ public:
     void registerFaceMonitorCallback(FaceMonitor *callback);
     
 protected:
+    
+    void notifyListeners(const ScenePrimitives &scene, const TimePoint &time, bool isFull);
+    bool hasValidFaceRequest(const ScenePrimitives &scene, const TimePoint &time) const;
 
     virtual void init(const FrameInput &frame);
     virtual void initPainter(const cv::Size &inputSizeUp);
@@ -124,17 +128,19 @@ protected:
 
     void dump(std::vector<cv::Mat4b> &frames);
     virtual int detect(const FrameInput &frame, ScenePrimitives &scene);
-    virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);
-
+    virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf
     int computeDetectionWidth(const cv::Size &inputSizeUp) const;
+    
+    std::shared_ptr<acf::Detector::Pyramid> createAcfGpu(const FrameInput &frame);
+    std::shared_ptr<acf::Detector::Pyramid> createAcfCpu(const FrameInput &frame);
     void fill(drishti::acf::Detector::Pyramid &P);
 
     cv::Mat3f m_colors32FC3; // map angles to colors
 
     void *m_glContext = nullptr;
     bool m_hasInit = false;
-    float m_scale = 2.0f;
+    float m_ACFScale = 2.0f;
     int m_outputOrientation = 0;
 
     uint64_t m_frameIndex = 0;
@@ -144,7 +150,7 @@ protected:
 
     drishti::acf::Detector::Pyramid m_P;
 
-    double m_faceFinderInterval = DRISHTI_FACEFINDER_INTERVAL;
+    double m_faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
 
     float m_minDistanceMeters = 0.f;
     float m_maxDistanceMeters = 10.0f;
@@ -192,7 +198,7 @@ protected:
     std::shared_ptr<spdlog::logger> m_logger;
     std::shared_ptr<ThreadPool<128>> m_threads;
     
-    std::chrono::time_point<std::chrono::system_clock> m_start;
+    TimePoint m_start;
     
     std::vector<FaceMonitor*> m_faceMonitorCallback;
 };
