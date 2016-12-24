@@ -10,7 +10,11 @@ else()
   set(DRISHTI_HCI_DO_GPU 0)
 endif()
 
-set(SOURCES test-drishti-hci.cpp)
+set(SOURCES
+  test-drishti-hci.cpp
+  test-FaceFinder.cpp
+  FaceMonitorHCITest.h  
+  )
 
 ### PRE_BUILD GPU ADDITIONS ###
 if(DRISHTI_HCI_DO_GPU)
@@ -30,7 +34,7 @@ target_link_libraries(${DRISHTI_HCI_TEST_APP}
 if(DRISHTI_HCI_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)
   target_link_libraries(${DRISHTI_HCI_TEST_APP} ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
-  target_compile_definitions(${DRISHTI_HCI_TEST_APP} PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
+  target_compile_definitions(${DRISHTI_HCI_TEST_APP} PUBLIC DRISHTI_HCI_DO_GPU=${DRISHTI_HCI_DO_GPU})
 endif()
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
@@ -56,6 +60,8 @@ drishti_set_unit_test_assets(
   DRISHTI_MEAN_FACE_LANDMARKS
   )
 
+set(DRISHTI_TEST_FACE_IMAGE_COLOR "${assets_dir}/images/lena512color.png")
+
 enable_testing()
 
 if(ANDROID)
@@ -65,6 +71,7 @@ if(ANDROID)
   get_filename_component(DRISHTI_FACE_LANDMARKER_ "${DRISHTI_FACE_LANDMARKER}" NAME)
   get_filename_component(DRISHTI_EYE_MODEL_ "${DRISHTI_EYE_MODEL}" NAME)
   get_filename_component(DRISHTI_MEAN_FACE_LANDMARKS_ "${DRISHTI_MEAN_FACE_LANDMARKS}" NAME)
+  get_filename_component(DRISHTI_TEST_FACE_IMAGE_COLOR_ "${DRISHTI_TEST_FACE_IMAGE_COLOR}" NAME)
 
   # Will set ${DRISHTI_HCI_TEST_NAME}_INSTALL_PATH
   drishti_android_add_test(NAME ${DRISHTI_HCI_TEST_NAME}
@@ -73,11 +80,13 @@ if(ANDROID)
     "${DRISHTI_MEAN_FACE_LANDMARKS_}"
     "${DRISHTI_FACE_LANDMARKER_}"
     "${DRISHTI_EYE_MODEL_}"
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR_}"
     DEPENDENCIES
     "${DRISHTI_ACF_FACE_MODEL}"
     "${DRISHTI_FACE_LANDMARKER}"
     "${DRISHTI_EYE_MODEL}"
-    "${DRISHTI_MEAN_FACE_LANDMARKS}"    
+    "${DRISHTI_MEAN_FACE_LANDMARKS}"
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
     )
 
 else()
@@ -87,6 +96,7 @@ else()
     "${DRISHTI_MEAN_FACE_LANDMARKS}"
     "${DRISHTI_FACE_LANDMARKER}"
     "${DRISHTI_EYE_MODEL}"
+    "${DRISHTI_TEST_FACE_IMAGE_COLOR}"    
     )
 
 endif()
