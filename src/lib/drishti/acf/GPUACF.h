@@ -124,9 +124,10 @@ public:
 
     ProcInterface * first();
 
-//protected:
+protected:
     
     void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
+    void initLuvTransposeOutput();
 
     ChannelSpecification getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const;
     
