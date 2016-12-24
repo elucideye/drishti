@@ -103,7 +103,7 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
     }
     else if(scene.objects().size())
     {
-        rectanglesToDrawings(scene.objects() * m_scale, m_painter->getLineDrawings());
+        rectanglesToDrawings(scene.objects() * m_ACFScale, m_painter->getLineDrawings());
     }
 
     if(m_doFlow)
