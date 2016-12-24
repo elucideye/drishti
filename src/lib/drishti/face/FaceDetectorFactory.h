@@ -13,6 +13,7 @@
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -82,6 +83,8 @@ public:
     std::istream *iEyeRegressor = nullptr;
     std::istream *iFaceDetectorMean = nullptr;    
 };
+
+std::ostream & operator <<(std::ostream &os, const FaceDetectorFactory &factory);
 
 DRISHTI_FACE_NAMESPACE_END
 
