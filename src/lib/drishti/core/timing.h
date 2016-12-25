@@ -13,42 +13,30 @@
 #ifndef __drishti_core_timing_h__
 #define __drishti_core_timing_h__
 
-#include <opencv2/core/core.hpp>
-#include <string>
-#include <iostream>
+#include <chrono>
 
-#define DECLARE_TIMING(s)  int64 timeStart_##s; double timeDiff_##s; double timeTally_##s = 0; int countTally_##s = 0
-#define START_TIMING(s)    timeStart_##s = cv::getTickCount()
-#define STOP_TIMING(s) 	   timeDiff_##s = (double)(cv::getTickCount() - timeStart_##s); timeTally_##s += timeDiff_##s; countTally_##s++
-#define GET_TIMING(s) 	   (double)(timeDiff_##s / (cv::getTickFrequency()))
-#define GET_AVERAGE_TIMING(s)   (double)(countTally_##s ? timeTally_##s/ ((double)countTally_##s * cv::getTickFrequency()) : 0)
-#define GET_TIME_TALLY(s)    (double)(timeTally_##s / (cv::getTickFrequency()))
-#define CLEAR_AVERAGE_TIMING(s) timeTally_##s = 0; countTally_##s = 0
-#define CLEAR_CURRENT_TIME(s) timeDiff_##s = 0
-#define DRISHTI_PRINT(fmt, ...) do { fprintf(stderr, fmt, __VA_ARGS__); } while (0)
-
-class ScopeTimer
+template <typename TimeLogger>
+struct ScopeTimeLogger
 {
-public:
-    ScopeTimer(const std::string &name, bool verbose=true) : m_verbose(verbose), name(name)
+    using HighResolutionClock = std::chrono::high_resolution_clock;
+    using TimePoint = HighResolutionClock::time_point;
+    
+    ScopeTimeLogger(TimeLogger &logger) : m_logger(logger)
     {
-        if(m_verbose)
-        {
-            START_TIMING(_timer_);
-        }
+        m_tic = HighResolutionClock::now();
     }
-    ~ScopeTimer()
+    ~ScopeTimeLogger()
     {
-        if(m_verbose)
-        {
-            STOP_TIMING(_timer_);
-            std::cout << name << ":" << GET_TIMING(_timer_) << std::endl;
-        }
+        auto now = HighResolutionClock::now();
+        m_logger(timeDifference(now, m_tic));
     }
-    bool m_verbose = false;
-    std::string name;
-    DECLARE_TIMING(_timer_);
+    static double timeDifference(const TimePoint &a, const TimePoint &b)
+    {
+        return std::chrono::duration_cast<std::chrono::duration<double>>(a - b).count();
+    }
+    
+    TimeLogger m_logger;
+    TimePoint m_tic;
 };
 
-
-#endif
+#endif // __drishti_core_timing_h__

@@ -11,6 +11,8 @@ endif()
 
 include(sugar_include)
 
+sugar_include(qtplus) # for testing, etc
+
 sugar_include(drishti) # public API
 sugar_include(graphics)
 sugar_include(core)

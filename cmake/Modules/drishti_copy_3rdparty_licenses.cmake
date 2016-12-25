@@ -11,7 +11,7 @@ function(drishti_copy_3rdparty_licenses drishti_license_dir)
     )
   foreach (_variableName ${_variableNames})
     STRING(REGEX MATCH "^.*_LICENSE$" _licenseFile "${_variableName}")    
-    if(NOT "${_licenseFile}" STREQUAL "")
+    if(NOT ${_licenseFile} STREQUAL "")
       message("VARIABLE: ${_variableName}=${${_variableName}}")
       if(EXISTS "${${_variableName}}")
         add_custom_command(TARGET drishtisdk POST_BUILD

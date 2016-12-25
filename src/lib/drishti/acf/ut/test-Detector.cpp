@@ -21,7 +21,7 @@
 
 #if DRISHTI_ACF_DO_GPU
 #  include "drishti/acf/GPUACF.h" 
-#  include "QGLContext.h"
+#  include "drishti/qtplus/QGLContext.h"
 #endif
 
 #if DRISHTI_SERIALIZE_WITH_CEREAL

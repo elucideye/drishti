@@ -18,7 +18,7 @@ BEGIN_OGLES_GPGPU
 
 // ######## RGB 2 LUV ############
 
-class Rgb2LuvProc : public ::ogles_gpgpu::FilterProcBase
+class Rgb2LuvProc : public FilterProcBase
 {
 public:
     Rgb2LuvProc() {}

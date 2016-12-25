@@ -28,6 +28,7 @@
 #include <stdio.h>
 
 #define DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS 0
+#define DRISHTI_FACE_DETECTOR_DO_SIMILARITY_MOTION 1
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
@@ -81,10 +82,6 @@ public:
         m_landmarkFormat = format;
     }
 
-    DECLARE_TIMING(_detection_);
-    DECLARE_TIMING(_regression_);
-    DECLARE_TIMING(_eye_regression_);
-
     /*
      * I    : input detectio image (typically planar format RGB)
      * Ib   : input image for regressor (graysacle uint8_t), often higer resolution
@@ -96,7 +93,15 @@ public:
     template <typename ImageType>
     void detect(const ImageType &I, std::vector<dsdkc::Shape> &shapes)
     {
-        START_TIMING(_detection_);
+        std::function<void(double)> timeLogger = [this](double elapsed)
+        {
+            if(m_detectionTimeLogger)
+            {
+                m_detectionTimeLogger(elapsed);
+            }
+        };
+        ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
+        
         // Detect objects:
         std::vector<double> scores;
         std::vector<cv::Rect> objects;
@@ -105,13 +110,6 @@ public:
         for(int i = 0; i < objects.size(); i++)
         {
             shapes.emplace_back(objects[i], scores[i]);
-        }
-
-        STOP_TIMING(_detection_);
-        double detectionTime = GET_TIMING(_detection_);
-        if(m_detectionTimeLogger)
-        {
-            m_detectionTimeLogger(detectionTime);
         }
     }
 
@@ -161,12 +159,20 @@ public:
 
     void segmentEyes(const cv::Mat1b &Ib, FaceModel &face, DRISHTI_EYE::EyeModel &eyeR, DRISHTI_EYE::EyeModel &eyeL)
     {
-        START_TIMING(_eye_regression_);
-
         cv::Rect2f roiR, roiL;
         bool hasEyes = face.getEyeRegions(roiR, roiL, 0.666);
         if(hasEyes && roiR.area() && roiL.area())
         {
+            // Scope based eye segmentation timer:
+            std::function<void(double)> timeLogger = [this](double elapsed)
+            {
+                if(m_eyeRegressionTimeLogger)
+                {
+                    m_eyeRegressionTimeLogger(elapsed);
+                }
+            };
+            ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
+
             // Apply some fixed offset to eye crops:
 //            const cv::Point2f centerR = drishti::geometry::centroid<float,float>(roiR);
 //            const cv::Point2f centerL = drishti::geometry::centroid<float,float>(roiL);
@@ -207,13 +213,6 @@ public:
             eyeR += eyes[0].tl();
             eyeR.roi = eyes[0];
             eyeL.roi = eyes[1];
-
-            STOP_TIMING(_eye_regression_);
-            double eyeRegressionTime = GET_TIMING(_eye_regression_);
-            if(m_eyeRegressionTimeLogger)
-            {
-                m_eyeRegressionTimeLogger(eyeRegressionTime);
-            }
         }
     }
 
@@ -225,8 +224,16 @@ public:
 
     void findLandmarks(const PaddedImage &Ib, std::vector<dsdkc::Shape> &shapes, const cv::Matx33f &Hdr_, bool isDetection)
     {
-        START_TIMING(_regression_);
-
+        // Scope based eye segmentation timer:
+        std::function<void(double)> timeLogger = [this](double elapsed)
+        {
+            if(m_regressionTimeLogger)
+            {
+                m_regressionTimeLogger(elapsed);
+            }
+        };
+        ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
+        
         const cv::Mat gray = Ib.Ib;
         CV_Assert(gray.type() == CV_8UC1);
 
@@ -285,14 +292,6 @@ public:
                 shapes[i].contour.emplace_back(q.x, q.y, 0);
             }
         }
-
-        STOP_TIMING(_regression_);
-        double regressionTime = GET_TIMING(_regression_);
-        if(m_regressionTimeLogger)
-        {
-            m_regressionTimeLogger(regressionTime);
-        }
-        //std::cout << "regression: " << GET_AVERAGE_TIMING(_regression_) << std::endl;
     }
 
     // Notes on motion and coordinate systems:
@@ -356,8 +355,7 @@ public:
     {
         FaceModel faceRegressorMean = getMeanShape(regressor, {0.f, 0.f, 1.f, 1.f});
 
-#define DO_SIMILARITY_MOTION 1
-#if DO_SIMILARITY_MOTION
+#if DRISHTI_FACE_DETECTOR_DO_SIMILARITY_MOTION
         cv::Mat M = estimateMotionLeastSquares(faceRegressorMean, m_faceDetectorMean);
 #else
         cv::Mat M = getAffineMotion(faceRegressorMean, m_faceDetectorMean);
@@ -671,7 +669,6 @@ void FaceDetector::setIrisStagesRepetitionFactor(int x)
 {
     m_impl->setIrisStagesRepetitionFactor(x);
 }
-
 
 #if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS
 

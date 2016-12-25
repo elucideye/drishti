@@ -54,7 +54,6 @@ void EyeModelEstimator::Impl::segmentEyelids(const cv::Mat &I, EyeModel &eye) co
     std::vector<bool> mask; // occlusion mask
     for(int i = 0; i < rois.size(); i++)
     {
-        ScopeTimer timer("eye_time", m_doVerbose);
         (*m_eyeEstimator)(I(rois[i]), poses[i], mask);
         cv::Point2f shift = rois[i].tl();
         for(auto &p : poses[i])
@@ -100,7 +99,6 @@ void EyeModelEstimator::Impl::segmentEyelids_(const cv::Mat &I, EyeModel &eye) c
     std::vector<bool> mask; // occlusion mask
     for(int i = 0; i < poses.size(); i++)
     {
-        ScopeTimer timer("eye_time", m_doVerbose);
         (*m_eyeEstimator)(I, poses[i], mask);
     }
 

@@ -71,8 +71,6 @@ void EyeModelEstimator::Impl::segmentPupil(const cv::Mat &I, EyeModel &eye, int 
         // TODO: currently override 2d point interface
         std::vector<bool> mask;
         std::vector<cv::Point2f> points = { e.center, {e.size.width, e.size.height} };
-
-        ScopeTimer timer("pupil_time", m_doVerbose);
         (*m_pupilEstimator)(crop, points, mask);
 
         rcpr::Vector1d phi = drishti::rcpr::ellipseToPhi(geometry::pointsToEllipse(points));

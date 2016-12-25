@@ -14,37 +14,45 @@
 
 #include <gtest/gtest.h>
 
-#include "drishti/hci/FaceFinder.h"
 
-const char *sFaceDetector;
-const char *sFaceDetectorMean;
-const char *sFaceRegressor;
-const char *sEyeRegressor;
+#if DRISHTI_HCI_DO_GPU
+#  include "drishti/qtplus/QGLContext.h"
+#endif
+
+#include <fstream>
+
+extern const char *sFaceDetector;
+extern const char *sFaceDetectorMean;
+extern const char *sFaceRegressor;
+extern const char *sEyeRegressor;
+extern const char *sImageFilename;
+
+static bool hasFile(const std::string &filename)
+{
+    std::ifstream ifs(filename);
+    return ifs.good();
+}
 
 int main(int argc, char** argv)
 {
+#if DRISHTI_BUILD_QT
+    QApplication app(argc, argv);
+#endif
+    
     ::testing::InitGoogleTest(&argc, argv);
-
-    assert(argc == 5);
+    assert(argc == 6);
 
     sFaceDetector = argv[1];
     sFaceDetectorMean = argv[2];
     sFaceRegressor = argv[3];
     sEyeRegressor = argv[4];
+    sImageFilename = argv[5];
+    
+    assert(hasFile(sFaceDetector));
+    assert(hasFile(sFaceDetectorMean));
+    assert(hasFile(sFaceRegressor));
+    assert(hasFile(sEyeRegressor));
+    assert(hasFile(sImageFilename));
     
     return RUN_ALL_TESTS();
-}
-
-TEST(FaceFinder, Instantiation)
-{
-    auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
-    factory->sFaceDetector = sFaceDetector;
-    factory->sFaceRegressors = { sFaceRegressor };
-    factory->sEyeRegressor = sEyeRegressor; 
-    factory->sFaceDetectorMean = sFaceDetectorMean;
-
-    drishti::hci::FaceFinder::Config config;
-    drishti::hci::FaceFinder faceFinder(factory, config, nullptr);
-    
-    ASSERT_EQ(true, true);
 }

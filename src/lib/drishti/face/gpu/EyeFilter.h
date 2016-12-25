@@ -47,7 +47,10 @@ public:
     };
 
     EyeFilter(const Size2d &sizeOut, Mode mode, float upper=0.5, float lower=0.25, float gain=10.0, float offset=0.f);
-    virtual ~EyeFilter() {}
+    virtual ~EyeFilter()
+    {
+        procPasses.clear();
+    }
 
     void setAutoScaling(bool flag)
     {

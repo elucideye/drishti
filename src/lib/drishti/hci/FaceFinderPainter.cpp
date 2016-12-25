@@ -103,7 +103,7 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
     }
     else if(scene.objects().size())
     {
-        rectanglesToDrawings(scene.objects() * m_scale, m_painter->getLineDrawings());
+        rectanglesToDrawings(scene.objects() * m_ACFScale, m_painter->getLineDrawings());
     }
 
     if(m_doFlow)
@@ -114,7 +114,8 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
         }
 
         // Add the flow for debugging:
-        m_painter->setFlowTexture(m_acf->flow->getOutputTexId(), m_acf->flow->getOutFrameSize());
+        auto *flow = m_acf->getFlowProc();
+        m_painter->setFlowTexture(flow->getOutputTexId(), flow->getOutFrameSize());
     }
 
     if(m_doFlash)

@@ -31,5 +31,6 @@ int main(int argc, char** argv)
     truthFilename = argv[2];
     modelFilename = argv[3];
     outputDirectory = argv[4];
+    
     return RUN_ALL_TESTS();
 }

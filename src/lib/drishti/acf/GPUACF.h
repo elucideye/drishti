@@ -16,30 +16,23 @@
 #include "drishti/core/convert.h" // for drishti::core::PlaneInfo
 
 #include "ogles_gpgpu/common/proc/video.h"
-#include "ogles_gpgpu/common/proc/grayscale.h"
-#include "ogles_gpgpu/common/proc/pyramid.h"
-#include "ogles_gpgpu/common/proc/grad.h"
-#include "ogles_gpgpu/common/proc/gauss.h"
-#include "ogles_gpgpu/common/proc/gauss_opt.h"
-#include "ogles_gpgpu/common/proc/transform.h"
 
-#include "ogles_gpgpu/common/proc/tensor.h"
-#include "ogles_gpgpu/common/proc/nms.h"
-#include "ogles_gpgpu/common/proc/shitomasi.h"
-#include "ogles_gpgpu/common/proc/flow.h"
-
-#include "drishti/acf/gpu/gain.h"
-#include "drishti/acf/gpu/swizzle2.h"
-#include "drishti/acf/gpu/gradhist.h"
-#include "drishti/acf/gpu/rgb2luv.h"
-#include "drishti/acf/gpu/binomial.h"
-#include "drishti/acf/gpu/triangle.h"
+#include <memory>
 
 // *INDENT-OFF*
 namespace spdlog { class logger; }
 // *INDENT-ON*
 
 BEGIN_OGLES_GPGPU
+
+class Flow2Pipeline;
+class GaussOptProc;
+class GradHistProc;
+class GradProc;
+class MergeProc;
+class NoopProc;
+class PyramidProc;
+class Rgb2LuvProc;
 
 // #### GPU #####
 
@@ -65,6 +58,7 @@ public:
     using ChannelSpecification = std::vector<std::pair<PlaneInfoVec, ProcInterface *>>;
     
     ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind kind, int grayWidth=0, int flowWidth = 0, bool debug=false);
+    ~ACF();
     virtual void preConfig();
     virtual void postConfig();
     static cv::Mat getImage(ProcInterface &proc);
@@ -124,17 +118,20 @@ public:
 
     ProcInterface * first();
 
-//protected:
-    
-    void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
-
-    ChannelSpecification getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const;
+    Flow2Pipeline * getFlowProc() { return flow.get(); }
     
     // Retrieve Luv image as planar 3 channel CV_32F
     const MatP & getLuvPlanar();
     
     // Retrieve Luv image in packed CV_8UC4 (RGBA) format
     const cv::Mat& getLuv();
+
+protected:
+    
+    void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
+    void initLuvTransposeOutput();
+
+    ChannelSpecification getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const;
     
     cv::Mat getChannelsImpl();
 
@@ -194,7 +191,7 @@ public:
     bool m_runFlow = true;
 
     // Experimental (flow)
-    std::unique_ptr<FlowOptPipeline> flow;
+    std::unique_ptr<Flow2Pipeline> flow;
 
     std::vector<Rect2d> m_crops;
 
@@ -212,6 +209,5 @@ public:
 };
 
 END_OGLES_GPGPU
-
 
 #endif // __drishti_acf_GPUACF_h__

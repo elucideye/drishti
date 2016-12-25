@@ -8,8 +8,11 @@
 
 */
 
-#include "QGLContext.h"
+#include "drishti/qtplus/QGLContext.h"
 #include <QDebug>
+#include <iostream>
+
+// https://forum.qt.io/topic/52688/console-application-with-opengl/2
 
 QGLContext::QGLContext()
 {
@@ -23,16 +26,24 @@ QGLContext::QGLContext()
     format.setStencilBufferSize(8);
 #endif
 
+    m_context = std::make_shared<QOpenGLContext>();
+    m_context->setFormat(format);
+    
+    // Note: If you crash here, it is likely that you have not instantiated:
+    // QGuiApplication a(argc, argv) or ...
+    // QApplication a(argc, argv)
+    if(!m_context->create() || !m_context->isValid())
+    {
+        qDebug()<<Q_FUNC_INFO<<"QOpenGLContext create";
+        return;
+    }
+    
     m_surface = std::make_shared<QOffscreenSurface>();
     m_surface->setFormat(format);
     m_surface->create();
-
-    m_context = std::make_shared<QOpenGLContext>();
-    m_context->setFormat(format);
-
-    if(!m_context->create())
+    if(!m_surface->isValid())
     {
-        qDebug()<<Q_FUNC_INFO<<"QOpenGLContext create";
+        qDebug() << Q_FUNC_INFO << "QOffscreenSurface create";
     }
 
     if(!m_context->makeCurrent(m_surface.get()))
@@ -41,4 +52,10 @@ QGLContext::QGLContext()
     }
 }
 
+QGLContext::~QGLContext()
+{
+    m_context->makeCurrent(m_surface.get());
+    m_context->doneCurrent();
+    m_surface->deleteLater();
+}
 

@@ -12,18 +12,31 @@
 #define __drishti_hci_FaceMonitor_h__
 
 #include "drishti/hci/drishti_hci.h"
+#include "drishti/face/Face.h"
 
 #include <opencv2/core/core.hpp>
 
-#include <vector>
+#include <vector> // std::vector<>
+#include <chrono> // std::chrono::time_point
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
 class FaceMonitor
 {
 public:
-    virtual bool isValid(const cv::Point3f &position, double timeStamp) = 0;
-    virtual void grab(std::vector<cv::Mat4b> &frames) = 0;
+    
+    using HighResolutionClock = std::chrono::high_resolution_clock;
+    using TimePoint = HighResolutionClock::time_point;
+    
+    struct FaceImage
+    {
+        TimePoint time;
+        cv::Mat4b image;
+        std::vector<face::FaceModel> faces; // one or more faces
+    };
+    
+    virtual bool isValid(const cv::Point3f &position, const TimePoint &timeStamp) = 0;
+    virtual void grab(const std::vector<FaceImage> &frames, bool isInitialized) = 0;
 };
 
 DRISHTI_HCI_NAMESPACE_END
