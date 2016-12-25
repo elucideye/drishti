@@ -8,22 +8,41 @@
 
 */
 
-#include <iostream>
-#include <chrono>
-
 #include "drishti/acf/GPUACF.h"
+
+#include "ogles_gpgpu/common/proc/grayscale.h"
+#include "ogles_gpgpu/common/proc/pyramid.h"
+#include "ogles_gpgpu/common/proc/grad.h"
+#include "ogles_gpgpu/common/proc/gauss.h"
+#include "ogles_gpgpu/common/proc/gauss_opt.h"
+#include "ogles_gpgpu/common/proc/transform.h"
+
+#include "ogles_gpgpu/common/proc/tensor.h"
+#include "ogles_gpgpu/common/proc/nms.h"
+#include "ogles_gpgpu/common/proc/shitomasi.h"
+#include "ogles_gpgpu/common/proc/flow.h"
+
+#include "drishti/acf/gpu/gain.h"
+#include "drishti/acf/gpu/swizzle2.h"
+#include "drishti/acf/gpu/gradhist.h"
+#include "drishti/acf/gpu/rgb2luv.h"
+#include "drishti/acf/gpu/binomial.h"
+#include "drishti/acf/gpu/triangle.h"
+
 #include "drishti/core/convert.h"
 #include "drishti/core/Logger.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/core/make_unique.h"
 #include "ogles_gpgpu/common/gl/memtransfer_optimized.h"
 
-#include <sys/types.h> // for umask()
-#include <sys/stat.h>  // -/-
-
 #include <opencv2/highgui/highgui.hpp>
 
+#include <iostream>
+#include <chrono>
 #include <array>
+
+#include <sys/types.h> // for umask()
+#include <sys/stat.h>  // -/-
 
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
@@ -77,6 +96,11 @@ ACF::ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind
     }
 }
 
+ACF::~ACF()
+{
+    // Required in Xcode 8.1 to supoprt instantiation of std::shared_ptr<ogles_gppgu::ACF>
+    // with forward declares std::unique_ptr<> member variables.
+}
 
 void ACF::initACF(const SizeVec &scales, FeatureKind kind, bool debug)
 {
