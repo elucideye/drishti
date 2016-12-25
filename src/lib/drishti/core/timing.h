@@ -13,9 +13,7 @@
 #ifndef __drishti_core_timing_h__
 #define __drishti_core_timing_h__
 
-#include <opencv2/core/core.hpp>
-#include <string>
-#include <iostream>
+#include <chrono>
 
 template <typename TimeLogger>
 struct ScopeTimeLogger
