@@ -25,6 +25,7 @@
 #include "ogles_gpgpu/common/proc/fifo.h"
 
 #include <vector>
+#include <memory>
 
 #define DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH 1024
 
