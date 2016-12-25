@@ -124,18 +124,20 @@ public:
 
     ProcInterface * first();
 
-protected:
-    
-    void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
-    void initLuvTransposeOutput();
-
-    ChannelSpecification getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const;
+    FlowOptPipeline * getFlowProc() { return flow.get(); }
     
     // Retrieve Luv image as planar 3 channel CV_32F
     const MatP & getLuvPlanar();
     
     // Retrieve Luv image in packed CV_8UC4 (RGBA) format
     const cv::Mat& getLuv();
+
+protected:
+    
+    void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
+    void initLuvTransposeOutput();
+
+    ChannelSpecification getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const;
     
     cv::Mat getChannelsImpl();
 
