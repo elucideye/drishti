@@ -91,7 +91,6 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat &I, const cv::Mat &M,
         // Find iris:
         std::vector<bool> mask;
         std::vector<cv::Point2f> points = geometry::ellipseToPoints(irises[i]);
-        ScopeTimer timer("iris_time", m_doVerbose);
         (*m_irisEstimator)(I, M, points, mask);
 
         rcpr::Vector1d phi = drishti::rcpr::ellipseToPhi(geometry::pointsToEllipse(points));

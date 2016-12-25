@@ -25,7 +25,8 @@ class FaceMonitor
 {
 public:
     
-    using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+    using HighResolutionClock = std::chrono::high_resolution_clock;
+    using TimePoint = HighResolutionClock::time_point;
     
     struct FaceImage
     {

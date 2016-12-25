@@ -16,6 +16,7 @@
 #include "drishti/eye/gpu/EllipsoPolarWarp.h"
 #include "drishti/eye/gpu/EyeWarp.h"
 #include "drishti/core/Logger.h"
+#include "drishti/core/timing.h"
 #include "drishti/core/drishti_operators.h"
 #include "drishti/face/FaceDetectorAndTracker.h"
 #include "drishti/face/FaceModelEstimator.h"
@@ -291,7 +292,7 @@ void FaceFinder::init(const FrameInput &frame)
     m_logger->info() << "FaceFinder::init()";
     m_logger->set_level(spdlog::level::err);
     
-    m_start = std::chrono::system_clock::now();
+    m_start = std::chrono::high_resolution_clock::now();
     
     const cv::Size inputSize(frame.size.width, frame.size.height);
     
@@ -336,7 +337,7 @@ void FaceFinder::init(const FrameInput &frame)
 GLuint FaceFinder::operator()(const FrameInput &frame)
 {
     // Get current timestamp
-    const auto now = std::chrono::system_clock::now();
+    const auto now = HighResolutionClock::now();
     
     m_logger->info() << "FaceFinder::operator() " << sBar;
     
@@ -442,6 +443,7 @@ bool FaceFinder::hasValidFaceRequest(const ScenePrimitives &scene, const TimePoi
     return false;
 }
 
+// TODO: provide face for each frame:
 void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &now, bool isInit)
 {
     // Perform optional frame grabbing
@@ -619,12 +621,19 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
         // Fill in ACF Pyramid structure
         std::vector<double> scores;
 
-        std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+        TimePoint now = HighResolutionClock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - m_objects.first).count();
         if(elapsed > m_faceFinderInterval)
         {
+            // Scope based detection time logger
+            std::function<void(double)> timeLogger = [this](double elapsed)
+            {
+                m_timerInfo.detectionTimeLogger(elapsed);
+            };
+            ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
+            
             (*m_detector)(*scene.m_P, scene.objects(), &scores);
-            m_objects = std::make_pair(std::chrono::high_resolution_clock::now(), scene.objects());
+            m_objects = std::make_pair(HighResolutionClock::now(), scene.objects());
         }
         else
         {

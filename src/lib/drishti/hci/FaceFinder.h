@@ -58,25 +58,27 @@ namespace drishti
 }
 // *INDENT-ON*
 
-struct TimerInfo
-{
-    double detectionTime;
-    double regressionTime;
-    double eyeRegressionTime;
-    std::function<void(double second)> detectionTimeLogger;
-    std::function<void(double second)> regressionTimeLogger;
-    std::function<void(double second)> eyeRegressionTimeLogger;
-};
-
 DRISHTI_HCI_NAMESPACE_BEGIN
 
 class FaceFinder
 {
 public:
 
-    using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+    using HighResolutionClock = std::chrono::high_resolution_clock;
+    using TimePoint = HighResolutionClock::time_point;// <std::chrono::system_clock>;
     using FrameInput = ogles_gpgpu::FrameInput;
+
     using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
+    
+    struct TimerInfo
+    {
+        double detectionTime;
+        double regressionTime;
+        double eyeRegressionTime;
+        std::function<void(double second)> detectionTimeLogger;
+        std::function<void(double second)> regressionTimeLogger;
+        std::function<void(double second)> eyeRegressionTimeLogger;
+    };
     
     struct Config
     {
@@ -172,9 +174,6 @@ protected:
     
     std::vector<cv::Size> m_pyramidSizes;
 
-    std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo;
-    std::shared_ptr<ogles_gpgpu::ACF> m_acf;
-
     drishti::acf::Detector *m_detector = nullptr; // weak ref
 
     std::shared_ptr<drishti::face::FaceDetector> m_faceDetector;
@@ -182,6 +181,8 @@ protected:
     // Model estimator from pinhole camera model:
     std::shared_ptr<drishti::face::FaceModelEstimator> m_faceEstimator;
     
+    std::shared_ptr<ogles_gpgpu::ACF> m_acf;
+    std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo;
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
     std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL
