@@ -110,7 +110,6 @@ endif()
 
 # Include macros:
 include(drishti_print_env_var)
-include(ExternalProject)
 include(drishti_always_full_rpath)
 include(GenerateExportHeader)
 include(drishti_mirror_definition)
