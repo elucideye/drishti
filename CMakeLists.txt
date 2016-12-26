@@ -139,12 +139,12 @@ option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 
-# Testing 
+# Testing
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 
 if(DRISHTI_BUILD_TESTS)
   # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
-  # ${DRISHTISDK}/src/tests  
+  # ${DRISHTISDK}/src/tests
 
   if(ANDROID)
     # Android-Apk dependency removed, using drishti_android_add_test()
@@ -173,7 +173,7 @@ if(DRISHTI_BUILD_TESTS)
     enable_testing()
     set(DRISHTI_HAS_TEST_TOOLS TRUE)
   endif()
-  
+
   hunter_add_package(GTest)
   find_package(GTest CONFIG REQUIRED)
 endif()
@@ -296,7 +296,7 @@ message("DRISHTI_HAVE_THREAD_LOCAL_STORAGE : ${DRISHTI_HAVE_THREAD_LOCAL_STORAGE
 ### Thread-pool-cpp
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
 option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
-  
+
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
   include_directories(src/3rdparty/thread-pool-cpp)
