@@ -11,14 +11,21 @@
 #include "drishti/face/gpu/EyeFilter.h"
 #include "drishti/geometry/motion.h"
 #include "drishti/eye/IrisNormalizer.h"
+#include "drishti/core/make_unique.h"
+
+#include "ogles_gpgpu/common/proc/transform.h"
+#include "ogles_gpgpu/common/proc/lowpass.h"
+#include "ogles_gpgpu/common/proc/highpass.h"
+#include "ogles_gpgpu/common/proc/diff.h"
+#include "ogles_gpgpu/common/proc/gauss_opt.h"
+#include "ogles_gpgpu/common/proc/fifo.h"
+#include "ogles_gpgpu/common/common_includes.h"
 
 #include <memory>
 
 BEGIN_OGLES_GPGPU
 
 static void convert(const EyeWarp &src, ogles_gpgpu::MappedTextureRegion &dst);
-
-#define DO_LOW_PASS 1
 
 EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float upper, float lower, float gain, float offset)
     : m_sizeOut(sizeOut)
@@ -32,7 +39,7 @@ EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float upper, float lower,
 
     if(m_doSmoothing)
     {
-        smoothProc = std::unique_ptr<ogles_gpgpu::GaussOptProc>(new ogles_gpgpu::GaussOptProc(5));
+        smoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(5);
         procPasses.push_back(smoothProc.get());
         firstProc = smoothProc.get();
 
@@ -44,6 +51,10 @@ EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float upper, float lower,
         procPasses.push_back(&transformProc);
         firstProc = &transformProc;
     }
+
+    // Add a fifo proc for GPU sliding window:
+    fifoProc = drishti::core::make_unique<ogles_gpgpu::FifoProc>(3);
+    transformProc.add(fifoProc.get());    
 
     switch(mode)
     {
@@ -86,6 +97,22 @@ EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float upper, float lower,
     }
 }
 
+EyeFilter::~EyeFilter()
+{
+    procPasses.clear();
+}
+
+void EyeFilter::dump(std::vector<cv::Mat4b> &frames)
+{
+    // FifoProc::operator[] will preserve temporal ordering:
+    frames.resize(fifoProc->getBufferCount());
+    for(int i = 0; i < frames.size(); i++)
+    {
+        frames[i].create((*fifoProc)[i]->getOutFrameH(), (*fifoProc)[i]->getOutFrameW());
+        (*fifoProc)[i]->getResultData(frames[i].ptr<uint8_t>());
+    }
+}
+
 // Make sure to apply resize to transform, not gaussian smoother (if enabled)
 void EyeFilter::setOutputSize(float scaleFactor)
 {
@@ -100,13 +127,11 @@ ProcInterface * EyeFilter::getInputFilter() const
 {
     return firstProc;
 }
-//const ProcInterface * EyeFilter::getInputFilter() const { return firstProc; }
 
 ProcInterface * EyeFilter::getOutputFilter() const
 {
     return lastProc;
 }
-//const ProcInterface * EyeFilter::getOutputFilter() const { return lastProc; }
 
 void EyeFilter::renderIris()
 {
@@ -116,7 +141,7 @@ void EyeFilter::renderIris()
 int EyeFilter::render(int position)
 {
     // If we have faces, then configure appropriate transformations:
-    FaceStabilizer stabilizer({m_sizeOut.width, m_sizeOut.height});
+    drishti::face::FaceStabilizer stabilizer({m_sizeOut.width, m_sizeOut.height});
     stabilizer.setDoAutoScaling(m_doAutoScaling);
 
     if(m_faces.size())
