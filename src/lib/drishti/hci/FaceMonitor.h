@@ -1,5 +1,5 @@
 /*!
-  @file   finder/FaceMonitor.h
+  @file   drishti/hci/FaceMonitor.h
   @author David Hirvonen
   @brief Simple position dependent frame grabbing callback API.
 
@@ -32,6 +32,8 @@ public:
     {
         TimePoint time;
         cv::Mat4b image;
+        cv::Mat4b eyes;
+        cv::Mat4b extra; 
         std::vector<face::FaceModel> faces; // one or more faces
     };
     
