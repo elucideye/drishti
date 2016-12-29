@@ -11,7 +11,7 @@
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/geometry/motion.h" // for transformation::
 
-//BEGIN_OGLES_GPGPU
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 FaceStabilizer::FaceStabilizer(const cv::Size &sizeOut) : m_sizeOut(sizeOut)
 {
@@ -75,4 +75,5 @@ std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 
     return cropInfo;
 }
 
-//END_OGLES_GPGPU
+DRISHTI_FACE_NAMESPACE_END
+

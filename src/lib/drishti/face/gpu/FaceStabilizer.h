@@ -17,7 +17,7 @@
 
 #include <opencv2/core.hpp>
 
-//BEGIN_OGLES_GPGPU
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 class FaceStabilizer
 {
@@ -50,6 +50,6 @@ protected:
     cv::Size m_sizeOut;
 };
 
-//END_OGLES_GPGPU
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // __drishti_face_gpu_FaceStabilizer_h__
