@@ -18,6 +18,7 @@
 #include "drishti/core/Logger.h"
 #include "drishti/core/timing.h"
 #include "drishti/core/drishti_operators.h"
+#include "drishti/core/scope_guard.h"
 #include "drishti/face/FaceDetectorAndTracker.h"
 #include "drishti/face/FaceModelEstimator.h"
 #include "drishti/face/FaceDetector.h"
@@ -66,15 +67,6 @@ static void extractCorners(const cv::Mat1b &corners, ScenePrimitives &scene, flo
 static cv::Mat draw(const drishti::acf::Detector::Pyramid &pyramid);
 static void logPyramid(const std::string &filename, const drishti::acf::Detector::Pyramid &P);
 #endif // DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
-
-// Make sure face callbacks are performed in main thread at end of scope for each frame
-template <typename Functor>
-struct ScopeCallback
-{
-    ScopeCallback(Functor &func) : m_func(func) {}
-    ~ScopeCallback() { m_func(); }
-    Functor m_func;
-};
 
 static ogles_gpgpu::Size2d convert(const cv::Size &size)
 {
@@ -154,16 +146,21 @@ void FaceFinder::registerFaceMonitorCallback(FaceMonitor *callback)
     m_faceMonitorCallback.push_back(callback);
 }
 
-void FaceFinder::dump(std::vector<cv::Mat4b> &frames)
+void FaceFinder::dumpEyes(std::vector<cv::Mat4b> &frames)
+{
+    m_eyeFilter->dump(frames);
+}
+
+void FaceFinder::dumpFaces(std::vector<cv::Mat4b> &frames)
 {
     if(m_fifo->getBufferCount() == m_fifo->getProcPasses().size())
     {
-        auto &filters = m_fifo->getProcPasses();
-        frames.resize(filters.size());
-        for(int i = 0; i < filters.size(); i++)
+        frames.resize(m_fifo->getBufferCount());
+        for(int i = 0; i < frames.size(); i++)
         {
-            frames[i].create( filters[i]->getOutFrameH(), filters[i]->getOutFrameW() );
-            filters[i]->getResultData(frames[i].ptr<uint8_t>());
+            auto *filter = (*m_fifo)[i];
+            frames[i].create(filter->getOutFrameH(), filter->getOutFrameW());
+            filter->getResultData(frames[i].ptr<uint8_t>());
         }
     }
 }
@@ -230,7 +227,9 @@ void FaceFinder::initFlasher()
     m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>(ogles_gpgpu::FlashFilter::kCenteredDifference);
     m_flasher->init(128, 64, INT_MAX, false); // smoothProc.setOutputSize(48, 0);
     m_flasher->createFBOTex(false);
-    m_eyeFilter->getOutputFilter()->add(m_flasher->getInputFilter());
+
+    //m_eyeFilter->getOutputFilter()->add(m_flasher->getInputFilter());
+    m_eyeFilter->getInputFilter()->add(m_flasher->getInputFilter());
 #else
     assert(m_acf.get())
     m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>(ogles_gpgpu::FlashFilter::kLaplacian);
@@ -363,11 +362,11 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
     // make sure all face requests are serviced at the end of scope to allow
     // flexibility in early returns, and both single and multi-threaded modes of
     // processing.
-    std::function<void()> response = [&]()
+    
+    drishti::core::scope_guard faceRequestScopeManager = [&]()
     {
         this->notifyListeners(scene, now, m_fifo->isFull());
     };
-    ScopeCallback<decltype(response)> faceRequestScopeManager(response);
     
     GLuint inputTexId = m_acf->getInputTexId(), outputTexId = 0;
     
@@ -414,6 +413,8 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
         detect(frame, scene);
         outputTexId = paint(scene, inputTexId);
     }
+
+    updateEyes(inputTexId, scene);
     
     return outputTexId;
 }
@@ -455,17 +456,31 @@ void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &
         // 1) If any active face request is satisifed grab a frame+face buffer:
         if(hasValidFaceRequest(scene, now))
         {
-            std::vector<cv::Mat4b> images;
-            dump(images);
-            
-            if(images.size())
+            // ### collect face images ###
+            std::vector<cv::Mat4b> faces;
+            dumpFaces(faces);
+
+            if(faces.size())
             {
-                frames.resize(images.size());
+                frames.resize(faces.size());
                 for(int i = 0; i < frames.size(); i++)
                 {
-                    frames[i].image = images[i];
+                    frames[i].image = faces[i];
                 }
                 frames[0].faces = scene.faces();
+                
+                // ### collect eye images ###
+                std::vector<cv::Mat4b> eyes;
+                dumpEyes(eyes);
+                for(int i = 0; i < std::min(eyes.size(), faces.size()); i++)
+                {
+                    frames[i].eyes = eyes[i];
+                }
+
+                // ### Add the eye difference image ###
+                cv::Mat4b filtered(m_flasher->getOutFrameH(), m_flasher->getOutFrameW());
+                m_flasher->getResultData(filtered.ptr());
+                frames[0].extra = filtered;
             }
         }
     }
@@ -706,6 +721,23 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
     }
 
     return 0;
+}
+
+void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
+{
+    if(scene.faces().size())
+    {
+        for(const auto &f : scene.faces())
+        {
+            m_eyeFilter->addFace(f); // (DJH)
+        }
+        
+        // Configure eye enhancer:
+        m_eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
+        
+        // Can use this to retrieve view of internal filters:
+        // cv::Mat canvas = m_flasher->paint();
+    }
 }
 
 // #### init2 ####

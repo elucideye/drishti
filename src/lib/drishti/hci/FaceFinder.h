@@ -112,6 +112,8 @@ public:
     
 protected:
     
+    void updateEyes(GLuint inputTexId, const ScenePrimitives &scene);
+    
     void notifyListeners(const ScenePrimitives &scene, const TimePoint &time, bool isFull);
     bool hasValidFaceRequest(const ScenePrimitives &scene, const TimePoint &time) const;
 
@@ -128,7 +130,8 @@ protected:
     void init2(drishti::face::FaceDetectorFactory &resources);
     void detect2(const FrameInput &frame, ScenePrimitives &scene);
 
-    void dump(std::vector<cv::Mat4b> &frames);
+    void dumpEyes(std::vector<cv::Mat4b> &frames);
+    void dumpFaces(std::vector<cv::Mat4b> &frames);
     virtual int detect(const FrameInput &frame, ScenePrimitives &scene);
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);
     virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf
