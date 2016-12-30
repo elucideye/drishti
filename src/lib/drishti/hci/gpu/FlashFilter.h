@@ -11,11 +11,9 @@
 #ifndef __drishti_hci_gpu_FlashFilter_h__
 #define __drishti_hci_gpu_FlashFilter_h__
 
-#include "ogles_gpgpu/common/proc/gauss_opt.h"
-#include "ogles_gpgpu/common/proc/fifo.h"
-#include "ogles_gpgpu/common/proc/fir3.h"
-#include "ogles_gpgpu/common/proc/median.h"
-#include "ogles_gpgpu/common/proc/lowpass.h"
+#include "ogles_gpgpu/common/proc/base/multipassproc.h"
+
+#include <opencv2/core.hpp> // for paint()
 
 // #### Simple flash filter ####
 BEGIN_OGLES_GPGPU
@@ -45,7 +43,9 @@ public:
     
     virtual int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false);
     virtual int reinit(int inW, int inH, bool prepareForExternalInput = false);
-    virtual int render(int position);
+    virtual int render(int position=0);
+    
+    cv::Mat paint();
     
     std::shared_ptr<Impl> m_impl;
 };

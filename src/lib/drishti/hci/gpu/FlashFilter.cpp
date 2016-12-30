@@ -10,6 +10,13 @@
 
 #include "drishti/hci/gpu/FlashFilter.h"
 
+#include "ogles_gpgpu/common/proc/hessian.h"
+#include "ogles_gpgpu/common/proc/gauss_opt.h"
+#include "ogles_gpgpu/common/proc/fifo.h"
+#include "ogles_gpgpu/common/proc/fir3.h"
+
+#include <opencv2/core.hpp>
+
 #include <limits>
 
 BEGIN_OGLES_GPGPU
@@ -18,34 +25,41 @@ class FlashFilter::Impl
 {
 public:
     Impl(FlashFilter::FilterKind kind)
-    : smoothProc(3)
-    , medianProc()
+    : smoothProc1(1)
+    , smoothProc2(1)
     , fifoProc(3)
     , fir3Proc(false)
+    , hessianProc(1000.0f)
     {
+        fir3Proc.setAlpha(10.f);
+        fir3Proc.setBeta(0.f); // drop negative values
+        
         switch(kind)
         {
             case FlashFilter::kLaplacian :
                 fir3Proc.setWeights({-0.25, 0.5, -0.25});
                 break;
             case FlashFilter::kCenteredDifference :
-                fir3Proc.setWeights({-0.5, 0.0, +0.5});
+                fir3Proc.setWeights({+0.5, 0.0, -0.5});
                 break;
         }
         
-        smoothProc.add(&medianProc);
-        medianProc.add(&fifoProc);
+        smoothProc1.add(&fifoProc);
         
         //  (newest) RGB....RGB....RGB (oldest)
         fifoProc.addWithDelay(&fir3Proc, 0, 0);
         fifoProc.addWithDelay(&fir3Proc, 1, 1);
         fifoProc.addWithDelay(&fir3Proc, 2, 2);
+        
+        fir3Proc.add(&smoothProc2);
+        smoothProc2.add(&hessianProc);
     }
     
-    ogles_gpgpu::GaussOptProc smoothProc;
-    ogles_gpgpu::MedianProc medianProc;
+    ogles_gpgpu::GaussOptProc smoothProc1;
+    ogles_gpgpu::GaussOptProc smoothProc2;
     ogles_gpgpu::FIFOPRoc fifoProc;
     ogles_gpgpu::Fir3Proc fir3Proc;
+    ogles_gpgpu::HessianProc hessianProc;
 };
 
 FlashFilter::FlashFilter(FilterKind kind)
@@ -53,8 +67,8 @@ FlashFilter::FlashFilter(FilterKind kind)
     m_impl = std::make_shared<Impl>(kind);
     
     // Add filters to procPasses for state management
-    procPasses.push_back(&m_impl->smoothProc);
-    procPasses.push_back(&m_impl->medianProc);
+    procPasses.push_back(&m_impl->smoothProc1);
+    procPasses.push_back(&m_impl->smoothProc2);
     procPasses.push_back(&m_impl->fifoProc);
     procPasses.push_back(&m_impl->fir3Proc);
 }
@@ -66,12 +80,12 @@ FlashFilter::~FlashFilter()
 
 ProcInterface* FlashFilter::getInputFilter() const
 {
-    return &m_impl->smoothProc;
+    return &m_impl->smoothProc1;
 }
 
 ProcInterface* FlashFilter::getOutputFilter() const
 {
-    return &m_impl->fir3Proc;
+    return &m_impl->hessianProc;
 }
 
 int FlashFilter::render(int position)
@@ -91,6 +105,55 @@ int FlashFilter::reinit(int inW, int inH, bool prepareForExternalInput)
 {
     getInputFilter()->prepare(inW, inH, 0, std::numeric_limits<int>::max(), 0);
     return 0;
+}
+
+static cv::Size ogles_gpgpu_size(const ogles_gpgpu::Size2d &src)
+{
+    return cv::Size(src.width, src.height);
+}
+
+cv::Mat FlashFilter::paint()
+{
+    cv::Mat canvas;
+    
+    if(m_impl->fifoProc.getBufferCount() == 3)
+    {
+        cv::Mat4b smoothProc1(ogles_gpgpu_size(m_impl->smoothProc1.getOutFrameSize()));
+        cv::Mat4b fifoProc0(ogles_gpgpu_size(m_impl->fifoProc.getOutFrameSize()));
+        cv::Mat4b fifoProc1(ogles_gpgpu_size(m_impl->fifoProc.getOutFrameSize()));
+        cv::Mat4b fifoProc2(ogles_gpgpu_size(m_impl->fifoProc.getOutFrameSize()));
+        cv::Mat4b fir3Proc(ogles_gpgpu_size(m_impl->fir3Proc.getOutFrameSize()));
+        cv::Mat4b smoothProc2(ogles_gpgpu_size(m_impl->smoothProc2.getOutFrameSize()));
+        cv::Mat4b hessianProc(ogles_gpgpu_size(m_impl->hessianProc.getOutFrameSize()));
+        
+        m_impl->smoothProc1.getResultData(smoothProc1.ptr());
+        m_impl->fifoProc[0]->getResultData(fifoProc0.ptr());
+        m_impl->fifoProc[1]->getResultData(fifoProc1.ptr());
+        m_impl->fifoProc[2]->getResultData(fifoProc2.ptr());
+        m_impl->fir3Proc.getResultData(fir3Proc.ptr());
+        m_impl->smoothProc2.getResultData(smoothProc2.ptr());
+        m_impl->hessianProc.getResultData(hessianProc.ptr());
+        
+        cv::Mat1b alpha;
+        cv::extractChannel(hessianProc, alpha, 3);
+        std::vector<cv::Mat> channels { alpha, alpha, alpha, cv::Mat1b(alpha.size(), 255) };
+        cv::merge(channels, hessianProc);
+        
+        std::vector<cv::Mat> all
+        {
+            smoothProc1,
+            fifoProc0,
+            fifoProc1,
+            fifoProc2,
+            fir3Proc,
+            smoothProc2,
+            hessianProc
+        };
+        
+        cv::vconcat(all, canvas);
+    }
+    
+    return canvas;
 }
 
 END_OGLES_GPGPU
