@@ -381,7 +381,7 @@ void FacePainter::renderEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, 
 
 std::array<EyeWarp, 2> FacePainter::renderEyes(const drishti::face::FaceModel &face)
 {
-    FaceStabilizer stabilizer({inFrameW, inFrameH});
+    drishti::face::FaceStabilizer stabilizer({inFrameW, inFrameH});
     std::array<EyeWarp, 2> cropInfo = stabilizer.renderEyes(face, {inFrameW, inFrameH});
 
     for(int i = 0; i < 2; i++)
