@@ -7,6 +7,9 @@
 
 */
 
+#ifndef __drishti_core_scope_guard_h__
+#define __drishti_core_scope_guard_h__
+
 #include <functional>
 
 #include "drishti/core/drishti_core.h"
@@ -42,3 +45,5 @@ private:
 };
 
 DRISHTI_CORE_NAMESPACE_END
+
+#endif // __drishti_core_scope_guard_h__
