@@ -370,10 +370,10 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
     }
 
 #if 1
-    std::function<void(int)> worker = [&](int j)
+    core::ParallelHomogeneousLambda harness = [&](int j)
     {
         const int i = isA[j];
-
+        
         int iR = isN[i-1];
         cv::Size sz1 = round(cv::Size2d(sz)*scales[i-1]/double(shrink));
         for (int j = 0; j < nTypes; j++)
@@ -386,7 +386,7 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
             convTri(img, img, smooth, 1);
         }
     };
-    core::ParallelHomogeneousLambda harness(worker);
+                                            
     cv::parallel_for_({0, int(isA.size())}, harness);
 #else
     // Compute image pyramid [approximated scales]

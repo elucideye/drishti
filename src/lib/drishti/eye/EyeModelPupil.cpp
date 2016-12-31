@@ -62,25 +62,23 @@ void EyeModelEstimator::Impl::segmentPupil(const cv::Mat &I, EyeModel &eye, int 
     }
 
     std::vector< rcpr::Vector1d > params(5, rcpr::Vector1d(pupils.size()));
-
-    std::function<void(int)> worker = [&](int i)
+    
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         // Find pupil:x
         const auto &e = pupils[i];
-
+        
         // TODO: currently override 2d point interface
         std::vector<bool> mask;
         std::vector<cv::Point2f> points = { e.center, {e.size.width, e.size.height} };
         (*m_pupilEstimator)(crop, points, mask);
-
+        
         rcpr::Vector1d phi = drishti::rcpr::ellipseToPhi(geometry::pointsToEllipse(points));
         for(int j = 0; j < 5; j++)
         {
             params[j][i] = phi[j];
         }
     };
-
-    drishti::core::ParallelHomogeneousLambda harness(worker);
 
 #if DEBUG_PUPIL
     m_pupilEstimator->setDoPreview(true);

@@ -199,12 +199,11 @@ public:
                 m_eyeRegressor[i]->setIrisInits(1);
             }
 
-            std::function<void(int)> worker = [&](int i)
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
             {
                 (*m_eyeRegressor[i])(crops[i], *results[i]);
             };
 
-            drishti::core::ParallelHomogeneousLambda harness(worker);
             //harness({0, 2});
             cv::parallel_for_({0, 2}, harness, 2);
 
