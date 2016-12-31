@@ -18,7 +18,7 @@ FaceStabilizer::FaceStabilizer(const cv::Size &sizeOut) : m_sizeOut(sizeOut)
 
 }
 
-std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel &face, const cv::Size &sizeIn) const
+std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel &face, const cv::Size &sizeIn) const
 {
     using PointPair = std::array<cv::Point2f, 2>;
     const PointPair eyeCenters {{ face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center }};
@@ -29,7 +29,7 @@ std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel
     return eyes;
 }
 
-std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2>  &eyeCenters, const cv::Size &sizeIn) const
+std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2> &eyeCenters, const cv::Size &sizeIn) const
 {
     using PointPair = std::array<cv::Point2f, 2>;
 
@@ -62,7 +62,7 @@ std::array<EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 
     const float eyeScaleInScreen = cv::norm(screenCenters[0] - screenCenters[1]);
     cv::Matx33f H = transformation::estimateSimilarity(eyeCenters, screenCenters);
 
-    std::array<EyeWarp, 2> cropInfo;
+    std::array<eye::EyeWarp, 2> cropInfo;
     for(int i = 0; i < 2; i++)
     {
         // Adjust scaling

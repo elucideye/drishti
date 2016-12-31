@@ -15,6 +15,8 @@
 
 #include <opencv2/core/core.hpp>
 
+DRISHTI_EYE_NAMESPACE_BEGIN
+
 struct EyeWarp
 {
     EyeWarp() {}
@@ -24,5 +26,7 @@ struct EyeWarp
     cv::Matx33f H;
     DRISHTI_EYE::EyeModel eye;
 };
+
+DRISHTI_EYE_NAMESPACE_END
 
 #endif // __drishti_eye_gpu_EyeWarp_h__ 

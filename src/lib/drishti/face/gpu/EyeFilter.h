@@ -31,6 +31,7 @@ END_OGLES_GPGPU
 #include <opencv2/core.hpp>
 
 #include <memory>
+#include <deque>
 
 BEGIN_OGLES_GPGPU
 
@@ -38,6 +39,8 @@ class EyeFilter : public ogles_gpgpu::MultiPassProc
 {
 public:
 
+    using EyewWarpPair = std::array<drishti::eye::EyeWarp, 2>;
+    
     class Impl;
 
     enum Mode
@@ -56,11 +59,12 @@ public:
         m_doAutoScaling = flag;
     }
 
-    std::array<EyeWarp, 2> &getEyeWarps()
+    EyewWarpPair &getEyeWarps()
     {
         return m_eyes;
     }
-    const std::array<EyeWarp, 2> &getEyeWarps() const
+    
+    const EyewWarpPair &getEyeWarps() const
     {
         return m_eyes;
     }
@@ -96,7 +100,8 @@ protected:
 
     std::vector<drishti::face::FaceModel> m_faces;
 
-    std::array<EyeWarp, 2> m_eyes;
+    EyewWarpPair m_eyes;
+    std::deque<EyewWarpPair> m_eyeHistory;
 
     bool m_doAutoScaling = false;
 
