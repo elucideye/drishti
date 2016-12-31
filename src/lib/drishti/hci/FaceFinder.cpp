@@ -17,6 +17,7 @@
 #include "drishti/eye/gpu/EyeWarp.h"
 #include "drishti/core/Logger.h"
 #include "drishti/core/timing.h"
+#include "drishti/core/scope_guard.h"
 #include "drishti/core/drishti_operators.h"
 #include "drishti/core/scope_guard.h"
 #include "drishti/face/FaceDetectorAndTracker.h"
@@ -365,7 +366,8 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
     
     drishti::core::scope_guard faceRequestScopeManager = [&]()
     {
-        this->notifyListeners(scene, now, m_fifo->isFull());
+        try { this->notifyListeners(scene, now, m_fifo->isFull()); }
+        catch(...) {}
     };
     
     GLuint inputTexId = m_acf->getInputTexId(), outputTexId = 0;
@@ -729,14 +731,21 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
     {
         for(const auto &f : scene.faces())
         {
-            m_eyeFilter->addFace(f); // (DJH)
+            m_eyeFilter->addFace(f);
         }
         
         // Configure eye enhancer:
         m_eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
         
         // Can use this to retrieve view of internal filters:
-        // cv::Mat canvas = m_flasher->paint();
+#define DRISHTI_VIEW_FLASH_OUTPUT 0
+#if DRISHTI_VIEW_FLASH_OUTPUT
+        cv::Mat canvas = m_flasher->paint();
+        if(!canvas.empty())
+        {
+            cv::imshow("flasher", canvas); cv::waitKey(0);
+        }
+#endif
     }
 }
 
