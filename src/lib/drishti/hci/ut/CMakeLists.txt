@@ -12,6 +12,8 @@ endif()
 
 set(SOURCES
   test-drishti-hci.cpp
+  test-hessian-cpu.cpp
+  test-hessian-cpu.h
   test-FaceFinder.cpp
   FaceMonitorHCITest.h  
   )
