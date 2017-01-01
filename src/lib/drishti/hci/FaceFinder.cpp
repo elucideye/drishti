@@ -147,9 +147,9 @@ void FaceFinder::registerFaceMonitorCallback(FaceMonitor *callback)
     m_faceMonitorCallback.push_back(callback);
 }
 
-void FaceFinder::dumpEyes(std::vector<cv::Mat4b> &frames)
+void FaceFinder::dumpEyes(std::vector<cv::Mat4b> &frames, std::vector<std::array<eye::EyeModel,2>> &eyes)
 {
-    m_eyeFilter->dump(frames);
+    m_eyeFilter->dump(frames, eyes);
 }
 
 void FaceFinder::dumpFaces(std::vector<cv::Mat4b> &frames)
@@ -446,7 +446,6 @@ bool FaceFinder::hasValidFaceRequest(const ScenePrimitives &scene, const TimePoi
     return false;
 }
 
-// TODO: provide face for each frame:
 void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &now, bool isInit)
 {
     // Perform optional frame grabbing
@@ -469,11 +468,13 @@ void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &
                 {
                     frames[i].image = faces[i];
                 }
-                frames[0].faces = scene.faces();
+                // Tag active face image with model
+                frames[0].faceModels = scene.faces();
                 
                 // ### collect eye images ###
                 std::vector<cv::Mat4b> eyes;
-                dumpEyes(eyes);
+                std::vector<std::array<eye::EyeModel, 2>> eyePairs;
+                dumpEyes(eyes, eyePairs);
                 for(int i = 0; i < std::min(eyes.size(), faces.size()); i++)
                 {
                     frames[i].eyes = eyes[i];
@@ -740,10 +741,13 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
         // Can use this to retrieve view of internal filters:
 #define DRISHTI_VIEW_FLASH_OUTPUT 0
 #if DRISHTI_VIEW_FLASH_OUTPUT
-        cv::Mat canvas = m_flasher->paint();
-        if(!canvas.empty())
+        if(m_flasher)
         {
-            cv::imshow("flasher", canvas); cv::waitKey(0);
+            cv::Mat canvas = m_flasher->paint();
+            if(!canvas.empty())
+            {
+                cv::imshow("flasher", canvas); cv::waitKey(0);
+            }
         }
 #endif
     }
