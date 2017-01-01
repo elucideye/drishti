@@ -13,9 +13,11 @@
 
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/face/Face.h"
+#include "drishti/eye/Eye.h"
 
 #include <opencv2/core/core.hpp>
 
+#include <array>  // std::array<>
 #include <vector> // std::vector<>
 #include <chrono> // std::chrono::time_point
 
@@ -31,10 +33,14 @@ public:
     struct FaceImage
     {
         TimePoint time;
+        
         cv::Mat4b image;
-        cv::Mat4b eyes;
-        cv::Mat4b extra; 
-        std::vector<face::FaceModel> faces; // one or more faces
+        std::vector<face::FaceModel> faceModels;
+
+        cv::Mat4b eyes; // eye pair image [ left | right ]
+        std::array<drishti::eye::EyeModel, 2> eyeModels;
+
+        cv::Mat4b extra;
     };
     
     virtual bool isValid(const cv::Point3f &position, const TimePoint &timeStamp) = 0;
