@@ -12,7 +12,6 @@
 
 #define DRISHTI_HCI_TEST_WARM_UP_GPU 0 // for timing only
 #define DRISHTI_HCI_TEST_DISPLAY_OUTPUT 0
-#define DRISHTI_FACE_FILTER_NOISE_TEST 0
 
 const char *sFaceDetector;
 const char *sFaceDetectorMean;
@@ -190,29 +189,9 @@ protected:
         
         ogles_gpgpu::FrameInput frame({image.cols, image.rows}, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
         
-        const int iterations = DRISHTI_FACE_FILTER_NOISE_TEST ? 40 : 10;
+        const int iterations = 10;
         for(int i = 0; i < iterations; i++)
         {
-
-#if DRISHTI_FACE_FILTER_NOISE_TEST
-            cv::Mat input = image.clone();
-            static const cv::Point2f p1(638, 468), p2(918, 412);
-            if(((i / 5) % 2) == 0)
-            {
-                // Simulate a specularity:
-                cv::circle(input, p1, 2, {255,255,255}, -1, 8);
-                cv::circle(input, p2, 2, {255,255,255}, -1, 8);
-            }
-
-            {
-                std::stringstream ss;
-                ss << i;
-                cv::putText(input, ss.str(), {input.cols/2,input.rows/4}, CV_FONT_HERSHEY_SIMPLEX, 1.5, {0,255,0}, 3);
-            }
-        
-            frame.pixelBuffer = input.ptr();
-#endif
-            
             (*detector)(frame);
             
             // Wait on face request callback:
@@ -259,18 +238,6 @@ protected:
             
             { // gpu results:
                 cv::imshow("ogles_gpgpu_FlashFilter_det1", images[0].extra);
-            }
-            
-            { // cpu results:
-                cv::Mat4b I0 = images[0].eyes;
-                cv::Mat4b I1 = images[1].eyes;
-                cv::Mat4b I2 = images[2].eyes;
-                
-                cv::Mat4b Idiff, Iblob;
-                fir3({{I0, I1, I2}}, Idiff, {{+0.5f, 0.0f, -0.5f}}, 2.f, 0.f);
-                blobs3x3(Idiff, Iblob, 1.0, 1000.0);
-                cv::imshow("Idiff", Idiff);
-                cv::imshow("Iblob", Iblob);
             }
         }
         
