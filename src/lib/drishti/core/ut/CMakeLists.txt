@@ -1,6 +1,3 @@
-# found variable?
-#include_directories(${GTEST_INCLUDE_DIRS})
-
 if(IOS)
   set(TEST_APP_TYPE "MACOSX_BUNDLE")
 endif()
@@ -18,14 +15,11 @@ if(ANDROID)
     CLEAN
     )
 elseif(IOS)
-
-  find_program(DRISHTI_IOS_DEPLOY_COMMAND ios-deploy)
-  if(DRISHTI_IOS_DEPLOY_COMMAND MATCHES "NOTFOUND")
-    
-  else()
-    
-  endif()
-  
+  drishti_ios_add_test(
+    NAME DrishtiCoreTest
+    COMMAND test-drishti-core
+    CLEAN
+    )
 else()
   add_test(NAME DrishtiCoreTest COMMAND test-drishti-core)
 endif()
