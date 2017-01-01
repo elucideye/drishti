@@ -6,7 +6,7 @@
   url = https://github.com/headupinclouds/thread-pool-cpp.git
 [submodule "src/3rdparty/ogles_gpgpu"]
   path = src/3rdparty/ogles_gpgpu
-  url = https://github.com/headupinclouds/ogles_gpgpu.git
+  url = https://github.com/hunter-packages/ogles_gpgpu.git
 [submodule "drishti-upload"]
   path = drishti-upload
   url = https://github.com/elucideye/drishti-upload
