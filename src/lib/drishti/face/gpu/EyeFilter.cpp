@@ -12,6 +12,7 @@
 #include "drishti/geometry/motion.h"
 #include "drishti/eye/IrisNormalizer.h"
 #include "drishti/core/make_unique.h"
+#include "drishti/core/scope_guard.h"
 
 #include "ogles_gpgpu/common/proc/transform.h"
 #include "ogles_gpgpu/common/proc/lowpass.h"
@@ -107,21 +108,41 @@ EyeFilter::~EyeFilter()
     procPasses.clear();
 }
 
-void EyeFilter::dump(std::vector<cv::Mat4b> &frames)
+void EyeFilter::dump(std::vector<cv::Mat4b> &frames, std::vector<EyePair> &eyes)
 {
     // FifoProc::operator[] will preserve temporal ordering:
     frames.resize(fifoProc->getBufferCount());
+    eyes.resize(fifoProc->getBufferCount());
+    
+#if DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP
+    drishti::core::scope_guard guard = [&]()
+    {
+        if(frames.size())
+        {
+            cv::Mat canvas;
+            cv::vconcat(frames, canvas);
+            cv::imshow("eyes", canvas);
+            cv::waitKey();
+        }
+    };
+#endif
+    
     for(int i = 0; i < frames.size(); i++)
     {
         frames[i].create((*fifoProc)[i]->getOutFrameH(), (*fifoProc)[i]->getOutFrameW());
         (*fifoProc)[i]->getResultData(frames[i].ptr<uint8_t>());
         
-#if DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP
         cv::Matx33f N = transformation::denormalize(frames[i].size());
-        for(const auto &e : m_eyeHistory[i])
+        for(int j = 0; j < m_eyeHistory[i].size(); j++)
         {
-            auto eye = (N * e.H) * e.eye;
-            eye.draw(frames[i], 2);
+            const auto &e = m_eyeHistory[i][j];
+            eyes[i][j] = (N * e.H) * e.eye;
+        }
+        
+#if DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP
+        for(const auto &e : eyes[i])
+        {
+            e.draw(frames[i], 2);
         }
 #endif // DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP
     }

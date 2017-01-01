@@ -40,6 +40,7 @@ class EyeFilter : public ogles_gpgpu::MultiPassProc
 public:
 
     using EyewWarpPair = std::array<drishti::eye::EyeWarp, 2>;
+    using EyePair = std::array<drishti::eye::EyeModel, 2>;
     
     class Impl;
 
@@ -92,7 +93,7 @@ public:
         m_faces.push_back(face);
     }
 
-    void dump(std::vector<cv::Mat4b> &images);
+    void dump(std::vector<cv::Mat4b> &images, std::vector<EyePair> &eyes);
 
     void renderIris();
 
