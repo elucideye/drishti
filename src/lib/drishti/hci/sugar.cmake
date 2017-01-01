@@ -18,7 +18,8 @@ sugar_files(DRISHTI_HCI_SRCS
   Scene.cpp
   gpu/LineDrawing.cpp
   gpu/FacePainter.cpp
-  gpu/FlashFilter.cpp  
+  gpu/FlashFilter.cpp
+  gpu/fade.cpp  
   )
 
 sugar_files(DRISHTI_HCI_HDRS_PUBLIC
@@ -29,5 +30,6 @@ sugar_files(DRISHTI_HCI_HDRS_PUBLIC
   Scene.hpp
   gpu/LineDrawing.hpp
   gpu/FacePainter.h
-  gpu/FlashFilter.h  
+  gpu/FlashFilter.h
+  gpu/fade.h
   )
