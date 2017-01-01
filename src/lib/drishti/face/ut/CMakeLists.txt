@@ -1,10 +1,11 @@
-# found variable?
-#include_directories(${GTEST_INCLUDE_DIRS})
+if(IOS)
+  set(TEST_APP_TYPE "MACOSX_BUNDLE")
+endif()
 
 set(DRISHTI_FACE_TEST_NAME DrishtiFaceTest)
 set(DRISHTI_FACE_TEST_APP test-drishti-face)
 
-add_executable(${DRISHTI_FACE_TEST_APP} test-drishti-face.cpp)
+add_executable(${DRISHTI_FACE_TEST_APP} ${TEST_APP_TYPE} test-drishti-face.cpp)
 target_link_libraries(${DRISHTI_FACE_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
 set_property(TARGET ${DRISHTI_FACE_TEST_APP} PROPERTY FOLDER "app/tests")
 
@@ -48,6 +49,8 @@ if(ANDROID)
     "${DRISHTI_MEAN_FACE_LANDMARKS}"
     )
   
+elseif(IOS)
+  message(WARNING "TODO: add ${DRISHTI_FACE_TEST_APP} for IOS")
 else()
 
   add_test(NAME ${DRISHTI_FACE_TEST_NAME} COMMAND ${DRISHTI_FACE_TEST_APP}

@@ -1,10 +1,11 @@
-# found variable?
-#include_directories(${GTEST_INCLUDE_DIRS})
+if(IOS)
+  set(TEST_APP_TYPE "MACOSX_BUNDLE")
+endif()
 
 set(DRISHTI_ML_TEST_NAME DrishtiMlTest)
 set(DRISHTI_ML_TEST_APP test-drishti-ml)
 
-add_executable(${DRISHTI_ML_TEST_APP} test-drishti-ml.cpp test-RTEShapeEstimator.cpp)
+add_executable(${DRISHTI_ML_TEST_APP} ${TEST_APP_TYPE} test-drishti-ml.cpp test-RTEShapeEstimator.cpp)
 target_link_libraries(${DRISHTI_ML_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
 set_property(TARGET ${DRISHTI_ML_TEST_APP} PROPERTY FOLDER "app/tests")
 
@@ -44,7 +45,10 @@ if(ANDROID)
     "${DRISHTI_TEST_FACE_MODEL}"
     )
 
-else()
+elseif(IOS)
+  message(WARNING "TODO: add ${DRISHTI_ML_TEST_APP} for IOS")
+else()    
+
   add_test(NAME ${DRISHTI_ML_TEST_NAME} COMMAND ${DRISHTI_ML_TEST_APP}
     "${DRISHTI_FACE_LANDMARKER}"
     "${DRISHTI_TEST_FACE}"    

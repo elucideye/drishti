@@ -1,9 +1,11 @@
-#include_directories(${GTEST_INCLUDE_DIRS})
+if(IOS)
+  set(TEST_APP_TYPE "MACOSX_BUNDLE")
+endif()
 
 set(DRISHTI_EYE_TEST_NAME DrishtiEyeTest)
 set(DRISHTI_EYE_TEST_APP test-drishti-eye)
 
-add_executable(${DRISHTI_EYE_TEST_APP} test-drishti-eye.cpp test-EyeModelEstimator.cpp)
+add_executable(${DRISHTI_EYE_TEST_APP} ${TEST_APP_TYPE} test-drishti-eye.cpp test-EyeModelEstimator.cpp)
 target_link_libraries(${DRISHTI_EYE_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
 
 include(drishti_set_unit_test_assets)
@@ -51,6 +53,8 @@ if(ANDROID)
     "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"
     )
   
+elseif(IOS)
+  message(WARNING "TODO: add test-drishti-eye for IOS")
 else()
 
   add_test(NAME ${DRISHTI_EYE_TEST_NAME} COMMAND ${DRISHTI_EYE_TEST_APP}

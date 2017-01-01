@@ -72,7 +72,9 @@ if(ANDROID)
     COMMAND adb push $<TARGET_FILE:drishti> "${${DRISHTI_SDK_TEST_NAME}_INSTALL_PATH}/"
     )
 
-else()
+elseif(IOS)
+  message(WARNING "TODO: add ${DRISHTI_SDK_TEST_APP} for IOS")
+else()    
 
   add_test(NAME ${DRISHTI_SDK_TEST_NAME} COMMAND ${DRISHTI_SDK_TEST_APP}
     "${DRISHTI_EYE_MODEL}"

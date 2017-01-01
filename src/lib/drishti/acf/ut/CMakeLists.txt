@@ -4,6 +4,10 @@
 # Currently uses QT for windows-less context (GPGPU stuff),
 # but should also tests CPU based ACF code in isolation.
 
+if(IOS)
+  set(TEST_APP_TYPE "MACOSX_BUNDLE")
+endif()
+
 set(DRISHTI_ACF_TEST_NAME DrishtiACFTest)
 set(DRISHTI_ACF_TEST_APP test-drishti-acf)
 
@@ -23,7 +27,7 @@ if(DRISHTI_ACF_DO_GPU)
   list(APPEND SOURCES ${DRISHTI_QTPLUS_HDRS} ${DRISHTI_QTPLUS_SRCS})
 endif()
   
-add_executable(${DRISHTI_ACF_TEST_APP} ${SOURCES})
+add_executable(${DRISHTI_ACF_TEST_APP} ${TEST_APP_TYPE} ${SOURCES})
 set_property(TARGET ${DRISHTI_ACF_TEST_APP} PROPERTY FOLDER "app/tests")
 target_link_libraries(${DRISHTI_ACF_TEST_APP}
   ${OpenCV_LIBS}
@@ -77,7 +81,9 @@ if(ANDROID)
     "${DRISHTI_ACF_FACE_MODEL}"    
     )
   
-else()
+elseif(IOS)
+  message(WARNING "TODO: add ${DRISHTI_ACF_TEST_APP} for IOS")
+else()  
 
   add_test(NAME ${DRISHTI_ACF_TEST_NAME} COMMAND ${DRISHTI_ACF_TEST_APP}
     "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
