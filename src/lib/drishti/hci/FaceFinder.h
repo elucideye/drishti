@@ -112,6 +112,8 @@ public:
     
 protected:
     
+    void updateEyes(GLuint inputTexId, const ScenePrimitives &scene);
+    
     void notifyListeners(const ScenePrimitives &scene, const TimePoint &time, bool isFull);
     bool hasValidFaceRequest(const ScenePrimitives &scene, const TimePoint &time) const;
 
@@ -128,7 +130,8 @@ protected:
     void init2(drishti::face::FaceDetectorFactory &resources);
     void detect2(const FrameInput &frame, ScenePrimitives &scene);
 
-    void dump(std::vector<cv::Mat4b> &frames);
+    void dumpEyes(std::vector<cv::Mat4b> &frames, std::vector<std::array<eye::EyeModel,2>> &eyes);
+    void dumpFaces(std::vector<cv::Mat4b> &frames);
     virtual int detect(const FrameInput &frame, ScenePrimitives &scene);
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);
     virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf
@@ -182,7 +185,7 @@ protected:
     std::shared_ptr<drishti::face::FaceModelEstimator> m_faceEstimator;
     
     std::shared_ptr<ogles_gpgpu::ACF> m_acf;
-    std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo;
+    std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo; // store last N faces
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
     std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL

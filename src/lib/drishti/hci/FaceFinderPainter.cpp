@@ -86,11 +86,8 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
         for(const auto &f : scene.faces())
         {
             m_painter->addFace(f);
-            m_eyeFilter->addFace(f);
         }
 
-        // Configure eye enhancer
-        m_eyeFilter->process(inputTexture, 1, GL_TEXTURE_2D);
         m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
 
 #if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR

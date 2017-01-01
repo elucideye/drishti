@@ -86,25 +86,25 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat &I, const cv::Mat &M,
 #endif
 
     std::vector< rcpr::Vector1d > params(5, rcpr::Vector1d(irises.size()));
-    std::function<void(int)> worker = [&](int i)
+
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         // Find iris:
         std::vector<bool> mask;
         std::vector<cv::Point2f> points = geometry::ellipseToPoints(irises[i]);
         (*m_irisEstimator)(I, M, points, mask);
-
+        
         rcpr::Vector1d phi = drishti::rcpr::ellipseToPhi(geometry::pointsToEllipse(points));
         for(int j = 0; j < 5; j++)
         {
             params[j][i] = phi[j];
         }
-
+        
 #if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
         estimates.push_back(drishti::rcpr::phiToEllipse(phi));
 #endif
     };
 
-    drishti::core::ParallelHomogeneousLambda harness(worker);
     m_irisEstimator->setDoPreview(true);
 
     // XGBoost is not reentrant:

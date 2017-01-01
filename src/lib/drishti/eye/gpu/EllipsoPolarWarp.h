@@ -22,7 +22,7 @@ class EllipsoPolarWarp : public TriangleStripWarp
 {
 public:
 
-    using EyeDelegate = std::function<EyeWarp(void)>;
+    using EyeDelegate = std::function<drishti::eye::EyeWarp(void)>;
 
     EllipsoPolarWarp();
     virtual const char *getProcName()
@@ -43,7 +43,7 @@ protected:
     void renderIris(const DRISHTI_EYE::EyeModel &eye);
 
     EyeDelegate m_eyeDelegate;
-    EyeWarp m_eye;
+    drishti::eye::EyeWarp m_eye;
 };
 
 END_OGLES_GPGPU

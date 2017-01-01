@@ -11,32 +11,37 @@
 #ifndef __drishti_face_gpu_EyeFilter_h__
 #define __drishti_face_gpu_EyeFilter_h__
 
-#include "ogles_gpgpu/common/proc/base/multipassproc.h"
-#include "ogles_gpgpu/common/proc/transform.h"
-#include "ogles_gpgpu/common/proc/lowpass.h"
-#include "ogles_gpgpu/common/proc/highpass.h"
-#include "ogles_gpgpu/common/proc/diff.h"
-#include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/common_includes.h"
+
+BEGIN_OGLES_GPGPU
+class GaussOptProc;
+class LowPassFilterProc;
+class LowPassFilterProc;
+class DiffProc;
+class FifoProc;
+END_OGLES_GPGPU
 
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/face/gpu/MultiTransformProc.h"
-
 #include "drishti/face/Face.h"
 #include "drishti/eye/gpu/EyeWarp.h"
+
+#include "ogles_gpgpu/common/proc/base/multipassproc.h"
 
 #include <opencv2/core.hpp>
 
 #include <memory>
+#include <deque>
 
 BEGIN_OGLES_GPGPU
-
-#define DO_BANDPASS_FILTER 1
 
 class EyeFilter : public ogles_gpgpu::MultiPassProc
 {
 public:
 
+    using EyewWarpPair = std::array<drishti::eye::EyeWarp, 2>;
+    using EyePair = std::array<drishti::eye::EyeModel, 2>;
+    
     class Impl;
 
     enum Mode
@@ -47,28 +52,20 @@ public:
     };
 
     EyeFilter(const Size2d &sizeOut, Mode mode, float upper=0.5, float lower=0.25, float gain=10.0, float offset=0.f);
-    virtual ~EyeFilter()
-    {
-        procPasses.clear();
-    }
+
+    virtual ~EyeFilter();
 
     void setAutoScaling(bool flag)
     {
         m_doAutoScaling = flag;
     }
 
-    // ogles_gpgpu api stuff
-
-    //virtual const ProcInterface* getInputFilter() const;
-    //virtual const ProcInterface* getOutputFilter() const;
-    virtual ProcInterface* getInputFilter() const;
-    virtual ProcInterface* getOutputFilter() const;
-
-    std::array<EyeWarp, 2> &getEyeWarps()
+    EyewWarpPair &getEyeWarps()
     {
         return m_eyes;
     }
-    const std::array<EyeWarp, 2> &getEyeWarps() const
+    
+    const EyewWarpPair &getEyeWarps() const
     {
         return m_eyes;
     }
@@ -81,6 +78,9 @@ public:
         return "EyeFilter";
     }
 
+    virtual ProcInterface* getInputFilter() const;
+    virtual ProcInterface* getOutputFilter() const;
+    
     virtual void setOutputSize(float scaleFactor);
     virtual void setOutputSize(int outW, int outH);
 
@@ -93,13 +93,16 @@ public:
         m_faces.push_back(face);
     }
 
+    void dump(std::vector<cv::Mat4b> &images, std::vector<EyePair> &eyes);
+
     void renderIris();
 
 protected:
 
     std::vector<drishti::face::FaceModel> m_faces;
 
-    std::array<EyeWarp, 2> m_eyes;
+    EyewWarpPair m_eyes;
+    std::deque<EyewWarpPair> m_eyeHistory;
 
     bool m_doAutoScaling = false;
 
@@ -111,6 +114,7 @@ protected:
     std::unique_ptr<LowPassFilterProc> lowPassProc;
     std::unique_ptr<LowPassFilterProc> lowPassProc2;
     std::unique_ptr<DiffProc> diffProc;
+    std::unique_ptr<FifoProc> fifoProc; // maintain buffer
 
     ProcInterface *lastProc = nullptr;
     ProcInterface *firstProc = nullptr;

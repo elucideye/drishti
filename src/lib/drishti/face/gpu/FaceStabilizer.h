@@ -17,7 +17,7 @@
 
 #include <opencv2/core.hpp>
 
-//BEGIN_OGLES_GPGPU
+DRISHTI_FACE_NAMESPACE_BEGIN
 
 class FaceStabilizer
 {
@@ -35,8 +35,8 @@ public:
     {
         m_autoScaling = flag;
     }
-    std::array<EyeWarp, 2> renderEyes(const drishti::face::FaceModel &face, const cv::Size &sizeIn) const;
-    std::array<EyeWarp, 2> renderEyes(const std::array<cv::Point2f, 2> &eyes, const cv::Size &sizeIn) const;
+    std::array<eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel &face, const cv::Size &sizeIn) const;
+    std::array<eye::EyeWarp, 2> renderEyes(const std::array<cv::Point2f, 2> &eyes, const cv::Size &sizeIn) const;
 
 protected:
 
@@ -50,6 +50,6 @@ protected:
     cv::Size m_sizeOut;
 };
 
-//END_OGLES_GPGPU
+DRISHTI_FACE_NAMESPACE_END
 
 #endif // __drishti_face_gpu_FaceStabilizer_h__

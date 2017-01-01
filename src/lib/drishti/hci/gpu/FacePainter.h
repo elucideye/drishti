@@ -184,7 +184,7 @@ public:
     //========= EYES ============
     //===========================
 
-    void setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<EyeWarp, 2> &eyes)
+    void setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
     {
         // A) This stretches and preserves the aspect ratio across the top of the frame:
         //Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height/size.width);
@@ -218,7 +218,7 @@ private:
     cv::Matx33f uprightImageToTexture();
 
     void renderFaces();
-    std::array<EyeWarp, 2> renderEyes(const drishti::face::FaceModel &face); // return transformations
+    std::array<drishti::eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel &face); // return transformations
     void renderEye(const cv::Rect &roi, const cv::Matx33f &H, const DRISHTI_EYE::EyeModel &eye);
     void annotateEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, const DRISHTI_EYE::EyeModel &eye);
 
@@ -253,7 +253,7 @@ private:
     // #### Draw eye texture
     DisplayTexture m_eyesInfo;
 
-    std::array<EyeWarp, 2> m_eyes;
+    std::array<drishti::eye::EyeWarp, 2> m_eyes;
     cv::Rect m_eyesRoi;
 
     // #### Draw shader ####

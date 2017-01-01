@@ -602,12 +602,11 @@ cv::Mat ACF::getChannelsImpl()
         {
             // TODO: confirm in documentation that ios texture caches can be queried in parallel
             // Experimentally this seems to be the case.
-            std::function<void(int)> unpacker = [&](int i)
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
             {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
                 unpackImage(*planeIndex[i].second, planeIndex[i].first);
             };
-            drishti::core::ParallelHomogeneousLambda harness(unpacker);
 
 #if OGLES_GPGPU_IOS
             // iOS texture cache can be queried in parallel:
@@ -618,12 +617,12 @@ cv::Mat ACF::getChannelsImpl()
         }
         else
         {
-            std::function<void(int)> unpacker = [&](int i)
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
             {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
                 unpackImage(getImage(*planeIndex[i].second), planeIndex[i].first);
             };
-            drishti::core::ParallelHomogeneousLambda harness(unpacker);
+
             harness({0, int(planeIndex.size())});
         }
 

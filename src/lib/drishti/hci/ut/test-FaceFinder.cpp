@@ -10,8 +10,14 @@
 
 // https://code.google.com/p/googletest/wiki/Primer
 
-#define DRISHTI_HCI_TEST_DISPLAY_OUTPUT 0
 #define DRISHTI_HCI_TEST_WARM_UP_GPU 0 // for timing only
+#define DRISHTI_HCI_TEST_DISPLAY_OUTPUT 0
+
+const char *sFaceDetector;
+const char *sFaceDetectorMean;
+const char *sFaceRegressor;
+const char *sEyeRegressor;
+const char *sImageFilename;
 
 #if DRISHTI_HCI_DO_GPU
 #  include "drishti/qtplus/QGLContext.h"
@@ -33,21 +39,17 @@
 #include "drishti/core/Logger.h"
 
 #include "FaceMonitorHCITest.h"
+#include "test-hessian-cpu.h"
 
 #include <gtest/gtest.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 #include <fstream>
 #include <memory>
 #include <condition_variable>
-
-const char *sFaceDetector;
-const char *sFaceDetectorMean;
-const char *sFaceRegressor;
-const char *sEyeRegressor;
-const char *sImageFilename;
 
 #ifdef ANDROID
 #  define DFLT_TEXTURE_FORMAT GL_RGBA
@@ -57,9 +59,6 @@ const char *sImageFilename;
 
 #include <iostream>
 #include <chrono>
-
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 
 #define BEGIN_EMPTY_NAMESPACE namespace {
 #define END_EMPTY_NAMESPACE }
@@ -71,7 +70,7 @@ struct WaitKey
     WaitKey() {}
     ~WaitKey()
     {
-#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
         cv::waitKey(0);
 #endif
     }
@@ -105,11 +104,10 @@ protected:
         // Create configuration:
         m_config.logger = drishti::core::Logger::create("test-drishti-hci");
         m_config.outputOrientation = 0;
-        m_config.frameDelay = 1;
+        m_config.frameDelay = 2;
         m_config.doLandmarks = true;
         m_config.doFlow = true;
         m_config.doFlash = true;
-        
         
 #if DRISHTI_HCI_DO_GPU
         m_context = std::make_shared<QGLContext>();
@@ -178,7 +176,7 @@ protected:
     
     void runTest(bool doCpu, bool doAsync)
     {
-#if DRISHTI_ACF_TEST_DISPLAY_OUTPUT
+#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
         WaitKey waitKey;
 #endif
         
@@ -189,10 +187,10 @@ protected:
         FaceMonitorHCITest monitor;
         detector->registerFaceMonitorCallback(&monitor);
         
-        cv::Mat input = image;
-        ogles_gpgpu::FrameInput frame({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+        ogles_gpgpu::FrameInput frame({image.cols, image.rows}, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
         
-        for(int i = 0; i < 10; i++)
+        const int iterations = 10;
+        for(int i = 0; i < iterations; i++)
         {
             (*detector)(frame);
             
@@ -204,21 +202,54 @@ protected:
                 GTEST_ASSERT_GT(monitor.getFaces().size(), 0);
             }
 
-#if 0
-            static int sessionId = 0;
-            int frameId = 0;
-            for(const auto &f : monitor.getFaces())
-            {
-                std::stringstream ss;
-                ss << "/tmp/grab" << std::setfill('0') << std::setw(4) << sessionId << "_" << frameId++ << ".png";
-                cv::imwrite(ss.str(), f.image);
-            }
-            sessionId++;
-#endif
+#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
+            analyzeFaceRequest(monitor.getFaces());
+#endif // DRISHTI_HCI_TEST_DISPLAY_OUTPUT
             
             monitor.clear();
         }
     }
+    
+#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
+    void analyzeFaceRequest(const std::vector<drishti::hci::FaceMonitor::FaceImage> &images)
+    {
+        std::vector<cv::Mat> faces, eyes;
+        for(auto &f : images)
+        {
+            if(!f.image.empty())
+            {
+                faces.push_back(f.image);
+            }
+            if(!f.eyes.empty())
+            {
+                eyes.push_back(f.eyes);
+            }
+        }
+        
+        if((eyes.size() == 3) && !images[0].extra.empty())
+        {
+            WaitKey waitKey;
+            
+            { // eye stack
+                cv::Mat canvas;
+                cv::vconcat(eyes, canvas);
+                cv::imshow("eyes", canvas);
+            }
+            
+            { // gpu results:
+                cv::imshow("ogles_gpgpu_FlashFilter_det1", images[0].extra);
+            }
+        }
+        
+        if(faces.size() > 0)
+        {
+            cv::Mat canvas;
+            cv::hconcat(faces, canvas);
+            cv::resize(canvas, canvas, {512, canvas.rows * 512/canvas.cols});
+            cv::imshow("faces", canvas);
+        }
+    }
+#endif
     
     drishti::hci::FaceFinder::Config m_config;
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;

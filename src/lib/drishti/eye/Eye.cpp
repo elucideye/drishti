@@ -338,7 +338,7 @@ void EyeModel::flop(int width)
 void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &color, int width) const
 {
 #if !DRISHTI_BUILD_MIN_SIZE
-    CV_Assert(canvas.type() == CV_8UC3);
+    CV_Assert(canvas.type() == CV_8UC3 || canvas.type() == CV_8UC4);
     if(eyelids.size() < 3)
     {
         return;
