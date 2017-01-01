@@ -1,9 +1,9 @@
 [submodule "src/3rdparty/xgboost"]
   path = src/3rdparty/xgboost
-  url = https://github.com/headupinclouds/xgboost.git
+  url = https://github.com/hunter-packages/xgboost.git
 [submodule "src/3rdparty/thread-pool-cpp"]
   path = src/3rdparty/thread-pool-cpp
-  url = https://github.com/headupinclouds/thread-pool-cpp.git
+  url = https://github.com/hunter-packages/thread-pool-cpp.git
 [submodule "src/3rdparty/ogles_gpgpu"]
   path = src/3rdparty/ogles_gpgpu
   url = https://github.com/hunter-packages/ogles_gpgpu.git
