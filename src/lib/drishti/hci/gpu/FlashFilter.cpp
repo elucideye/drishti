@@ -8,7 +8,13 @@
 
 */
 
+#define FLASH_FILTER_USE_DELAY 1
+
 #include "drishti/hci/gpu/FlashFilter.h"
+
+#if FLASH_FILTER_USE_DELAY
+#  include "drishti/hci/gpu/fade.h"
+#endif
 
 #include "ogles_gpgpu/common/proc/hessian.h"
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
@@ -29,7 +35,10 @@ public:
     , smoothProc2(1)
     , fifoProc(3)
     , fir3Proc(false)
-    , hessianProc(1000.0f)
+    , hessianProc(1000.0f, false)
+#if FLASH_FILTER_USE_DELAY
+    , fadeProc(0.9)
+#endif
     {
         fir3Proc.setAlpha(10.f);
         fir3Proc.setBeta(0.f); // drop negative values
@@ -53,6 +62,10 @@ public:
         
         fir3Proc.add(&smoothProc2);
         smoothProc2.add(&hessianProc);
+        
+#if FLASH_FILTER_USE_DELAY
+        hessianProc.add(&fadeProc);
+#endif
     }
     
     ogles_gpgpu::GaussOptProc smoothProc1;
@@ -60,6 +73,9 @@ public:
     ogles_gpgpu::FIFOPRoc fifoProc;
     ogles_gpgpu::Fir3Proc fir3Proc;
     ogles_gpgpu::HessianProc hessianProc;
+#if FLASH_FILTER_USE_DELAY
+    ogles_gpgpu::FadeFilterProc fadeProc;
+#endif
 };
 
 FlashFilter::FlashFilter(FilterKind kind)
@@ -71,6 +87,7 @@ FlashFilter::FlashFilter(FilterKind kind)
     procPasses.push_back(&m_impl->smoothProc2);
     procPasses.push_back(&m_impl->fifoProc);
     procPasses.push_back(&m_impl->fir3Proc);
+    procPasses.push_back(&m_impl->fadeProc);
 }
 
 FlashFilter::~FlashFilter()
@@ -85,7 +102,11 @@ ProcInterface* FlashFilter::getInputFilter() const
 
 ProcInterface* FlashFilter::getOutputFilter() const
 {
+#if FLASH_FILTER_USE_DELAY
+    return &m_impl->fadeProc;
+#else
     return &m_impl->hessianProc;
+#endif
 }
 
 int FlashFilter::render(int position)
@@ -134,11 +155,6 @@ cv::Mat FlashFilter::paint()
         m_impl->smoothProc2.getResultData(smoothProc2.ptr());
         m_impl->hessianProc.getResultData(hessianProc.ptr());
         
-        cv::Mat1b alpha;
-        cv::extractChannel(hessianProc, alpha, 3);
-        std::vector<cv::Mat> channels { alpha, alpha, alpha, cv::Mat1b(alpha.size(), 255) };
-        cv::merge(channels, hessianProc);
-        
         std::vector<cv::Mat> all
         {
             smoothProc1,
@@ -149,6 +165,12 @@ cv::Mat FlashFilter::paint()
             smoothProc2,
             hessianProc
         };
+        
+#if FLASH_FILTER_USE_DELAY
+        cv::Mat4b fadeProc(ogles_gpgpu_size(m_impl->fadeProc.getOutFrameSize()));
+        m_impl->fadeProc.getResultData(fadeProc.ptr());
+        all.emplace_back(fadeProc);
+#endif
         
         cv::vconcat(all, canvas);
     }
