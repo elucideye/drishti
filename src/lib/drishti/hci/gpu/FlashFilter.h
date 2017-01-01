@@ -15,6 +15,8 @@
 
 #include <opencv2/core.hpp> // for paint()
 
+#include <memory>
+
 // #### Simple flash filter ####
 BEGIN_OGLES_GPGPU
 
