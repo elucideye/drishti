@@ -31,7 +31,7 @@
 
 BEGIN_OGLES_GPGPU
 
-static void convert(const drishti::eye::EyeWarp::EyeWarp &src, ogles_gpgpu::MappedTextureRegion &dst);
+static void convert(const drishti::eye::EyeWarp &src, ogles_gpgpu::MappedTextureRegion &dst);
 
 EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float upper, float lower, float gain, float offset)
     : m_sizeOut(sizeOut)
