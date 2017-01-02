@@ -4,9 +4,12 @@ if(IOS)
   set(TEST_APP_TYPE "MACOSX_BUNDLE")
 endif()
 
-
 add_executable(${DRISHTI_TEST_APP} ${TEST_APP_TYPE} test-drishti-eye.cpp test-EyeModelEstimator.cpp)
 target_link_libraries(${DRISHTI_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
+set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")
+if(DRISHTI_HAVE_REGEX_H)
+  target_compile_definitions(${DRISHTI_TEST_APP} PUBLIC DRISHTI_HAVE_REGEX_H)
+endif()
 
 include(drishti_set_unit_test_assets)
 drishti_set_unit_test_assets(
@@ -71,10 +74,10 @@ if(ANDROID OR IOS)
       NAME "${DRISHTI_TEST_NAME}"
       BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
       COMMAND "${DRISHTI_TEST_APP}"
-      "Documents/${DRISHTI_EYE_MODEL_}"
-      "Documents/${DRISHTI_TEST_EYE_}"
-      "Documents/${DRISHTI_TEST_EYE_MODEL_PRIVATE_}"
-      "Documents/" # output to install path (current working directory)
+      "~/Documents/${DRISHTI_EYE_MODEL_}"
+      "~/Documents/${DRISHTI_TEST_EYE_}"
+      "~/Documents/${DRISHTI_TEST_EYE_MODEL_PRIVATE_}"
+      "~/Documents/" # output to install path (current working directory)
       "0"
       DEPENDENCIES
       "${DRISHTI_EYE_MODEL}"
@@ -95,4 +98,3 @@ else()
 
 endif()
 
-set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")

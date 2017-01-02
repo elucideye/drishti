@@ -7,6 +7,9 @@ endif()
 add_executable(${DRISHTI_TEST_APP} ${TEST_APP_TYPE} test-convert.cpp test-drishti-core.cpp)
 target_link_libraries(${DRISHTI_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
 set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")
+if(DRISHTI_HAVE_REGEX_H)
+  target_compile_definitions(${DRISHTI_TEST_APP} PUBLIC DRISHTI_HAVE_REGEX_H)
+endif()
 
 enable_testing()
 

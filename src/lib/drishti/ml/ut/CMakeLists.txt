@@ -7,6 +7,9 @@ endif()
 add_executable(${DRISHTI_TEST_APP} ${TEST_APP_TYPE} test-drishti-ml.cpp test-RTEShapeEstimator.cpp)
 target_link_libraries(${DRISHTI_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
 set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")
+if(DRISHTI_HAVE_REGEX_H)
+  target_compile_definitions(${DRISHTI_TEST_APP} PUBLIC DRISHTI_HAVE_REGEX_H=1)
+endif()
 
 include(drishti_set_unit_test_assets)
 drishti_set_unit_test_assets(
@@ -63,10 +66,10 @@ if(ANDROID OR IOS)
       NAME "${DRISHTI_TEST_NAME}"
       BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"    
       COMMAND "${DRISHTI_TEST_APP}"
-      "Documents/${DRISHTI_FACE_LANDMARKER_}"
-      "Documents/${DRISHTI_TEST_FACE_}"    
-      "Documents/${DRISHTI_TEST_FACE_MODEL_}"
-      "Documents/"
+      "~/Documents/${DRISHTI_FACE_LANDMARKER_}"
+      "~/Documents/${DRISHTI_TEST_FACE_}"    
+      "~/Documents/${DRISHTI_TEST_FACE_MODEL_}"
+      "~/Documents/"
       "0"
       DEPENDENCIES
       "${DRISHTI_FACE_LANDMARKER}"
