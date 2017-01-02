@@ -142,6 +142,9 @@ option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 # Testing
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 
+include(CheckIncludeFileCxx)
+check_include_file_cxx(regex DRISHTI_HAVE_REGEX_H)
+
 if(DRISHTI_BUILD_TESTS)
   # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
   # ${DRISHTISDK}/src/tests
