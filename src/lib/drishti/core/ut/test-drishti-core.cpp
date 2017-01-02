@@ -17,7 +17,7 @@
 #include <vector>
 #include <string>
 
-intt test_main(int argc, char** argv)
+int test_main(int argc, char** argv)
 {
     std::cout << "DRISHTI_TEST:" <<  getenv("HOME") << std::endl;
     ::testing::InitGoogleTest(&argc, argv);
