@@ -79,8 +79,8 @@ if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed")
 endif()
 
-message("Command output (with exit code):")
-message("*** BEGIN ***")
+message("Command output (with exit code): ${result}")
+omessage("*** BEGIN ***")
 message("${output}")
 message("*** END ***")
 
