@@ -79,33 +79,36 @@ if(ANDROID OR IOS)
       )
 
   elseif(IOS)
+
     message(WARNING "TODO: add ${DRISHTI_TEST_APP} for IOS")
 
-    set(DRISHTI_TEST_BUNDLE_IDENTIFIER "com.elucideye.drishti.drishti")
-    set_target_properties(
-      "${DRISHTI_TEST_APP}"
-      PROPERTIES
-      MACOSX_BUNDLE_INFO_PLIST
-      "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"
-      XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER    
-      "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
-      XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
-      )    
+    # TODO: Needs upload of dynamic framework, check rpath, etc
     
-    drishti_ios_add_test(
-      NAME ${DRISHTI_TEST_NAME}
-      BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
-      COMMAND ${DRISHTI_TEST_APP}
-      "${DRISHTI_EYE_MODEL_}"
-      "${DRISHTI_TEST_EYE_IMAGE_}"
-      "${DRISHTI_TEST_EYE_JSON_}"
-      "." # output to install path (current working directory)
-      "0"
-      DEPENDENCIES # ${DRISHTI_TEST_DATA}
-      "${DRISHTI_EYE_MODEL}"
-      "${DRISHTI_TEST_EYE_IMAGE}"
-      "${DRISHTI_TEST_EYE_JSON}"
-      )
+    # set(DRISHTI_TEST_BUNDLE_IDENTIFIER "com.elucideye.drishti.drishti")
+    # set_target_properties(
+    #   "${DRISHTI_TEST_APP}"
+    #   PROPERTIES
+    #   MACOSX_BUNDLE_INFO_PLIST
+    #   "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"
+    #   XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER    
+    #   "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
+    #   XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
+    #   )    
+    
+    # drishti_ios_add_test(
+    #   NAME ${DRISHTI_TEST_NAME}
+    #   BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
+    #   COMMAND ${DRISHTI_TEST_APP}
+    #   "~/${DRISHTI_EYE_MODEL_}"
+    #   "~/${DRISHTI_TEST_EYE_IMAGE_}"
+    #   "~/${DRISHTI_TEST_EYE_JSON_}"
+    #   "~/" 
+    #   "0"
+    #   DEPENDENCIES # ${DRISHTI_TEST_DATA}
+    #   "${DRISHTI_EYE_MODEL}"
+    #   "${DRISHTI_TEST_EYE_IMAGE}"
+    #   "${DRISHTI_TEST_EYE_JSON}"
+    #   )
     
   endif()
 
