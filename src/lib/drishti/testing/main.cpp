@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     }
 
     // Print argv[*] after tilde expansion:
-    for(int i = 0; i < argcs.size(); i++)
+    for(int i = 0; i < args.size(); i++)
     {
         std::cout << "argv[" << i << "] = " << args[i] << std::endl;
     }
