@@ -15,6 +15,9 @@
 
 int main(int argc, char** argv)
 {
+    std::string home = getenv("HOME");
+    std::cout << "DRISHTI_TEST:" <<  argv[0] << " = " << home << std::endl;
+    
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
