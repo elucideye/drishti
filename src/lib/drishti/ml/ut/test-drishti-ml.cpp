@@ -40,11 +40,6 @@ int test_main(int argc, char** argv)
     truthFilename = argv[3];
     outputDirectory = argv[4];
     isTextArchive = (argc > 5) ? (std::atoi(argv[5]) > 0) : false;
-
-    for(int i = 0; i < argc; i++)
-    {
-        std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
-    }
     
     return RUN_ALL_TESTS();
 }

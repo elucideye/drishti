@@ -25,6 +25,13 @@ int main(int argc, char** argv)
         args[i] = std::regex_replace(argv[i], std::regex("~/"), home + "/");
         ptrs[i] = const_cast<char *>(args[i].c_str());
     }
+
+    // Print argv[*] after tilde expansion:
+    for(int i = 0; i < argcs.size(); i++)
+    {
+        std::cout << "argv[" << i << "] = " << args[i] << std::endl;
+    }
+    
     return test_main(argc, &ptrs[0]);
 }
 #else

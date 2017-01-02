@@ -24,14 +24,14 @@ const char *sEyeRegressor;
 int test_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
-
+        
     assert(argc == 5);
 
     sFaceDetector = argv[1];
     sFaceDetectorMean = argv[2];
     sFaceRegressor = argv[3];
     sEyeRegressor = argv[4];
-    
+
     return RUN_ALL_TESTS();
 }
 
