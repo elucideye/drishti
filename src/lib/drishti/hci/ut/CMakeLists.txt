@@ -91,7 +91,9 @@ if(ANDROID)
     "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
     )
 
-else()
+elseif(IOS)
+  message(WARNING "TODO: add ${DRISHTI_HCI_TEST_APP} for IOS")
+else()    
 
   add_test(NAME ${DRISHTI_HCI_TEST_NAME} COMMAND ${DRISHTI_HCI_TEST_APP}
     "${DRISHTI_ACF_FACE_MODEL}"
