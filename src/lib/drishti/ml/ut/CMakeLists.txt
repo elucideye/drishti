@@ -81,11 +81,11 @@ if(ANDROID OR IOS)
   endif()
   
 else()    
-    add_test(NAME ${DRISHTI_TEST_NAME} COMMAND ${DRISHTI_TEST_APP}
-      "${DRISHTI_FACE_LANDMARKER}"
-      "${DRISHTI_TEST_FACE}"    
-      "${DRISHTI_TEST_FACE_MODEL}"
-      "${CMAKE_CURRENT_BINARY_DIR}"
-      "0"
-      )
-  endif()
+  add_test(NAME ${DRISHTI_TEST_NAME} COMMAND ${DRISHTI_TEST_APP}
+    "${DRISHTI_FACE_LANDMARKER}"
+    "${DRISHTI_TEST_FACE}"    
+    "${DRISHTI_TEST_FACE_MODEL}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "0"
+    )
+endif()
