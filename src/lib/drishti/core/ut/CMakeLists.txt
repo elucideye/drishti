@@ -15,9 +15,26 @@ if(ANDROID)
     CLEAN
     )
 elseif(IOS)
+
+  set(DRISHTI_CORE_BUNDLE_IDENTIFIER "com.github.elucideye.drishti.core") 
+  set_target_properties(
+    test-drishti-core
+    PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST
+    "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"
+    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
+    "com.github.elucideye.drishti.core"
+    XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER
+    "com.github.elucideye.drishti.core"
+    XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
+    )
+
+  set(DRISHTI_TEST_FACE "${assets_dir}/images/lena512color.png")
   drishti_ios_add_test(
     NAME DrishtiCoreTest
     COMMAND test-drishti-core
+    BUNDLE_ID "${DRISHTI_CORE_BUNDLE_IDENTIFIER}"
+    DEPENDENCIES "${DRISHTI_TEST_FACE}"
     CLEAN
     )
 else()
