@@ -107,3 +107,15 @@ if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed")
 endif()
 
+###
+### Clean up the app: ` ios-deploy --uninstall_only --bundle_id my.bundle.id`
+###
+
+# string(COMPARE EQUAL "@x_CLEAN@" "" is_empty)
+# if(NOT is_empty)
+#   set(cmd @IOS_DEPLOY_COMMAND@ --uninstall_only --bundle_id @x_BUNDLE_ID@)
+#   execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+#   if(NOT result EQUAL 0)
+#     message(FATAL_ERROR "Command failed: ${cmd}")
+#   endif()
+# endif()
