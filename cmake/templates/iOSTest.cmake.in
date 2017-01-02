@@ -84,7 +84,7 @@ if(NOT is_empty)
   foreach(arg ${app_arguments})
     set(arguments "${arguments} \"${arg}\"")
   endforeach()
-  list(APPEND cmd --args "${arguments}")
+  list(APPEND cmd --args ${arguments})
 endif()
 
 message("RUN: ${cmd}")
@@ -97,12 +97,13 @@ execute_process(
   ERROR_STRIP_TRAILING_WHITESPACE  
   )
 
-if(NOT result EQUAL 0)
-  message(FATAL_ERROR "Command failed")
-endif()
-
 # TODO: need to retrieve return result
 message("Command output (with exit code): ${result}")
 message("*** BEGIN ***")
 message("${output}")
 message("*** END ***")
+
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed")
+endif()
+
