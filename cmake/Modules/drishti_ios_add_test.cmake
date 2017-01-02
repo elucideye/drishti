@@ -30,9 +30,10 @@ function(drishti_ios_add_test)
   # * x_NAME
   # * x_COMMAND
   # * x_DEPENDENCIES
+  # * x_BUNDLE_ID
   # * x_CLEAN  
   set(options CLEAN)
-  set(oneValueArgs NAME)
+  set(oneValueArgs NAME BUNDLE_ID)
   set(multiValueArgs COMMAND DEPENDENCIES)
   cmake_parse_arguments(x "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
   
