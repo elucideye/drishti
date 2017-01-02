@@ -13,11 +13,15 @@
 #include <iostream>
 #include <stdlib.h>
 
-int main(int argc, char** argv)
+#include <glob.h>
+#include <vector>
+#include <string>
+
+intt test_main(int argc, char** argv)
 {
-    std::string home = getenv("HOME");
-    std::cout << "DRISHTI_TEST:" <<  argv[0] << " = " << home << std::endl;
-    
+    std::cout << "DRISHTI_TEST:" <<  getenv("HOME") << std::endl;
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
+
+#include "drishti/testing/main.cpp"

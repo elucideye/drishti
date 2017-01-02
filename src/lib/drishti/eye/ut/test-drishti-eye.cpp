@@ -10,13 +10,15 @@
 
 #include <gtest/gtest.h>
 
+#include <stdlib.h>
+
 extern const char* modelFilename;
 extern const char* imageFilename;
 extern const char* truthFilename;
 extern const char* outputDirectory;
 extern bool isTextArchive;
 
-int main(int argc, char** argv)
+int test_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc >= 4);
@@ -28,3 +30,5 @@ int main(int argc, char** argv)
 
     return RUN_ALL_TESTS();
 }
+
+#include "drishti/testing/main.cpp"

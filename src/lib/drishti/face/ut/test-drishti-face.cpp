@@ -21,7 +21,7 @@ const char *sFaceDetectorMean;
 const char *sFaceRegressor;
 const char *sEyeRegressor;
 
-int main(int argc, char** argv)
+int test_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
 
@@ -34,6 +34,8 @@ int main(int argc, char** argv)
     
     return RUN_ALL_TESTS();
 }
+
+#include "drishti/testing/main.cpp"
 
 TEST(FaceDetectorAndTracker, Instantiation)
 {

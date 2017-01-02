@@ -32,7 +32,7 @@ static bool hasFile(const std::string &filename)
     return ifs.good();
 }
 
-int main(int argc, char** argv)
+int test_main(int argc, char** argv)
 {
 #if DRISHTI_BUILD_QT
     QApplication app(argc, argv);
@@ -55,3 +55,5 @@ int main(int argc, char** argv)
     
     return RUN_ALL_TESTS();
 }
+
+#include "drishti/testing/main.cpp"

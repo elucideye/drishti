@@ -19,6 +19,8 @@ extern bool isTextArchive;
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/ml/XGBooster.h"
 
+#include <stdlib.h>
+
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h"
 #endif
@@ -29,7 +31,7 @@ extern bool isTextArchive;
 #  include "drishti/core/drishti_cv_cereal.h"
 #endif
 
-int main(int argc, char** argv)
+int test_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc >= 4);
@@ -37,9 +39,17 @@ int main(int argc, char** argv)
     imageFilename = argv[2];
     truthFilename = argv[3];
     outputDirectory = argv[4];
-    isTextArchive = (argc > 5) ? (std::atoi(argv[5]) > 0) : false;    
+    isTextArchive = (argc > 5) ? (std::atoi(argv[5]) > 0) : false;
+
+    for(int i = 0; i < argc; i++)
+    {
+        std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
+    }
+    
     return RUN_ALL_TESTS();
 }
+
+#include "drishti/testing/main.cpp"
 
 TEST(XGBooster, XGBoosterInit)
 {
