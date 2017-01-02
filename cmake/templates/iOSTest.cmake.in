@@ -75,37 +75,34 @@ endif()
 ### Run the app w/ dependencies
 ###
 
-set(app_arguments "@APP_ARGUMENTS@")
-set(arguments)
-foreach(arg ${app_arguments})
-  set(arguments "${arguments} \"${arg}\"")
-endforeach()
+set(cmd @IOS_DEPLOY_COMMAND@ --noninteractive --unbuffered --bundle ${APP_PATH})
 
-# Command failed
-set(cmd "@IOS_DEPLOY_COMMAND@" --noninteractive --bundle "${APP_PATH}")
-
-#set(cmd "@IOS_DEPLOY_COMMAND@ --noninteractive --bundle ${APP_PATH}")
-
-# TODO:  --args "${arguments}"
-# TODO: iOS has no shell, so we can't "echo $?"
+string(COMPARE EQUAL "@APP_ARGUMENTS@" "" is_empty)
+if(NOT is_empty)
+  set(app_arguments "@APP_ARGUMENTS@")
+  set(arguments)
+  foreach(arg ${app_arguments})
+    set(arguments "${arguments} \"${arg}\"")
+  endforeach()
+  list(APPEND cmd --args "${arguments}")
+endif()
 
 message("RUN: ${cmd}")
-  
 execute_process(
-    COMMAND "${cmd}"
-    RESULT_VARIABLE result
-    OUTPUT_VARIABLE output
-    ERROR_VARIABLE output
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_STRIP_TRAILING_WHITESPACE
-)
+  COMMAND ${cmd}
+  RESULT_VARIABLE result
+  OUTPUT_VARIABLE output
+  ERROR_VARIABLE output
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_STRIP_TRAILING_WHITESPACE  
+  )
+
 if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed")
 endif()
 
 # TODO: need to retrieve return result
-message("Command output (with exit code):")
+message("Command output (with exit code): ${result}")
 message("*** BEGIN ***")
 message("${output}")
 message("*** END ***")
-
