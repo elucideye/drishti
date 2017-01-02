@@ -102,10 +102,10 @@ if(ANDROID OR IOS)
       NAME "${DRISHTI_TEST_NAME}"
       BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
       COMMAND ${DRISHTI_TEST_APP}
-      "~/${DRISHTI_TEST_FACE_IMAGE_COLOR_}"
-      "~/${DRISHTI_TEST_FACE_IMAGE_COLOR_}" #= legacy
-      "~/${DRISHTI_ACF_FACE_MODEL_}"
-      "~/" 
+      "~/Documents/${DRISHTI_TEST_FACE_IMAGE_COLOR_}"
+      "~/Documents/${DRISHTI_TEST_FACE_IMAGE_COLOR_}" #= legacy
+      "~/Documents/${DRISHTI_ACF_FACE_MODEL_}"
+      "~/Documents/" 
       DEPENDENCIES
       "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
       "${DRISHTI_ACF_FACE_MODEL}"

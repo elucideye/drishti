@@ -106,12 +106,13 @@ if(ANDROID OR IOS)
     
     drishti_ios_add_test(
       NAME ${DRISHTI_TEST_NAME}
+      BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"      
       COMMAND ${DRISHTI_TEST_APP}
-      "~/${DRISHTI_ACF_FACE_MODEL_}"
-      "~/${DRISHTI_MEAN_FACE_LANDMARKS_}"
-      "~/${DRISHTI_FACE_LANDMARKER_}"
-      "~/${DRISHTI_EYE_MODEL_}"
-      "~/${DRISHTI_TEST_FACE_IMAGE_COLOR_}"
+      "~/Documents/${DRISHTI_ACF_FACE_MODEL_}"
+      "~/Documents/${DRISHTI_MEAN_FACE_LANDMARKS_}"
+      "~/Documents/${DRISHTI_FACE_LANDMARKER_}"
+      "~/Documents/${DRISHTI_EYE_MODEL_}"
+      "~/Documents/${DRISHTI_TEST_FACE_IMAGE_COLOR_}"
       DEPENDENCIES
       "${DRISHTI_ACF_FACE_MODEL}"
       "${DRISHTI_FACE_LANDMARKER}"

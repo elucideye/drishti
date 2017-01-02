@@ -99,10 +99,10 @@ if(ANDROID OR IOS)
     #   NAME ${DRISHTI_TEST_NAME}
     #   BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
     #   COMMAND ${DRISHTI_TEST_APP}
-    #   "~/${DRISHTI_EYE_MODEL_}"
-    #   "~/${DRISHTI_TEST_EYE_IMAGE_}"
-    #   "~/${DRISHTI_TEST_EYE_JSON_}"
-    #   "~/" 
+    #   "~/Documents/${DRISHTI_EYE_MODEL_}"
+    #   "~/Documents/${DRISHTI_TEST_EYE_IMAGE_}"
+    #   "~/Documents/${DRISHTI_TEST_EYE_JSON_}"
+    #   "~/Documents/" 
     #   "0"
     #   DEPENDENCIES # ${DRISHTI_TEST_DATA}
     #   "${DRISHTI_EYE_MODEL}"
