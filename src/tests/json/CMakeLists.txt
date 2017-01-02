@@ -22,6 +22,10 @@ set(DRISHTI_JSON_TEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/sample.json")
 if(ANDROID OR IOS)
 
   get_filename_component(DRISHTI_JSON_TEST_FILE_ "${DRISHTI_JSON_TEST_FILE}" NAME)
+
+  if(EXISTS "${DRISHTI_JSON_TEST_FILE}")
+    message("file exists: ${DRISHTI_JSON_TEST_FILE}")
+  endif()
   
   if(ANDROID)
     drishti_android_add_test(
@@ -50,10 +54,10 @@ if(ANDROID OR IOS)
       NAME ${DRISHTI_TEST_NAME}
       BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"      
       COMMAND ${DRISHTI_TEST_APP}
-      "~/${DRISHTI_JSON_TEST_FILE_}"      
+      "~/Documents/${DRISHTI_JSON_TEST_FILE_}"      
       DEPENDENCIES
       "${DRISHTI_JSON_TEST_FILE}"      
-      CLEAN
+      #CLEAN
       )
     
   endif()

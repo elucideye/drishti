@@ -20,10 +20,18 @@ const char *filename;
 
 int test_main(int argc, char** argv)
 {
-    assert(argc == 2);
-    filename = argv[1];
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    try
+    {
+        assert(argc == 2);
+        filename = argv[1];
+        ::testing::InitGoogleTest(&argc, argv);
+        return RUN_ALL_TESTS();
+    }
+    catch(std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+    return 0;
 }
 
 #include "drishti/testing/main.cpp"
@@ -41,10 +49,19 @@ TEST(NLohmannJson, NLohmannJSonParse)
     
     assert(hasFile(filename));
     
-    nlohmann::json json(filename);
+    std::ifstream ifs(filename, std::ifstream::in);
+    nlohmann::json json;
+    ASSERT_EQ(ifs.is_open(), true);
+    if(!ifs.is_open())
+    {
+        std::cerr << "Failed to open test file: " << filename << std::endl;
+        return;
+    }
+    
+    ifs >> json;
     const auto &device = json[name];
     
-    ASSERT_NE(device.empty(), true);
+    ASSERT_EQ(device.empty(), false);
     if(device.empty())
     {
         std::cerr << "Failure to parse settings for device:" << name;
@@ -67,9 +84,6 @@ TEST(NLohmannJson, NLohmannJSonParse)
     float x = intrinsic["principal"]["x"].get<float>();
     ASSERT_FLOAT_EQ(x, 640.f);
     float y = intrinsic["principal"]["y"].get<float>();
-    ASSERT_FLOAT_EQ(y, 360.f);
-    
-    std::cout << "HELLO" << std::endl;
-    ASSERT_EQ(true, true);
+    ASSERT_FLOAT_EQ(y, 360.f);    
 }
 
