@@ -28,8 +28,15 @@ set_property(TARGET tutorial-flatbuffers-monster PROPERTY FOLDER "app/tutorial")
 ### Serialization comparison  ###
 #################################
 
+set(TEST_SERIALIZE_FLATBUFFERS_SOURCES
+  test-serialize-flatbuffers.cpp
+  Monster_c.h
+  Monster_c.cpp
+  monster_generated.h
+  )
+
 # Flatbuffers serialization code:
-add_executable(test-serialize-flatbuffers ${TEST_APP_TYPE} test-serialize-flatbuffers.cpp Monster_c.h Monster_c.cpp monster_generated.h)
+add_executable(test-serialize-flatbuffers ${TEST_APP_TYPE} ${TEST_SERIALIZE_FLATBUFFERS_SOURCES})
 target_link_libraries(test-serialize-flatbuffers flatbuffers::flatbuffers ${OpenCV_LIBS})
 target_compile_definitions(test-serialize-flatbuffers PUBLIC DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 install(TARGETS test-serialize-flatbuffers DESTINATION bin)
@@ -65,7 +72,7 @@ if(ANDROID)
     COMMAND test-serialize-cereal "monster.cereal")
   drishti_android_add_test(
     NAME DrishtiSerializationBoostTest
-    COMMAND test-serialize-boost "$monster.pba.z")
+    COMMAND test-serialize-boost "monster.pba.z")
 
 elseif(IOS)
   message(WARNING "TODO: add test-serialize-* for IOS")
