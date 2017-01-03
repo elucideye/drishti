@@ -21,7 +21,14 @@ int test_main(int argc, char** argv)
     return RUN_ALL_TESTS();
 }
 
-#include "drishti/testing/main.cpp"
+#ifdef __ANDROID__
+int main(int argc, char **argv)
+{
+    return test_main(argc, argv);
+}
+#else
+#  include "drishti/testing/main.cpp"
+#endif
 
 TEST(Ellipse, EllipseLineIntersection2)
 {
