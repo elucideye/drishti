@@ -1,4 +1,4 @@
-set(DRISHTI_APP_NAME DrishtiGeometryTest)
+set(DRISHTI_TEST_NAME DrishtiGeometryTest)
 set(DRISHTI_TEST_APP test-drishti-geometry)
 if(IOS)
   set(TEST_APP_TYPE "MACOSX_BUNDLE")
@@ -7,18 +7,21 @@ endif()
 add_executable("${DRISHTI_TEST_APP}" ${TEST_APP_TYPE} test-drishti-geometry.cpp)
 target_link_libraries("${DRISHTI_TEST_APP}" drishtisdk ${OpenCV_LIBS} GTest::gtest)
 set_property(TARGET "${DRISHTI_TEST_APP}" PROPERTY FOLDER "app/tests")
+if(DRISHTI_HAVE_REGEX_H)
+  target_compile_definitions(${DRISHTI_TEST_APP} PUBLIC DRISHTI_HAVE_REGEX_H)
+endif()
 
 enable_testing()
 
 if(ANDROID)
   drishti_android_add_test(
-    NAME ${DRISHTI_APP_NAME}
+    NAME "${DRISHTI_TEST_NAME}"
     COMMAND "${DRISHTI_TEST_APP}"
     CLEAN
     )
 elseif(IOS)
 
-  set(DRISHTI_TEST_BUNDLE_IDENTIFIER "com.github.elucideye.drishti.geometry") 
+  set(DRISHTI_TEST_BUNDLE_IDENTIFIER "com.elucideye.drishti.geometry") 
   set_target_properties(
     "${DRISHTI_TEST_APP}"
     PROPERTIES
@@ -30,7 +33,7 @@ elseif(IOS)
     )
   
   drishti_ios_add_test(
-    NAME ${DRISHTI_APP_NAME}
+    NAME ${DRISHTI_TEST_NAME}
     COMMAND ${DRISHTI_TEST_APP}
     BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
     CLEAN
