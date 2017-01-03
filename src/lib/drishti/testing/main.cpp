@@ -11,6 +11,7 @@
 
 */
 
+#include <iostream>
 #include <stdlib.h>
 
 #ifdef DRISHTI_HAVE_REGEX_H
