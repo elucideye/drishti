@@ -20,8 +20,6 @@ endif()
 # Query replace "${EFFECTIVE_PLATFORM_NAME}" -> "-iphoneos"
 # See discussion related to generator expressions (in ios_add_test()) here:
 # http://public.kitware.com/pipermail/cmake/2016-March/063113.html
-#
-# TODO: I never use the simulator, but this would be a useful option for a hunter submission
 
 # APP_SOURCE=/SomeLongPathy/MinSizeRel${EFFECTIVE_PLATFORM_NAME}/test-drishti-core.app/test-drishti-core"
 # APP_DIR=/SomeLongPathy/MinSizeRel${EFFECTIVE_PLATFORM_NAME}/test-drishti-core.app/test-drishti-core"
