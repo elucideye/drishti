@@ -15,8 +15,8 @@ enable_testing()
 
 if(ANDROID)
   drishti_android_add_test(
-    NAME ${DRISHTI_TEST_NAME}
-    COMMAND ${DRISHTI_TEST_APP}
+    NAME "${DRISHTI_TEST_NAME}"
+    COMMAND "${DRISHTI_TEST_APP}"
     CLEAN
     )
 elseif(IOS)
