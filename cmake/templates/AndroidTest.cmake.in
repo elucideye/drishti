@@ -80,11 +80,13 @@ if(NOT result EQUAL 0)
 endif()
 
 message("Command output (with exit code): ${result}")
-omessage("*** BEGIN ***")
+message("*** BEGIN ***")
 message("${output}")
 message("*** END ***")
 
 string(REGEX REPLACE ".*\n" "" last_output_line "${output}")
+
+message("Last output line: ${last_output_line}")
 string(COMPARE EQUAL "${last_output_line}" "0" is_ok)
 if(NOT is_ok)
   message(
@@ -93,7 +95,8 @@ if(NOT is_ok)
   )
 endif()
 
-if(@x_CLEAN@)
+string(COMPARE EQUAL "@x_CLEAN@" "" is_empty)
+if(NOT is_empty)
   message("Clean-up")
   set(cmd "@ADB_COMMAND@" shell rm "@APP_DESTIONATION_DIR@/*")
   execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
