@@ -144,7 +144,7 @@ else()
       "FacefilterExample"
       XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER
       "com.github.elucideye.drishti.facefilter"
-      XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPda
+      XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       )
   endif()
   target_link_libraries(facefilter Qt5::Quick)
