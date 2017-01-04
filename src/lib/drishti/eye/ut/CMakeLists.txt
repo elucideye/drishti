@@ -1,12 +1,12 @@
-set(DRISHTI_TEST_NAME DrishtiEyeTest)
-set(DRISHTI_TEST_APP test-drishti-eye)
+set(test_name DrishtiEyeTest)
+set(test_app test-drishti-eye)
 if(IOS)
-  set(TEST_APP_TYPE "MACOSX_BUNDLE")
+  set(test_app_type "MACOSX_BUNDLE")
 endif()
 
-add_executable(${DRISHTI_TEST_APP} ${TEST_APP_TYPE} test-drishti-eye.cpp test-EyeModelEstimator.cpp)
-target_link_libraries(${DRISHTI_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
-set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")
+add_executable(${test_app} ${test_app_type} test-drishti-eye.cpp test-EyeModelEstimator.cpp)
+target_link_libraries(${test_app} drishtisdk ${OpenCV_LIBS} GTest::gtest)
+set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 
 include(drishti_set_unit_test_assets)
 drishti_set_unit_test_assets(
@@ -41,8 +41,8 @@ if(ANDROID OR IOS)
 
   if(ANDROID)
     
-    drishti_android_add_test(NAME ${DRISHTI_TEST_NAME}
-      COMMAND ${DRISHTI_TEST_APP}
+    drishti_android_add_test(NAME ${test_name}
+      COMMAND ${test_app}
       "${DRISHTI_EYE_MODEL_}"
       "${DRISHTI_TEST_EYE_}"
       "${DRISHTI_TEST_EYE_MODEL_PRIVATE_}"
@@ -56,21 +56,21 @@ if(ANDROID OR IOS)
     
   elseif(IOS)
 
-    set(DRISHTI_TEST_BUNDLE_IDENTIFIER "com.elucideye.drishti.eye")
+    set(test_bundle_id "com.example.tests.drishti.eye")
     set_target_properties(
-      "${DRISHTI_TEST_APP}"
+      "${test_app}"
       PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST
       "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"
       XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER    
-      "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
+      "${test_bundle_id}"
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       )
 
     drishti_ios_add_test(
-      NAME "${DRISHTI_TEST_NAME}"
-      BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
-      COMMAND "${DRISHTI_TEST_APP}"
+      NAME "${test_name}"
+      BUNDLE_ID "${test_bundle_id}"
+      COMMAND "${test_app}"
       "~/Documents/${DRISHTI_EYE_MODEL_}"
       "~/Documents/${DRISHTI_TEST_EYE_}"
       "~/Documents/${DRISHTI_TEST_EYE_MODEL_PRIVATE_}"
@@ -85,7 +85,7 @@ if(ANDROID OR IOS)
 
 else()
 
-  add_test(NAME ${DRISHTI_TEST_NAME} COMMAND ${DRISHTI_TEST_APP}
+  add_test(NAME ${test_name} COMMAND ${test_app}
     "${DRISHTI_EYE_MODEL}"
     "${DRISHTI_TEST_EYE}"
     "${DRISHTI_TEST_EYE_MODEL_PRIVATE}"

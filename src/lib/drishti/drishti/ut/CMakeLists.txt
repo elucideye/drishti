@@ -1,9 +1,9 @@
-set(DRISHTI_TEST_NAME DrishtiDrishtiEyeTest)
-set(DRISHTI_TEST_APP test-drishti-drishti-eye)
+set(test_name DrishtiDrishtiEyeTest)
+set(test_app test-drishti-drishti-eye)
 
-add_executable(${DRISHTI_TEST_APP} test-EyeSegmenter.cpp)
-set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")
-target_link_libraries(${DRISHTI_TEST_APP} drishti
+add_executable(${test_app} test-EyeSegmenter.cpp)
+set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
+target_link_libraries(${test_app} drishti
   ${OpenCV_LIBS}
   GTest::gtest
   drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
@@ -49,10 +49,10 @@ if(ANDROID OR IOS)
 
   if(ANDROID)
 
-    # Will set ${DRISHTI_TEST_NAME}_INSTALL_PATH
+    # Will set ${test_name}_INSTALL_PATH
     drishti_android_add_test(
-      NAME ${DRISHTI_TEST_NAME}
-      COMMAND ${DRISHTI_TEST_APP}
+      NAME ${test_name}
+      COMMAND ${test_app}
       "${DRISHTI_EYE_MODEL_}"
       "${DRISHTI_TEST_EYE_IMAGE_}"
       "${DRISHTI_TEST_EYE_JSON_}"
@@ -66,33 +66,33 @@ if(ANDROID OR IOS)
 
     # TODO: Make $<TARGET_FILE:drishti> work in drishti_android_add_test
     add_custom_command(
-      TARGET ${DRISHTI_TEST_APP}
+      TARGET ${test_app}
       POST_BUILD
-      COMMAND adb shell "mkdir -p ${${DRISHTI_TEST_NAME}_INSTALL_PATH}/"    
-      COMMAND adb push $<TARGET_FILE:drishti> "${${DRISHTI_TEST_NAME}_INSTALL_PATH}/"
+      COMMAND adb shell "mkdir -p ${${test_name}_INSTALL_PATH}/"    
+      COMMAND adb push $<TARGET_FILE:drishti> "${${test_name}_INSTALL_PATH}/"
       )
 
   elseif(IOS)
 
-    message(WARNING "TODO: add ${DRISHTI_TEST_APP} for IOS")
+    message(WARNING "TODO: add ${test_app} for IOS")
 
     # TODO: Needs upload of dynamic framework, check rpath, etc
     
-    # set(DRISHTI_TEST_BUNDLE_IDENTIFIER "com.elucideye.drishti.drishti")
+    # set(test_bundle_id "com.example.tests.drishti.drishti")
     # set_target_properties(
-    #   "${DRISHTI_TEST_APP}"
+    #   "${test_app}"
     #   PROPERTIES
     #   MACOSX_BUNDLE_INFO_PLIST
     #   "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"
     #   XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER    
-    #   "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
+    #   "${test_bundle_id}"
     #   XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
     #   )    
     
     # drishti_ios_add_test(
-    #   NAME ${DRISHTI_TEST_NAME}
-    #   BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
-    #   COMMAND ${DRISHTI_TEST_APP}
+    #   NAME ${test_name}
+    #   BUNDLE_ID "${test_bundle_id}"
+    #   COMMAND ${test_app}
     #   "~/Documents/${DRISHTI_EYE_MODEL_}"
     #   "~/Documents/${DRISHTI_TEST_EYE_IMAGE_}"
     #   "~/Documents/${DRISHTI_TEST_EYE_JSON_}"
@@ -108,7 +108,7 @@ if(ANDROID OR IOS)
 
 else()    
 
-  add_test(NAME ${DRISHTI_TEST_NAME} COMMAND ${DRISHTI_TEST_APP}
+  add_test(NAME ${test_name} COMMAND ${test_app}
     "${DRISHTI_EYE_MODEL}"
     "${DRISHTI_TEST_EYE_IMAGE}"
     "${DRISHTI_TEST_EYE_JSON}"
@@ -117,7 +117,7 @@ else()
 
   if(WIN32)
     set_property(
-      TEST ${DRISHTI_TEST_NAME}
+      TEST ${test_name}
       PROPERTY
       ENVIRONMENT
       "PATH=$<TARGET_FILE_DIR:drishti>;$ENV{PATH}"

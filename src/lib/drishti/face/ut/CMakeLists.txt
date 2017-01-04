@@ -1,16 +1,16 @@
-set(DRISHTI_TEST_NAME DrishtiFaceTest)
-set(DRISHTI_TEST_APP test-drishti-face)
+set(test_name DrishtiFaceTest)
+set(test_app test-drishti-face)
 if(IOS)
-  set(TEST_APP_TYPE "MACOSX_BUNDLE")
+  set(test_app_type "MACOSX_BUNDLE")
 endif()
 
-add_executable(${DRISHTI_TEST_APP} ${TEST_APP_TYPE} test-drishti-face.cpp)
-target_link_libraries(${DRISHTI_TEST_APP} drishtisdk ${OpenCV_LIBS} GTest::gtest)
-set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")
+add_executable(${test_app} ${test_app_type} test-drishti-face.cpp)
+target_link_libraries(${test_app} drishtisdk ${OpenCV_LIBS} GTest::gtest)
+set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
 if(APPLE AND NOT IOS)
-  target_link_libraries(${DRISHTI_TEST_APP}
+  target_link_libraries(${test_app}
     "-framework ImageIO"
     "-framework CoreVideo"
     )
@@ -36,10 +36,10 @@ if(ANDROID OR IOS)
 
   if(ANDROID)
 
-    # Will set ${DRISHTI_TEST_NAME}_INSTALL_PATH
+    # Will set ${test_name}_INSTALL_PATH
     drishti_android_add_test(
-      NAME ${DRISHTI_TEST_NAME}
-      COMMAND ${DRISHTI_TEST_APP}
+      NAME ${test_name}
+      COMMAND ${test_app}
       "${DRISHTI_ACF_FACE_MODEL_}"
       "${DRISHTI_MEAN_FACE_LANDMARKS_}"
       "${DRISHTI_FACE_LANDMARKER_}"
@@ -53,21 +53,21 @@ if(ANDROID OR IOS)
     
   elseif(IOS)
 
-    set(DRISHTI_TEST_BUNDLE_IDENTIFIER "com.elucideye.drishti.face")
+    set(test_bundle_id "com.example.tests.drishti.face")
     set_target_properties(
-      "${DRISHTI_TEST_APP}"
+      "${test_app}"
       PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST
       "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"
       XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER    
-      "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"
+      "${test_bundle_id}"
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       )    
     
     drishti_ios_add_test(
-      NAME ${DRISHTI_TEST_NAME}
-      BUNDLE_ID "${DRISHTI_TEST_BUNDLE_IDENTIFIER}"      
-      COMMAND ${DRISHTI_TEST_APP}
+      NAME ${test_name}
+      BUNDLE_ID "${test_bundle_id}"      
+      COMMAND ${test_app}
       "~/Documents/${DRISHTI_ACF_FACE_MODEL_}"
       "~/Documents/${DRISHTI_MEAN_FACE_LANDMARKS_}"
       "~/Documents/${DRISHTI_FACE_LANDMARKER_}"
@@ -83,7 +83,7 @@ if(ANDROID OR IOS)
   
 else()
 
-  add_test(NAME ${DRISHTI_TEST_NAME} COMMAND ${DRISHTI_TEST_APP}
+  add_test(NAME ${test_name} COMMAND ${test_app}
     "${DRISHTI_ACF_FACE_MODEL}"
     "${DRISHTI_MEAN_FACE_LANDMARKS}"
     "${DRISHTI_FACE_LANDMARKER}"
