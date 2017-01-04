@@ -39,7 +39,7 @@ elseif(IOS)
     CLEAN
     )
 else()  
-  add_test(NAME ${DRISHTI_APP_NAME} COMMAND "${DRISHTI_TEST_APP}")
+  add_test(NAME ${DRISHTI_TEST_NAME} COMMAND "${DRISHTI_TEST_APP}")
 endif()
 
 #  https://cmake.org/pipermail/cmake/2016-March/063115.html
