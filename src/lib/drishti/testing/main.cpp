@@ -14,7 +14,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#ifdef DRISHTI_HAVE_REGEX_H
+#ifdef DRISHTI_HAVE_REGEX_H && !defined(__ANDROID__)
 #  include <regex>
 int main(int argc, char** argv)
 {
