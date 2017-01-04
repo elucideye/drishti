@@ -14,18 +14,24 @@
 #include <iostream>
 #include <stdlib.h>
 
-#if defined(DRISHTI_HAVE_REGEX_H) && !defined(__ANDROID__)
-#  include <regex>
 int main(int argc, char** argv)
 {
     std::string home = getenv("HOME");
+    std::string path = home + "/";
+    std::string pattern = "~/";
+
+    std::vector<char *> ptrs(argc);    
     std::vector<std::string> args(argc); // provide storage for expanded arguments
-    std::vector<char *> ptrs(argc);
     for(int i = 0; i < argc; i++)
     {
-        std::string arg = argv[i];
-        std::string path = home + "/";
-        args[i] = std::regex_replace(arg, std::regex("~/"), path);
+        args[i] = argv[i];
+
+        auto position = args[i].find(pattern);
+        if(position != std::string::npos)
+        {
+            args[i].replace(position, pattern.size(), path);
+        }
+
         ptrs[i] = const_cast<char *>(args[i].c_str());
     }
 
@@ -37,10 +43,3 @@ int main(int argc, char** argv)
     
     return test_main(argc, &ptrs[0]);
 }
-#else
-int main(int argc, char **argv)
-{
-    return test_main(argc, argv);
-}
-#endif
-

@@ -8,9 +8,6 @@ target_link_libraries(${DRISHTI_TEST_APP} drishti
   GTest::gtest
   drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
   )
-if(DRISHTI_HAVE_REGEX_H)
-  target_compile_definitions(test-drishti-drishti-eye PUBLIC DRISHTI_HAVE_REGEX_H)
-endif()
 
 add_executable(test-drishti-drishti-face test-FaceTracker.cpp)
 set_property(TARGET test-drishti-drishti-face PROPERTY FOLDER "app/tests")
@@ -19,9 +16,6 @@ target_link_libraries(test-drishti-drishti-face drishti
   GTest::gtest
   drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
   )
-if(DRISHTI_HAVE_REGEX_H)
-  target_compile_definitions(test-drishti-drishti-face PUBLIC DRISHTI_HAVE_REGEX_H)
-endif()
 
 include(drishti_set_unit_test_assets)
 drishti_set_unit_test_assets(

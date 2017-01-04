@@ -34,9 +34,6 @@ target_link_libraries(${DRISHTI_TEST_APP}
   drishtisdk
   ${DRISHTI_OPENGL_LIBS}
   )
-if(DRISHTI_HAVE_REGEX_H)
-  target_compile_definitions(${DRISHTI_TEST_APP} PUBLIC DRISHTI_HAVE_REGEX_H)
-endif()
 
 ### POST_BUILD GPU ADDITIONS ###
 if(DRISHTI_ACF_DO_GPU)

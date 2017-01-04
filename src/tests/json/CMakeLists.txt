@@ -11,9 +11,6 @@ find_package(nlohmann-json REQUIRED)
 add_executable(${DRISHTI_TEST_APP} ${TEST_APP_TYPE} test-json.cpp)
 target_link_libraries(${DRISHTI_TEST_APP}  nlohmann-json::nlohmann-json GTest::gtest)
 set_property(TARGET ${DRISHTI_TEST_APP} PROPERTY FOLDER "app/tests")
-if(DRISHTI_HAVE_REGEX_H)
-  target_compile_definitions(${DRISHTI_TEST_APP} PUBLIC DRISHTI_HAVE_REGEX_H)
-endif()
 
 enable_testing()
 
