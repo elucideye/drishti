@@ -61,6 +61,8 @@ if(ANDROID OR IOS)
   
 else()
   
-  add_test(NAME ${DRISHTI_TEST_NAME} COMMAND ${DRISHTI_TEST_APP})
+  add_test(NAME ${DRISHTI_TEST_NAME} COMMAND ${DRISHTI_TEST_APP}
+    "${DRISHTI_JSON_TEST_FILE}"
+    )
   
 endif()
