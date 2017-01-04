@@ -14,7 +14,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#ifdef DRISHTI_HAVE_REGEX_H && !defined(__ANDROID__)
+#if defined(DRISHTI_HAVE_REGEX_H) && !defined(__ANDROID__)
 #  include <regex>
 int main(int argc, char** argv)
 {
@@ -23,7 +23,9 @@ int main(int argc, char** argv)
     std::vector<char *> ptrs(argc);
     for(int i = 0; i < argc; i++)
     {
-        args[i] = std::regex_replace(argv[i], std::regex("~/"), home + "/");
+        std::string arg = argv[i];
+        std::string path = home + "/";
+        args[i] = std::regex_replace(arg, std::regex("~/"), path);
         ptrs[i] = const_cast<char *>(args[i].c_str());
     }
 
