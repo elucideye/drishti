@@ -30,10 +30,9 @@ function(drishti_ios_add_test)
   # * x_NAME
   # * x_COMMAND
   # * x_DEPENDENCIES
-  # * x_BUNDLE_ID
   # * x_CLEAN  
   set(options CLEAN)
-  set(oneValueArgs NAME BUNDLE_ID)
+  set(oneValueArgs NAME)
   set(multiValueArgs COMMAND DEPENDENCIES)
   cmake_parse_arguments(x "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
   
@@ -50,6 +49,9 @@ function(drishti_ios_add_test)
         "Expected executable target as first argument, but got: ${app_target}"
     )
   endif()
+
+  # Query the XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER
+  get_target_property(x_BUNDLE_ID ${app_target} XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER)
 
   set(
       script_loc

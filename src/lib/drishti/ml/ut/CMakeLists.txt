@@ -48,20 +48,18 @@ if(ANDROID OR IOS)
 
   elseif(IOS)
 
-    set(test_bundle_id "com.examle.tests.drishti.ml") 
     set_target_properties(
       "${test_app}"
       PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST
       "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"
-      XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER    
-      "${test_bundle_id}"
+      XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER
+      "com.examle.tests.drishti.ml"      
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       )
     
     drishti_ios_add_test(
       NAME "${test_name}"
-      BUNDLE_ID "${test_bundle_id}"    
       COMMAND "${test_app}"
       "~/Documents/${DRISHTI_FACE_LANDMARKER_}"
       "~/Documents/${DRISHTI_TEST_FACE_}"    

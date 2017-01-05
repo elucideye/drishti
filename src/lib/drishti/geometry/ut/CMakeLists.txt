@@ -18,21 +18,19 @@ if(ANDROID)
     )
 elseif(IOS)
 
-  set(test_bundle_id "com.example.tests.drishti.geometry") 
   set_target_properties(
     "${test_app}"
     PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST
     "${CMAKE_SOURCE_DIR}/cmake/templates/Info.plist.in"    
-    XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER    
-    "${test_bundle_id}"
+    XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER
+    "com.example.tests.drishti.geometry"    
     XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
     )
   
   drishti_ios_add_test(
     NAME ${test_name}
     COMMAND ${test_app}
-    BUNDLE_ID "${test_bundle_id}"
     CLEAN
     )
 else()  
