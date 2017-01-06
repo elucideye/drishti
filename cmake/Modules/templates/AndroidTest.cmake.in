@@ -23,6 +23,8 @@ endif()
 set(exe_dir "@TESTING_DIR@/bin")
 set(libs_dir "@TESTING_DIR@/lib")
 
+message("Using '@ADB_COMMAND@'")
+
 message("Creating directory on Android device: '${exe_dir}'")
 set(cmd "@ADB_COMMAND@" shell mkdir -p "${exe_dir}")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
@@ -42,7 +44,7 @@ if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed: ${cmd}")
 endif()
 
-message("Set executable permissions")
+message("Set executable permissions (777)")
 set(cmd "@ADB_COMMAND@" shell chmod 777 "${exe_path}")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
 if(NOT result EQUAL 0)
@@ -55,9 +57,31 @@ foreach(arg ${app_arguments})
   set(arguments "${arguments} \"${arg}\"")
 endforeach()
 
-message("Working directory: '@TESTING_DIR@'")
+if(NOT "${LINKED_LIBS}" STREQUAL "")
+  message("Creating directory on Android device: '${libs_dir}'")
+  set(cmd "@ADB_COMMAND@" shell mkdir -p "${libs_dir}")
+  execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+  if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Command failed: ${cmd}")
+  endif()
+
+  message("Uploading dependent libraries to Android device")
+  string(REPLACE "," ";" LINKED_LIBS "${LINKED_LIBS}")
+  foreach(x ${LINKED_LIBS})
+    message("  '${x}'")
+    message("  -> '${libs_dir}'")
+
+    set(cmd "@ADB_COMMAND@" push "${x}" "${libs_dir}")
+    execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+    if(NOT result EQUAL 0)
+      message(FATAL_ERROR "Command failed: ${cmd}")
+    endif()
+  endforeach()
+endif()
+
 message("Set LD_LIBRARY_PATH to '${libs_dir}'")
-message("Run executable on Android device: \"${exe_path}\" ${arguments}")
+message("Run command on Android device:")
+message("[@TESTING_DIR@]> \"${exe_path}\" ${arguments}")
 execute_process(
     COMMAND
     "@ADB_COMMAND@" shell "cd \"@TESTING_DIR@\"; export LD_LIBRARY_PATH=\"${libs_dir}\"; \"${exe_path}\" ${arguments}; echo $?"

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 
 include(CMakeParseArguments) # cmake_parse_arguments
 
+include(drishti_get_all_dependencies)
+
 set(DRISHTI_ADD_TEST_SELF_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 function(drishti_add_test)
@@ -67,11 +69,24 @@ function(drishti_add_test)
         @ONLY
     )
 
+    drishti_get_all_dependencies(TARGET "${APP_TARGET}" IGNORE "" RESULT deps)
+    set(libs "")
+    foreach(x ${deps})
+      get_target_property(type "${x}" TYPE)
+      if("${type}" STREQUAL "SHARED_LIBRARY")
+        if(NOT "${libs}" STREQUAL "")
+          set(libs "${libs},")
+        endif()
+        set(libs "${libs}$<TARGET_FILE:${x}>")
+      endif()
+    endforeach()
+
     add_test(
         NAME "${x_NAME}"
         COMMAND
             "${CMAKE_COMMAND}"
             "-DAPP_SOURCE=$<TARGET_FILE:${APP_TARGET}>"
+            "-DLINKED_LIBS=${libs}"
             -P
             "${script_path}"
     )
