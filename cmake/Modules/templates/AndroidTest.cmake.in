@@ -20,8 +20,13 @@ if("@APP_TARGET@" STREQUAL "")
   message(FATAL_ERROR "Expected APP_TARGET")
 endif()
 
+if("@RESOURCE_DIR@" STREQUAL "")
+  message(FATAL_ERROR "Expected RESOURCE_DIR")
+endif()
+
 set(exe_dir "@TESTING_DIR@/bin")
 set(libs_dir "@TESTING_DIR@/lib")
+set(data_dir "@TESTING_DIR@/data")
 
 message("Using '@ADB_COMMAND@'")
 
@@ -51,10 +56,45 @@ if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed: ${cmd}")
 endif()
 
+message("Creating directory on Android device: '${data_dir}'")
+set(cmd "@ADB_COMMAND@" shell mkdir -p "${data_dir}")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed: ${cmd}")
+endif()
+
 set(app_arguments "@APP_ARGUMENTS@")
 set(arguments)
 foreach(arg ${app_arguments})
-  set(arguments "${arguments} \"${arg}\"")
+  string(
+      REGEX REPLACE "^\\$<DRISHTI_RESOURCE_FILE:\(.*\)>$" "\\1" resource "${arg}"
+  )
+  if("${resource}" STREQUAL "${arg}")
+    # nothing replaced => not a resource
+    set(arguments "${arguments} \"${arg}\"")
+  else()
+    # '$<DRISHTI_RESOURCE_FILE:...>' detected => resource file
+    message("Resource detected: '${resource}'")
+    if(NOT IS_ABSOLUTE "${resource}")
+      set(resource "@RESOURCE_DIR@/${resource}")
+    endif()
+    if(NOT EXISTS "${resource}")
+      message(FATAL_ERROR "File not found: ${resource}")
+    endif()
+    get_filename_component(res_name "${resource}" NAME)
+    set(res_path "${data_dir}/${res_name}")
+    set(arguments "${arguments} \"${res_path}\"")
+
+    message("Push resource to Android device:")
+    message("  '${resource}'")
+    message("  -> '${res_path}'")
+
+    set(cmd "@ADB_COMMAND@" push "${resource}" "${res_path}")
+    execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+    if(NOT result EQUAL 0)
+      message(FATAL_ERROR "Command failed: ${cmd}")
+    endif()
+  endif()
 endforeach()
 
 if(NOT "${LINKED_LIBS}" STREQUAL "")

@@ -44,6 +44,8 @@ function(drishti_add_test)
       "${CMAKE_CURRENT_BINARY_DIR}/_3rdParty/DrishtiTest/${x_NAME}.cmake"
   )
 
+  set(RESOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
   if(ANDROID)
     hunter_add_package(Android-SDK)
     set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
@@ -63,6 +65,7 @@ function(drishti_add_test)
     # * APP_TARGET
     # * APP_ARGUMENTS
     # * TESTING_DIR
+    # * RESOURCE_DIR
     configure_file(
         "${DRISHTI_ADD_TEST_SELF_DIR}/templates/AndroidTest.cmake.in"
         "${script_path}"
@@ -93,6 +96,12 @@ function(drishti_add_test)
   elseif(IOS)
     message(FATAL_ERROR "TODO")
   else()
-    add_test(NAME "${x_NAME}" COMMAND ${APP_TARGET} ${x_COMMAND})
+    set(arguments)
+    foreach(x ${APP_ARGUMENTS})
+      # Use resources as is
+      string(REGEX REPLACE "^\\$<DRISHTI_RESOURCE_FILE:\(.*\)>$" "\\1" x "${x}")
+      list(APPEND arguments "${x}")
+    endforeach()
+    add_test(NAME "${x_NAME}" COMMAND ${APP_TARGET} ${arguments})
   endif()
 endfunction()
