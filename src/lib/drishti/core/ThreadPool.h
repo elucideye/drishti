@@ -19,7 +19,7 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 class ThreadPoolSource
 {
 public:
-    using FixedThreadPool = ThreadPool<128>;
+    using FixedThreadPool = tp::ThreadPool<>;
     static FixedThreadPool * getInstance();
 private:
     ThreadPoolSource() {}

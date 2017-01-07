@@ -4,7 +4,7 @@
 #include <algorithm> // std::sort
 
 const int FunctionSize = 128;
-using FixedThreadPool=ThreadPool<FunctionSize>;
+using FixedThreadPool=tp::ThreadPool<FunctionSize>;
 
 static const size_t CONCURRENCY = (1024);
 

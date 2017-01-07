@@ -299,7 +299,7 @@ option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
 
 if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
   add_subdirectory(src/3rdparty/thread-pool-cpp)
-  include_directories(src/3rdparty/thread-pool-cpp)
+  include_directories(src/3rdparty/thread-pool-cpp/include)
   add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
 else()
   hunter_add_package(thread-pool-cpp)

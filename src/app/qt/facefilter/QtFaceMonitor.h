@@ -36,7 +36,7 @@ public:
         double time;
     };
     
-    QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<ThreadPool<128>> &threads);
+    QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<tp::ThreadPool<>> &threads);
     virtual bool isValid(const cv::Point3f &position, double timeStamp);
     virtual void grab(std::vector<cv::Mat4b> &frames);
     
@@ -51,7 +51,7 @@ protected:
     uint64_t m_frameCounter = 0;
     uint64_t m_stackCounter = 0;
     
-    std::shared_ptr<ThreadPool<128>> m_threads;
+    std::shared_ptr<tp::ThreadPool<>> m_threads;
 };
 
 #endif // QT_FACE_MONITOR_H
