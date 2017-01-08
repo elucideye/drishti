@@ -13,7 +13,7 @@
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/geometry/intersectConicLine.h"
 
-int main(int argc, char** argv)
+int drishti_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

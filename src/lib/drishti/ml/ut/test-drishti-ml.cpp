@@ -29,7 +29,7 @@ extern bool isTextArchive;
 #  include "drishti/core/drishti_cv_cereal.h"
 #endif
 
-int main(int argc, char** argv)
+int drishti_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc >= 4);

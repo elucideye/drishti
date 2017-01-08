@@ -32,7 +32,7 @@ static bool hasFile(const std::string &filename)
     return ifs.good();
 }
 
-int main(int argc, char** argv)
+int drishti_main(int argc, char** argv)
 {
 #if DRISHTI_BUILD_QT
     QApplication app(argc, argv);

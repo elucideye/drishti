@@ -16,7 +16,7 @@ extern const char* truthFilename;
 extern const char* outputDirectory;
 extern bool isTextArchive;
 
-int main(int argc, char** argv)
+int drishti_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc >= 4);
