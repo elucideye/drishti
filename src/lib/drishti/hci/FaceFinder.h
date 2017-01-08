@@ -24,6 +24,7 @@
 
 #include "thread_pool/thread_pool.hpp"
 
+#include <future>
 #include <memory>
 #include <chrono>
 #include <functional>
@@ -84,7 +85,7 @@ public:
     {
         std::shared_ptr<drishti::sensor::SensorModel> sensor;
         std::shared_ptr<spdlog::logger> logger;
-        std::shared_ptr<ThreadPool<128>> threads;        
+        std::shared_ptr<tp::ThreadPool<>> threads;        
         int outputOrientation = 0;
         int frameDelay = 1;
         bool doLandmarks = true;
@@ -200,7 +201,7 @@ protected:
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
     std::shared_ptr<spdlog::logger> m_logger;
-    std::shared_ptr<ThreadPool<128>> m_threads;
+    std::shared_ptr<tp::ThreadPool<>> m_threads;
     
     TimePoint m_start;
     
