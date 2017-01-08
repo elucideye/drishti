@@ -24,21 +24,23 @@
 class QtFaceMonitor : public drishti::hci::FaceMonitor
 {
 public:
+
+    using TimePoint = HighResolutionClock::time_point;    
     
     struct PositionAndTime
     {
-        PositionAndTime() : time(0.0) {}
-        PositionAndTime(const cv::Point3f &position, double time) : position(position), time(time) {}
+        PositionAndTime() {}
+        PositionAndTime(const cv::Point3f &position, const TimePoint &time) : position(position), time(time) {}
         double estimateVelocity(const PositionAndTime &current);
         double estimateVelocity(double position, double timeStamp);
         
         cv::Point3f position;
-        double time;
+        TimePoint time;
     };
     
     QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<tp::ThreadPool<>> &threads);
-    virtual bool isValid(const cv::Point3f &position, double timeStamp);
-    virtual void grab(std::vector<cv::Mat4b> &frames);
+    virtual bool isValid(const cv::Point3f &position, const TimePoint &timestamp);
+    virtual void grab(const std::vector<FaceImage> &frames, bool isInitialized);
     
 protected:
     
