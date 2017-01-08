@@ -94,7 +94,57 @@ function(drishti_add_test)
             "${script_path}"
     )
   elseif(IOS)
-    message(FATAL_ERROR "TODO")
+    set(
+        DRISHTI_IOS_DEPLOY
+        "ios-deploy"
+        CACHE
+        FILEPATH
+        "Path to 'ios-deploy' executable (https://github.com/phonegap/ios-deploy)"
+    )
+
+    set(
+        DRISHTI_IOS_UPLOAD_ROOT
+        "Documents"
+        CACHE
+        STRING
+        "iOS root directory for uploads"
+    )
+
+    set(
+        DRISHTI_IOS_BUNDLE_IDENTIFIER
+        "com.example.elucideye.drishti.test"
+        CACHE
+        STRING
+        "Bundle ID template for iOS test targets"
+    )
+
+    set(BUNDLE_ID "${DRISHTI_IOS_BUNDLE_IDENTIFIER}.${APP_TARGET}")
+
+    set_target_properties(
+        "${APP_TARGET}"
+        PROPERTIES
+        MACOSX_BUNDLE_GUI_IDENTIFIER "${BUNDLE_ID}"
+    )
+
+    # Use:
+    # * DRISHTI_IOS_DEPLOY
+    # * APP_ARGUMENTS
+    # * RESOURCE_DIR
+    # * BUNDLE_ID
+    configure_file(
+        "${DRISHTI_ADD_TEST_SELF_DIR}/templates/iOSTest.cmake.in"
+        "${script_path}"
+        @ONLY
+    )
+
+    add_test(
+        NAME "${x_NAME}"
+        COMMAND
+            "${CMAKE_COMMAND}"
+            "-DAPP_SOURCE=$<TARGET_FILE:${APP_TARGET}>"
+            -P
+            "${script_path}"
+    )
   else()
     set(arguments)
     foreach(x ${APP_ARGUMENTS})
