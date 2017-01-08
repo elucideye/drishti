@@ -36,6 +36,14 @@ function(drishti_add_test)
     )
   endif()
 
+  if(TARGET drishti_test_main)
+    add_library(drishti::drishti_test_main ALIAS drishti_test_main)
+  else()
+    find_package(drishti CONFIG REQUIRED)
+  endif()
+
+  target_link_libraries("${APP_TARGET}" PUBLIC drishti::drishti_test_main)
+
   list(REMOVE_AT x_COMMAND 0)
   set(APP_ARGUMENTS ${x_COMMAND})
 
