@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
       else {
         new_argv[i] = new char[x.size() + 1]; // will leak
         x.copy(new_argv[i], x.size());
-        new_argv[i][x.size() + 1] = '\0';
+        new_argv[i][x.size()] = '\0';
       }
     }
 
