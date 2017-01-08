@@ -24,7 +24,7 @@ double QtFaceMonitor::PositionAndTime::estimateVelocity(const PositionAndTime &c
     return translation / interval;
 }
 
-QtFaceMonitor::QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<ThreadPool<128>> &threads)
+QtFaceMonitor::QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<tp::ThreadPool<>> &threads)
 : m_range(range)
 , m_frameCounter(0)
 , m_stackCounter(0)

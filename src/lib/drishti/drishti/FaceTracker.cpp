@@ -54,7 +54,7 @@ public:
         Config config;
         config.sensor = std::make_shared<drishti::sensor::SensorModel>();
         config.logger = drishti::core::Logger::create("drishti");
-        config.threads = std::make_shared<ThreadPool<128>>();
+        config.threads = std::make_shared<tp::ThreadPool<>>();
         config.outputOrientation = 0;
         config.frameDelay = 1;
         config.doLandmarks = true;

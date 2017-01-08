@@ -19,7 +19,7 @@ Manager::Impl::Impl(const drishti::sensor::SensorModel &sensor)
 {
     m_sensor = std::make_shared<drishti::sensor::SensorModel>(sensor);
     m_logger = drishti::core::Logger::create(DRISHTI_LOGGER_NAME);
-    m_threads = std::make_shared<ThreadPool<128>>(); // thread-pool
+    m_threads = std::make_shared<tp::ThreadPool<>>(); // thread-pool
 }
 
 Manager::Manager(const drishti::sensor::SensorModel &sensor)

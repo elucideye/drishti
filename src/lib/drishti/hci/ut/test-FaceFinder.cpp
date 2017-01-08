@@ -134,7 +134,7 @@ protected:
     {
         if(doThreads)
         {
-            m_config.threads = std::make_shared<ThreadPool<128>>();
+            m_config.threads = std::make_shared<tp::ThreadPool<>>();
         }
         else
         {

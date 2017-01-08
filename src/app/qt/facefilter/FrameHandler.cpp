@@ -68,7 +68,7 @@ FrameHandlerManager::FrameHandlerManager(Settings *settings, const std::string &
     drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
     m_sensor = std::make_shared<drishti::sensor::SensorModel>(params);
 
-    m_threads = std::unique_ptr<ThreadPool<128>>(new ThreadPool<128>);
+    m_threads = std::unique_ptr<tp::ThreadPool<>>(new tp::ThreadPool<>);
 
 #if DRISHTI_STACK_LOGGING_DEMO
     m_faceMonitor = drishti::core::make_unique<QtFaceMonitor>(cv::Vec2d(0.4, 0.8), m_threads);

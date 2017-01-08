@@ -31,12 +31,12 @@ public:
 
     std::shared_ptr<drishti::sensor::SensorModel> & getSensor() { return m_sensor; }
     std::shared_ptr<spdlog::logger> & getLogger() { return m_logger; }
-    std::shared_ptr<ThreadPool<128>> & getThreads() { return m_threads; }
+    std::shared_ptr<tp::ThreadPool<>> & getThreads() { return m_threads; }
 
 protected:
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
     std::shared_ptr<spdlog::logger> m_logger;
-    std::shared_ptr<ThreadPool<128>> m_threads; 
+    std::shared_ptr<tp::ThreadPool<>> m_threads; 
 };
 
 _DRISHTI_SDK_END
