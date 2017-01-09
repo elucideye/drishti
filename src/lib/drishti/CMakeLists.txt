@@ -173,36 +173,6 @@ else()
 
 endif(DRISHTI_BUILD_WORLD)
 
-##
-## Unit tests
-##
-
-message("DRISHTI_HAS_TEST_TOOLS : ${DRISHTI_HAS_TEST_TOOLS}") 
-if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS} AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
-
-  message("DRISHTI_TESTING...")
-
-  add_subdirectory(testlib)
-
-  add_subdirectory(core)
-  add_subdirectory(geometry)
-  add_subdirectory(ml)
-
-  # Run public SDK, then eye tests in that order
-  add_subdirectory(drishti)  
-  add_subdirectory(eye)
-  
-  if(DRISHTI_BUILD_ACF)
-    add_subdirectory(acf)
-  endif()
-  if(DRISHTI_BUILD_FACE)
-    add_subdirectory(face)
-  endif()
-  if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
-    add_subdirectory(hci)
-  endif()
-endif()
-
 include_directories("${PROJECT_BINARY_DIR}")
 
 ##
@@ -466,5 +436,37 @@ if(DRISHTI_BUILD_C_INTERFACE)
       RUNTIME DESTINATION "bin"
       INCLUDES DESTINATION "${drishti_include_install_dir}"
       )
+  endif()
+endif()
+
+#################
+## Unit tests ###
+#################
+
+# NOTE: These should come last to ensure all library targets are available
+
+message("DRISHTI_HAS_TEST_TOOLS : ${DRISHTI_HAS_TEST_TOOLS}") 
+if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS} AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
+
+  message("DRISHTI_TESTING...")
+
+  add_subdirectory(testlib)
+
+  add_subdirectory(core)
+  add_subdirectory(geometry)
+  add_subdirectory(ml)
+
+  # Run public SDK, then eye tests in that order
+  add_subdirectory(drishti)  
+  add_subdirectory(eye)
+  
+  if(DRISHTI_BUILD_ACF)
+    add_subdirectory(acf)
+  endif()
+  if(DRISHTI_BUILD_FACE)
+    add_subdirectory(face)
+  endif()
+  if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
+    add_subdirectory(hci)
   endif()
 endif()
