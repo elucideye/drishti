@@ -53,13 +53,13 @@ enable_testing()
 
 drishti_add_test(
   NAME DrishtiSerializationFlatbuffersTest
-  COMMAND test-serialize-flatbuffers "$<DRISHTI_RESOURCE_FILE:${CMAKE_CURRENT_BINARY_DIR}/monster.fb>"
+  COMMAND test-serialize-flatbuffers "./monster.fb" # output file
   )
 drishti_add_test(
   NAME DrishtiSerializationCerealTest
-  COMMAND test-serialize-cereal "$<DRISHTI_RESOURCE_FILE:${CMAKE_CURRENT_BINARY_DIR}/monster.cereal>"
+  COMMAND test-serialize-cereal "./monster.cereal>" # output file
   )
 drishti_add_test(
   NAME DrishtiSerializationBoostTest
-  COMMAND test-serialize-boost "$<DRISHTI_RESOURCE_FILE:${CMAKE_CURRENT_BINARY_DIR}/monster.pba.z>"
+  COMMAND test-serialize-boost "./monster.pba.z>" # output file
   )
