@@ -355,6 +355,13 @@ target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
 drishti_hide(drishti)
 drishti_strip(drishti)
 
+if(IOS)
+  # Add a static public SDK library for initial iOS testing:
+  add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
+  target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+  target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
+endif()
+
 set_target_properties(drishti
   PROPERTIES
   PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"

@@ -1,9 +1,16 @@
 set(test_name DrishtiDrishtiEyeTest)
 set(test_app test-drishti-drishti-eye)
 
+# Use static lib to avoid dynamic frameworks in internal tests
+if(IOS)
+  set(drishti_sdk_lib drishti_static)
+else()
+  set(drishti_sdk_lib drishti)
+endif()
+
 add_executable(${test_app} test-EyeSegmenter.cpp)
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
-target_link_libraries(${test_app} PUBLIC drishti
+target_link_libraries(${test_app} PUBLIC ${drishti_sdk_lib}
   ${OpenCV_LIBS}
   GTest::gtest
   drishtisdk # include drishtisdk for drishti::eye::EyeModel serialization
