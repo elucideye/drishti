@@ -57,9 +57,9 @@ drishti_add_test(
   )
 drishti_add_test(
   NAME DrishtiSerializationCerealTest
-  COMMAND test-serialize-cereal "./monster.cereal>" # output file
+  COMMAND test-serialize-cereal "./monster.cereal" # output file
   )
 drishti_add_test(
   NAME DrishtiSerializationBoostTest
-  COMMAND test-serialize-boost "./monster.pba.z>" # output file
+  COMMAND test-serialize-boost "./monster.pba.z" # output file
   )
