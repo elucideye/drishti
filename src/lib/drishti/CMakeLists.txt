@@ -104,7 +104,6 @@ if(DRISHTI_BUILD_WORLD)
     set(DRISHTI_LIBS drishti_world)
   endif()
 
-  
 else()
 
   ## drishti_core
@@ -277,6 +276,15 @@ endif()
 # Set the serialization mode preprocessor flags (boost and/or cereal)
 set(DRISHTI_LIBRARY_LIST ${DRISHTI_LIBS} drishtisdk)
 foreach(library ${DRISHTI_LIBRARY_LIST})
+
+  # TODO: replace internal include_directories():
+  #
+  # target_include_directories(${library}
+  #   INTERFACE
+  #   "$<BUILD_INTERFACE:${CMAKE_PROJECT_DIR}/src/lib}>" 
+  #   "$<BUILD_INTERFACE:${CMAKE_PROJECT_DIR}/src/lib/drishti}>"
+  #   "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
+  # )
 
   # define M_PI_2 for MSVC
   target_compile_definitions(${library} PUBLIC _USE_MATH_DEFINES) 
