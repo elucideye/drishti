@@ -35,6 +35,8 @@ int main(int argc, char** argv) {
     std::string fmt(home);
     fmt += "/\\1";
 
+    std::vector<std::string> extra_args;
+
     for (int i = 0; i < argc; ++i) {
       const std::string original(argv[i]);
       const std::string x = std::regex_replace(original, r, fmt, std::regex_constants::format_sed);
@@ -42,9 +44,8 @@ int main(int argc, char** argv) {
         new_argv[i] = argv[i];
       }
       else {
-        new_argv[i] = new char[x.size() + 1]; // will leak
-        x.copy(new_argv[i], x.size());
-        new_argv[i][x.size()] = '\0';
+        extra_args.push_back(x);
+        new_argv[i] = const_cast<char*>(extra_args.back().c_str());
       }
     }
 
