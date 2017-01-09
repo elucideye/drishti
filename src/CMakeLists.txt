@@ -36,6 +36,7 @@ set(DRISHTI_SDK_3RDPARTY_PKG_LIBS
   cereal::cereal
   Eigen::eigen
   spdlog::spdlog
+  thread-pool-cpp::thread-pool-cpp
   )
 
 if(DRISHTI_SERIALIZE_WITH_BOOST)

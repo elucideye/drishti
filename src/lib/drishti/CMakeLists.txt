@@ -109,7 +109,7 @@ else()
 
   ## drishti_core
   add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
-  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
+  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS} thread-pool-cpp::thread-pool-cpp)
 
   ## drishti_geometry
   add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
@@ -325,7 +325,8 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
       AND NOT "${library}" MATCHES "dlib::dlib"
       AND NOT "${library}" MATCHES "eos::eos"
       AND NOT "${library}" MATCHES "spdlog::spdlog"
-      AND NOT "${library}" MATCHES "Eigen::eigen") 
+      AND NOT "${library}" MATCHES "Eigen::eigen"
+      AND NOT "${library}" MATCHES "thread-pool-cpp::thread-pool-cpp")
     add_custom_command(TARGET drishtisdk POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
       COMMENT "Copying " $<TARGET_FILE:${library}>
