@@ -1,5 +1,5 @@
-hunter_add_package(Boost COMPONENTS regex)
-find_package(Boost CONFIG REQUIRED regex)
+hunter_add_package(Boost)
+find_package(Boost CONFIG REQUIRED)
 
 add_library(drishti_test_main drishti_test_main.cpp)
-target_link_libraries(drishti_test_main PUBLIC Boost::regex)
+target_link_libraries(drishti_test_main PUBLIC Boost::boost)

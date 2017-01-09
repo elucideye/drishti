@@ -3,9 +3,9 @@
 #include <iostream> // std::cerr
 
 #include <boost/predef.h> // BOOST_OS_IOS
-#include <boost/regex.hpp> // boost::regex
 
 #if (BOOST_OS_IOS)
+# include <regex> // std::regex
 # include <unistd.h> // chdir
 #endif
 
@@ -30,14 +30,14 @@ int main(int argc, char** argv) {
     }
 
     std::vector<char*> new_argv(argc);
-    const boost::regex r("^\\$<DRISHTI_RESOURCE_FILE:(.*)>$");
+    const std::regex r("^\\$<DRISHTI_RESOURCE_FILE:(.*)>$");
 
     std::string fmt(home);
     fmt += "/\\1";
 
     for (int i = 0; i < argc; ++i) {
       const std::string original(argv[i]);
-      const std::string x = boost::regex_replace(original, r, fmt);
+      const std::string x = std::regex_replace(original, r, fmt, std::regex_constants::format_sed);
       if (original == x) {
         new_argv[i] = argv[i];
       }
