@@ -40,10 +40,10 @@
 
 #include <array>
 
-static void myshow(const std::string &name, const cv::Mat &I)
-{
-    //cv::imshow(name, I);
-}
+//static void myshow(const std::string &name, const cv::Mat &I)
+//{
+//    cv::imshow(name, I);
+//}
 
 void hessian3x3(const cv::Mat4f &Iin, cv::Mat4f &Iout)
 {
