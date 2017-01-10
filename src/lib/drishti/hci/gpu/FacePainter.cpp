@@ -253,12 +253,11 @@ int FacePainter::FacePainter::render(int position)
             // alternate the color on each frame: { 012345 }
             const int on = !(frameCount % 2);
             const int channelIndex = ((frameCount / 2) % 3);
-            float weight = 2.0 * float(on);
+            const float weight = 1.0f; // 2.0 * float(on);
 
             m_colorRGB = Vec3f(0.f, 0.f, 0.f);
             m_colorRGB.data[channelIndex] =  1.0;
             m_colorRGB.data[channelIndex] = float(on);
-            weight = 1.f;
 
             glUniform3fv(m_colorShParamRGB, 1, &m_colorRGB.data[0]);
             glUniform1f(m_colorShParamUWeight, weight);
