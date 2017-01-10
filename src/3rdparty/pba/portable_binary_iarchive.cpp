@@ -94,7 +94,7 @@ portable_binary_iarchive::init(unsigned int flags)
     {
         // read signature in an archive version independent manner
         std::string file_signature;
-        * this >> file_signature;
+        (*this) >> file_signature;
         if(file_signature != boost::archive::BOOST_ARCHIVE_SIGNATURE())
             boost::serialization::throw_exception(
                 boost::archive::archive_exception(
