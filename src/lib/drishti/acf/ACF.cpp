@@ -36,6 +36,11 @@ Detector::Detector(const std::string &filename)
     deserializeAny(filename);
 }
 
+Detector::~Detector()
+{
+    // Provide destructor for static analyzer
+}
+
 int Detector::initializeOpts() // Seems to be required
 {
     {

@@ -54,6 +54,7 @@ public:
     Detector(const Detector &src);
     Detector(std::istream &is, const std::string &hint={});
     Detector(const std::string &filename);
+    virtual ~Detector();
 
     struct Options
     {
