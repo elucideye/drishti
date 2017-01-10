@@ -143,7 +143,7 @@ else()
       XCODE_ATTRIBUTE_PRODUCT_NAME
       "FacefilterExample"
       XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER
-      "com.github.headupinclouds.drishtisdk.facefilter"
+      "com.github.elucideye.drishti.facefilter"
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       )
   endif()

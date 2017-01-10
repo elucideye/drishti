@@ -15,6 +15,8 @@
 
 #include <opencv2/core.hpp>
 
+#include <array>
+
 void hessian3x3(const cv::Mat4f &Iin, cv::Mat4f &Iout);
 void hessian3x3(const cv::Mat4b &Iin, cv::Mat4b &Iout, float scale);
 void gaussian3x3(const cv::Mat4f &Iin, cv::Mat4f &Iout);

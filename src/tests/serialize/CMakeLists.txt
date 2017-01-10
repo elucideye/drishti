@@ -2,6 +2,10 @@
 ### Boost vs Cereal vs Flatbuffers ###
 ######################################
 
+if(IOS)
+  set(test_app_type "MACOSX_BUNDLE")
+endif()
+
 cmake_minimum_required(VERSION 3.0)
 
 hunter_add_package(flatbuffers)
@@ -15,7 +19,7 @@ set(FLATBUFFER_MONSTER_SRCS
   )
 
 # Flatbuffers tutorial code:
-add_executable(tutorial-flatbuffers-monster ${FLATBUFFER_MONSTER_SRCS})
+add_executable(tutorial-flatbuffers-monster ${test_app_type} ${FLATBUFFER_MONSTER_SRCS})
 target_link_libraries(tutorial-flatbuffers-monster flatbuffers::flatbuffers ${OpenCV_LIBS})
 target_compile_definitions(tutorial-flatbuffers-monster PUBLIC DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 set_property(TARGET tutorial-flatbuffers-monster PROPERTY FOLDER "app/tutorial")
@@ -24,22 +28,29 @@ set_property(TARGET tutorial-flatbuffers-monster PROPERTY FOLDER "app/tutorial")
 ### Serialization comparison  ###
 #################################
 
+set(TEST_SERIALIZE_FLATBUFFERS_SOURCES
+  test-serialize-flatbuffers.cpp
+  Monster_c.h
+  Monster_c.cpp
+  monster_generated.h
+  )
+
 # Flatbuffers serialization code:
-add_executable(test-serialize-flatbuffers test-serialize-flatbuffers.cpp Monster_c.h Monster_c.cpp monster_generated.h)
+add_executable(test-serialize-flatbuffers ${test_app_type} ${TEST_SERIALIZE_FLATBUFFERS_SOURCES})
 target_link_libraries(test-serialize-flatbuffers flatbuffers::flatbuffers ${OpenCV_LIBS})
 target_compile_definitions(test-serialize-flatbuffers PUBLIC DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 install(TARGETS test-serialize-flatbuffers DESTINATION bin)
 set_property(TARGET test-serialize-flatbuffers PROPERTY FOLDER "app/tests")
 
 # Boost serialization code:
-add_executable(test-serialize-boost test-serialize-boost.cpp Monster_c.h)
+add_executable(test-serialize-boost ${test_app_type} test-serialize-boost.cpp Monster_c.h)
 target_link_libraries(test-serialize-boost Boost::iostreams Boost::serialization ${OpenCV_LIBS})
 target_compile_definitions(test-serialize-boost PUBLIC DRISHTI_USE_BOOST_SERIALIZATION)
 install(TARGETS test-serialize-boost DESTINATION bin)
 set_property(TARGET test-serialize-boost PROPERTY FOLDER "app/tests")
 
 # Cereal serialization code:
-add_executable(test-serialize-cereal test-serialize-cereal.cpp Monster_c.h)
+add_executable(test-serialize-cereal ${test_app_type} test-serialize-cereal.cpp Monster_c.h)
 target_link_libraries(test-serialize-cereal cereal::cereal ${OpenCV_LIBS})
 target_compile_definitions(test-serialize-boost PUBLIC DRISHTI_USE_CEREAL_SERIALIZATION)
 install(TARGETS test-serialize-cereal DESTINATION bin)
@@ -61,8 +72,12 @@ if(ANDROID)
     COMMAND test-serialize-cereal "monster.cereal")
   drishti_android_add_test(
     NAME DrishtiSerializationBoostTest
-    COMMAND test-serialize-boost "$monster.pba.z")
-else()
+    COMMAND test-serialize-boost "monster.pba.z")
+
+elseif(IOS)
+  message(WARNING "TODO: add test-serialize-* for IOS")
+else()  
+  
   add_test(
     NAME DrishtiSerializationFlatbuffersTest
     COMMAND test-serialize-flatbuffers "${CMAKE_CURRENT_BINARY_DIR}/monster.fb")

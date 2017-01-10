@@ -13,11 +13,22 @@
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/geometry/intersectConicLine.h"
 
-int main(int argc, char** argv)
+#include <stdlib.h>
+
+int test_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
+
+#ifdef __ANDROID__
+int main(int argc, char **argv)
+{
+    return test_main(argc, argv);
+}
+#else
+#  include "drishti/testing/main.cpp"
+#endif
 
 TEST(Ellipse, EllipseLineIntersection2)
 {

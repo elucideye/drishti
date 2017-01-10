@@ -19,7 +19,7 @@ extern const char* truthFilename;
 extern const char* modelFilename;
 extern const char* outputDirectory;
 
-int main(int argc, char** argv)
+int test_main(int argc, char** argv)
 {
 #if DRISHTI_BUILD_QT
     QApplication app(argc, argv);
@@ -34,3 +34,12 @@ int main(int argc, char** argv)
     
     return RUN_ALL_TESTS();
 }
+
+#ifdef __ANDROID__
+int main(int argc, char **argv)
+{
+    return test_main(argc, argv);
+}
+#else
+#  include "drishti/testing/main.cpp"
+#endif

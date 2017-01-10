@@ -1,5 +1,5 @@
 /*!
-  @file   test-drishti.cpp
+  @file   test-drishti-core.cpp
   @author David Hirvonen
   @brief  Google test for public drishti API.
 
@@ -10,8 +10,23 @@
 
 #include <gtest/gtest.h>
 
-int main(int argc, char** argv)
+#include <iostream>
+#include <stdlib.h>
+
+#include <vector>
+#include <string>
+
+int test_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
+
+#ifdef __ANDROID__
+int main(int argc, char **argv)
+{
+    return test_main(argc, argv);
+}
+#else
+#  include "drishti/testing/main.cpp"
+#endif

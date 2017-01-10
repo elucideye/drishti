@@ -15,7 +15,7 @@ extern const char* imageFilename;
 extern const char* truthFilename;
 extern bool isTextArchive;
 
-int main(int argc, char** argv)
+int test_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc >= 4);
@@ -25,3 +25,12 @@ int main(int argc, char** argv)
     isTextArchive = (argc > 4) ? (std::atoi(argv[4]) > 0) : false;
     return RUN_ALL_TESTS();
 }
+
+#ifdef __ANDROID__
+int main(int argc, char **argv)
+{
+    return test_main(argc, argv);
+}
+#else
+#  include "drishti/testing/main.cpp"
+#endif

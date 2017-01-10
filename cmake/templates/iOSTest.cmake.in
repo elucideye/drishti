@@ -1,0 +1,119 @@
+# Copyright (c) 2015, Ruslan Baratov
+# Copyright (c) 2016, David Hirvonen
+# All rights reserved.
+
+string(COMPARE EQUAL "@IOS_DEPLOY_COMMAND@" "" is_empty)
+if(is_empty)
+  message(FATAL_ERROR "Expected IOS_DEPLOY_COMMAND")
+endif()
+
+string(COMPARE EQUAL "@x_BUNDLE_ID@" "" is_empty)
+if(is_empty)
+  message(FATAL_ERROR "Expected x_BUNDLE_ID")
+endif()
+
+string(COMPARE EQUAL "${APP_SOURCE}" "" is_empty)
+if(is_empty)
+  message(FATAL_ERROR "Expected APP_SOURCE")
+endif()
+
+# Query replace "${EFFECTIVE_PLATFORM_NAME}" -> "-iphoneos"
+# See discussion related to generator expressions (in ios_add_test()) here:
+# http://public.kitware.com/pipermail/cmake/2016-March/063113.html
+
+# APP_SOURCE=/SomeLongPathy/MinSizeRel${EFFECTIVE_PLATFORM_NAME}/test-drishti-core.app/test-drishti-core"
+# APP_DIR=/SomeLongPathy/MinSizeRel${EFFECTIVE_PLATFORM_NAME}/test-drishti-core.app/test-drishti-core"
+# APP_PATH=/SomeLongPathy/MinSizeRel-iphoneos/test-drishti-core.app"
+
+# 1) first get the *.app directory name
+get_filename_component(APP_DIR "${APP_SOURCE}" DIRECTORY)
+
+# 2) expand EFFECTIVE_PLATFORM_NAME
+string(REPLACE "\${EFFECTIVE_PLATFORM_NAME}" "-iphoneos" APP_PATH "${APP_DIR}")
+
+message("Push application to device: ${APP_SOURCE}")
+message("Push application to device: ${APP_DIR}")
+message("Push application to device: ${APP_PATH}")
+
+###
+### Install the application (this allows installation of dependencies)
+###
+
+set(cmd "@IOS_DEPLOY_COMMAND@" --justlaunch --bundle "${APP_PATH}")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed: ${cmd}")
+endif()
+
+###
+### Install the dependencies
+###
+
+string(COMPARE EQUAL "@x_DEPENDENCIES@" "" is_empty)
+if(NOT is_empty)
+  # Copy any required dependencies into the working directory
+  foreach(local_file @x_DEPENDENCIES@)
+    if(EXISTS "${local_file}")
+
+      get_filename_component(local_file_ "${local_file}" NAME)
+      set(remote_file "Documents/${local_file_}")
+
+      message("DEPENDENCY: ${local_file} -> ${remote_file}")
+      
+      set(cmd @IOS_DEPLOY_COMMAND@ --bundle_id @x_BUNDLE_ID@ --upload "${local_file}" --to "${remote_file}")
+      execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+      if(NOT result EQUAL 0)
+        message(FATAL_ERROR "Command failed: ${cmd}")
+      endif()
+    endif()
+  endforeach()
+endif()
+
+###
+### Run the app w/ dependencies
+###
+
+set(cmd @IOS_DEPLOY_COMMAND@ --noninteractive --unbuffered --bundle ${APP_PATH})
+
+string(COMPARE EQUAL "@APP_ARGUMENTS@" "" is_empty)
+if(NOT is_empty)
+  set(app_arguments "@APP_ARGUMENTS@")
+  set(arguments)
+  foreach(arg ${app_arguments})
+    set(arguments "${arguments} \"${arg}\"")
+  endforeach()
+  list(APPEND cmd --args ${arguments})
+endif()
+
+message("RUN: ${cmd}")
+execute_process(
+  COMMAND ${cmd}
+  RESULT_VARIABLE result
+  OUTPUT_VARIABLE output
+  ERROR_VARIABLE output
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_STRIP_TRAILING_WHITESPACE  
+  )
+
+# TODO: need to retrieve return result
+message("Command output (with exit code): ${result}")
+message("*** BEGIN ***")
+message("${output}")
+message("*** END ***")
+
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed")
+endif()
+
+###
+### Clean up the app: ` ios-deploy --uninstall_only --bundle_id my.bundle.id`
+###
+
+# string(COMPARE EQUAL "@x_CLEAN@" "" is_empty)
+# if(NOT is_empty)
+#   set(cmd @IOS_DEPLOY_COMMAND@ --uninstall_only --bundle_id @x_BUNDLE_ID@)
+#   execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+#   if(NOT result EQUAL 0)
+#     message(FATAL_ERROR "Command failed: ${cmd}")
+#   endif()
+# endif()
