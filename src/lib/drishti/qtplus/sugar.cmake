@@ -20,4 +20,3 @@ sugar_files(
   DRISHTI_QTPLUS_SRCS
   QGLContext.cpp     
 )
-
