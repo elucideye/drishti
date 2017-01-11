@@ -202,12 +202,17 @@ int Detector::deserializeAny(const std::string &filename)
         return 0;
     }
 #endif
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
+    if(filename.find(".mat") != std::string::npos)
+    {
+        return deserialize(filename);
+    }
+#endif
     return -1;
 }
 int Detector::deserializeAny(std::istream &is, const std::string &hint)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
-    
     if((!hint.empty() && hint.find(".pba.z") != std::string::npos) || (hint.empty() && is_pba_z(is)))
     {
         load_pba_z(is, *this);
@@ -219,6 +224,12 @@ int Detector::deserializeAny(std::istream &is, const std::string &hint)
     {
         load_cpb(is, *this);
         return 0;
+    }
+#endif
+#if DRISHTI_SERIALIZE_WITH_CVMATIO
+    if(hint.empty() || (hint.find(".mat") != std::string::npos))
+    {
+        return deserialize(is);
     }
 #endif
     return -1;
