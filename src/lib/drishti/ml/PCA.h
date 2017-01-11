@@ -56,7 +56,11 @@ public:
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);
+    
+    static void gemm_transpose(const cv::Mat &A, const cv::Mat &Bt, cv::Mat &result);
 
+protected:
+    
     Standardizer m_transform;
     std::shared_ptr<cv::PCA> m_pca;
 
