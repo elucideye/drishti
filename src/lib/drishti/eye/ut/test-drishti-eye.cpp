@@ -16,6 +16,14 @@ extern const char* truthFilename;
 extern const char* outputDirectory;
 extern bool isTextArchive;
 
+#include <fstream>
+
+static bool hasFile(const std::string &filename)
+{
+    std::ifstream ifs(filename);
+    return ifs.good();
+}
+
 int drishti_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
@@ -25,6 +33,10 @@ int drishti_main(int argc, char** argv)
     truthFilename = argv[3];
     outputDirectory = argv[4];
     isTextArchive = (argc > 5) ? (std::atoi(argv[5]) > 0) : false;
+    
+    assert(hasFile(modelFilename));
+    assert(hasFile(imageFilename));
+    assert(hasFile(truthFilename));
 
     return RUN_ALL_TESTS();
 }
