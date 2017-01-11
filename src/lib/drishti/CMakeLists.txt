@@ -447,19 +447,12 @@ endif()
 
 message("DRISHTI_HAS_TEST_TOOLS : ${DRISHTI_HAS_TEST_TOOLS}") 
 if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS} AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
-
-  message("DRISHTI_TESTING...")
-
   add_subdirectory(testlib)
-
   add_subdirectory(core)
   add_subdirectory(geometry)
   add_subdirectory(ml)
-
-  # Run public SDK, then eye tests in that order
-  add_subdirectory(drishti)  
   add_subdirectory(eye)
-  
+  add_subdirectory(drishti)  
   if(DRISHTI_BUILD_ACF)
     add_subdirectory(acf)
   endif()
