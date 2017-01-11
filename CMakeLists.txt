@@ -276,6 +276,9 @@ option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
 option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with boost" ON)
 option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
 
+# Additional option support simple JSON/XML Eye and Face serialization
+option(DRISHTI_SERIALIZE_MODELS_WITH_CEREAL "Perform major serialization with boost" ON)
+
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 endif()
