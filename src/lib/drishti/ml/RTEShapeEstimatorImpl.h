@@ -10,7 +10,10 @@
 // A half precision (16 bit) floating point representation is used to store
 // the regression trees.
 
-#include "drishti/core/drishti_cereal_pba.h"
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  include "drishti/core/drishti_cereal_pba.h"
+#endif
+
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/shape_predictor.h"
 
