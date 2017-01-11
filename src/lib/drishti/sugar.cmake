@@ -11,7 +11,8 @@ endif()
 
 include(sugar_include)
 
-sugar_include(qtplus) # for testing, etc
+sugar_include(qtplus)  # for testing, Qt opengl contex, etc
+sugar_include(testlib) # for testing
 
 sugar_include(drishti) # public API
 sugar_include(graphics)
