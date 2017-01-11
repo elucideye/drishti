@@ -1,5 +1,6 @@
 #include "drishti/ml/XGBooster.h"
 #include "drishti/ml/XGBoosterImpl.h"
+#include "drishti/core/drishti_core.h"
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/export.hpp>
@@ -15,19 +16,6 @@ using namespace std;
 #include "xgboost/src/utils/math.h"
 #include "xgboost/src/utils/group_data.h"
 #include "xgboost/src/io/simple_dmatrix-inl.hpp"
-
-#include "drishti/core/drishti_core.h"
-
-DRISHTI_BEGIN_NAMESPACE(boost)
-DRISHTI_BEGIN_NAMESPACE(serialization)
-
-template<class Archive> void serialize(Archive & ar, xgboost::wrapper::Booster &booster, const unsigned int version)
-{
-    ar & boost::serialization::base_object<learner::BoostLearner>(booster);
-}
-
-DRISHTI_END_NAMESPACE(serialization)
-DRISHTI_END_NAMESPACE(boost)
 
 using namespace xgboost;
 using namespace xgboost::io;
@@ -49,6 +37,19 @@ BOOST_CLASS_EXPORT_GUID(xgboost::tree::RegTree, "RegTree");
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(xgboost::learner::IObjFunction);
 BOOST_CLASS_EXPORT_GUID(xgboost::learner::IObjFunction, "IObjFunction");
 BOOST_CLASS_EXPORT_GUID(xgboost::learner::RegLossObj, "RegLossObj");
+
+// namespace boost { serialization {
+DRISHTI_BEGIN_NAMESPACE(boost)
+DRISHTI_BEGIN_NAMESPACE(serialization)
+
+template<class Archive> void serialize(Archive & ar, xgboost::wrapper::Booster &booster, const unsigned int version)
+{
+    ar & boost::serialization::base_object<learner::BoostLearner>(booster);
+}
+
+DRISHTI_END_NAMESPACE(serialization)
+DRISHTI_END_NAMESPACE(boost)
+// }}
 
 // ##################################################################
 // #################### portable_binary_*archive ####################
