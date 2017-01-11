@@ -26,6 +26,7 @@
 
 #if DRISHTI_SERIALIZE_WITH_CEREAL
 #  include "drishti/core/drishti_stdlib_string.h"
+#  include "drishti/core/drishti_cereal_pba.h"
 // http://uscilab.github.io/cereal/serialization_archives.html
 #  include <cereal/archives/portable_binary.hpp>
 #  include <cereal/types/vector.hpp>
@@ -44,7 +45,6 @@
 #include <gtest/gtest.h>
 
 #include "drishti/core/drawing.h"
-#include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/acf/ACF.h"
 #include "drishti/acf/MatP.h"
 #include "drishti/core/Logger.h"
@@ -169,7 +169,7 @@ protected:
     {
         if(!m_detector)
         {
-            m_detector = std::make_shared<drishti::acf::Detector>(modelFilename);
+            m_detector = create(modelFilename);// std::make_shared<drishti::acf::Detector>(modelFilename);
         }
         return m_detector;
     }
