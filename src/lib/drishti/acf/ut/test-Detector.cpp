@@ -134,29 +134,7 @@ protected:
 
     std::shared_ptr<drishti::acf::Detector> create(const std::string &filename, bool do10Channel=true)
     {
-#if DRISHTI_SERIALIZE_WITH_CVMATIO        
-        if(filename.find(".mat") != std::string::npos) // cvmatio
-        {
-            return std::make_shared<drishti::acf::Detector>(filename);
-        }
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-        if(filename.find(".cpb") != std::string::npos) // cereal
-        {
-            auto detector = std::make_shared<drishti::acf::Detector>();
-            load_cpb(filename, *detector);
-            return detector;
-        }
-#endif
-#if DRISHTI_SERIALIZE_WITH_BOOST
-        if(filename.find(".pba.z") != std::string::npos) // boost
-        {
-            auto detector = std::make_shared<drishti::acf::Detector>();
-            load_pba_z(filename, *detector);
-            return detector;
-        }
-#endif
-        return nullptr;
+        return std::make_shared<drishti::acf::Detector>(filename);
     }
     
     // Called after constructor for each test
@@ -169,7 +147,7 @@ protected:
     {
         if(!m_detector)
         {
-            m_detector = create(modelFilename);// std::make_shared<drishti::acf::Detector>(modelFilename);
+            m_detector = create(modelFilename);
         }
         return m_detector;
     }
@@ -299,30 +277,33 @@ static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc)
 // test and a simple placeholder assert(true) test wil be added at the
 // end of the test.
 
-#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_SERIALIZE_WITH_CVMATIO
+#if DRISHTI_SERIALIZE_WITH_BOOST
 TEST_F(ACFTest, ACFSerializeBoost)
 {
     // Load from operative format:
     auto detector = create(modelFilename);
-    drishti::acf::Detector detector2;
+    ASSERT_NE(detector, nullptr);
     
     // Test *.pba.z serialization (write and load)
+    drishti::acf::Detector detector2;
     std::string filename = outputDirectory;
     filename += "/acf.pba.z";
     save_pba_z(filename, *detector);
     load_pba_z(filename, detector2);
     ASSERT_TRUE(isEqual(*detector, detector2));
+
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_SERIALIZE_WITH_CVMATIO
+#if DRISHTI_SERIALIZE_WITH_CEREAL
 TEST_F(ACFTest, ACFSerializeCereal)
 {
     // Load from operative format:
     auto detector = create(modelFilename);
-    drishti::acf::Detector detector2;
-
+    ASSERT_NE(detector, nullptr);
+    
     // Test *.cpb serialization (write and load)
+    drishti::acf::Detector detector2;
     std::string filename = outputDirectory;
     filename += "/acf.cpb";
     save_cpb(filename, *detector);
