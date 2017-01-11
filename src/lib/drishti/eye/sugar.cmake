@@ -32,7 +32,12 @@ endif()
 if(DRISHTI_SERIALIZE_WITH_CEREAL)
   sugar_files(DRISHTI_EYE_SRCS
     EyeModelEstimatorArchiveCereal.cpp
-    EyeArchiveCereal.cpp
+    )
+endif()
+
+if(DRISHTI_SERIALIZE_WITH_CEREAL OR DRISHTI_SERIALIZE_MODELS_WITH_CEREAL)
+  sugar_files(DRISHTI_EYE_SRCS
+    EyeArchiveCereal.cpp    
     )
 endif()
 
