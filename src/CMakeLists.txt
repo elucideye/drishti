@@ -55,7 +55,7 @@ option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
 if(DRISHTI_USE_THREAD_POOL_CPP)
   if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
     option(THREAD_POOL_CPP_HAS_CPP14 "Has true C++14 support." OFF) # override option
-    add_subdirectory(src/3rdparty/thread-pool-cpp)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/thread-pool-cpp)
     add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS thread-pool-cpp::thread-pool-cpp) # Add library    
   else()
