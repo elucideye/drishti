@@ -119,7 +119,7 @@ protected:
         assert(!padded.empty());
 
         // Next create each possible size from 0 to 1000:
-        for(int width = 0; width < 512; width++)
+        for(int width = 0; width < 256; width++)
         {
             cv::Mat resized;
             if(width > 0)
@@ -181,8 +181,23 @@ protected:
     std::shared_ptr<drishti::eye::EyeModel> m_eye;
 
     // Score tolerance:
-    float m_scoreThreshold = 0.60;
+    float m_scoreThreshold = 0.75;
 };
+
+
+static void checkValid(const drishti::eye::EyeModel &eye, const cv::Size &size)
+{
+    EXPECT_GT(eye.roi->width, 0);
+    EXPECT_GT(eye.roi->height, 0);
+    EXPECT_GE(eye.eyelids.size(), 16);
+    EXPECT_GT(eye.irisEllipse.size.width, 0);
+    EXPECT_GT(eye.pupilEllipse.size.width, 0);
+}
+
+static bool isEqual(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel &eyeB)
+{
+    return eyeA == eyeB;
+}
 
 /*
  * Basic class construction
@@ -235,15 +250,6 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
 }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
-static void checkValid(const drishti::eye::EyeModel &eye, const cv::Size &size)
-{
-    EXPECT_GT(eye.roi->width, 0);
-    EXPECT_GT(eye.roi->height, 0);
-    EXPECT_GE(eye.eyelids.size(), 16);
-    EXPECT_GT(eye.irisEllipse.size.width, 0);
-    EXPECT_GT(eye.pupilEllipse.size.width, 0);
-}
-
 /*
  * Fixture tests
  */
@@ -288,116 +294,46 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
         drishti::eye::EyeModel eye;
         int code = (*m_eyeSegmenter)(m_images[i].image, eye);
         EXPECT_EQ(code, 0);
-        
-        //cv::Mat mask = cv::Mat(m_images[i].image.size(), CV_8UC3, cv::Scalar::all(0));
-        //eye.draw(mask);
-        //cv::imshow("mask", mask); cv::waitKey(0);
-        
+
         eye.refine();
         checkValid(eye, m_images[i].image.size());
 
         // Ground truth comparison for reasonable resolutions
         if(i > 100)
         {
-            const float threshold = (i == m_targetWidth) ? m_scoreThreshold : 0.5;
             const float scaleGroundTruthToCurrent = float(m_images[i].image.cols) / float(m_targetWidth);
             const float score = detectionScore(*m_eye, eye, m_images[i].image.size(), scaleGroundTruthToCurrent);
-
-            //std::cout << "SCORE[" << i << "]: " << score << std::endl;
-            //std::stringstream ss;
-            //ss << "eye_" << std::setw(6) << std::setfill('0') << i << ".png";
-            //cv::imwrite(ss.str(), eye.mask(m_images[i].image.size()));
-            
-            ASSERT_GT(score, threshold);
+            ASSERT_GT(score, m_scoreThreshold);
         }
     }
 }
 
-static bool isEqual(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel &eyeB)
-{
-    return eyeA == eyeB;
-}
-
 TEST_F(EyeModelEstimatorTest, IsRepeatable)
 {
-    // Create a new EyeSegmenter:
-    auto a_eyeSegmenter = create(modelFilename);
-    
-    if(!m_eye || !m_eyeSegmenter || !a_eyeSegmenter)
+    if(!m_eye || !m_eyeSegmenter)
     {
         return;
     }
     
-    for(int i = 100; i < m_images.size(); i++)
+    for(int i = 64; i < m_images.size(); i++)
     {
         // Make sure image has the expected size:
         EXPECT_EQ(m_images[i].image.cols, i);
 
         assert(m_images[i].isRight);
-        drishti::eye::EyeModel eyeM, eyeA, eyeB;
+        drishti::eye::EyeModel eyeA, eyeB;
 
-        int codeM = (*m_eyeSegmenter)(m_images[i].image, eyeM);
-        EXPECT_EQ(codeM, 0);
-        eyeM.refine();
-        checkValid(eyeM, m_images[i].image.size());        
-
-        int codeA = (*a_eyeSegmenter)(m_images[i].image, eyeA);        
+        int codeA = (*m_eyeSegmenter)(m_images[i].image, eyeA);
         EXPECT_EQ(codeA, 0);
         eyeA.refine();
         checkValid(eyeA, m_images[i].image.size());
-        
-        int codeB = (*a_eyeSegmenter)(m_images[i].image, eyeB);
+            
+        int codeB = (*m_eyeSegmenter)(m_images[i].image, eyeB);
         EXPECT_EQ(codeB, 0);
         eyeB.refine();
         checkValid(eyeB, m_images[i].image.size());
 
-        if(!isEqual(eyeA, eyeB))
-        {
-            {
-                std::stringstream ss;
-                cereal::JSONOutputArchive oa(ss);
-                typedef decltype(oa) Archive;
-                oa(GENERIC_NVP("eyeA", eyeA));
-                std::cout << ss.str() << std::endl;
-            }
-
-            {
-                std::stringstream ss;
-                cereal::JSONOutputArchive oa(ss);
-                typedef decltype(oa) Archive;
-                oa(GENERIC_NVP("eyeB", eyeB));
-                std::cout << ss.str() << std::endl;
-            }
-        }
-
         EXPECT_EQ(isEqual(eyeA, eyeB), true);
-        EXPECT_EQ(isEqual(eyeA, eyeM), true);
-
-        // Ground truth comparison for reasonable resolutions
-        if(i > 100)
-        {
-            const float threshold = (i == m_targetWidth) ? m_scoreThreshold : 0.5;
-            const float scaleGroundTruthToCurrent = float(m_images[i].image.cols) / float(m_targetWidth);
-
-            const float scoreM = detectionScore(*m_eye, eyeM, m_images[i].image.size(), scaleGroundTruthToCurrent);
-            ASSERT_GT(scoreM, threshold);
-            if(scoreM <= threshold)
-            {
-                std::cerr << "DrishtiEyeTest image test " << i << " failed " << std::endl;
-            }
-            
-            const float scoreA = detectionScore(*m_eye, eyeA, m_images[i].image.size(), scaleGroundTruthToCurrent);
-            ASSERT_GT(scoreA, threshold);
-            if(scoreM <= threshold)
-            {
-                std::cerr << "DrishtiEyeTest image test " << i << " failed " << std::endl;
-            }            
-
-            //std::cout << "SCORE[" << i << "]: " << score << std::endl;
-            //std::stringstream ss;
-            //ss << "eye_" << std::setw(6) << std::setfill('0') << i << ".png";
-            //cv::imwrite(ss.str(), eye.mask(m_images[i].image.size()));
-        }
     }
 }
 
@@ -506,5 +442,3 @@ detectionScore(const drishti::eye::EyeModel &eyeA, const drishti::eye::EyeModel 
 }
 
 END_EMPTY_NAMESPACE
-
-

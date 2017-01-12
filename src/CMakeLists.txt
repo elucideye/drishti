@@ -31,8 +31,8 @@ endif()
 ### Initial 3RDPARTY PKG libraries ###
 ######################################
 set(DRISHTI_SDK_3RDPARTY_PKG_LIBS
-  dlib::dlib
-  ${OpenCV_LIBS}  
+  ${OpenCV_LIBS}
+  dlib::dlib  
   cereal::cereal
   Eigen::eigen
   spdlog::spdlog
@@ -46,12 +46,30 @@ if(DRISHTI_BUILD_ACF AND DRISHTI_SERIALIZE_WITH_CVMATIO)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cvmatio::cvmatio)
 endif()
 
+#######################
+### THREAD-POOL-CPP ###
+#######################
+drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
+
+if(DRISHTI_USE_THREAD_POOL_CPP)
+  if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
+    option(THREAD_POOL_CPP_HAS_CPP14 "Has true C++14 support." OFF) # override option
+    add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/thread-pool-cpp)
+    add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
+    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS thread-pool-cpp::thread-pool-cpp) # Add library    
+  else()
+    hunter_add_package(thread-pool-cpp)
+    find_package(thread-pool-cpp CONFIG REQUIRED)
+    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS thread-pool-cpp::thread-pool-cpp) # Add library    
+  endif()
+endif()
+
 ###############
 ### XGBOOST ###
 ###############
 option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
 if(DRISHTI_USE_LOCAL_XGBOOST)
-  # Note: Use either XGBOOST
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
   option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
   add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost)

@@ -20,7 +20,7 @@
 double QtFaceMonitor::PositionAndTime::estimateVelocity(const PositionAndTime &current)
 {
     double translation = cv::norm(current.position - position);
-    double interval = current.time - time;
+    double interval = std::chrono::duration<double>(current.time - time).count();
     return translation / interval;
 }
 
@@ -33,13 +33,13 @@ QtFaceMonitor::QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<tp::ThreadP
     
 }
 
-bool QtFaceMonitor::isValid(const cv::Point3f &position, double timeStamp)
+bool QtFaceMonitor::isValid(const cv::Point3f &position, const TimePoint &now)
 {
     bool okay = false;
     
     // Here we can apply various heuristics 
     m_frameCounter++;
-    PositionAndTime current(position, timeStamp);
+    PositionAndTime current(position, now);
     
     if(m_previousPosition.has)
     {
@@ -48,10 +48,9 @@ bool QtFaceMonitor::isValid(const cv::Point3f &position, double timeStamp)
         
         if((m_range[0] < position.z) && (position.z < m_range[1]))
         {
-            
             if(velocity < m_velocityTreshold)
             {
-                if((timeStamp - m_previousStack->time) > m_stackSampleInterval)
+                if(std::chrono::duration<double>(now - m_previousStack->time).count() > m_stackSampleInterval)
                 {
                     okay = true;
                     m_previousStack = current;
@@ -65,7 +64,7 @@ bool QtFaceMonitor::isValid(const cv::Point3f &position, double timeStamp)
     return okay;
 }
 
-void QtFaceMonitor::grab(std::vector<cv::Mat4b> &frames)
+void QtFaceMonitor::grab(const std::vector<FaceImage> &frames, bool isInitialized)
 {
     auto counter = m_stackCounter++;
     std::function<void()> logger = [frames, counter, this]()
@@ -75,7 +74,7 @@ void QtFaceMonitor::grab(std::vector<cv::Mat4b> &frames)
             std::stringstream ss;
             ss << "/tmp/frame_" << counter << "_"  << i << ".png";
             std::cout << "Logging: " << ss.str() << std::endl;
-            cv::imwrite(ss.str(), frames[i]);
+            cv::imwrite(ss.str(), frames[i].image);
         }
     };
     

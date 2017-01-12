@@ -95,7 +95,11 @@ if(DRISHTI_BUILD_WORLD)
   set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
   drishti_hide(drishti_world)
   
-  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
+  target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
+
+  if(DRISHTI_USE_THREAD_POOL_CPP)
+    target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
+  endif()
 
   if(DRISHTI_COTIRE)  
     cotire(drishti_world)
@@ -104,12 +108,14 @@ if(DRISHTI_BUILD_WORLD)
     set(DRISHTI_LIBS drishti_world)
   endif()
 
-  
 else()
 
   ## drishti_core
   add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
   target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
+  if(DRISHTI_USE_THREAD_POOL_CPP)
+    target_link_libraries(drishti_core PUBLIC thread-pool-cpp::thread-pool-cpp)
+  endif()
 
   ## drishti_geometry
   add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
@@ -173,33 +179,6 @@ else()
   endforeach()  
 
 endif(DRISHTI_BUILD_WORLD)
-
-##
-## Unit tests
-##
-
-message("DRISHTI_HAS_TEST_TOOLS : ${DRISHTI_HAS_TEST_TOOLS}") 
-if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS} AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
-
-  message("DRISHTI_TESTING...")
-  add_subdirectory(core)
-  add_subdirectory(geometry)
-  add_subdirectory(ml)
-
-  # Run public SDK, then eye tests in that order
-  add_subdirectory(drishti)  
-  add_subdirectory(eye)
-  
-  if(DRISHTI_BUILD_ACF)
-    add_subdirectory(acf)
-  endif()
-  if(DRISHTI_BUILD_FACE)
-    add_subdirectory(face)
-  endif()
-  if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
-    add_subdirectory(hci)
-  endif()
-endif()
 
 include_directories("${PROJECT_BINARY_DIR}")
 
@@ -275,6 +254,15 @@ endif()
 set(DRISHTI_LIBRARY_LIST ${DRISHTI_LIBS} drishtisdk)
 foreach(library ${DRISHTI_LIBRARY_LIST})
 
+  # TODO: replace internal include_directories():
+  #
+  # target_include_directories(${library}
+  #   INTERFACE
+  #   "$<BUILD_INTERFACE:${CMAKE_PROJECT_DIR}/src/lib}>" 
+  #   "$<BUILD_INTERFACE:${CMAKE_PROJECT_DIR}/src/lib/drishti}>"
+  #   "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
+  # )
+
   # define M_PI_2 for MSVC
   target_compile_definitions(${library} PUBLIC _USE_MATH_DEFINES) 
 
@@ -322,7 +310,8 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
       AND NOT "${library}" MATCHES "dlib::dlib"
       AND NOT "${library}" MATCHES "eos::eos"
       AND NOT "${library}" MATCHES "spdlog::spdlog"
-      AND NOT "${library}" MATCHES "Eigen::eigen") 
+      AND NOT "${library}" MATCHES "Eigen::eigen"
+      AND NOT "${library}" MATCHES "thread-pool-cpp::thread-pool-cpp")
     add_custom_command(TARGET drishtisdk POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
       COMMENT "Copying " $<TARGET_FILE:${library}>
@@ -351,6 +340,13 @@ target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for
 target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
 drishti_hide(drishti)
 drishti_strip(drishti)
+
+if(IOS)
+  # Add a static public SDK library for initial iOS testing:
+  add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
+  target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+  target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
+endif()
 
 set_target_properties(drishti
   PROPERTIES
@@ -447,5 +443,30 @@ if(DRISHTI_BUILD_C_INTERFACE)
       RUNTIME DESTINATION "bin"
       INCLUDES DESTINATION "${drishti_include_install_dir}"
       )
+  endif()
+endif()
+
+#################
+## Unit tests ###
+#################
+
+# NOTE: These should come last to ensure all library targets are available
+
+message("DRISHTI_HAS_TEST_TOOLS : ${DRISHTI_HAS_TEST_TOOLS}") 
+if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS} AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
+  add_subdirectory(testlib)
+  add_subdirectory(core)
+  add_subdirectory(geometry)
+  add_subdirectory(ml)
+  add_subdirectory(eye)
+  add_subdirectory(drishti)  
+  if(DRISHTI_BUILD_ACF)
+    add_subdirectory(acf)
+  endif()
+  if(DRISHTI_BUILD_FACE)
+    add_subdirectory(face)
+  endif()
+  if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
+    add_subdirectory(hci)
   endif()
 endif()

@@ -39,7 +39,7 @@ public:
 
         cv::Point2f absolute;
         cv::Point2f relative;
-        float openness;
+        float openness = 0.f;
     };
 
     // TODO: after this class is working, need to remove some of these

@@ -147,31 +147,32 @@ if(DRISHTI_BUILD_TESTS)
   # ${DRISHTISDK}/src/tests
 
   if(ANDROID)
-    # Android-Apk dependency removed, using drishti_android_add_test()
-    # for local development:
-    #
-    # hunter_add_package(Android-Apk)
-    # list(APPEND CMAKE_MODULE_PATH "${ANDROID-APK_ROOT}")
-    # include(AndroidApk) # android_add_test
-
+    # Look for existing ADB for initial tests:
     find_program(DRISHTI_ADB_COMMAND adb)
     if(DRISHTI_ADB_COMMAND MATCHES "NOTFOUND")
       message("Can't find adb command")
       set(DRISHTI_HAS_TEST_TOOLS FALSE)
     else()
       message("Found adb command : ${DRISHTI_ADB_COMMAND}")
-      enable_testing()
-      include(drishti_android_add_test)
-      include(drishti_android_copy_files)
       set(DRISHTI_HAS_TEST_TOOLS TRUE)
     endif()
-
   elseif(IOS)
-    # FIXME: https://github.com/elucideye/drishti/issues/58
-    set(DRISHTI_HAS_TEST_TOOLS FALSE)
-  else()
-    enable_testing()
+    # Look for existing ios-deploy for initial tests:    
+    find_program(DRISHTI_IOS_DEPLOY_COMMAND ios-deploy)
+    if(DRISHTI_IOS_DEPLOY_COMMAND MATCHES "NOTFOUND")
+      message(WARNING "Could not find ${DRISHTI_IOS_DEPLOY_COMMAND}")
+      set(DRISHTI_HAS_TEST_TOOLS FALSE)
+    else()
+      message("Found ios-deploy command : ${DRISHTI_IOS_DEPLOY_COMMAND}")
+      set(DRISHTI_HAS_TEST_TOOLS TRUE)      
+    endif()
+  else() # HOST==TARGET: (i.e., OSX, *nix, MSVC)
     set(DRISHTI_HAS_TEST_TOOLS TRUE)
+  endif()
+
+  if(DRISHTI_HAS_TEST_TOOLS)
+    enable_testing()
+    include(drishti_add_test)
   endif()
 
   hunter_add_package(GTest)
@@ -274,6 +275,9 @@ option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
 option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with boost" ON)
 option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
 
+# Additional option support simple JSON/XML Eye and Face serialization
+option(DRISHTI_SERIALIZE_MODELS_WITH_CEREAL "Perform major serialization with boost" ON)
+
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
 endif()
@@ -292,19 +296,6 @@ if(NOT DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
 endif()
 
 message("DRISHTI_HAVE_THREAD_LOCAL_STORAGE : ${DRISHTI_HAVE_THREAD_LOCAL_STORAGE}")
-
-### Thread-pool-cpp
-drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
-
-if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
-  add_subdirectory(src/3rdparty/thread-pool-cpp)
-  include_directories(src/3rdparty/thread-pool-cpp/include)
-  add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
-else()
-  hunter_add_package(thread-pool-cpp)
-  find_package(thread-pool-cpp CONFIG REQUIRED)
-endif()
 
 ### Cereal
 hunter_add_package(cereal)
@@ -426,8 +417,8 @@ message("Faces directory: '${faces_dir}'")
 
 ### Download 'assets'
 drishti_download_private_data(
-    URL "https://github.com/elucideye/drishti-assets/archive/v1.2.tar.gz"
-    SHA1 "c23f805e8b5f5bca999c8d2e5179558d36371a0a"
+    URL "https://github.com/elucideye/drishti-assets/archive/v1.3.tar.gz"
+    SHA1 "9dad041e66e6e2581b31619ae26dd45fbf1cc259"
     NAME "assets"
     DIR assets_dir
     PASSWORDS "${CMAKE_CURRENT_LIST_DIR}/passwords.cmake"

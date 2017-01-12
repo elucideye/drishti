@@ -5,7 +5,7 @@
 
 using namespace MyGame::Sample;
 
-int main(int argc, const char *argv[])
+int drishti_main(int argc, char **argv)
 {
     if(argc != 2)
     {
@@ -27,4 +27,6 @@ int main(int argc, const char *argv[])
     
     drishti::Monster monsterDst;
     monsterDst.deserialize(builder.GetBufferPointer());
+
+    return 0;
 }

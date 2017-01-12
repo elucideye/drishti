@@ -267,6 +267,8 @@ cv::RotatedRect fitEllipse(const std::vector<cv::Point2d> &pts)
 
 cv::RotatedRect fitEllipse(const std::vector<cv::Point2d> &points, const cv::Point2d &center)
 {
+    assert(points.size() >= 3);
+    
     // TODO: add normalization
     typedef Eigen::Matrix<double, 4, 4, Eigen::RowMajor> Matrix44d;
     typedef Eigen::Matrix<double, 3, 3, Eigen::RowMajor> Matrix33d;

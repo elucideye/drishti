@@ -1,8 +1,5 @@
-# found variable?
-#include_directories(${GTEST_INCLUDE_DIRS})
-
-set(DRISHTI_HCI_TEST_NAME DrishtiHciTest)
-set(DRISHTI_HCI_TEST_APP test-drishti-hci)
+set(test_name DrishtiHciTest)
+set(test_app test-drishti-hci)
 
 if(DRISHTI_BUILD_QT AND DRISHTI_BUILD_OGLES_GPGPU)
   set(DRISHTI_HCI_DO_GPU 1)
@@ -23,9 +20,9 @@ if(DRISHTI_HCI_DO_GPU)
   list(APPEND SOURCES ${DRISHTI_QTPLUS_HDRS} ${DRISHTI_QTPLUS_SRCS})
 endif()
 
-add_executable(${DRISHTI_HCI_TEST_APP} ${SOURCES})
-set_property(TARGET ${DRISHTI_HCI_TEST_APP} PROPERTY FOLDER "app/tests")
-target_link_libraries(${DRISHTI_HCI_TEST_APP}
+add_executable(${test_app} ${SOURCES})
+set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
+target_link_libraries(${test_app} PUBLIC
   ${OpenCV_LIBS}  
   GTest::gtest
   drishtisdk  
@@ -35,19 +32,19 @@ target_link_libraries(${DRISHTI_HCI_TEST_APP}
 ### POST_BUILD GPU ADDITIONS ###
 if(DRISHTI_HCI_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)
-  target_link_libraries(${DRISHTI_HCI_TEST_APP} ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
-  target_compile_definitions(${DRISHTI_HCI_TEST_APP} PUBLIC DRISHTI_HCI_DO_GPU=${DRISHTI_HCI_DO_GPU})
+  target_link_libraries(${test_app} PUBLIC ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
+  target_compile_definitions(${test_app} PUBLIC DRISHTI_HCI_DO_GPU=${DRISHTI_HCI_DO_GPU})
 endif()
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
 if(APPLE)
   if(IOS)
-    target_link_libraries(${DRISHTI_HCI_TEST_APP}
+    target_link_libraries(${test_app} PUBLIC
       "-framework CoreFoundation"
       "-framework Foundation"  # _NSLog
       )
   else()
-    target_link_libraries(${DRISHTI_HCI_TEST_APP}
+    target_link_libraries(${test_app} PUBLIC
       "-framework ImageIO"
       "-framework CoreVideo"
       )
@@ -64,43 +61,10 @@ drishti_set_unit_test_assets(
 
 set(DRISHTI_TEST_FACE_IMAGE_COLOR "${assets_dir}/images/lena512color.png")
 
-enable_testing()
-
-if(ANDROID)
-
-  # Extract filenames:
-  get_filename_component(DRISHTI_ACF_FACE_MODEL_ "${DRISHTI_ACF_FACE_MODEL}" NAME)
-  get_filename_component(DRISHTI_FACE_LANDMARKER_ "${DRISHTI_FACE_LANDMARKER}" NAME)
-  get_filename_component(DRISHTI_EYE_MODEL_ "${DRISHTI_EYE_MODEL}" NAME)
-  get_filename_component(DRISHTI_MEAN_FACE_LANDMARKS_ "${DRISHTI_MEAN_FACE_LANDMARKS}" NAME)
-  get_filename_component(DRISHTI_TEST_FACE_IMAGE_COLOR_ "${DRISHTI_TEST_FACE_IMAGE_COLOR}" NAME)
-
-  # Will set ${DRISHTI_HCI_TEST_NAME}_INSTALL_PATH
-  drishti_android_add_test(NAME ${DRISHTI_HCI_TEST_NAME}
-    COMMAND ${DRISHTI_HCI_TEST_APP}
-    "${DRISHTI_ACF_FACE_MODEL_}"
-    "${DRISHTI_MEAN_FACE_LANDMARKS_}"
-    "${DRISHTI_FACE_LANDMARKER_}"
-    "${DRISHTI_EYE_MODEL_}"
-    "${DRISHTI_TEST_FACE_IMAGE_COLOR_}"
-    DEPENDENCIES
-    "${DRISHTI_ACF_FACE_MODEL}"
-    "${DRISHTI_FACE_LANDMARKER}"
-    "${DRISHTI_EYE_MODEL}"
-    "${DRISHTI_MEAN_FACE_LANDMARKS}"
-    "${DRISHTI_TEST_FACE_IMAGE_COLOR}"
-    )
-
-else()
-
-  add_test(NAME ${DRISHTI_HCI_TEST_NAME} COMMAND ${DRISHTI_HCI_TEST_APP}
-    "${DRISHTI_ACF_FACE_MODEL}"
-    "${DRISHTI_MEAN_FACE_LANDMARKS}"
-    "${DRISHTI_FACE_LANDMARKER}"
-    "${DRISHTI_EYE_MODEL}"
-    "${DRISHTI_TEST_FACE_IMAGE_COLOR}"    
-    )
-
-endif()
-
-
+drishti_add_test(NAME ${test_name} COMMAND ${test_app}
+  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_ACF_FACE_MODEL}>"
+  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_MEAN_FACE_LANDMARKS}>"
+  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_FACE_LANDMARKER}>"
+  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
+  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_TEST_FACE_IMAGE_COLOR}>"    
+  )

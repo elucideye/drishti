@@ -17,13 +17,22 @@
 
 #include "portable_binary_iarchive.hpp"
 
+#define CAST_FOR_NEGATIVE_CHAR 1
+
 void
 portable_binary_iarchive::load_impl(boost::intmax_t & l, char maxsize)
 {
-    char size;
     l = 0;
-    this->primitive_base_t::load(size);
 
+#if CAST_FOR_NEGATIVE_CHAR
+    char bytes;
+    this->primitive_base_t::load(bytes);
+    int size = static_cast<signed char>(bytes); // gcc -1 vs 255
+#else
+    char size;
+    this->primitive_base_t::load(size);
+#endif
+    
     if(0 == size)
     {
         return;
@@ -35,10 +44,12 @@ portable_binary_iarchive::load_impl(boost::intmax_t & l, char maxsize)
         size = -size;
     }
 
-    if(size > maxsize)
+    if(size > maxsize) {
+        std::cerr << "portable_binary_iarchive::load_impl: size > maxsize: " << int(size) << " " << int(maxsize) << std::endl;
         boost::serialization::throw_exception(
             portable_binary_iarchive_exception()
         );
+    }
 
     char * cptr = reinterpret_cast<char *>(& l);
 #ifdef BOOST_BIG_ENDIAN
@@ -94,7 +105,7 @@ portable_binary_iarchive::init(unsigned int flags)
     {
         // read signature in an archive version independent manner
         std::string file_signature;
-        * this >> file_signature;
+        (*this) >> file_signature;
         if(file_signature != boost::archive::BOOST_ARCHIVE_SIGNATURE())
             boost::serialization::throw_exception(
                 boost::archive::archive_exception(

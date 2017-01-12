@@ -8,6 +8,8 @@
 
 */
 
+#include "drishti/testlib/drishti_test_utils.h"
+
 #include <gtest/gtest.h>
 
 extern const char* modelFilename;
@@ -15,13 +17,16 @@ extern const char* imageFilename;
 extern const char* truthFilename;
 extern bool isTextArchive;
 
-int main(int argc, char** argv)
+int drishti_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc >= 4);
+    drishti::testlib::hasFiles(argv, {1,2,3});    
+    
     modelFilename = argv[1];
     imageFilename = argv[2];
     truthFilename = argv[3];
     isTextArchive = (argc > 4) ? (std::atoi(argv[4]) > 0) : false;
+
     return RUN_ALL_TESTS();
 }

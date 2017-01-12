@@ -26,7 +26,7 @@ TOOLCHAINS=\
 (
 #    gcc-hid-fpic
     libcxx-hid-sections
-    ios-10-0-dep-8-0-hid-sections
+    ios-10-1-dep-8-0-hid-sections
     android-ndk-r10e-api-16-armeabi-v7a-neon-clang-35-hid-sections
     android-ndk-r10e-api-21-arm64-v8a-gcc-49-hid-sections
     android-ndk-r10e-api-16-x86-hid-sections

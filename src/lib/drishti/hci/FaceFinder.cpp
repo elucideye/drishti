@@ -370,7 +370,7 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
         catch(...) {}
     };
     
-    GLuint inputTexId = m_acf->getInputTexId(), outputTexId = 0;
+    GLuint inputTexId /* = m_acf->getInputTexId() */, outputTexId = 0;
     
     inputTexId = m_acf->first()->getOutputTexId(); // override with the upright textures
     

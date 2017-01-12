@@ -1,69 +1,11 @@
 #include "drishti/acf/ACFIOArchive.h"
-
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/drishti_cvmat_boost.h"
 
 #include <opencv2/opencv.hpp>
 
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
-
-
-#if 0
-BOOST_SERIALIZATION_SPLIT_FREE(cv::Mat)
-// Macros fix some IDE formatting
-DRISHTI_BEGIN_NAMESPACE(boost)
-DRISHTI_BEGIN_NAMESPACE(serialization)
-
-/** Serialization support for cv::Mat */
-template<class Archive>
-void save(Archive &ar, const cv::Mat &m, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
-{
-    size_t elem_size = m.elemSize();
-    size_t elem_type = m.type();
-    ar & m.cols;
-    ar & m.rows;
-    ar & elem_size;
-    ar & elem_type;
-    
-    std::vector<std::uint16_t> data(m.total());
-    switch(elem_type)
-    {
-        case CV_32F: drishti::acf::float2half(m, data); break;
-        case CV_32S: drishti::acf::transform32Sto16U(m, data); break;
-        default : assert(false);
-    }
-    
-    // Compare size of array vs vector:
-    ar & boost::serialization::make_array(data.data(), data.size());
-}
-
-/** Serialization support for cv::Mat */
-template<class Archive>
-void load(Archive &ar, cv::Mat &m, const std::uint32_t BOOST_ATTRIBUTE_UNUSED version)
-{
-    int    cols, rows;
-    size_t elem_size, elem_type;
-    ar & cols;
-    ar & rows;
-    ar & elem_size;
-    ar & elem_type;
-
-    m.create(rows, cols, int(elem_type));
-
-    std::vector<std::uint16_t> data(m.total());
-    ar & boost::serialization::make_array(data.data(), data.size());
-    switch(elem_type)
-    {
-        case CV_32F: drishti::acf::half2float(rows, cols, data, m); break;
-        case CV_32S: drishti::acf::transform16Uto32S(rows, cols, data, m); break;
-        default : assert(false);
-    }
-}
-DRISHTI_END_NAMESPACE(serialization)
-DRISHTI_END_NAMESPACE(boost)
-#else
-#include "drishti/core/drishti_cvmat_boost.h"
-#endif
 
 //----
 

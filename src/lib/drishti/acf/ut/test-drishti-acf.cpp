@@ -8,6 +8,8 @@
 
 */
 
+#include "drishti/testlib/drishti_test_utils.h"
+
 #if DRISHTI_BUILD_QT
 #  include <QApplication>
 #endif
@@ -19,14 +21,16 @@ extern const char* truthFilename;
 extern const char* modelFilename;
 extern const char* outputDirectory;
 
-int main(int argc, char** argv)
+int drishti_main(int argc, char** argv)
 {
 #if DRISHTI_BUILD_QT
     QApplication app(argc, argv);
 #endif
-
+    
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 5);
+    drishti::testlib::hasFiles(argv, {1,2,3});
+    
     imageFilename = argv[1];
     truthFilename = argv[2];
     modelFilename = argv[3];

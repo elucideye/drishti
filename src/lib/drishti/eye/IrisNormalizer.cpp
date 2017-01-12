@@ -58,7 +58,7 @@ cv::Size IrisNormalizer::createRays(const EyeModel &eye, const cv::Size &size, R
     rayPixels.reserve(paddedSize.width);
     rayTexels.reserve(paddedSize.width);
 
-    int n = 0;
+    /* int n = 0; */
     cv::Vec3f P[2];
     cv::Point2f p[2], pi, pp;
     for(int x = -padding; x < (size.width + padding); x++)
@@ -69,12 +69,12 @@ cv::Size IrisNormalizer::createRays(const EyeModel &eye, const cv::Size &size, R
         const cv::Point3f L = c.cross( c + v );
 
         // TODO: should be able to avoid need for the dot product
-        n = drishti::geometry::intersectConicLine(iris, L, P);
+        /* n = */ drishti::geometry::intersectConicLine(iris, L, P);
         p[0] = { P[0][0]/P[0][2], P[0][1]/P[0][2] };
         p[1] = { P[1][0]/P[1][2], P[1][1]/P[1][2] };
         pi = p[ cv::Point2f(v.x, v.y).dot(p[0] - cv::Point2f(c.x,c.y)) > 0 ];
 
-        n = drishti::geometry::intersectConicLine(pupil, L, P);
+        /* n = */ drishti::geometry::intersectConicLine(pupil, L, P);
         p[0] = { P[0][0]/P[0][2], P[0][1]/P[0][2] };
         p[1] = { P[1][0]/P[1][2], P[1][1]/P[1][2] };
         pp = p[ cv::Point2f(v.x, v.y).dot(p[0] - cv::Point2f(c.x, c.y)) > 0 ];

@@ -8,8 +8,6 @@
 
 */
 
-#define DRISHTI_ML_USE_EIGEN_GEMM 1
-
 #include "drishti/ml/PCA.h"
 
 #include <Eigen/Dense>
@@ -162,11 +160,25 @@ cv::Mat StandardizedPCA::project(const cv::Mat &samples, int n) const
     return projection;
 }
 
-typedef Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic> DynamicStride;
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixRowMajor;
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> MatrixColMajor;
-typedef Eigen::Map< MatrixRowMajor > MapMatrixRowMajor;
-typedef Eigen::Map< MatrixColMajor, Eigen::Unaligned, DynamicStride > MapMatrixColMajor;
+void StandardizedPCA::gemm_transpose(const cv::Mat &A, const cv::Mat &Bt, cv::Mat &result)
+{
+    assert(A.type() == CV_32F);
+    assert(A.isContinuous());
+    assert(A.cols == Bt.cols);
+    assert(Bt.type() == CV_32F);
+    
+    using DynamicStride = Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic>;
+    using MatrixRowMajor = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+    using MatrixColMajor = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
+    using MapMatrixRowMajor = Eigen::Map<MatrixRowMajor, Eigen::Unaligned>;
+    using MapMatrixColMajor = Eigen::Map<MatrixColMajor, Eigen::Unaligned, DynamicStride>;
+
+    result.create(A.rows, Bt.rows, CV_32F);
+    MapMatrixRowMajor C1(result.ptr<float>(), result.rows, result.cols);
+    MapMatrixRowMajor A1(const_cast<float *>(A.ptr<float>()), A.rows, A.cols);
+    MapMatrixColMajor B1t(const_cast<float *>(Bt.ptr<float>()), /*n*/ Bt.cols, Bt.rows, DynamicStride(Bt.step1(), 1));
+    C1 = A1 * B1t;
+}
 
 cv::Mat StandardizedPCA::backProject(const cv::Mat &projection) const
 {
@@ -196,23 +208,14 @@ cv::Mat StandardizedPCA::backProject(const cv::Mat &projection) const
             tmp_mean = cv::repeat(mean, data.rows, 1);
 
             // Eigen multiplication ( no copy )
-#if DRISHTI_ML_USE_EIGEN_GEMM
             const cv::Mat &A = tmp_data;
             const cv::Mat &Bt = m_eT;
-            MapMatrixRowMajor A1(const_cast<float *>(A.ptr<float>()), A.rows, A.cols);
-            MapMatrixColMajor B1t(const_cast<float *>(Bt.ptr<float>()), n, Bt.rows, DynamicStride(Bt.cols, 1));
-            MatrixRowMajor C1 = A1 * B1t;
-            result.create(int(C1.rows()), int(C1.cols()), tmp_data.type());
-            cv::Mat1f(int(C1.rows()), int(C1.cols()), C1.data()).copyTo(result);
-#else
-            // (1x4) x (4x250) = (1x250)
-            cv::gemm( tmp_data, eigenvectors, 1, tmp_mean, 1, result, 0 ); // 41%
-#endif
+            gemm_transpose(A, Bt({0,Bt.rows},{0,n}), result);
         }
         else
         {
             tmp_mean = cv::repeat(mean, 1, data.cols);
-            cv::gemm( eigenvectors, tmp_data, 1, tmp_mean, 1, result, cv::GEMM_1_T );
+            cv::gemm(eigenvectors, tmp_data, 1, tmp_mean, 1, result, cv::GEMM_1_T);
         }
     }
     else

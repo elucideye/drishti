@@ -3,8 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-
-int main(int argc, char **argv)
+int drishti_main(int argc, char **argv)
 {
     if(argc != 2)
     {
@@ -43,4 +42,6 @@ int main(int argc, char **argv)
             ia >> monsterDst;
         }
     }
+
+    return 0;
 }

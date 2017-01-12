@@ -21,7 +21,7 @@ const char *sFaceDetectorMean;
 const char *sFaceRegressor;
 const char *sEyeRegressor;
 
-int main(int argc, char** argv)
+int drishti_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 4);

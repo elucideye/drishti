@@ -44,6 +44,7 @@ sugar_files(DRISHTI_ML_HDRS_PUBLIC
   ShapeEstimator.h
   drishti_ml.h
   shape_predictor.h
+  shape_predictor_archive.h
   XGBooster.h
   XGBoosterImpl.h  
   Booster.h

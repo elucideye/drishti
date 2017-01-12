@@ -14,7 +14,6 @@ include(sugar_files)
 sugar_files(DRISHTI_CORE_SRCS
   Logger.cpp
   Shape.cpp
-  ThreadPool.cpp
   arithmetic.cpp
   convert.cpp
   drawing.cpp
@@ -31,7 +30,6 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   Logger.h
   Parallel.h
   Shape.h
-  ThreadPool.h
   arithmetic.h
   boost_serialize_common.h
   convert.h
@@ -57,3 +55,8 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   string_utils.h
   timing.h
 )
+
+if(DRISHTI_USE_THREAD_POOL_CPP)
+  sugar_files(DRISHTI_CORE_HDRS_PUBLIC ThreadPool.h)
+  sugar_files(DRISHTI_CORE_SRCS ThreadPool.cpp)  
+endif()
