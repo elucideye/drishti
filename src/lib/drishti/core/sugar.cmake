@@ -57,6 +57,6 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
 )
 
 if(DRISHTI_USE_THREAD_POOL_CPP)
-  sugar_file(DRISHTI_CORE_HDRS_PUBLIC ThreadPool.h)
-  sugar_file(DRISHTI_CORE_SRCS ThreadPool.cpp)  
+  sugar_files(DRISHTI_CORE_HDRS_PUBLIC ThreadPool.h)
+  sugar_files(DRISHTI_CORE_SRCS ThreadPool.cpp)  
 endif()
