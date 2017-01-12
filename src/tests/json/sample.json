@@ -1,0 +1,29 @@
+{
+    "doLandmarks": true,
+    "doFlow": true,
+    "doFlash": false,
+    "frameDelay": 2,
+
+    "com.apple.avfoundation.avcapturedevice.built-in_video:1": {
+        "description": "FaceTime HD Camera (Built-in)[5s]",
+
+        "detectionRange": {
+            "minDepth": 0.1,
+            "maxDepth": 0.5
+        },
+
+        "sensor": {
+            "intrinsic": {
+                "size": {
+                    "width": 1280,
+                    "height": 720
+                },
+                "principal": {
+                    "x": 640.0,
+                    "y": 360.0
+                },
+                "focal_length_x": 1000.0
+            }
+        }
+    }
+}
