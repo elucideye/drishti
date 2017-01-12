@@ -95,7 +95,7 @@ if(DRISHTI_BUILD_WORLD)
   set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
   drishti_hide(drishti_world)
   
-  target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
+  target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
 
   if(DRISHTI_USE_THREAD_POOL_CPP)
     target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
