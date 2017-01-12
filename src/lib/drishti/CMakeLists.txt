@@ -97,6 +97,10 @@ if(DRISHTI_BUILD_WORLD)
   
   target_link_libraries(drishti_world ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
 
+  if(DRISHTI_USE_THREAD_POOL_CPP)
+    target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
+  endif()
+
   if(DRISHTI_COTIRE)  
     cotire(drishti_world)
     set(DRISHTI_LIBS drishti_world_unity)
@@ -108,7 +112,10 @@ else()
 
   ## drishti_core
   add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
-  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS} thread-pool-cpp::thread-pool-cpp)
+  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
+  if(DRISHTI_USE_THREAD_POOL_CPP)
+    target_link_libraries(drishti_core PUBLIC thread-pool-cpp::thread-pool-cpp)
+  endif()
 
   ## drishti_geometry
   add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})

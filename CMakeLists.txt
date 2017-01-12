@@ -142,7 +142,6 @@ option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 # Testing
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 
-
 if(DRISHTI_BUILD_TESTS)
   # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
   # ${DRISHTISDK}/src/tests
@@ -297,19 +296,6 @@ if(NOT DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
 endif()
 
 message("DRISHTI_HAVE_THREAD_LOCAL_STORAGE : ${DRISHTI_HAVE_THREAD_LOCAL_STORAGE}")
-
-### Thread-pool-cpp
-drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
-
-if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
-  option(THREAD_POOL_CPP_HAS_CPP14 "Has true C++14 support." OFF)  
-  add_subdirectory(src/3rdparty/thread-pool-cpp)
-  add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
-else()
-  hunter_add_package(thread-pool-cpp)
-  find_package(thread-pool-cpp CONFIG REQUIRED)
-endif()
 
 ### Cereal
 hunter_add_package(cereal)
