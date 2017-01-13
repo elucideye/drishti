@@ -90,7 +90,7 @@ DRISHTI_BEGIN_NAMESPACE(directory) // namespace directory {
 // Check for writeable directory (will create .drishti file as side-effect)
 inline bool exists(const std::string &dir)
 {
-    return std::ifstream(dir + "/.drishti").good();
+    return std::ofstream(dir + "/.drishti").good();
 }
 DRISHTI_END_NAMESPACE(directory) // }
 
