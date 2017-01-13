@@ -29,6 +29,9 @@
 // System includes:
 #include <condition_variable>
 
+DRISHTI_BEGIN_NAMESPACE(drishti)
+DRISHTI_BEGIN_NAMESPACE(eye)
+
 /*
  * Write an eye model in JSON format:
  */
@@ -45,6 +48,87 @@ static bool writeAsJson(const std::string &filename, drishti::eye::EyeModel &eye
     return ofs.good();
 }
 
+/*
+ * Invertible/cascadable preprocessing transformation class (eye specific):
+ * 1) apply image transformation in constructor.
+ * 2) undo transformation to estimated model in destructor.
+ */
+
+struct Transform
+{
+    Transform(drishti::eye::EyeModel &eye) : eye(eye) {}
+    operator cv::Mat() { return image; }
+    cv::Mat image; // transformed image
+    drishti::eye::EyeModel &eye; // handle image to transform
+};
+
+struct Padder : public Transform
+{
+    Padder(const cv::Mat &input, drishti::eye::EyeModel &eye, float aspectRatio=4.f/3.f) : Transform(eye)
+    {
+        if(!isGoodAspectRatio(input.size(), aspectRatio))
+        {
+            tl = drishti::core::padToAspectRatio(input, image, aspectRatio, false);
+        }
+        else
+        {
+            image = input;
+        }
+    }
+    ~Padder()
+    {
+        eye = eye - tl;
+    }
+    
+    static bool isGoodAspectRatio(const cv::Size &size, float targetAspectRatio)
+    {
+        const float currentAspectRatio = std::abs(static_cast<float>(size.width)/static_cast<float>(size.height));
+        return (std::abs(targetAspectRatio - currentAspectRatio) < 0.1f);
+    }
+    
+    cv::Point tl;
+};
+
+struct Flopper : public Transform
+{
+    Flopper(const cv::Mat &input, drishti::eye::EyeModel &eye, bool isRight) : Transform(eye), isRight(isRight)
+    {
+        if(!isRight)
+        {
+            cv::flip(input, image, 1);
+        }
+        else
+        {
+            image = input;
+        }
+    }
+    
+    ~Flopper()
+    {
+        if(!isRight)
+        {
+            eye.flop(image.cols);
+        }
+    }
+
+    bool isRight = true;
+};
+
+static void fitEyeModel(eye::EyeModelEstimator &fitter, cv::Mat &image, eye::EyeModel &eye, bool isRight)
+{
+    { // First scope provides padding transformation
+        static const float targetAspectRatio = 4.0/3.0;
+        Flopper flopper(image, eye, isRight);
+        { // Second scope provides LEFT vs RIGHT:
+            Padder padder(flopper, eye, targetAspectRatio);
+            fitter(padder, eye);
+        }
+    }
+}
+
+DRISHTI_END_NAMESPACE(eye)
+DRISHTI_END_NAMESPACE(drishti)
+
 // Use drishti_main to support cross platform interface:
 int drishti_main(int argc, char **argv)
 {
@@ -56,7 +140,7 @@ int drishti_main(int argc, char **argv)
     // ############################
     
     std::string sInput, sOutput, sModel;
-    bool doThreads = true, doJson = true, doAnnotation = false;
+    bool doThreads = true, doJson = true, doAnnotation = false, isRight=false, isLeft=false;
     
     cxxopts::Options options("drishti-eye", "Command line interface for eye model fitting");
     options.add_options()
@@ -66,6 +150,8 @@ int drishti_main(int argc, char **argv)
     ("t,threads", "Multi-threaded", cxxopts::value<bool>(doThreads))
     ("j,json", "JSON model output", cxxopts::value<bool>(doJson))
     ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
+    ("r,right", "Right eye inputs", cxxopts::value<bool>(isRight))
+    ("l,left", "Left eye inputs", cxxopts::value<bool>(isLeft))
     ;
     
     options.parse(argc, argv);
@@ -73,6 +159,15 @@ int drishti_main(int argc, char **argv)
     // ############################################
     // ### Command line argument error checking ###
     // ############################################
+
+    // Be pedantic about input orientation to ensure correct results:
+    if((options["right"].count() + options["left"].count()) != 1)
+    {
+        logger->error() << "Must specify -right or -left but not both!";
+        return 1;
+    }
+    
+    isRight = !isLeft;
     
     // ### Output options:
     if(!(doJson || doAnnotation))
@@ -87,7 +182,7 @@ int drishti_main(int argc, char **argv)
         logger->error() << "Must specify output directory";
         return 1;
     }
-    if(!drishti::cli::file::exists(sOutput + "/.drishti"))
+    if(!drishti::cli::directory::exists(sOutput))
     {
         logger->error() << "Specified directory " << sOutput << " does not exist or is not writeable";
         return 1;
@@ -141,13 +236,9 @@ int drishti_main(int argc, char **argv)
         cv::Mat image = cv::imread(filenames[i], cv::IMREAD_COLOR);
         if(!image.empty())
         {
-            cv::Mat padded;
-            auto tl = drishti::core::padToAspectRatio(image, padded, 4.0/3.0, false);
-            
             drishti::eye::EyeModel eye;
-            (*segmenter)(padded, eye);
-            eye -= tl; // remove padding offset
-            
+            drishti::eye::fitEyeModel(*segmenter, image, eye, isRight);
+
             if(!sOutput.empty())
             {
                 // Construct valid filename with no extension:
@@ -167,7 +258,7 @@ int drishti_main(int argc, char **argv)
                 // Save eye model results as xml:
                 if(doJson)
                 {
-                    if(!writeAsJson(filename + ".json", eye))
+                    if(!drishti::eye::writeAsJson(filename + ".json", eye))
                     {
                         logger->error() << "Failed to write: " << filename << ".json";
                     }
