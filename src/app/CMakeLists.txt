@@ -6,3 +6,26 @@ if(DRISHTI_USE_TEXT_ARCHIVES)
     add_subdirectory(pba)
   endif()
 endif()
+
+###########################
+### Command line parser ###
+###########################
+
+option(DRISHTI_HAS_CXXOPTS "Has cxxopts" ON)
+option(DRISHTI_USE_LOCAL_CXXOPTS "Use local cxxopts" ON)
+
+if(DRISHTI_HAS_CXXOPTS)
+  if(DRISHTI_USE_LOCAL_CXXOPTS)
+    # Use local cxxopts for now
+    add_subdirectory("${CMAKE_SOURCE_DIR}/src/3rdparty/cxxopts" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cxxopts")
+    add_library(cxxopts::cxxopts ALIAS cxxopts)
+  else()
+    hunter_add_package(cxxopts)
+    find_package(cxxopts CONFIG REQUIRED)
+  endif()
+endif()
+
+# std::regex >= gcc 4.8
+if(DRISHTI_HAS_CXXOPTS)
+  add_subdirectory(eye)
+endif()

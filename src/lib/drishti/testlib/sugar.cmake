@@ -13,6 +13,7 @@ include(sugar_files)
 
 sugar_files(
   DRISHTI_TESTLIB_HDRS
+  drishti_cli.h
   drishti_testlib.h
   drishti_test_utils.h
    )
