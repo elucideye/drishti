@@ -65,7 +65,7 @@ void EyeModelEstimator::Impl::segmentPupil(const cv::Mat &I, EyeModel &eye, int 
     
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
-        // Find pupil:x
+        // Find pupil:
         const auto &e = pupils[i];
         
         // TODO: currently override 2d point interface
