@@ -19,6 +19,7 @@
 #include "drishti/core/string_utils.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/testlib/drishti_cli.h"
+#include "drishti/core/drishti_stdlib_string.h" // android workaround
 
 // Package includes:
 #include "thread_pool/thread_pool.hpp"
@@ -245,7 +246,7 @@ int drishti_main(int argc, char **argv)
                 std::string base = drishti::core::basename(filenames[i]);
                 std::string filename = sOutput + "/" + base;
                 
-                logger->info() << total++ << "/" << filenames.size() << " " << filename;
+                logger->info() << ++total << "/" << filenames.size() << " " << filename;
 
                 // Write the annotated image
                 if(doAnnotation)
@@ -288,6 +289,9 @@ int main(int argc, char **argv)
     catch(std::exception &e)
     {
         std::cerr << "Exception: " << e.what() << std::endl;
+        return 1;
     }
+    
+    return 0;
 }
 
