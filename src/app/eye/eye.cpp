@@ -9,6 +9,7 @@
 */
 
 // Local includes:
+#include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/core/LazyParallelResource.h"
 #include "drishti/core/Line.h"
@@ -19,7 +20,6 @@
 #include "drishti/core/string_utils.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/testlib/drishti_cli.h"
-#include "drishti/core/drishti_stdlib_string.h" // android workaround
 
 // Package includes:
 #include "thread_pool/thread_pool.hpp"
