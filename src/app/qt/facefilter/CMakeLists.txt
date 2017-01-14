@@ -15,15 +15,24 @@ find_package(Qt5Quick REQUIRED) # Qt5::Quick
 find_package(Qt5Multimedia REQUIRED) # Qt5::QMultimediaDeclarativeModule
 
 configure_file(
-    facefilter.json
-    "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.json"
-    COPYONLY
-)
+  facefilter.json
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.json"
+  COPYONLY
+  )
 configure_file(
-    main.qml
-    "${CMAKE_CURRENT_BINARY_DIR}/generated"
-    COPYONLY
-)
+  main.qml
+  "${CMAKE_CURRENT_BINARY_DIR}/generated"
+  COPYONLY
+  )
+
+## Serialization type/extension
+if(DRISHTI_SERIALIZE_WITH_CEREAL)
+  set(model_ext "cpb")
+elseif(DRISHTI_SERIALIZE_WITH_BOOST AND NOT MSVC)
+  set(model_ext "pba.z")
+elseif(DRISHTI_SERIALIZE_WITH_BOOST AND DRISHTI_USE_TEXT_ARCHIVES)
+  set(model_ext "txt")
+endif()
 
 set(facefilter_qrc "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.qrc")
 configure_file(facefilter.qrc.in "${facefilter_qrc}" @ONLY)

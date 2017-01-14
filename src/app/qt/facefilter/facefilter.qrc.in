@@ -2,9 +2,9 @@
   <qresource prefix="/">
     <file>main.qml</file>
     <file>facefilter.json</file>
-    <file>@assets_dir@/drishti_face_inner_48x48.cpb</file>
+    <file>@assets_dir@/drishti_face_inner_48x48.@model_ext@</file>
     <file>@assets_dir@/drishti_face_5_point_mean_48x48.xml</file>
-    <file>@assets_dir@/drishti_face_inner.cpb</file>
-    <file>@assets_dir@/drishti_eye_full_npd_eix.cpb</file>
+    <file>@assets_dir@/drishti_face_inner.@model_ext@</file>
+    <file>@assets_dir@/drishti_eye_full_npd_eix.@model_ext@</file>
   </qresource>
 </RCC>
