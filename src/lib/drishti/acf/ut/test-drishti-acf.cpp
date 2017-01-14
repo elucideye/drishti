@@ -10,8 +10,8 @@
 
 #include "drishti/testlib/drishti_test_utils.h"
 
-#if DRISHTI_BUILD_QT
-#  include <QApplication>
+#if DRISHTI_ACF_DO_GPU
+#  include "drishti/qtplus/QGLContext.h"
 #endif
 
 #include <gtest/gtest.h>

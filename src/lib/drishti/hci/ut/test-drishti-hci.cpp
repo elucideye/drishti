@@ -12,11 +12,11 @@
 
 */
 
-#include <gtest/gtest.h>
-
 #if DRISHTI_HCI_DO_GPU
 #  include "drishti/qtplus/QGLContext.h"
 #endif
+
+#include <gtest/gtest.h>
 
 #include <fstream>
 
