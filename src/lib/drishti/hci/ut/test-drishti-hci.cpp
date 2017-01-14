@@ -12,11 +12,11 @@
 
 */
 
-#include <gtest/gtest.h>
-
 #if DRISHTI_HCI_DO_GPU
 #  include "drishti/qtplus/QGLContext.h"
 #endif
+
+#include <gtest/gtest.h>
 
 #include <fstream>
 
@@ -34,7 +34,7 @@ static bool hasFile(const std::string &filename)
 
 int drishti_main(int argc, char** argv)
 {
-#if DRISHTI_BUILD_QT
+#if DRISHTI_BUILD_QT && DRISHTI_HCI_DO_GPU
     QApplication app(argc, argv);
 #endif
     
