@@ -28,7 +28,13 @@ using namespace string_hash;
 // TODO: Move these regressor names to a config file
 
 // { "cpb", "pba.z", "mat" }
-#define DRISHTI_ARCHIVE "cpb"
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#  define DRISHTI_ARCHIVE "cpb"
+#elif DRISHTI_SERIALIZE_WITH_BOOST && !MSVC
+#  define DRISHTI_ARCHIVE "pba.z"
+#elif DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES
+#  define DRISHTI_ARCHIVE "txt"
+#endif
 
 #define DRISHTI_FACE_MEAN_5_POINT "drishti_face_5_point_mean_48x48.xml"
 #define DRISHTI_FACE_INNER_DETECT "drishti_face_inner_48x48." DRISHTI_ARCHIVE
