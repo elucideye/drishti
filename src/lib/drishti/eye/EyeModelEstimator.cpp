@@ -201,7 +201,8 @@ EyeModelEstimator::EyeModelEstimator(std::istream &is, const std::string &hint)
         return;
     }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
-    assert(false);
+    
+    throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
 }
 
 EyeModelEstimator::EyeModelEstimator(const std::string &filename)
@@ -227,7 +228,8 @@ EyeModelEstimator::EyeModelEstimator(const std::string &filename)
         return;
     }
 #endif
-    assert(false);
+    
+    throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
 }
 
 EyeModelEstimator::EyeModelEstimator(const RegressorConfig &config)
