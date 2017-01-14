@@ -38,7 +38,8 @@ RTEShapeEstimator::Impl::Impl(const std::string &filename)
 RTEShapeEstimator::Impl::Impl(std::istream &is)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
-    if(is_pba_z(is) && !m_predictor)
+    // istream test breaks qt stream reading:
+    if( /* is_pba_z(is) && */ !m_predictor)
     {
         m_predictor = load_pba_z(is);
         return;
