@@ -179,6 +179,7 @@ static std::string kindToHint(ArchiveKind kind)
         case kCPB: return "hint.cpb";
         default: assert(0 && "Archive is not supported");
     }
+    return std::string();
 }
 
 _DRISHTI_SDK_END
