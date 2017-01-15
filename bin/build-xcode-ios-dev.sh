@@ -18,7 +18,7 @@ if [ $# -ge 1 ]; then
 fi
 
 DRISHTI_BUILD_C_INTERFACE=OFF
-DRISHTI_BUILD_QT=OFF
+DRISHTI_BUILD_QT=ON
 DRISHTI_BUILD_OGLES_GPGPU=ON
 DRISHTI_BUILD_TESTS=ON
 DRISHTI_COTIRE=OFF
@@ -43,7 +43,7 @@ COMMAND=(
     "--plist \"${DRISHTISDK}/cmake/framework/Info.plist\" "
     "--identity \"${DRISHTISDK_IOS_IDENTITY}\" "    
     "${EXTRA_ARGS} "
-    "--test "
+#    "--test "
 )
 
 eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
