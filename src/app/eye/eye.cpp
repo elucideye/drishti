@@ -22,7 +22,6 @@
 #include "drishti/testlib/drishti_cli.h"
 
 // Package includes:
-#include "thread_pool/thread_pool.hpp"
 #include "cxxopts.hpp"
 #include <opencv2/highgui.hpp> // cv::imwrite
 #include <cereal/archives/json.hpp>
