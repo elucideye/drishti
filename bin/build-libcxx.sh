@@ -18,13 +18,10 @@ COMMAND=(
     "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
-    "DRISHTI_BUILD_C_INTERFACE=ON "
-    "DRISHTI_COTIRE=ON "
     "DRISHTI_BUILD_MIN_SIZE=ON "
     "${DRISHTI_POLLY_ARGS[*]} "
     "--pack ${CPACK_TYPE} "
-    "--strip "
-    "--jobs 8 "
+    "--jobs 8 " # install/strip target missing in CMake 3.7.1
     "--test "
     "${EXTRA_ARGS} "
 )
