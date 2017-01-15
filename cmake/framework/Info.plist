@@ -21,5 +21,10 @@
     <string>1</string>
     <key>MinimumOSVersion</key>
     <string>__MINIMUM_OS_VERSION__</string>
+    <key>UIDeviceFamily</key>
+    <array>
+    <string>1</string>
+    <string>2</string>
+    </array>
   </dict>
 </plist>
