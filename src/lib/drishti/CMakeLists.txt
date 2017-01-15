@@ -329,6 +329,10 @@ endforeach()
 include(drishti_copy_3rdparty_licenses)
 drishti_copy_3rdparty_licenses("${THIRD_PARTY_INSTALL_DIR}/licenses")
 
+##############################################################
+### Generate the main shared public interface
+##############################################################
+
 if(DRISHTI_BUILD_SHARED_SDK)
   set(API_LIB_TYPE SHARED)
 else()
@@ -363,7 +367,12 @@ set_target_properties(drishti
   PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
   )
 
-if(NOT IOS)
+if(IOS)
+  set_target_properties(
+    drishti
+    XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
+    )
+else()
   # iOS dynamic frameworks don't use this type of versioning:
   set_target_properties(drishti
     PROPERTIES
@@ -443,6 +452,12 @@ if(DRISHTI_BUILD_C_INTERFACE)
   drishti_symbol_list(drishti_c)
   set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
 
+  target_include_directories(drishti_c
+    PUBLIC  
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
+    "$<INSTALL_INTERFACE:include>"  # <prefix>/include
+    )
+
   if(DRISHTI_BUILD_SHARED_SDK)
     # Simple install to execute post build strip
     install(
@@ -472,6 +487,7 @@ if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS} AND (DRISHTI_SERIALIZE_WITH
     add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
     target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
     target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
+    set_property(TARGET drishti_static PROPERTY FOLDER "libs/drishti")
     target_include_directories(drishti_static
       PUBLIC  
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
