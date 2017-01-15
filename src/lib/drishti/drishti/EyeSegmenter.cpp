@@ -138,6 +138,7 @@ static bool isArchiveSupported(ArchiveKind kind)
         case kCPB: return true;
 #endif
         case kAuto: return true;
+        default: return false;
     }
     return false;
 }
