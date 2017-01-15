@@ -91,7 +91,7 @@ typedef Rect<float> Rectf;
  */
 
 
-template <typename T> class DRISHTI_EXPORTS Image
+template <typename T> class DRISHTI_EXPORT Image
 {
 public:
     Image();

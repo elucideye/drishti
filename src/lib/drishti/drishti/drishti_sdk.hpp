@@ -13,17 +13,7 @@
 #ifndef __drishti_drishti_drishti_sdk_hpp__
 #define __drishti_drishti_drishti_sdk_hpp__
 
-#if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__)
-# ifdef drishti_EXPORTS
-#  define DRISHTI_EXPORTS __declspec(dllexport)
-# else
-#  define DRISHTI_EXPORTS __declspec(dllimport)
-# endif
-#elif (defined __GNUC__ && __GNUC__ >= 4) || defined(__clang__)
-#  define DRISHTI_EXPORTS __attribute__ ((visibility ("default")))
-#else
-#  define DRISHTI_EXPORTS
-#endif
+#include "drishti/drishti_export.hpp"
 
 #define _DRISHTI_BEGIN namespace drishti {
 #define _DRISHTI_END }
@@ -31,7 +21,7 @@
 #define _DRISHTI_SDK_BEGIN _DRISHTI_BEGIN namespace sdk {
 #define _DRISHTI_SDK_END _DRISHTI_END }
 
-#include <string> // move out
+#include <string>
 
 _DRISHTI_SDK_BEGIN
 

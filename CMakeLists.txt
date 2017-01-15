@@ -98,6 +98,8 @@ message("OPENMP CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 # http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1131
 
 if(NOT XCODE AND NOT MSVC) # We'll never have openmp on ios, and this test is really slow
+  # This is only used for xgboost training and it will be removed once the
+  # xgboost interface is updated.
   find_package( OpenMP )
   if(OPENMP_FOUND)
     message("OPENMP FOUND")
@@ -365,8 +367,13 @@ option(DRISHTI_BUILD_WORLD "Build single library" ON)
 if(XCODE)
   option(DRISHTI_DISABLE_DSYM "Disable generation of dSYM information" ON)
   if(DRISHTI_DISABLE_DSYM)
+    message("CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf")
     set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
+  else()
+    message("CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym")
   endif()
+  
   set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)
 
   # RelWithDebInfo should always have symbols

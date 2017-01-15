@@ -57,10 +57,10 @@ Image<T> Image<T>::clone()
     return dst;
 }
 
-template class DRISHTI_EXPORTS Image<uint8_t>;
-template class DRISHTI_EXPORTS Image<Vec3b>;
-template class DRISHTI_EXPORTS Image<float>;
-template class DRISHTI_EXPORTS Image<Vec3f>;
+template class DRISHTI_EXPORT Image<uint8_t>;
+template class DRISHTI_EXPORT Image<Vec3b>;
+template class DRISHTI_EXPORT Image<float>;
+template class DRISHTI_EXPORT Image<Vec3f>;
 
 _DRISHTI_SDK_END
 

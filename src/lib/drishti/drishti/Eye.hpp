@@ -25,7 +25,7 @@ _DRISHTI_SDK_BEGIN
  * Eye type
  */
 
-class DRISHTI_EXPORTS Eye
+class DRISHTI_EXPORT Eye
 {
 public:
     struct Ellipse
@@ -138,7 +138,7 @@ protected:
     Recti roi;
 };
 
-struct DRISHTI_EXPORTS EyeStream
+struct DRISHTI_EXPORT EyeStream
 {
     enum Format { XML, JSON };
     EyeStream(const Format &format) : format(format) {}
@@ -146,20 +146,20 @@ struct DRISHTI_EXPORTS EyeStream
     Format format = XML;
 };
 
-struct DRISHTI_EXPORTS EyeOStream : public EyeStream
+struct DRISHTI_EXPORT EyeOStream : public EyeStream
 {
     EyeOStream(const Eye &eye, Format format) : EyeStream(format), eye(eye) {}
     const Eye &eye;
 };
 
-struct DRISHTI_EXPORTS EyeIStream : public EyeStream
+struct DRISHTI_EXPORT EyeIStream : public EyeStream
 {
     EyeIStream(Eye &eye, Format format) : EyeStream(format), eye(eye) {}
     Eye &eye;
 };
 
-DRISHTI_EXPORTS std::ostream& operator<<(std::ostream &os, const EyeOStream &eye);
-DRISHTI_EXPORTS std::istream& operator>>(std::istream &is, EyeIStream &eye);
+DRISHTI_EXPORT std::ostream& operator<<(std::ostream &os, const EyeOStream &eye);
+DRISHTI_EXPORT std::istream& operator>>(std::istream &is, EyeIStream &eye);
 
 enum EyeRegions
 {
@@ -168,7 +168,7 @@ enum EyeRegions
     kPupilRegion   = 4
 };
 
-void DRISHTI_EXPORTS createMask(Image1b &mask, const Eye &eye, int components=kIrisRegion);
+void DRISHTI_EXPORT createMask(Image1b &mask, const Eye &eye, int components=kIrisRegion);
 
 _DRISHTI_SDK_END
 

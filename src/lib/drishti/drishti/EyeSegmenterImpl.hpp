@@ -26,7 +26,7 @@ namespace drishti { namespace eye { class EyeModelEstimator; } };
 
 _DRISHTI_SDK_BEGIN
 
-class DRISHTI_EXPORTS EyeSegmenter::Impl
+class DRISHTI_EXPORT EyeSegmenter::Impl
 {
 public:
     Impl(bool doLoad=false);
