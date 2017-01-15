@@ -2,25 +2,26 @@
 
 . ${DRISHTISDK}/bin/build-dev.sh
 
-#TOOLCHAIN=android-ndk-r10e-api-16-armeabi-v7a-neon-clang-35-hid
-#TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
-
-# default
-TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
-#TOOLCHAIN=android-ndk-r10e-api-16-armeabi-v7a-neon-clang-35-hid
-#TOOLCHAIN=android-ndk-r10e-api-16-armeabi-v7a-neon-clang-35-hid-sections-asan
-#TOOLCHAIN=android-ndk-r11c-api-21-armeabi-v7a-neon-clang-35
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--reconfig " #--clear"
-fi
-
 DRISHTI_BUILD_C_INTERFACE=OFF
-DRISHTI_BUILD_QT=OFF
+DRISHTI_BUILD_QT=ON
 DRISHTI_BUILD_OGLES_GPGPU=ON
 DRISHTI_BUILD_TESTS=ON
 DRISHTI_COTIRE=OFF
+
+# Qt friendly (no -hid-sections)
+TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon  # Qt tests
+
+# Test 32-bit
+#TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
+
+# test 64-bit
+#TOOLCHAIN=android-ndk-r10e-api-21-arm64-v8a-gcc-49-hid-sections
+
+EXTRA_ARGS=""
+if [ $# -ge 1 ]; then
+    #EXTRA_ARGS="--reconfig " #--clear"
+    EXTRA_ARGS="--reconfig --clear"
+fi
 
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_SDK_ROOT
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_HOME
