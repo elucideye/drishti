@@ -368,8 +368,8 @@ set_target_properties(drishti
   )
 
 if(IOS)
-  set_target_properties(
-    drishti
+  set_target_properties(drishti
+    PROPERTIES
     XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
     )
 else()

@@ -9,7 +9,7 @@
   Contains serialization routines for Eye models.
 */
 
-#include "drishti/EyeIO.h"
+#include "drishti/EyeIO.hpp"
 #include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/ArrayCereal.h"
