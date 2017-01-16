@@ -76,79 +76,89 @@ extern "C" int qtmn(int argc, char** argv)
 int main(int argc, char **argv)
 #endif
 {
-#ifdef Q_OS_WIN // avoid ANGLE on Windows
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-#endif
-
-    // ###### Instantiate logger ########
     auto logger = drishti::core::Logger::create("facefilter");
-    logger->info() << "Start";
-
-    printResources();
-
-    // JSON configuration
-    auto json = loadJSON(*logger);
-
-    QGuiApplication app(argc, argv);
-
-    qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
-    qmlRegisterType<InfoFilter>("facefilter.test", 1, 0, "InfoFilter");
-    qmlRegisterType<QTRenderGL>("OpenGLUnderQML", 1, 0, "QTRenderGL");
-
-#if defined(Q_OS_OSX)
-    qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QtQuick2Plugin().instance())->registerTypes("QtQuick");
-    qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QMultimediaDeclarativeModule().instance())->registerTypes("QtMultimedia");
+    try {
+#ifdef Q_OS_WIN // avoid ANGLE on Windows
+        QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
 
-    QQuickView view;
+        // ###### Instantiate logger ########
+        logger->info() << "Start";
 
-    view.setSource(QUrl("qrc:///main.qml"));
+        printResources();
 
-    view.setResizeMode( QQuickView::SizeRootObjectToView );
+        // JSON configuration
+        auto json = loadJSON(*logger);
+
+        QGuiApplication app(argc, argv);
+
+        qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
+        qmlRegisterType<InfoFilter>("facefilter.test", 1, 0, "InfoFilter");
+        qmlRegisterType<QTRenderGL>("OpenGLUnderQML", 1, 0, "QTRenderGL");
 
 #if defined(Q_OS_OSX)
-    // This had been tested with GLFW + ogles_gpgpu before
-    //OpenGL version: 2.1 NVIDIA-10.4.2 310.41.35f01
-    //GLSL version: 1.20
-    QSurfaceFormat format;
-    format.setVersion(2, 1);
-    format.setProfile(QSurfaceFormat::CompatibilityProfile);
-    format.setDepthBufferSize(24);
-    format.setStencilBufferSize(8);
-    view.setFormat(format);
-
-    logger->info() << "OpenGL Versions Supported: " << QGLFormat::openGLVersionFlags();
+        qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QtQuick2Plugin().instance())->registerTypes("QtQuick");
+        qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QMultimediaDeclarativeModule().instance())->registerTypes("QtMultimedia");
 #endif
 
-    // Default camera on iOS is not setting good parameters by default
-    QQuickItem* root = view.rootObject();
+        QQuickView view;
 
-    QObject * qmlVideoOutput = root->findChild<QObject*>("VideoOutput");
-    assert(qmlVideoOutput);
+        view.setSource(QUrl("qrc:///main.qml"));
 
-    auto qmlCameraManager = QMLCameraManager::create(root, logger);
-    (void) qmlCameraManager->configure();
+        view.setResizeMode( QQuickView::SizeRootObjectToView );
 
-    // ### Display the device/camera name:
-    logger->info() << "device: " << qmlCameraManager->getDeviceName();
-    logger->info() << "description: " << qmlCameraManager->getDescription();
+#if defined(Q_OS_OSX)
+        // This had been tested with GLFW + ogles_gpgpu before
+        //OpenGL version: 2.1 NVIDIA-10.4.2 310.41.35f01
+        //GLSL version: 1.20
+        QSurfaceFormat format;
+        format.setVersion(2, 1);
+        format.setProfile(QSurfaceFormat::CompatibilityProfile);
+        format.setDepthBufferSize(24);
+        format.setStencilBufferSize(8);
+        view.setFormat(format);
 
-    auto frameHandlers = FrameHandlerManager::get(&json, qmlCameraManager->getDeviceName(), qmlCameraManager->getDescription());
-    if(!frameHandlers || !frameHandlers->good())
-    {
-        logger->error() << "Failed to instantiate FrameHandlerManager";
+        logger->info() << "OpenGL Versions Supported: " << QGLFormat::openGLVersionFlags();
+#endif
+
+        // Default camera on iOS is not setting good parameters by default
+        QQuickItem* root = view.rootObject();
+
+        QObject * qmlVideoOutput = root->findChild<QObject*>("VideoOutput");
+        assert(qmlVideoOutput);
+
+        auto qmlCameraManager = QMLCameraManager::create(root, logger);
+        (void) qmlCameraManager->configure();
+
+        // ### Display the device/camera name:
+        logger->info() << "device: " << qmlCameraManager->getDeviceName();
+        logger->info() << "description: " << qmlCameraManager->getDescription();
+
+        auto frameHandlers = FrameHandlerManager::get(&json, qmlCameraManager->getDeviceName(), qmlCameraManager->getDescription());
+        if(!frameHandlers || !frameHandlers->good())
+        {
+            logger->error() << "Failed to instantiate FrameHandlerManager";
+            return EXIT_FAILURE;
+        }
+
+        if(frameHandlers && qmlCameraManager)
+        {
+            frameHandlers->setOrientation(qmlCameraManager->getOrientation());
+            frameHandlers->setSize(qmlCameraManager->getSize());
+        }
+
+        view.showFullScreen();
+
+        return app.exec();
+    }
+    catch (std::exception& exc) {
+        logger->error() << "Exception catched: " << exc.what();
         return EXIT_FAILURE;
     }
-
-    if(frameHandlers && qmlCameraManager)
-    {
-        frameHandlers->setOrientation(qmlCameraManager->getOrientation());
-        frameHandlers->setSize(qmlCameraManager->getSize());
+    catch (...) {
+        logger->error() << "Unknown exception catched";
+        return EXIT_FAILURE;
     }
-
-    view.showFullScreen();
-
-    return app.exec();
 }
 
 static void printResources()
