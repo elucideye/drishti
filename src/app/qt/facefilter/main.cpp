@@ -79,16 +79,16 @@ int main(int argc, char **argv)
 #ifdef Q_OS_WIN // avoid ANGLE on Windows
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
-    
+
     // ###### Instantiate logger ########
     auto logger = drishti::core::Logger::create("facefilter");
     logger->info() << "Start";
-    
+
     printResources();
 
     // JSON configuration
     auto json = loadJSON(*logger);
-    
+
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 #endif
 
     QQuickView view;
-    
+
     view.setSource(QUrl("qrc:///main.qml"));
 
     view.setResizeMode( QQuickView::SizeRootObjectToView );
@@ -122,24 +122,24 @@ int main(int argc, char **argv)
 
     // Default camera on iOS is not setting good parameters by default
     QQuickItem* root = view.rootObject();
-    
+
     QObject * qmlVideoOutput = root->findChild<QObject*>("VideoOutput");
     assert(qmlVideoOutput);
-    
+
     auto qmlCameraManager = QMLCameraManager::create(root, logger);
     (void) qmlCameraManager->configure();
-    
+
     // ### Display the device/camera name:
     logger->info() << "device: " << qmlCameraManager->getDeviceName();
     logger->info() << "description: " << qmlCameraManager->getDescription();
-    
+
     auto frameHandlers = FrameHandlerManager::get(&json, qmlCameraManager->getDeviceName(), qmlCameraManager->getDescription());
     if(!frameHandlers || !frameHandlers->good())
     {
         logger->error() << "Failed to instantiate FrameHandlerManager";
         return EXIT_FAILURE;
     }
-    
+
     if(frameHandlers && qmlCameraManager)
     {
         frameHandlers->setOrientation(qmlCameraManager->getOrientation());
@@ -173,12 +173,12 @@ static nlohmann::json loadJSON(spdlog::logger &logger)
             logger.error() << "Can't open file";
             return EXIT_FAILURE;
         }
-        
+
         QTextStream in(&inputFile);
         std::stringstream stream;
         stream <<  in.readAll().toStdString();
         stream >> json;
     }
-    
+
     return json;
 }
