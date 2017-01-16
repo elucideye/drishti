@@ -90,7 +90,12 @@ drishti_eye_segmenter_create_from_stream(std::istream &is);
 DRISHTI_EXPORT void
 drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter *segmenter);
 DRISHTI_EXPORT void
-drishti_eye_segmenter_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight);
+drishti_eye_segmenter_segment
+(
+ drishti::sdk::EyeSegmenter *segmenter,
+ const drishti::sdk::Image3b &image,
+ drishti::sdk::Eye &eye, bool isRight
+);
 DRISHTI_EXTERN_C_END
 
 #endif /* defined(__drishti_drishti_EyeSegmenter_hpp__) */

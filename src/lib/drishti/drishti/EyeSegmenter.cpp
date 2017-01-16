@@ -172,7 +172,13 @@ drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter *segmenter)
 }
 
 void
-drishti_eye_segmenter_segment(drishti::sdk::EyeSegmenter *segmenter, const drishti::sdk::Image3b &image, drishti::sdk::Eye &eye, bool isRight)
+drishti_eye_segmenter_segment
+(
+ drishti::sdk::EyeSegmenter *segmenter,
+ const drishti::sdk::Image3b &image,
+ drishti::sdk::Eye &eye,
+ bool isRight
+)
 {
     (*segmenter)(image, eye, isRight);
 }

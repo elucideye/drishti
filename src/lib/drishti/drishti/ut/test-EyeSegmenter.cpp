@@ -18,6 +18,7 @@
 #include <fstream>
 
 #include "drishti/EyeSegmenter.hpp"
+#include "drishti/EyeIO.hpp"
 #include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/drishti_cv.hpp"
 #include "drishti/EyeSegmenterImpl.hpp"
@@ -39,6 +40,7 @@ const char* modelFilename;
 const char* imageFilename;
 const char* truthFilename;
 bool isTextArchive;
+const char *outputDirectory;
 
 int drishti_main(int argc, char** argv)
 {
@@ -48,6 +50,7 @@ int drishti_main(int argc, char** argv)
     imageFilename = argv[2];
     truthFilename = argv[3];
     isTextArchive = (argc > 4) ? (std::atoi(argv[4]) > 0) : false;
+    outputDirectory = (argc > 5) ? argv[5] : 0;
     return RUN_ALL_TESTS();
 }
 
@@ -276,15 +279,17 @@ static void checkInvalid(const drishti::sdk::Eye &eye)
 
 TEST_F(EyeSegmenterTest, EyeSerialization)
 {
-    if(m_eyeSegmenter)
+    if(m_eyeSegmenter && outputDirectory)
     {
         int targetWidth = 127;
         drishti::sdk::Eye eye;
-        int code = (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
+        /* int code = */ (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
         
 #if DRISHTI_CEREAL_XML_JSON
         drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
-        std::ofstream os("/tmp/right_eye.json");
+        std::string filename = outputDirectory;
+        filename += "/right_eye.json";
+        std::ofstream os(filename);
         if(os)
         {
             os << adapter;

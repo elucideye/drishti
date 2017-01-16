@@ -68,10 +68,10 @@ inline drishti::sdk::Eye convert(drishti::eye::EyeModel &model)
 
     e.setIris(cvToDrishti(model.irisEllipse));
     e.setPupil(cvToDrishti(model.pupilEllipse));
-    e.setEyelids(drishti::sdk::cvToDrishti(model.eyelidsSpline));
-    e.setCrease(drishti::sdk::cvToDrishti(model.creaseSpline));
     e.setCorners(cvToDrishti(inner), cvToDrishti(outer));
     e.setRoi(cvToDrishti(model.roi.has ? *model.roi : cv::Rect()));
+    e.setEyelids(drishti::sdk::cvToDrishti(model.eyelidsSpline));
+    e.setCrease(drishti::sdk::cvToDrishti(model.creaseSpline));
 
     return e;
 }
@@ -85,9 +85,10 @@ inline drishti::eye::EyeModel convert(drishti::sdk::Eye &eye)
 
     e.irisEllipse = drishtiToCv(eye.getIris());
     e.pupilEllipse = drishtiToCv(eye.getPupil());
-    e.eyelidsSpline = drishtiToCv(eye.getEyelids());
     e.innerCorner = drishtiToCv(inner);
     e.outerCorner = drishtiToCv(outer);
+    e.eyelidsSpline = drishtiToCv(eye.getEyelids());
+    e.creaseSpline = drishtiToCv(eye.getCrease());
 
     return e;
 }

@@ -13,6 +13,7 @@ include(sugar_files)
 
 sugar_files(DRISHTI_DRISHTI_SRCS
   Eye.cpp
+  EyeIO.cpp 
   EyeSegmenter.cpp
   EyeSegmenterImpl.cpp
   Image.cpp
@@ -21,13 +22,14 @@ sugar_files(DRISHTI_DRISHTI_SRCS
 
 sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
   Eye.hpp
+  EyeIO.hpp  
   EyeSegmenter.hpp
   Image.hpp
   drishti_cv.hpp
   drishti_sdk.hpp
-  drishti_gl.hpp
   ### Exclude private header from install
   ### This could be included in the IDE headers
+  # Array.hpp  
   # EyeSegmenterImpl.hpp
   )
 
@@ -35,7 +37,9 @@ if(DRISHTI_BUILD_ACF)
   sugar_files(DRISHTI_DRISHTI_SRCS
     EyeDetector.cpp)
   sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
-    EyeDetector.hpp)
+    drishti_gl.hpp # only needed for GPU functionality
+    EyeDetector.hpp
+    )
 endif()
 
 if(DRISHTI_BUILD_HCI)
