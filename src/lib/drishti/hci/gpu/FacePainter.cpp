@@ -14,6 +14,8 @@
 
 #include <opencv2/imgproc.hpp>
 
+#define DO_COLOR 1
+
 using namespace std;
 using namespace ogles_gpgpu;
 
@@ -111,7 +113,12 @@ void FacePainter::getUniforms()
     TransformProc::getUniforms();
 
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
+    
+#if DO_COLOR
+    m_drawShParamULineColor = 0;
+#else
     m_drawShParamULineColor = m_draw->getParam(UNIF, "lineColor");
+#endif
 
     // color overlays
     m_colorRGB = {0.0, 0.0, 1.0};
@@ -121,8 +128,6 @@ void FacePainter::getUniforms()
 }
 
 // #### Begin ####
-
-#define DO_COLOR 1
 
 FacePainter::FacePainter(int outputOrientation)
     : m_outputOrientation(outputOrientation)
@@ -137,12 +142,11 @@ FacePainter::FacePainter(int outputOrientation)
     m_drawShParamAColor = m_draw->getParam(ATTR, "color");
 #else
     bool compiled = m_draw->buildFromSrc(vshaderColorSrc, fshaderColorSrc);
+    m_drawShParamULineColor = m_draw->getParam(UNIF, "lineColor");
 #endif
     assert(compiled);
-
     m_drawShParamAPosition = m_draw->getParam(ATTR, "position");
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
-    m_drawShParamULineColor = m_draw->getParam(UNIF, "lineColor");
 }
 
 void FacePainter::setOutputSize(float scaleFactor)
