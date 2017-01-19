@@ -16,7 +16,7 @@ set(SOURCES
   test-hessian-cpu.cpp
   test-hessian-cpu.h
   test-FaceFinder.cpp
-  FaceMonitorHCITest.h  
+  FaceMonitorHCITest.h
   )
 
 ### PRE_BUILD GPU ADDITIONS ###
@@ -27,9 +27,9 @@ endif()
 add_executable(${test_app} ${SOURCES})
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 target_link_libraries(${test_app} PUBLIC
-  ${OpenCV_LIBS}  
+  ${OpenCV_LIBS}
   GTest::gtest
-  drishtisdk  
+  drishtisdk
   ${DRISHTI_OPENGL_LIBS}
   )
 
@@ -70,5 +70,5 @@ drishti_add_test(NAME ${test_name} COMMAND ${test_app}
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_MEAN_FACE_LANDMARKS}>"
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_FACE_LANDMARKER}>"
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
-  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_TEST_FACE_IMAGE_COLOR}>"    
+  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_TEST_FACE_IMAGE_COLOR}>"
   )
