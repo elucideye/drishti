@@ -142,18 +142,23 @@ option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
 # Testing
 option(DRISHTI_BUILD_TESTS "Build unit tests" ON)
 
+string(COMPARE EQUAL "$ENV{TRAVIS}" "true" travis_ci)
+string(COMPARE EQUAL "$ENV{APPVEYOR}" "True" appveyor_ci)
+
+if(travis_ci OR appveyor_ci)
+  set(drishti_ci TRUE)
+else()
+  set(drishti_ci FALSE)
+endif()
+
 if(DRISHTI_BUILD_TESTS)
   # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
   # ${DRISHTISDK}/src/tests
 
   if(ANDROID)
-    # Look for existing ADB for initial tests:
-    find_program(DRISHTI_ADB_COMMAND adb)
-    if(DRISHTI_ADB_COMMAND MATCHES "NOTFOUND")
-      message("Can't find adb command")
+    if(drishti_ci)
       set(DRISHTI_HAS_TEST_TOOLS FALSE)
     else()
-      message("Found adb command : ${DRISHTI_ADB_COMMAND}")
       set(DRISHTI_HAS_TEST_TOOLS TRUE)
     endif()
   elseif(IOS)
