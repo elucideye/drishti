@@ -30,7 +30,7 @@ message("DRISHTI_EYE_MODEL : ${DRISHTI_EYE_MODEL}")
 enable_testing()
 
 set(DRISHTI_TEST_EYE_IMAGE "${assets_dir}/images/2318-eye.png")
-set(DRISHTI_TEST_EYE_JSON "${assets_dir}/images/2318-eye.json")    
+set(DRISHTI_TEST_EYE_JSON "${assets_dir}/images/2318-eye.json")
 
 drishti_add_test(
   NAME ${test_name}
