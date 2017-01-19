@@ -111,7 +111,6 @@ void ACF::initACF(const SizeVec &scales, FeatureKind kind, bool debug)
     smoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(1);
     reduceLuvProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
     gradProc = drishti::core::make_unique<ogles_gpgpu::GradProc>(1.0f);
-    gradSmoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>();
     reduceGradProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
     normProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(7, true, 0.005f);
     gradHistProcA = drishti::core::make_unique<ogles_gpgpu::GradHistProc>(6, 0, 1.f);
@@ -221,7 +220,6 @@ void ACF::connect(std::shared_ptr<spdlog::logger> &logger)
     m_logger = logger;
 }
 
-
 void ACF::setRotation(int degrees)
 {
     first()->setOutputRenderOrientation(ogles_gpgpu::degreesToOrientation(degrees));
@@ -280,9 +278,6 @@ void ACF::operator()(const FrameInput &frame)
         initLuvTransposeOutput();
     }
     
-    m_runFlow = true;
-    m_runFlow = true;
-
     frameIndex++;
 
     auto tic = std::chrono::system_clock::now();
@@ -546,9 +541,18 @@ ACF::ChannelSpecification ACF::getACFChannelSpecification(MatP &acf, const std::
     }
 }
 
+void ACF::release()
+{
+    m_grayscale.release();
+    m_channels.release();
+    m_flow.release();
+}
+
 cv::Mat ACF::getChannelsImpl()
 {
     using drishti::core::unpack;
+    
+    glFlush();
 
     if(m_doFlow && !m_hasFlowOutput)
     {

@@ -76,6 +76,8 @@ public:
     virtual void operator()(const FrameInput &frame);
     virtual void operator()(const Size2d &size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture=0, GLenum inputPixFormat=DFLT_PIX_FORMAT);
 
+    void release();
+    
     void connect(std::shared_ptr<spdlog::logger> &logger);
 
     void setRotation(int degrees);
@@ -125,7 +127,7 @@ public:
     
     // Retrieve Luv image in packed CV_8UC4 (RGBA) format
     const cv::Mat& getLuv();
-
+    
 protected:
     
     void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
@@ -162,7 +164,6 @@ protected:
     std::unique_ptr<ogles_gpgpu::GaussOptProc> smoothProc; // (1);
     std::unique_ptr<ogles_gpgpu::NoopProc> reduceLuvProc;
     std::unique_ptr<ogles_gpgpu::GradProc> gradProc; // (1.0);
-    std::unique_ptr<ogles_gpgpu::GaussOptProc> gradSmoothProc;
     std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradProc;
     std::unique_ptr<ogles_gpgpu::GaussOptProc> normProc; // (5, true, 0.015);
     std::unique_ptr<ogles_gpgpu::GradHistProc> gradHistProcA; // (6, 0, 1.f);
