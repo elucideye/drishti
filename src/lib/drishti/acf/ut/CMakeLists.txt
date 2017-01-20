@@ -26,7 +26,7 @@ set(SOURCES
 if(DRISHTI_ACF_DO_GPU)
   list(APPEND SOURCES ${DRISHTI_QTPLUS_HDRS} ${DRISHTI_QTPLUS_SRCS})
 endif()
-  
+
 add_executable(${test_app} ${SOURCES})
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 target_link_libraries(${test_app} PUBLIC
@@ -38,7 +38,7 @@ target_link_libraries(${test_app} PUBLIC
 
 ### POST_BUILD GPU ADDITIONS ###
 if(DRISHTI_ACF_DO_GPU)
-  find_package(Qt5PrintSupport REQUIRED)  
+  find_package(Qt5PrintSupport REQUIRED)
   target_link_libraries(${test_app} PUBLIC ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
   target_compile_definitions(${test_app} PUBLIC DRISHTI_ACF_DO_GPU=${DRISHTI_ACF_DO_GPU})
 endif()
