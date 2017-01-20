@@ -29,6 +29,9 @@
 
 #include <vector>
 #include <memory>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 #define DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH 1024
 
@@ -93,13 +96,12 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
 
 , m_doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
 
-, m_scenes(args.frameDelay+1)
 , m_factory(factory)
 , m_sensor(args.sensor)
 , m_logger(args.logger)
 , m_threads(args.threads)
 {
-    
+    m_debugACF = false;
 }
 
 void FaceFinder::setMinDistance(float meters)
@@ -208,14 +210,14 @@ void FaceFinder::initACF(const cv::Size &inputSizeUp)
     const bool do10Channel = true;
     const auto featureKind = do10Channel ? ogles_gpgpu::ACF::kLUVM012345 : ogles_gpgpu::ACF::kLM012345;
     const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
-    m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, featureKind, grayWidth, flowWidth, false);
+    m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, featureKind, grayWidth, flowWidth, m_debugACF);
     m_acf->setRotation(m_outputOrientation);
 }
 
-void FaceFinder::initFIFO(const cv::Size &inputSize)
+// ### Fifo ###
+void FaceFinder::initFIFO(const cv::Size &inputSize, std::size_t n)
 {
-    // ### Fifo ###
-    m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(m_scenes.size());
+    m_fifo = std::make_shared<ogles_gpgpu::FifoProc>(n);
     m_fifo->init(inputSize.width, inputSize.height, INT_MAX, false);
     m_fifo->createFBOTex(false);
 }
@@ -290,7 +292,7 @@ void FaceFinder::initPainter(const cv::Size & /* inputSizeUp */ )
 void FaceFinder::init(const FrameInput &frame)
 {
     m_logger->info() << "FaceFinder::init()";
-    m_logger->set_level(spdlog::level::err);
+    //m_logger->set_level(spdlog::level::err);
     
     m_start = std::chrono::high_resolution_clock::now();
     
@@ -308,7 +310,7 @@ void FaceFinder::init(const FrameInput &frame)
     m_faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*m_sensor);
     
     initColormap();
-    initFIFO(inputSize);
+    initFIFO(inputSize, 3); // keep last 3 frames
     initACF(inputSizeUp);
     initPainter(inputSizeUp);
     
@@ -334,7 +336,34 @@ void FaceFinder::init(const FrameInput &frame)
 // VIDEO |       |
 //       +=======+======== FLOW ===>
 
-GLuint FaceFinder::operator()(const FrameInput &frame)
+// Illustrate circular FIFO for size == 2 and 3
+//
+//   (2 frame)   (3 frame)
+// 0 : [0][ ]	 [0][ ][ ]
+//     [I][ ]	 [I][ ][ ]
+//     [O][ ]	 [O][ ][ ]
+//
+// 1 : [0][1]	 [0][1][ ]
+//     [ ][I]	 [ ][I][ ]
+//     [O][ ]	 [O][ ][ ]
+//
+// 2 : [2][1]	 [0][1][2]
+//     [I][ ]	 [ ][ ][I]
+//     [ ][O]	 [O][ ][ ]
+//
+// 3 : [2][3]	 [3][1][2]
+//     [ ][I]	 [I][ ][ ]
+//     [O][ ]	 [ ][O][ ]
+//
+// 4 : [4][3]	 [3][4][2]
+//     [I][ ]	 [ ][I][ ]
+//     [ ][O]	 [ ][ ][O]
+//
+// 5 : [4][5]	 [3][4][5]
+//     [ ][I]	 [O][ ][ ]
+//     [O][ ]	 [ ][ ][I]
+
+GLuint FaceFinder::operator()(const FrameInput &frame1)
 {
     // Get current timestamp
     const auto now = HighResolutionClock::now();
@@ -345,10 +374,8 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
     {
         m_hasInit = true;
         init2(*m_factory);
-        init(frame);
+        init(frame1);
     }
-    
-    assert(m_fifo->size() == m_scenes.size());
     
     m_frameIndex++; // increment frame index
     
@@ -356,69 +383,61 @@ GLuint FaceFinder::operator()(const FrameInput &frame)
     // processing so that it will be available on the next frame.  This method will compute
     // ACF output using shaders on the GPU, and may optionally extract other GPU related
     // features.
-    ScenePrimitives scene(m_frameIndex);
-    preprocess(frame, scene);
+    ScenePrimitives scene1(m_frameIndex), scene0, *outputScene = nullptr; // time: n+1 and n
+    preprocess(frame1, scene1);
     
-    // Create a scope based callback for the active *scene*,
-    // make sure all face requests are serviced at the end of scope to allow
-    // flexibility in early returns, and both single and multi-threaded modes of
-    // processing.
-    
-    drishti::core::scope_guard faceRequestScopeManager = [&]()
-    {
-        try { this->notifyListeners(scene, now, m_fifo->isFull()); }
-        catch(...) {}
-    };
-    
-    GLuint inputTexId /* = m_acf->getInputTexId() */, outputTexId = 0;
-    
-    inputTexId = m_acf->first()->getOutputTexId(); // override with the upright textures
+    // Initialize input texture with ACF upright texture:
+    GLuint texture1 = m_acf->first()->getOutputTexId(), texture0 = 0, outputTexture = 0;
     
     if(m_threads)
     {
-        size_t inputIndex = m_fifo->getIn(); // index where inputTexture will be stored
-        size_t outputIndex = m_fifo->getOut();
-        outputTexId = m_fifo->getOutputFilter()->getOutputTexId();
-        
-        m_fifo->useTexture(inputTexId, 1); // uses inputIndex
-        m_fifo->render();
-        
-        // Run CPU processing for this frame so that it will be available for the next frame
-        m_scenes[inputIndex] = m_threads->process([scene,frame,this]() {
-            ScenePrimitives sceneOut = scene;
-            detect(frame, sceneOut);
+        // Retrieve the previous frame and scene
+        if(m_fifo->getBufferCount() > 0)
+        {
+            // Retrieve the previous frame (latency == 1)
+            // from our N frame FIFO.
+            scene0 = m_scene.get(); // scene n-1
+            texture0 = (*m_fifo)[-1]->getOutputTexId(); // texture n-1
+            updateEyes(texture0, scene0); // update the eye texture
+            
+            // Explicit output variable configuration:
+            outputTexture = paint(scene0, texture0);
+            outputScene = &scene0;
+        }
+        else
+        {
+            outputTexture = texture1;
+        }
+
+        // Eenque the current frame and scene for CPU processing so
+        // that results will be available for the next step (see above).
+        m_scene = m_threads->process([scene1,frame1,this]() {
+            ScenePrimitives sceneOut = scene1;
+            detect(frame1, sceneOut);
             return sceneOut;
         });
-        
-        // Don't bother processing until FIFO is full:
-        if(!m_fifo->isFull())
-        {
-            return m_acf->getInputTexId();
-        }
-        
-        try
-        {
-            // Here we retrieve the CPU scene output for the previous frame,
-            // which has been running on the job queue.  This adds one frame
-            // of latency, but allows us to keep the GPU and CPU utilized.
-            scene = m_scenes[outputIndex].get();
-        }
-        catch(...)
-        {
-            m_logger->error() << "Error with the output scene";
-        }
-        
-        outputTexId = paint(scene, outputTexId);
     }
     else
     {
-        detect(frame, scene);
-        outputTexId = paint(scene, inputTexId);
+        detect(frame1, scene1);
+        updateEyes(texture1, scene1);
+        
+        // Excplicit output variable configuration:
+        outputTexture = paint(scene1, texture1); // was 1
+        outputScene = &scene1;
     }
-
-    updateEyes(inputTexId, scene);
     
-    return outputTexId;
+    // Add the current frame to FIFO
+    m_fifo->useTexture(texture1, 1);
+    m_fifo->render();
+
+    if(outputScene)
+    {
+        try { this->notifyListeners(*outputScene, now, m_fifo->isFull()); }
+        catch(...) {}
+    }
+    
+    return outputTexture;
 }
 
 static bool hasValidFaceRequest(FaceMonitor &monitor, const ScenePrimitives &scene, const FaceMonitor::TimePoint &now)
@@ -448,6 +467,11 @@ bool FaceFinder::hasValidFaceRequest(const ScenePrimitives &scene, const TimePoi
 
 void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &now, bool isInit)
 {
+    if(!m_faceMonitorCallback.size())
+    {
+        return;
+    }
+    
     // Perform optional frame grabbing
     // NOTE: This must occur in the main OpenGL thread:
     std::vector<FaceMonitor::FaceImage> frames;
@@ -595,7 +619,7 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfCpu(const FrameInpu
 
 void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
 {
-    m_logger->info() << "FaceFinder::preprocess()  " <<  int(frame.textureFormat) << sBar;
+    m_logger->info() << "FaceFinder::preprocess() " << int(frame.textureFormat) << sBar;
 
     if(m_doCpuACF)
     {
@@ -632,6 +656,8 @@ void FaceFinder::fill(drishti::acf::Detector::Pyramid &P)
 int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
 {
     m_logger->info() << "FaceFinder::detect() " << sBar;
+    
+    assert(scene.objects().size() == 0);
 
     if(m_detector != nullptr && scene.m_P)
     {
@@ -690,7 +716,7 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
             m_faceDetector->setDoIrisRefinement(true);
             m_faceDetector->setFaceStagesHint(8);
             m_faceDetector->setFace2StagesHint(4);
-            m_faceDetector->setEyelidStagesHint(4);
+            m_faceDetector->setEyelidStagesHint(6);
             m_faceDetector->setIrisStagesHint(10);
             m_faceDetector->setIrisStagesRepetitionFactor(1);
             m_faceDetector->refine(Ib, faces, Hdr, isDetection);
