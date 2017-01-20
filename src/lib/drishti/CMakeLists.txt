@@ -95,7 +95,7 @@ if(DRISHTI_BUILD_WORLD)
   set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
   drishti_hide(drishti_world)
   
-  target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen::eigen)
+  target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen3::Eigen)
 
   if(DRISHTI_USE_THREAD_POOL_CPP)
     target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
@@ -112,7 +112,10 @@ else()
 
   ## drishti_core
   add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
-  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS})
+  if(NOT TARGET Eigen3::Eigen)
+    message(FATAL_ERROR "Not a target")
+  endif()
+  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS} Eigen3::Eigen)
   if(DRISHTI_USE_THREAD_POOL_CPP)
     target_link_libraries(drishti_core PUBLIC thread-pool-cpp::thread-pool-cpp)
   endif()
@@ -174,7 +177,7 @@ else()
     )
 
   foreach(library ${DRISHTI_LIBS})
-    target_link_libraries(${library} PUBLIC Eigen::eigen)
+    target_link_libraries(${library} PUBLIC Eigen3::Eigen)
     drishti_hide(${library})
   endforeach()  
 
@@ -310,7 +313,7 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
       AND NOT "${library}" MATCHES "dlib::dlib"
       AND NOT "${library}" MATCHES "eos::eos"
       AND NOT "${library}" MATCHES "spdlog::spdlog"
-      AND NOT "${library}" MATCHES "Eigen::eigen"
+      AND NOT "${library}" MATCHES "Eigen3::Eigen"
       AND NOT "${library}" MATCHES "thread-pool-cpp::thread-pool-cpp")
     add_custom_command(TARGET drishtisdk POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
