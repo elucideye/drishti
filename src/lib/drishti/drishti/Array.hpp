@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <iterator>
+#include <algorithm>
 
 _DRISHTI_SDK_BEGIN
 
