@@ -6,6 +6,8 @@ set -e
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_HOME
 echo $ANDROID_SDK_ROOT
 
+. ${DRISHTISDK}/bin/drishti-password.sh
+
 IOS_IDENTITY="iPhone Developer: David Hirvonen (7YLQXWH6FK)"
 
 HUNTER_CONFIGURATION_TYPES=Release
