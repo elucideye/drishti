@@ -34,7 +34,7 @@ set(DRISHTI_SDK_3RDPARTY_PKG_LIBS
   ${OpenCV_LIBS}
   dlib::dlib  
   cereal::cereal
-  Eigen::eigen
+  Eigen3::Eigen
   spdlog::spdlog
   )
 

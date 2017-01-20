@@ -347,7 +347,7 @@ find_package(half CONFIG REQUIRED)
 
 ### Eigen3 (Header only)
 hunter_add_package(Eigen)
-find_package(Eigen REQUIRED) # <== not finding hunter provided eigen
+find_package(Eigen3 CONFIG REQUIRED) # <== not finding hunter provided eigen
 
 ### CVMATIO
 if(DRISHTI_BUILD_ACF)
