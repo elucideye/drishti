@@ -407,6 +407,7 @@ GLuint FaceFinder::operator()(const FrameInput &frame1)
         else
         {
             outputTexture = texture1;
+            outputScene = &scene0; // empty
         }
 
         // Eenque the current frame and scene for CPU processing so
@@ -431,11 +432,8 @@ GLuint FaceFinder::operator()(const FrameInput &frame1)
     m_fifo->useTexture(texture1, 1);
     m_fifo->render();
 
-    if(outputScene)
-    {
-        try { this->notifyListeners(*outputScene, now, m_fifo->isFull()); }
-        catch(...) {}
-    }
+    try { this->notifyListeners(*outputScene, now, m_fifo->isFull()); }
+    catch(...) {}
     
     return outputTexture;
 }
@@ -465,13 +463,14 @@ bool FaceFinder::hasValidFaceRequest(const ScenePrimitives &scene, const TimePoi
     return false;
 }
 
+/**
+ * Provide per frame scene descriptor callbacks.
+ * Notably, if a face requet listener is registered,
+ * then a response is expected on a per frame basis.
+ */
+
 void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &now, bool isInit)
 {
-    if(!m_faceMonitorCallback.size())
-    {
-        return;
-    }
-    
     // Perform optional frame grabbing
     // NOTE: This must occur in the main OpenGL thread:
     std::vector<FaceMonitor::FaceImage> frames;
