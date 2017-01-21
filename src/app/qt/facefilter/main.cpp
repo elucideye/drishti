@@ -70,42 +70,38 @@ Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
 static void printResources();
 static nlohmann::json loadJSON(spdlog::logger &logger);
 
-#if defined(Q_OS_IOS)
-extern "C" int qtmn(int argc, char** argv)
-#else
-int main(int argc, char **argv)
-#endif
+extern "C" int
+facefilter_main(int argc, char **argv, std::shared_ptr<spd::logger> &logger)
 {
 #ifdef Q_OS_WIN // avoid ANGLE on Windows
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
     
     // ###### Instantiate logger ########
-    auto logger = drishti::core::Logger::create("facefilter");
     logger->info() << "Start";
     
     printResources();
-
+    
     // JSON configuration
     auto json = loadJSON(*logger);
     
     QGuiApplication app(argc, argv);
-
+    
     qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
     qmlRegisterType<InfoFilter>("facefilter.test", 1, 0, "InfoFilter");
     qmlRegisterType<QTRenderGL>("OpenGLUnderQML", 1, 0, "QTRenderGL");
-
+    
 #if defined(Q_OS_OSX)
     qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QtQuick2Plugin().instance())->registerTypes("QtQuick");
     qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QMultimediaDeclarativeModule().instance())->registerTypes("QtMultimedia");
 #endif
-
+    
     QQuickView view;
     
     view.setSource(QUrl("qrc:///main.qml"));
-
+    
     view.setResizeMode( QQuickView::SizeRootObjectToView );
-
+    
 #if defined(Q_OS_OSX)
     // This had been tested with GLFW + ogles_gpgpu before
     //OpenGL version: 2.1 NVIDIA-10.4.2 310.41.35f01
@@ -116,10 +112,10 @@ int main(int argc, char **argv)
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
     view.setFormat(format);
-
+    
     logger->info() << "OpenGL Versions Supported: " << QGLFormat::openGLVersionFlags();
 #endif
-
+    
     // Default camera on iOS is not setting good parameters by default
     QQuickItem* root = view.rootObject();
     
@@ -146,10 +142,34 @@ int main(int argc, char **argv)
         frameHandlers->setOrientation(qmlCameraManager->getOrientation());
         frameHandlers->setSize(qmlCameraManager->getSize());
     }
-
+    
     view.showFullScreen();
-
+    
     return app.exec();
+}
+
+#if defined(Q_OS_IOS)
+extern "C" int qtmn(int argc, char** argv)
+#else
+extern "C" int main(int argc, char **argv)
+#endif
+{
+    auto logger = drishti::core::Logger::create("facefilter");
+    try
+    {
+        return facefilter_main(argc, argv, logger);
+    }
+    catch (std::exception& exc)
+    {
+        logger->error() << "Exception catched: " << exc.what();
+        return EXIT_FAILURE;
+    }
+    catch (...)
+    {
+        logger->error() << "Unknown exception catched";
+        return EXIT_FAILURE;
+    }
+    return 0;
 }
 
 static void printResources()
@@ -164,9 +184,9 @@ static void printResources()
 static nlohmann::json loadJSON(spdlog::logger &logger)
 {
     nlohmann::json json;
-
+    
     QString inputFilename(":/facefilter.json");
-
+    
     {
         QFile inputFile(inputFilename);
         if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
