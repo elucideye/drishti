@@ -71,7 +71,7 @@ static void printResources();
 static nlohmann::json loadJSON(spdlog::logger &logger);
 
 extern "C" int
-facefilter_main(int argc, char **argv, std::shared_ptr<spd::logger> &logger)
+facefilter_main(int argc, char **argv, std::shared_ptr<spdlog::logger> &logger)
 {
 #ifdef Q_OS_WIN // avoid ANGLE on Windows
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
