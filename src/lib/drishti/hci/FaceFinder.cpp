@@ -37,7 +37,7 @@ using namespace std::chrono_literals;
 
 #define DRISHTI_HCI_FACEFINDER_FLOW_WIDTH 256
 #define DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER 0 // *** display ***
-#define DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT 1 // *** display ***
+#define DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT 0 // *** display ***
 
 #define DRISHTI_HCI_FACEFINDER_FLASH_WIDTH 128
 
@@ -917,6 +917,7 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
     }
 #endif // DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER
 
+    // {BGRA}, {RGBA}
     cv::Mat1b corners;
     cv::extractChannel(ayxb(flowRoi), corners, 0);
     extractCorners(corners, scene, flowScale);
