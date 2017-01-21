@@ -12,6 +12,7 @@
 #include "drishti/hci/gpu/FacePainter.h"
 #include "drishti/hci/gpu/LineDrawing.hpp"
 #include "drishti/hci/gpu/FlashFilter.h"
+#include "drishti/eye/gpu/EllipsoPolarWarp.h"
 #include "drishti/core/drishti_operators.h"
 
 #include "ogles_gpgpu/common/types.h"
@@ -25,7 +26,7 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 FaceFinderPainter::FaceFinderPainter(FaceDetectorFactoryPtr &factory, Config &config, void *glContext)
     : FaceFinder(factory, config, glContext)
 {
-    
+    m_drawIris = true;
 }
 
 void FaceFinderPainter::init(const FrameInput &frame)
@@ -90,13 +91,14 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
 
         m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
 
-#if DRISHTI_FACEFILTER_DO_ELLIPSO_POLAR
-        //Draw the polar warp:
-        for(int i = 0; i < 2; i++)
+        if(m_doIris && m_drawIris)
         {
-            m_painter->setIrisTexture(i, m_ellipsoPolar[i]->getOutputTexId(), m_ellipsoPolar[i]->getOutFrameSize());
+            //Draw the normalized iris (polar coordinates):
+            for(int i = 0; i < 2; i++)
+            {
+                m_painter->setIrisTexture(i, m_ellipsoPolar[i]->getOutputTexId(), m_ellipsoPolar[i]->getOutFrameSize());
+            }
         }
-#endif
     }
     else if(scene.objects().size())
     {
