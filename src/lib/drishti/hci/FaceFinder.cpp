@@ -31,8 +31,6 @@
 #include <memory>
 #include <chrono>
 
-using namespace std::chrono_literals;
-
 #define DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH 1024
 
 #define DRISHTI_HCI_FACEFINDER_FLOW_WIDTH 256
