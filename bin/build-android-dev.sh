@@ -42,7 +42,8 @@ COMMAND=(
     "${DRISHTI_POLLY_ARGS[*]} "    
     "--jobs 8 "
     "--test "
-    "${EXTRA_ARGS} " #    "--install "
+    "--install "    
+    "${EXTRA_ARGS} " 
 )
 
-eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
+eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

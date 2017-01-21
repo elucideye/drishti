@@ -2,41 +2,31 @@
 
 . ${DRISHTISDK}/bin/build-common.sh
 
-if [ -z "${DRISHTISDK}" ]; then
-    echo 2>&1 "Must have DRISHTISDK set"
-fi
-
-if [ -z "${DRISHTISDK_IOS_IDENTITY}" ]; then
-    echo 2>&1 "Must have DRISHTISDK_IOS_IDENTITY set"
-fi
-
-TOOLCHAIN=ios-9-2-hid
+TOOLCHAIN=ios-10-1-dep-8-0-hid-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--reconfig --clear"
+    EXTRA_ARGS="--clear"
 fi
 
 rename_tab drishti $TOOLCHAIN
 
-COMMAND=(
+COMMANDS=(
     "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=8.0 "
-    "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
-    "${DRISHTI_POLLY_ARGS[*]} "
+    "${DRISHTI_POLLY_ARGS[*]} "    
     "--framework-device "
-    "--ios-multiarch "
+    "--ios-multiarch --ios-combined --archive drishti"
     "--install "
     "--jobs 8 "
     "--open "
-    "--plist \"${DRISHTISDK}/cmake/framework/Info.plist\" "
-    "--identity \"${DRISHTISDK_IOS_IDENTITY}\" "
+    "--plist ${DRISHTISDK}/cmake/framework/Info.plist "
     "${EXTRA_ARGS} "
 )
 
-eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
+polly.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]} --identity "${IOS_IDENTITY}"
 
 
 

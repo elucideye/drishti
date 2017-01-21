@@ -7,7 +7,7 @@ TOOLCHAIN=libcxx-hid-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear"
+    EXTRA_ARGS="--reconfig"
 fi
 
 [ ! -d ${DRISHTISDK}/_logs ] && mkdir -p ${DRISHTISDK}/_logs
@@ -20,12 +20,13 @@ COMMAND=(
     "${DRISHTI_BUILD_HIDE[*]} "
     "DRISHTI_BUILD_MIN_SIZE=ON "
     "${DRISHTI_POLLY_ARGS[*]} "
-    "--pack ${CPACK_TYPE} "
+    "--archive drishti"
     "--jobs 8 " # install/strip target missing in CMake 3.7.1
     "--test "
+    "--install " # 
     "${EXTRA_ARGS} "
 )
 
-eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
+eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 
 echo "Finished with status $?" 

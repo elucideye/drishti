@@ -31,4 +31,4 @@ COMMANDS=(
     "${EXTRA_ARGS} "
 )
 
-build.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]}
+polly.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]}

@@ -48,7 +48,7 @@ BUILDER=\
 (
 #    build-centos-6.2.sh
 	build-libcxx.sh
-	build-ios-10-0-hid.sh
+	build-ios.sh
 	build-android.sh
 	build-android-64.sh
 	build-android-x86.sh

@@ -23,7 +23,7 @@ COMMAND=(
     "${EXTRA_ARGS} "
 )
 
-eval build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
+eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 
 echo "Finished with status $?" 
 
