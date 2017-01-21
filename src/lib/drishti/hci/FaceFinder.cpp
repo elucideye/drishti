@@ -242,6 +242,16 @@ void FaceFinder::initFlasher()
 #endif
 }
 
+void FaceFinder::initIris(const cv::Size &size)
+{
+    // ### Ellipsopolar warper ####
+    for(int i = 0; i < 2; i++)
+    {
+        m_ellipsoPolar[i] = std::make_shared<ogles_gpgpu::EllipsoPolarWarp>();
+        m_ellipsoPolar[i]->setOutputSize(size.width, size.height);
+    }
+}
+
 void FaceFinder::initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &eyesSize)
 {
     // ### Eye enhancer ###
@@ -255,38 +265,29 @@ void FaceFinder::initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &ey
     m_eyeFilter->setAutoScaling(true);
     m_eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
     
-#if DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR
-    // Add a callback to retrieve updated eye models automatically:
-    cv::Matx33f N = transformation::scale(0.5, 0.5) * transformation::translate(1.f, 1.f);
-    for(int i = 0; i < 2; i++)
+    if(m_doIris)
     {
-        std::function<EyeWarp()> eyeDelegate = [&, N, i]()
+        // Add a callback to retrieve updated eye models automatically:
+        cv::Matx33f N = transformation::scale(0.5, 0.5) * transformation::translate(1.f, 1.f);
+        for(int i = 0; i < 2; i++)
         {
-            auto eye = m_eyeFilter->getEyeWarps()[i];
-            eye.eye = N * eye.H * eye.eye;
-            return eye;
-        };
-        m_ellipsoPolar[i]->addEyeDelegate(eyeDelegate);
-        m_eyeFilter->add(m_ellipsoPolar[i].get());
+            std::function<drishti::eye::EyeWarp()> eyeDelegate = [&, N, i]()
+            {
+                auto eye = m_eyeFilter->getEyeWarps()[i];
+                eye.eye = N * eye.H * eye.eye;
+                return eye;
+            };
+            m_ellipsoPolar[i]->addEyeDelegate(eyeDelegate);
+            m_eyeFilter->add(m_ellipsoPolar[i].get());
+        }
     }
-#endif // DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR
     
     m_eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
 }
 
-void FaceFinder::initIris(const cv::Size &size)
-{
-    // ### Ellipsopolar warper ####
-    for(int i = 0; i < 2; i++)
-    {
-        m_ellipsoPolar[i] = std::make_shared<ogles_gpgpu::EllipsoPolarWarp>();
-        m_ellipsoPolar[i]->setOutputSize(size.width, size.height);
-    }
-}
-
 void FaceFinder::initPainter(const cv::Size & /* inputSizeUp */ )
 {
-    
+
 }
 
 void FaceFinder::init(const FrameInput &frame)
@@ -314,6 +315,11 @@ void FaceFinder::init(const FrameInput &frame)
     initACF(inputSizeUp);
     initPainter(inputSizeUp);
     
+    if(m_doIris)
+    {
+        initIris({640, 240});
+    }
+    
     // Must initial eye filter before flasher:
     initEyeEnhancer(inputSizeUp, m_eyesSize);
     
@@ -321,11 +327,6 @@ void FaceFinder::init(const FrameInput &frame)
     {
         // Must initialize flasher after eye filter:
         initFlasher();
-    }
-    
-    if(m_doIris)
-    {
-        initIris({640, 240});
     }
 }
 
