@@ -70,8 +70,7 @@ Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
 static void printResources();
 static nlohmann::json loadJSON(spdlog::logger &logger);
 
-extern "C" int
-facefilter_main(int argc, char **argv, std::shared_ptr<spdlog::logger> &logger)
+int facefilter_main(int argc, char **argv, std::shared_ptr<spdlog::logger> &logger)
 {
 #ifdef Q_OS_WIN // avoid ANGLE on Windows
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
@@ -148,10 +147,20 @@ facefilter_main(int argc, char **argv, std::shared_ptr<spdlog::logger> &logger)
     return app.exec();
 }
 
+// QT uses a shared library for Android builds, so we must
+// explicitly export the main function for it to be loadable
+// with standard dlopen/dlsym pairs.
+#if defined(Q_OS_ANDROID)
+#  include "facefilter_export.h"
+#  define FACEFILTER_QT_EXPORT FACEFILTER_EXPORT
+#else
+#  define FACEFILTER_QT_EXPORT 
+#endif
+
 #if defined(Q_OS_IOS)
 extern "C" int qtmn(int argc, char** argv)
 #else
-extern "C" int main(int argc, char **argv)
+extern "C" FACEFILTER_QT_EXPORT int main(int argc, char **argv)
 #endif
 {
     auto logger = drishti::core::Logger::create("facefilter");
