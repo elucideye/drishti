@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# http://cgold.readthedocs.io/en/latest/first-step/native-build-tool/xcode.html#several-custom-xcode-versions
-# export DEVELOPER_DIR=/Applications/develop/ide/xcode/7.2.1/Xcode.app/Contents/Developer
-export DEVELOPER_DIR=/Applications/develop/ide/xcode/8.0/Xcode.app/Contents/Developer
-xcodebuild -version
-
 . ${DRISHTISDK}/bin/toolchains.sh
 
 # Add explicit check for POLLY_IOS_DEVELOPMENT_TEAM before script launch,
