@@ -27,6 +27,29 @@
         }
     },
 
+    "front": {
+        "description": "Front-facing camera",
+
+        "detectionRange": {
+            "minDepth": 0.1,
+            "maxDepth": 0.5
+        },
+
+        "sensor": {
+            "intrinsic": {
+                "size": {
+                    "width": 2560,
+                    "height": 1440
+                },
+                "principal": {
+                    "x": 1280.0,
+                    "y": 720.0
+                },
+                "focal_length_x": 1000.0
+            }
+        }
+    },
+
     "0x1a11000005ac8510": {
         "description": "FaceTime HD Camera (Built-in)",
 
