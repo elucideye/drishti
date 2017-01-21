@@ -552,7 +552,11 @@ cv::Mat ACF::getChannelsImpl()
 {
     using drishti::core::unpack;
     
-    glFlush();
+    // glFinish() seems to be required for proper synchronization
+    // using GraphicBuffer input on Android devices.  For iOS
+    // using glFlush() is adequate.  Since glFinish() should work
+    // for all platforms, we will use it in all cases.
+    glFinish();
 
     if(m_doFlow && !m_hasFlowOutput)
     {
