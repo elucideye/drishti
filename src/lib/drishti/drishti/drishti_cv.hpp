@@ -81,10 +81,23 @@ template <std::size_t N=512>
 inline std::vector<cv::Point2f> drishtiToCv(const Array<drishti::sdk::Vec2f,N> &v)
 {
     std::vector<cv::Point2f> p(v.size());
-    std::transform(v.begin(), v.end(), p.begin(), [](const drishti::sdk::Vec2f &v)
-    {
-        return drishtiToCv(v);
-    });
+
+#ifdef _MSC_VER
+	// MSVC standard library pecularities require specialization of iterator_traits
+	// for custom iterators that are not derived from std::iterator, since this is
+	// a lightweight interface class, we simply avoid the use of MSVC standard library
+	// calls here:
+	// https://groups.google.com/forum/#!topic/microsoft.public.vc.stl/4BTPkpGhzDQ
+	for (int i = 0; i < v.size(); i++)
+	{
+		p[i] = drishtiToCv(v[i]);
+	}
+#else
+	std::transform(v.begin(), v.end(), p.begin(), [](const drishti::sdk::Vec2f &v)
+	{
+		return drishtiToCv(v);
+	});
+#endif
     return p;
 }
 
