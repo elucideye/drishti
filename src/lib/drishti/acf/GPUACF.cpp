@@ -23,6 +23,7 @@
 #include "ogles_gpgpu/common/proc/flow.h"
 
 #include "drishti/acf/gpu/gain.h"
+#include "drishti/acf/gpu/swizzle.h"
 #include "drishti/acf/gpu/swizzle2.h"
 #include "drishti/acf/gpu/gradhist.h"
 #include "drishti/acf/gpu/rgb2luv.h"
@@ -46,8 +47,10 @@
 
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
+#  define TEXTURE_FORMAT_IS_RGBA 1
 #else
 #  define TEXTURE_FORMAT GL_BGRA
+#  define TEXTURE_FORMAT_IS_RGBA 0
 #endif
 
 #define GPU_ACF_DEBUG_CHANNELS 0
@@ -87,7 +90,16 @@ ACF::ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind
         flow = drishti::core::make_unique<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
         pyramidProc->add(flow.get());
         flow->setOutputSize(pyramidToFlow);
+
+#if TEXTURE_FORMAT_IS_RGBA
+        flowBgra = drishti::core::make_unique<ogles_gpgpu::SwizzleProc>();
+        flow->add(flowBgra.get());
+        flowBgraInterface = flowBgra.get();
+#else
+        flowBgraInterface = flow.get();
+#endif
     }
+    
     if(m_doLuvTransfer)
     {
         // Add transposed Luv output for CPU processing (optional)
@@ -250,6 +262,10 @@ std::vector<cv::Mat> ACF::getFlowPyramid()
     return flow;
 }
 
+/*
+ * Texture swizzling will be used to ensure BGRA format on texture read.
+ */
+
 const cv::Mat & ACF::getFlow()
 {
     return m_flow;
@@ -266,7 +282,6 @@ void ACF::initLuvTransposeOutput()
     // Add transposed Luv output for CPU processing (optional)
     luvTransposeOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
     luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
-    
     rgb2luvProc->add(luvTransposeOut.get());
 }
 
@@ -508,6 +523,10 @@ cv::Mat ACF::getChannels()
 {
     auto tic = std::chrono::system_clock::now();
     
+    // This needs to be done after full pipeline execution, but before
+    // the channels are retrieved.
+    m_rgba = initChannelOrder();
+    
     cv::Mat result = getChannelsImpl();
     std::chrono::duration<double> elapsedSeconds =  std::chrono::system_clock::now() - tic;
     if(m_logger)
@@ -520,8 +539,9 @@ cv::Mat ACF::getChannels()
 
 // This provides a map for unpacking/swizzling OpenGL textures (i.e., RGBA or BGRA) to user
 // memory using NEON optimized instructions.
-ACF::ChannelSpecification ACF::getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const
+ACF::ChannelSpecification ACF::getACFChannelSpecification(MatP &acf) const
 {
+    const auto &rgba = m_rgba;
     switch(m_featureKind)
     {
         // 10 : { LUVMp; H0123p; H4567p } requires 3 textures
@@ -548,6 +568,19 @@ void ACF::release()
     m_flow.release();
 }
 
+std::array<int, 4> ACF::initChannelOrder()
+{
+    // Default GL_BGRA so we can use GL_RGBA for comparisons
+    // since GL_BGRA is undefined on Android
+    std::array<int,4> rgba = {{ 2, 1, 0, 3 }};
+    if(pipeline->getMemTransferObj()->getOutputPixelFormat() == GL_RGBA) // assume BGRA
+    {
+        std::swap(rgba[0], rgba[2]);
+    }
+
+    return rgba;
+}
+
 cv::Mat ACF::getChannelsImpl()
 {
     using drishti::core::unpack;
@@ -560,7 +593,7 @@ cv::Mat ACF::getChannelsImpl()
 
     if(m_doFlow && !m_hasFlowOutput)
     {
-        getImage(*flow, m_flow);
+        getImage(*flowBgraInterface, m_flow);
         m_hasFlowOutput = true;
     }
 
@@ -573,19 +606,13 @@ cv::Mat ACF::getChannelsImpl()
             m_timer("read begin");
         }
 
-        // Default GL_BGRA so we can use GL_RGBA for comparisons
-        // since GL_BGRA is undefined on Android
-        std::array<int,4> rgba = {{ 2, 1, 0, 3 }};
-        if(pipeline->getMemTransferObj()->getOutputPixelFormat() == GL_RGBA) // assume BGRA
-        {
-            std::swap(rgba[0], rgba[2]);
-        }
+        const auto &rgba = m_rgba; // alias
         
         MatP acf, gray, luv;
         const auto acfSize = reduceGradHistProcASmooth->getOutFrameSize();
         acf.create({acfSize.width, acfSize.height}, CV_8UC1, getChannelCount(), GPU_ACF_TRANSPOSE);
         
-        auto planeIndex = getACFChannelSpecification(acf, rgba);
+        auto planeIndex = getACFChannelSpecification(acf);
     
         if(m_doGray)
         {
@@ -647,22 +674,6 @@ cv::Mat ACF::getChannelsImpl()
             m_hasLuvOutput = true;
         }
         
-#if GPU_ACF_DEBUG_CHANNELS
-        {
-            std::string home = getenv("HOME");
-#if ANDROID
-            m_logger->info() << "ANDROID: " << home;
-            umask(777);
-            cv::imwrite(home + "/gray.png", gray[0]);
-            cv::imwrite(home + "/acf.png", m_channels);
-#else
-            cv::imwrite(home + "/Documents/gray.png", gray[0]);
-            cv::imwrite(home + "/Documents/acf.png", m_channels);
-#endif
-        }
-        
-#endif // GPU_ACF_DEBUG_CHANNELS
-
         if(m_timer)
         {
             m_timer("read end");

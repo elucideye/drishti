@@ -33,6 +33,7 @@ class MergeProc;
 class NoopProc;
 class PyramidProc;
 class Rgb2LuvProc;
+class SwizzleProc;
 
 // #### GPU #####
 
@@ -128,17 +129,21 @@ public:
     // Retrieve Luv image in packed CV_8UC4 (RGBA) format
     const cv::Mat& getLuv();
     
+    const std::array<int, 4> &getChannelOrder() { return m_rgba; }
+    
 protected:
     
+    std::array<int, 4> initChannelOrder();
     void initACF(const SizeVec &scales, FeatureKind kind, bool debug);
     void initLuvTransposeOutput();
 
-    ChannelSpecification getACFChannelSpecification(MatP &acf, const std::array<int,4> &rgba) const;
+    ChannelSpecification getACFChannelSpecification(MatP &acf) const;
     
     cv::Mat getChannelsImpl();
 
     FeatureKind m_featureKind = kLUVM012345;
 
+    std::array<int, 4> m_rgba = {{0,1,2,3}};
     Size2d m_size;
 
     bool m_debug = false;
@@ -178,7 +183,6 @@ protected:
     std::unique_ptr<ogles_gpgpu::NoopProc> gradProcOut; //(16.0);
     std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcAOut; //(1.0f);
     std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcBOut; //(1.0f);
-    
     std::unique_ptr<ogles_gpgpu::NoopProc> luvTransposeOut; //  transposed LUV output
 
     // Multi-texture swizzle (one or the other for 8 vs 10 channels)
@@ -193,6 +197,8 @@ protected:
 
     // Experimental (flow)
     std::unique_ptr<Flow2Pipeline> flow;
+    std::unique_ptr<ogles_gpgpu::SwizzleProc> flowBgra; // (optional)
+    ogles_gpgpu::ProcInterface *flowBgraInterface = nullptr;
 
     std::vector<Rect2d> m_crops;
 
