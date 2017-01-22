@@ -329,13 +329,15 @@ endforeach()
 include(drishti_copy_3rdparty_licenses)
 drishti_copy_3rdparty_licenses("${THIRD_PARTY_INSTALL_DIR}/licenses")
 
+##############################################################
+### Generate the main shared public interface
+##############################################################
+
 if(DRISHTI_BUILD_SHARED_SDK)
   set(API_LIB_TYPE SHARED)
 else()
   set(API_LIB_TYPE STATIC)
 endif()
-
-## Always static for ios (we'll build dynamic framework from within xcode)
 
 # Create the public shared library
 add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
@@ -344,19 +346,33 @@ target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
 drishti_hide(drishti)
 drishti_strip(drishti)
 
-if(IOS)
-  # Add a static public SDK library for initial iOS testing:
-  add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
-  target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-  target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
-endif()
+##############################################################
+### Generate export header and set build/install include paths
+##############################################################
+
+include (GenerateExportHeader)
+set(drishti_export_header "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_export.hpp")
+generate_export_header(drishti
+  EXPORT_FILE_NAME "${drishti_export_header}"
+  )
+
+target_include_directories(drishti
+  PUBLIC  
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
+  "$<INSTALL_INTERFACE:include>"  # <prefix>/include
+)
 
 set_target_properties(drishti
   PROPERTIES
   PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
   )
 
-if(NOT IOS)
+if(IOS)
+  set_target_properties(drishti
+    PROPERTIES
+    XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
+    )
+else()
   # iOS dynamic frameworks don't use this type of versioning:
   set_target_properties(drishti
     PROPERTIES
@@ -383,7 +399,7 @@ endif()
 
 # Export minimal public SDK or full internal SDK
 set(TARGET_SDK "drishti") 
-set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC})
+set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC} ${drishti_export_header})
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${drishti_version_config}"
@@ -436,6 +452,12 @@ if(DRISHTI_BUILD_C_INTERFACE)
   drishti_symbol_list(drishti_c)
   set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
 
+  target_include_directories(drishti_c
+    PUBLIC  
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
+    "$<INSTALL_INTERFACE:include>"  # <prefix>/include
+    )
+
   if(DRISHTI_BUILD_SHARED_SDK)
     # Simple install to execute post build strip
     install(
@@ -454,9 +476,26 @@ endif()
 #################
 
 # NOTE: These should come last to ensure all library targets are available
-
 message("DRISHTI_HAS_TEST_TOOLS : ${DRISHTI_HAS_TEST_TOOLS}") 
 if(DRISHTI_BUILD_TESTS AND ${DRISHTI_HAS_TEST_TOOLS} AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
+
+  if(IOS)
+    # Add a static public SDK library, which is currently only required to support
+    # CTest/GTest executables on iOS platforms when using the public drishti sdk.
+    # Note: This is a workaround for lack of internal cmake/ios support for
+    # dynamic frameworks (which are currently generated as a post-build step in polly)
+    add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
+    target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+    target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
+    set_property(TARGET drishti_static PROPERTY FOLDER "libs/drishti")
+    target_include_directories(drishti_static
+      PUBLIC  
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
+      "$<INSTALL_INTERFACE:include>"  # <prefix>/include
+      )
+
+  endif()
+  
   add_subdirectory(testlib)
   add_subdirectory(core)
   add_subdirectory(geometry)

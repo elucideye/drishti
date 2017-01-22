@@ -118,7 +118,7 @@ cv::Size QMLCameraManagerApple::configureCamera()
         if(std::find(desiredFormats.begin(), desiredFormats.end(), i.pixelFormat()) != desiredFormats.end())
         {
             int area = (i.resolution().height() * i.resolution().width());
-            if(area > best.first)
+            if((area > best.first) && (i.resolution().width() <= 2048))
             {
                 best = { area, i };
             }

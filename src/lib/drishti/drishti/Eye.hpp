@@ -15,6 +15,7 @@
 
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Image.hpp"
+#include "drishti/Array.hpp"
 
 #include <vector>
 #include <iostream>
@@ -25,9 +26,12 @@ _DRISHTI_SDK_BEGIN
  * Eye type
  */
 
-class DRISHTI_EXPORTS Eye
+class DRISHTI_EXPORT Eye
 {
 public:
+
+    using ArrayVec2f = Array<Vec2f, 512>;
+    
     struct Ellipse
     {
         Vec2f center = {0.f,0.f};
@@ -46,11 +50,11 @@ public:
     {
         pupil = src;
     }
-    void setEyelids(const std::vector<Vec2f>& src)
+    void setEyelids(const ArrayVec2f& src)
     {
         eyelids = src;
     }
-    void setCrease(const std::vector<Vec2f>& src)
+    void setCrease(const ArrayVec2f& src)
     {
         crease = src;
     }
@@ -82,20 +86,20 @@ public:
         return pupil;
     }
 
-    const std::vector<Vec2f> &getEyelids() const
+    const ArrayVec2f &getEyelids() const
     {
         return eyelids;
     }
-    std::vector<Vec2f> &getEyelids()
+    ArrayVec2f &getEyelids()
     {
         return eyelids;
     }
 
-    const std::vector<Vec2f> &getCrease() const
+    const ArrayVec2f &getCrease() const
     {
         return crease;
     }
-    std::vector<Vec2f> &getCrease()
+    ArrayVec2f &getCrease()
     {
         return crease;
     }
@@ -131,35 +135,12 @@ protected:
 
     Ellipse iris;
     Ellipse pupil;
-    std::vector<Vec2f> eyelids;
-    std::vector<Vec2f> crease;
+    ArrayVec2f eyelids;
+    ArrayVec2f crease;
     Vec2f innerCorner;
     Vec2f outerCorner;
     Recti roi;
 };
-
-struct DRISHTI_EXPORTS EyeStream
-{
-    enum Format { XML, JSON };
-    EyeStream(const Format &format) : format(format) {}
-    std::string ext() const;
-    Format format = XML;
-};
-
-struct DRISHTI_EXPORTS EyeOStream : public EyeStream
-{
-    EyeOStream(const Eye &eye, Format format) : EyeStream(format), eye(eye) {}
-    const Eye &eye;
-};
-
-struct DRISHTI_EXPORTS EyeIStream : public EyeStream
-{
-    EyeIStream(Eye &eye, Format format) : EyeStream(format), eye(eye) {}
-    Eye &eye;
-};
-
-DRISHTI_EXPORTS std::ostream& operator<<(std::ostream &os, const EyeOStream &eye);
-DRISHTI_EXPORTS std::istream& operator>>(std::istream &is, EyeIStream &eye);
 
 enum EyeRegions
 {
@@ -168,9 +149,8 @@ enum EyeRegions
     kPupilRegion   = 4
 };
 
-void DRISHTI_EXPORTS createMask(Image1b &mask, const Eye &eye, int components=kIrisRegion);
+void DRISHTI_EXPORT createMask(Image1b &mask, const Eye &eye, int components=kIrisRegion);
 
 _DRISHTI_SDK_END
 
 #endif // __drishti_drishti_Eye_hpp__
-

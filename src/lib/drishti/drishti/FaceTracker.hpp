@@ -27,7 +27,7 @@ _DRISHTI_SDK_BEGIN
     \brief This class implements the public API for face filtering.
 */
 
-class DRISHTI_EXPORTS FaceTracker
+class DRISHTI_EXPORT FaceTracker
 {
 public:
     
@@ -68,11 +68,11 @@ _DRISHTI_SDK_END
 
 DRISHTI_EXTERN_C_BEGIN
 
-DRISHTI_EXPORTS drishti::sdk::FaceTracker*
+DRISHTI_EXPORT drishti::sdk::FaceTracker*
 drishti_face_tracker_create_from_file(drishti::sdk::Manager *manager, const drishti::sdk::FaceTracker::Resources &resources);
-DRISHTI_EXPORTS void
+DRISHTI_EXPORT void
 drishti_face_tracker_destroy(drishti::sdk::FaceTracker *tracker);
-DRISHTI_EXPORTS void
+DRISHTI_EXPORT void
 drishti_face_tracker_track(drishti::sdk::FaceTracker *tracker, const drishti::sdk::VideoFrame &frame, drishti::sdk::Face &face);
 
 DRISHTI_EXTERN_C_END

@@ -24,8 +24,8 @@ if [ $# -ge 1 ]; then
 #    EXTRA_ARGS="--clear"
 fi
 
-#DRISHTI_CONFIGURATION=Release
-DRISHTI_CONFIGURATION=MinSizeRel
+DRISHTI_CONFIGURATION=Release
+#DRISHTI_CONFIGURATION=MinSizeRel
 DRISHTI_BUILD_QT=OFF
 DRISHTI_BUILD_OGLES_GPGPU=OFF
 DRISHTI_USE_TEXT_ARCHIVES=OFF
@@ -54,6 +54,6 @@ COMMAND=(
     "${EXTRA_ARGS} " " --test"
 )
 
-build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
+polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 
 

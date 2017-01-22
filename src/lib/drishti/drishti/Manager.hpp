@@ -26,7 +26,7 @@
 
 _DRISHTI_SDK_BEGIN
 
-class DRISHTI_EXPORTS Manager
+class DRISHTI_EXPORT Manager
 {
 public:
     class Impl;

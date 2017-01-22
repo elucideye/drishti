@@ -38,4 +38,4 @@ COMMAND=(
     "--test "     
 )
 
-build.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
+polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

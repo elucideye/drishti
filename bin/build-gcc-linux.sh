@@ -38,4 +38,4 @@ COMMAND=(
     "${EXTRA_ARGS} "
 )
 
-eval build.py ${COMMAND[*]}
+eval polly.py ${COMMAND[*]}

@@ -30,7 +30,7 @@ if(travis_deploy)
 elseif(appveyor_deploy)
   set(version "$ENV{APPVEYOR_REPO_TAG_NAME}")
 else()
-  set(version "v0.7.2")
+  set(version "v0.7.3")
 endif()
 
 string(REGEX REPLACE "^v" "" version "${version}")
@@ -98,6 +98,8 @@ message("OPENMP CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 # http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1131
 
 if(NOT XCODE AND NOT MSVC) # We'll never have openmp on ios, and this test is really slow
+  # This is only used for xgboost training and it will be removed once the
+  # xgboost interface is updated.
   find_package( OpenMP )
   if(OPENMP_FOUND)
     message("OPENMP FOUND")
@@ -361,23 +363,6 @@ endif()
 # This will build a static library using all specified modules
 option(DRISHTI_BUILD_WORLD "Build single library" ON)
 
-### Faster build itmes
-if(XCODE)
-  option(DRISHTI_DISABLE_DSYM "Disable generation of dSYM information" ON)
-  if(DRISHTI_DISABLE_DSYM)
-    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
-  endif()
-  set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)
-
-  # RelWithDebInfo should always have symbols
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=RelWithDebInfo] "dwarf-with-dsym")
-  set(CMAKE_XCODE_ATTRIBUTE_GENERATE_PROFILING_CODE[variant=RelWithDebInfo] "YES")
-
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE_ON_ANALYZE_ACTION "Shallow")
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE "Shallow")
-
-endif()
-
 if(NOT IOS AND NOT ANDROID)
   find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
   set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS
@@ -406,6 +391,7 @@ set(drishti_version_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config
 set(drishti_project_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config.cmake")
 set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
 set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
+set(drishti_link_map "${CMAKE_INSTALL_PREFIX}/symbols")
 
 ### Download 'faces'
 include(drishti_download_private_data)
@@ -427,5 +413,41 @@ drishti_download_private_data(
     PASSWORDS "${CMAKE_CURRENT_LIST_DIR}/passwords.cmake"
 )
 message("Assets directory: '${assets_dir}'")
+
+
+#########################
+### XCODE customization 
+#########################
+
+if(XCODE)
+  option(DRISHTI_DISABLE_DSYM "Disable generation of dSYM information" ON)
+  if(DRISHTI_DISABLE_DSYM)
+    message("CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=Release] "dwarf")
+  else()
+    message("CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=Release] "dwarf-with-dsym")
+
+    # Generate debug symbols but strip them (i.e., clang or gcc)
+    set(CMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS "YES")
+    set(CMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS[variant=Release] "YES")
+
+    # Add -g to force dSYM generation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+  endif()
+
+  # RelWithDebInfo should always have symbols
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=RelWithDebInfo] "dwarf-with-dsym")
+  set(CMAKE_XCODE_ATTRIBUTE_GENERATE_PROFILING_CODE[variant=RelWithDebInfo] "YES")  
+
+  set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)  
+
+  # Minimize static analyzer time
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE_ON_ANALYZE_ACTION "Shallow")
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE "Shallow")
+
+endif()
 
 add_subdirectory(src)

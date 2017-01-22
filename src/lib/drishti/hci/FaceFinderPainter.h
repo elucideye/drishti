@@ -30,12 +30,14 @@ public:
 
     FaceFinderPainter(FaceDetectorFactoryPtr &factory, Config &config, void *glContext = nullptr);
     virtual void init(const FrameInput &frame);
+    void drawIris(bool flag) { m_drawIris = flag; }
 
 protected:
     
     virtual void initPainter(const cv::Size &inputSizeUp);    
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);    
 
+    bool m_drawIris = false;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater;
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
 };

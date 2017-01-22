@@ -83,7 +83,11 @@ if(IOS)
 endif()
 
 if(ANDROID)
+  
   add_library(facefilter SHARED ${FACE_FILTER_SOURCES})
+
+  include (GenerateExportHeader)
+  generate_export_header(facefilter)  
 
   target_link_libraries(facefilter Qt5::Quick Qt5::Multimedia)
   target_link_libraries(facefilter EGL GLESv2)

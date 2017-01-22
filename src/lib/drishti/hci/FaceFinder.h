@@ -122,7 +122,7 @@ protected:
     virtual void initPainter(const cv::Size &inputSizeUp);
     
     void initACF(const cv::Size &inputSizeUp);
-    void initFIFO(const cv::Size &inputSize);
+    void initFIFO(const cv::Size &inputSize, std::size_t n);
     void initFlasher();
     void initColormap(); // [0..359];
     void initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &eyesSize);
@@ -156,6 +156,8 @@ protected:
 
     drishti::acf::Detector::Pyramid m_P;
 
+    bool m_debugACF = false;
+    
     double m_faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
 
     float m_minDistanceMeters = 0.f;
@@ -194,7 +196,7 @@ protected:
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
 
     int m_index = 0;
-    std::vector<std::future<ScenePrimitives>> m_scenes;
+    std::future<ScenePrimitives> m_scene;
 
     TimerInfo m_timerInfo;
     

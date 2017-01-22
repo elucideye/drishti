@@ -26,7 +26,7 @@ _DRISHTI_SDK_BEGIN
  * Eye type
  */
 
-class DRISHTI_EXPORTS Face
+class DRISHTI_EXPORT Face
 {
 public:
 

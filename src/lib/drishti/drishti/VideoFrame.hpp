@@ -18,7 +18,7 @@
 
 _DRISHTI_SDK_BEGIN
 
-struct DRISHTI_EXPORTS VideoFrame
+struct DRISHTI_EXPORT VideoFrame
 {
     VideoFrame() {}
     VideoFrame(const Vec2i &size, void *pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum textureFormat)

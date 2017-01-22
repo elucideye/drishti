@@ -25,7 +25,7 @@ _DRISHTI_SDK_BEGIN
  * EyeDetector
  */
 
-class DRISHTI_EXPORTS EyeDetector
+class DRISHTI_EXPORT EyeDetector
 {
 public:
 

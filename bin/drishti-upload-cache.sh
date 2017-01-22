@@ -7,7 +7,7 @@ if [ -z "${DRISHTISDK}" ]; then
     echo 2>&1 "Must have DRISHTISDK set"
 fi
 
-if [ -z "${DRISHTISDK_BOT}" ]; then
+if [ -z "${DRISHTISDK_BOT_USER}" ]; then
     echo 2>&1 "Must have DRISHTISDK_BOT set"
 fi
 
