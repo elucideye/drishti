@@ -72,10 +72,13 @@ function export_dependencies
         "thread_pool"
         "thread-pool"
         "cxxopts"
+        "flatbuffers"
+        "nlohmann-json"
     )
 
     ### Install opencv and common dependencies only (minimize export of utility libs)
-	EXCLUSION=$(${VALUES[@]} | tr ' ' '|')
+	EXCLUSION="$(echo ${EXCLUSION_LIST[@]} | tr ' ' '|')"
+
     [ -f /tmp/staging.tar ] && rm /tmp/staging.tar
     (cd ${HUNTER_INSTALL_DIR}; find . | grep -i -E "${EXCLUSION}" > /tmp/Exclude && tar cfX /tmp/staging.tar /tmp/Exclude .)
     (cd ${EXPORT_DIR} && mkdir 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
