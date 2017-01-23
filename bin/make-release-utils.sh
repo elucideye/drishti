@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # opencv_framework:
 #
@@ -54,11 +54,37 @@ function export_dependencies
     EXPORT_DIR=$2
     HUNTER_INSTALL_DIR=$3
 
+    EXCLUSION_LIST=(\
+	    "dlib"
+        "/boost"
+        "boost_"
+        "cvmatio"
+        "eigen3"
+        "cascades"
+        "yuv"
+        "simple-gbdt"
+        "GPUImage"
+        "cereal"
+        "gtest"
+        "gmock"
+        "spdlog"
+        "half"
+        "thread_pool"
+        "thread-pool"
+        "cxxopts"
+    )
+
     ### Install opencv and common dependencies only (minimize export of utility libs)
-	EXCLUSION="dlib|/boost|boost_|cvmatio|eigen3|cascades|yuv|simple-gbdt|GPUImage|cereal|gtest|gmock|spdlog|half|thread_pool|thread-pool"
+	EXCLUSION=$(${VALUES[@]} | tr ' ' '|')
     [ -f /tmp/staging.tar ] && rm /tmp/staging.tar
     (cd ${HUNTER_INSTALL_DIR}; find . | grep -i -E "${EXCLUSION}" > /tmp/Exclude && tar cfX /tmp/staging.tar /tmp/Exclude .)
     (cd ${EXPORT_DIR} && mkdir 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
+}
+
+function get_hunter_id
+{
+    MODULE=$1
+    grep -E -o "DRISHTI_HUNTER_GATE_SHA1.*\"[[:alnum:]]+\"" ${MODULE} | cut -f2 -d' ' | sed -E 's|^"||' | sed -E 's|"$||'
 }
 
 function make_release
@@ -67,6 +93,8 @@ function make_release
     EXPORT_DIR=$2
     IS_RELEASE=$3
     INSTALL_DIR=$4
+
+    HUNTER_BASE=${HOME}/.hunter/_Base
 
     echo $@
 
@@ -82,7 +110,16 @@ function make_release
     SHA1=$(shasum ${BUILD_DIR}/_3rdParty/Hunter/toolchain/toolchain.info  | awk '{print $1}')
     TOOLCHAIN_ID=${SHA1:0:7}
 
-    HUNTER_INSTALL_DIR=${HUNTER_ROOT}/_Base/xxxxxxx/${CONFIG_ID}/${TOOLCHAIN_ID}/Install/
+    SHA1=$(get_hunter_id ${DRISHTISDK}/drishti-upload/cmake/Modules/drishti_set_hunter_gate.cmake)
+    HUNTER_ID=${SHA1:0:7}
+
+    HUNTER_INSTALL_DIR=${HUNTER_BASE}/${HUNTER_ID}/${CONFIG_ID}/${TOOLCHAIN_ID}/Install/
+
+
+    echo "TOOLCHAIN=$TOOLCHAIN"
+    echo "BUILD_DIR=$BUILD_DIR"
+    echo "HUNTER_INSTALL_DIR=${HUNTER_INSTALL_DIR}"
+    
     LIB_DIR=${HUNTER_INSTALL_DIR}/lib
 
     ### Prerequisites
