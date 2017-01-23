@@ -10,3 +10,6 @@
 [submodule "drishti-upload"]
   path = drishti-upload
   url = https://github.com/elucideye/drishti-upload
+[submodule "src/3rdparty/polly"]
+	path = src/3rdparty/polly
+	url = https://github.com/elucideye/polly.git
