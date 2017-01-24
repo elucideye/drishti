@@ -3,6 +3,7 @@
 . ${DRISHTISDK}/bin/make-release-utils.sh
 . ${DRISHTISDK}/bin/version.sh
 . ${DRISHTISDK}/bin/toolchains.sh
+. ${DRISHTISDK}/bin/license.sh
 
 set -e
 
@@ -25,6 +26,11 @@ do
         OUT_BIN_DIR=${DRISHTISDK}/releases/${RELEASE_NAME}/drishti/${NAMES[i]}/bin/
         mkdir -p ${OUT_BIN_DIR} && cp ${TEST_APP} ${OUT_BIN_DIR}
     fi
+
+    ## License patch:
+    LICENSE_DIR=${DRISHTISDK}/releases/${RELEASE_NAME}/drishti/${NAMES[i]}/3rdparty/licenses
+    drishti_license_path ${LICENSE_DIR}
+    
 done
 
 ### Model data
