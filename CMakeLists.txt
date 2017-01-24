@@ -391,7 +391,6 @@ set(drishti_version_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config
 set(drishti_project_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config.cmake")
 set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
 set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
-set(drishti_link_map "${CMAKE_INSTALL_PREFIX}/symbols")
 
 ### Download 'faces'
 include(drishti_download_private_data)
