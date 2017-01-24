@@ -48,39 +48,42 @@ EOF
     cp -r ${DST_FWK_DIR}/opencv2.framework ${FRAMEWORK_DIR}
 }
 
+DRISHTI_LIBRARY_EXCLUSION_LIST=(
+    "/boost"
+    "GPUImage"
+    "boost_"
+    "cascades"
+    "cereal"
+    "cvmatio"
+    "cxxopts"
+	"dlib"    
+    "eigen3"
+    "flatbuffers"
+    "gmock"
+    "gtest"
+    "half"
+    "nlohmann-json"
+    "spdlog"
+    "thread-pool"
+    "thread_pool"
+)
+
 function export_dependencies 
 {
     TOOLCHAIN=$1
     EXPORT_DIR=$2
     HUNTER_INSTALL_DIR=$3
 
-    EXCLUSION_LIST=(\
-	    "dlib"
-        "/boost"
-        "boost_"
-        "cvmatio"
-        "eigen3"
-        "cascades"
-        "yuv"
-        "simple-gbdt"
-        "GPUImage"
-        "cereal"
-        "gtest"
-        "gmock"
-        "spdlog"
-        "half"
-        "thread_pool"
-        "thread-pool"
-        "cxxopts"
-        "flatbuffers"
-        "nlohmann-json"
-    )
-
     ### Install opencv and common dependencies only (minimize export of utility libs)
 	EXCLUSION="$(echo ${EXCLUSION_LIST[@]} | tr ' ' '|')"
 
+    # Here we exclude some binary packages, but we need to retain the licenses:
     [ -f /tmp/staging.tar ] && rm /tmp/staging.tar
-    (cd ${HUNTER_INSTALL_DIR}; find . | grep -i -E "${EXCLUSION}" > /tmp/Exclude && tar cfX /tmp/staging.tar /tmp/Exclude .)
+    (\
+     cd ${HUNTER_INSTALL_DIR}
+     find . | grep -i -E "${DRISHTI_LIBRARY_EXCLUSION_LIST}" | grep -v licenses > /tmp/Exclude
+     tar cfX /tmp/staging.tar /tmp/Exclude .
+    )
     (cd ${EXPORT_DIR} && mkdir 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
 }
 
