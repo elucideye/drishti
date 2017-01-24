@@ -29,9 +29,9 @@ function drishti_license_path
 {
     top_license_dir=$1
 
-    for((i=0; i<${#hunter_packages[@]}; i++))
+    for((j=0; j<${#hunter_packages[@]}; j++))
     do
-        entry=${hunter_packages[i]}
+        entry=${hunter_packages[j]}
         package=${entry%:*}
         license=${entry#*:}
 
@@ -43,9 +43,9 @@ function drishti_license_path
         wget -O ${license_dir}/${license} ${license_url}
     done
 
-    for((i=0; i<${#ruslo_packages[@]}; i++))
+    for((j=0; j<${#ruslo_packages[@]}; j++))
     do
-        entry=${ruslo_packages[i]}
+        entry=${ruslo_packages[j]}
         package=${entry%:*}
         license=${entry#*:}
         
@@ -55,9 +55,9 @@ function drishti_license_path
         wget -O ${license_dir}/${license} ${license_url}
     done
 
-    for((i=0; i<${#local_packages[@]}; i++))
+    for((j=0; j<${#local_packages[@]}; j++))
     do
-        entry=${local_packages[i]}
+        entry=${local_packages[j]}
         package=${entry%:*}
         license=${entry#*:}
 
