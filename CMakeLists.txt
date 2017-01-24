@@ -157,27 +157,13 @@ if(DRISHTI_BUILD_TESTS)
   # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
   # ${DRISHTISDK}/src/tests
 
-  if(ANDROID)
-    if(drishti_ci)
-      set(DRISHTI_HAS_TEST_TOOLS FALSE)
-    else()
-      set(DRISHTI_HAS_TEST_TOOLS TRUE)
-    endif()
-  elseif(IOS)
-    # Look for existing ios-deploy for initial tests:
-    if(drishti_ci)
-      set(DRISHTI_HAS_TEST_TOOLS FALSE)
-    else()
-      set(DRISHTI_HAS_TEST_TOOLS TRUE)
-    endif()
-  else() # HOST==TARGET: (i.e., OSX, *nix, MSVC)
-    set(DRISHTI_HAS_TEST_TOOLS TRUE)
+  if((ANDROID OR IOS) AND drishti_ci)
+    # do not run test on CI (TODO: remote device testing)
+  else()
+    enable_testing()
   endif()
 
-  if(DRISHTI_HAS_TEST_TOOLS)
-    enable_testing()
-    include(drishti_add_test)
-  endif()
+  include(drishti_add_test)
 
   hunter_add_package(GTest)
   find_package(GTest CONFIG REQUIRED)
