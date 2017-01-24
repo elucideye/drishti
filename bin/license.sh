@@ -1,24 +1,70 @@
 #!/bin/bash
+#
+# Copy license files to post install tree
+#
+# REQUIREMENT: wget
+
+license_dir=$1
+
+ruslo_packages=(
+    "hunter:LICENSE"
+    "polly:LICENSE"
+    "sugar:LICENSE"
+)
+
+hunter_packages=(
+    "xgboost:LICENSE"
+    "eigen:COPYING.MPL2"
+    "ogles_gpgpu:LICENSE"
+    "thread-pool-cpp:LICENSE"
+)
+
+local_packages=(
+    "boost_pba:${DRISHTISDK}/src/3rdparty/pba/LICENSE_1_0.txt"
+    "cxxopts:${DRISHTISDK}/src/3rdparty/cxxopts/LICENSE"    
+    "NEONvsSSE:${DRISHTISDK}/src/3rdparty/simd/LICENSE"
+)
 
 function drishti_license_path
 {
-    license_dir=$1
-    
-    ## Eigen
-    EIGEN_LICENSE_URL=https://github.com/hunter-packages/eigen/raw/master/COPYING.MPL2
-    EIGEN_DIR=${license_dir}/Eigen
-    mkdir -p ${EIGEN_DIR}
-    wget -O ${EIGEN_DIR}/${EIGEN_LICENSE_URL##*/} ${EIGEN_LICENSE_URL}
-    
-    ## Sugar
-    SUGAR_LICENSE_URL=https://github.com/ruslo/sugar/raw/master/LICENSE
-    SUGAR_DIR=${license_dir}/Sugar
-    mkdir -p ${SUGAR_DIR}
-    wget -O ${SUGAR_DIR}/${SUGAR_LICENSE_URL##*/} ${SUGAR_LICENSE_URL}
-    
-    ## GTest
-    GTEST_LICENSE_URL=https://github.com/hunter-packages/gtest/raw/hunter/LICENSE
-    GTEST_DIR=${license_dir}/GTest
-    mkdir -p ${GTEST_DIR}
-    wget -O ${GTEST_DIR}/${GTEST_LICENSE_URL##*/} ${GTEST_LICENSE_URL}
+    top_license_dir=$1
+
+    for((i=0; i<${#hunter_packages[@]}; i++))
+    do
+        entry=${hunter_packages[i]}
+        package=${entry%:*}
+        license=${entry#*:}
+
+        echo ${entry} " " ${package} " " ${license}
+        
+        license_url=https://github.com/hunter-packages/${package}/raw/hunter/${license}
+        license_dir=${top_license_dir}/${package}
+        mkdir -p ${license_dir}
+        wget -O ${license_dir}/${license} ${license_url}
+    done
+
+    for((i=0; i<${#ruslo_packages[@]}; i++))
+    do
+        entry=${ruslo_packages[i]}
+        package=${entry%:*}
+        license=${entry#*:}
+        
+        license_url=https://github.com/ruslo/${package}/raw/master/${license}
+        license_dir=${top_license_dir}/${package}
+        mkdir -p ${license_dir}
+        wget -O ${license_dir}/${license} ${license_url}
+    done
+
+    for((i=0; i<${#local_packages[@]}; i++))
+    do
+        entry=${local_packages[i]}
+        package=${entry%:*}
+        license=${entry#*:}
+
+        license_dir=${top_license_dir}/${package}
+        mkdir -p ${license_dir}
+        cp ${license} ${license_dir}
+    done
 }
+
+drishti_license_path $1
