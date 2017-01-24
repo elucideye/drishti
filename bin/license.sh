@@ -66,5 +66,3 @@ function drishti_license_path
         cp ${license} ${license_dir}
     done
 }
-
-drishti_license_path $1
