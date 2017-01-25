@@ -21,6 +21,7 @@ sugar_files(DRISHTI_DRISHTI_SRCS
   )
 
 sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
+  Array.hpp    
   Eye.hpp
   EyeIO.hpp  
   EyeSegmenter.hpp
@@ -29,7 +30,6 @@ sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
   drishti_sdk.hpp
   ### Exclude private header from install
   ### This could be included in the IDE headers
-  # Array.hpp  
   # EyeSegmenterImpl.hpp
   )
 

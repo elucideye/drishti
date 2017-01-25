@@ -16,7 +16,9 @@ option(DRISHTI_USE_LOCAL_CXXOPTS "Use local cxxopts" ON)
 
 if(DRISHTI_HAS_CXXOPTS)
   if(DRISHTI_USE_LOCAL_CXXOPTS)
-    # Use local cxxopts for now
+    option(CXXOPTS_BUILD_EXAMPLES "Set to ON to build examples" OFF)
+    option(CXXOPTS_BUILD_TESTS "Set to ON to build tests" OFF)
+    option(CXXOPTS_INSTALL "Install package." OFF)    
     add_subdirectory("${CMAKE_SOURCE_DIR}/src/3rdparty/cxxopts" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cxxopts")
     add_library(cxxopts::cxxopts ALIAS cxxopts)
   else()

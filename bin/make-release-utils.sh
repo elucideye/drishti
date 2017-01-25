@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # opencv_framework:
 #
@@ -48,6 +48,27 @@ EOF
     cp -r ${DST_FWK_DIR}/opencv2.framework ${FRAMEWORK_DIR}
 }
 
+DRISHTI_LIBRARY_EXCLUSION_LIST=(
+    "/boost"
+    "GPUImage"
+    "android-sdk"
+    "boost_"
+    "cascades"
+    "cereal"
+    "cvmatio"
+    "cxxopts"
+	"dlib"    
+    "eigen3"
+    "flatbuffers"
+    "gmock"
+    "gtest"
+    "half"
+    "nlohmann"
+    "spdlog"
+    "thread-pool"
+    "thread_pool"
+)
+
 function export_dependencies 
 {
     TOOLCHAIN=$1
@@ -55,9 +76,17 @@ function export_dependencies
     HUNTER_INSTALL_DIR=$3
 
     ### Install opencv and common dependencies only (minimize export of utility libs)
-	EXCLUSION="dlib|/boost|boost_|cvmatio|eigen3|cascades|yuv|simple-gbdt|GPUImage|cereal|gtest|gmock|spdlog|half|thread_pool|thread-pool"
+	EXCLUSION="$(echo ${DRISHTI_LIBRARY_EXCLUSION_LIST[@]} | tr ' ' '|')"
+
+    # Here we exclude some binary packages, but we need to retain the licenses:
     [ -f /tmp/staging.tar ] && rm /tmp/staging.tar
-    (cd ${HUNTER_INSTALL_DIR}; find . | grep -i -E "${EXCLUSION}" > /tmp/Exclude && tar cfX /tmp/staging.tar /tmp/Exclude .)
+
+    (
+        cd ${HUNTER_INSTALL_DIR}
+        #find . | grep -i -E "${DRISHTI_LIBRARY_EXCLUSION_LIST}" | grep -v licenses > /tmp/Exclude
+        find . | grep -i -E "${EXCLUSION}" | grep -v licenses > /tmp/Exclude
+        tar cfX /tmp/staging.tar /tmp/Exclude .
+    )
     (cd ${EXPORT_DIR} && mkdir 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
 }
 
@@ -68,6 +97,8 @@ function make_release
     IS_RELEASE=$3
     INSTALL_DIR=$4
 
+    HUNTER_BASE=${HOME}/.hunter/_Base
+
     echo $@
 
     ### Compute Hunter CONIG_ID and TOOLCHAIN_ID
@@ -76,13 +107,12 @@ function make_release
 		BUILD_DIR="${BUILD_DIR}-Release"
     fi
 
-    SHA1=$(shasum ${BUILD_DIR}/_3rdParty/Hunter/config-id/config.cmake | awk '{print $1}')
-    CONFIG_ID=${SHA1:0:7}
+    HUNTER_INSTALL_DIR=$(awk '{print $1}' ${BUILD_DIR}/_3rdparty/Hunter/install-root-dir)
 
-    SHA1=$(shasum ${BUILD_DIR}/_3rdParty/Hunter/toolchain/toolchain.info  | awk '{print $1}')
-    TOOLCHAIN_ID=${SHA1:0:7}
-
-    HUNTER_INSTALL_DIR=${HUNTER_ROOT}/_Base/xxxxxxx/${CONFIG_ID}/${TOOLCHAIN_ID}/Install/
+    echo "TOOLCHAIN=$TOOLCHAIN"
+    echo "BUILD_DIR=$BUILD_DIR"
+    echo "HUNTER_INSTALL_DIR=${HUNTER_INSTALL_DIR}"
+    
     LIB_DIR=${HUNTER_INSTALL_DIR}/lib
 
     ### Prerequisites
@@ -96,10 +126,10 @@ function make_release
 
     [ -f /tmp/drishti.tar ] && rm /tmp/drishti.tar
     (
-        cd ${INSTALL_DIR}/_install/${TOOLCHAIN} && \
-            echo -e "bin\n3rdparty" > /tmp/Exclude && \
-            tar cfX /tmp/drishti.tar /tmp/Exclude . && \
-            cd ${EXPORT_DIR} && tar xf /tmp/drishti.tar
+        cd ${INSTALL_DIR}/_install/${TOOLCHAIN}
+        echo -e "bin\n3rdparty" > /tmp/Exclude 
+        tar cfX /tmp/drishti.tar /tmp/Exclude . 
+        cd ${EXPORT_DIR} && tar xf /tmp/drishti.tar
     )
 
     #### Install the dependencies (Export 3rd party libs for reuse)
