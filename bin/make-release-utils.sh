@@ -51,6 +51,7 @@ EOF
 DRISHTI_LIBRARY_EXCLUSION_LIST=(
     "/boost"
     "GPUImage"
+    "android-sdk"
     "boost_"
     "cascades"
     "cereal"
@@ -79,18 +80,13 @@ function export_dependencies
 
     # Here we exclude some binary packages, but we need to retain the licenses:
     [ -f /tmp/staging.tar ] && rm /tmp/staging.tar
-    (\
-     cd ${HUNTER_INSTALL_DIR}
-     find . | grep -i -E "${DRISHTI_LIBRARY_EXCLUSION_LIST}" | grep -v licenses > /tmp/Exclude
-     tar cfX /tmp/staging.tar /tmp/Exclude .
+
+    (
+        cd ${HUNTER_INSTALL_DIR}
+        find . | grep -i -E "${DRISHTI_LIBRARY_EXCLUSION_LIST}" | grep -v licenses > /tmp/Exclude
+        tar cfX /tmp/staging.tar /tmp/Exclude .
     )
     (cd ${EXPORT_DIR} && mkdir 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
-}
-
-function get_hunter_id
-{
-    MODULE=$1
-    grep -E -o "DRISHTI_HUNTER_GATE_SHA1.*\"[[:alnum:]]+\"" ${MODULE} | cut -f2 -d' ' | sed -E 's|^"||' | sed -E 's|"$||'
 }
 
 function make_release
@@ -110,17 +106,7 @@ function make_release
 		BUILD_DIR="${BUILD_DIR}-Release"
     fi
 
-    SHA1=$(shasum ${BUILD_DIR}/_3rdParty/Hunter/config-id/config.cmake | awk '{print $1}')
-    CONFIG_ID=${SHA1:0:7}
-
-    SHA1=$(shasum ${BUILD_DIR}/_3rdParty/Hunter/toolchain/toolchain.info  | awk '{print $1}')
-    TOOLCHAIN_ID=${SHA1:0:7}
-
-    SHA1=$(get_hunter_id ${DRISHTISDK}/drishti-upload/cmake/Modules/drishti_set_hunter_gate.cmake)
-    HUNTER_ID=${SHA1:0:7}
-
-    HUNTER_INSTALL_DIR=${HUNTER_BASE}/${HUNTER_ID}/${CONFIG_ID}/${TOOLCHAIN_ID}/Install/
-
+    HUNTER_INSTALL_DIR=$(awk '{print $1}' ${BUILD_DIR}/_3rdparty/Hunter/install-root-dir)
 
     echo "TOOLCHAIN=$TOOLCHAIN"
     echo "BUILD_DIR=$BUILD_DIR"
@@ -139,10 +125,10 @@ function make_release
 
     [ -f /tmp/drishti.tar ] && rm /tmp/drishti.tar
     (
-        cd ${INSTALL_DIR}/_install/${TOOLCHAIN} && \
-            echo -e "bin\n3rdparty" > /tmp/Exclude && \
-            tar cfX /tmp/drishti.tar /tmp/Exclude . && \
-            cd ${EXPORT_DIR} && tar xf /tmp/drishti.tar
+        cd ${INSTALL_DIR}/_install/${TOOLCHAIN}
+        echo -e "bin\n3rdparty" > /tmp/Exclude 
+        tar cfX /tmp/drishti.tar /tmp/Exclude . 
+        cd ${EXPORT_DIR} && tar xf /tmp/drishti.tar
     )
 
     #### Install the dependencies (Export 3rd party libs for reuse)
