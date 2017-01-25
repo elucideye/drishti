@@ -10,10 +10,12 @@ fi
 
 set -e
 
-RECONFIG=0
+RECONFIG=1
 for((i=0; i<${#NAMES[@]}; i++))
 do
-	./bin/${BUILDER[i]} ${RECONFIG}
+    echo ${NAMES[i]}
+    ./bin/${BUILDER[i]} ${RECONFIG}
+    ./bin/build-integration-test.sh ${NAMES[i]} ${TOOLCHAINS[i]}
 done
 
 ./bin/make-release.sh

@@ -1,30 +1,47 @@
-#!/bin/bash
+#!/bin/bash -x
 
 . ${DRISHTISDK}/bin/make-release-utils.sh
 . ${DRISHTISDK}/bin/version.sh
 . ${DRISHTISDK}/bin/toolchains.sh
+. ${DRISHTISDK}/bin/license.sh
 
 set -e
 
 echo $DRISHTI_VERSION
 
-DRISHTI_DIR=${DRISHTISDK}/releases/drishti_${DRISHTI_VERSION}/drishti
-
 RELEASE_NAME=drishti_${DRISHTI_VERSION} ### TODO centralize
+DRISHTI_DIR=${DRISHTISDK}/releases/${RELEASE_NAME}/drishti
+
+##################################################
+## Create a license patch for all architectures ##
+##################################################
+LICENSE_DIR=${DRISHTI_DIR}/licenses
+LICENSE_PATCH=${DRISHTI_DIR}/licenses.tgz
+mkdir -p ${LICENSE_DIR}
+drishti_license_path ${LICENSE_DIR}
+(cd ${DRISHTI_DIR} && tar zcvf licenses.tgz licenses)
 
 for((i=0; i<${#NAMES[@]}; i++))
 do
     EXPORT_DIR=${DRISHTI_DIR}/${NAMES[i]}
     mkdir -p ${EXPORT_DIR}
     make_release ${TOOLCHAINS[i]} ${EXPORT_DIR} ${RELEASES[i]} ${INSTALL_DIR[i]}
-
+    
     ### Bin
     TEST_APP=${INSTALL_DIR}/_install/${TOOLCHAINS[i]}/bin/test-drishti-segment
     if [ -f $TEST_APP ];
     then
-        OUT_BIN_DIR=${DRISHTISDK}/releases/${RELEASE_NAME}/drishti/${NAMES[i]}/bin/
+        OUT_BIN_DIR=${EXPORT_DIR}/bin
         mkdir -p ${OUT_BIN_DIR} && cp ${TEST_APP} ${OUT_BIN_DIR}
     fi
+
+    ## License patch:
+    echo ${NAMES[i]}    
+    (cd ${EXPORT_DIR}/3rdparty && echo ${PWD} && tar zxvf ${LICENSE_PATCH})
+
+    echo ${NAMES[i]}
+    ## Asset patch:
+    
 done
 
 ### Model data
@@ -32,5 +49,4 @@ done
 mkdir -p ${DRISHTI_DIR}/assets
 cp  ${DRISHTISDK}/assets/drishti_eye_full_npd_eix.pba.z ${DRISHTI_DIR}/assets/drishti_eye_eix.pba.z
 
-### License
 
