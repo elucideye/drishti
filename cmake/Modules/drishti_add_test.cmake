@@ -102,9 +102,19 @@ function(drishti_add_test)
             "${script_path}"
     )
   elseif(IOS)
+    set(ios_deploy_prog_name "ios-deploy")
+    find_program(ios_deploy "${ios_deploy_prog_name}")
+    if(ios_deploy)
+      # If program is found set full path as a default value for DRISHTI_IOS_DEPLOY
+      set(default_ios_deploy "${ios_deploy}")
+    else()
+      # Program not found, set default value to 'ios-deploy'
+      set(default_ios_deploy "${ios_deploy_prog_name}")
+    endif()
+
     set(
         DRISHTI_IOS_DEPLOY
-        "ios-deploy"
+        "${default_ios_deploy}"
         CACHE
         FILEPATH
         "Path to 'ios-deploy' executable (https://github.com/phonegap/ios-deploy)"
