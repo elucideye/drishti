@@ -29,12 +29,11 @@
 cmake_minimum_required(VERSION 3.1)
 project(cxxopts)
 
-#enable_testing()
-
 set(VERSION "0.0.1")
 
-# option(CXXOPTS_BUILD_EXAMPLES "Set to ON to build examples" OFF)
-# option(CXXOPTS_BUILD_TESTS "Set to ON to build tests" OFF)
+option(CXXOPTS_BUILD_EXAMPLES "Set to ON to build examples" OFF)
+option(CXXOPTS_BUILD_TESTS "Set to ON to build tests" OFF)
+option(CXXOPTS_INSTALL "Install package." ON)
 
 # set(CXXOPTS_LINKER_LIBRARIES "")
 # set(CXXOPTS_USE_UNICODE_HELP FALSE CACHE BOOL "Use ICU Unicode library")
@@ -67,7 +66,17 @@ target_link_libraries(
   INTERFACE ${CXXOPTS_LINKER_LIBRARIES}
   )
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/cxxopts.hpp DESTINATION include)
+if(CXXOPTS_BUILD_EXAMPLES)
+  add_subdirectory(src)
+endif()
 
-add_subdirectory(src)
-#add_subdirectory(test)
+if(CXXOPTS_BUILD_TESTS)
+  enable_testing()  
+  add_subdirectory(test)
+endif()
+
+if(NOT CXXOPTS_INSTALL)
+  return()
+endif()
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/cxxopts.hpp DESTINATION include)

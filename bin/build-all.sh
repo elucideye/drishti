@@ -10,10 +10,36 @@ fi
 
 set -e
 
+
 RECONFIG=0
-for((i=0; i<${#NAMES[@]}; i++))
+
+START=0
+END=${#NAMES[@]}
+
+#
+# Run a first pass build + install per platform
+#
+
+for((i=${START}; i<${END}; i++))
 do
-	./bin/${BUILDER[i]} ${RECONFIG}
+    echo ${NAMES[i]}
+    ./bin/${BUILDER[i]} ${RECONFIG}
+
 done
 
-./bin/make-release.sh
+#
+# Create a multi-arch release tree
+#
+
+./bin/make-release.sh ${START} ${END}
+
+#
+# Build integration tests from the release tree
+#
+
+for((i=${START}; i<${END}; i++))
+do
+    echo ${NAMES[i]}    
+    ./bin/build-integration-test.sh ${NAMES[i]} ${TOOLCHAINS[i]}
+done
+   

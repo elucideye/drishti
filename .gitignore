@@ -60,3 +60,5 @@ TAGS
 
 # Private password
 passwords.cmake
+src/examples/integration/_builds
+src/examples/integration/_logs
