@@ -327,7 +327,7 @@ std::vector<cv::Point_<T>> getCorners(const cv::Rect_<T> &roi)
 
 void FacePainter::annotateEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, const DRISHTI_EYE::EyeModel &eye)
 {
-    auto contours = eye.getContours();
+    auto contours = eye.getContours(false);
 
     DrawingSpec lines(0);
     for(auto &c : contours)

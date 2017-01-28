@@ -51,7 +51,7 @@ public:
         {
             if(m_delegate)
             {
-                //m_delegate();
+                m_delegate();
             }
         }
 

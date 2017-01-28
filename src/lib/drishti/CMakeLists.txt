@@ -1,6 +1,7 @@
 include(drishti_symbol_list)
 include(drishti_hide)
 include(drishti_strip)
+include(drishti_split_debug_symbols)
 include(sugar_include)
 
 sugar_include(.)
@@ -312,6 +313,7 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
       AND NOT "${library}" MATCHES "cereal::cereal"
       AND NOT "${library}" MATCHES "dlib::dlib"
       AND NOT "${library}" MATCHES "eos::eos"
+      AND NOT "${library}" MATCHES "half::half"      
       AND NOT "${library}" MATCHES "spdlog::spdlog"
       AND NOT "${library}" MATCHES "Eigen3::Eigen"
       AND NOT "${library}" MATCHES "thread-pool-cpp::thread-pool-cpp")
@@ -345,6 +347,7 @@ target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for
 target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
 drishti_hide(drishti)
 drishti_strip(drishti)
+drishti_split_debug_symbols(drishti)
 
 ##############################################################
 ### Generate export header and set build/install include paths
@@ -450,6 +453,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
   drishti_hide(drishti_c)
   drishti_strip(drishti_c)
   drishti_symbol_list(drishti_c)
+  drishti_split_debug_symbols(drishtisdk)
   set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
 
   target_include_directories(drishti_c

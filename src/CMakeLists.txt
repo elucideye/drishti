@@ -1,18 +1,111 @@
-include_directories("${OpenCV_INCLUDE_DIRS}")
+##########################################
+### Initial 3RDPARTY SRC/PKG libraries ###
+##########################################
 
-if(ANDROID)
-  add_definitions(-DHALF_ENABLE_CPP11_CMATH=0)
-endif()
-
-#### opencv_contrib stuff : tracking, etc
-sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
+# Initialize default lists and populate as we go
+set(DRISHTI_SDK_3RDPARTY_SRC_LIBS)
+set(DRISHTI_SDK_3RDPARTY_PKG_LIBS)
 
 set(LIB_TYPE STATIC)
 
-######################################
-### Initial 3RDPARTY SRC libraries ###
-######################################
-set(DRISHTI_SDK_3RDPARTY_SRC_LIBS )
+################
+### 3rdparty ###
+################
+
+sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
+
+##############
+### OpenCV ###
+##############
+
+hunter_add_package(OpenCV)
+find_package(OpenCV REQUIRED)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${OpenCV_LIBS})
+
+include_directories("${OpenCV_INCLUDE_DIRS}") # to be deprecated
+message("OpenCV_INCLUDE_DIRS = ${OpenCV_INCLUDE_DIRS}")
+message("OpenCV_LIB_DIR = ${OpenCV_LIB_DIR}")
+message("OpenCV_LIBRARIES = ${OpenCV_LIBRARIES}")
+message("OpenCV_LIB_COMPONENTS = ${OpenCV_LIB_COMPONENTS}")
+message("OpenCV_LIBS = ${OpenCV_LIBS}")
+message("${CMAKE_MODULE_PATH}")
+
+#############
+### Boost ###
+#############
+
+hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams)
+find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams)
+include_directories(${Boost_INCLUDE_DIRS})
+message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
+set(DRISHTI_SDK_BOOST_LIBS
+  Boost::filesystem
+  Boost::system
+  Boost::serialization
+  Boost::iostreams
+  )
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${DRISHTI_SDK_BOOST_LIBS})
+endif()
+
+##############
+### spdlog ###
+##############
+
+hunter_add_package(spdlog)
+find_package(spdlog CONFIG REQUIRED)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS spdlog::spdlog)
+
+##############
+### cereal ###
+##############
+
+hunter_add_package(cereal)
+find_package(cereal CONFIG REQUIRED)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cereal::cereal)
+
+############
+### dlib ###
+############
+
+hunter_add_package(dlib)
+find_package(dlib CONFIG REQUIRED)
+include_directories(${DLIB_INCLUDE_DIRS})
+add_definitions(-DDLIB_NO_GUI_SUPPORT=1)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dlib::dlib)
+
+############
+### half ###
+############
+
+hunter_add_package(half)
+find_package(half CONFIG REQUIRED)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS half::half)
+
+##############
+### Eigen3 ###
+##############
+
+hunter_add_package(Eigen)
+find_package(Eigen3 CONFIG REQUIRED) # <== not finding hunter provided eigen
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS Eigen3::Eigen)
+
+###############
+### cvmatio ###
+###############
+
+if(DRISHTI_BUILD_ACF)
+  if(DRISHTI_SERIALIZE_WITH_CVMATIO)
+    hunter_add_package(cvmatio)
+    find_package(cvmatio REQUIRED CONFIG)
+    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cvmatio::cvmatio)
+  endif()
+endif()
+
+##################
+### boost::pba ###
+##################
 
 if(DRISHTI_SERIALIZE_WITH_BOOST)
   ## 3rd party boost pba
@@ -21,34 +114,15 @@ if(DRISHTI_SERIALIZE_WITH_BOOST)
   target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
   set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
   add_library(boost-pba::boost-pba ALIAS boost-pba)
-
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
 endif()
 
 # Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
 
-######################################
-### Initial 3RDPARTY PKG libraries ###
-######################################
-set(DRISHTI_SDK_3RDPARTY_PKG_LIBS
-  ${OpenCV_LIBS}
-  dlib::dlib  
-  cereal::cereal
-  Eigen3::Eigen
-  spdlog::spdlog
-  )
-
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${DRISHTI_SDK_BOOST_LIBS})
-endif()
-
-if(DRISHTI_BUILD_ACF AND DRISHTI_SERIALIZE_WITH_CVMATIO)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cvmatio::cvmatio)
-endif()
-
 #######################
-### THREAD-POOL-CPP ###
+### thread-pool-cpp ###
 #######################
+
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
 option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
 
@@ -69,8 +143,9 @@ if(DRISHTI_USE_THREAD_POOL_CPP)
 endif()
 
 ###############
-### XGBOOST ###
+### xgboost ###
 ###############
+
 option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
@@ -86,10 +161,15 @@ else()
   find_package(xgboost CONFIG REQUIRED)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS xgboost::xgboost) # Add library
 endif()
+add_definitions(-DHAS_XGBOOST=1) # legacy
 
 ###################
-### OGLES_GPGPU ###
+### ogles_gpgpu ###
 ###################
+
+option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
+drishti_mirror_definition(DRISHTI_BUILD_OGLES_GPGPU)
+
 if(DRISHTI_BUILD_OGLES_GPGPU)
 
   # Support local submodule use or external package:
@@ -112,11 +192,17 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 
+############
+### simd ###
+############
+
+include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/simd)
+
 ###########
-### EOS ###
+### eos ### experimental
 ###########
-# Experimental functionality:
-set(EOS_LIB "")
+
+set(EOS_LIB "") # Make EOS_LIB optional
 if(DRISHTI_BUILD_EOS)
   hunter_add_package(eos)
   find_package(eos CONFIG REQUIRED)
@@ -125,17 +211,16 @@ if(DRISHTI_BUILD_EOS)
 endif()
 
 ############
-### DEST ###
+### dest ### experimental
 ############
-# Experimental functionality:
+
 if(DRISHTI_BUILD_DEST)
   hunter_add_package(dest)
   find_package(dest CONFIG REQUIRED)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dest::dest) # Add library        
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/simd)
-
+# opencv + linux JPEG workaround
 if(is_linux)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS JPEG::jpeg)
 endif()

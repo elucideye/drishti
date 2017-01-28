@@ -232,7 +232,7 @@ cv::Mat EyeModel::mask(const cv::Size &size, bool sclera, float irisScale) const
     return mask;
 }
 
-std::vector<std::vector<cv::Point2f> > EyeModel::getContours() const
+std::vector<std::vector<cv::Point2f> > EyeModel::getContours(bool doPupil) const
 {
     std::vector<std::vector<cv::Point2f>> contours;
     
@@ -247,7 +247,7 @@ std::vector<std::vector<cv::Point2f> > EyeModel::getContours() const
         }
     }
 
-    if(pupilEllipse.size.width)
+    if(pupilEllipse.size.width && doPupil)
     {
         auto segments = ellipseToContours(pupilEllipse, eyelidsSpline);
         for(auto &s : segments)
@@ -261,7 +261,7 @@ std::vector<std::vector<cv::Point2f> > EyeModel::getContours() const
         contours.push_back(creaseSpline);
     }
 
-    if(irisCenter.has)
+    if(irisCenter.has && doPupil)
     {
         std::vector<cv::Point2f> contour { irisInner, irisCenter, irisOuter };
         contours.push_back(contour);
