@@ -77,7 +77,7 @@ inline drishti::sdk::Vec2f cvToDrishti(const cv::Point2f &p)
 
 // vector<Point>
 
-template <std::size_t N=512>
+template <std::size_t N=128>
 inline std::vector<cv::Point2f> drishtiToCv(const Array<drishti::sdk::Vec2f,N> &v)
 {
     std::vector<cv::Point2f> p(v.size());
@@ -101,7 +101,7 @@ inline std::vector<cv::Point2f> drishtiToCv(const Array<drishti::sdk::Vec2f,N> &
     return p;
 }
 
-template <std::size_t N=512>
+template <std::size_t N=128>
 inline Array<drishti::sdk::Vec2f, N> cvToDrishti(const std::vector<cv::Point2f> &p)
 {
     Array<drishti::sdk::Vec2f, N> v(p.size());

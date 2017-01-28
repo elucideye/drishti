@@ -19,9 +19,14 @@ static bool toBool(const char *str);
 
 int drishti_main(int argc, char **argv)
 {
-    if(argc != 4)
+    for(int i = 0; i < argc; i++)
     {
-        std::cerr << "Usage: drishti-example-eye <model> <input> <output-dir> <is-right>" << std::endl;
+        std::cerr << "argv[" << i << "]=" << argv[i] << std::endl;
+    }
+    
+    if(argc != 5)
+    {
+        std::cerr << "Usage: drishti-example-eye <model> <input> <is-right> <output-dir>" << std::endl;
         exit(1);
     }
 
@@ -53,25 +58,6 @@ int drishti_main(int argc, char **argv)
     drishti::sdk::createMask(mask_, eye, static_cast<int>(drishti::sdk::kScleraRegion));
 
     cv::imwrite(output + "/mask.png", mask);
-    
-    return 0;
-}
-
-int main(int argc, char **argv)
-{
-    try
-    {
-        return drishti_main(argc, argv);
-    }
-    catch(std::exception &e)
-    {
-        std::cerr << "Exception: " << e.what() << std::endl;
-        return 1;
-    }
-    catch(...)
-    {
-        std::cerr << "Unknown exception" << std::endl;
-    }
     
     return 0;
 }

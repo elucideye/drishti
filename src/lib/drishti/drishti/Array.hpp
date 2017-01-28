@@ -18,7 +18,7 @@
 
 _DRISHTI_SDK_BEGIN
 
-template <typename T, std::size_t N=512> class Array
+template <typename T, std::size_t N=128> class Array
 {
 public:
 

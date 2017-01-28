@@ -2,7 +2,7 @@
 
 . ${DRISHTISDK}/bin/build-common.sh
 
-TOOLCHAIN=ios-10-1-dep-8-0-hid-sections
+TOOLCHAIN=ios-10-1-dep-8-0-libcxx-hid-sections
 
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then

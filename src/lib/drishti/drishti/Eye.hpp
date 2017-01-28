@@ -30,7 +30,7 @@ class DRISHTI_EXPORT Eye
 {
 public:
 
-    using ArrayVec2f = Array<Vec2f, 512>;
+    using ArrayVec2f = Array<Vec2f, 128>;
     
     struct Ellipse
     {
