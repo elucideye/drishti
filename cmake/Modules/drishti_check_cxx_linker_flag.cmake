@@ -7,7 +7,7 @@ function(drishti_check_cxx_linker_flag _linker_flags _resultVar)
   set(CMAKE_REQUIRED_FLAGS "${_linker_flags}")
   message(STATUS "Check linker flag -- test linker flags: ${CMAKE_REQUIRED_FLAGS}")
 
-  include(CheckCxxSourceCompiles)
+  include(CheckCXXSourceCompiles)
   check_cxx_source_compiles("int main() { return 0; }" _result)
   set(${_resultVar} ${_result} PARENT_SCOPE)
   
