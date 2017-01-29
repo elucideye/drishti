@@ -66,7 +66,12 @@ function(drishti_add_test)
         "Android device testing root directory"
     )
 
-    set(TESTING_DIR "${DRISHTI_ANDROID_DEVICE_TESTING_ROOT}/${PROJECT_NAME}")
+    if(CMAKE_TOOLCHAIN_FILE)
+      get_filename_component(TOOLCHAIN_NAME ${CMAKE_TOOLCHAIN_FILE} NAME_WE)
+      set(TESTING_DIR "${DRISHTI_ANDROID_DEVICE_TESTING_ROOT}/${PROJECT_NAME}/${TOOLCHAIN_NAME}")
+    else()
+      set(TESTING_DIR "${DRISHTI_ANDROID_DEVICE_TESTING_ROOT}/${PROJECT_NAME}")
+    endif()
 
     # Use:
     # * ADB_COMMAND
@@ -136,7 +141,12 @@ function(drishti_add_test)
         "Bundle ID template for iOS test targets"
     )
 
-    set(BUNDLE_ID "${DRISHTI_IOS_BUNDLE_IDENTIFIER}.${APP_TARGET}")
+    if(CMAKE_TOOLCHAIN_FILE)
+      get_filename_component(TOOLCHAIN_NAME ${CMAKE_TOOLCHAIN_FILE} NAME_WE)
+      set(BUNDLE_ID "${DRISHTI_IOS_BUNDLE_IDENTIFIER}.${TOOLCHAIN_NAME}.${APP_TARGET}")
+    else()
+      set(BUNDLE_ID "${DRISHTI_IOS_BUNDLE_IDENTIFIER}.${APP_TARGET}")
+    endif()
 
     set_target_properties(
         "${APP_TARGET}"

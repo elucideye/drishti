@@ -39,8 +39,7 @@ function drishti_license_path
         
         license_url=https://github.com/hunter-packages/${package}/raw/hunter/${license}
         license_dir=${top_license_dir}/${package}
-        mkdir -p ${license_dir}
-        wget -O ${license_dir}/${license} ${license_url}
+        wget -O ${license_dir}_LICENSE ${license_url}
     done
 
     for((j=0; j<${#ruslo_packages[@]}; j++))
@@ -51,8 +50,7 @@ function drishti_license_path
         
         license_url=https://github.com/ruslo/${package}/raw/master/${license}
         license_dir=${top_license_dir}/${package}
-        mkdir -p ${license_dir}
-        wget -O ${license_dir}/${license} ${license_url}
+        wget -O ${license_dir}_LICENSE ${license_url}
     done
 
     for((j=0; j<${#local_packages[@]}; j++))
@@ -62,7 +60,6 @@ function drishti_license_path
         license=${entry#*:}
 
         license_dir=${top_license_dir}/${package}
-        mkdir -p ${license_dir}
-        cp ${license} ${license_dir}
+        cp ${license} ${license_dir}_LICENSE
     done
 }

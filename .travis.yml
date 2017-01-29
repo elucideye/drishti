@@ -41,27 +41,27 @@ matrix:
     # Linux {
     - os: linux
       env: CONFIG=Release TOOLCHAIN=gcc-4-8-pic-hid-sections INSTALL=--strip
-    - os: linux
-      env: CONFIG=Debug TOOLCHAIN=gcc-4-8-pic-hid-sections INSTALL=--strip
+    # - os: linux
+    #   env: CONFIG=Debug TOOLCHAIN=gcc-4-8-pic-hid-sections INSTALL=--strip
     - os: linux
       env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
-    - os: linux
-      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
+    # - os: linux
+    #   env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
     # }
 
     # OSX {
-#    - os: osx
-#      env: CONFIG=Release TOOLCHAIN=libcxx INSTALL=--strip
-#    - os: osx
-#      env: CONFIG=Debug TOOLCHAIN=libcxx INSTALL=--strip
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=libcxx-hid-sections INSTALL=--strip
+    # - os: osx
+    #  env: CONFIG=Debug TOOLCHAIN=libcxx-hid-sections INSTALL=--strip
     - os: osx
       env: CONFIG=Release TOOLCHAIN=osx-10-11-hid-sections INSTALL=--install
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=osx-10-11-hid-sections INSTALL=--install
+    # - os: osx
+    #   env: CONFIG=Debug TOOLCHAIN=osx-10-11-hid-sections INSTALL=--install
     - os: osx
       env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3-device-hid-sections INSTALL=--install
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3-device-hid-sections INSTALL=--install
+    # - os: osx
+    #   env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3-device-hid-sections INSTALL=--install
     - os: osx
       osx_image: xcode8.1
       env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
@@ -70,8 +70,8 @@ matrix:
       env: CONFIG=Debug TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
     - os: osx
       env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
+    # - os: osx
+    #   env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
     # }
 
 env:

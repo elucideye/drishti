@@ -67,6 +67,7 @@ DRISHTI_LIBRARY_EXCLUSION_LIST=(
     "spdlog"
     "thread-pool"
     "thread_pool"
+    "licenses" # use _install <package>_LICENSE instead
 )
 
 function export_dependencies 
@@ -76,18 +77,17 @@ function export_dependencies
     HUNTER_INSTALL_DIR=$3
 
     ### Install opencv and common dependencies only (minimize export of utility libs)
-	EXCLUSION="$(echo ${DRISHTI_LIBRARY_EXCLUSION_LIST[@]} | tr ' ' '|')"
+	EXCLUSION_PATTERN="$(echo ${DRISHTI_LIBRARY_EXCLUSION_LIST[@]} | tr ' ' '|')"
 
     # Here we exclude some binary packages, but we need to retain the licenses:
     [ -f /tmp/staging.tar ] && rm /tmp/staging.tar
 
     (
         cd ${HUNTER_INSTALL_DIR}
-        #find . | grep -i -E "${DRISHTI_LIBRARY_EXCLUSION_LIST}" | grep -v licenses > /tmp/Exclude
-        find . | grep -i -E "${EXCLUSION}" | grep -v licenses > /tmp/Exclude
+        find . | grep -i -E "${EXCLUSION_PATTERN}"  > /tmp/Exclude
         tar cfX /tmp/staging.tar /tmp/Exclude .
     )
-    (cd ${EXPORT_DIR} && mkdir 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
+    (cd ${EXPORT_DIR} && mkdir -p 3rdparty && cd 3rdparty && tar zxf /tmp/staging.tar)
 }
 
 function make_release
@@ -127,8 +127,24 @@ function make_release
     [ -f /tmp/drishti.tar ] && rm /tmp/drishti.tar
     (
         cd ${INSTALL_DIR}/_install/${TOOLCHAIN}
-        echo -e "bin\n3rdparty" > /tmp/Exclude 
-        tar cfX /tmp/drishti.tar /tmp/Exclude . 
+
+        # Example:
+        # .
+        # ├── 3rdparty
+        # │   └── licenses
+        # ├── bin
+        # ├── include
+        # │   └── drishti
+        # ├── lib
+        # └── share
+        # └── drishti
+        #echo -e "bin\n3rdparty" > /tmp/Exclude 
+
+        # Exclude installed 3rdparty static libs from bundle, but keep license subdirectory
+        # Currently xgboost, various boost libs reside in the top level folder
+        # This occures in drishti/src/lib/drishti/CMakeLists.txt.
+        find 3rdparty -depth 1 -name "*.a" > /tmp/Exclude
+        tar cfX /tmp/drishti.tar /tmp/Exclude .
         cd ${EXPORT_DIR} && tar xf /tmp/drishti.tar
     )
 

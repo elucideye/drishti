@@ -28,7 +28,6 @@ COMMAND=(
     "--jobs 8 "
     "--reconfig "
     "${EXTRA_ARGS} "
-    "--test "
 )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

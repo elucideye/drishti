@@ -21,7 +21,6 @@ fi
 EXTRA_ARGS=""
 if [ $# -ge 1 ]; then
     EXTRA_ARGS="--reconfig"
-#    EXTRA_ARGS="--clear"
 fi
 
 DRISHTI_CONFIGURATION=Release
@@ -51,7 +50,7 @@ COMMAND=(
     "--jobs 8 "
     "--open "
     "--install "
-    "${EXTRA_ARGS} " " --test"
+    "${EXTRA_ARGS} "
 )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

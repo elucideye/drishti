@@ -13,7 +13,8 @@ START=$1
 END=$2
 
 RELEASE_NAME=drishti_${DRISHTI_VERSION} ### TODO centralize
-DRISHTI_DIR=${DRISHTISDK}/releases/${RELEASE_NAME}/drishti
+RELEASE_DIR=${DRISHTISDK}/releases
+DRISHTI_DIR=${RELEASE_DIR}/${RELEASE_NAME}/drishti
 
 ##################################################
 ## Create a license patch for all architectures ##
@@ -43,9 +44,9 @@ do
     (cd ${EXPORT_DIR}/3rdparty && echo ${PWD} && tar zxvf ${LICENSE_PATCH})
 
     echo ${NAMES[i]}
-    ## Asset patch:
     
 done
+rm ${LICENSE_PATCH} # clean up 
 
 ### Model data
 # TODO
@@ -56,6 +57,13 @@ if [ -f "$drishti_eye_model" ]; then
     cp "${drishti_eye_model}" ${DRISHTI_DIR}/assets/drishti_eye_eix.pba.z
 fi
 
+# Copy the main LICENSE file:
+cp ${DRISHTISDK}/LICENSE ${DRISHTI_DIR}
 
-
+# Create *.tgz builds w/ and w/o the symbol files:
+(
+    cd $RELEASE_DIR
+    tar zcvf ${RELEASE_NAME}.debug.tgz ${RELEASE_NAME}    
+    tar zcvf ${RELEASE_NAME}.tgz --exclude=*.dSYM --exclude=*.build-id ${RELEASE_NAME}
+)
 

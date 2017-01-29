@@ -43,7 +43,6 @@ COMMAND=(
     "--plist \"${DRISHTISDK}/cmake/framework/Info.plist\" "
     "--identity \"${DRISHTISDK_IOS_IDENTITY}\" "    
     "${EXTRA_ARGS} "
-    "--test "
 )
 
 eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

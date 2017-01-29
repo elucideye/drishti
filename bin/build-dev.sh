@@ -8,6 +8,8 @@ echo $ANDROID_SDK_ROOT
 
 . ${DRISHTISDK}/bin/drishti-password.sh
 
+PATH="/usr/bin:${PATH}" # system python first
+
 CPACK_TYPE=TGZ
 
 HUNTER_CONFIGURATION_TYPES=Release
