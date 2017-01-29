@@ -50,8 +50,8 @@ matrix:
     # }
 
     # OSX {
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=libcxx-hid-sections INSTALL=--strip
+    # - os: osx
+    #   env: CONFIG=Release TOOLCHAIN=libcxx-hid-sections INSTALL=--strip
     # - os: osx
     #  env: CONFIG=Debug TOOLCHAIN=libcxx-hid-sections INSTALL=--strip
     - os: osx
