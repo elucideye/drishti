@@ -13,7 +13,7 @@ function(drishti_split_debug_symbols lib_name)
     # Install the unstripped library itself via build-id:
     install(DIRECTORY
       "${CMAKE_BINARY_DIR}/${lib_name}.dSYM"
-      DESTINATION "${CMAKE_INSTALL_PREFIX}/.dSYM/"
+      DESTINATION ".dSYM/"
       )
 
   else()
@@ -41,7 +41,7 @@ function(drishti_split_debug_symbols lib_name)
       # Install the unstripped library itself via build-id:
       install(FILES
         "${CMAKE_BINARY_DIR}/${debug_lib}"
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/.build-id/${BUILDIDPREFIX}"
+        DESTINATION ".build-id/${BUILDIDPREFIX}"
         RENAME "${BUILDIDSUFFIX}.debug"
         )
     endif()
