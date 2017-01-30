@@ -71,6 +71,10 @@ set(
   FrameHandler.h
   FrameHandler.cpp
 
+  ## Device info
+  Device.h
+  Device.cpp
+
   ## Config
   facefilter.json
   )
@@ -79,6 +83,7 @@ if(IOS)
   list(APPEND FACE_FILTER_SOURCES
     QIOSViewController+Fix.h
     QIOSViewController+Fix.mm    
+    Device.mm    
     )
 endif()
 
@@ -163,6 +168,7 @@ else()
   target_link_libraries(facefilter Qt5::Quick)
   target_link_libraries(facefilter Qt5::Multimedia)
   target_link_libraries(facefilter Qt5::OpenGL)
+  target_link_libraries(facefilter Qt5::Sensors)
 
   ### Plugins
   target_link_libraries(facefilter Qt5::QmlQtQuick2Plugin)
