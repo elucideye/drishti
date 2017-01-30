@@ -41,7 +41,6 @@ COMMAND=(
     "DRISHTI_BUILD_C_INTERFACE=${DRISHTI_BUILD_C_INTERFACE} "
     "${DRISHTI_POLLY_ARGS[*]} "    
     "--jobs 8 "
-    "--test "
     "--install "    
     "${EXTRA_ARGS} " 
 )

@@ -144,17 +144,28 @@ int drishti_main(int argc, char **argv)
     
     cxxopts::Options options("drishti-eye", "Command line interface for eye model fitting");
     options.add_options()
-    ("i,input", "Input file", cxxopts::value<std::string>(sInput))
-    ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
-    ("m,model", "Input file", cxxopts::value<std::string>(sModel))
-    ("t,threads", "Multi-threaded", cxxopts::value<bool>(doThreads))
-    ("j,json", "JSON model output", cxxopts::value<bool>(doJson))
-    ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
-    ("r,right", "Right eye inputs", cxxopts::value<bool>(isRight))
-    ("l,left", "Left eye inputs", cxxopts::value<bool>(isLeft))
-    ;
-    
+        ("i,input", "Input file", cxxopts::value<std::string>(sInput))
+        ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
+        ("m,model", "Input file", cxxopts::value<std::string>(sModel))
+        ("t,threads", "Multi-threaded", cxxopts::value<bool>(doThreads))
+        ("j,json", "JSON model output", cxxopts::value<bool>(doJson))
+        ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
+        ("r,right", "Right eye inputs", cxxopts::value<bool>(isRight))
+        ("l,left", "Left eye inputs", cxxopts::value<bool>(isLeft))
+        ("h,help", "Print help message");
+
     options.parse(argc, argv);
+
+    for(int i = 0; i < argc; i++)
+    {
+        std::cout << "argv[" << i << "]=" << argv[i] << std::endl;
+    }
+    
+    if((argc <= 1) || options.count("help"))
+    {
+        std::cout << options.help({""}) << std::endl;
+        return 0;
+    }
     
     // ############################################
     // ### Command line argument error checking ###

@@ -35,7 +35,6 @@ COMMAND=(
     "--open "
     "--install "
     "${EXTRA_ARGS}" # "--nobuild"
-    "--test "     
 )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

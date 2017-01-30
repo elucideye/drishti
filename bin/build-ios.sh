@@ -23,12 +23,8 @@ COMMANDS=(
     "--jobs 8 "
     "--open "
     "--plist ${DRISHTISDK}/cmake/framework/Info.plist "
+    "--test "
     "${EXTRA_ARGS} "
 )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]} --identity "${IOS_IDENTITY}"
-
-
-
-
-

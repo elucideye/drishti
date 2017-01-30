@@ -22,8 +22,8 @@ COMMAND=(
     "${DRISHTI_POLLY_ARGS[*]} "
     "--archive drishti"
     "--jobs 8 " # install/strip target missing in CMake 3.7.1
+    "--install "
     "--test "
-    "--install " # 
     "${EXTRA_ARGS} "
 )
 

@@ -32,7 +32,6 @@ COMMAND=(
     "${EXTRA_LD_FLAGS[*]} "
     "${DRISHTI_POLLY_ARGS[*]} "
     "--strip "
-    "--test "
     "--jobs 8 "
     "--reconfig "
     "${EXTRA_ARGS} "

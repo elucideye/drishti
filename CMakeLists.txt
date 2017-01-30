@@ -286,10 +286,6 @@ if(HAVE_FP16)
   add_definitions(-DDO_SQUEEZE=1)
 endif()
 
-#if(NOT MSVC)
-#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=900")
-#endif()
-
 if(ANDROID)
   add_definitions(-DHALF_ENABLE_CPP11_CMATH=0) # use 'target' equivalent
 endif()

@@ -20,11 +20,10 @@ COMMAND=(
     "--pack ${CPACK_TYPE} "
     "--strip "
     "--jobs 8 "
+    "--test "
     "${EXTRA_ARGS} "
 )
 
 eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 
 echo "Finished with status $?" 
-
-
