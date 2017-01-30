@@ -11,12 +11,10 @@ function(drishti_split_debug_symbols lib_name)
       COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE:${lib_name}>.dSYM" "${CMAKE_BINARY_DIR}/${dsym_name}"
       )
 
-    if(EXISTS "${CMAKE_BINARY_DIR}/${dsym_name}")
-      install(DIRECTORY
-        "${CMAKE_BINARY_DIR}/${dsym_name}"
-        DESTINATION ".dSYM/"
-        )
-    endif()
+    install(DIRECTORY
+      "${CMAKE_BINARY_DIR}/${dsym_name}"
+      DESTINATION ".dSYM/"
+      )
 
   else()
 
@@ -45,13 +43,11 @@ function(drishti_split_debug_symbols lib_name)
         )
       
       # Install the unstripped library itself via build-id:
-      if(EXISTS "${CMAKE_BINARY_DIR}/${debug_lib}")
-        install(FILES
-          "${CMAKE_BINARY_DIR}/${debug_lib}"
-          DESTINATION ".build-id/${BUILDIDPREFIX}"
-          RENAME "${BUILDIDSUFFIX}.debug"
-          )
-      endif()
+      install(FILES
+        "${CMAKE_BINARY_DIR}/${debug_lib}"
+        DESTINATION ".build-id/${BUILDIDPREFIX}"
+        RENAME "${BUILDIDSUFFIX}.debug"
+        )
     endif()
   endif()
 
