@@ -70,7 +70,7 @@ struct EyeModel
     cv::Mat irisMask(const cv::Size &size, bool removeEyelids=true) const;
 
     // Support line drawing/contours (OpenGL friendly)
-    std::vector<std::vector<cv::Point2f>> getContours(bool doPupil=false) const;
+    std::vector<std::vector<cv::Point2f>> getContours(bool doPupil=true) const;
 
     static void normalizeEllipse(cv::RotatedRect &e);
     void normalize();

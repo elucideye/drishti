@@ -14,6 +14,27 @@ set(LIB_TYPE STATIC)
 
 sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
 
+##########
+### Qt ###
+##########
+
+option(DRISHTI_BUILD_QT "Build with Qt" OFF)
+drishti_mirror_definition(DRISHTI_BUILD_QT)
+
+if(DRISHTI_BUILD_QT)
+  hunter_add_package(Qt COMPONENTS qtmultimedia qtsensors qtquickcontrols)
+  find_package(Qt5Widgets REQUIRED)
+  find_package(Qt5Multimedia REQUIRED)
+  find_package(Qt5MultimediaWidgets REQUIRED)
+  find_package(Qt5OpenGL REQUIRED)
+  find_package(Qt5Qml REQUIRED)
+  find_package(Qt5Quick REQUIRED)
+  find_package(Qt5QuickTest REQUIRED)
+  find_package(Qt5QuickWidgets REQUIRED)
+  find_package(Qt5Sensors REQUIRED) # for rotation
+  #find_package(Qt5QuickControls REQUIRED) #  QtQuick.Control
+endif()
+
 ##############
 ### OpenCV ###
 ##############
