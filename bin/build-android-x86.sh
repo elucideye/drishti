@@ -17,7 +17,6 @@ COMMAND=(
     "${DRISHTI_BUILD_HIDE[*]} "
     "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
     "${DRISHTI_POLLY_ARGS[*]} "    
-    "--pack ${CPACK_TYPE} "
     "--strip "
     "--jobs 8 "
     "${EXTRA_ARGS} "
@@ -26,6 +25,3 @@ COMMAND=(
 eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 
 echo "Finished with status $?" 
-
-
-

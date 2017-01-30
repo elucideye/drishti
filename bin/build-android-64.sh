@@ -18,7 +18,6 @@ COMMAND=(
     "ANDROID_COMPILER_VERSION=\"4.9\" "
     "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
     "${DRISHTI_POLLY_ARGS[*]} "
-    "--pack ${CPACK_TYPE} "
     "--jobs 8 "
     "--strip "
     "--test "
