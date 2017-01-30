@@ -10,8 +10,7 @@ fi
 
 set -e
 
-
-RECONFIG=0
+RECONFIG=1
 
 START=0
 END=${#NAMES[@]}
@@ -24,7 +23,6 @@ for((i=${START}; i<${END}; i++))
 do
     echo ${NAMES[i]}
     ./bin/${BUILDER[i]} ${RECONFIG}
-
 done
 
 #
@@ -42,4 +40,3 @@ do
     echo ${NAMES[i]}    
     ./bin/build-integration-test.sh ${NAMES[i]} ${TOOLCHAINS[i]}
 done
-   

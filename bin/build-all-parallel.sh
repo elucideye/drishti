@@ -11,7 +11,7 @@ fi
 
 set -e
 
-RECONFIG=0
+RECONFIG=1
 START=0
 END=${#NAMES[@]}
 LAST=$((END - 1))
