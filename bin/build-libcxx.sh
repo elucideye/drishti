@@ -23,9 +23,13 @@ COMMAND=(
     "--archive drishti"
     "--jobs 8 " # install/strip target missing in CMake 3.7.1
     "--install "
-    "--test "
     "${EXTRA_ARGS} "
 )
+
+if [ ${DRISHTI_DO_TESTING} -gt 0 ];
+then
+    COMMAND+=( "--test" )
+fi
 
 eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 

@@ -20,9 +20,13 @@ COMMAND=(
     "${DRISHTI_POLLY_ARGS[*]} "
     "--jobs 8 "
     "--strip "
-    "--test "
     "${EXTRA_ARGS} "
 )
+
+if [ ${DRISHTI_DO_TESTING} -gt 0 ];
+then
+    COMMAND+=( "--test" )
+fi
 
 eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 
