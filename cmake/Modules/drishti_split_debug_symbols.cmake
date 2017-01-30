@@ -41,7 +41,7 @@ function(drishti_split_debug_symbols lib_name)
         COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:${lib_name}>" "${CMAKE_BINARY_DIR}/${debug_lib}"
 
         # Prefer to strip via CMake install/strip target (additional flags possible here):
-        COMMAND ${CMAKE_STRIP} -g $<TARGET_FILE:${lib_name}>
+        COMMAND ${CMAKE_STRIP} -g "$<TARGET_FILE:${lib_name}>"
         )
       
       # Install the unstripped library itself via build-id:
