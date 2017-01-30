@@ -7,18 +7,13 @@ function(drishti_split_debug_symbols lib_name)
     set(dsym_name "${lib_name}.dSYM")
     add_custom_command(TARGET ${lib_name}
       POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE:${dsym_name}>" "${CMAKE_BINARY_DIR}/${dsym_name}"
+      COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/${dsym_name}"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE:${lib_name}>.dSYM" "${CMAKE_BINARY_DIR}/${dsym_name}"
       )
 
-    # Install the unstripped library itself via build-id:
-    set(dsym_dir "${CMAKE_INSTALL_PREFIX}/.dSYM")
-    if(EXISTS "${dsym_dir}")
-      file(REMOVE_RECURSE "${dsym_dir}")
-    endif()
-        
-    if(EXISTS "${CMAKE_BINARY_DIR}/${lib_name}.dSYM")
+    if(EXISTS "${CMAKE_BINARY_DIR}/${dsym_name}")
       install(DIRECTORY
-        "${CMAKE_BINARY_DIR}/${lib_name}.dSYM"
+        "${CMAKE_BINARY_DIR}/${dsym_name}"
         DESTINATION ".dSYM/"
         )
     endif()
@@ -26,7 +21,6 @@ function(drishti_split_debug_symbols lib_name)
   else()
 
     # see: https://sourceware.org/gdb/onlinedocs/gdb/Separate-Debug-Files.html
-
     set(BUILDID "abcdef1234")
     string(SUBSTRING "${BUILDID}" 0 2 BUILDIDPREFIX)
     string(SUBSTRING "${BUILDID}" 2 8 BUILDIDSUFFIX)
@@ -37,20 +31,18 @@ function(drishti_split_debug_symbols lib_name)
     message("linker_supports_build_id: ${linker_supports_build_id}")
     
     if(linker_supports_build_id)
+
       set_target_properties(${lib_name} PROPERTIES LINK_FLAGS "-Wl,--build-id=0x${BUILDID}")
+      
       set(debug_lib "${lib_name}.debug")
       add_custom_command(TARGET ${lib_name}
         POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/${debug_lib}"
         COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:${lib_name}>" "${CMAKE_BINARY_DIR}/${debug_lib}"
 
-        # Prefer to strip via CMake install/strip target
+        # Prefer to strip via CMake install/strip target (additional flags possible here):
         COMMAND ${CMAKE_STRIP} -g $<TARGET_FILE:${lib_name}>
         )
-
-      set(build_id_dir "${CMAKE_INSTALL_PREFIX}/.build-id")
-      if(EXISTS "${build_id_dir}")
-        file(REMOVE_RECURSE "${build_id_dir}")
-      endif()
       
       # Install the unstripped library itself via build-id:
       if(EXISTS "${CMAKE_BINARY_DIR}/${debug_lib}")
