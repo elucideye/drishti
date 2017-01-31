@@ -1,6 +1,3 @@
-#include "drishti/geometry/drishti_geometry.h"
-#include "drishti/geometry/getPointsOnLine.h"
-
 // intersectConicLine - given a line and a conic detect the real intersection
 // points
 //          - Pierluigi Taddei (pierluigi.taddei@polimi.it)
@@ -39,6 +36,12 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef __drishti_geometry_intersectConicLine_h__
+#define __drishti_geometry_intersectConicLine_h__ 1
+
+#include "drishti/geometry/drishti_geometry.h"
+#include "drishti/geometry/getPointsOnLine.h"
 
 DRISHTI_GEOMETRY_BEGIN
 
@@ -113,6 +116,6 @@ int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Point3_<T> &l, cv::Ve
     return intersectConicLine(C, cv::Vec<T,3>(l.x, l.y, l.z), P);
 }
 
-
 DRISHTI_GEOMETRY_END
 
+#endif // __drishti_geometry_intersectConicLine_h__
