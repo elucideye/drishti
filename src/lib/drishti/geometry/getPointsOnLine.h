@@ -1,5 +1,3 @@
-#include "drishti/geometry/drishti_geometry.h"
-
 // getPointsOnLine -  given an homogeneous line return two homogeneous points on it
 //              - Pierluigi Taddei (pierluigi.taddei@polimi.it)
 //
@@ -35,6 +33,11 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifndef __drishti_geometry_getPointsOnLine_h__
+#define __drishti_geometry_getPointsOnLine_h__ 1
+
+#include "drishti/geometry/drishti_geometry.h"
 
 DRISHTI_GEOMETRY_BEGIN
 
@@ -76,3 +79,4 @@ void getPointsOnLine(const cv::Vec<T,3> &l, cv::Vec<T,3> &p1, cv::Vec<T,3> &p2)
 
 DRISHTI_GEOMETRY_END
 
+#endif // __drishti_geometry_getPointsOnLine_h__ 1

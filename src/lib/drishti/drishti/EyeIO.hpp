@@ -15,6 +15,9 @@
 
 */
 
+#ifndef __drishti_drishti_EyeIO_hpp__
+#define __drishti_drishti_EyeIO_hpp__
+
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Eye.hpp"
 
@@ -47,3 +50,5 @@ DRISHTI_EXPORT std::ostream& operator<<(std::ostream &os, const EyeOStream &eye)
 DRISHTI_EXPORT std::istream& operator>>(std::istream &is, EyeIStream &eye);
 
 _DRISHTI_SDK_END
+
+#endif // __drishti_drishti_EyeIO_hpp__
