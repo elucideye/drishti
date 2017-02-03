@@ -24,7 +24,7 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
 
-void fitSpline(const PointVec &controlPoints, PointVec &interpolatedPoints, int count=100, bool closed=true);
+void fitSpline(const PointVec &controlPoints, PointVec &interpolatedPoints, int count=64, bool closed=true);
 
 void upsample(const PointVec &controlPoints, PointVec &interpolatedPoints, int factor, bool closed);
 

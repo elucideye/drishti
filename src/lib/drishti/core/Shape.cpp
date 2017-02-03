@@ -115,7 +115,7 @@ void Shape::write(const std::string &filename) const
 
 void fitSpline(const PointVec &controlPoints, PointVec &interpolatedPoints, int count, bool closed)
 {
-    interpolatedPoints = controlPoints; return;
+    interpolatedPoints = controlPoints;
     
     if(controlPoints.size() > 1)
     {

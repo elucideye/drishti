@@ -35,9 +35,9 @@ public:
     , smoothProc2(1)
     , fifoProc(3)
     , fir3Proc(false)
-    , hessianProc(1000.0f, false)
+    , hessianProc(10000.0f, false)
 #if FLASH_FILTER_USE_DELAY
-    , fadeProc(0.9)
+    , fadeProc(0.95)
 #endif
     {
         fir3Proc.setAlpha(10.f);
@@ -49,7 +49,8 @@ public:
                 fir3Proc.setWeights({-0.25, 0.5, -0.25});
                 break;
             case FlashFilter::kCenteredDifference :
-                fir3Proc.setWeights({+0.5, 0.0, -0.5});
+                //fir3Proc.setWeights({+0.5, 0.0, -0.5}); // bright->dark
+                fir3Proc.setWeights({-0.5, 0.0, +0.5}); // bright->dark
                 break;
         }
         

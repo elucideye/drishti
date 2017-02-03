@@ -132,6 +132,8 @@ DRISHTI_END_NAMESPACE(drishti)
 // Use drishti_main to support cross platform interface:
 int drishti_main(int argc, char **argv)
 {
+    const auto argumentCount = argc;
+    
     // Instantiate line logger:
     auto logger = drishti::core::Logger::create("drishti-eye");
     
@@ -140,7 +142,12 @@ int drishti_main(int argc, char **argv)
     // ############################
     
     std::string sInput, sOutput, sModel;
-    bool doThreads = true, doJson = true, doAnnotation = false, isRight=false, isLeft=false;
+    bool doThreads = true;
+    bool doJson = true;
+    bool doAnnotation = false;
+    bool isRight=false;
+    bool isLeft=false;
+    bool doLabels = false;
     
     cxxopts::Options options("drishti-eye", "Command line interface for eye model fitting");
     options.add_options()
@@ -152,16 +159,12 @@ int drishti_main(int argc, char **argv)
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
         ("r,right", "Right eye inputs", cxxopts::value<bool>(isRight))
         ("l,left", "Left eye inputs", cxxopts::value<bool>(isLeft))
+        ("L,labels", "Generate label image", cxxopts::value<bool>(doLabels))
         ("h,help", "Print help message");
-
-    options.parse(argc, argv);
-
-    for(int i = 0; i < argc; i++)
-    {
-        std::cout << "argv[" << i << "]=" << argv[i] << std::endl;
-    }
     
-    if((argc <= 1) || options.count("help"))
+    options.parse(argc, argv);
+    
+    if((argumentCount <= 1) || options.count("help"))
     {
         std::cout << options.help({""}) << std::endl;
         return 0;
@@ -193,7 +196,13 @@ int drishti_main(int argc, char **argv)
         logger->error() << "Must specify output directory";
         return 1;
     }
-    if(!drishti::cli::directory::exists(sOutput))
+    
+    if(drishti::cli::directory::exists(sOutput, ".drishti-eye"))
+    {
+        std::string filename = sOutput + "/.drishti-eye";
+        remove(filename.c_str());
+    }
+    else
     {
         logger->error() << "Specified directory " << sOutput << " does not exist or is not writeable";
         return 1;
@@ -232,8 +241,6 @@ int drishti_main(int argc, char **argv)
         return drishti::core::make_unique<drishti::eye::EyeModelEstimator>(sModel);
     };
     
-    // Shared state:
-    std::mutex mutex;
     std::size_t total = 0;
     
     // Parallel loop:
@@ -249,6 +256,7 @@ int drishti_main(int argc, char **argv)
         {
             drishti::eye::EyeModel eye;
             drishti::eye::fitEyeModel(*segmenter, image, eye, isRight);
+            eye.refine();
 
             if(!sOutput.empty())
             {
@@ -263,7 +271,14 @@ int drishti_main(int argc, char **argv)
                 {
                     cv::Mat canvas = image.clone();
                     eye.draw(canvas);
-                    cv::imwrite(filename + ".png", canvas);
+                    cv::imwrite(filename + "_contours.png", canvas);
+                }
+
+                // Save part labels
+                if(doLabels)
+                {
+                    cv::Mat labels = eye.labels(image.size());
+                    cv::imwrite(filename + "_labels.png", labels);
                 }
 
                 // Save eye model results as xml:

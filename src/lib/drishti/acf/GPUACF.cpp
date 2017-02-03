@@ -227,6 +227,12 @@ ProcInterface * ACF::first()
     return rotationProc.get();
 }
 
+ProcInterface * ACF::getRgbSmoothProc()
+{
+    return dynamic_cast<ProcInterface*>(rgbSmoothProc.get());
+}
+
+
 void ACF::connect(std::shared_ptr<spdlog::logger> &logger)
 {
     m_logger = logger;
