@@ -230,7 +230,8 @@ if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
     else()
       list(APPEND DRISHTI_SDK_LIBS
         "-framework ImageIO"
-        "-framework CoreVideo"    
+        "-framework CoreFoundation"        
+        "-framework CoreVideo"
         )
     endif()
   endif(APPLE)
