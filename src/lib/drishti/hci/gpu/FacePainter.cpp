@@ -15,6 +15,7 @@
 #include <opencv2/imgproc.hpp>
 
 #define DO_COLOR 1
+#define DRISHTI_HCI_FACEPAINTER_COLOR_TINTING 0
 
 using namespace std;
 using namespace ogles_gpgpu;
@@ -249,6 +250,7 @@ int FacePainter::FacePainter::render(int position)
 
     setUniforms();
 
+#if DRISHTI_HCI_FACEPAINTER_COLOR_TINTING
     if(m_flashInfo.texId >= 0)
     {
         const uint64_t frameCount = (m_frameIndex++ % 30);
@@ -267,6 +269,7 @@ int FacePainter::FacePainter::render(int position)
             glUniform1f(m_colorShParamUWeight, weight);
         }
     }
+#endif
 
     filterRenderSetCoords();
     Tools::checkGLErr(getProcName(), "render set coords");
@@ -391,6 +394,9 @@ std::array<drishti::eye::EyeWarp, 2> FacePainter::renderEyes(const drishti::face
     {
         renderEye(cropInfo[i].roi, cropInfo[i].H, (i == 0) ? *face.eyeFullL : *face.eyeFullR);
     }
+    
+    annotateEyes();
+    
     return cropInfo;
 }
 

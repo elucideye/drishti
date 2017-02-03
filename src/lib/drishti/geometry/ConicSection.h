@@ -63,12 +63,12 @@ public:
         F = C_(2,2);
     }
 
-    T algebraicDistance(cv::Point_<T> p)
+    T algebraicDistance(const cv::Point_<T> &p)
     {
         return A*p.x*p.x + B*p.x*p.y + C*p.y*p.y + D*p.x + E*p.y + F;
     }
 
-    T distance(cv::Point_<T> p)
+    T distance(const cv::Point_<T> &p)
     {
         //    dist
         // -----------
@@ -82,12 +82,12 @@ public:
         return dist / std::pow(sqgrad, T(0.45/2));
     }
 
-    cv::Point_<T> algebraicGradient(cv::Point_<T> p)
+    cv::Point_<T> algebraicGradient(const cv::Point_<T> &p)
     {
         return cv::Point_<T>(2*A*p.x + B*p.y + D, B*p.x + 2*C*p.y + E);
     }
 
-    cv::Point_<T> algebraicGradientDir(cv::Point_<T> p)
+    cv::Point_<T> algebraicGradientDir(const cv::Point_<T> &p)
     {
         cv::Point_<T> grad = algebraicGradient(p);
         T len = std::sqrt(grad.ddot(grad));

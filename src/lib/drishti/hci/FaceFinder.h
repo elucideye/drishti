@@ -172,6 +172,9 @@ protected:
     bool m_doFlash = false;
     int m_flashWidth = 128;
     
+    bool m_doDifferenceEyes = false;
+    bool m_doDifferenceEyesDisplay = false;
+    
     bool m_doIris = false;
     
     bool m_doCpuACF= false;

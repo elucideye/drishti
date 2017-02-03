@@ -47,10 +47,13 @@
 #include "TextureBuffer.hpp"
 #include "QVideoFrameScopeMap.h"
 #include "QtFaceDetectorFactory.h"
+#include "Device.h"
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
+
+#include <chrono>
 
 #include <QDateTime>
 #include <QFile>
@@ -90,6 +93,8 @@ struct VideoFilterRunnable::Impl
 
     Impl(void *glContext, int orientation)
     {
+        m_tic = std::chrono::high_resolution_clock::now();
+        
         // Retrieve sensor intrinsic calibration:
         auto manager = FrameHandlerManager::get();
 
@@ -130,6 +135,8 @@ struct VideoFilterRunnable::Impl
         assert(m_detector);
         return (*m_detector)(frame);
     }
+    
+    std::chrono::high_resolution_clock::time_point m_tic;
 
     std::shared_ptr<drishti::hci::FaceFinder> m_detector;
 };
@@ -229,10 +236,22 @@ GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
     return outTexture;
 }
 
+
+
 int VideoFilterRunnable::detectFaces(QVideoFrame *input)
 {
     using FrameInput = ogles_gpgpu::FrameInput;
 
+    const auto toc = std::chrono::high_resolution_clock::now();
+    const double elapsed = std::chrono::duration<double>(toc - m_pImpl->m_tic).count();
+    const int seconds = int(elapsed);
+    const static int interval = 2;
+    if(!(seconds % interval))
+    {
+        const int value = (seconds / interval) % 2;
+        adjustScreen(float(value));
+    }
+    
     QOpenGLContext* openglContext = QOpenGLContext::currentContext();
     if (!openglContext)
     {

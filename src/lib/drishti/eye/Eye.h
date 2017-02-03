@@ -67,6 +67,7 @@ struct EyeModel
 
     void draw(cv::Mat &canvas, int level=0, bool doMask=true, const cv::Scalar &color= {0.,255.,0.}, int width=2) const;
     cv::Mat mask(const cv::Size &size, bool sclera=true, float irisScale=1.f) const;
+    cv::Mat labels(const cv::Size &size) const;
     cv::Mat irisMask(const cv::Size &size, bool removeEyelids=true) const;
 
     // Support line drawing/contours (OpenGL friendly)

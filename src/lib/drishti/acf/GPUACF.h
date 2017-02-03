@@ -120,7 +120,7 @@ public:
     }
 
     ProcInterface * first();
-
+    ProcInterface * getRgbSmoothProc();
     Flow2Pipeline * getFlowProc() { return flow.get(); }
     
     // Retrieve Luv image as planar 3 channel CV_32F

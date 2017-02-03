@@ -89,7 +89,14 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
             m_painter->addFace(f);
         }
 
-        m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
+        if(m_doDifferenceEyesDisplay)
+        {
+            m_painter->setEyeTexture(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize(), m_eyeFilter->getEyeWarps());
+        }
+        else
+        {
+            m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
+        }
 
         if(m_doIris && m_drawIris)
         {

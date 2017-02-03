@@ -36,6 +36,7 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 
 typedef std::vector<cv::Point2f> PointVec;
 static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, const PointVec &eyelids= {});
+static void fillPolly(cv::Mat &image, const PointVec &polly, const cv::Scalar &value);
 
 std::vector<cv::Point2f> EyeModel::getUpperEyelid() const
 {
@@ -93,7 +94,6 @@ void EyeModel::upsample(int eyelidFactor, int creaseFactor)
         std::swap(crease, spline);
     }
 }
-
 
 void EyeModel::refine(int eyelidPoints, int creasePoints)
 {
@@ -203,19 +203,42 @@ cv::Mat EyeModel::irisMask(const cv::Size &size, bool removeEyelids) const
     return mask;
 }
 
+cv::Mat EyeModel::labels(const cv::Size &size) const
+{
+    if(size.area() == 0)
+    {
+        return cv::Mat1b();
+    }
+
+    const auto &curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
+    
+    // Eye mask:
+    cv::Mat1b eyeMask = cv::Mat1b::zeros(size);
+    fillPolly(eyeMask, curve, 255);
+
+    // Iris mask:
+    cv::Mat1b irisMask = cv::Mat1b::zeros(size);
+    cv::ellipse(irisMask, irisEllipse, 255, -1);
+
+    eyeMask.setTo(127, (eyeMask & irisMask));
+
+    return eyeMask;
+}
+
 cv::Mat EyeModel::mask(const cv::Size &size, bool sclera, float irisScale) const
 {
     cv::Mat1b mask;
+
+    if(size.area() == 0)
+    {
+        return mask;
+    }
     
     const auto &curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
     if(curve.size())
     {
         mask = cv::Mat1b::zeros(size);
-        
-        std::vector< std::vector<cv::Point> > contours(1);
-        contours[0].resize(curve.size());
-        std::copy(curve.begin(), curve.end(), contours[0].begin());
-        cv::fillPoly(mask, contours, 255, 4);
+        fillPolly(mask, curve, 255);
         
         if(sclera && irisEllipse.size.width)
         {
@@ -568,6 +591,14 @@ void read(const cv::FileNode& node, DRISHTI_EYE::EyeModel& x, const DRISHTI_EYE:
 }
 
 // ==========
+
+static void fillPolly(cv::Mat &image, const PointVec &polly, const cv::Scalar &value)
+{
+    std::vector<std::vector<cv::Point>> contours(1);
+    contours[0].resize(polly.size());
+    std::copy(polly.begin(), polly.end(), contours[0].begin());
+    cv::fillPoly(image, contours, 255, 4);
+}
 
 // http://stackoverflow.com/a/23214219
 static int mod(int k, int n)
