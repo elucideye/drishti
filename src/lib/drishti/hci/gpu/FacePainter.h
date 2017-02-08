@@ -17,12 +17,13 @@
 
 #include "drishti/face/gpu/EyeFilter.h"
 #include "drishti/acf/drishti_acf.h"
+#include "drishti/hci/gpu/LineDrawing.hpp"
+#include "drishti/hci/Scene.hpp"
+#include "drishti/face/Face.h" // face model
+#include "drishti/geometry/Mesh3D.h"
+
 #include "ogles_gpgpu/common/proc/transform.h"
 #include "ogles_gpgpu/common/common_includes.h"
-
-#include "drishti/hci/gpu/LineDrawing.hpp"
-
-#include "drishti/face/Face.h" // face model
 
 #include <opencv2/core/core.hpp>
 
@@ -31,12 +32,17 @@
 
 BEGIN_OGLES_GPGPU
 
-class FlashFilter;
+class GLPrinterShader;
 
 class FacePainter : public ogles_gpgpu::TransformProc
 {
 public:
-
+    
+    using FeaturePoint = drishti::hci::FeaturePoint;
+    using FeaturePoints = std::vector<FeaturePoint>;
+    using PointSet = std::vector<cv::Point2f>;
+    using Axes3D = std::array<drishti::geometry::Mesh3D<float>, 3>;
+    
     struct DisplayTexture
     {
         DisplayTexture() {}
@@ -58,10 +64,38 @@ public:
         std::function<void()> m_delegate;
     };
 
+    struct EyeAttributes
+    {
+        EyeAttributes() {}
+        EyeAttributes(const FeaturePoints *points, float scale=1.f, const cv::Vec3f &color={0.f,1.f,0.f})
+        : points(points)
+        , scale(scale)
+        , color(color) {}
+        
+        const FeaturePoints *points = nullptr;
+        float scale = 10.f;
+        cv::Vec3f color = { 0.f, 1.f, 0.f };
+    };
+    
+    struct EyePairInfo
+    {
+        DisplayTexture m_eyesInfo;
+        std::array<drishti::eye::EyeWarp, 2> m_eyes;
+        cv::Rect m_eyesRoi;
+    };
+    
+    struct Object3D
+    {
+        cv::Point3f position;
+        cv::Vec3f velocity;
+    };
+    
     /**
      * Constructor
      */
     FacePainter(int orientation);
+    
+    ~FacePainter();
 
     /**
      * Render a face image.
@@ -143,7 +177,14 @@ public:
     {
         m_drawings.push_back(drawing);
     }
+    
+    void setAxes(const cv::Point3f &axes);
 
+    void setObjectState(const Object3D &object)
+    {
+        m_object = object;
+    }
+    
     //===========================
     //========= FLOW -===========
     //===========================
@@ -175,7 +216,7 @@ public:
     {
         int shrink = 3; // vertical shrink for small displays
         assert(index >= 0 && index <= 1);
-        Size2d irisSize(outFrameW, (outFrameW * m_eyesInfo.size.height / m_eyesInfo.size.width) / shrink);
+        Size2d irisSize(outFrameW, (outFrameW * m_eyesA.m_eyesInfo.size.height / m_eyesA.m_eyesInfo.size.width) / shrink);
         Rect2d irisRoi(0, index * (outFrameH - irisSize.height - 1), irisSize.width, irisSize.height);
         m_irisInfo[index] = { texIdx, size, irisRoi };
     }
@@ -183,35 +224,76 @@ public:
     //===========================
     //========= EYES ============
     //===========================
-
-    void setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
+ 
+    void setEyeTextureA(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
     {
         // A) This stretches and preserves the aspect ratio across the top of the frame:
         //Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height/size.width);
 
         // B) This stretches and centers the roi on top
-        const int maxWidth = 480;
+        const int maxWidth = 512;
         const int width = std::min(maxWidth, outFrameW);
         Rect2d eyesRoi(0, 0, width, width * size.height/size.width);
-        eyesRoi.x = (outFrameW / 2) - (size.width / 2);
+        eyesRoi.x = 0; // (outFrameW / 2);// - (size.width / 2);
         eyesRoi.y = eyesRoi.height / 4;
 
-        m_eyesInfo = { texIdx, size, eyesRoi };
-
-        m_eyesInfo.m_delegate = [&]()
+        m_eyesA.m_eyes = eyes;
+        m_eyesA.m_eyesInfo = { texIdx, size, eyesRoi };
+        m_eyesA.m_eyesInfo.m_delegate = [&]()
         {
-            annotateEyes();
+            annotateEyes(m_eyesA, m_eyeAttributes[0]);
         };
-        m_eyes = eyes;
+    }
+    
+    void setEyeTextureB(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
+    {
+        // A) This stretches and preserves the aspect ratio across the top of the frame:
+        //Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height/size.width);
+        
+        // B) This stretches and centers the roi on top
+        const int maxWidth = 512;
+        const int width = std::min(maxWidth, outFrameW);
+        Rect2d eyesRoi(0, 0, width, width * size.height/size.width);
+        eyesRoi.x = outFrameW / 2;
+        eyesRoi.y = eyesRoi.height / 4;
+        
+        m_eyesB.m_eyes = eyes;
+        m_eyesB.m_eyesInfo = { texIdx, size, eyesRoi };
+        m_eyesB.m_eyesInfo.m_delegate = [&]()
+        {
+            annotateEyes(m_eyesB, m_eyeAttributes[1]);
+        };
     }
 
+    // points: normalized points wrt eye textures
+    void setEyePointsFromDifferenceImage(const FeaturePoints &points)
+    {
+        m_eyePointsFromDifferenceImage = points;
+    }
+
+    // points: normalized points wrt eye textures
+    void setEyePointsFromSingleImage(const FeaturePoints &points)
+    {
+        m_eyePointsFromSingleImage = points;
+    }
+    
+    void setBrightness(float value)
+    {
+        m_brightness = value;
+    }
+    
+    void setGazePoint(const FeaturePoints &points)
+    {
+        m_gazePoints = points;
+    }
+    
     void copyEyeTex();
-    void annotateEyes();
+    void annotateEyes(const EyePairInfo &eyes, const EyeAttributes &attributes);
 
     // Implement all utilty texture drawing in terms of these:
     void renderTex( DisplayTexture &texInfo);
     void filterRenderPrepareTex( DisplayTexture &texInfo);
-    void filterRenderSetCoordsTex( DisplayTexture &texInfo);
+    void filterRenderSetCoordsTex(DisplayTexture &texInfo);
     
 private:
 
@@ -220,9 +302,22 @@ private:
     void renderFaces();
     std::array<drishti::eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel &face); // return transformations
     void renderEye(const cv::Rect &roi, const cv::Matx33f &H, const DRISHTI_EYE::EyeModel &eye);
-    void annotateEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, const DRISHTI_EYE::EyeModel &eye);
+    void annotateEye(const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size, const EyeAttributes &attributes);
 
     virtual void renderDrawings();
+    virtual void renderAxes();
+    virtual void renderGaze();
+
+    FeaturePoints m_gazePoints;
+    
+    float m_brightness = 1.f;
+    
+    cv::Point3f m_motion;
+    
+    Axes3D m_axes;
+    Axes3D m_axesColors;
+    
+    drishti::core::Field<Object3D> m_object;
 
     // Make sure these aren't called
     virtual void setOutputRenderOrientation(RenderOrientation o);
@@ -251,10 +346,13 @@ private:
     std::vector<drishti::face::FaceModel> m_faces;
 
     // #### Draw eye texture
-    DisplayTexture m_eyesInfo;
+    EyePairInfo m_eyesA, m_eyesB;
+    EyeAttributes m_eyeAttributes[2];
 
-    std::array<drishti::eye::EyeWarp, 2> m_eyes;
-    cv::Rect m_eyesRoi;
+    FeaturePoints m_eyePointsFromSingleImage;
+    FeaturePoints m_eyePointsFromDifferenceImage;
+    
+    std::unique_ptr<GLPrinterShader> m_printer;
 
     // #### Draw shader ####
     std::shared_ptr<Shader> m_draw;

@@ -49,7 +49,7 @@ protected:
     drishti::core::Field<PositionAndTime> m_previousStack;
     drishti::core::Field<PositionAndTime> m_previousPosition;
     double m_velocityTreshold = 0.1; // m/s
-    double m_stackSampleInterval = 1.0f; // seconds
+    double m_stackSampleInterval = 2.0f; // seconds
     uint64_t m_frameCounter = 0;
     uint64_t m_stackCounter = 0;
     

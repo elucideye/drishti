@@ -94,17 +94,45 @@ inline cv::Matx33f normalize(const cv::Size &sizeIn)
 {
     const cv::Point center(sizeIn.width/2, sizeIn.height/2);
     cv::Matx33f T = transformation::translate(-center.x, -center.y);
-    cv::Matx33f S = transformation::scale(2.0 / float(sizeIn.width), 2.0 / float(sizeIn.height));
+    cv::Matx33f S = transformation::scale(2.0f / float(sizeIn.width), 2.0f / float(sizeIn.height));
     return S * T;
 }
 
 inline cv::Matx33f denormalize(const cv::Size &sizeIn)
 {
     const cv::Point frameCenter(sizeIn.width/2, sizeIn.height/2);
-    cv::Matx33f T = transformation::translate(1.0, 1.0);
-    cv::Matx33f S = transformation::scale(float(sizeIn.width)/2.0, float(sizeIn.height)/2.0);
+    cv::Matx33f T = transformation::translate(1.f, 1.f);
+    cv::Matx33f S = transformation::scale(float(sizeIn.width)/2.f, float(sizeIn.height)/2.f);
     return S * T;
 }
+
+// https://www.opengl.org/sdk/docs/man2/xhtml/glOrtho.xml
+inline cv::Matx44f glOrtho(float left, float right, float bottom, float top, float nearP, float farP)
+{
+    cv::Matx44f P = cv::Matx44f::eye();
+    P(0,0) = 2.0f / (right-left);
+    P(0,3) = -((right + left) / (right - left));
+    P(1,1) = 2.0f / (top - bottom);
+    P(1,3) = -((top + bottom) / (top - bottom));
+    P(2,2) = -(2.0f / (farP - nearP));
+    P(2,3) = -((farP + nearP) / (farP - nearP));
+    return P;
+}
+
+// https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
+inline cv::Matx44f glPerspective(float fov, float ratio, float nearP, float farP)
+{
+    cv::Matx44f P = cv::Matx44f::eye();
+    const float f = 1.0f / std::tan(fov * (M_PI / 360.0));
+    P(0, 0) = f / ratio;
+    P(1, 1) = f;
+    P(2, 2) = (farP + nearP) / (nearP - farP);
+    P(2, 3) = (2.0f * farP * nearP) / (nearP - farP);
+    P(3, 2) = -1.0f;
+    P(3, 3) = 0.0f;
+    return P;
+}
+
 
 DRISHTI_TRANSFORMATION_NAMESPACE_END
 

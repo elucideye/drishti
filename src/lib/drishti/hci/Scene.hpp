@@ -24,6 +24,15 @@ namespace drishti { namespace acf { class Detector; } };
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
+struct FeaturePoint
+{
+    FeaturePoint() {}
+    FeaturePoint(const cv::Point2f &point) : point(point) {}
+    FeaturePoint(const cv::Point2f &point, float radius) : point(point), radius(radius) {}
+    cv::Point2f point;
+    float radius = 1.f;
+};
+
 struct ScenePrimitives
 {
     ScenePrimitives() : m_frameIndex(0) {}
@@ -107,7 +116,8 @@ struct ScenePrimitives
 
 // TODO: use more generic back_inserter<> approach:
 using LineDrawingVec = std::vector<ogles_gpgpu::LineDrawing>;
-void pointsToCrosses(const std::vector<cv::Point2f> &points, LineDrawingVec &crosses);
+void pointsToCrosses(const std::vector<cv::Point2f> &points, LineDrawingVec &crosses, float width=8.f);
+void pointsToCrosses(const std::vector<FeaturePoint> &points, LineDrawingVec &crosses, float width=8.f);
 void rectanglesToDrawings(const std::vector<cv::Rect> &rectangles, LineDrawingVec &drawings);
 void facesToDrawings(const std::vector<drishti::face::FaceModel> &faces, LineDrawingVec &drawings);
 void rectangleToDrawing(const cv::Rect &r, ogles_gpgpu::LineDrawing &drawing, bool closed=true);

@@ -14,5 +14,4 @@
 #define DRISHTI_GEOMETRY_BEGIN namespace drishti { namespace geometry {
 #define DRISHTI_GEOMETRY_END } }
 
-
 #endif
