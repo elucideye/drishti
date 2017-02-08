@@ -94,15 +94,15 @@ inline cv::Matx33f normalize(const cv::Size &sizeIn)
 {
     const cv::Point center(sizeIn.width/2, sizeIn.height/2);
     cv::Matx33f T = transformation::translate(-center.x, -center.y);
-    cv::Matx33f S = transformation::scale(2.0 / float(sizeIn.width), 2.0 / float(sizeIn.height));
+    cv::Matx33f S = transformation::scale(2.0f / float(sizeIn.width), 2.0f / float(sizeIn.height));
     return S * T;
 }
 
 inline cv::Matx33f denormalize(const cv::Size &sizeIn)
 {
     const cv::Point frameCenter(sizeIn.width/2, sizeIn.height/2);
-    cv::Matx33f T = transformation::translate(1.0, 1.0);
-    cv::Matx33f S = transformation::scale(float(sizeIn.width)/2.0, float(sizeIn.height)/2.0);
+    cv::Matx33f T = transformation::translate(1.f, 1.f);
+    cv::Matx33f S = transformation::scale(float(sizeIn.width)/2.f, float(sizeIn.height)/2.f);
     return S * T;
 }
 
@@ -110,12 +110,12 @@ inline cv::Matx33f denormalize(const cv::Size &sizeIn)
 inline cv::Matx44f glOrtho(float left, float right, float bottom, float top, float near, float far)
 {
     cv::Matx44f P = cv::Matx44f::eye();
-    P(0,0) = 2.0f/(right-left);
-    P(0,3) = -((right+left)/(right-left));
-    P(1,1) = 2.0f/(top-bottom);
+    P(0,0) = (2.0f / (right-left));
+    P(0,3) = -((right+left) / (right-left));
+    P(1,1) = (2.0f / (top-bottom));
     P(1,3) = -((top+bottom)/(top-bottom));
-    P(2,2) = -2.0f/(far-near);
-    P(2,3) = -((far+near)/(far-near));
+    P(2,2) = -(2.0f / (far-near));
+    P(2,3) = -((far+near) / (far-near));
     return P;
 }
 
