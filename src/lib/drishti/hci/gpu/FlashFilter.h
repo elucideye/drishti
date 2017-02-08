@@ -38,6 +38,12 @@ public:
     virtual ProcInterface* getInputFilter() const;
     virtual ProcInterface* getOutputFilter() const;
     
+    ProcInterface* getHessianOfSingleImage() const;
+    ProcInterface* getHessianOfDifferenceImage() const;
+    
+    ProcInterface* getHessianPeaksFromSingleImage() const;
+    ProcInterface* getHessianPeaksFromDifferenceImage() const;
+    
     /**
      * Return the processor's name.
      */

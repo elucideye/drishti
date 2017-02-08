@@ -36,17 +36,32 @@ void flowToDrawings(const std::vector<cv::Vec4f> &flow, LineDrawingVec &drawings
     }
 }
 
-void pointsToCrosses(const std::vector<cv::Point2f> &points, LineDrawingVec &crosses)
+// weights [0..1] (optional)
+void pointsToCrosses(const std::vector<FeaturePoint> &points, LineDrawingVec &crosses, float width)
 {
-    const float span = 8.0;
-    cv::Point2f dx(span, 0.0), dy(0.0, span);
+    cv::Point2f dx(width, 0.0), dy(0.0, width);
 
+    for(const auto &f : points)
+    {
+        const auto &p = f.point;
+        ogles_gpgpu::LineDrawing cross;
+        cross.strip = false; // STRIP == FALSE
+        cross.index = { 0 };
+        cross.contours = {{ p - dx * f.radius, p + dx * f.radius}, { p - dy * f.radius, p + dy * f.radius }};
+        crosses.emplace_back(cross);
+    }
+}
+
+void pointsToCrosses(const std::vector<cv::Point2f> &points, LineDrawingVec &crosses, float width)
+{
+    cv::Point2f dx(width, 0.0), dy(0.0, width);
+    
     for(const auto &p : points)
     {
         ogles_gpgpu::LineDrawing cross;
         cross.strip = false; // STRIP == FALSE
-        cross.contours = {{ p - dx, p + dx }, { p - dy, p + dy }};
         cross.index = { 0 };
+        cross.contours = {{p - dx, p + dx}, {p - dy, p + dy}};
         crosses.emplace_back(cross);
     }
 }

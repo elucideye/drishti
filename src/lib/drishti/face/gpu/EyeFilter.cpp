@@ -20,77 +20,57 @@
 #include "ogles_gpgpu/common/proc/diff.h"
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/proc/fifo.h"
+#include "ogles_gpgpu/common/proc/fir3.h"
 #include "ogles_gpgpu/common/common_includes.h"
+
 
 #include <opencv2/highgui.hpp>
 
 #include <memory>
 
-#define DRISHTI_EYE_FILTER_HISTORY_SIZE 3
+#define DRISHTI_EYE_FILTER_HISTORY_SIZE 3 // must be >=3 for fir3 proc
 #define DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP 0
 
 BEGIN_OGLES_GPGPU
 
 static void convert(const drishti::eye::EyeWarp &src, ogles_gpgpu::MappedTextureRegion &dst);
 
-EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float upper, float lower, float gain, float offset)
+EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float cutoff)
     : m_sizeOut(sizeOut)
-    , m_upper(upper)
-    , m_lower(lower)
-    , m_gain(gain)
-    , m_offset(offset)
-    , m_doSmoothing(mode == kBandPass)
 {
+    firstProc = &transformProc;
+    
     transformProc.setInterpolation(TransformProc::BICUBIC);
-
-    if(m_doSmoothing)
-    {
-        smoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(5);
-        procPasses.push_back(smoothProc.get());
-        firstProc = smoothProc.get();
-
-        procPasses.push_back(&transformProc);
-        smoothProc->add(&transformProc);
-    }
-    else
-    {
-        procPasses.push_back(&transformProc);
-        firstProc = &transformProc;
-    }
 
     // Add a fifo proc for GPU sliding window:
     fifoProc = drishti::core::make_unique<ogles_gpgpu::FifoProc>(DRISHTI_EYE_FILTER_HISTORY_SIZE);
     transformProc.add(fifoProc.get());    
 
+    procPasses = { &transformProc, fifoProc.get() };
+    
     switch(mode)
     {
-        case kLowPass:
+        case kIirLowPass:
         {
-            lowPassProc = drishti::core::make_unique<LowPassFilterProc>(m_upper);
-
-            procPasses.push_back( lowPassProc.get() );
+            lowPassProc = drishti::core::make_unique<LowPassFilterProc>(cutoff);
+            procPasses.push_back(lowPassProc.get());
+            
             transformProc.add(lowPassProc.get());
             lastProc = lowPassProc.get();
         }
         break;
 
-        case kBandPass:
+        case kMean3:
         {
-            lowPassProc = drishti::core::make_unique<LowPassFilterProc>(m_lower);
-            procPasses.push_back(lowPassProc.get());
-
-            transformProc.add(lowPassProc.get());
-
-            lowPassProc2 = drishti::core::make_unique<LowPassFilterProc>(m_upper);
-            procPasses.push_back(lowPassProc2.get());
-            transformProc.add(lowPassProc2.get());
-
-            diffProc = drishti::core::make_unique<DiffProc>(m_gain);
-            procPasses.push_back(diffProc.get());
-            lowPassProc->add(diffProc.get(), 0);
-            lowPassProc2->add(diffProc.get(), 1);
-
-            lastProc = diffProc.get();
+            mean3Proc = drishti::core::make_unique<ogles_gpgpu::Fir3Proc>();
+            mean3Proc->setWeights({0.33f, 0.33f, 0.33f});
+            procPasses.push_back(mean3Proc.get());
+            
+            fifoProc->addWithDelay(mean3Proc.get(), 0, 0);
+            fifoProc->addWithDelay(mean3Proc.get(), 1, 1);
+            fifoProc->addWithDelay(mean3Proc.get(), 2, 2);
+            
+            lastProc = mean3Proc.get();
         }
         break;
 

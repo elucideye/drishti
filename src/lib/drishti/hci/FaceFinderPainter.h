@@ -14,6 +14,8 @@
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/FaceFinder.h"
 
+#include <memory>
+
 // *INDENT-OFF*
 namespace ogles_gpgpu
 {
@@ -27,8 +29,11 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceFinderPainter : public FaceFinder
 {
 public:
+    
+    class Impl;
 
     FaceFinderPainter(FaceDetectorFactoryPtr &factory, Config &config, void *glContext = nullptr);
+    ~FaceFinderPainter();
     virtual void init(const FrameInput &frame);
     void drawIris(bool flag) { m_drawIris = flag; }
 
@@ -40,6 +45,8 @@ protected:
     bool m_drawIris = false;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater;
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
+    
+    std::unique_ptr<Impl> m_pImpl;
 };
 
 DRISHTI_HCI_NAMESPACE_END

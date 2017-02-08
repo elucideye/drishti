@@ -17,6 +17,7 @@ sugar_files(DRISHTI_HCI_SRCS
   GazeEstimator.cpp
   Scene.cpp
   gpu/LineDrawing.cpp
+  gpu/GLPrinter.cpp
   gpu/FacePainter.cpp
   gpu/FlashFilter.cpp
   gpu/fade.cpp  
@@ -29,6 +30,7 @@ sugar_files(DRISHTI_HCI_HDRS_PUBLIC
   GazeEstimator.h
   Scene.hpp
   gpu/LineDrawing.hpp
+  gpu/GLPrinter.h
   gpu/FacePainter.h
   gpu/FlashFilter.h
   gpu/fade.h

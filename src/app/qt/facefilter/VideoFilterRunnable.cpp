@@ -136,6 +136,14 @@ struct VideoFilterRunnable::Impl
         return (*m_detector)(frame);
     }
     
+    void setBrightness(float value)
+    {
+        if(m_detector)
+        {
+            m_detector->setBrightness(value);
+        }
+    }
+    
     std::chrono::high_resolution_clock::time_point m_tic;
 
     std::shared_ptr<drishti::hci::FaceFinder> m_detector;
@@ -236,12 +244,13 @@ GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
     return outTexture;
 }
 
-
+#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 0
 
 int VideoFilterRunnable::detectFaces(QVideoFrame *input)
 {
     using FrameInput = ogles_gpgpu::FrameInput;
 
+#if DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS
     const auto toc = std::chrono::high_resolution_clock::now();
     const double elapsed = std::chrono::duration<double>(toc - m_pImpl->m_tic).count();
     const int seconds = int(elapsed);
@@ -250,7 +259,9 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
     {
         const int value = (seconds / interval) % 2;
         adjustScreen(float(value));
+        m_pImpl->setBrightness(value);
     }
+#endif 
     
     QOpenGLContext* openglContext = QOpenGLContext::currentContext();
     if (!openglContext)

@@ -36,12 +36,12 @@
 #ifndef VIDEO_FILTER_RUNNABLE_HPP_
 #define VIDEO_FILTER_RUNNABLE_HPP_
 
-#include <memory> // std::shared_ptr
-
 #include <QVideoFilterRunnable>
 #include <QOpenGLFunctions> // introduce GLuint in cross-platform fashion
 
 #include "drishti/acf/GPUACF.h"
+
+#include <memory> // std::shared_ptr
 
 // *INDENT-OFF*
 namespace drishti { namespace acf { class Detector; } };

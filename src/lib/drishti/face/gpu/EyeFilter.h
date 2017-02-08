@@ -19,6 +19,7 @@ class LowPassFilterProc;
 class LowPassFilterProc;
 class DiffProc;
 class FifoProc;
+class Fir3Proc;
 END_OGLES_GPGPU
 
 #include "drishti/face/gpu/FaceStabilizer.h"
@@ -47,11 +48,11 @@ public:
     enum Mode
     {
         kNone,
-        kLowPass,
-        kBandPass
+        kIirLowPass,
+        kMean3,
     };
 
-    EyeFilter(const Size2d &sizeOut, Mode mode, float upper=0.5, float lower=0.25, float gain=10.0, float offset=0.f);
+    EyeFilter(const Size2d &sizeOut, Mode mode, float cutoff);
 
     virtual ~EyeFilter();
 
@@ -110,20 +111,12 @@ protected:
 
     MultiTransformProc transformProc;
 
-    std::unique_ptr<GaussOptProc> smoothProc; // optional
-    std::unique_ptr<LowPassFilterProc> lowPassProc;
-    std::unique_ptr<LowPassFilterProc> lowPassProc2;
-    std::unique_ptr<DiffProc> diffProc;
     std::unique_ptr<FifoProc> fifoProc; // maintain buffer
-
+    std::unique_ptr<LowPassFilterProc> lowPassProc;
+    std::unique_ptr<Fir3Proc> mean3Proc;
+    
     ProcInterface *lastProc = nullptr;
     ProcInterface *firstProc = nullptr;
-
-    float m_upper = 0.5;
-    float m_lower = 0.25;
-    float m_gain = 10.0;
-    float m_offset = 0.5;
-    bool m_doSmoothing = false;
 
     std::shared_ptr<Impl> m_impl;
 };

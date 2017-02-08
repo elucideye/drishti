@@ -20,6 +20,7 @@
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/proc/fifo.h"
 #include "ogles_gpgpu/common/proc/fir3.h"
+#include "ogles_gpgpu/common/proc/nms.h"
 
 #include <opencv2/core.hpp>
 
@@ -35,13 +36,20 @@ public:
     , smoothProc2(1)
     , fifoProc(3)
     , fir3Proc(false)
-    , hessianProc(10000.0f, false)
+    , hessianProc1(2000.0f, false)
+    , hessianProc2(8000.0f, false)
 #if FLASH_FILTER_USE_DELAY
     , fadeProc(0.95)
 #endif
     {
         fir3Proc.setAlpha(10.f);
         fir3Proc.setBeta(0.f); // drop negative values
+        
+        nmsProc1.setThreshold(0.05); // single image nms
+        nmsProc1.swizzle(2, 3); // in(2), out(3)
+        
+        nmsProc2.setThreshold(0.05); // difference image nms
+        nmsProc2.swizzle(2, 3); // in(2), out(3)
         
         switch(kind)
         {
@@ -50,11 +58,13 @@ public:
                 break;
             case FlashFilter::kCenteredDifference :
                 //fir3Proc.setWeights({+0.5, 0.0, -0.5}); // bright->dark
-                fir3Proc.setWeights({-0.5, 0.0, +0.5}); // bright->dark
+                fir3Proc.setWeights({-0.5, 0.0, +0.5}); // dark->bright
                 break;
         }
         
         smoothProc1.add(&fifoProc);
+        smoothProc1.add(&hessianProc1);
+        hessianProc1.add(&nmsProc1);
         
         //  (newest) RGB....RGB....RGB (oldest)
         fifoProc.addWithDelay(&fir3Proc, 0, 0);
@@ -62,21 +72,25 @@ public:
         fifoProc.addWithDelay(&fir3Proc, 2, 2);
         
         fir3Proc.add(&smoothProc2);
-        smoothProc2.add(&hessianProc);
+        smoothProc2.add(&hessianProc2);
         
 #if FLASH_FILTER_USE_DELAY
-        hessianProc.add(&fadeProc);
+        hessianProc2.add(&fadeProc);
 #endif
+        fadeProc.add(&nmsProc2);
     }
     
     ogles_gpgpu::GaussOptProc smoothProc1;
     ogles_gpgpu::GaussOptProc smoothProc2;
     ogles_gpgpu::FIFOPRoc fifoProc;
     ogles_gpgpu::Fir3Proc fir3Proc;
-    ogles_gpgpu::HessianProc hessianProc;
+    ogles_gpgpu::HessianProc hessianProc1; // single image hessian
+    ogles_gpgpu::HessianProc hessianProc2; // difference image hessian
 #if FLASH_FILTER_USE_DELAY
     ogles_gpgpu::FadeFilterProc fadeProc;
 #endif
+    ogles_gpgpu::NmsProc nmsProc1; // single image nms
+    ogles_gpgpu::NmsProc nmsProc2; // difference image nms
 };
 
 FlashFilter::FlashFilter(FilterKind kind)
@@ -89,6 +103,7 @@ FlashFilter::FlashFilter(FilterKind kind)
     procPasses.push_back(&m_impl->fifoProc);
     procPasses.push_back(&m_impl->fir3Proc);
     procPasses.push_back(&m_impl->fadeProc);
+    procPasses.push_back(&m_impl->nmsProc2);
 }
 
 FlashFilter::~FlashFilter()
@@ -101,12 +116,32 @@ ProcInterface* FlashFilter::getInputFilter() const
     return &m_impl->smoothProc1;
 }
 
+ProcInterface* FlashFilter::getHessianOfSingleImage() const
+{
+    return &m_impl->hessianProc1;
+}
+
+ProcInterface* FlashFilter::getHessianOfDifferenceImage() const
+{
+    return &m_impl->hessianProc2;
+}
+
+ProcInterface* FlashFilter::getHessianPeaksFromSingleImage() const
+{
+    return &m_impl->nmsProc1;
+}
+
+ProcInterface* FlashFilter::getHessianPeaksFromDifferenceImage() const
+{
+    return &m_impl->nmsProc2;
+}
+
 ProcInterface* FlashFilter::getOutputFilter() const
 {
 #if FLASH_FILTER_USE_DELAY
-    return &m_impl->fadeProc;
+    return &m_impl->nmsProc2;
 #else
-    return &m_impl->hessianProc;
+    return &m_impl->hessianProc2;
 #endif
 }
 
@@ -146,7 +181,8 @@ cv::Mat FlashFilter::paint()
         cv::Mat4b fifoProc2(ogles_gpgpu_size(m_impl->fifoProc.getOutFrameSize()));
         cv::Mat4b fir3Proc(ogles_gpgpu_size(m_impl->fir3Proc.getOutFrameSize()));
         cv::Mat4b smoothProc2(ogles_gpgpu_size(m_impl->smoothProc2.getOutFrameSize()));
-        cv::Mat4b hessianProc(ogles_gpgpu_size(m_impl->hessianProc.getOutFrameSize()));
+        cv::Mat4b hessianProc1(ogles_gpgpu_size(m_impl->hessianProc1.getOutFrameSize()));
+        cv::Mat4b hessianProc2(ogles_gpgpu_size(m_impl->hessianProc2.getOutFrameSize()));
         
         m_impl->smoothProc1.getResultData(smoothProc1.ptr());
         m_impl->fifoProc[0]->getResultData(fifoProc0.ptr());
@@ -154,7 +190,8 @@ cv::Mat FlashFilter::paint()
         m_impl->fifoProc[2]->getResultData(fifoProc2.ptr());
         m_impl->fir3Proc.getResultData(fir3Proc.ptr());
         m_impl->smoothProc2.getResultData(smoothProc2.ptr());
-        m_impl->hessianProc.getResultData(hessianProc.ptr());
+        m_impl->hessianProc1.getResultData(hessianProc1.ptr());
+        m_impl->hessianProc2.getResultData(hessianProc2.ptr());
         
         std::vector<cv::Mat> all
         {
@@ -164,7 +201,8 @@ cv::Mat FlashFilter::paint()
             fifoProc2,
             fir3Proc,
             smoothProc2,
-            hessianProc
+            hessianProc1,
+            hessianProc2
         };
         
 #if FLASH_FILTER_USE_DELAY
