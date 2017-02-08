@@ -30,4 +30,5 @@ endif()
 # std::regex >= gcc 4.8
 if(DRISHTI_HAS_CXXOPTS)
   add_subdirectory(eye)
+  add_subdirectory(acf)
 endif()

@@ -18,6 +18,9 @@ using namespace std;
 
 typedef unsigned int uint32;
 
+#define DRISHTI_ACF_DEBUG_CID 0
+#define DRISHTI_ACF_DEBUG_SCANNING 0
+
 DRISHTI_ACF_NAMESPACE_BEGIN
 
 /*
@@ -131,8 +134,6 @@ struct DetectionParams : public cv::ParallelLoopBody
     cv::Mat canvas;
 };
 
-#define DEBUG_SCANNING 0
-
 template <class T, int kDepth>
 class ParallelDetectionBody: public DetectionParams
 {
@@ -172,10 +173,6 @@ public:
             for(int i = 0; i < cids.size(); i++)
             {
                 const_cast<T&>(chns[offset + cids[i]]) = 255*float(i%(12*12))/float(12*12);
-            }// cids.size()); }
-            {
-                cv::imshow("canvas", I.base());
-                cv::waitKey(0);
             }
         }
     }
@@ -277,8 +274,7 @@ void Detector::acfDetect1(const MatP &I, const RectVec &rois, int shrink, cv::Si
     {
         cids = computeChannelIndex(rois, rowStride, modelWd/shrink, modelHt/shrink, width, height);
 
-#define DEBUG_CID 0
-#if DEBUG_CID
+#if DRISHTI_ACF_DEBUG_CID
         uint8_t *ptr = (uint8_t *) I[0].ptr<uint8_t>();
         for(int i = 0; i < cids.size(); i++)
         {

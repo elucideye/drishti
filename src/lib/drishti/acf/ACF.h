@@ -56,6 +56,9 @@ public:
     Detector(const std::string &filename);
     virtual ~Detector();
 
+    bool good() const { return m_good; }
+    explicit operator bool() const { return m_good; }
+
     struct Options
     {
         //   .type       - ['max'] 'max', 'maxg', 'ms', 'cover', or 'none'
@@ -489,6 +492,8 @@ protected:
     bool m_isLuv = false;
     bool m_isTranspose = false;
     bool m_isRowMajor = false;
+
+    bool m_good = false; // serialization status
 };
 
 inline cv::Vec3f rgb2luv(const cv::Vec3f &rgb)
