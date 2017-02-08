@@ -35,8 +35,9 @@ static cv::Rect2f operator*(const cv::Rect2f &roi, float scale);
 //
 // ACF windowSize = {48x48};
 //
-// To detect objects of minWidth == 100 pixels, we would need to
-// *upsample* the image by a factor of 48/100 (nearly 2x)
+// To restrict object detection search to find objects of
+// minWidth == 100 pixels, we would need to *downsample*
+// the image by a factor of 48/100 (nearly 0.5x)
 
 class Resizer
 {
