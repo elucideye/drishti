@@ -111,11 +111,11 @@ inline cv::Matx44f glOrtho(float left, float right, float bottom, float top, flo
 {
     cv::Matx44f P = cv::Matx44f::eye();
     P(0,0) = (2.0f / (right-left));
-    P(0,3) = -((right+left) / (right-left));
-    P(1,1) = (2.0f / (top-bottom));
-    P(1,3) = -((top+bottom)/(top-bottom));
-    P(2,2) = -(2.0f / (far-near));
-    P(2,3) = -((far+near) / (far-near));
+    P(0,3) = -((right + left) / (right - left));
+    P(1,1) = (2.0f / (top - bottom));
+    P(1,3) = -((top + bottom) / (top - bottom));
+    P(2,2) = -(2.0f / (far - near));
+    P(2,3) = -((far + near) / (far - near));
     return P;
 }
 
