@@ -44,7 +44,7 @@
 #define DRISHTI_HCI_FACEFINDER_DO_ACF_MODIFY 0
 
 #define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES 1
-#define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES_DISPLAY 0
+#define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES_DISPLAY 1
 
 #define DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS 0
 #define DRISHTI_HCI_FACEFINDER_LOG_DETECTIONS 0
@@ -63,7 +63,7 @@ static int getDetectionImageWidth(float, float, float, float, float);
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
 static cv::Size uprightSize(const cv::Size &size, int orientation);
 static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, ScenePrimitives &scene, float flowScale = 1.f);
-static void extractCorners(const cv::Mat1b &corners, ScenePrimitives &scene, float flowScale = 1.f);
+static void extractPoints(const cv::Mat1b &input, std::vector<FeaturePoint> &points, float flowScale);
 #endif
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
@@ -165,7 +165,9 @@ void FaceFinder::dumpFaces(std::vector<cv::Mat4b> &frames)
         for(int i = 0; i < frames.size(); i++)
         {
             auto *filter = (*m_fifo)[i];
-            frames[i].create(filter->getOutFrameH(), filter->getOutFrameW());
+
+            cv::Size outSize(filter->getOutFrameW(), filter->getOutFrameH());
+            frames[i].create(outSize.height, outSize.width);
             filter->getResultData(frames[i].ptr<uint8_t>());
         }
     }
@@ -267,13 +269,10 @@ void FaceFinder::initIris(const cv::Size &size)
 void FaceFinder::initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &eyesSize)
 {
     // ### Eye enhancer ###
-    auto mode = ogles_gpgpu::EyeFilter::kLowPass;
-    const float upper = 0.5;
-    const float lower = 0.5;
-    const float gain = 1.f;
-    const float offset = 0.f;
+    const auto mode = ogles_gpgpu::EyeFilter::kMean3;
+    const float cutoff = 0.5;
     
-    m_eyeFilter = std::make_shared<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, upper, lower, gain, offset);
+    m_eyeFilter = std::make_shared<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, cutoff);
     m_eyeFilter->setAutoScaling(true);
     m_eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
     
@@ -323,7 +322,7 @@ void FaceFinder::init(const FrameInput &frame)
     m_faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*m_sensor);
     
     initColormap();
-    initFIFO(inputSize, 3); // keep last 3 frames
+    initFIFO(inputSizeUp, 3); // keep last 3 frames
     initACF(inputSizeUp);
     initPainter(inputSizeUp);
     
@@ -445,6 +444,27 @@ GLuint FaceFinder::operator()(const FrameInput &frame1)
     m_fifo->useTexture(texture1, 1);
     m_fifo->render();
 
+    // Clear face motion estimate, update window:
+    m_faceMotion = { 0.f, 0.f, 0.f };
+    m_scenePrimitives.push_front(*outputScene);
+    
+    m_logger->info() << ":PRIMITVES:" << m_scenePrimitives.size();
+    if(m_scenePrimitives.size() >= 3)
+    {
+        m_scenePrimitives.pop_back();
+    }
+    
+    if(m_scenePrimitives.size() >= 2)
+    {
+        if(m_scenePrimitives[0].faces().size() && m_scenePrimitives[1].faces().size())
+        {
+            const auto &face0 = m_scenePrimitives[0].faces()[0];
+            const auto &face1 = m_scenePrimitives[1].faces()[0];
+            const cv::Point3f delta = (*face0.eyesCenter - *face1.eyesCenter);
+            m_faceMotion = delta; // active face motion
+        }
+    }
+    
     try { this->notifyListeners(*outputScene, now, m_fifo->isFull()); }
     catch(...) {}
     
@@ -488,10 +508,21 @@ void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &
     // NOTE: This must occur in the main OpenGL thread:
     std::vector<FaceMonitor::FaceImage> frames;
     
+    // Build a list of active requests:
+    bool hasActive = false;
+    std::vector<bool> isActive(m_faceMonitorCallback.size(), false);
+
     if(scene.faces().size())
     {
         // 1) If any active face request is satisifed grab a frame+face buffer:
-        if(hasValidFaceRequest(scene, now))
+        for(int i = 0; i < m_faceMonitorCallback.size(); i++)
+        {
+            auto &callback = m_faceMonitorCallback[i];
+            isActive[i] = ::drishti::hci::hasValidFaceRequest(*callback, scene, now);
+            hasActive |= isActive[i];
+        }
+
+        if(hasActive)
         {
             // ### collect face images ###
             std::vector<cv::Mat4b> faces;
@@ -517,23 +548,23 @@ void FaceFinder::notifyListeners(const ScenePrimitives &scene, const TimePoint &
                 }
 
                 // ### Add the eye difference image ###
-                cv::Mat4b filtered(m_flasher->getOutFrameH(), m_flasher->getOutFrameW());
-                m_flasher->getResultData(filtered.ptr());
+                cv::Mat4b filtered(m_eyeFilter->getOutFrameH(), m_eyeFilter->getOutFrameW());
+                m_eyeFilter->getResultData(filtered.ptr());
                 frames[0].extra = filtered;
             }
         }
     }
     
     // 3) Provide face images as requested:
-    for(auto &cb : m_faceMonitorCallback)
+    for(int i = 0; i < m_faceMonitorCallback.size(); i++)
     {
-        if(::drishti::hci::hasValidFaceRequest(*cb, scene, now))
+        if(isActive[i])
         {
-            cb->grab(frames, isInit);
+            m_faceMonitorCallback[i]->grab(frames, isInit);
         }
         else
         {
-            cb->grab({}, isInit);
+            m_faceMonitorCallback[i]->grab({}, isInit);
         }
     }
 }
@@ -764,6 +795,32 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
     return 0;
 }
 
+
+using FeaturePoints = std::vector<FeaturePoint>;
+FeaturePoints getValidEyePoints(const FeaturePoints &points, const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size)
+{
+    drishti::geometry::ConicSection_<float> C(eyeWarp.eye.irisEllipse);
+
+    FeaturePoints pointsOnIris;
+    const cv::Matx33f H = eyeWarp.H.inv() * transformation::normalize(size);
+    for(const auto &f : points)
+    {
+        const auto &p = f.point;
+        cv::Point3f q3 = H * cv::Point3f(p.x, p.y, 1.f);
+        
+        FeaturePoint q;
+        q.point = { q3.x/q3.z, q3.y/q3.z };
+        q.radius = f.radius;
+        
+        if(C.algebraicDistance(q.point) < 0.f)
+        {
+            pointsOnIris.emplace_back(q);
+        }
+    }
+    
+    return pointsOnIris;
+}
+
 void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
 {
     if(scene.faces().size())
@@ -788,6 +845,74 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
             }
         }
 #endif
+
+        { // Grab reflection points for eye tracking etc:
+            m_logger->info() << "WARNING: Need to optimize";
+
+            cv::Mat4b filtered(m_flasher->getOutFrameH(), m_flasher->getOutFrameW());
+            cv::Mat1b alpha(filtered.size());
+
+            // Difference image:
+            FeaturePoints eyePointsDifference;
+            m_flasher->getHessianPeaksFromDifferenceImage()->getResultData(filtered.ptr());
+            cv::extractChannel(filtered, alpha, 3);
+            extractPoints(alpha, eyePointsDifference, 1.f);
+            
+            // Single image:
+            FeaturePoints eyePointsSingle;
+            m_flasher->getHessianPeaksFromSingleImage()->getResultData(filtered.ptr());
+            cv::extractChannel(filtered, alpha, 3);
+            extractPoints(alpha, eyePointsSingle, 1.f);
+
+            // Limit to points on iris:
+            const cv::Size filteredEyeSize(m_flasher->getOutFrameW(), m_flasher->getOutFrameH());
+            const auto &eyeWarps = m_eyeFilter->getEyeWarps();
+            for(int i = 0; i < 2; i++)
+            {
+                m_eyePointsSingle[i] = getValidEyePoints(eyePointsSingle, eyeWarps[i], filteredEyeSize);
+                m_eyePointsDifference[i] = getValidEyePoints(eyePointsDifference, eyeWarps[i], filteredEyeSize);
+            }
+            
+            computeGazePoints();
+        }
+    }
+}
+
+void FaceFinder::computeGazePoints()
+{
+    // Convert points to polar coordinates:
+    m_gazePoints.clear();
+    
+    const auto &eyeWarps = m_eyeFilter->getEyeWarps();
+    
+    float total = 0.f;
+    cv::Point2f mu;
+    for(int i = 0; i < 2; i++)
+    {
+        for(const auto &p : m_eyePointsSingle[i])
+        {
+            // Find iris center relative to specular reflection:
+            const auto &iris = eyeWarps[i].eye.irisEllipse;
+            const cv::Point2f q = (iris.center - p.point);
+            
+            // Transform to unit circle:
+            const float rho = cv::norm(q) / (iris.size.width * 0.5f);
+            const cv::Point2f qi = cv::normalize(cv::Vec2f(q)) * rho;
+            
+            // Project points to unit circle:
+            FeaturePoint gaze(qi, p.radius);
+            m_gazePoints.push_back(gaze);
+            
+            // Compute mean point:
+            const float weight = p.radius;
+            mu += qi * weight;
+            total += weight;
+        }
+    }
+    if(total > 0.f)
+    {
+        mu *= (1.0 / total);
+        m_logger->info() << "GAZE: " << mu;
     }
 }
 
@@ -890,18 +1015,21 @@ static cv::Size uprightSize(const cv::Size &size, int orientation)
     return upSize;
 }
 
-static void extractCorners(const cv::Mat1b &corners, ScenePrimitives &scene, float flowScale)
+static void extractPoints(const cv::Mat1b &input, std::vector<drishti::hci::FeaturePoint> &features, float scale)
 {
     // ### Extract corners first: ###
     std::vector<cv::Point> points;
     try
     {
-        cv::findNonZero(corners, points);
+        cv::findNonZero(input, points);
     }
     catch(...) {}
+    
+    features.reserve(points.size());
     for(const auto &p : points)
     {
-        scene.corners().emplace_back(flowScale * p.x, flowScale * p.y);
+        const float radius = static_cast<float>(input.at<uint8_t>(p)) / 255.f;
+        features.emplace_back(cv::Point2f(scale*p.x, scale*p.y), radius);
     }
 }
 
@@ -933,7 +1061,15 @@ static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, SceneP
     // {BGRA}, {RGBA}
     cv::Mat1b corners;
     cv::extractChannel(ayxb(flowRoi), corners, 0);
-    extractCorners(corners, scene, flowScale);
+    
+    std::vector<FeaturePoint> features;
+    extractPoints(corners, features, flowScale);
+    scene.corners() = {};
+    scene.corners().reserve(features.size());
+    for(const auto &f : features)
+    {
+        scene.corners().push_back(f.point);
+    }
 }
 
 #endif // DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT

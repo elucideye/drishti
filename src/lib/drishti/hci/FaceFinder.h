@@ -28,6 +28,7 @@
 #include <memory>
 #include <chrono>
 #include <functional>
+#include <deque>
 
 #define DRISHTI_HCI_FACEFINDER_INTERVAL 0.1
 #define DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR 0
@@ -68,6 +69,7 @@ public:
     using HighResolutionClock = std::chrono::high_resolution_clock;
     using TimePoint = HighResolutionClock::time_point;// <std::chrono::system_clock>;
     using FrameInput = ogles_gpgpu::FrameInput;
+    using FeaturePoints = std::vector<FeaturePoint>;
 
     using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
     
@@ -109,10 +111,13 @@ public:
     void setFaceFinderInterval(double interval);
     double getFaceFinderInterval() const;
     
+    void setBrightness(float value) { m_brightness = value; }
+    
     void registerFaceMonitorCallback(FaceMonitor *callback);
     
 protected:
     
+    void computeGazePoints();
     void updateEyes(GLuint inputTexId, const ScenePrimitives &scene);
     
     void notifyListeners(const ScenePrimitives &scene, const TimePoint &time, bool isFull);
@@ -148,6 +153,8 @@ protected:
     bool m_hasInit = false;
     float m_ACFScale = 2.0f;
     int m_outputOrientation = 0;
+    
+    float m_brightness = 1.f;
 
     uint64_t m_frameIndex = 0;
 
@@ -200,7 +207,13 @@ protected:
 
     int m_index = 0;
     std::future<ScenePrimitives> m_scene;
+    std::deque<ScenePrimitives> m_scenePrimitives; // stash
+    cv::Point3f m_faceMotion;
 
+    FeaturePoints m_gazePoints;
+    std::array<FeaturePoints,2> m_eyePointsSingle;
+    std::array<FeaturePoints,2> m_eyePointsDifference;
+    
     TimerInfo m_timerInfo;
     
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;

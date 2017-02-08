@@ -110,6 +110,8 @@ cv::Size QMLCameraManagerApple::configureCamera()
     }
     
     m_logger->info() << "# of settings: " << viewfinderSettings.size();
+
+    m_logger->warn() << "Limiting video resolution to <= 2048";
     
     std::pair<int, QCameraViewfinderSettings> best;
     for (auto i: viewfinderSettings)
@@ -120,6 +122,7 @@ cv::Size QMLCameraManagerApple::configureCamera()
             int area = (i.resolution().height() * i.resolution().width());
             if((area > best.first) && (i.resolution().width() <= 2048))
             {
+                m_logger->info() << "Best camera resolution" << best.first;
                 best = { area, i };
             }
         }

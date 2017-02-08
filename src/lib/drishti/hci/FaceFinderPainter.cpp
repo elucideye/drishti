@@ -14,19 +14,38 @@
 #include "drishti/hci/gpu/FlashFilter.h"
 #include "drishti/eye/gpu/EllipsoPolarWarp.h"
 #include "drishti/core/drishti_operators.h"
+#include "drishti/core/make_unique.h"
+#include "drishti/geometry/motion.h"
 
 #include "ogles_gpgpu/common/types.h"
 #include "ogles_gpgpu/common/proc/transform.h"
+
+#include <memory>
 
 using drishti::face::operator*;
 using drishti::core::operator*;
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
+// #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+class FaceFinderPainter::Impl
+{
+public:
+    Impl() {}
+    ~Impl() {}
+};
+
 FaceFinderPainter::FaceFinderPainter(FaceDetectorFactoryPtr &factory, Config &config, void *glContext)
     : FaceFinder(factory, config, glContext)
 {
+    m_pImpl = drishti::core::make_unique<Impl>();
     m_drawIris = true;
+}
+
+FaceFinderPainter::~FaceFinderPainter()
+{
+    
 }
 
 void FaceFinderPainter::init(const FrameInput &frame)
@@ -73,6 +92,9 @@ void FaceFinderPainter::initPainter(const cv::Size &inputSizeUp)
 
 GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTexture)
 {
+    m_painter->setBrightness(m_brightness);
+    //m_painter->setGazePoint(m_gazePoints);
+
     // Convert objects to line drawings
     m_painter->getLineDrawings().clear();
 
@@ -88,14 +110,24 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
         {
             m_painter->addFace(f);
         }
+        
+        // Note: These eye warps are provided wrt
+        const auto &eyeWarps = m_eyeFilter->getEyeWarps();
+        const cv::Size filteredEyeSize(m_flasher->getOutFrameW(), m_flasher->getOutFrameH());
 
+        m_painter->setEyeTextureA(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), eyeWarps);
+        FeaturePoints eyePointsSingle;
+        std::copy(m_eyePointsSingle[0].begin(), m_eyePointsSingle[0].end(), std::back_inserter(eyePointsSingle));
+        std::copy(m_eyePointsSingle[1].begin(), m_eyePointsSingle[1].end(), std::back_inserter(eyePointsSingle));
+        m_painter->setEyePointsFromSingleImage(eyePointsSingle);
+        
         if(m_doDifferenceEyesDisplay)
         {
-            m_painter->setEyeTexture(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize(), m_eyeFilter->getEyeWarps());
-        }
-        else
-        {
-            m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), m_eyeFilter->getEyeWarps());
+            m_painter->setEyeTextureB(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize(), eyeWarps);
+            FeaturePoints eyePointsDifference;
+            std::copy(m_eyePointsDifference[0].begin(), m_eyePointsDifference[0].end(), std::back_inserter(eyePointsDifference));
+            std::copy(m_eyePointsDifference[1].begin(), m_eyePointsDifference[1].end(), std::back_inserter(eyePointsDifference));
+            m_painter->setEyePointsFromDifferenceImage(eyePointsDifference);
         }
 
         if(m_doIris && m_drawIris)
@@ -129,10 +161,11 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
         m_painter->setFlashTexture(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize());
     }
 
+    m_painter->setAxes(m_faceMotion * 500.f);
+    
     m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
     
     return m_rotater->getOutputTexId();
 }
 
 DRISHTI_HCI_NAMESPACE_END
-

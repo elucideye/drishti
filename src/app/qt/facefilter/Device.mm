@@ -8,6 +8,7 @@
 
 */
 
+#include <QtGlobal> // for Q_OS_*
 #if defined(Q_OS_IOS)
 #import <UIKit/UIKit.h>
 void adjustScreen(float value)

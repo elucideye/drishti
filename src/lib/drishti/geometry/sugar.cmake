@@ -12,6 +12,7 @@ endif()
 include(sugar_files)
 
 sugar_files(DRISHTI_GEOMETRY_SRCS
+  DynamicObject.cpp
   Ellipse.cpp
   EllipseSerializer.cpp
   Primitives.cpp
@@ -26,10 +27,14 @@ sugar_files(DRISHTI_GEOMETRY_SRCS
 
 sugar_files(DRISHTI_GEOMETRY_HDRS_PUBLIC
   ConicSection.h
+  Cylinder.h
+  DynamicObject.h  
   Ellipse.h
   EllipseSerializer.h
+  Mesh3D.h
   Primitives.h
   Rectangle.h
+  StaticObject.h
   drishti_geometry.h
   fitEllipse.h
   motion.h
