@@ -8,6 +8,7 @@
 
 */
 
+#include <QtGlobal> // for Q_OS_*
 #if !defined(Q_OS_IOS)
 void adjustScreen(float value) {}
 #endif

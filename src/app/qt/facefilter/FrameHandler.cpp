@@ -71,7 +71,7 @@ FrameHandlerManager::FrameHandlerManager(Settings *settings, const std::string &
     m_threads = std::unique_ptr<tp::ThreadPool<>>(new tp::ThreadPool<>);
 
 #if DRISHTI_STACK_LOGGING_DEMO
-    m_faceMonitor = drishti::core::make_unique<QtFaceMonitor>(cv::Vec2d(0.4, 0.8), m_threads);
+    m_faceMonitor = drishti::core::make_unique<QtFaceMonitor>(cv::Vec2d(0.12, 0.16), m_threads);
 #endif
 }
 

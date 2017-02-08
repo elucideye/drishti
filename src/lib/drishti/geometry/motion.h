@@ -106,6 +106,34 @@ inline cv::Matx33f denormalize(const cv::Size &sizeIn)
     return S * T;
 }
 
+// https://www.opengl.org/sdk/docs/man2/xhtml/glOrtho.xml
+inline cv::Matx44f glOrtho(float left, float right, float bottom, float top, float near, float far)
+{
+    cv::Matx44f P = cv::Matx44f::eye();
+    P(0,0) = 2.0f/(right-left);
+    P(0,3) = -((right+left)/(right-left));
+    P(1,1) = 2.0f/(top-bottom);
+    P(1,3) = -((top+bottom)/(top-bottom));
+    P(2,2) = -2.0f/(far-near);
+    P(2,3) = -((far+near)/(far-near));
+    return P;
+}
+
+// https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
+inline cv::Matx44f glPerspective(float fov, float ratio, float nearP, float farP)
+{
+    cv::Matx44f P = cv::Matx44f::eye();
+    const float f = 1.0f / std::tan(fov * (M_PI / 360.0));
+    P(0, 0) = f / ratio;
+    P(1, 1) = f;
+    P(2, 2) = (farP + nearP) / (nearP - farP);
+    P(2, 3) = (2.0f * farP * nearP) / (nearP - farP);
+    P(3, 2) = -1.0f;
+    P(3, 3) = 0.0f;
+    return P;
+}
+
+
 DRISHTI_TRANSFORMATION_NAMESPACE_END
 
 #endif // __drishti_geometry_motion_h__

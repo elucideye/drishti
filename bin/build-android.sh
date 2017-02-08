@@ -19,6 +19,7 @@ COMMAND=(
     "${DRISHTI_POLLY_ARGS[*]} "
     "--strip "
     "--jobs 8 "
+    "--test "
     "${EXTRA_ARGS} "
 )
 

@@ -9,13 +9,19 @@
 */
 
 #include "drishti/hci/gpu/FacePainter.h"
+#include "drishti/hci/Scene.hpp"
+#include "drishti/hci/gpu/GLPrinter.h" // import font
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/geometry/motion.h"
+#include "drishti/geometry/ConicSection.h"
+#include "drishti/geometry/Cylinder.h"
+#include "drishti/core/make_unique.h"
 
 #include <opencv2/imgproc.hpp>
 
 #define DO_COLOR 1
-#define DRISHTI_HCI_FACEPAINTER_COLOR_TINTING 0
+#define DRISHTI_HCI_FACEPAINTER_COLOR_TINTING 1
+#define DRISHTI_HCI_FACEPAINTER_SHOW_FLASH_INPUT 0
 
 using namespace std;
 using namespace ogles_gpgpu;
@@ -46,7 +52,8 @@ precision mediump float;
 void main()
 {
     vec4 pixel = vec4(texture2D(uInputTex, vTexCoord).rgba);
-    vec3 mixed = mix(pixel.rgb, color, colorWeight * abs(vTexCoord.y-0.5));
+    //vec3 mixed = mix(pixel.rgb, color, colorWeight * abs(vTexCoord.y-0.5));
+    vec3 mixed = mix(pixel.rgb, color, step(0.25, abs(vTexCoord.y-0.5)));
     gl_FragColor = vec4(mixed, 1.0);
 }
 );
@@ -109,6 +116,11 @@ const char * FacePainter::fshaderColorVaryingSrc = OG_TO_STR
  });
 // *INDENT-ON*
 
+FacePainter::~FacePainter()
+{
+    
+}
+
 void FacePainter::getUniforms()
 {
     TransformProc::getUniforms();
@@ -137,6 +149,9 @@ FacePainter::FacePainter(int outputOrientation)
 
     setInterpolation(ogles_gpgpu::TransformProc::BILINEAR); // faster
 
+    // Font rendering:
+    m_printer = drishti::core::make_unique<GLPrinterShader>();
+    
     m_draw = std::make_shared<Shader>();
 #if DO_COLOR
     bool compiled = m_draw->buildFromSrc(vshaderColorVaryingSrc, fshaderColorVaryingSrc);
@@ -148,6 +163,9 @@ FacePainter::FacePainter(int outputOrientation)
     assert(compiled);
     m_drawShParamAPosition = m_draw->getParam(ATTR, "position");
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
+    
+    m_eyeAttributes[0] = { &m_eyePointsFromSingleImage, 64.f, {1.0, 0.0, 1.0} };
+    m_eyeAttributes[1] = { &m_eyePointsFromDifferenceImage, 32.f, {0.0, 1.0, 0.0} };
 }
 
 void FacePainter::setOutputSize(float scaleFactor)
@@ -175,6 +193,21 @@ cv::Matx33f FacePainter::uprightImageToTexture()
     cv::Matx33f H = S * T;
 
     return H;
+}
+
+static void addCross(DrawingSpec &lines, const cv::Point2f &point, const cv::Vec3f &color, float span)
+{
+    static const cv::Point2f dx(1.f, 0.f), dy(0.f, 1.f);
+ 
+    lines.points.push_back(point - (dx * span));
+    lines.points.push_back(point + (dx * span));
+    lines.points.push_back(point - (dy * span));
+    lines.points.push_back(point + (dy * span));
+    
+    lines.colors.push_back(color);
+    lines.colors.push_back(color);
+    lines.colors.push_back(color);
+    lines.colors.push_back(color);
 }
 
 void FacePainter::renderDrawings()
@@ -212,6 +245,35 @@ void FacePainter::renderDrawings()
             }
         }
     }
+    
+    if(m_gazePoints.size())
+    {
+        static const cv::Point2f origin(outFrameW/2, outFrameH/2);
+        addCross(lines, origin, {1.f, 1.f, 0.f}, 1000.f);
+        for(const auto &f : m_gazePoints)
+        {// Project normalized gaze point to screen:
+            const float radius = (outFrameW / 2);
+            const float gain = radius * 2.f;
+            const cv::Point2f gaze = (f.point * gain) + origin;
+            addCross(lines, gaze, {1.f, 1.f, 0.5f}, 200.f * f.radius);
+        }
+    }
+    
+    if(m_faces.size())
+    { // Show position of nearest face
+
+        const auto &position = (*m_faces.front().eyesCenter);
+        std::wstringstream wss;
+        wss << position.z;
+        
+        m_printer->begin();
+        const float scale = 10.f;
+        const float sx = scale / static_cast<float>(outFrameW);
+        const float sy = scale / static_cast<float>(outFrameH);
+        m_printer->printAt(wss.str(), 0.0f, 0.5f, sx, sy);
+     
+        m_printer->end();
+    }
 
     m_draw->use();
 
@@ -236,6 +298,82 @@ void FacePainter::renderDrawings()
     Tools::checkGLErr(getProcName(), "glDrawArrays()");
 }
 
+void FacePainter::setAxes(const cv::Point3f & axes)
+{
+    m_motion = axes;
+}
+
+// Camera matrix (4x4):
+//
+// | right_x up_x forward_x position_x |
+// | right_y up_y forward_y position_y |
+// | right_z up_z forward_z position_z |
+// |   0     0      0          1       |
+
+void FacePainter::renderAxes()
+{
+    cv::Point3f motion(-m_motion.x, m_motion.y, m_motion.z);
+    m_axes = drishti::geometry::drawAxes(motion, 0.05f, 32, 0.125f);
+    m_axesColors = m_axes;
+    for(int i = 0; i < m_axesColors.size(); i++)
+    {
+        cv::Point3f color(float(i==0), float(i==1), float(i==2));
+        auto &axis = m_axesColors[i];
+        std::fill(axis.begin(), axis.end(), color);
+    }
+    
+    if(m_axes.size())
+    {
+        const float aspectRatio = static_cast<float>(outFrameW) / static_cast<float>(outFrameH);
+        cv::Matx44f K = transformation::glPerspective(1000.f, aspectRatio, 0.f, 100.f);
+
+        const float theta = M_PI;
+        cv::Matx44f R = cv::Matx44f::eye();
+        R(0,0) = +std::cos(theta);
+        R(0,2) = -std::sin(theta);
+        R(2,0) = +std::sin(theta);
+        R(2,2) = +std::cos(theta);
+       
+        cv::Matx44f T = cv::Matx44f::eye();
+        T(0,3) = -4.0f;   // X
+        T(1,3) = +4.0f;   // Y
+        T(2,3) = -16.0f;  // Z
+        
+        cv::Matx44f P = T * R;
+        
+        cv::Matx44f MVP, MVPt;
+        MVP = K * P;
+        MVPt = MVP.t();
+
+        glLineWidth(1.f);
+        
+        m_draw->use();
+        Tools::checkGLErr(getProcName(), "m_draw->use()");
+        
+        glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat *)&MVPt(0,0));
+        Tools::checkGLErr(getProcName(), "render drawings");
+        
+        glViewport(0, 0, outFrameW, outFrameH);
+        Tools::checkGLErr(getProcName(), "glViewport()");
+
+        for(int i = m_axes.size()-1; i >= 0; i--)
+        {
+            glVertexAttribPointer(m_drawShParamAColor, 3, GL_FLOAT, 0, 0, &m_axesColors[i].front().x);
+            Tools::checkGLErr(getProcName(), "glVertexAttribPointer()");
+            
+            glVertexAttribPointer(m_drawShParamAPosition, 3, GL_FLOAT, 0, 0, &m_axes[i].front().x);
+            Tools::checkGLErr(getProcName(), "glVertexAttribPointer()");
+            
+            glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_axes[i].size()));
+            Tools::checkGLErr(getProcName(), "glDrawArrays()");
+        }
+    }
+}
+
+void FacePainter::renderGaze()
+{
+    
+}
 
 void FacePainter::FacePainter::setUniforms()
 {
@@ -245,55 +383,59 @@ void FacePainter::FacePainter::setUniforms()
 int FacePainter::FacePainter::render(int position)
 {
     OG_LOGINF(getProcName(), "input tex %d, target %d, framebuffer of size %dx%d", texId, texTarget, outFrameW, outFrameH);
-    filterRenderPrepare();
-    Tools::checkGLErr(getProcName(), "render prepare");
-
-    setUniforms();
-
+    
+    { // ... main render routine ...
+        filterRenderPrepare();
+        Tools::checkGLErr(getProcName(), "render prepare");
+        setUniforms();
+        
 #if DRISHTI_HCI_FACEPAINTER_COLOR_TINTING
-    if(m_flashInfo.texId >= 0)
-    {
-        const uint64_t frameCount = (m_frameIndex++ % 30);
-        if(frameCount < 4)
+        if(m_flashInfo.texId >= 0)
         {
-            // alternate the color on each frame: { 012345 }
-            const int on = !(frameCount % 2);
-            const int channelIndex = ((frameCount / 2) % 3);
-            const float weight = 1.0f; // 2.0 * float(on);
-
             m_colorRGB = Vec3f(0.f, 0.f, 0.f);
-            m_colorRGB.data[channelIndex] =  1.0;
-            m_colorRGB.data[channelIndex] = float(on);
-
+            m_colorRGB.data[0] = 1.f;
+            m_colorRGB.data[1] = 1.f;
+            m_colorRGB.data[2] = 1.f;
+            
             glUniform3fv(m_colorShParamRGB, 1, &m_colorRGB.data[0]);
-            glUniform1f(m_colorShParamUWeight, weight);
+            glUniform1f(m_colorShParamUWeight, m_brightness);
         }
-    }
 #endif
+        
+        filterRenderSetCoords();
+        Tools::checkGLErr(getProcName(), "render set coords");
+        
+        // Draw the frame, line drawings and normalized face/eyes
+        filterRenderDraw();
+        renderDrawings(); // 2d
+        renderAxes(); // render w/ glPerspective (world coordinates)
 
-    filterRenderSetCoords();
-    Tools::checkGLErr(getProcName(), "render set coords");
-
-    // Draw the frame, line drawings and normalized face/eyes
-    filterRenderDraw();
-    renderDrawings();
-    Tools::checkGLErr(getProcName(), "render draw");
-
-    filterRenderCleanup();
-    Tools::checkGLErr(getProcName(), "render cleanup");
-
-    if(m_eyesInfo.texId >= 0)
+        Tools::checkGLErr(getProcName(), "render draw");
+        
+        filterRenderCleanup();
+        Tools::checkGLErr(getProcName(), "render cleanup");
+    }
+    
+    if(m_eyesA.m_eyesInfo.texId >= 0)
     {
-        renderTex(m_eyesInfo);
+        renderTex(m_eyesA.m_eyesInfo);
+    }
+    if(m_eyesB.m_eyesInfo.texId >= 0)
+    {
+        renderTex(m_eyesB.m_eyesInfo);
     }
     if(m_flowInfo.texId >= 0)
     {
         renderTex(m_flowInfo);
     }
+    
+#if DRISHTI_HCI_FACEPAINTER_SHOW_FLASH_INPUT
     if(m_flashInfo.texId >= 0)
     {
         renderTex(m_flashInfo);
     }
+#endif
+    
     for(int i = 0; i < 2; i++)
     {
         if(m_irisInfo[i].texId >= 0)
@@ -328,9 +470,33 @@ std::vector<cv::Point_<T>> getCorners(const cv::Rect_<T> &roi)
 // === Faces================
 // =========================
 
-void FacePainter::annotateEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, const DRISHTI_EYE::EyeModel &eye)
+static void
+drawCrosses(const FacePainter::FeaturePoints &points, const cv::Vec3f &color, DrawingSpec &lines, float span)
 {
-    auto contours = eye.getContours(false);
+    drishti::hci::LineDrawingVec crosses;
+    drishti::hci::pointsToCrosses(points, crosses, span);
+    for(const auto &x : crosses)
+    {
+        for(const auto &c : x.contours)
+        {
+            for(const auto &p : c)
+            {
+                lines.points.emplace_back(p);
+                lines.colors.emplace_back(color);
+            }
+        }
+    }
+}
+
+/*
+ * dstRoiPix : destination roi for texture in image coordinates
+ * eye : eye model in full frame coordinates
+ * Heye : transformation from full frame to
+ */
+
+void FacePainter::annotateEye(const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size, const EyeAttributes &attributes)
+{
+    auto contours = eyeWarp.eye.getContours(false);
 
     DrawingSpec lines(0);
     for(auto &c : contours)
@@ -345,9 +511,14 @@ void FacePainter::annotateEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye
         }
     }
 
+    if(attributes.points && attributes.points->size())
+    {
+        drawCrosses(*attributes.points, attributes.color, lines, attributes.scale);
+    }
+
     glLineWidth(4.0);
     cv::Matx44f MVPt;
-    transformation::R3x3To4x4(Heye.t(), MVPt);
+    transformation::R3x3To4x4(eyeWarp.H.t(), MVPt);
 
     glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat *)&MVPt(0,0));
     Tools::checkGLErr(getProcName(), "FacePainter::renderEye() : glUniformMatrix4fv()");
@@ -380,6 +551,8 @@ void FacePainter::renderEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, 
     Tools::checkGLErr(getProcName(), "FacePainter::renderEye() : glDrawArrays()");
 }
 
+// Render eye crops from full image texture:
+//
 // Layout criteria:
 // 3x2 aspect ratio (centered)
 // both left and right eyes
@@ -395,7 +568,7 @@ std::array<drishti::eye::EyeWarp, 2> FacePainter::renderEyes(const drishti::face
         renderEye(cropInfo[i].roi, cropInfo[i].H, (i == 0) ? *face.eyeFullL : *face.eyeFullR);
     }
     
-    annotateEyes();
+    annotateEyes(m_eyesA, m_eyeAttributes[0]);
     
     return cropInfo;
 }
@@ -423,16 +596,18 @@ void FacePainter::renderFaces()
 // === Eyes ============
 // =====================
 
-void FacePainter::annotateEyes()
+void FacePainter::annotateEyes(const EyePairInfo &eyes, const EyeAttributes &attributes)
 {
     m_draw->use();
     Tools::checkGLErr(getProcName(), "m_draw->use()");
 
     glEnable(GL_SCISSOR_TEST);
-    glScissor(m_eyesInfo.roi.x, m_eyesInfo.roi.y, m_eyesInfo.roi.width, m_eyesInfo.roi.height);
-    for(const auto &eye : m_eyes)
+    const auto &roi = eyes.m_eyesInfo.roi;
+    glScissor(roi.x, roi.y, roi.width, roi.height);
+    
+    for(const auto &eye : eyes.m_eyes)
     {
-        annotateEye(eye.roi, eye.H, eye.eye);
+        annotateEye(eye, {eyes.m_eyesInfo.size.width, eyes.m_eyesInfo.size.height}, attributes);
     }
     glDisable(GL_SCISSOR_TEST);
 }
