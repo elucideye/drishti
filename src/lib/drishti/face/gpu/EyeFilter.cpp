@@ -63,7 +63,7 @@ EyeFilter::EyeFilter(const Size2d &sizeOut, Mode mode, float cutoff)
         case kMean3:
         {
             mean3Proc = drishti::core::make_unique<ogles_gpgpu::Fir3Proc>();
-            mean3Proc->setWeights({0.33, 0.33, 0.33});
+            mean3Proc->setWeights({0.33f, 0.33f, 0.33f});
             procPasses.push_back(mean3Proc.get());
             
             fifoProc->addWithDelay(mean3Proc.get(), 0, 0);
