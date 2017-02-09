@@ -155,11 +155,11 @@ if(DRISHTI_USE_THREAD_POOL_CPP)
     option(THREAD_POOL_CPP_INSTALL "Install library." OFF)
     add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/thread-pool-cpp)
     add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
-    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS thread-pool-cpp::thread-pool-cpp) # Add library    
+    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS thread-pool-cpp::thread-pool-cpp) # Add library
   else()
     hunter_add_package(thread-pool-cpp)
     find_package(thread-pool-cpp CONFIG REQUIRED)
-    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS thread-pool-cpp::thread-pool-cpp) # Add library    
+    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS thread-pool-cpp::thread-pool-cpp) # Add library
   endif()
 endif()
 
@@ -176,7 +176,7 @@ if(DRISHTI_USE_LOCAL_XGBOOST)
   unset(SKIP_INSTALL CACHE)
   add_library(xgboost::xgboost ALIAS xgboost)
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS xgboost::xgboost) # Add library
-  set_property(TARGET xgboost PROPERTY FOLDER "libs/3rdparty")  
+  set_property(TARGET xgboost PROPERTY FOLDER "libs/3rdparty")
 else()
   hunter_add_package(xgboost)
   find_package(xgboost CONFIG REQUIRED)
@@ -204,7 +204,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     set(OGLES_GPGPU_LIB ogles_gpgpu)
     add_library(ogles_gpgpu::ogles_gpgpu ALIAS ogles_gpgpu)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
-    set_property(TARGET ogles_gpgpu PROPERTY FOLDER "libs/3rdparty")      
+    set_property(TARGET ogles_gpgpu PROPERTY FOLDER "libs/3rdparty")
   else()
     hunter_add_package(ogles_gpgpu)
     find_package(ogles_gpgpu CONFIG REQUIRED)
@@ -238,7 +238,7 @@ endif()
 if(DRISHTI_BUILD_DEST)
   hunter_add_package(dest)
   find_package(dest CONFIG REQUIRED)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dest::dest) # Add library        
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dest::dest) # Add library
 endif()
 
 # opencv + linux JPEG workaround
