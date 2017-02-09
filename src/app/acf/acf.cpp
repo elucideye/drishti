@@ -48,11 +48,11 @@ public:
         {
             scale = static_cast<float>(winSize.width) / static_cast<float>(width);
             const int interpolation = (scale < 1.f) ? cv::INTER_AREA : cv::INTER_LINEAR;
-            cv::resize(image, small, {}, scale, scale, interpolation);
+            cv::resize(image, reduced, {}, scale, scale, interpolation);
         }
         else
         {
-            small = image;
+            reduced = image;
         }
     }
 
@@ -66,10 +66,10 @@ public:
             }
         }
     }
-    operator cv::Mat() { return small; }
+    operator cv::Mat() { return reduced; }
     
     float scale = 1.f;
-    cv::Mat small;
+    cv::Mat reduced;
 };
 
 int drishti_main(int argc, char **argv)
