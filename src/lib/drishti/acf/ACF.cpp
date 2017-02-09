@@ -28,12 +28,12 @@ Detector::Detector(const Detector &src)
 
 Detector::Detector(std::istream &is, const std::string &hint)
 {
-    deserializeAny(is, hint);
+    m_good = deserializeAny(is, hint) == 0;
 }
 
 Detector::Detector(const std::string &filename)
 {
-    deserializeAny(filename);
+    m_good = deserializeAny(filename) == 0;
 }
 
 Detector::~Detector()
@@ -110,7 +110,7 @@ int Detector::initializeOpts() // Seems to be required
 cv::Mat cvt8UC3To32FC3(const cv::Mat &I)
 {
     cv::Mat If;
-    I.convertTo(If, CV_32FC3);
+    I.convertTo(If, CV_32FC3, (1.0/255.0));
     return If;
 }
 
