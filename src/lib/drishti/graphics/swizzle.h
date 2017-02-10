@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishti_acf_gpu_swizzle_h__
-#define __drishti_acf_gpu_swizzle_h__
+#ifndef __drishti_graphics_swizzle_h__
+#define __drishti_graphics_swizzle_h__
 
 #include "ogles_gpgpu/common/proc/two.h"
 
@@ -53,4 +53,4 @@ public:
 
 END_OGLES_GPGPU
 
-#endif // __drishti_acf_gpu_swizzle_h__
+#endif // __drishti_graphics_swizzle_h__

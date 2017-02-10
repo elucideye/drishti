@@ -116,6 +116,8 @@ struct ScenePrimitives
 
 // TODO: use more generic back_inserter<> approach:
 using LineDrawingVec = std::vector<ogles_gpgpu::LineDrawing>;
+
+void pointsToCircles(const std::vector<FeaturePoint> &points, LineDrawingVec &circles, float width=8.f);
 void pointsToCrosses(const std::vector<cv::Point2f> &points, LineDrawingVec &crosses, float width=8.f);
 void pointsToCrosses(const std::vector<FeaturePoint> &points, LineDrawingVec &crosses, float width=8.f);
 void rectanglesToDrawings(const std::vector<cv::Rect> &rectangles, LineDrawingVec &drawings);

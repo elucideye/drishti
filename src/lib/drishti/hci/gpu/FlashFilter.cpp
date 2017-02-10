@@ -13,8 +13,9 @@
 #include "drishti/hci/gpu/FlashFilter.h"
 
 #if FLASH_FILTER_USE_DELAY
-#  include "drishti/hci/gpu/fade.h"
+#  include "drishti/graphics/fade.h"
 #endif
+#include "drishti/graphics/saturation.h"
 
 #include "ogles_gpgpu/common/proc/hessian.h"
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
@@ -41,15 +42,16 @@ public:
 #if FLASH_FILTER_USE_DELAY
     , fadeProc(0.95)
 #endif
+    , saturationProc(2.0)
     {
         fir3Proc.setAlpha(10.f);
         fir3Proc.setBeta(0.f); // drop negative values
         
         nmsProc1.setThreshold(0.05); // single image nms
-        nmsProc1.swizzle(2, 3); // in(2), out(3)
+        nmsProc1.swizzle(1, 3); // in(2), out(3)
         
         nmsProc2.setThreshold(0.05); // difference image nms
-        nmsProc2.swizzle(2, 3); // in(2), out(3)
+        nmsProc2.swizzle(1, 3); // in(2), out(3)
         
         switch(kind)
         {
@@ -72,7 +74,8 @@ public:
         fifoProc.addWithDelay(&fir3Proc, 2, 2);
         
         fir3Proc.add(&smoothProc2);
-        smoothProc2.add(&hessianProc2);
+        smoothProc2.add(&saturationProc);
+        saturationProc.add(&hessianProc2);
         
 #if FLASH_FILTER_USE_DELAY
         hessianProc2.add(&fadeProc);
@@ -91,6 +94,7 @@ public:
 #endif
     ogles_gpgpu::NmsProc nmsProc1; // single image nms
     ogles_gpgpu::NmsProc nmsProc2; // difference image nms
+    ogles_gpgpu::SaturationProc saturationProc;
 };
 
 FlashFilter::FlashFilter(FilterKind kind)
@@ -104,6 +108,7 @@ FlashFilter::FlashFilter(FilterKind kind)
     procPasses.push_back(&m_impl->fir3Proc);
     procPasses.push_back(&m_impl->fadeProc);
     procPasses.push_back(&m_impl->nmsProc2);
+    procPasses.push_back(&m_impl->saturationProc);
 }
 
 FlashFilter::~FlashFilter()

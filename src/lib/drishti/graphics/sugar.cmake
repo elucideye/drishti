@@ -13,9 +13,34 @@ include(sugar_files)
 
 #sugar_files(
 #  DRISHTI_GRAPHICS_SRCS
-#)
+#  )
 
 sugar_files(
   DRISHTI_GRAPHICS_HDRS_PUBLIC
   drishti_graphics.h
-)
+  )
+
+if(DRISHTI_BUILD_OGLES_GPGPU)
+  sugar_files(
+    DRISHTI_GRAPHICS_SRCS
+    binomial.cpp
+    fade.cpp
+    gain.cpp
+    rgb2hsv.cpp
+    rgb2luv.cpp
+    saturation.cpp
+    swizzle.cpp    
+    )
+  sugar_files(
+    DRISHTI_GRAPHICS_HDRS_PUBLIC
+    binomial.h
+    fade.h
+    gain.h
+    rgb2hsv.h
+    rgb2luv.h
+    saturation.h
+    swizzle.h
+    )
+endif()
+
+

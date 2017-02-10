@@ -22,12 +22,15 @@
 #include "ogles_gpgpu/common/proc/shitomasi.h"
 #include "ogles_gpgpu/common/proc/flow.h"
 
-#include "drishti/acf/gpu/gain.h"
-#include "drishti/acf/gpu/swizzle.h"
+// generic shaders
+#include "drishti/graphics/gain.h"
+#include "drishti/graphics/swizzle.h"
+#include "drishti/graphics/rgb2luv.h"
+#include "drishti/graphics/binomial.h"
+
+// acf specific shader
 #include "drishti/acf/gpu/swizzle2.h"
 #include "drishti/acf/gpu/gradhist.h"
-#include "drishti/acf/gpu/rgb2luv.h"
-#include "drishti/acf/gpu/binomial.h"
 #include "drishti/acf/gpu/triangle.h"
 
 #include "drishti/core/convert.h"

@@ -46,13 +46,20 @@ public:
 
     struct PaddedImage
     {
+        PaddedImage() {}
         PaddedImage(const cv::Mat &Ib, const cv::Rect &roi= {}) : Ib(Ib), roi(roi) {}
+        PaddedImage &operator=(const PaddedImage &I)
+        {
+            Ib = I.Ib;
+            roi = I.roi;
+            return (*this);
+        }
         operator cv::Mat()
         {
             return Ib;
         }
-        const cv::Mat Ib;
-        const cv::Rect roi;
+        cv::Mat Ib;
+        cv::Rect roi;
     };
 
     typedef std::function<std::array<cv::Mat,2>(const cv::Point2f &L, const cv::Point2f &R)> EyeCropper;

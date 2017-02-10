@@ -95,6 +95,24 @@ void EyeModel::upsample(int eyelidFactor, int creaseFactor)
     }
 }
 
+// Check for numerical stability (errors at very low resolution, etc)
+static bool isValid(const PointVec &contour, const PointVec &spline, float tolerance)
+{
+    PointVec contourHull;
+    cv::convexHull(contour, contourHull);
+    const cv::Rect roi = cv::boundingRect(contourHull);
+    const cv::Point2f tl = roi.tl(), br = roi.br(), center = (tl + br) * 0.5f, diag = br - center;
+    const cv::Rect2f zone(center - diag * tolerance, center + diag * tolerance);
+    for(const auto &p : spline)
+    {
+        if(!zone.contains(p))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 void EyeModel::refine(int eyelidPoints, int creasePoints)
 {
     roi = cv::boundingRect(eyelids);
@@ -102,7 +120,10 @@ void EyeModel::refine(int eyelidPoints, int creasePoints)
     {
         eyelidsSpline.clear();
         fitSpline(eyelids, eyelidsSpline, eyelidPoints);
-
+        if(!isValid(eyelids, eyelidsSpline, 1.25))
+        {
+            eyelidsSpline = eyelids;
+        }
         cornerIndices[0] = 0;
         cornerIndices[1] = int(eyelids.size())/2;
     }
@@ -111,6 +132,10 @@ void EyeModel::refine(int eyelidPoints, int creasePoints)
     {
         creaseSpline.clear();
         fitSpline(crease, creaseSpline, creasePoints, false);
+        if(!isValid(crease, creaseSpline, 1.25f))
+        {
+            crease = creaseSpline;
+        }
     }
 }
 

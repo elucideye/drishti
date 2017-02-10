@@ -8,7 +8,7 @@
 
 */
 
-#include "drishti/acf/gpu/gain.h"
+#include "drishti/graphics/gain.h"
 
 // *INDENT-OFF*
 BEGIN_OGLES_GPGPU
