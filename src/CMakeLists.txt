@@ -145,7 +145,7 @@ endif()
 #######################
 
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON)
+option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 
 if(DRISHTI_USE_THREAD_POOL_CPP)
   if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
@@ -167,7 +167,7 @@ endif()
 ### xgboost ###
 ###############
 
-option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" ON)
+option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
   option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
