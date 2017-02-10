@@ -244,7 +244,7 @@ GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
     return outTexture;
 }
 
-#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 1
+#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 0
 
 int VideoFilterRunnable::detectFaces(QVideoFrame *input)
 {
