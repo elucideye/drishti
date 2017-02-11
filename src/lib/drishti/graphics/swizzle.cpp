@@ -8,7 +8,7 @@
 
 */
 
-#include "drishti/acf/gpu/swizzle.h"
+#include "drishti/graphics/swizzle.h"
 
 // *INDENT-OFF*
 BEGIN_OGLES_GPGPU

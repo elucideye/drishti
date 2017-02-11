@@ -41,7 +41,7 @@
 
 #define DRISHTI_HCI_FACEFINDER_DETECTION_WIDTH 512
 #define DRISHTI_HCI_FACEFINDER_DO_TRACKING 1
-#define DRISHTI_HCI_FACEFINDER_DO_ACF_MODIFY 0
+#define DRISHTI_HCI_FACEFINDER_DO_ACF_MODIFY 1
 
 #define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES 1
 #define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES_DISPLAY 1
@@ -818,6 +818,13 @@ FeaturePoints getValidEyePoints(const FeaturePoints &points, const drishti::eye:
         }
     }
     
+    // Additional eyelid pruning:
+    const float margin = eyeWarp.eye.irisEllipse.size.width * 0.125f;
+    pointsOnIris.erase(std::remove_if(pointsOnIris.begin(), pointsOnIris.end(), [&](const FeaturePoint &p) {
+        const float d = cv::pointPolygonTest(eyeWarp.eye.eyelids, p.point, true);
+        return d < margin;
+    }), pointsOnIris.end());
+
     return pointsOnIris;
 }
 
@@ -1017,20 +1024,43 @@ static cv::Size uprightSize(const cv::Size &size, int orientation)
 
 static void extractPoints(const cv::Mat1b &input, std::vector<drishti::hci::FeaturePoint> &features, float scale)
 {
+    static const int radius = 1;
+    
     // ### Extract corners first: ###
     std::vector<cv::Point> points;
     try
     {
-        cv::findNonZero(input, points);
+        cv::findNonZero(input(cv::Rect({radius,radius}, input.size() - cv::Size(2*radius,2*radius))), points);
     }
     catch(...) {}
     
     features.reserve(points.size());
     for(const auto &p : points)
     {
-        const float radius = static_cast<float>(input.at<uint8_t>(p)) / 255.f;
-        features.emplace_back(cv::Point2f(scale*p.x, scale*p.y), radius);
+        cv::Point q = p;
+        int total = 0;
+        uint8_t value = 0;
+        for(int y = -radius; y <= +radius; y++)
+        {
+            const uint8_t *ptr = &input.at<uint8_t>(p.y + y, p.x - radius);
+            for(int x = -radius; x <= +radius; x++, ptr++)
+            {
+                if(*ptr > value)
+                {
+                    value = *ptr;
+                    total += int(value);
+                    q = {p.x + x, p.y + y};
+                }
+            }
+        }
+        const int area = 1;//= (radius * 2 + 1) * (radius * 2 + 1);
+        const float radius = static_cast<float>(total) / (255.f * area);
+        features.emplace_back(cv::Point2f(scale*q.x, scale*q.y), radius);
     }
+    
+    std::sort(features.begin(), features.end(), [](const FeaturePoint &pa, const FeaturePoint &pb) {
+        return (pa.radius > pb.radius);
+    });
 }
 
 static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, ScenePrimitives &scene, float flowScale)

@@ -254,7 +254,7 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
     const auto toc = std::chrono::high_resolution_clock::now();
     const double elapsed = std::chrono::duration<double>(toc - m_pImpl->m_tic).count();
     const int seconds = int(elapsed);
-    const static int interval = 2;
+    const static int interval = 1;
     if(!(seconds % interval))
     {
         const int value = (seconds / interval) % 2;

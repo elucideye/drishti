@@ -62,25 +62,16 @@ sugar_files(DRISHTI_ACF_HDRS_PUBLIC
 if(DRISHTI_BUILD_OGLES_GPGPU)
   sugar_files(DRISHTI_ACF_HDRS_PUBLIC  
     GPUACF.h
-    gpu/binomial.h
     gpu/gradhist.h
-    gpu/rgb2luv.h
-    gpu/swizzle.h
     gpu/swizzle2.h
-    gpu/gain.h
     gpu/triangle.h
     gpu/multipass/triangle_pass.h
     )
   sugar_files(DRISHTI_ACF_SRCS
     GPUACF.cpp
-    gpu/binomial.cpp
     gpu/gradhist.cpp
-    gpu/rgb2luv.cpp
-    gpu/swizzle.cpp
     gpu/swizzle2.cpp
-    gpu/gain.cpp
     gpu/triangle.cpp
     gpu/multipass/triangle_pass.cpp
     )
 endif()
-

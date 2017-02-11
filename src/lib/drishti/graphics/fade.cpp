@@ -1,4 +1,4 @@
-#include "drishti/hci/gpu/fade.h"
+#include "drishti/graphics/fade.h"
 #include "drishti/core/make_unique.h"
 
 #include "ogles_gpgpu/common/proc/fifo.h"

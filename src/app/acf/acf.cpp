@@ -11,7 +11,6 @@
 // Local includes:
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/acf/ACF.h"
-#include "drishti/face/FaceDetector.h"
 #include "drishti/core/LazyParallelResource.h"
 #include "drishti/core/Line.h"
 #include "drishti/core/Logger.h"

@@ -36,6 +36,46 @@ void flowToDrawings(const std::vector<cv::Vec4f> &flow, LineDrawingVec &drawings
     }
 }
 
+void pointsToCircles(const std::vector<FeaturePoint> &points, LineDrawingVec &circles, float width)
+{
+    cv::Point2f dx(width, 0.0), dy(0.0, width);
+    
+    float maxRadius = points.size() ? points.front().radius : std::numeric_limits<float>::max();
+    
+    static const int tics = 16;
+    for(const auto &f : points)
+    {
+        if(f.radius > (maxRadius * 0.5f))
+        {
+            const auto &p = f.point;
+            
+            ogles_gpgpu::LineDrawing circle;
+            circle.strip = false; // STRIP == FALSE
+            circle.index = { 0 };
+            circle.contours.resize(1);
+            
+            std::vector<cv::Point2f> contour(tics);
+            for(int i = 0; i < contour.size(); i++)
+            {
+                const double theta = M_PI * 2.0 * static_cast<double>(i)/tics;
+                const float scale = f.radius * width;
+                const cv::Point2f r(std::cos(theta) * scale, std::sin(theta) * scale);
+                contour[i] = (p + r);
+            }
+            
+            circle.contours[0].push_back(contour.back());
+            circle.contours[0].push_back(contour.front());
+            for(int i = 1; i < contour.size(); i++)
+            {
+                circle.contours[0].push_back(contour[i-1]);
+                circle.contours[0].push_back(contour[i+0]);
+            }
+            
+            circles.emplace_back(circle);
+        }
+    }
+}
+
 // weights [0..1] (optional)
 void pointsToCrosses(const std::vector<FeaturePoint> &points, LineDrawingVec &crosses, float width)
 {

@@ -164,8 +164,8 @@ FacePainter::FacePainter(int outputOrientation)
     m_drawShParamAPosition = m_draw->getParam(ATTR, "position");
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
     
-    m_eyeAttributes[0] = { &m_eyePointsFromSingleImage, 64.f, {1.0, 0.0, 1.0} };
-    m_eyeAttributes[1] = { &m_eyePointsFromDifferenceImage, 32.f, {0.0, 1.0, 0.0} };
+    m_eyeAttributes[0] = { &m_eyePointsFromSingleImage, 16.f, {1.0, 0.0, 1.0} };
+    m_eyeAttributes[1] = { &m_eyePointsFromDifferenceImage, 16.f, {0.0, 1.0, 0.0} };
 }
 
 void FacePainter::setOutputSize(float scaleFactor)
@@ -474,7 +474,10 @@ static void
 drawCrosses(const FacePainter::FeaturePoints &points, const cv::Vec3f &color, DrawingSpec &lines, float span)
 {
     drishti::hci::LineDrawingVec crosses;
-    drishti::hci::pointsToCrosses(points, crosses, span);
+
+    //drishti::hci::pointsToCrosses(points, crosses, span);
+    drishti::hci::pointsToCircles(points, crosses, span);
+    
     for(const auto &x : crosses)
     {
         for(const auto &c : x.contours)

@@ -1,12 +1,3 @@
-# Top level folder for QT applications:
-add_subdirectory(qt)
-
-if(DRISHTI_USE_TEXT_ARCHIVES)
-  if(NOT ANDROID AND NOT IOS)
-    add_subdirectory(pba)
-  endif()
-endif()
-
 ###########################
 ### Command line parser ###
 ###########################
@@ -27,8 +18,27 @@ if(DRISHTI_HAS_CXXOPTS)
   endif()
 endif()
 
+####################
+### Applications ###
+####################
+
+# Top level folder for QT applications:
+add_subdirectory(qt)
+
+if(DRISHTI_USE_TEXT_ARCHIVES)
+  if(NOT ANDROID AND NOT IOS)
+    add_subdirectory(pba)
+  endif()
+endif()
+
+
 # std::regex >= gcc 4.8
 if(DRISHTI_HAS_CXXOPTS)
   add_subdirectory(eye)
-  add_subdirectory(acf)
+  if(DRISHTI_BUILD_ACF)
+    add_subdirectory(acf)
+  endif()
+  if(DRISHTI_BUILD_FACE)  
+    add_subdirectory(face)
+  endif()
 endif()

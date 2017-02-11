@@ -1,3 +1,13 @@
+/*!
+  @file fade.h
+  @author David Hirvonen (C++ implementation)
+  @brief Declaration of ogles_gpgpu shader for exponential decay effect.
+
+  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
 #ifndef OGLES_GPGPU_COMMON_FADE_PROC
 #define OGLES_GPGPU_COMMON_FADE_PROC
 

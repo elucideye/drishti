@@ -32,6 +32,7 @@ if(DRISHTI_BUILD_WORLD)
     ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC}
     ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC}
     ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC}
+    ${DRISHTI_GRAPHICS_SRCS} ${DRISHTI_GRAPHICS_HDRS_PUBLIC}    
     )
 
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -62,6 +63,10 @@ if(DRISHTI_BUILD_WORLD)
   ### eye
   source_group("eye\\Header Files" FILES ${DRISHTI_EYE_HDRS_PUBLIC})
   source_group("eye\\Source Files" FILES ${DRISHTI_EYE_SRCS})
+
+  ### graphics
+  source_group("graphics\\Header Files" FILES ${DRISHTI_GRAPHICS_HDRS_PUBLIC})
+  source_group("graphics\\Source Files" FILES ${DRISHTI_GRAPHICS_SRCS})  
   
   if(DRISHTI_BUILD_ACF)
     ### acf
@@ -140,6 +145,14 @@ else()
   ## drishti_eye
   add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
   target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} xgboost::xgboost)
+
+  ## drishti_graphics
+  if(DRISHTI_GRAPHICS_SRCS)
+    add_library(drishti_graphics ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
+    if(DRISHTI_BUILD_OGLES_GPGPU)
+      target_link_libraries(drishti_graphics PUBLIC ${OGLES_GPGPU_LIB})
+    endif()
+  endif()
 
   ## drishti_acf
   if(DRISHTI_BUILD_ACF)
