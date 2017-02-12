@@ -12,7 +12,7 @@ PATH="/usr/bin:${PATH}" # system python first
 
 IOS_IDENTITY="iPhone Developer: David Hirvonen (7YLQXWH6FK)"
 
-DRISHTI_DO_TESTING=0
+DRISHTI_DO_TESTING=1
 
 HUNTER_CONFIGURATION_TYPES=Release
 DRISHTI_BUILD_ACF=OFF

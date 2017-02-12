@@ -165,7 +165,7 @@ FacePainter::FacePainter(int outputOrientation)
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
     
     m_eyeAttributes[0] = { &m_eyePointsFromSingleImage, 16.f, {1.0, 0.0, 1.0} };
-    m_eyeAttributes[1] = { &m_eyePointsFromDifferenceImage, 16.f, {0.0, 1.0, 0.0} };
+    m_eyeAttributes[1] = { &m_eyePointsFromDifferenceImage, 16.f, {1.0, 0.0, 1.0} };
 }
 
 void FacePainter::setOutputSize(float scaleFactor)

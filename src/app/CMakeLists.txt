@@ -1,23 +1,3 @@
-###########################
-### Command line parser ###
-###########################
-
-option(DRISHTI_HAS_CXXOPTS "Has cxxopts" ON)
-option(DRISHTI_USE_LOCAL_CXXOPTS "Use local cxxopts" OFF)
-
-if(DRISHTI_HAS_CXXOPTS)
-  if(DRISHTI_USE_LOCAL_CXXOPTS)
-    option(CXXOPTS_BUILD_EXAMPLES "Set to ON to build examples" OFF)
-    option(CXXOPTS_BUILD_TESTS "Set to ON to build tests" OFF)
-    option(CXXOPTS_INSTALL "Install package." OFF)
-    add_subdirectory("${CMAKE_SOURCE_DIR}/src/3rdparty/cxxopts" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cxxopts")
-    add_library(cxxopts::cxxopts ALIAS cxxopts)
-  else()
-    hunter_add_package(cxxopts)
-    find_package(cxxopts CONFIG REQUIRED)
-  endif()
-endif()
-
 ####################
 ### Applications ###
 ####################
@@ -31,9 +11,12 @@ if(DRISHTI_USE_TEXT_ARCHIVES)
   endif()
 endif()
 
-
 # std::regex >= gcc 4.8
 if(DRISHTI_HAS_CXXOPTS)
+
+  hunter_add_package(cxxopts)
+  find_package(cxxopts CONFIG REQUIRED)
+
   add_subdirectory(eye)
   if(DRISHTI_BUILD_ACF)
     add_subdirectory(acf)
@@ -41,4 +24,5 @@ if(DRISHTI_HAS_CXXOPTS)
   if(DRISHTI_BUILD_FACE)  
     add_subdirectory(face)
   endif()
+
 endif()

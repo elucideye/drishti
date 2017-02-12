@@ -26,6 +26,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     binomial.cpp
     fade.cpp
     gain.cpp
+    nms2.cpp
     rgb2hsv.cpp
     rgb2luv.cpp
     saturation.cpp
@@ -36,6 +37,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     binomial.h
     fade.h
     gain.h
+    nms2.h
     rgb2hsv.h
     rgb2luv.h
     saturation.h

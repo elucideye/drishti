@@ -85,6 +85,9 @@ QMLCameraManager::create(QQuickItem *root, std::shared_ptr<spdlog::logger> &logg
 // ################################## Apple ##########################################
 // ###################################################################################
 
+// Note: See example settings
+// https://github.com/RSATom/Qt/blob/master/qtmultimedia/tests/auto/unit/qcamera/tst_qcamera.cpp
+
 cv::Size QMLCameraManagerApple::configureCamera()
 {
     cv::Size bestSize;
@@ -128,6 +131,9 @@ cv::Size QMLCameraManagerApple::configureCamera()
         }
     }
     
+    best.second.setMinimumFrameRate(60.0);
+    best.second.setMinimumFrameRate(120.0);
+
     assert(!best.second.isNull());
     m_camera->setViewfinderSettings(best.second);
     

@@ -142,7 +142,7 @@ int drishti_main(int argc, char **argv)
     // ############################
     
     std::string sInput, sOutput, sModel;
-    bool doThreads = true;
+    int threads = -1;
     bool doJson = true;
     bool doAnnotation = false;
     bool isRight=false;
@@ -154,7 +154,7 @@ int drishti_main(int argc, char **argv)
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
         ("m,model", "Input file", cxxopts::value<std::string>(sModel))
-        ("t,threads", "Multi-threaded", cxxopts::value<bool>(doThreads))
+        ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("j,json", "JSON model output", cxxopts::value<bool>(doJson))
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
         ("r,right", "Right eye inputs", cxxopts::value<bool>(isRight))
@@ -293,13 +293,13 @@ int drishti_main(int argc, char **argv)
         }
     };
     
-    if(doThreads)
+    if(threads == 1 || threads == 0)
     {
-        cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness);
+        harness({0,static_cast<int>(filenames.size())});
     }
     else
     {
-        harness({0,static_cast<int>(filenames.size())});
+        cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness, std::max(threads, -1));
     }
 
     return 0;

@@ -1024,38 +1024,20 @@ static cv::Size uprightSize(const cv::Size &size, int orientation)
 
 static void extractPoints(const cv::Mat1b &input, std::vector<drishti::hci::FeaturePoint> &features, float scale)
 {
-    static const int radius = 1;
-    
     // ### Extract corners first: ###
     std::vector<cv::Point> points;
     try
     {
-        cv::findNonZero(input(cv::Rect({radius,radius}, input.size() - cv::Size(2*radius,2*radius))), points);
+        cv::findNonZero(input, points);
     }
     catch(...) {}
     
     features.reserve(points.size());
     for(const auto &p : points)
     {
-        cv::Point q = p;
-        int total = 0;
-        uint8_t value = 0;
-        for(int y = -radius; y <= +radius; y++)
-        {
-            const uint8_t *ptr = &input.at<uint8_t>(p.y + y, p.x - radius);
-            for(int x = -radius; x <= +radius; x++, ptr++)
-            {
-                if(*ptr > value)
-                {
-                    value = *ptr;
-                    total += int(value);
-                    q = {p.x + x, p.y + y};
-                }
-            }
-        }
-        const int area = 1;//= (radius * 2 + 1) * (radius * 2 + 1);
-        const float radius = static_cast<float>(total) / (255.f * area);
-        features.emplace_back(cv::Point2f(scale*q.x, scale*q.y), radius);
+        uint8_t value = input(p);
+        const float radius = static_cast<float>(value) / 255.f;
+        features.emplace_back(cv::Point2f(scale*p.x, scale*p.y), radius);
     }
     
     std::sort(features.begin(), features.end(), [](const FeaturePoint &pa, const FeaturePoint &pb) {

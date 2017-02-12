@@ -83,7 +83,7 @@ int drishti_main(int argc, char **argv)
     // ############################
     
     std::string sInput, sOutput, sModel;
-    bool doThreads = true;
+    int threads = -1;
     bool doAnnotation = false;
     bool doPositiveOnly = false;
     bool doNms = false;
@@ -101,7 +101,7 @@ int drishti_main(int argc, char **argv)
         ("c,calibration", "Cascade calibration", cxxopts::value<double>(cascCal))
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
-        ("t,threads", "Multi-threaded", cxxopts::value<bool>(doThreads))
+        ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("h,help", "Print help message");
     
     options.parse(argc, argv);
@@ -234,13 +234,13 @@ int drishti_main(int argc, char **argv)
         }
     };
     
-    if(doThreads)
-    {
-        cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness);
-    }
-    else
+    if(threads == 1 || threads == 0)
     {
         harness({0,static_cast<int>(filenames.size())});
+    }
+    else 
+    {
+        cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness, std::max(threads, -1));
     }
 
     return 0;
