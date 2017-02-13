@@ -9,6 +9,7 @@
 */
 
 #define FLASH_FILTER_USE_DELAY 1
+#define FLASH_FILTER_USE_NEW_NMS 1
 
 #include "drishti/hci/gpu/FlashFilter.h"
 
@@ -16,12 +17,20 @@
 #  include "drishti/graphics/fade.h"
 #endif
 #include "drishti/graphics/saturation.h"
+#include "drishti/graphics/binomial.h"
 
 #include "ogles_gpgpu/common/proc/hessian.h"
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/proc/fifo.h"
 #include "ogles_gpgpu/common/proc/fir3.h"
-#include "ogles_gpgpu/common/proc/nms.h"
+
+#if FLASH_FILTER_USE_NEW_NMS
+#  include "drishti/graphics/nms2.h"
+#  define NMS_PROC ogles_gpgpu::Nms2Proc
+#else
+#  include "ogles_gpgpu/common/proc/nms.h"
+#  define NMS_PROC ogles_gpgpu::NmsProc
+#endif
 
 #include <opencv2/core.hpp>
 
@@ -38,11 +47,11 @@ public:
     , fifoProc(3)
     , fir3Proc(false)
     , hessianProc1(2000.0f, false)
-    , hessianProc2(8000.0f, false)
+    , hessianProc2(4000.0f, false)
 #if FLASH_FILTER_USE_DELAY
     , fadeProc(0.95)
 #endif
-    , saturationProc(2.0)
+    , saturationProc(1.0)
     {
         fir3Proc.setAlpha(10.f);
         fir3Proc.setBeta(0.f); // drop negative values
@@ -73,18 +82,19 @@ public:
         fifoProc.addWithDelay(&fir3Proc, 1, 1);
         fifoProc.addWithDelay(&fir3Proc, 2, 2);
         
-        fir3Proc.add(&smoothProc2);
-        smoothProc2.add(&saturationProc);
-        saturationProc.add(&hessianProc2);
-        
+        fir3Proc.add(&saturationProc);
+        saturationProc.add(&smoothProc2);
+        smoothProc2.add(&hessianProc2);
 #if FLASH_FILTER_USE_DELAY
         hessianProc2.add(&fadeProc);
 #endif
-        fadeProc.add(&nmsProc2);
+        fadeProc.add(&fadeSmoothProc);
+        fadeSmoothProc.add(&nmsProc2);
     }
     
     ogles_gpgpu::GaussOptProc smoothProc1;
     ogles_gpgpu::GaussOptProc smoothProc2;
+    ogles_gpgpu::BinomialProc fadeSmoothProc;
     ogles_gpgpu::FIFOPRoc fifoProc;
     ogles_gpgpu::Fir3Proc fir3Proc;
     ogles_gpgpu::HessianProc hessianProc1; // single image hessian
@@ -92,8 +102,8 @@ public:
 #if FLASH_FILTER_USE_DELAY
     ogles_gpgpu::FadeFilterProc fadeProc;
 #endif
-    ogles_gpgpu::NmsProc nmsProc1; // single image nms
-    ogles_gpgpu::NmsProc nmsProc2; // difference image nms
+    NMS_PROC nmsProc1; // single image nms
+    NMS_PROC nmsProc2; // difference image nms
     ogles_gpgpu::SaturationProc saturationProc;
 };
 

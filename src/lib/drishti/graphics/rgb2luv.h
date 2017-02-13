@@ -11,7 +11,6 @@
 #ifndef __drishti_graphics_rgb2luv_h__
 #define __drishti_graphics_rgb2luv_h__
 
-#include "drishti/acf/drishti_acf.h"
 #include "ogles_gpgpu/common/proc/base/filterprocbase.h"
 
 BEGIN_OGLES_GPGPU
