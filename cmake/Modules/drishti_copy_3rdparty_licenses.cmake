@@ -10,7 +10,7 @@ function(drishti_copy_3rdparty_licenses drishti_license_dir)
     VERBATIM
     )
   foreach (_variableName ${_variableNames})
-    STRING(REGEX MATCH "^.*_LICENSE$" _licenseFile "${_variableName}")    
+    STRING(REGEX MATCH "^.*_LICENSE$" _licenseFile "${_variableName}")
     if(NOT ${_licenseFile} STREQUAL "")
       message("VARIABLE: ${_variableName}=${${_variableName}}")
       if(EXISTS "${${_variableName}}")
