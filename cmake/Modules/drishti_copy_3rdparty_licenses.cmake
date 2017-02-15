@@ -10,14 +10,14 @@ function(drishti_copy_3rdparty_licenses drishti_license_dir)
     VERBATIM
     )
   foreach (_variableName ${_variableNames})
-    STRING(REGEX MATCH "^.*_LICENSE$" _licenseFile "${_variableName}")    
-    if(NOT ${_licenseFile} STREQUAL "")
+    STRING(REGEX MATCH "^.*_LICENSES$" _licenseFiles "${_variableName}")
+    if(NOT ${_licenseFiles} STREQUAL "")
       message("VARIABLE: ${_variableName}=${${_variableName}}")
       if(EXISTS "${${_variableName}}")
         add_custom_command(TARGET drishtisdk POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different "${${_variableName}}" "${drishti_license_dir}/${_licenseFile}"
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different "${${_variableName}}" "${drishti_license_dir}/${_licenseFiles}"
           DEPENDS "${${_variableName}}"
-          COMMENT "Copying ${${_variableName}} to ${drishti_license_dir}/${_licenseFile}"
+          COMMENT "Copying ${${_variableName}} to ${drishti_license_dir}/${_licenseFiles}"
           VERBATIM
           )
       else()
