@@ -260,6 +260,7 @@ add_subdirectory(app)
 # (Optional) build unit tests
 if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
+  add_subdirectory(benchmarks)
 endif()
 
 ##########################

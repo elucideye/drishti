@@ -193,6 +193,7 @@ drishti_mirror_definition(DRISHTI_USE_TEXT_ARCHIVES)
 # DRISHIT_BUILD_INTEGRATION_TESTS:
 # ${DRISHTISDK}/src/examples/integration/
 
+option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." ON)
 option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." ON)
 option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
 
