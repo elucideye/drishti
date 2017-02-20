@@ -96,6 +96,7 @@ public:
     };
 
     FaceFinder(FaceDetectorFactoryPtr &factory, Config &config, void *glContext = nullptr);
+    ~FaceFinder();
 
     virtual GLuint operator()(const FrameInput &frame);
     
@@ -224,6 +225,8 @@ protected:
     TimePoint m_start;
     
     std::vector<FaceMonitor*> m_faceMonitorCallback;
+    
+    std::mutex m_mutex;
 };
 
 DRISHTI_HCI_NAMESPACE_END

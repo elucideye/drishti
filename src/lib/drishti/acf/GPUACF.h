@@ -18,6 +18,7 @@
 #include "ogles_gpgpu/common/proc/video.h"
 
 #include <memory>
+#include <array>
 
 // *INDENT-OFF*
 namespace spdlog { class logger; }
