@@ -21,7 +21,6 @@ if(DRISHTI_BUILD_ACF)
 endif()
 
 if(DRISHTI_BUILD_FACE)
-  add_subdirectory(landmarks)    
   add_subdirectory(face)
 endif()
 
