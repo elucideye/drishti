@@ -107,6 +107,11 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
     m_doDifferenceEyesDisplay = DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES_DISPLAY;
 }
 
+FaceFinder::~FaceFinder()
+{
+    std::unique_lock<std::mutex> lock(m_mutex);
+}
+
 void FaceFinder::setMinDistance(float meters)
 {
     m_minDistanceMeters = meters;
@@ -698,6 +703,8 @@ void FaceFinder::fill(drishti::acf::Detector::Pyramid &P)
 
 int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
 {
+    std::unique_lock<std::mutex> lock(m_mutex);
+    
     m_logger->info() << "FaceFinder::detect() " << sBar;
     
     assert(scene.objects().size() == 0);
