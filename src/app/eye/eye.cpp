@@ -23,7 +23,10 @@
 
 // Package includes:
 #include "cxxopts.hpp"
+
+#include <opencv2/imgproc.hpp> // warpPerspective
 #include <opencv2/highgui.hpp> // cv::imwrite
+
 #include <cereal/archives/json.hpp>
 
 // System includes:
@@ -114,8 +117,34 @@ struct Flopper : public Transform
     bool isRight = true;
 };
 
-static void fitEyeModel(eye::EyeModelEstimator &fitter, cv::Mat &image, eye::EyeModel &eye, bool isRight)
+struct Warper : public Transform
 {
+    Warper(const cv::Mat &input, drishti::eye::EyeModel &eye, const cv::Matx33f *H) : Transform(eye), H(H)
+    {
+        if(H)
+        {
+            cv::warpPerspective(input, image, cv::Mat1f(*H), input.size(), cv::INTER_LINEAR);
+        }
+        else
+        {
+            image = input;
+        }
+    }
+    
+    ~Warper()
+    {
+        if(H)
+        {
+            eye = H->inv() * eye;
+        }
+    }
+    
+    const cv::Matx33f *H = nullptr;
+};
+
+static void fitEyeModel(eye::EyeModelEstimator &fitter, cv::Mat &image, eye::EyeModel &eye, bool isRight, const cv::Matx33f *prewarp=nullptr)
+{
+    Warper warper(image, eye, prewarp);
     { // First scope provides padding transformation
         static const float targetAspectRatio = 4.0/3.0;
         Flopper flopper(image, eye, isRight);
@@ -141,13 +170,15 @@ int drishti_main(int argc, char **argv)
     // ### Command line parsing ###
     // ############################
     
-    std::string sInput, sOutput, sModel;
+    std::string sInput, sOutput, sModel, sPrewarp;
     int threads = -1;
     bool doJson = true;
     bool doAnnotation = false;
     bool isRight=false;
     bool isLeft=false;
     bool doLabels = false;
+    
+    cv::Matx33f prewarp = cv::Matx33f::eye();
     
     cxxopts::Options options("drishti-eye", "Command line interface for eye model fitting");
     options.add_options()
@@ -159,6 +190,7 @@ int drishti_main(int argc, char **argv)
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
         ("r,right", "Right eye inputs", cxxopts::value<bool>(isRight))
         ("l,left", "Left eye inputs", cxxopts::value<bool>(isLeft))
+        ("p,prewarp", "Prewarp", cxxopts::value<std::string>(sPrewarp))
         ("L,labels", "Generate label image", cxxopts::value<bool>(doLabels))
         ("h,help", "Print help message");
     
@@ -231,6 +263,30 @@ int drishti_main(int argc, char **argv)
         logger->error() << "Specified input file does not exist or is not readable";
         return 1;
     }
+    
+    // ### prewarp
+    bool hasPrewarp = false;
+    if(!sPrewarp.empty())
+    {
+        std::vector<std::string> tokens;
+        drishti::core::tokenize(sPrewarp, tokens);
+        if(tokens.size() == 9)
+        {
+            for(int i = 0, y = 0; y < 3; y++)
+            {
+                for(int x = 0; x < 3; x++, i++)
+                {
+                    prewarp(y,x) = std::stof(tokens[i]);
+                }
+            }
+            hasPrewarp = true;
+        }
+    }
+    
+    if(hasPrewarp)
+    {
+        logger->info() << "prewarp: " << prewarp;
+    }
 
     const auto filenames = drishti::cli::expand(sInput);
     
@@ -255,7 +311,7 @@ int drishti_main(int argc, char **argv)
         if(!image.empty())
         {
             drishti::eye::EyeModel eye;
-            drishti::eye::fitEyeModel(*segmenter, image, eye, isRight);
+            drishti::eye::fitEyeModel(*segmenter, image, eye, isRight, hasPrewarp ? &prewarp : nullptr);
             eye.refine();
 
             if(!sOutput.empty())

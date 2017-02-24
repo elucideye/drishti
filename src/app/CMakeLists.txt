@@ -1,3 +1,11 @@
+###############
+### cxxopts ###
+###############
+
+# std::regex >= gcc 4.8
+hunter_add_package(cxxopts)
+find_package(cxxopts CONFIG REQUIRED)
+
 ####################
 ### Applications ###
 ####################
@@ -11,18 +19,11 @@ if(DRISHTI_USE_TEXT_ARCHIVES)
   endif()
 endif()
 
-# std::regex >= gcc 4.8
-if(DRISHTI_HAS_CXXOPTS)
+add_subdirectory(eye)
+if(DRISHTI_BUILD_ACF)
+  add_subdirectory(acf)
+endif()
 
-  hunter_add_package(cxxopts)
-  find_package(cxxopts CONFIG REQUIRED)
-
-  add_subdirectory(eye)
-  if(DRISHTI_BUILD_ACF)
-    add_subdirectory(acf)
-  endif()
-  if(DRISHTI_BUILD_FACE)  
-    add_subdirectory(face)
-  endif()
-
+if(DRISHTI_BUILD_FACE)  
+  add_subdirectory(face)
 endif()
