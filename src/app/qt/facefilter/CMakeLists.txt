@@ -101,7 +101,6 @@ if(ANDROID)
     facefilter
     PROPERTIES
     VERSION 1.0
-    DEBUG_POSTFIX "" # Fix Android load
     )
 
   hunter_add_package(QtAndroidCMake)
