@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-common.sh
+. ${DRISHTISDK}/bin/build-common-release.sh
 
 DRISHTI_ASAN=0
 
@@ -16,11 +16,6 @@ else
     DRISHTI_BUILD_SHARED_SDK=ON
     DRISHTI_BUILD_ASAN_TEST=OFF
 
-fi
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--reconfig"
 fi
 
 DRISHTI_CONFIGURATION=Release
@@ -48,10 +43,10 @@ COMMAND=(
     "DRISHTI_BUILD_ASAN_TEST=${DRISHTI_BUILD_ASAN_TEST} "
     "${DRISHTI_POLLY_ARGS[*]} "
     "--jobs 8 "
-    "--open "
     "--install "
-    "${EXTRA_ARGS} "
 )
+
+COMMAND+=( $(add_polly_commands "$@") )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 

@@ -101,27 +101,25 @@ struct VideoFilterRunnable::Impl
         // Allocate the face detector:
         std::shared_ptr<drishti::face::FaceDetectorFactory> resources = std::make_shared<QtFaceDetectorFactory>();
         
-        drishti::hci::FaceFinder::Config config;
-        config.sensor = manager->getSensor();
-        config.logger = manager->getLogger();
-        config.threads = manager->getThreadPool();
-        config.outputOrientation = orientation;
-        config.frameDelay = 1; // 1 frame delay
+        drishti::hci::FaceFinder::Settings settings;
+        settings.sensor = manager->getSensor();
+        settings.logger = manager->getLogger();
+        settings.threads = manager->getThreadPool();
+        settings.outputOrientation = orientation;
+        settings.frameDelay = 1; // 1 frame delay
+        settings.minDetectionDistance = manager->getDetectionParameters().m_minDepth;
+        settings.maxDetectionDistance = manager->getDetectionParameters().m_maxDepth;
         
-        auto *settings = manager->getSettings();
-        if(settings != nullptr)
+        auto *pSettings = manager->getSettings();
+        if(pSettings != nullptr)
         {
-            config.frameDelay = (*settings)["frameDelay"].get<int>();
-            config.doLandmarks = (*settings)["doLandmarks"].get<bool>();
-            config.doFlow = (*settings)["doFlow"].get<bool>();
-            config.doFlash = (*settings)["doFlash"].get<bool>();
+            settings.frameDelay = (*pSettings)["frameDelay"].get<int>();
+            settings.doLandmarks = (*pSettings)["doLandmarks"].get<bool>();
+            settings.doFlow = (*pSettings)["doFlow"].get<bool>();
+            settings.doFlash = (*pSettings)["doFlash"].get<bool>();
         }
 
-        m_detector = std::make_shared<drishti::hci::FaceFinderPainter>(resources, config, glContext);
-        
-        // Set detection range:
-        m_detector->setMinDistance(manager->getDetectionParameters().m_minDepth);
-        m_detector->setMaxDistance(manager->getDetectionParameters().m_maxDepth);
+        m_detector = drishti::hci::FaceFinderPainter::create(resources, settings, glContext);
 
         // Face filter:
         if(manager->getFaceMonitor())
@@ -146,7 +144,7 @@ struct VideoFilterRunnable::Impl
     
     std::chrono::high_resolution_clock::time_point m_tic;
 
-    std::shared_ptr<drishti::hci::FaceFinder> m_detector;
+    std::unique_ptr<drishti::hci::FaceFinder> m_detector;
 };
 
 
@@ -261,7 +259,7 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
         adjustScreen(float(value));
         m_pImpl->setBrightness(value);
     }
-#endif 
+#endif
     
     QOpenGLContext* openglContext = QOpenGLContext::currentContext();
     if (!openglContext)

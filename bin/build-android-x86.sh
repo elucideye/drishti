@@ -1,13 +1,8 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-common.sh
+. ${DRISHTISDK}/bin/build-common-release.sh
 
 TOOLCHAIN=android-ndk-r10e-api-16-x86-hid-sections
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear"
-fi
 
 rename_tab drishti $TOOLCHAIN
 
@@ -19,8 +14,9 @@ COMMAND=(
     "${DRISHTI_POLLY_ARGS[*]} "    
     "--strip "
     "--jobs 8 "
-    "${EXTRA_ARGS} "
 )
+
+COMMAND+=( $(add_polly_commands "$@") )
 
 eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 

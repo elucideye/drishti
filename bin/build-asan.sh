@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-common.sh
+. ${DRISHTISDK}/bin/build-common-release.sh
 
 # polly/sanitize-address.cmake
 # polly/sanitize-leak.cmake
@@ -9,11 +9,6 @@
 
 TOOLCHAIN=sanitize-address
 #TOOLCHAIN=sanitize-memory
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear"
-fi
 
 [ ! -d ${DRISHTISDK}/_logs ] && mkdir -p ${DRISHTISDK}/_logs
 
@@ -28,7 +23,8 @@ COMMANDS=(
     "${DRISHTI_POLLY_ARGS[*]} "    
     "--install "
     "--jobs 8 "
-    "${EXTRA_ARGS} "
 )
+
+COMMAND+=( $(add_polly_commands "$@") )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]}

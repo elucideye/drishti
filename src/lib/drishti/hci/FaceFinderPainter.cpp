@@ -12,9 +12,13 @@
 #include "drishti/hci/gpu/FacePainter.h"
 #include "drishti/hci/gpu/LineDrawing.hpp"
 #include "drishti/hci/gpu/FlashFilter.h"
+#include "drishti/hci/gpu/GLCircle.h"
 #include "drishti/eye/gpu/EllipsoPolarWarp.h"
 #include "drishti/core/drishti_operators.h"
 #include "drishti/core/make_unique.h"
+#include "drishti/core/timing.h"
+#include "drishti/core/Logger.h"
+#include "drishti/core/Parallel.h"
 #include "drishti/geometry/motion.h"
 
 #include "ogles_gpgpu/common/types.h"
@@ -25,6 +29,13 @@
 using drishti::face::operator*;
 using drishti::core::operator*;
 
+struct MethodLog
+{
+    MethodLog(const std::string &name) : name(name) {}
+    std::string name;
+    std::stringstream ss;
+};
+
 DRISHTI_HCI_NAMESPACE_BEGIN
 
 // #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -32,15 +43,38 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceFinderPainter::Impl
 {
 public:
-    Impl() {}
+    Impl()
+    {
+        m_tic = std::chrono::high_resolution_clock::now();
+        
+        m_positions =
+        {
+            {0.1f, 0.1f},
+            {0.1f, 0.9f},
+            {0.9f, 0.1f},
+            {0.9f, 0.9f}
+        };
+    }
     ~Impl() {}
+    
+    std::chrono::high_resolution_clock::time_point m_tic;
+    
+    int m_index;
+    std::vector<cv::Point2f> m_positions;
 };
 
-FaceFinderPainter::FaceFinderPainter(FaceDetectorFactoryPtr &factory, Config &config, void *glContext)
-    : FaceFinder(factory, config, glContext)
+FaceFinderPainter::FaceFinderPainter(FaceDetectorFactoryPtr &factory, Settings &settings, void *glContext)
+    : FaceFinder(factory, settings, glContext)
 {
     m_pImpl = drishti::core::make_unique<Impl>();
     m_drawIris = true;
+}
+
+std::unique_ptr<FaceFinderPainter> FaceFinderPainter::create(FaceDetectorFactoryPtr &factory, Settings &settings, void *glContext)
+{
+    auto finder = drishti::core::make_unique<FaceFinderPainter>(factory, settings, glContext);
+    finder->initialize();
+    return finder;
 }
 
 FaceFinderPainter::~FaceFinderPainter()
@@ -48,9 +82,9 @@ FaceFinderPainter::~FaceFinderPainter()
     
 }
 
-void FaceFinderPainter::init(const FrameInput &frame)
+void FaceFinderPainter::init(const cv::Size &inputSize)
 {
-    FaceFinder::init(frame);
+    FaceFinder::init(inputSize);
 }
 
 void FaceFinderPainter::initPainter(const cv::Size &inputSizeUp)
@@ -64,6 +98,12 @@ void FaceFinderPainter::initPainter(const cv::Size &inputSizeUp)
     m_rotater->setOutputRenderOrientation(outputOrientation);
 
     m_painter = std::make_shared<ogles_gpgpu::FacePainter>(0);
+    m_painter->setInterpolation(ogles_gpgpu::TransformProc::BILINEAR);
+    
+    if(m_logger)
+    {
+        m_painter->setLogger(m_logger);
+    }
     
     // Project detection sizes to full resolution image:
     const auto winSize = m_detector->getWindowSize();
@@ -86,50 +126,78 @@ void FaceFinderPainter::initPainter(const cv::Size &inputSizeUp)
         m_painter->getPermanentLineDrawings().push_back(drawing);
     }
     
+#if DRISHTI_HCI_FACE_FINDER_PAINTER_SHOW_CIRCLE
+    m_circle = std::make_shared<ogles_gpgpu::CircleProc>();
+    m_painter->add(m_circle.get());
+    m_circle->add(m_rotater.get());
+#else
     m_painter->add(m_rotater.get());
+#endif
+    
     m_painter->prepare(inputSizeUp.width, inputSizeUp.height, GL_RGBA);
+}
+
+template <typename Container>
+void cat(const Container &a, const Container &b, Container &c)
+{
+    c.reserve(a.size() + b.size() + c.size());
+    std::copy(a.begin(), a.end(), std::back_inserter(c));
+    std::copy(b.begin(), b.end(), std::back_inserter(c));
 }
 
 GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTexture)
 {
+#if DRISHTI_HCI_FACE_FINDER_PAINTER_SHOW_CIRCLE
+    {
+        const auto toc = std::chrono::high_resolution_clock::now();
+        const double elapsed = std::chrono::duration<double>(toc - m_pImpl->m_tic).count();
+        const int seconds = int(elapsed);
+        int index = seconds % m_pImpl->m_positions.size();
+        const auto &position = m_pImpl->m_positions[index];
+        const float scale = std::cos(elapsed * 4.f) * 0.01;
+        m_circle->setRadius(0.05f + scale);
+        m_circle->setCenter({position.x, position.y});
+    }
+#endif
+    
+    
+    MethodLog timeSummary(DRISHTI_LOCATION_SIMPLE);
+    core::ScopeTimeLogger paintLogger = [&](double ts)
+    {
+        m_logger->info() << "TIMING:" << timeSummary.name << "=" << ts << ";" << timeSummary.ss.str();
+    };
+    
     m_painter->setBrightness(m_brightness);
-    //m_painter->setGazePoint(m_gazePoints);
 
     // Convert objects to line drawings
     m_painter->getLineDrawings().clear();
-
-    if(scene.corners().size())
-    {
-        pointsToCrosses(scene.corners(), m_painter->getLineDrawings());
-    }
+    
+    // Always set motion axes:
+    m_painter->setAxes(m_faceMotion * 500.f);
+    
+    // Note: scene.draw() muust be called prior to this point.  All drawing has been moved to the latency=1 cpu thread
+    // for the previous frame to increase throughput.
+    std::copy(scene.getDrawings().begin(), scene.getDrawings().end(), std::back_inserter(m_painter->getLineDrawings()));
 
     if(scene.faces().size())
     {
-        facesToDrawings(scene.faces(), m_painter->getLineDrawings());
+        core::ScopeTimeLogger faceTime = [&](double ts) { timeSummary.ss << "FACES=" << ts << ";"; };
         for(const auto &f : scene.faces())
         {
             m_painter->addFace(f);
         }
         
         // Note: These eye warps are provided wrt
-        const auto &eyeWarps = m_eyeFilter->getEyeWarps();
-        const cv::Size filteredEyeSize(m_flasher->getOutFrameW(), m_flasher->getOutFrameH());
-
-        m_painter->setEyeTextureA(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), eyeWarps);
-        FeaturePoints eyePointsSingle;
-        std::copy(m_eyePointsSingle[0].begin(), m_eyePointsSingle[0].end(), std::back_inserter(eyePointsSingle));
-        std::copy(m_eyePointsSingle[1].begin(), m_eyePointsSingle[1].end(), std::back_inserter(eyePointsSingle));
-        m_painter->setEyePointsFromSingleImage(eyePointsSingle);
-        
-        if(m_doDifferenceEyesDisplay)
+        auto &eyeWarps = m_eyeFilter->getEyeWarps();
+        for(int i = 0; i < 2; i++)
         {
-            m_painter->setEyeTextureB(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize(), eyeWarps);
-            FeaturePoints eyePointsDifference;
-            std::copy(m_eyePointsDifference[0].begin(), m_eyePointsDifference[0].end(), std::back_inserter(eyePointsDifference));
-            std::copy(m_eyePointsDifference[1].begin(), m_eyePointsDifference[1].end(), std::back_inserter(eyePointsDifference));
-            m_painter->setEyePointsFromDifferenceImage(eyePointsDifference);
+            eyeWarps[i].setContours(scene.m_eyeDrawings[i]);
         }
-
+        
+        // Create eye contour models in parallel
+        //auto result0 = m_threads->process([&] { eyeWarps[0].getContours(); });
+        //auto result1 = m_threads->process([&] { eyeWarps[1].getContours(); });
+        
         if(m_doIris && m_drawIris)
         {
             //Draw the normalized iris (polar coordinates):
@@ -137,6 +205,24 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
             {
                 m_painter->setIrisTexture(i, m_ellipsoPolar[i]->getOutputTexId(), m_ellipsoPolar[i]->getOutFrameSize());
             }
+        }
+
+        //result0.get();
+        //result1.get();
+        
+        {
+            m_painter->setEyeTextureA(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), eyeWarps);
+            FeaturePoints eyePointsSingle;
+            cat(m_eyePointsSingle[0], m_eyePointsSingle[1], eyePointsSingle);
+            m_painter->setEyePointsFromSingleImage(eyePointsSingle);
+        }
+        
+        if(m_doDifferenceEyesDisplay)
+        {
+            m_painter->setEyeTextureB(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize(), eyeWarps);
+            FeaturePoints eyePointsDifference;
+            cat(m_eyePointsDifference[0], m_eyePointsDifference[1], eyePointsDifference);
+            m_painter->setEyePointsFromDifferenceImage(eyePointsDifference);
         }
     }
     else if(scene.objects().size())
@@ -146,6 +232,8 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
 
     if(m_doFlow)
     {
+        core::ScopeTimeLogger flowTime = [&](double ts) { timeSummary.ss << "FLOW=" << ts << ";"; };
+        
         if(scene.flow().size())
         {
             flowToDrawings(scene.flow(), m_painter->getLineDrawings(), m_colors32FC3);
@@ -160,11 +248,18 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
     {
         m_painter->setFlashTexture(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize());
     }
+    
+    if(m_doEyeFlow)
+    {
+        m_painter->setEyeFlow(m_eyeFlowField);
+        m_painter->setEyeMotion(m_eyeMotion);
+    }
+    
+    {
+        core::ScopeTimeLogger processTime = [&](double ts) { timeSummary.ss << "PROCESS=" << ts << ";"; };
+        m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
+    }
 
-    m_painter->setAxes(m_faceMotion * 500.f);
-    
-    m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
-    
     return m_rotater->getOutputTexId();
 }
 

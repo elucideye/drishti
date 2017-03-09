@@ -102,12 +102,12 @@ protected:
         m_factory->sFaceDetectorMean = sFaceDetectorMean;
         
         // Create configuration:
-        m_config.logger = drishti::core::Logger::create("test-drishti-hci");
-        m_config.outputOrientation = 0;
-        m_config.frameDelay = 2;
-        m_config.doLandmarks = true;
-        m_config.doFlow = true;
-        m_config.doFlash = true;
+        m_settings.logger = drishti::core::Logger::create("test-drishti-hci");
+        m_settings.outputOrientation = 0;
+        m_settings.frameDelay = 2;
+        m_settings.doLandmarks = true;
+        m_settings.doFlow = true;
+        m_settings.doFlash = true;
         
 #if DRISHTI_HCI_DO_GPU
         m_context = std::make_shared<QGLContext>();
@@ -129,30 +129,28 @@ protected:
      * @orientation : orientation of input frames
      * @doThreads   : support testing with and without threadpool
      */
-    std::shared_ptr<drishti::hci::FaceFinder>
+    std::unique_ptr<drishti::hci::FaceFinder>
     create(const cv::Size &size, int orientation, bool doThreads)
     {
         if(doThreads)
         {
-            m_config.threads = std::make_shared<tp::ThreadPool<>>();
+            m_settings.threads = std::make_shared<tp::ThreadPool<>>();
         }
         else
         {
-            m_config.threads.reset();
+            m_settings.threads.reset();
         }
         
         {// Create a sensor specification
             const float fx = size.width;
             const cv::Point2f p(image.cols/2, image.rows/2);
             drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
-            m_config.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
+            m_settings.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
         }
         
-        m_config.outputOrientation = orientation;
+        m_settings.outputOrientation = orientation;
         
-        auto detector = std::make_shared<drishti::hci::FaceFinder>(m_factory, m_config, m_glContext);
-        detector->setMinDistance(0.0);
-        detector->setMaxDistance(1.0);
+        auto detector = drishti::hci::FaceFinder::create(m_factory, m_settings, m_glContext);
         return detector;
     }
     
@@ -251,7 +249,7 @@ protected:
     }
 #endif
     
-    drishti::hci::FaceFinder::Config m_config;
+    drishti::hci::FaceFinder::Settings m_settings;
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;
     
 #if DRISHTI_HCI_DO_GPU
@@ -280,7 +278,6 @@ TEST_F(HCITest, RunTestCPUAsync)
     static const bool doAsync = true;
     runTest(doCpu, doAsync);
 }
-
 #endif // DRISHTI_HCI_DO_GPU
 
 END_EMPTY_NAMESPACE

@@ -8,7 +8,7 @@
 # TOOLCHAIN=ios-8-4
 # EXPORT_DIR=${EVDIR}/prebuilts/drishti/ios
 
-. ${DRISHTISDK}/bin/build-common.sh
+. ${DRISHTISDK}/bin/build-common-release.sh
 
 function opencv_framework
 {
@@ -39,7 +39,7 @@ import detail.logging
 logging=detail.logging.Logging('/tmp', 1, 10, 100)
 import create_framework
 plist='${DRISHTISDK}/cmake/framework/Info.plist'
-identity='${IOS_IDENTITY}'
+identity='${DRISHTISDK_IOS_IDENTITY}'
 create_framework.run('${DST_DIR}', '${DST_FWK_DIR}', '8.0', '${POLLY_ROOT}', 0, logging, plist, identity)
 EOF
 

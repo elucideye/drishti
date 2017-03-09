@@ -97,7 +97,36 @@ public:
             return nullptr;
         }
     }
-    
+
+#ifdef DRISHTI_BUILD_C_INTERFACE    
+    static std::shared_ptr<drishti::sdk::EyeSegmenter> createC(const std::string &filename)
+    {
+        if(isArchiveSupported(filename))
+        {
+            auto kind = getArchiveKind(filename);
+            auto segmenter = drishti_eye_segmenter_create_from_file(filename, kind);
+
+            if(segmenter)
+            {
+                if(segmenter->good())
+                {
+                    return std::shared_ptr<drishti::sdk::EyeSegmenter>(segmenter, drishti_eye_segmenter_destroy);
+                }
+                else
+                {
+                    delete segmenter;
+                }
+            }
+            return nullptr;
+        }
+        else
+        {
+            std::cerr << "DRISHTI_DRISHTI_TEST: archive not supported: " << filename << std::endl;
+            return nullptr;
+        }
+    }
+#endif
+
 protected:
 
     using Vec3b = drishti::sdk::Vec3b;
@@ -401,6 +430,39 @@ TEST_F(EyeSegmenterTest, ImageIsWhite)
         checkValid(eye, entry.storage.size());
     }
 }
+
+#ifdef DRISHTI_BUILD_C_INTERFACE
+TEST_F(EyeSegmenterTest, ExternCInterface)
+{
+    auto segmenter = createC(modelFilename);
+
+    if(segmenter)
+    {
+        // Requires at least m_eyeSegmenter->getMinWidth() + 1
+        ASSERT_GT(m_images.size(), m_eyeSegmenter->getMinWidth());
+        
+        for(int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
+        {
+            // Make sure image has the expected size:
+            EXPECT_EQ(m_images[i].image.getCols(), i);
+            
+            drishti::sdk::Eye eye;
+            int code = drishti_eye_segmenter_segment(segmenter.get(), m_images[i].image, eye,  m_images[i].isRight);
+            
+            // Sanity check on each model:
+            EXPECT_EQ(code, 0);
+            checkValid(eye, m_images[i].storage.size());
+            
+            // Ground truth comparison for reasonable resolutions
+            if(i > 128)
+            {
+                const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
+                ASSERT_GT( detectionScore(eye, *m_eye), threshold );
+            }
+        }
+    }
+}
+#endif // DRISHTI_BUILD_C_INTERFACE
 
 // #######
 

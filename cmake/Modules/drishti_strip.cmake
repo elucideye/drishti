@@ -1,13 +1,23 @@
 function(drishti_strip drishti_library)
+
   # Xcode
   set_target_properties(${drishti_library}
     PROPERTIES
-    XCODE_ATTRIBUTE_COPY_PHASE_STRIP "YES"
-    XCODE_ATTRIBUTE_STRIP_INSTALLED_PRODUCT "YES"
-    XCODE_ATTRIBUTE_STRIP_STYLE "non-global"
-    XCODE_ATTRIBUTE_STRIPFLAGS "-x -u -r"
-    XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING "YES"
-    XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING "YES"
+
+    XCODE_ATTRIBUTE_COPY_PHASE_STRIP[variant=Release] "YES"
+    XCODE_ATTRIBUTE_STRIP_INSTALLED_PRODUCT[variant=Release] "YES"
+    XCODE_ATTRIBUTE_STRIP_STYLE[variant=Release] "non-global"
+    XCODE_ATTRIBUTE_STRIPFLAGS[variant=Release] "-x -u -r"
+    XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING[variant=Release] "YES"
+    XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING[variant=Release] "YES"
+
+    XCODE_ATTRIBUTE_COPY_PHASE_STRIP[variant=MinSizeRel] "YES"
+    XCODE_ATTRIBUTE_STRIP_INSTALLED_PRODUCT[variant=MinSizeRel] "YES"
+    XCODE_ATTRIBUTE_STRIP_STYLE[variant=MinSizeRel] "non-global"
+    XCODE_ATTRIBUTE_STRIPFLAGS[variant=MinSizeRel] "-x -u -r"
+    XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING[variant=MinSizeRel] "YES"
+    XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING[variant=MinSizeRel] "YES"    
+    
     # Note: Using this option in combination with thread_local and shared libraries crashes
     # the linker step with the following error:
     #

@@ -75,6 +75,16 @@ inline drishti::sdk::Vec2f cvToDrishti(const cv::Point2f &p)
     return drishti::sdk::Vec2f(p.x, p.y);
 }
 
+inline cv::Point3f drishtiToCv(const drishti::sdk::Vec3f &v)
+{
+    return cv::Point3f(v[0], v[1], v[2]);
+}
+
+inline drishti::sdk::Vec3f cvToDrishti(const cv::Point3f &p)
+{
+    return drishti::sdk::Vec3f(p.x, p.y, p.z);
+}
+
 // vector<Point>
 
 template <std::size_t N=128>

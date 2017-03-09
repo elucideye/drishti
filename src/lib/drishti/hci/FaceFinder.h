@@ -36,6 +36,7 @@
 // *INDENT-OFF*
 namespace ogles_gpgpu
 {
+    class SwizzleProc;
     class FlashFilter;
     class FacePainter;
     class FifoProc;
@@ -75,15 +76,23 @@ public:
     
     struct TimerInfo
     {
-        double detectionTime;
-        double regressionTime;
-        double eyeRegressionTime;
+        double detectionTime = 0.0;
+        double regressionTime = 0.0;
+        double eyeRegressionTime = 0.0;
+        double acfProcessingTime = 0.0;
+        double blobExtractionTime = 0.0;
+        double renderSceneTime = 0.0;
         std::function<void(double second)> detectionTimeLogger;
         std::function<void(double second)> regressionTimeLogger;
         std::function<void(double second)> eyeRegressionTimeLogger;
+        std::function<void(double second)> acfProcessingTimeLogger;
+        std::function<void(double second)> blobExtractionTimeLogger;
+        std::function<void(double second)> renderSceneTimeLogger;
+        
+        friend std::ostream& operator<< (std::ostream& stream, const TimerInfo& info);
     };
     
-    struct Config
+    struct Settings
     {
         std::shared_ptr<drishti::sensor::SensorModel> sensor;
         std::shared_ptr<spdlog::logger> logger;
@@ -93,17 +102,20 @@ public:
         bool doLandmarks = true;
         bool doFlow = true;
         bool doFlash = false;
+        float minDetectionDistance = 0.f;
+        float maxDetectionDistance = 1.f;
     };
 
-    FaceFinder(FaceDetectorFactoryPtr &factory, Config &config, void *glContext = nullptr);
+    FaceFinder(FaceDetectorFactoryPtr &factory, Settings &config, void *glContext = nullptr);
     ~FaceFinder();
-
+    
+    virtual void initialize(); // must call at startup
+    
+    static std::unique_ptr<FaceFinder> create(FaceDetectorFactoryPtr &factory, Settings &config, void *glContext = nullptr);
+    
     virtual GLuint operator()(const FrameInput &frame);
     
-    void setMaxDistance(float meters);
     float getMaxDistance() const;
-    
-    void setMinDistance(float meters);
     float getMinDistance() const;
 
     void setDoCpuAcf(bool flag);
@@ -116,15 +128,19 @@ public:
     
     void registerFaceMonitorCallback(FaceMonitor *callback);
     
-protected:
+    virtual bool doAnnotations() const { return m_doAnnotations; }
     
+protected:
+          
+    bool needsDetection(const TimePoint &ts) const;
+
     void computeGazePoints();
     void updateEyes(GLuint inputTexId, const ScenePrimitives &scene);
     
     void notifyListeners(const ScenePrimitives &scene, const TimePoint &time, bool isFull);
     bool hasValidFaceRequest(const ScenePrimitives &scene, const TimePoint &time) const;
 
-    virtual void init(const FrameInput &frame);
+    virtual void init(const cv::Size &inputSize);
     virtual void initPainter(const cv::Size &inputSizeUp);
     
     void initACF(const cv::Size &inputSizeUp);
@@ -134,18 +150,20 @@ protected:
     void initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &eyesSize);
     void initIris(const cv::Size &size);
     
+    void initTimeLoggers();
     void init2(drishti::face::FaceDetectorFactory &resources);
     void detect2(const FrameInput &frame, ScenePrimitives &scene);
 
     void dumpEyes(std::vector<cv::Mat4b> &frames, std::vector<std::array<eye::EyeModel,2>> &eyes);
     void dumpFaces(std::vector<cv::Mat4b> &frames);
-    virtual int detect(const FrameInput &frame, ScenePrimitives &scene);
+    virtual int detect(const FrameInput &frame, ScenePrimitives &scene, bool doDetection);
     virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);
-    virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene); // compute acf
+    virtual void preprocess(const FrameInput &frame, ScenePrimitives &scene, bool needsDetection); // compute acf
     int computeDetectionWidth(const cv::Size &inputSizeUp) const;
     
-    std::shared_ptr<acf::Detector::Pyramid> createAcfGpu(const FrameInput &frame);
-    std::shared_ptr<acf::Detector::Pyramid> createAcfCpu(const FrameInput &frame);
+    void computeAcf(const FrameInput &frame, bool doLuv, bool doDetection);
+    std::shared_ptr<acf::Detector::Pyramid> createAcfGpu(const FrameInput &frame, bool doDetection);
+    std::shared_ptr<acf::Detector::Pyramid> createAcfCpu(const FrameInput &frame, bool doDetection);
     void fill(drishti::acf::Detector::Pyramid &P);
 
     cv::Mat3f m_colors32FC3; // map angles to colors
@@ -185,7 +203,9 @@ protected:
     
     bool m_doIris = false;
     
-    bool m_doCpuACF= false;
+    bool m_doCpuACF = false;
+
+    bool m_doEyeFlow = false;
     
     cv::Size m_eyesSize = { 480, 240 };
     
@@ -205,6 +225,10 @@ protected:
     std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
+    
+    std::shared_ptr<ogles_gpgpu::FlowOptPipeline> m_eyeFlow;
+    std::shared_ptr<ogles_gpgpu::SwizzleProc> m_eyeFlowBgra; // (optional)
+    ogles_gpgpu::ProcInterface * m_eyeFlowBgraInterface = nullptr;
 
     int m_index = 0;
     std::future<ScenePrimitives> m_scene;
@@ -214,6 +238,9 @@ protected:
     FeaturePoints m_gazePoints;
     std::array<FeaturePoints,2> m_eyePointsSingle;
     std::array<FeaturePoints,2> m_eyePointsDifference;
+    
+    cv::Point2f m_eyeMotion;
+    std::vector<cv::Vec4f> m_eyeFlowField;
     
     TimerInfo m_timerInfo;
     
@@ -226,8 +253,11 @@ protected:
     
     std::vector<FaceMonitor*> m_faceMonitorCallback;
     
+    bool m_doAnnotations = true;
     std::mutex m_mutex;
 };
+
+std::ostream& operator<< (std::ostream& stream, const FaceFinder::TimerInfo& info);
 
 DRISHTI_HCI_NAMESPACE_END
 

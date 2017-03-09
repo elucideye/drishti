@@ -1,16 +1,6 @@
 set(test_name DrishtiHciTest)
 set(test_app test-drishti-hci)
 
-# The GPU tests currently require QT for the off screen GL context
-# and this won't be installed with the simple shared library
-# dependency walker
-# https://github.com/elucideye/drishti/issues/259
-if(DRISHTI_BUILD_QT AND DRISHTI_BUILD_OGLES_GPGPU AND NOT ANDROID)
-  set(DRISHTI_HCI_DO_GPU 1)
-else()
-  set(DRISHTI_HCI_DO_GPU 0)
-endif()
-
 set(SOURCES
   test-drishti-hci.cpp
   test-hessian-cpu.cpp

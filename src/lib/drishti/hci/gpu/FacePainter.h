@@ -30,6 +30,8 @@
 #include <memory>
 #include <array>
 
+namespace spdlog { class logger; }
+
 BEGIN_OGLES_GPGPU
 
 class GLPrinterShader;
@@ -38,6 +40,7 @@ class FacePainter : public ogles_gpgpu::TransformProc
 {
 public:
     
+    using FlowField = std::vector<cv::Vec4f>;
     using FeaturePoint = drishti::hci::FeaturePoint;
     using FeaturePoints = std::vector<FeaturePoint>;
     using PointSet = std::vector<cv::Point2f>;
@@ -75,6 +78,7 @@ public:
         const FeaturePoints *points = nullptr;
         float scale = 10.f;
         cv::Vec3f color = { 0.f, 1.f, 0.f };
+        const FlowField *flow = nullptr;
     };
     
     struct EyePairInfo
@@ -264,6 +268,11 @@ public:
             annotateEyes(m_eyesB, m_eyeAttributes[1]);
         };
     }
+    
+    void setEyeMotion(const cv::Point2f &motion)
+    {
+        m_eyeMotion = motion;
+    }
 
     // points: normalized points wrt eye textures
     void setEyePointsFromDifferenceImage(const FeaturePoints &points)
@@ -277,6 +286,11 @@ public:
         m_eyePointsFromSingleImage = points;
     }
     
+    void setEyeFlow(const FlowField &flow)
+    {
+        m_eyeFlow = flow;
+    }
+    
     void setBrightness(float value)
     {
         m_brightness = value;
@@ -285,6 +299,11 @@ public:
     void setGazePoint(const FeaturePoints &points)
     {
         m_gazePoints = points;
+    }
+    
+    void setLogger(std::shared_ptr<spdlog::logger> &logger)
+    {
+        m_logger = logger;
     }
     
     void copyEyeTex();
@@ -312,6 +331,7 @@ private:
     
     float m_brightness = 1.f;
     
+    cv::Point2f m_eyeMotion;
     cv::Point3f m_motion;
     
     Axes3D m_axes;
@@ -349,6 +369,7 @@ private:
     EyePairInfo m_eyesA, m_eyesB;
     EyeAttributes m_eyeAttributes[2];
 
+    FlowField m_eyeFlow;
     FeaturePoints m_eyePointsFromSingleImage;
     FeaturePoints m_eyePointsFromDifferenceImage;
     
@@ -375,6 +396,9 @@ private:
 
     // #### Iris textures ####
     DisplayTexture m_irisInfo[2];
+    
+    // ### Stream logging
+    std::shared_ptr<spdlog::logger> m_logger;
 };
 
 END_OGLES_GPGPU

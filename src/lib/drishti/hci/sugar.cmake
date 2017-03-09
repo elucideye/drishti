@@ -12,23 +12,27 @@ endif()
 include(sugar_files)
 
 sugar_files(DRISHTI_HCI_SRCS
+  EyeBlob.cpp
   FaceFinder.cpp
   FaceFinderPainter.cpp
   GazeEstimator.cpp
   Scene.cpp
   gpu/LineDrawing.cpp
+  gpu/GLCircle.cpp  
   gpu/GLPrinter.cpp
   gpu/FacePainter.cpp
   gpu/FlashFilter.cpp
   )
 
 sugar_files(DRISHTI_HCI_HDRS_PUBLIC
+  EyeBlob.h
   FaceFinder.h
   FaceFinderPainter.h
   FaceMonitor.h
   GazeEstimator.h
   Scene.hpp
   gpu/LineDrawing.hpp
+  gpu/GLCircle.h
   gpu/GLPrinter.h
   gpu/FacePainter.h
   gpu/FlashFilter.h

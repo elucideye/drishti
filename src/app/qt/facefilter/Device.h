@@ -13,4 +13,4 @@
 
 void adjustScreen(float value);
 
-#endif DEVICE_H_
+#endif // DEVICE_H_
