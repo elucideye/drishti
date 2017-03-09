@@ -86,8 +86,6 @@ inline std::string methodName(const std::string& prettyFunction)
     return prettyFunction.substr(begin,end) + "()";
 }
 
-#define __METHOD_NAME__ drishti::core::methodName(__PRETTY_FUNCTION__)
-
 // http://stackoverflow.com/a/15775519
 inline std::string className(const std::string& prettyFunction)
 {
@@ -102,7 +100,13 @@ inline std::string className(const std::string& prettyFunction)
     return prettyFunction.substr(begin,end);
 }
 
-#define __CLASS_NAME__ drishti::core::className(__PRETTY_FUNCTION__)
+#if _MSC_VER
+#  define __METHOD_NAME__ drishti::core::methodName(__FUNCSIG__)
+#  define __CLASS_NAME__ drishti::core::className(__FUNCSIG__)
+#else
+#  define __METHOD_NAME__ drishti::core::methodName(__PRETTY_FUNCTION__)
+#  define __CLASS_NAME__ drishti::core::className(__PRETTY_FUNCTION__)
+#endif
 
 #define DRISHTI_TO_STR_(x) #x
 #define DRISHTI_TO_STR(x) DRISHTI_TO_STR_(x)
