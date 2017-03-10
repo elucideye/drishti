@@ -16,6 +16,8 @@
 #include "drishti/geometry/ConicSection.h"
 #include "drishti/geometry/Cylinder.h"
 #include "drishti/core/make_unique.h"
+#include "drishti/core/timing.h"
+#include "drishti/core/Logger.h"
 
 #include <opencv2/imgproc.hpp>
 
@@ -166,6 +168,8 @@ FacePainter::FacePainter(int outputOrientation)
     
     m_eyeAttributes[0] = { &m_eyePointsFromSingleImage, 16.f, {1.0, 0.0, 1.0} };
     m_eyeAttributes[1] = { &m_eyePointsFromDifferenceImage, 16.f, {1.0, 0.0, 1.0} };
+    
+    m_eyeAttributes[0].flow = &m_eyeFlow;
 }
 
 void FacePainter::setOutputSize(float scaleFactor)
@@ -212,11 +216,14 @@ static void addCross(DrawingSpec &lines, const cv::Point2f &point, const cv::Vec
 
 void FacePainter::renderDrawings()
 {
+    //const std::string tag = DRISHTI_LOCATION_SIMPLE;
+    //drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
+    
     DrawingSpec lines(GL_LINES);
     
     std::copy(m_permanentDrawings.begin(), m_permanentDrawings.end(), std::back_inserter(m_drawings));
 
-    glLineWidth(3.0);
+    glLineWidth(6.0);
     for(const auto &e : m_drawings)
     {
         if(e.strip == true)
@@ -246,6 +253,15 @@ void FacePainter::renderDrawings()
         }
     }
     
+    {
+        cv::Point2f origin(outFrameW/2, outFrameH/2);
+        float scale = cv::norm(origin);
+        lines.points.emplace_back(origin);
+        lines.points.emplace_back(origin + m_eyeMotion * scale);
+        lines.colors.emplace_back(1.f, 0.f, 1.f);
+        lines.colors.emplace_back(1.f, 0.f, 1.f);
+    }
+    
     if(m_gazePoints.size())
     {
         static const cv::Point2f origin(outFrameW/2, outFrameH/2);
@@ -261,7 +277,6 @@ void FacePainter::renderDrawings()
     
     if(m_faces.size())
     { // Show position of nearest face
-
         const auto &position = (*m_faces.front().eyesCenter);
         std::wstringstream wss;
         wss << position.z;
@@ -382,6 +397,9 @@ void FacePainter::FacePainter::setUniforms()
 
 int FacePainter::FacePainter::render(int position)
 {
+    const std::string tag = DRISHTI_LOCATION_SIMPLE;
+    drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
+    
     OG_LOGINF(getProcName(), "input tex %d, target %d, framebuffer of size %dx%d", texId, texTarget, outFrameW, outFrameH);
     
     { // ... main render routine ...
@@ -474,8 +492,6 @@ static void
 drawCrosses(const FacePainter::FeaturePoints &points, const cv::Vec3f &color, DrawingSpec &lines, float span)
 {
     drishti::hci::LineDrawingVec crosses;
-
-    //drishti::hci::pointsToCrosses(points, crosses, span);
     drishti::hci::pointsToCircles(points, crosses, span);
     
     for(const auto &x : crosses)
@@ -491,6 +507,20 @@ drawCrosses(const FacePainter::FeaturePoints &points, const cv::Vec3f &color, Dr
     }
 }
 
+static void
+drawFlow(const FacePainter::FlowField &flow, const cv::Vec3f &color, DrawingSpec &lines, float span)
+{
+    drishti::hci::LineDrawingVec needles;
+    
+    for(const auto &f : flow)
+    {
+        lines.points.emplace_back(f[0], f[1]);
+        lines.points.emplace_back(f[0]+f[2], f[1]+f[3]);
+        lines.colors.emplace_back(color);
+        lines.colors.emplace_back(color);
+    }
+}
+
 /*
  * dstRoiPix : destination roi for texture in image coordinates
  * eye : eye model in full frame coordinates
@@ -499,7 +529,10 @@ drawCrosses(const FacePainter::FeaturePoints &points, const cv::Vec3f &color, Dr
 
 void FacePainter::annotateEye(const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size, const EyeAttributes &attributes)
 {
-    auto contours = eyeWarp.eye.getContours(false);
+    //const std::string tag = DRISHTI_LOCATION_SIMPLE;
+    //drishti::core::ScopeTimeLogger paintLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
+    
+    auto contours = eyeWarp.getContours(false);
 
     DrawingSpec lines(0);
     for(auto &c : contours)
@@ -519,6 +552,11 @@ void FacePainter::annotateEye(const drishti::eye::EyeWarp &eyeWarp, const cv::Si
         drawCrosses(*attributes.points, attributes.color, lines, attributes.scale);
     }
 
+    if(attributes.flow && attributes.flow->size())
+    {
+        drawFlow(*attributes.flow, attributes.color, lines, 100.f);
+    }
+    
     glLineWidth(4.0);
     cv::Matx44f MVPt;
     transformation::R3x3To4x4(eyeWarp.H.t(), MVPt);

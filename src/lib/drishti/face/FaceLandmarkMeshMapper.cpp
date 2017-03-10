@@ -12,6 +12,8 @@
 
 #include "drishti/face/FaceLandmarkMeshMapper.h"
 
+#include "drishti/core/drishti_stdlib_string.h"
+
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 #include "eos/fitting/nonlinear_camera_estimation.hpp"
@@ -21,6 +23,7 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 
 static cv::Point2f interpolate(const cv::Point2f &p, const cv::Point2f &q, float f);
 static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::FaceModel &face);
+static eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f> &points);
 
 struct FaceLandmarkMeshMapper::Impl
 {
@@ -95,6 +98,11 @@ FaceLandmarkMeshMapper::FaceLandmarkMeshMapper(const std::string &modelfile, con
     m_pImpl = std::make_shared<Impl>(modelfile, mappingsfile);
 }
 
+cv::Point3f FaceLandmarkMeshMapper::operator()(const std::vector<cv::Point2f> &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap)
+{
+    return (*this)(convertLandmarks(landmarks), image, mesh, isomap);
+}
+
 cv::Point3f FaceLandmarkMeshMapper::operator()(const LandmarkCollection2d &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap)
 {
     return (*m_pImpl)(landmarks, image, mesh, isomap);
@@ -116,6 +124,21 @@ void FaceLandmarkMeshMapper::save(const eos::render::Mesh &mesh, const std::stri
 static cv::Point2f interpolate(const cv::Point2f &p, const cv::Point2f &q, float f)
 {
     return p + (q - p) * f;
+}
+
+static eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f> &points)
+{
+    int ibugId = 1;
+    eos::core::LandmarkCollection<cv::Vec2f> landmarks;
+    for(const auto &p : points)
+    {
+        eos::core::Landmark<cv::Vec2f> landmark;
+        landmark.name = std::to_string(ibugId++);
+        landmark.coordinates = { p.x, p.y };
+        landmarks.emplace_back(landmark);
+    }
+    
+    return landmarks;
 }
 
 static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::FaceModel &face)

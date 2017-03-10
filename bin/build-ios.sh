@@ -1,13 +1,8 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-common.sh
+. ${DRISHTISDK}/bin/build-common-release.sh
 
 TOOLCHAIN=ios-10-1-dep-8-0-libcxx-hid-sections
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear"
-fi
 
 rename_tab drishti $TOOLCHAIN
 
@@ -21,14 +16,9 @@ COMMANDS=(
     "--ios-multiarch --ios-combined --archive drishti"
     "--install "
     "--jobs 8 "
-    "--open "
     "--plist ${DRISHTISDK}/cmake/framework/Info.plist "
-    "${EXTRA_ARGS} "
 )
 
-if [ ${DRISHTI_DO_TESTING} -gt 0 ];
-then
-    COMMAND+=( "--test" )
-fi
+COMMAND+=( $(add_polly_commands "$@") )
 
-polly.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]} --identity "${IOS_IDENTITY}"
+polly.py --toolchain ${TOOLCHAIN} ${COMMANDS[*]} --identity "${DRISHTISDK_IOS_IDENTITY}"

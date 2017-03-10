@@ -93,14 +93,13 @@ public:
     template <typename ImageType>
     void detect(const ImageType &I, std::vector<dsdkc::Shape> &shapes)
     {
-        std::function<void(double)> timeLogger = [this](double elapsed)
+        drishti::core::ScopeTimeLogger scopeTimeLogger = [this](double elapsed)
         {
             if(m_detectionTimeLogger)
             {
                 m_detectionTimeLogger(elapsed);
             }
         };
-        ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
         
         // Detect objects:
         std::vector<double> scores;
@@ -163,15 +162,13 @@ public:
         bool hasEyes = face.getEyeRegions(roiR, roiL, 0.666);
         if(hasEyes && roiR.area() && roiL.area())
         {
-            // Scope based eye segmentation timer:
-            std::function<void(double)> timeLogger = [this](double elapsed)
+            drishti::core::ScopeTimeLogger scopeTimeLogger = [this](double elapsed)
             {
                 if(m_eyeRegressionTimeLogger)
                 {
                     m_eyeRegressionTimeLogger(elapsed);
                 }
             };
-            ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
 
             // Apply some fixed offset to eye crops:
 //            const cv::Point2f centerR = drishti::geometry::centroid<float,float>(roiR);
@@ -224,14 +221,14 @@ public:
     void findLandmarks(const PaddedImage &Ib, std::vector<dsdkc::Shape> &shapes, const cv::Matx33f &Hdr_, bool isDetection)
     {
         // Scope based eye segmentation timer:
-        std::function<void(double)> timeLogger = [this](double elapsed)
+        drishti::core::ScopeTimeLogger scopeTimeLogger =  [this](double elapsed)
         {
             if(m_regressionTimeLogger)
             {
                 m_regressionTimeLogger(elapsed);
             }
         };
-        ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
+
         
         const cv::Mat gray = Ib.Ib;
         CV_Assert(gray.type() == CV_8UC1);
@@ -583,7 +580,7 @@ void FaceDetector::detect(const MatP &I, std::vector<FaceModel> &faces)
     std::transform(shapes.begin(), shapes.end(), faces.begin(), [](const dsdkc::Shape &shape)
     {
         return FaceModel(shape.roi);
-    } );
+    });
 }
 
 void FaceDetector::refine(const PaddedImage &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H, bool isDetection)

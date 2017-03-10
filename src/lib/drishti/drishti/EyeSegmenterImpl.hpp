@@ -59,7 +59,7 @@ protected:
 };
 
 // Maintain lightweight inline conversions in private header for internal use
-inline drishti::sdk::Eye convert(drishti::eye::EyeModel &model)
+inline drishti::sdk::Eye convert(const drishti::eye::EyeModel &model)
 {
     drishti::sdk::Eye e;
 
@@ -76,7 +76,7 @@ inline drishti::sdk::Eye convert(drishti::eye::EyeModel &model)
     return e;
 }
 
-inline drishti::eye::EyeModel convert(drishti::sdk::Eye &eye)
+inline drishti::eye::EyeModel convert(const drishti::sdk::Eye &eye)
 {
     drishti::eye::EyeModel e;
 

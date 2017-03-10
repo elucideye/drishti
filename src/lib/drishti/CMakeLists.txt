@@ -114,6 +114,10 @@ if(DRISHTI_BUILD_WORLD)
     set(DRISHTI_LIBS drishti_world)
   endif()
 
+  if(ANDROID)
+    target_link_libraries(drishti_world PRIVATE log) # for spdlog from android ndk
+  endif()
+
 else()
 
   ## drishti_core
@@ -125,6 +129,10 @@ else()
   if(DRISHTI_USE_THREAD_POOL_CPP)
     target_link_libraries(drishti_core PUBLIC thread-pool-cpp::thread-pool-cpp)
   endif()
+
+  if(ANDROID)
+    target_link_libraries(drishti_core PRIVATE log) # for spdlog from android ndk
+  endif()  
 
   ## drishti_geometry
   add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
@@ -493,14 +501,23 @@ endif()
 ## Unit tests ###
 #################
 
+# The GPU tests currently require QT for the off screen GL context
+# and this won't be installed with the simple shared library
+# dependency walker
+# https://github.com/elucideye/drishti/issues/259
+if(DRISHTI_BUILD_QT AND DRISHTI_BUILD_OGLES_GPGPU AND NOT ANDROID)
+  set(DRISHTI_HCI_DO_GPU 1)
+else()
+  set(DRISHTI_HCI_DO_GPU 0)
+endif()
+
 # NOTE: These should come last to ensure all library targets are available
 if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
 
   if(IOS)
-    # Add a static public SDK library, which is currently only required to support
-    # CTest/GTest executables on iOS platforms when using the public drishti sdk.
-    # Note: This is a workaround for lack of internal cmake/ios support for
-    # dynamic frameworks (which are currently generated as a post-build step in polly)
+    # Add a static public SDK library:
+    # * support CTest/GTest executables on iOS until CMake dynamic framework embedding is sorted out
+    # * use this library for IDE debugging as an alternative to the stripped public library    
     add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
     target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
     target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")

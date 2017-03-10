@@ -20,16 +20,29 @@
 #include "drishti/core/scope_guard.h"
 #include "drishti/core/drishti_operators.h"
 #include "drishti/core/scope_guard.h"
+#include "drishti/core/make_unique.h"
 #include "drishti/face/FaceDetectorAndTracker.h"
 #include "drishti/face/FaceModelEstimator.h"
 #include "drishti/face/FaceDetector.h"
 #include "drishti/geometry/motion.h"
+#include "drishti/geometry/Primitives.h"
+#include "drishti/hci/EyeBlob.h"
 
 #include "ogles_gpgpu/common/proc/fifo.h"
+#include "drishti/graphics/swizzle.h"
 
 #include <vector>
 #include <memory>
 #include <chrono>
+
+// TODO: centralize this (static method?)
+#ifdef ANDROID
+#  define TEXTURE_FORMAT GL_RGBA
+#  define TEXTURE_FORMAT_IS_RGBA 1
+#else
+#  define TEXTURE_FORMAT GL_BGRA
+#  define TEXTURE_FORMAT_IS_RGBA 0
+#endif
 
 #define DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH 1024
 
@@ -49,6 +62,8 @@
 #define DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS 0
 #define DRISHTI_HCI_FACEFINDER_LOG_DETECTIONS 0
 
+#define DRISHTI_HCI_FACEFINDER_ENABLE_ACF_FILTER_LOGGING 0
+
 static const char * sBar = "#################################################################";
 
 // === utility ===
@@ -63,7 +78,6 @@ static int getDetectionImageWidth(float, float, float, float, float);
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
 static cv::Size uprightSize(const cv::Size &size, int orientation);
 static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, ScenePrimitives &scene, float flowScale = 1.f);
-static void extractPoints(const cv::Mat1b &input, std::vector<FeaturePoint> &points, float flowScale);
 #endif
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
@@ -76,7 +90,7 @@ static ogles_gpgpu::Size2d convert(const cv::Size &size)
     return ogles_gpgpu::Size2d(size.width, size.height);
 }
 
-FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Config &args, void *glContext)
+FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &factory, Settings &args, void *glContext)
 : m_glContext(glContext)
 , m_hasInit(false)
 , m_outputOrientation(args.outputOrientation)
@@ -99,6 +113,8 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
 , m_sensor(args.sensor)
 , m_logger(args.logger)
 , m_threads(args.threads)
+, m_minDistanceMeters(args.minDetectionDistance)
+, m_maxDistanceMeters(args.maxDetectionDistance)
 {
     m_debugACF = false;
     m_doFlash = true;
@@ -107,24 +123,35 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
     m_doDifferenceEyesDisplay = DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES_DISPLAY;
 }
 
+std::unique_ptr<FaceFinder> FaceFinder::create(FaceDetectorFactoryPtr &factory, Settings &settings, void *glContext)
+{
+    auto finder = drishti::core::make_unique<FaceFinder>(factory, settings, glContext);
+    finder->initialize();
+    return finder;
+}
+
+// Initialize outside of constructor for virtual calls:
+void FaceFinder::initialize()
+{
+    m_hasInit = true;
+    init2(*m_factory);
+    init(m_sensor->intrinsic().getSize());
+}
+
 FaceFinder::~FaceFinder()
 {
     std::unique_lock<std::mutex> lock(m_mutex);
 }
 
-void FaceFinder::setMinDistance(float meters)
+bool FaceFinder::needsDetection(const TimePoint &now) const
 {
-    m_minDistanceMeters = meters;
+    double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - m_objects.first).count();
+    return (elapsed > m_faceFinderInterval);
 }
 
 float FaceFinder::getMinDistance() const
 {
     return m_minDistanceMeters;
-}
-
-void FaceFinder::setMaxDistance(float meters)
-{
-    m_maxDistanceMeters = meters;
 }
 
 float FaceFinder::getMaxDistance() const
@@ -180,7 +207,8 @@ void FaceFinder::dumpFaces(std::vector<cv::Mat4b> &frames)
 
 int FaceFinder::computeDetectionWidth(const cv::Size &inputSizeUp) const
 {
-    const float faceWidthMeters = 0.120; // TODO
+    // TODO: Add global constant and set limits on reasonable detection size 
+    const float faceWidthMeters = 0.120;
     const float fx = m_sensor->intrinsic().m_fx;
     const float winSize = m_detector->getWindowSize().width;
     return getDetectionImageWidth(faceWidthMeters, fx, m_maxDistanceMeters, winSize, inputSizeUp.width);
@@ -222,6 +250,7 @@ void FaceFinder::initACF(const cv::Size &inputSizeUp)
     const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
     m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, featureKind, grayWidth, flowWidth, m_debugACF);
     m_acf->setRotation(m_outputOrientation);
+    m_acf->setLogger(m_logger);
 }
 
 // ### Fifo ###
@@ -298,22 +327,34 @@ void FaceFinder::initEyeEnhancer(const cv::Size &inputSizeUp, const cv::Size &ey
         }
     }
     
+    if(m_doEyeFlow)
+    { // optical flow for eyes:
+        m_eyeFlow = std::make_shared<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
+#if TEXTURE_FORMAT_IS_RGBA
+        m_eyeFlowBgra = std::make_shared<ogles_gpgpu::SwizzleProc>();
+        m_eyeFlow->add(m_eyeFlowBgra.get());
+        m_eyeFlowBgraInterface = m_eyeFlowBgra.get();
+#else
+        m_eyeFlowBgraInterface = m_eyeFlow.get();
+#endif
+        
+        m_eyeFilter->add(m_eyeFlow.get());
+    }
+    
     m_eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
 }
 
 void FaceFinder::initPainter(const cv::Size & /* inputSizeUp */ )
 {
-
+    m_logger->info() << "Init painter";
 }
 
-void FaceFinder::init(const FrameInput &frame)
+void FaceFinder::init(const cv::Size &inputSize)
 {
-    m_logger->info() << "FaceFinder::init()";
+    //m_logger->info() << "FaceFinder::init()";
     //m_logger->set_level(spdlog::level::err);
-    
-    m_start = std::chrono::high_resolution_clock::now();
-    
-    const cv::Size inputSize(frame.size.width, frame.size.height);
+
+    m_start = HighResolutionClock::now();
     
     auto inputSizeUp = inputSize;
     bool hasTranspose = ((m_outputOrientation / 90) % 2);
@@ -322,14 +363,12 @@ void FaceFinder::init(const FrameInput &frame)
         std::swap(inputSizeUp.width, inputSizeUp.height);
     }
     
-    m_hasInit = true;
-    
     m_faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*m_sensor);
     
     initColormap();
     initFIFO(inputSizeUp, 3); // keep last 3 frames
     initACF(inputSizeUp);
-    initPainter(inputSizeUp);
+    initPainter(inputSizeUp); // {inputSizeUp.width/4, inputSizeUp.height/4}
     
     if(m_doIris)
     {
@@ -345,7 +384,6 @@ void FaceFinder::init(const FrameInput &frame)
         initFlasher();
     }
 }
-
 
 // ogles_gpgpu::VideoSource can support list of subscribers
 //
@@ -382,18 +420,23 @@ void FaceFinder::init(const FrameInput &frame)
 
 GLuint FaceFinder::operator()(const FrameInput &frame1)
 {
-    // Get current timestamp
-    const auto now = HighResolutionClock::now();
+    assert(m_hasInit);
+    assert(m_sensor->intrinsic().getSize() == cv::Size(frame1.size.width, frame1.size.height));
     
-    m_logger->info() << "FaceFinder::operator() " << sBar;
-    
-    if(!m_hasInit)
+    std::string methodName = DRISHTI_LOCATION_SIMPLE;
+    core::ScopeTimeLogger faceFinderTimeLogger = [this, methodName](double elapsed)
     {
-        m_hasInit = true;
-        init2(*m_factory);
-        init(frame1);
-    }
+        if(m_logger)
+        {
+            m_logger->info() << "TIMING:" << methodName << " : " << m_timerInfo << " full=" << elapsed;
+        }
+    };
     
+    // Get current timestamp
+    const auto &now = faceFinderTimeLogger.getTime();
+    
+    const bool doDetection = needsDetection(now);
+
     m_frameIndex++; // increment frame index
     
     // Run GPU based processing on current thread and package results as a task for CPU
@@ -401,7 +444,10 @@ GLuint FaceFinder::operator()(const FrameInput &frame1)
     // ACF output using shaders on the GPU, and may optionally extract other GPU related
     // features.
     ScenePrimitives scene1(m_frameIndex), scene0, *outputScene = nullptr; // time: n+1 and n
-    preprocess(frame1, scene1);
+    {
+        core::ScopeTimeLogger preprocessTimeLogger = [this](double t) { m_timerInfo.acfProcessingTime = t; };
+        preprocess(frame1, scene1, doDetection);
+    }
     
     // Initialize input texture with ACF upright texture:
     GLuint texture1 = m_acf->first()->getOutputTexId(), texture0 = 0, outputTexture = 0;
@@ -409,17 +455,23 @@ GLuint FaceFinder::operator()(const FrameInput &frame1)
     if(m_threads)
     {
         // Retrieve the previous frame and scene
-        if(m_fifo->getBufferCount() > 0)
+        if((m_fifo->getBufferCount() > 0) && doAnnotations())
         {
-            // Retrieve the previous frame (latency == 1)
-            // from our N frame FIFO.
-            scene0 = m_scene.get(); // scene n-1
-            texture0 = (*m_fifo)[-1]->getOutputTexId(); // texture n-1
+            {
+                // Retrieve the previous frame (latency == 1)
+                // from our N frame FIFO.
+                //core::ScopeTimeLogger paintTimeLogger = [this](double t) { m_logger->info() << "WAITING: " << t; };
+                scene0 = m_scene.get(); // scene n-1
+                texture0 = (*m_fifo)[-1]->getOutputTexId(); // texture n-1
+            }
+            
             updateEyes(texture0, scene0); // update the eye texture
             
-            // Explicit output variable configuration:
-            outputTexture = paint(scene0, texture0);
-            outputScene = &scene0;
+            { // Explicit output variable configuration:
+                core::ScopeTimeLogger glTimeLogger = [this](double t) { m_timerInfo.renderSceneTimeLogger(t); };
+                outputTexture = paint(scene0, texture0);
+                outputScene = &scene0;
+            }
         }
         else
         {
@@ -429,31 +481,47 @@ GLuint FaceFinder::operator()(const FrameInput &frame1)
 
         // Eenque the current frame and scene for CPU processing so
         // that results will be available for the next step (see above).
-        m_scene = m_threads->process([scene1,frame1,this]() {
+        m_scene = m_threads->process([scene1,frame1,doDetection,this]() {
             ScenePrimitives sceneOut = scene1;
-            detect(frame1, sceneOut);
+            detect(frame1, sceneOut, doDetection);
+            if(doAnnotations())
+            {
+                // prepare line drawings for rendering while gpu is busy
+                sceneOut.draw();
+                
+                // TODO: Eye contours for current scene can be created
+                // for next frame here on the CPU thread.                
+            }
             return sceneOut;
         });
     }
     else
     {
-        detect(frame1, scene1);
-        updateEyes(texture1, scene1);
+        detect(frame1, scene1, doDetection);
         
-        // Excplicit output variable configuration:
-        outputTexture = paint(scene1, texture1); // was 1
-        outputScene = &scene1;
+        if(doAnnotations())
+        {
+            updateEyes(texture1, scene1);
+            
+            // Excplicit output variable configuration:
+            outputTexture = paint(scene1, texture1); // was 1
+            outputScene = &scene1;
+        }
+        else
+        {
+            outputTexture = texture1;
+            outputScene = &scene1; // empty
+        }
     }
     
     // Add the current frame to FIFO
     m_fifo->useTexture(texture1, 1);
     m_fifo->render();
-
+    
     // Clear face motion estimate, update window:
     m_faceMotion = { 0.f, 0.f, 0.f };
     m_scenePrimitives.push_front(*outputScene);
-    
-    m_logger->info() << ":PRIMITVES:" << m_scenePrimitives.size();
+
     if(m_scenePrimitives.size() >= 3)
     {
         m_scenePrimitives.pop_back();
@@ -470,7 +538,10 @@ GLuint FaceFinder::operator()(const FrameInput &frame1)
         }
     }
     
-    try { this->notifyListeners(*outputScene, now, m_fifo->isFull()); }
+    try
+    {
+        this->notifyListeners(*outputScene, now, m_fifo->isFull());
+    }
     catch(...) {}
     
     return outputTexture;
@@ -594,34 +665,46 @@ void FaceFinder::initColormap()
     colorsU8C3.convertTo(m_colors32FC3, CV_32FC3, 1.0/255.0);
 }
 
+
+void FaceFinder::computeAcf(const FrameInput &frame, bool doLuv, bool doDetection)
+{
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DITHER);
+    glDepthMask(GL_FALSE);
+    
+    m_acf->setDoLuvTransfer(doLuv);
+    m_acf->setDoAcfTrasfer(doDetection);
+    
+    (*m_acf)(frame);
+}
+
 /*
  * Create full ACF pyramid on GPU
  */
 
-std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInput &frame)
+std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInput &frame, bool doDetection)
 {
-    glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
-    
-    // Use limited GPU chain to return
-    m_acf->setDoLuvTransfer(false);
-    (*m_acf)(frame);
-    
-    cv::Mat acf = m_acf->getChannels();
-    assert(acf.type() == CV_8UC1);
-    assert(acf.channels() == 1);
+    computeAcf(frame, false, doDetection);
     
     std::shared_ptr<decltype(m_P)> P;
-    if(m_acf->getChannelStatus())
+    cv::Mat acf = m_acf->getChannels(); // always trigger for gray output
+    if(doDetection)
     {
-        P = std::make_shared<decltype(m_P)>();
-        fill(*P);
+        assert(acf.type() == CV_8UC1);
+        assert(acf.channels() == 1);
         
+        if(m_acf->getChannelStatus())
+        {
+            P = std::make_shared<decltype(m_P)>();
+            fill(*P);
+            
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
-        cv::Mat channels = m_acf->getChannels();
-        cv::imwrite("/tmp/acf_gpu.png", channels);
-        logPyramid("/tmp/Pgpu.png", *P);
+            cv::Mat channels = m_acf->getChannels();
+            cv::imwrite("/tmp/acf_gpu.png", channels);
+            logPyramid("/tmp/Pgpu.png", *P);
 #endif
+        }
     }
     
     return P;
@@ -632,28 +715,28 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInpu
  * CPU based ACF pyramid construction.
  */
 
-std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfCpu(const FrameInput &frame)
+std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfCpu(const FrameInput &frame, bool doDetection)
 {
-    glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
+    computeAcf(frame, true, doDetection);
     
-    m_acf->setDoLuvTransfer(true);
-    (*m_acf)(frame);
-    
-    cv::Mat acf = m_acf->getChannels();
-    assert(acf.type() == CV_8UC1);
-    assert(acf.channels() == 1);
-    
-    auto P = std::make_shared<decltype(m_P)>();
-    
-    MatP LUVp = m_acf->getLuvPlanar();
-    m_detector->setIsLuv(true);
-    m_detector->setIsTranspose(true);
-    m_detector->computePyramid(LUVp, *P);
+    std::shared_ptr<decltype(m_P)> P;
+    if(doDetection)
+    {
+        cv::Mat acf = m_acf->getChannels();
+        assert(acf.type() == CV_8UC1);
+        assert(acf.channels() == 1);
+        
+        P = std::make_shared<decltype(m_P)>();
+        
+        MatP LUVp = m_acf->getLuvPlanar();
+        m_detector->setIsLuv(true);
+        m_detector->setIsTranspose(true);
+        m_detector->computePyramid(LUVp, *P);
         
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
-    logPyramid("/tmp/Pcpu.png", *P);
+        logPyramid("/tmp/Pcpu.png", *P);
 #endif
+    }
 
     return P;
 }
@@ -665,24 +748,29 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfCpu(const FrameInpu
  * (3) Resized grayscale image for face landmarks
  */
 
-void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
+void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene, bool doDetection)
 {
-    m_logger->info() << "FaceFinder::preprocess() " << int(frame.textureFormat) << sBar;
+    const auto tag = DRISHTI_LOCATION_SIMPLE;
+    std::stringstream ss;
+    core::ScopeTimeLogger scopeTimeLogger = [&](double t) { m_logger->info() << "TIMING:" << tag << ss.str() << "total=" << t; };
 
     if(m_doCpuACF)
     {
-        scene.m_P = createAcfCpu(frame);
+        scene.m_P = createAcfCpu(frame, doDetection);
     }
     else
     {
-        scene.m_P = createAcfGpu(frame);
+        core::ScopeTimeLogger scopeTimeLogger = [&](double t) { ss << "acf=" << t << ";"; };
+        scene.m_P = createAcfGpu(frame, doDetection);
     }
     
-    auto flowPyramid = m_acf->getFlowPyramid();
+    // Flow pyramid currently unused:
+    // auto flowPyramid = m_acf->getFlowPyramid();
 
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
     if(m_acf->getFlowStatus())
     {
+        core::ScopeTimeLogger scopeTimeLogger = [&](double t) { ss << "flow=" << t << ";"; };
         cv::Size frameSize = uprightSize({frame.size.width, frame.size.height}, m_outputOrientation);
         cv::Mat4b ayxb = m_acf->getFlow();
         extractFlow(ayxb, frameSize, scene, 1.0f / m_acf->getFlowScale());
@@ -692,6 +780,7 @@ void FaceFinder::preprocess(const FrameInput &frame, ScenePrimitives &scene)
     // ### Grayscale image ###
     if(m_doLandmarks)
     {
+        core::ScopeTimeLogger scopeTimeLogger = [&](double t) { ss << "gray=" << t << ";"; };
         scene.image() = m_acf->getGrayscale();
     }
 }
@@ -701,30 +790,28 @@ void FaceFinder::fill(drishti::acf::Detector::Pyramid &P)
     m_acf->fill(P, m_P);
 }
 
-int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
+int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene, bool doDetection)
 {
     std::unique_lock<std::mutex> lock(m_mutex);
     
-    m_logger->info() << "FaceFinder::detect() " << sBar;
+    core::ScopeTimeLogger scopeTimeLogger = [this](double t)
+    {
+        m_logger->info() << "FULL_CPU_PATH: " << t;
+    };
+    
+    //m_logger->info() << "FaceFinder::detect() " << sBar;
     
     assert(scene.objects().size() == 0);
 
-    if(m_detector != nullptr && scene.m_P)
+    if(m_detector && (!doDetection || scene.m_P))
     {
         // Test GPU ACF detection
         // Fill in ACF Pyramid structure
         std::vector<double> scores;
 
-        TimePoint now = HighResolutionClock::now();
-        double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - m_objects.first).count();
-        if(elapsed > m_faceFinderInterval)
+        if(doDetection)
         {
-            // Scope based detection time logger
-            std::function<void(double)> timeLogger = [this](double elapsed)
-            {
-                m_timerInfo.detectionTimeLogger(elapsed);
-            };
-            ScopeTimeLogger<decltype(timeLogger)> scopeTimeLogger(timeLogger);
+            core::ScopeTimeLogger scopeTimeLogger = [this](double t) { m_timerInfo.detectionTimeLogger(t); };
             
             (*m_detector)(*scene.m_P, scene.objects(), &scores);
             m_objects = std::make_pair(HighResolutionClock::now(), scene.objects());
@@ -802,41 +889,10 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene)
     return 0;
 }
 
-
-using FeaturePoints = std::vector<FeaturePoint>;
-FeaturePoints getValidEyePoints(const FeaturePoints &points, const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size)
-{
-    drishti::geometry::ConicSection_<float> C(eyeWarp.eye.irisEllipse);
-
-    FeaturePoints pointsOnIris;
-    const cv::Matx33f H = eyeWarp.H.inv() * transformation::normalize(size);
-    for(const auto &f : points)
-    {
-        const auto &p = f.point;
-        cv::Point3f q3 = H * cv::Point3f(p.x, p.y, 1.f);
-        
-        FeaturePoint q;
-        q.point = { q3.x/q3.z, q3.y/q3.z };
-        q.radius = f.radius;
-        
-        if(C.algebraicDistance(q.point) < 0.f)
-        {
-            pointsOnIris.emplace_back(q);
-        }
-    }
-    
-    // Additional eyelid pruning:
-    const float margin = eyeWarp.eye.irisEllipse.size.width * 0.125f;
-    pointsOnIris.erase(std::remove_if(pointsOnIris.begin(), pointsOnIris.end(), [&](const FeaturePoint &p) {
-        const float d = cv::pointPolygonTest(eyeWarp.eye.eyelids, p.point, true);
-        return d < margin;
-    }), pointsOnIris.end());
-
-    return pointsOnIris;
-}
-
 void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
 {
+    core::ScopeTimeLogger updateEyesLoge = [this](double t) { m_logger->info() << "FaceFinder::updateEyes=" << t; };
+    
     if(scene.faces().size())
     {
         for(const auto &f : scene.faces())
@@ -844,8 +900,12 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
             m_eyeFilter->addFace(f);
         }
         
-        // Configure eye enhancer:
+        // Trigger eye enhancer, triggers flash filter:
         m_eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
+        
+        // Limit to points on iris:
+        const cv::Size filteredEyeSize(m_flasher->getOutFrameW(), m_flasher->getOutFrameH());
+        const auto &eyeWarps = m_eyeFilter->getEyeWarps();
         
         // Can use this to retrieve view of internal filters:
 #define DRISHTI_VIEW_FLASH_OUTPUT 0
@@ -860,34 +920,63 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
         }
 #endif
 
-        { // Grab reflection points for eye tracking etc:
-            m_logger->info() << "WARNING: Need to optimize";
-
-            cv::Mat4b filtered(m_flasher->getOutFrameH(), m_flasher->getOutFrameW());
-            cv::Mat1b alpha(filtered.size());
-
-            // Difference image:
-            FeaturePoints eyePointsDifference;
-            m_flasher->getHessianPeaksFromDifferenceImage()->getResultData(filtered.ptr());
-            cv::extractChannel(filtered, alpha, 3);
-            extractPoints(alpha, eyePointsDifference, 1.f);
+        if(m_doEyeFlow)
+        { // Grab optical flow results:
+            const auto flowSize = m_eyeFlowBgraInterface->getOutFrameSize();
+            cv::Mat4b ayxb(flowSize.height, flowSize.width);
+            m_eyeFlowBgraInterface->getResultData(ayxb.ptr());
             
-            // Single image:
-            FeaturePoints eyePointsSingle;
-            m_flasher->getHessianPeaksFromSingleImage()->getResultData(filtered.ptr());
-            cv::extractChannel(filtered, alpha, 3);
-            extractPoints(alpha, eyePointsSingle, 1.f);
+            // Extract corners in bottom half of image
+            cv::Mat1b corners;
+            cv::extractChannel(ayxb, corners, 0);
+            std::vector<FeaturePoint> features;
+            extractPoints(corners, features, 1.f);
 
-            // Limit to points on iris:
-            const cv::Size filteredEyeSize(m_flasher->getOutFrameW(), m_flasher->getOutFrameH());
-            const auto &eyeWarps = m_eyeFilter->getEyeWarps();
-            for(int i = 0; i < 2; i++)
+            m_eyeFlowField.clear();
+            if(features.size())
             {
-                m_eyePointsSingle[i] = getValidEyePoints(eyePointsSingle, eyeWarps[i], filteredEyeSize);
-                m_eyePointsDifference[i] = getValidEyePoints(eyePointsDifference, eyeWarps[i], filteredEyeSize);
+                cv::Matx33f Heye[2] =
+                {
+                    eyeWarps[0].H.inv() * transformation::normalize(ayxb.size()),
+                    eyeWarps[1].H.inv() * transformation::normalize(ayxb.size())
+                };
+                
+                std::vector<cv::Point2f> flow;
+                for(const auto &f : features)
+                {
+                    // Extract flow:
+                    const cv::Vec4b &pixel = ayxb(f.point.y, f.point.x);
+                    cv::Point2f p(pixel[2], pixel[1]);
+                    cv::Point2f d = (p * (2.0f / 255.0f)) - cv::Point2f(1.0f, 1.0f);
+                    flow.push_back(d);
+                    
+                    cv::Point3f q3 = Heye[p.x > ayxb.cols/2] * f.point;
+                    cv::Point2f q2(q3.x/q3.z, q3.y/q3.z);
+                    m_eyeFlowField.emplace_back(q2.x, q2.y, d.x * 100.f, d.y * 100.f);
+                }
+                m_eyeMotion = -drishti::geometry::pointMedian(flow);
+            }
+        }
+        
+        { // Grab reflection points for eye tracking etc:
+            core::ScopeTimeLogger scopeTimeLogger = [this](double t) { this->m_timerInfo.blobExtractionTimeLogger(t); };
+
+            // Difference image on thread pool:
+            EyeBlobJob difference(filteredEyeSize, eyeWarps);
+            m_flasher->getHessianPeaksFromDifferenceImage()->getResultData(difference.filtered.ptr());
+            auto differenceResult = m_threads->process([&]() { difference.run(); });
+            
+            { // Single image in current thread:
+                EyeBlobJob single(filteredEyeSize, eyeWarps);
+                m_flasher->getHessianPeaksFromSingleImage()->getResultData(single.filtered.ptr());
+                single.run();
+                m_eyePointsSingle = single.eyePoints;
             }
             
             computeGazePoints();
+
+            differenceResult.get();            
+            m_eyePointsDifference = difference.eyePoints;            
         }
     }
 }
@@ -930,13 +1019,8 @@ void FaceFinder::computeGazePoints()
     }
 }
 
-// #### init2 ####
-
-void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
+void FaceFinder::initTimeLoggers()
 {
-    m_logger->info() << "FaceFinder::init2() " << sBar;
-    m_logger->info() << resources;
-
     m_timerInfo.detectionTimeLogger = [this](double seconds)
     {
         this->m_timerInfo.detectionTime = seconds;
@@ -949,6 +1033,28 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
     {
         this->m_timerInfo.eyeRegressionTime = seconds;
     };
+    m_timerInfo.acfProcessingTimeLogger = [this](double seconds)
+    {
+        this->m_timerInfo.acfProcessingTime = seconds;
+    };
+    m_timerInfo.blobExtractionTimeLogger = [this](double seconds)
+    {
+        this->m_timerInfo.blobExtractionTime = seconds;
+    };
+    m_timerInfo.renderSceneTimeLogger  = [this](double seconds)
+    {
+        this->m_timerInfo.renderSceneTime = seconds;
+    };
+}
+
+// #### init2 ####
+
+void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
+{
+    m_logger->info() << "FaceFinder::init2() " << sBar;
+    m_logger->info() << resources;
+
+    initTimeLoggers();
 
 #if DRISHTI_HCI_FACEFINDER_DO_TRACKING
     // Insntiate a face detector w/ a tracking component:
@@ -992,7 +1098,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
                 faceDetectorMean.getEyeRightCenter(),
                 *faceDetectorMean.noseTip
             };
-            cv::Point2f center = drishti::core::centroid(centers);
+            cv::Point2f center = core::centroid(centers);
             cv::Matx33f S(cv::Matx33f::diag({0.75, 0.75, 1.0}));
             cv::Matx33f T1(1,0,+center.x,0,1,+center.y,0,0,1);
             cv::Matx33f T2(1,0,-center.x,0,1,-center.y,0,0,1);
@@ -1005,6 +1111,19 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 }
 
 // #### utilty: ####
+
+std::ostream& operator<< (std::ostream& os, const FaceFinder::TimerInfo& info)
+{
+    double total = info.detectionTime + info.regressionTime + info.eyeRegressionTime;
+    os  << " acf+=" << info.acfProcessingTime
+        << " fd=" << info.detectionTime
+        << " fr=" << info.regressionTime
+        << " er=" << info.eyeRegressionTime
+        << " blob=" << info.blobExtractionTime
+        << " gl=" << info.renderSceneTime
+        << " total=" << total;
+    return os;
+}
 
 static int
 getDetectionImageWidth(float objectWidthMeters, float fxPixels, float zMeters, float winSizePixels, float imageWidthPixels)
@@ -1029,28 +1148,6 @@ static cv::Size uprightSize(const cv::Size &size, int orientation)
     return upSize;
 }
 
-static void extractPoints(const cv::Mat1b &input, std::vector<drishti::hci::FeaturePoint> &features, float scale)
-{
-    // ### Extract corners first: ###
-    std::vector<cv::Point> points;
-    try
-    {
-        cv::findNonZero(input, points);
-    }
-    catch(...) {}
-    
-    features.reserve(points.size());
-    for(const auto &p : points)
-    {
-        uint8_t value = input(p);
-        const float radius = static_cast<float>(value) / 255.f;
-        features.emplace_back(cv::Point2f(scale*p.x, scale*p.y), radius);
-    }
-    
-    std::sort(features.begin(), features.end(), [](const FeaturePoint &pa, const FeaturePoint &pb) {
-        return (pa.radius > pb.radius);
-    });
-}
 
 static void extractFlow(const cv::Mat4b &ayxb, const cv::Size &frameSize, ScenePrimitives &scene, float flowScale)
 {

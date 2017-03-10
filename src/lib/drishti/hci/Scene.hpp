@@ -24,6 +24,8 @@ namespace drishti { namespace acf { class Detector; } };
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
+using LineDrawingVec = std::vector<ogles_gpgpu::LineDrawing>;
+
 struct FeaturePoint
 {
     FeaturePoint() {}
@@ -103,6 +105,17 @@ struct ScenePrimitives
         m_faces.clear();
     }
 
+    const std::vector<ogles_gpgpu::LineDrawing> &getDrawings() const
+    {
+        return m_drawings;
+    }
+    std::vector<ogles_gpgpu::LineDrawing> &getDrawings()
+    {
+        return m_drawings;
+    }
+    
+    void draw();
+
     uint64_t m_frameIndex = 0;
     cv::Mat m_image;
 
@@ -110,13 +123,14 @@ struct ScenePrimitives
     std::vector<cv::Point2f> m_corners;
     std::vector<cv::Rect> m_objects;
     std::vector<drishti::face::FaceModel> m_faces;
-
     std::shared_ptr<drishti::acf::Detector::Pyramid> m_P;
+    
+    // Drawing cache:
+    std::vector<ogles_gpgpu::LineDrawing> m_drawings;
+    std::vector<std::vector<cv::Point2f>>  m_eyeDrawings[2];
 };
 
-// TODO: use more generic back_inserter<> approach:
-using LineDrawingVec = std::vector<ogles_gpgpu::LineDrawing>;
-
+void extractPoints(const cv::Mat1b &input, std::vector<FeaturePoint> &points, float flowScale);
 void pointsToCircles(const std::vector<FeaturePoint> &points, LineDrawingVec &circles, float width=8.f);
 void pointsToCrosses(const std::vector<cv::Point2f> &points, LineDrawingVec &crosses, float width=8.f);
 void pointsToCrosses(const std::vector<FeaturePoint> &points, LineDrawingVec &crosses, float width=8.f);

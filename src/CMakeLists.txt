@@ -109,7 +109,7 @@ list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS half::half)
 ##############
 
 hunter_add_package(Eigen)
-find_package(Eigen3 CONFIG REQUIRED) # <== not finding hunter provided eigen
+find_package(Eigen3 CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS Eigen3::Eigen)
 
 ###############

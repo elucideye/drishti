@@ -1,13 +1,8 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-dev.sh
+. ${DRISHTISDK}/bin/build-common-devel.sh
 
 TOOLCHAIN=libcxx-omp
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-    EXTRA_ARGS="--clear"
-fi
 
 [ ! -d ${DRISHTISDK}/_logs ] && mkdir -p ${DRISHTISDK}/_logs
 
@@ -27,8 +22,9 @@ COMMAND=(
     "--strip "
     "--jobs 8 "
     "--reconfig "
-    "${EXTRA_ARGS} "
 )
+
+COMMAND+=( $(add_polly_commands "$@") )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
 

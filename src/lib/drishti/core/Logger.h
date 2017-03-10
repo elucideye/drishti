@@ -70,6 +70,49 @@ protected:
 #define DRISHTI_STREAM_LOG_FUNC(FILE_ID,CHECKPOINT,ptr)
 #endif
 
+/*
+ * Logging macros: pretty printing, method names, etc
+ */
+
+// Note: __func__ = static const char __func__[] = "function-name";
+
+// http://stackoverflow.com/a/15775519
+inline std::string methodName(const std::string& prettyFunction)
+{
+    std::size_t colons = prettyFunction.find("::");
+    std::size_t begin = prettyFunction.substr(0,colons).rfind(" ") + 1;
+    std::size_t end = prettyFunction.rfind("(") - begin;
+    
+    return prettyFunction.substr(begin,end) + "()";
+}
+
+// http://stackoverflow.com/a/15775519
+inline std::string className(const std::string& prettyFunction)
+{
+    std::size_t colons = prettyFunction.find("::");
+    if (colons == std::string::npos)
+    {
+        return "::";
+    }
+    std::size_t begin = prettyFunction.substr(0,colons).rfind(" ") + 1;
+    std::size_t end = colons - begin;
+    
+    return prettyFunction.substr(begin,end);
+}
+
+#if _MSC_VER
+#  define __METHOD_NAME__ drishti::core::methodName(__FUNCSIG__)
+#  define __CLASS_NAME__ drishti::core::className(__FUNCSIG__)
+#else
+#  define __METHOD_NAME__ drishti::core::methodName(__PRETTY_FUNCTION__)
+#  define __CLASS_NAME__ drishti::core::className(__PRETTY_FUNCTION__)
+#endif
+
+#define DRISHTI_TO_STR_(x) #x
+#define DRISHTI_TO_STR(x) DRISHTI_TO_STR_(x)
+#define DRISHTI_LOCATION_FULL std::string(__PRETTY_FUNCTION__)
+#define DRISHTI_LOCATION_SIMPLE __CLASS_NAME__ + "::" + __METHOD_NAME__
+
 DRISHTI_CORE_NAMESPACE_END
 
 #endif // __drishti_core_Logger_h__

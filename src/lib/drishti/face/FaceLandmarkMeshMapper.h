@@ -42,6 +42,8 @@ public:
 
     cv::Point3f operator()(const LandmarkCollection2d &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap);
 
+    cv::Point3f operator()(const std::vector<cv::Point2f> &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap);
+
     cv::Point3f operator()(const FaceModel &face, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap);
 
     static void save(const eos::render::Mesh &mesh, const std::string &filename);

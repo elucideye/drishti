@@ -1,14 +1,8 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-dev.sh
+. ${DRISHTISDK}/bin/build-common-devel.sh
 
 TOOLCHAIN=xcode-hid-sections
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-#    EXTRA_ARGS="--reconfig "
-    EXTRA_ARGS="${EXTRA_ARGS} --clear --reconfig"
-fi
 
 DRISHTI_BUILD_C_INTERFACE=ON
 DRISHTI_BUILD_QT=ON
@@ -32,9 +26,9 @@ COMMAND=(
     "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
     "${DRISHTI_POLLY_ARGS[*]} "        
     "--jobs 8 "
-    "--open "
     "--install "
-    "${EXTRA_ARGS}" # "--nobuild"
 )
+
+COMMAND+=( $(add_polly_commands "$@") )
 
 polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}

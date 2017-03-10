@@ -9,9 +9,10 @@ function(drishti_symbol_list drishti_library)
 
   if(DRISHTI_BUILD_HCI)
     list(APPEND DRISHTI_SDK_SYMBOLS
-      drishti_face_tracker_create_from_file
+      drishti_face_tracker_create_from_streams
       drishti_face_tracker_destroy
       drishti_face_tracker_track
+      drishti_face_tracker_callback
       )
   endif()
 

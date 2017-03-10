@@ -18,6 +18,9 @@
 #include "drishti/core/Field.h"
 #include "drishti/geometry/Rectangle.h"
 
+#define DRISHTI_EYE_CONTOUR_POINTS 64
+#define DRISHTI_EYE_CREASE_POINTS 16
+
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 using drishti::geometry::operator *;
@@ -75,7 +78,7 @@ struct EyeModel
 
     static void normalizeEllipse(cv::RotatedRect &e);
     void normalize();
-    void refine(int eyelidPoints=100, int creasePoints=100);
+    void refine(int eyelidPoints=DRISHTI_EYE_CONTOUR_POINTS, int creasePoints=DRISHTI_EYE_CREASE_POINTS);
     void upsample(int eyelidFactor=2, int creaseFactor=2);
     void clear();
 

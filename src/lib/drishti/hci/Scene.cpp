@@ -12,6 +12,21 @@
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
+void ScenePrimitives::draw()
+{
+    facesToDrawings(m_faces, m_drawings);
+    pointsToCrosses(m_corners, m_drawings);
+    
+    // Cache eye models:
+    m_eyeDrawings[0].clear();
+    m_eyeDrawings[1].clear();
+    if(m_faces.size() && m_faces[0].eyeFullL.has && m_faces[0].eyeFullR.has)
+    {
+        m_eyeDrawings[0] = m_faces[0].eyeFullR->getContours(false);
+        m_eyeDrawings[1] = m_faces[0].eyeFullL->getContours(false);
+    }
+}
+
 static float getAngle(const cv::Point2f &p)
 {
     return (std::atan2(p.y, p.x) + M_PI) * 180.0 / M_PI;
@@ -162,6 +177,30 @@ void facesToDrawings(const std::vector<drishti::face::FaceModel> &faces, LineDra
         }
     }
 }
+
+void extractPoints(const cv::Mat1b &input, std::vector<drishti::hci::FeaturePoint> &features, float scale)
+{
+    // ### Extract corners first: ###
+    std::vector<cv::Point> points;
+    try
+    {
+        cv::findNonZero(input, points);
+    }
+    catch(...) {}
+    
+    features.reserve(points.size());
+    for(const auto &p : points)
+    {
+        uint8_t value = input(p);
+        const float radius = static_cast<float>(value) / 255.f;
+        features.emplace_back(cv::Point2f(scale*p.x, scale*p.y), radius);
+    }
+    
+    std::sort(features.begin(), features.end(), [](const FeaturePoint &pa, const FeaturePoint &pb) {
+        return (pa.radius > pb.radius);
+    });
+}
+
 
 DRISHTI_HCI_NAMESPACE_END
 

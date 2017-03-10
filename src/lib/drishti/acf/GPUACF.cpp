@@ -34,6 +34,7 @@
 #include "drishti/acf/gpu/triangle.h"
 
 #include "drishti/core/convert.h"
+#include "drishti/core/timing.h"
 #include "drishti/core/Logger.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/core/make_unique.h"
@@ -249,7 +250,6 @@ void ACF::setRotation(int degrees)
 const cv::Mat & ACF::getGrayscale()
 {
     assert(m_doGray);
-    assert(m_hasChannelOutput && m_crops.size());
     return m_grayscale;
 }
 
@@ -280,12 +280,6 @@ const cv::Mat & ACF::getFlow()
     return m_flow;
 }
 
-void ACF::operator()(const Size2d &size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum inputPixFormat)
-{
-    FrameInput frame(size, pixelBuffer, useRawPixels, inputTexture, inputPixFormat);
-    return (*this)(frame);
-}
-
 void ACF::initLuvTransposeOutput()
 {
     // Add transposed Luv output for CPU processing (optional)
@@ -294,23 +288,50 @@ void ACF::initLuvTransposeOutput()
     rgb2luvProc->add(luvTransposeOut.get());
 }
 
+void ACF::operator()(const Size2d &size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum inputPixFormat)
+{
+    FrameInput frame(size, pixelBuffer, useRawPixels, inputTexture, inputPixFormat);
+    return (*this)(frame);
+}
+
 // Implement virtual API to toggle detection + tracking:
 void ACF::operator()(const FrameInput &frame)
 {
+    // Inial pipeline filters:
+    // this -> rotationProc -> rgbSmoothProc -> rgb2luvProc -> pyramidProc
+    bool needsPyramid = (m_doFlow || m_doAcfTransfer);
+    bool needsLuv = (needsPyramid | m_doLuvTransfer);
+
+    // Initial LUV transpose operation (upright image):
     if(m_doLuvTransfer & !luvTransposeOut.get())
     {
         initLuvTransposeOutput();
     }
     
+    if(rgb2luvProc.get())
+    {
+        rgb2luvProc->setActive(needsLuv);
+    }
+    
+    if(pyramidProc.get())
+    {
+        pyramidProc->setActive(needsPyramid);
+    }
+    
+    if(flow.get())
+    {
+        flow->setActive(m_doFlow);
+    }
+    
+    // smoothProc is the highest level unique ACF processing filter:
+    if(smoothProc.get())
+    {
+        smoothProc->setActive(m_doAcfTransfer);
+    }
+    
     frameIndex++;
 
-    auto tic = std::chrono::system_clock::now();
     VideoSource::operator()(frame); // call main method
-    std::chrono::duration<double> elapsedSeconds =  std::chrono::system_clock::now() - tic;
-    if(m_logger)
-    {
-        m_logger->info() << "ACF COMPUTE SECONDS: " << elapsedSeconds.count();
-    }
 }
 
 void ACF::preConfig()
@@ -530,19 +551,12 @@ const cv::Mat& ACF::getLuv()
 
 cv::Mat ACF::getChannels()
 {
-    auto tic = std::chrono::system_clock::now();
-    
     // This needs to be done after full pipeline execution, but before
     // the channels are retrieved.
     m_rgba = initChannelOrder();
     
     cv::Mat result = getChannelsImpl();
-    std::chrono::duration<double> elapsedSeconds =  std::chrono::system_clock::now() - tic;
-    if(m_logger)
-    {
-        m_logger->info() << "ACF ACCESS SECONDS:" << elapsedSeconds.count();
-    }
-
+    
     return result;
 }
 
@@ -593,15 +607,32 @@ std::array<int, 4> ACF::initChannelOrder()
 cv::Mat ACF::getChannelsImpl()
 {
     using drishti::core::unpack;
-    
-    // glFinish() seems to be required for proper synchronization
-    // using GraphicBuffer input on Android devices.  For iOS
-    // using glFlush() is adequate.  Since glFinish() should work
-    // for all platforms, we will use it in all cases.
-    glFinish();
 
+    const auto tag = DRISHTI_LOCATION_SIMPLE;
+    std::stringstream ss;
+    drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed)
+    {
+        if(m_logger)
+        {
+            m_logger->info() << "TIMING:" << tag << ":" << ss.str() << ";total=" << elapsed;
+        }
+    };
+    
+    {
+        drishti::core::ScopeTimeLogger glFinishTimer = [&](double t) { ss << "glFinish=" << t << ";"; };
+        if(auto pTransfer = dynamic_cast<MemTransferOptimized *>(rgb2luvProc->getMemTransferObj()))
+        {
+            pTransfer->flush();
+        }
+        else
+        {
+            glFlush();
+        }
+    }
+    
     if(m_doFlow && !m_hasFlowOutput)
     {
+        drishti::core::ScopeTimeLogger flowTimer = [&](double t) { ss << "flow=" << t << ";"; };
         getImage(*flowBgraInterface, m_flow);
         m_hasFlowOutput = true;
     }
@@ -617,11 +648,15 @@ cv::Mat ACF::getChannelsImpl()
 
         const auto &rgba = m_rgba; // alias
         
+        ACF::ChannelSpecification planeIndex;
         MatP acf, gray, luv;
-        const auto acfSize = reduceGradHistProcASmooth->getOutFrameSize();
-        acf.create({acfSize.width, acfSize.height}, CV_8UC1, getChannelCount(), GPU_ACF_TRANSPOSE);
         
-        auto planeIndex = getACFChannelSpecification(acf);
+        if(m_doAcfTransfer)
+        {
+            const auto acfSize = reduceGradHistProcASmooth->getOutFrameSize();
+            acf.create({acfSize.width, acfSize.height}, CV_8UC1, getChannelCount(), GPU_ACF_TRANSPOSE);
+            planeIndex = getACFChannelSpecification(acf);
+        }
     
         if(m_doGray)
         {
@@ -644,6 +679,8 @@ cv::Mat ACF::getChannelsImpl()
         // We can use either the direct MemTransferOptimized acces, or glReadPixels()
         if(dynamic_cast<MemTransferOptimized *>(rgb2luvProc->getMemTransferObj()))
         {
+            drishti::core::ScopeTimeLogger unpackTimer = [&](double t) { ss << "unpack=" << t << ";"; };
+            
             // TODO: confirm in documentation that ios texture caches can be queried in parallel
             // Experimentally this seems to be the case.
             drishti::core::ParallelHomogeneousLambda harness = [&](int i)
@@ -661,6 +698,7 @@ cv::Mat ACF::getChannelsImpl()
         }
         else
         {
+            drishti::core::ScopeTimeLogger unpackTimer = [&](double t) { ss << "unpack=" << t << ";"; };
             drishti::core::ParallelHomogeneousLambda harness = [&](int i)
             {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
@@ -670,7 +708,12 @@ cv::Mat ACF::getChannelsImpl()
             harness({0, int(planeIndex.size())});
         }
 
-        m_channels = acf.base();
+        if(m_doAcfTransfer)
+        {
+            m_channels = acf.base();
+            m_hasChannelOutput = true;
+        }
+        
         if(m_doGray)
         {
             m_grayscale = gray[0];
@@ -687,10 +730,8 @@ cv::Mat ACF::getChannelsImpl()
         {
             m_timer("read end");
         }
-
-        m_hasChannelOutput = true;
     }
-
+    
     return m_channels;
 }
 

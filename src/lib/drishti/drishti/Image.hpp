@@ -45,6 +45,7 @@ protected:
 };
 
 typedef Vec<uint8_t, 3> Vec3b;
+typedef Vec<uint8_t, 4> Vec4b;
 typedef Vec<float, 2> Vec2f;
 typedef Vec<float, 3> Vec3f;
 typedef Vec<int, 2> Vec2i;
@@ -124,6 +125,7 @@ protected:
 
 typedef Image<uint8_t> Image1b;
 typedef Image<Vec3b> Image3b;
+typedef Image<Vec4b> Image4b;
 typedef Image<float> Image1f;
 typedef Image<Vec3f> Image3f;
 

@@ -38,10 +38,6 @@ class SwizzleProc;
 
 // #### GPU #####
 
-// 1) RGB -> LUV
-// 2) conv [1 2 1] ; [1 2 1]'
-// 3) gradient: mag, orientation, dx, dy
-
 #define GPU_ACF_TRANSPOSE 1
 
 struct ACF : public ogles_gpgpu::VideoSource
@@ -61,6 +57,8 @@ public:
     
     ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind kind, int grayWidth=0, int flowWidth = 0, bool debug=false);
     ~ACF();
+    
+    void setLogger(std::shared_ptr<spdlog::logger> &logger) { m_logger = logger; }
     virtual void preConfig();
     virtual void postConfig();
     static cv::Mat getImage(ProcInterface &proc);
@@ -87,6 +85,11 @@ public:
     void setDoLuvTransfer(bool flag)
     {
         m_doLuvTransfer = flag;
+    }
+    
+    void setDoAcfTrasfer(bool flag)
+    {
+        m_doAcfTransfer = flag;
     }
 
     static bool processImage(ProcInterface &proc, MemTransfer::FrameDelegate &delegate);
@@ -150,7 +153,8 @@ protected:
     bool m_debug = false;
     
     // Retriev input image:
-
+    bool m_doAcfTransfer = true;
+    
     cv::Mat m_luv;
     MatP m_luvPlanar;
     bool m_doLuvTransfer = false;

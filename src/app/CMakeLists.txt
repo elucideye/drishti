@@ -26,4 +26,7 @@ endif()
 
 if(DRISHTI_BUILD_FACE)  
   add_subdirectory(face)
+  if(DRISHTI_BUILD_DEST AND DRISHTI_BUILD_EOS)
+    add_subdirectory(pose)
+  endif()
 endif()

@@ -1,17 +1,12 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-common.sh
+. ${DRISHTISDK}/bin/build-common-release.sh
 
 TOOLCHAIN=gcc-hid-fpic
 
-EXTRA_ARGS=""
-if [ $# -ge 1 ] && [ $1 -gt 0 ]; then
-    EXTRA_ARGS="${EXTRA_ARGS} --clear "
-fi
-
-if [ $# -ge 2 ]; then
-    EXTRA_ARGS="${EXTRA_ARGS} --home ${2} "
-fi
+# if [ $# -ge 2 ]; then
+#     EXTRA_ARGS="${EXTRA_ARGS} --home ${2} "
+# fi
 
 [ ! -d ${DRISHTISDK}/_logs ] && mkdir -p ${DRISHTISDK}/_logs
 
@@ -34,7 +29,8 @@ COMMAND=(
     "--strip "
     "--jobs 8 "
     "--reconfig "
-    "${EXTRA_ARGS} "
 )
+
+COMMAND+=( $(add_polly_commands "$@") )
 
 eval polly.py ${COMMAND[*]}

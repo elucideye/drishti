@@ -1,27 +1,25 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-dev.sh
+. ${DRISHTISDK}/bin/build-common-defs-devel.sh
 
-DRISHTI_BUILD_C_INTERFACE=OFF
+### customize ###
+HUNTER_CONFIGURATION_TYPES=MinSizeRel
+DRISHTI_BUILD_CONFIG=MinSizeRel
+
+DRISHTI_SERIALIZE_WITH_BOOST=OFF
+DRISHTI_SERIALIZE_WITH_CEREAL=ON
+DRISHTI_SERIALIZE_WITH_CVMATIO=OFF
+
+DRISHTI_BUILD_C_INTERFACE=ON
 DRISHTI_BUILD_QT=ON
 DRISHTI_BUILD_OGLES_GPGPU=ON
 DRISHTI_BUILD_TESTS=ON
 DRISHTI_COTIRE=OFF
+### customize ###
 
-# Qt friendly (no -hid-sections)
-TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon  # Qt tests
+set_polly_args
 
-# Test 32-bit
-#TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
-
-# test 64-bit
-#TOOLCHAIN=android-ndk-r10e-api-21-arm64-v8a-gcc-49-hid-sections
-
-EXTRA_ARGS=""
-if [ $# -ge 1 ]; then
-    #EXTRA_ARGS="--reconfig " #--clear"
-    EXTRA_ARGS="--reconfig --clear"
-fi
+TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto
 
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_SDK_ROOT
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_HOME
@@ -35,14 +33,14 @@ COMMAND=(
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "    
     "DRISHTI_BUILD_QT=${DRISHTI_BUILD_QT} "
-    "DRISHTI_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU} "
-    "DRISHTI_BUILD_TESTS=${DRISHTI_BUILD_TESTS} "
     "DRISHTI_COTIRE=${DRISHTI_COTIRE} "
-    "DRISHTI_BUILD_C_INTERFACE=${DRISHTI_BUILD_C_INTERFACE} "
     "${DRISHTI_POLLY_ARGS[*]} "    
     "--jobs 8 "
-    "--install "    
-    "${EXTRA_ARGS} " 
+    "--strip "    
 )
 
+COMMAND+=( $(add_polly_commands "$@") )
+
 eval polly.py --toolchain ${TOOLCHAIN} ${COMMAND[*]}
+
+grep -o -e ".*launch:" _builds/${TOOLCHAIN}-${DRISHTI_BUILD_CONFIG}/Makefile
