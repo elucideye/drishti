@@ -19,7 +19,7 @@ DRISHTI_COTIRE=OFF
 
 set_polly_args
 
-TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto
+TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
 
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_SDK_ROOT
 [ -n ${ANDROID_SDK_ROOT} ] && unset ANDROID_HOME
