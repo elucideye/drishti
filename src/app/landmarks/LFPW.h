@@ -11,7 +11,7 @@
 #ifndef __landmarks_LFPW_h__
 #define __landmarks_LFPW_h__
 
-#include "landmarks/Face.h"
+#include "landmarks/FACE.h"
 #include <fstream>
 
 // find lfpw/trainset -name "*.png" -or -name "*.pts" | awk '/.pts/ {print >"/tmp/pts.txt"}; /.png/ {print >"/tmp/png.txt"}'

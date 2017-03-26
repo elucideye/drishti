@@ -11,7 +11,7 @@
 #ifndef __landmarks_HELEN_h__
 #define __landmarks_HELEN_h__
 
-#include "landmarks/Face.h"
+#include "landmarks/FACE.h"
 #include <fstream>
 
 FACE::Table parseHELEN(const std::string &filename);
