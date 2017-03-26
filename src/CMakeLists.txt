@@ -257,7 +257,7 @@ endif()
 ## imshow ## :: experimental ::
 ############ 
 
-drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" ON IF NOT(ANDROID OR IOS))
+drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" OFF IF NOT(ANDROID OR IOS))
 option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" ON)
 
 if(DRISHTI_USE_IMSHOW)
