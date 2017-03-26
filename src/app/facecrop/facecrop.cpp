@@ -402,11 +402,13 @@ int main(int argc, char* argv[])
             cv::imwrite(sOutput + "/mean.png", tmp);
         }
 
+#if defined(DRISHTI_USE_IMSHOW)        
         if(doPreview)
         {
             glfw::imshow("facecrop::mu", mu);
             glfw::waitKey(0);
         }
+#endif
     }
 }
 

@@ -23,5 +23,7 @@ set(drishti_landmark_hdrs
   )
 
 add_library(drishti_landmarks STATIC ${drishti_landmark_srcs} ${drishti_landmark_hdrs})
-target_include_directories(drishti_landmarks PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../">)
+target_include_directories(drishti_landmarks PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../;${CMAKE_SOURCE_DIR}/src/app/>"
+  )
 set_property(TARGET drishti_landmarks PROPERTY FOLDER "libs/drishti")
