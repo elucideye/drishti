@@ -119,6 +119,27 @@ void FaceLandmarkMeshMapper::save(const eos::render::Mesh &mesh, const std::stri
     eos::render::write_textured_obj(mesh, filename);
 }
 
+void FaceLandmarkMeshMapper::draw(cv::Mat &iso, const eos::render::Mesh &meshIn)
+{
+    auto mesh = meshIn;
+    for(auto & p : mesh.texcoords)
+    {
+        p[0] *= iso.cols;
+        p[1] *= iso.rows;
+    }
+    
+    for(int i = 0; i < mesh.tvi.size(); i++)
+    {
+        const auto &t = mesh.tvi[i];
+        cv::Point2f v0 = mesh.texcoords[t[0]];
+        cv::Point2f v1 = mesh.texcoords[t[1]];
+        cv::Point2f v2 = mesh.texcoords[t[2]];
+        cv::line(iso, v0, v1, {0,255,0}, 1, 8);
+        cv::line(iso, v1, v2, {0,255,0}, 1, 8);
+        cv::line(iso, v2, v0, {0,255,0}, 1, 8);
+    }
+}
+
 /// ===== UTILITY  ====
 
 static cv::Point2f interpolate(const cv::Point2f &p, const cv::Point2f &q, float f)

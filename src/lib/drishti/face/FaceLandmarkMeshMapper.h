@@ -47,6 +47,8 @@ public:
     cv::Point3f operator()(const FaceModel &face, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap);
 
     static void save(const eos::render::Mesh &mesh, const std::string &filename);
+    
+    static void draw(cv::Mat &iso, const eos::render::Mesh &meshIn);
 
 protected:
 

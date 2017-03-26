@@ -19,7 +19,8 @@ function set_polly_args
         "DRISHTI_DISABLE_DSYM=${DRISHTI_DISABLE_DSYM} "
         "DRISHTI_BUILD_C_INTERFACE=${DRISHTI_BUILD_C_INTERFACE} "
         "DRISHTI_BUILD_EOS=${DRISHTI_BUILD_EOS}"        
-        "DRISHTI_BUILD_DEST=${DRISHTI_BUILD_DEST}"                
+        "DRISHTI_BUILD_DEST=${DRISHTI_BUILD_DEST}"
+        "DRISHTI_BUILD_CV_ML=${DRISHTI_BUILD_CV_ML}"
     )
 
     DRISHTI_BUILD_HIDE=(
@@ -40,13 +41,14 @@ function add_polly_commands
     OPTIND=1
 
     extra=()
-    while getopts "crto" opt; do
+    while getopts "crton" opt; do
         case "$opt" in
             h|\?) 2>&1 echo "Unknown param"; exit 1 ;;
             t) extra+=("--test") ;;
             r) extra+=("--reconfig") ;;
             c) extra+=("--clear") ;;
-            o) extra+=("--open") ;;            
+            o) extra+=("--open") ;;
+            n) extra+=("--nobuild") ;;
         esac
     done
     shift $((OPTIND-1))

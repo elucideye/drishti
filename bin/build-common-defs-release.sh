@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Note: maintain line-per-line compatibility with build-common-defs-release.sh
+# Note: maintain line-per-line compatibility with build-common-defs-debug.sh
 #
 
 set -e
@@ -37,6 +37,7 @@ DRISHTI_SERIALIZE_WITH_CVMATIO=OFF
 
 DRISHTI_BUILD_EOS=OFF
 DRISHTI_BUILD_DEST=OFF
+DRISHTI_BUILD_CV_ML=OFF
 
 CPACK_TYPE=TGZ
 

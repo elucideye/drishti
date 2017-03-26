@@ -1,5 +1,7 @@
 #### opencv_size ####
-add_executable(opencv_size opencv_size.cpp)
-target_link_libraries(opencv_size ${OpenCV_LIBS})
-install(TARGETS opencv_size DESTINATION bin)
-set_property(TARGET opencv_size PROPERTY FOLDER "app/benchmarks")
+set(app_name drishti_benchmark_opencv_size)
+  
+add_executable(${app_name} opencv_size.cpp)
+target_link_libraries(${app_name} ${OpenCV_LIBS})
+install(TARGETS ${app_name} DESTINATION bin)
+set_property(TARGET ${app_name} PROPERTY FOLDER "app/benchmarks")

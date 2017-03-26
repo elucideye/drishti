@@ -19,5 +19,5 @@ sugar_files(
   pba/portable_binary_iarchive.hpp
   pba/portable_binary_oarchive.cpp
   pba/portable_binary_oarchive.hpp
-)
+  )
 

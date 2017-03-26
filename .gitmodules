@@ -13,3 +13,6 @@
 [submodule "src/3rdparty/polly"]
 	path = src/3rdparty/polly
 	url = https://github.com/elucideye/polly.git
+[submodule "src/3rdparty/imshow"]
+	path = src/3rdparty/imshow
+	url = https://github.com/hunter-packages/imshow.git
