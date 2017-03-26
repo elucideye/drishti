@@ -10,8 +10,6 @@
 
 #include "drishti/face/FaceMesh.h"
 
-#include "imshow/imshow.h"
-
 #include <opencv2/imgproc.hpp>
 
 #include <iostream>
