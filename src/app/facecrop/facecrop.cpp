@@ -8,6 +8,7 @@
 
 */
 
+#include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/core/Logger.h"
 #include "drishti/core/make_unique.h"
 #include "drishti/core/Parallel.h"
