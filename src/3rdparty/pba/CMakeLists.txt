@@ -40,9 +40,9 @@ set(boost_pba_srcs
   portable_binary_oarchive.hpp
   )
 
-add_library(boost-pba ${boost_pba_srcs})
-target_link_libraries(boost-pba PUBLIC ${BOOST_PBA_3RDPARTY_LIBS})
-target_include_directories(boost-pba PUBLIC
+add_library(${PROJECT_NAME} ${boost_pba_srcs})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${BOOST_PBA_3RDPARTY_LIBS})
+target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>/../"
   "$<INSTALL_INTERFACE:include>"
   )
