@@ -85,7 +85,7 @@ configure_package_config_file(
 )
 
 install(
-    TARGETS ${PROJECT_NAME}
+    TARGETS boost-pba
     EXPORT "${targets_export_name}"
     LIBRARY DESTINATION "lib"
     ARCHIVE DESTINATION "lib"
