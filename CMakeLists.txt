@@ -47,6 +47,8 @@ string(REGEX REPLACE "^v" "" version "${version}")
 
 project(drishtisdk VERSION ${version})
 
+set(DRISHTI_3RD_PARTY_DIR "${CMAKE_CURRENT_LIST_DIR}/src/3rdparty")
+
 #####################################################################
 ## IMPORTANT: Set platform variables after project() and before
 ## the first hunter_add_package() call. The cmake/Hunter/config.cmake
@@ -104,8 +106,8 @@ if(XCODE)
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN "YES")
   set(CMAKE_XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN "YES")
-  
-  set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)    
+
+  set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)
   option(DRISHTI_DISABLE_DSYM "Disable generation of dSYM information" ON)
   if(DRISHTI_DISABLE_DSYM)
     message("CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf")
@@ -126,12 +128,12 @@ if(XCODE)
 
   # RelWithDebInfo should always have symbols
   set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=RelWithDebInfo] "dwarf-with-dsym")
-  set(CMAKE_XCODE_ATTRIBUTE_GENERATE_PROFILING_CODE[variant=RelWithDebInfo] "YES")  
+  set(CMAKE_XCODE_ATTRIBUTE_GENERATE_PROFILING_CODE[variant=RelWithDebInfo] "YES")
 
   # Minimize static analyzer time
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE_ON_ANALYZE_ACTION "Shallow")
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_STATIC_ANALYZER_MODE "Shallow")
-  
+
 endif()
 
 # OpenMP compiler checks take > 10 seconds on ios "Try OpenMP CXX flag = [-openmp]" in xcode
