@@ -229,7 +229,7 @@ endif()
 ### NEONvsSSE ###
 #################
 
-add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/simd")
+add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/NEONvsSSE")
 add_library(NEONvsSSE::NEONvsSSE ALIAS NEONvsSSE)
 list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS NEONvsSSE::NEONvsSSE)
 
