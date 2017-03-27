@@ -46,13 +46,13 @@ struct JitterParams
      */
     
     // uniform distribution
-    Distribution gainPower  =   {false, { -1.000, +1.000 }}; // 2^n
-    Distribution scalePower =   {false, { -0.250, +0.250 }}; // 2^n
-    Distribution tx         =   {false, { -0.150, +0.150 }};
-    Distribution ty         =   {false, { -0.150, +0.150 }};
-    Distribution theta      =   {false, { -15.0*M_PI/180.0, +15.0*M_PI/180.0 }};
+    Distribution gainPower  =   {false, { -1.000f, +1.000f }}; // 2^n
+    Distribution scalePower =   {false, { -0.250f, +0.250f }}; // 2^n
+    Distribution tx         =   {false, { -0.150f, +0.150f }};
+    Distribution ty         =   {false, { -0.150f, +0.150f }};
+    Distribution theta      =   {false, { -15.0f*M_PI/180.0, +15.0f*M_PI/180.0 }};
 
-    float margin = 0.05;
+    float margin = 0.05f;
     float flop  = 0.0f; // flop ratio
     cv::Point2f origin = { +0.5f, +0.5f }; // normalized origin
 };
