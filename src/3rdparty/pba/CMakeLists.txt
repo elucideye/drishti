@@ -43,7 +43,7 @@ set(boost_pba_srcs
 add_library(boost-pba ${boost_pba_srcs})
 target_link_libraries(boost-pba PUBLIC ${BOOST_PBA_3RDPARTY_LIBS})
 target_include_directories(boost-pba PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>/../"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>"
   "$<INSTALL_INTERFACE:include>"
   )
 
