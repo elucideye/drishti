@@ -12,7 +12,7 @@ set(LIB_TYPE STATIC)
 ### 3rdparty ###
 ################
 
-sugar_include(${CMAKE_SOURCE_DIR}/src/3rdparty)
+sugar_include(${DRISHTI_3RD_PARTY_DIR})
 
 ##########
 ### Qt ###
@@ -142,8 +142,8 @@ if(DRISHTI_SERIALIZE_WITH_BOOST)
   option(BOOST_PBA_BUILD_EXAMPLES "Build examples" OFF)
   option(BOOST_PBA_INSTALL "Perform installation" OFF)
   # Add library:
-  add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
-  target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty>)
+  add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/pba)
+  target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}>)
   set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
   add_library(boost-pba::boost-pba ALIAS boost-pba)
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
@@ -165,7 +165,7 @@ if(DRISHTI_USE_THREAD_POOL_CPP)
     option(THREAD_POOL_CPP_BUILD_TESTS "Build tests." OFF)
     option(THREAD_POOL_CPP_BUILD_BENCHMARKS "Build benchmarks." OFF)
     option(THREAD_POOL_CPP_INSTALL "Install library." OFF)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/thread-pool-cpp)
+    add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/thread-pool-cpp)
     add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS thread-pool-cpp::thread-pool-cpp) # Add library
   else()
@@ -183,8 +183,8 @@ option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
   option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
-  add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/xgboost)
-  include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty)
+  add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/xgboost)
+  include_directories(${DRISHTI_3RD_PARTY_DIR})
   unset(SKIP_INSTALL CACHE)
   add_library(xgboost::xgboost ALIAS xgboost)
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS xgboost::xgboost) # Add library
@@ -212,7 +212,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     option(OGLES_GPGPU_INSTALL "Avoid installation of submodule libraries" OFF)
     option(OGLES_GPGPU_BUILD_EXAMPLES "Don't build examples" OFF)
     option(OGLES_GPGPU_VERBOSE "Don't be verbose" OFF)
-    add_subdirectory( "${CMAKE_SOURCE_DIR}/src/3rdparty/ogles_gpgpu" )
+    add_subdirectory( "${DRISHTI_3RD_PARTY_DIR}/ogles_gpgpu" )
     set(OGLES_GPGPU_LIB ogles_gpgpu)
     add_library(ogles_gpgpu::ogles_gpgpu ALIAS ogles_gpgpu)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
@@ -229,7 +229,7 @@ endif()
 ### simd ###
 ############
 
-include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/simd)
+include_directories(${DRISHTI_3RD_PARTY_DIR}/simd)
 
 ###########
 ### eos ### :: experimental ::
@@ -267,8 +267,8 @@ if(DRISHTI_USE_IMSHOW)
     option(IMSHOW_INSTALL "Perform installation" OFF)
     option(IMSHOW_WITH_OPENCV "Build with support for OpenCV" ON)
     # Add library:
-    add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/imshow)
-    target_include_directories(imshow PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/imshow>)
+    add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/imshow)
+    target_include_directories(imshow PUBLIC $<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/imshow>)
     set_property(TARGET imshow PROPERTY FOLDER "libs/3rdparty")
     add_library(imshow::imshow ALIAS imshow)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS imshow::imshow)
