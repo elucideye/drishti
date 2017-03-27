@@ -37,6 +37,10 @@ struct LazyParallelResource
         }
         return iter->second;
     }
+
+    std::map<Key, Value> & getMap() { return m_map; }
+    const std::map<Key, Value> & getMap() const { return m_map; }
+
     std::map<Key, Value> m_map;
     std::mutex m_mutex;
     std::function<Value()> m_alloc; // default allocator

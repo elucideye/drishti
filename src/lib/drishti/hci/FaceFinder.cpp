@@ -107,7 +107,7 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
 , m_doFlash(args.doFlash)
 , m_flashWidth(DRISHTI_HCI_FACEFINDER_FLASH_WIDTH)
 
-, m_doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
+, m_doIris(true)//DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
 
 , m_factory(factory)
 , m_sensor(args.sensor)
@@ -1076,7 +1076,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
         // Perform modification
         drishti::acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", +0.01 };
+        dflt.cascCal = { "cascCal", +0.001 };
         m_detector->acfModify( dflt );
     }
 #endif

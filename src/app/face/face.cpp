@@ -21,6 +21,10 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/testlib/drishti_cli.h"
 
+#if defined(DRISHTI_USE_IMSHOW)
+#  include "imshow/imshow.h"
+#endif
+
 // Package includes:
 #include "cxxopts.hpp"
 #include <opencv2/highgui.hpp>
@@ -146,6 +150,7 @@ int drishti_main(int argc, char **argv)
     
     std::string sInput, sOutput, sModel;
     int threads = -1;
+    bool doDisplay = false;
     bool doAnnotation = false;
     bool doPositiveOnly = false;
     double cascCal = 0.0;
@@ -175,9 +180,11 @@ int drishti_main(int argc, char **argv)
     
         // Output parameters:
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
+        ("d,display", "Display window (single thread)", cxxopts::value<bool>(doDisplay))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("h,help", "Print help message");
+
     
     options.parse(argc, argv);
     
@@ -225,9 +232,9 @@ int drishti_main(int argc, char **argv)
     std::vector<std::pair<std::string, std::string>> config
     {
         { sFaceDetector, "face-detector"},
-        { sFaceDetector, "face-detector-mean"},
-        { sFaceDetector, "face-regressor"},
-        { sFaceDetector, "eye-regressor"}
+        { sFaceDetectorMean, "face-detector-mean"},
+        { sFaceRegressor, "face-regressor"},
+        { sEyeRegressor, "eye-regressor"}
     };
     
     for(const auto &c : config)
@@ -322,12 +329,20 @@ int drishti_main(int argc, char **argv)
                     cv::Mat canvas = image.clone();
                     drawObjects(canvas, faces);
                     cv::imwrite(filename + "_faces.png", canvas);
+
+#if defined(DRISHTI_USE_IMSHOW)                    
+                    if(doDisplay)
+                    {
+                        glfw::imshow("face", canvas);
+                        glfw::waitKey(0);
+                    }
+#endif
                 }
             }
         }
     };
     
-    if(threads == 1 || threads == 0)
+    if(threads == 1 || threads == 0 || doDisplay)
     {
         harness({0,static_cast<int>(filenames.size())});
     }

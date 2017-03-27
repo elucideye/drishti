@@ -9,3 +9,8 @@ add_subdirectory(json)
 if(DRISHTI_BUILD_ASAN_TEST)
   add_subdirectory(address-sanitizer)
 endif()
+
+# visual test
+if(DRISHTI_USE_IMSHOW)
+  add_subdirectory(glfwimshow)
+endif()

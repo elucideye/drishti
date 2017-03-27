@@ -27,7 +27,7 @@
 #include <boost/exception/exception.hpp>
 #include <boost/exception/all.hpp>
 
-#include "portable_binary_iarchive.hpp"
-#include "portable_binary_oarchive.hpp"
+#include "pba/portable_binary_iarchive.hpp"
+#include "pba/portable_binary_oarchive.hpp"
 
 #endif

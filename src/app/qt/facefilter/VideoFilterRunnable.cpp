@@ -58,6 +58,8 @@
 #include <QDateTime>
 #include <QFile>
 
+#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 1
+
 namespace detail
 {
     inline bool isIOS()
@@ -241,8 +243,6 @@ GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
     GLuint outTexture = detectFaces(input);
     return outTexture;
 }
-
-#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 0
 
 int VideoFilterRunnable::detectFaces(QVideoFrame *input)
 {

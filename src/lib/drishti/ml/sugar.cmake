@@ -49,3 +49,13 @@ sugar_files(DRISHTI_ML_HDRS_PUBLIC
   XGBoosterImpl.h  
   Booster.h
   )
+
+if(DRISHTI_BUILD_DEST)
+  sugar_files(DRISHTI_ML_HDRS_PUBLIC RegressionTreeEnsembleShapeEstimatorDEST.h)
+  sugar_files(DRISHTI_ML_SRCS RegressionTreeEnsembleShapeEstimatorDEST.cpp)
+endif()
+
+if(DRISHTI_BUILD_CV_ML)
+  sugar_files(DRISHTI_ML_HDRS_PUBLIC ObjectDetectorCV.h)
+  sugar_files(DRISHTI_ML_SRCS ObjectDetectorCV.cpp)
+endif()

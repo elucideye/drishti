@@ -130,12 +130,24 @@ endif()
 
 if(DRISHTI_SERIALIZE_WITH_BOOST)
   ## 3rd party boost pba
-  add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
-  target_link_libraries(boost-pba PUBLIC Boost::boost)
-  target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
+
+  # add_library(boost-pba STATIC ${BOOST_PBA_SRCS})
+  # target_link_libraries(boost-pba PUBLIC Boost::boost)
+  # target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/pba>)
+  # set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
+  # add_library(boost-pba::boost-pba ALIAS boost-pba)
+  # list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
+
+  # Options:
+  option(BOOST_PBA_BUILD_EXAMPLES "Build examples" OFF)
+  option(BOOST_PBA_INSTALL "Perform installation" OFF)
+  # Add library:
+  add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/pba)
+  target_include_directories(boost-pba PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty>)
   set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
   add_library(boost-pba::boost-pba ALIAS boost-pba)
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
+  
 endif()
 
 # Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
@@ -220,7 +232,7 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/simd)
 
 ###########
-### eos ### experimental
+### eos ### :: experimental ::
 ###########
 
 set(EOS_LIB "") # Make EOS_LIB optional
@@ -232,13 +244,39 @@ if(DRISHTI_BUILD_EOS)
 endif()
 
 ############
-### dest ### experimental
+### dest ### :: experimental ::
 ############
 
 if(DRISHTI_BUILD_DEST)
   hunter_add_package(dest)
   find_package(dest CONFIG REQUIRED)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dest::dest) # Add library
+endif()
+
+############
+## imshow ## :: experimental ::
+############ 
+
+drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" OFF IF NOT(ANDROID OR IOS))
+option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" ON)
+
+if(DRISHTI_USE_IMSHOW)
+  if(DRISHTI_USE_LOCAL_IMSHOW)
+    # Configure options (local use):
+    option(IMSHOW_BUILD_EXAMPLES "Build examples" OFF)
+    option(IMSHOW_INSTALL "Perform installation" OFF)
+    option(IMSHOW_WITH_OPENCV "Build with support for OpenCV" ON)
+    # Add library:
+    add_subdirectory(${CMAKE_SOURCE_DIR}/src/3rdparty/imshow)
+    target_include_directories(imshow PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/3rdparty/imshow>)
+    set_property(TARGET imshow PROPERTY FOLDER "libs/3rdparty")
+    add_library(imshow::imshow ALIAS imshow)
+    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS imshow::imshow)
+  else()
+    hunter_add_package(imshow)
+    find_package(imshow CONFIG REQUIRED)
+    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS imshow::imshow) # Add library
+  endif()
 endif()
 
 # opencv + linux JPEG workaround

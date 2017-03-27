@@ -8,14 +8,15 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <istream>
-#include <string>
-
 #include <boost/detail/endian.hpp>
 #include <boost/serialization/throw_exception.hpp>
 #include <boost/archive/archive_exception.hpp>
 
 #include "portable_binary_iarchive.hpp"
+
+#include <istream>
+#include <string>
+#include <iostream>
 
 #define CAST_FOR_NEGATIVE_CHAR 1
 

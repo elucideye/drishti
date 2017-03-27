@@ -16,6 +16,8 @@
 #ifndef drishti_cli_h
 #define drishti_cli_h
 
+#include "drishti/core/Line.h"
+
 #ifndef DRISHTI_BEGIN_NAMESPACE
 #  define DRISHTI_BEGIN_NAMESPACE(X) namespace X {
 #  define DRISHTI_END_NAMESPACE(X) }

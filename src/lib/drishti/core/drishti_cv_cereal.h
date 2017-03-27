@@ -68,6 +68,20 @@ void serialize(Archive & ar, cv::Point2f & p, const unsigned int version)
     ar & GENERIC_NVP("y", p.y);
 }
 
+template< class Archive >
+void serialize(Archive & ar, cv::Vec2f &v, const unsigned int version)
+{
+    ar & GENERIC_NVP("0", v[0]);
+    ar & GENERIC_NVP("1", v[1]);
+}
+
+template< class Archive >
+void serialize(Archive & ar, cv::Vec2i &v, const unsigned int version)
+{
+    ar & GENERIC_NVP("0", v[0]);
+    ar & GENERIC_NVP("1", v[1]);
+}
+
 template<class Archive>
 void serialize(Archive & ar, cv::RotatedRect & e, const unsigned int version)
 {

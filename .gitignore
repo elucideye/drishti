@@ -35,6 +35,7 @@ _install/*
 _framework/*
 _os/*
 _archives/*
+_assets/*
 
 # octave
 src/octave/toolbox/detector/models/*

@@ -370,6 +370,7 @@ drishti_mirror_definition(DRISHTI_BUILD_REGRESSION_FIXED_POINT)
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
+option(DRISHTI_BUILD_CV_ML "Build OpenCV ML classes" OFF)
 
 ##################################################
 ### Installation/packaging paths and variables ###

@@ -41,9 +41,19 @@ inline cv::Matx33f translate(float x, float y)
     return cv::Matx33f(1,0,x,0,1,y,0,0,1);
 }
 
+inline cv::Matx33f translate(const cv::Point2f &t)
+{
+    return translate(t.x, t.y);
+}
+
 inline cv::Matx33f scale(float x, float y)
 {
     return cv::Matx33f(cv::Matx33f::diag({x,y,1.f}));
+}
+
+inline cv::Matx33f scale(float s)
+{
+    return scale(s, s);
 }
 
 inline cv::Matx33f scale(float x, float y, const cv::Point2f &c)
@@ -104,6 +114,16 @@ inline cv::Matx33f denormalize(const cv::Size &sizeIn)
     cv::Matx33f T = transformation::translate(1.f, 1.f);
     cv::Matx33f S = transformation::scale(float(sizeIn.width)/2.f, float(sizeIn.height)/2.f);
     return S * T;
+}
+
+inline cv::Point2f normalize(const cv::Point2f &p, const cv::Size2f &sizeIn)
+{
+    return cv::Point2f(p.x / sizeIn.width, p.y / sizeIn.height);
+}
+
+inline cv::Point2f denormalize(const cv::Point2f &p, const cv::Size2f &sizeIn)
+{
+    return cv::Point2f(p.x * sizeIn.width, p.y * sizeIn.height);
 }
 
 // https://www.opengl.org/sdk/docs/man2/xhtml/glOrtho.xml
