@@ -338,6 +338,7 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
       AND NOT "${library}" MATCHES "half::half"      
       AND NOT "${library}" MATCHES "spdlog::spdlog"
       AND NOT "${library}" MATCHES "Eigen3::Eigen"
+      AND NOT "${library}" MATCHES "NEONvsSSE::NEONvsSSE"
       AND NOT "${library}" MATCHES "thread-pool-cpp::thread-pool-cpp")
     add_custom_command(TARGET drishtisdk POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"

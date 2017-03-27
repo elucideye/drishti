@@ -225,11 +225,13 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 
-############
-### simd ###
-############
+#################
+### NEONvsSSE ###
+#################
 
-include_directories(${DRISHTI_3RD_PARTY_DIR}/simd)
+add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/NEONvsSSE")
+add_library(NEONvsSSE::NEONvsSSE ALIAS NEONvsSSE)
+list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS NEONvsSSE::NEONvsSSE)
 
 ###########
 ### eos ### :: experimental ::
