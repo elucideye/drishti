@@ -3,8 +3,8 @@
 #include "drishti/core/drishti_pca_boost.h"
 #include "drishti/ml/RTEShapeEstimatorImpl.h"
 
-#include "pba/portable_binary_oarchive.hpp"
-#include "pba/portable_binary_iarchive.hpp"
+#include "boost-pba/portable_binary_oarchive.hpp"
+#include "boost-pba/portable_binary_iarchive.hpp"
 
 typedef portable_binary_oarchive OArchive;
 typedef portable_binary_iarchive IArchive;
