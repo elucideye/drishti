@@ -47,6 +47,8 @@ string(REGEX REPLACE "^v" "" version "${version}")
 
 project(drishtisdk VERSION ${version})
 
+set(DRISHTI_3RD_PARTY_DIR "${CMAKE_CURRENT_LIST_DIR}/src/3rdparty")
+
 #####################################################################
 ## IMPORTANT: Set platform variables after project() and before
 ## the first hunter_add_package() call. The cmake/Hunter/config.cmake
