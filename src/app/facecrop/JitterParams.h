@@ -50,7 +50,7 @@ struct JitterParams
     Distribution scalePower =   {false, { -0.250f, +0.250f }}; // 2^n
     Distribution tx         =   {false, { -0.150f, +0.150f }};
     Distribution ty         =   {false, { -0.150f, +0.150f }};
-    Distribution theta      =   {false, { -15.0f*M_PI/180.0, +15.0f*M_PI/180.0 }};
+    Distribution theta      =   {false, { static_cast<float>(-15.0*M_PI/180.0), static_cast<float>(+15.0f*M_PI/180.0) }};
 
     float margin = 0.05f;
     float flop  = 0.0f; // flop ratio
