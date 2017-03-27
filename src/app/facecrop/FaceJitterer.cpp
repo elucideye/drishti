@@ -14,8 +14,6 @@
 #include "drishti/geometry/motion.h"
 #include "drishti/geometry/Primitives.h"
 
-#include "imshow/imshow.h"
-
 template <typename Iter>
 void denormalize(Iter first, Iter last, const cv::Size &size)
 {
@@ -34,16 +32,6 @@ FaceJitterer::FaceJitterer(const FACE::Table &table, const JitterParams &params,
 
 #define EYE_NORMALIZATION 0
 
-static void drawPoints(cv::Mat &canvas, const std::vector<cv::Point2f> &landmarks)
-{
-    for(const auto &p : landmarks)
-    {
-        cv::circle(canvas, p, 2, {0,255,0}, -1, 8);
-        glfw::imshow("canvas", canvas);
-        glfw::waitKey(0);
-    }
-}
-    
 cv::Mat FaceJitterer::operator()(const cv::Mat &image, const Landmarks &landmarks, bool doJitter, bool doNoise)
 {
 #if EYE_NORMALIZATION
@@ -62,9 +50,6 @@ cv::Mat FaceJitterer::operator()(const cv::Mat &image, const Landmarks &landmark
         mean(landmarks, m_table.mouthR),
         mean(landmarks, m_table.mouthL)
     };
-    
-    //cv::Mat canvas = image.clone();
-    //drawPoints(canvas, facePoints);
 
     const cv::Matx33f P = drishti::geometry::procrustes(facePoints);
     const cv::Matx33f S = m_face();

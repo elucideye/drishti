@@ -14,6 +14,8 @@ if(DRISHTI_USE_IMSHOW)
   target_compile_definitions(${test_app} PUBLIC DRISHTI_USE_IMSHOW)
 endif()
 
-target_include_directories(${test_app} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>)
+target_include_directories(${test_app} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>"
+  )
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/console")
 install(TARGETS ${test_app} DESTINATION bin)

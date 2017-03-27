@@ -11,7 +11,7 @@
 #ifndef __landmarks_DRISHTI_h__
 #define __landmarks_DRISHTI_h__
 
-#include "landmarks/Face.h"
+#include "landmarks/FACE.h"
 #include <fstream>
 
 void parseDRISHTI(const std::string &filename, FACE::record &output);

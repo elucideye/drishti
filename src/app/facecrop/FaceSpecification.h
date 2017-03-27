@@ -11,6 +11,7 @@
 #ifndef __facecrop_FaceSpecification_h__
 #define __facecrop_FaceSpecification_h__
 
+#include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/geometry/motion.h"
 

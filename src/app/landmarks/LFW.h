@@ -11,7 +11,7 @@
 #ifndef __landmarks_LFW_h__
 #define __landmarks_LFW_h__
 
-#include "landmarks/Face.h"
+#include "landmarks/FACE.h"
 #include <fstream>
 
 FACE::Table parseLFW(const std::string &filename);

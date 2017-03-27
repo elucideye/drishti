@@ -8,6 +8,7 @@
 
 */
 
+#include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/core/Logger.h"
 #include "drishti/core/make_unique.h"
 #include "drishti/core/Parallel.h"
@@ -402,11 +403,13 @@ int main(int argc, char* argv[])
             cv::imwrite(sOutput + "/mean.png", tmp);
         }
 
+#if defined(DRISHTI_USE_IMSHOW)        
         if(doPreview)
         {
             glfw::imshow("facecrop::mu", mu);
             glfw::waitKey(0);
         }
+#endif
     }
 }
 

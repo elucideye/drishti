@@ -11,7 +11,7 @@
 #ifndef __landmarks_MUCT_h__
 #define __landmarks_MUCT_h__
 
-#include "landmarks/Face.h"
+#include "landmarks/FACE.h"
 
 FACE::Table parseMUCT(const std::string &filename);
 

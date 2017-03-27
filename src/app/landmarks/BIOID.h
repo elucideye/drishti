@@ -11,7 +11,8 @@
 #ifndef __landmarks_BIOID_h__
 #define __landmarks_BIOID_h__
 
-#include "landmarks/Face.h"
+#include "landmarks/FACE.h"
+
 #include <fstream>
 
 FACE::Table parseBIOID(const std::string &filename);
