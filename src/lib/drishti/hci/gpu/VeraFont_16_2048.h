@@ -31,6 +31,10 @@
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ============================================================================
  */
+
+#pragma GCC diagnostic push    
+#pragma GCC diagnostic ignored "-Wnarrowing"
+
 #include <stddef.h>
 #include <stdint.h>
 #ifdef __cplusplus
@@ -131246,3 +131250,5 @@ texture_font_t Vera_16_2048 = {
 #ifdef __cplusplus
 }
 #endif
+
+#pragma GCC diagnostic pop
