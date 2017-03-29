@@ -128,7 +128,7 @@ endif()
 ### boost::pba ###
 ##################
 
-option(DRISHTI_USE_LOCAL_BOOST_PBA "Use boost-pba submodule" ON)
+option(DRISHTI_USE_LOCAL_BOOST_PBA "Use boost-pba submodule" OFF)
 
 if(DRISHTI_SERIALIZE_WITH_BOOST)
   if(DRISHTI_USE_LOCAL_BOOST_PBA)
@@ -257,8 +257,8 @@ endif()
 ## imshow ## :: experimental ::
 ############ 
 
-drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" OFF IF NOT(ANDROID OR IOS))
-option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" ON)
+drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" ON IF NOT(ANDROID OR IOS OR MSVC))
+option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" OFF)
 
 if(DRISHTI_USE_IMSHOW)
   if(DRISHTI_USE_LOCAL_IMSHOW)
