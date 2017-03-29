@@ -1,12 +1,21 @@
 # drishti
 Real time eye tracking for embedded and mobile devices in C++ (>= C++11).
 
-Goal: SDK size <= 1 MB and combined resources (object detection + regression models) <= 4 MB.
-
-[![Build Status](https://travis-ci.com/elucideye/drishti.svg?token=2fYtPs8x4ziLvxfp2emx&branch=master)](https://travis-ci.com/elucideye/drishti)
-[![Build status](https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true)](https://ci.appveyor.com/project/elucideye/drishti)
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square)](http://opensource.org/licenses/BSD-3-Clause)
 [![HUNTER](https://img.shields.io/badge/hunter-v0.17.18-blue.svg)](http://github.com/ruslo/hunter)
+
+Goal: SDK size <= 1 MB and combined resources (object detection + regression models) <= 4 MB.
+
+| Linux/OSX/Android/iOS                           | Windows                                             |
+|-------------------------------------------------|-----------------------------------------------------|
+| [![Build Status][travis_status]][travis_builds] | [![Build Status][appveyor_status]][appveyor_builds] |
+
+
+[travis_status]: https://travis-ci.com/elucideye/drishti.svg?token=2fYtPs8x4ziLvxfp2emx&branch=master
+[travis_builds]: https://travis-ci.com/elucideye/drishti
+
+[appveyor_status]: https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true
+[appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti
 
 * [Hunter](https://github.com/ruslo/hunter) package management and CMake build system by Ruslan Baratov, as well as much of the cross platform Qt work: "Organized Freedom!" :)
 * A C++ and OpenGL ES 2.0 implementation of [Fast Feature Pyramids for Object Detection](https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf) (see [Piotr's Matlab Toolbox](https://pdollar.github.io/toolbox)) for face and eye detection
