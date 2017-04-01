@@ -19,3 +19,9 @@
 [submodule "src/3rdparty/boost-pba"]
 	path = src/3rdparty/boost-pba
 	url = https://github.com/hunter-packages/boost-pba
+[submodule "src/3rdparty/ARM_NEON_2_x86_SSE"]
+	path = src/3rdparty/ARM_NEON_2_x86_SSE
+	url = https://github.com/hunter-packages/ARM_NEON_2_x86_SSE.git
+[submodule "src/3rdparty/sse2neon"]
+	path = src/3rdparty/sse2neon
+	url = https://github.com/hunter-packages/sse2neon.git

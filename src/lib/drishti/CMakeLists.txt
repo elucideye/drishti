@@ -1,3 +1,6 @@
+# Copyright (c) 2014-2017, David Hirvonen
+# All rights reserved.
+
 include(drishti_symbol_list)
 include(drishti_hide)
 include(drishti_strip)
@@ -331,15 +334,8 @@ add_custom_command(TARGET drishtisdk POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRD_PARTY_INSTALL_DIR}"
   )
 foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
-  if(TARGET ${library}  ## Avoid generator expression errors for header only libs
-      AND NOT "${library}" MATCHES "cereal::cereal"
-      AND NOT "${library}" MATCHES "dlib::dlib"
-      AND NOT "${library}" MATCHES "eos::eos"
-      AND NOT "${library}" MATCHES "half::half"      
-      AND NOT "${library}" MATCHES "spdlog::spdlog"
-      AND NOT "${library}" MATCHES "Eigen3::Eigen"
-      AND NOT "${library}" MATCHES "NEONvsSSE::NEONvsSSE"
-      AND NOT "${library}" MATCHES "thread-pool-cpp::thread-pool-cpp")
+  get_target_property(_TARGET_TYPE "${library}" TYPE)
+  if(NOT _TARGET_TYPE STREQUAL "INTERFACE_LIBRARY")
     add_custom_command(TARGET drishtisdk POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
       COMMENT "Copying " $<TARGET_FILE:${library}>
