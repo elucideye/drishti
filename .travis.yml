@@ -136,6 +136,8 @@ script:
       --test
       --archive drishti
       --jobs 2
+      --discard 2
+      --tail 100
       ${INSTALL}
 
 before_deploy:
