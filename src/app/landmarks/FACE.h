@@ -39,6 +39,8 @@ struct record
 {
     std::string filename;
     int index;
+    
+    cv::Point3f pose;
     std::vector<cv::Point2f> points;
     std::vector<cv::Point2f> glasses;
     cv::Rect roi;
