@@ -1,3 +1,6 @@
+# Copyright (c) 2014-2017, David Hirvonen
+# All rights reserved.
+
 ##########################################
 ### Initial 3RDPARTY SRC/PKG libraries ###
 ##########################################
@@ -128,7 +131,7 @@ endif()
 ### boost::pba ###
 ##################
 
-option(DRISHTI_USE_LOCAL_BOOST_PBA "Use boost-pba submodule" ON)
+option(DRISHTI_USE_LOCAL_BOOST_PBA "Use boost-pba submodule" OFF)
 
 if(DRISHTI_SERIALIZE_WITH_BOOST)
   if(DRISHTI_USE_LOCAL_BOOST_PBA)
@@ -223,13 +226,21 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 
-#################
-### NEONvsSSE ###
+##################
+### NEON_2_SSE ###
+##################
+
+add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/ARM_NEON_2_x86_SSE")
+add_library(NEON_2_SSE::NEON_2_SSE ALIAS NEON_2_SSE)
+list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS NEON_2_SSE::NEON_2_SSE)
+
+################
+### sse2neon ###
 #################
 
-add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/NEONvsSSE")
-add_library(NEONvsSSE::NEONvsSSE ALIAS NEONvsSSE)
-list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS NEONvsSSE::NEONvsSSE)
+add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/sse2neon")
+add_library(sse2neon::sse2neon ALIAS sse2neon)
+list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS sse2neon::sse2neon)
 
 ###########
 ### eos ### :: experimental ::
@@ -257,8 +268,8 @@ endif()
 ## imshow ## :: experimental ::
 ############ 
 
-drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" OFF IF NOT(ANDROID OR IOS))
-option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" ON)
+drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" ON IF NOT(ANDROID OR IOS OR MSVC))
+option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" OFF)
 
 if(DRISHTI_USE_IMSHOW)
   if(DRISHTI_USE_LOCAL_IMSHOW)

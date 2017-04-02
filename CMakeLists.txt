@@ -1,3 +1,6 @@
+# Copyright (c) 2014-2017, David Hirvonen
+# All rights reserved.
+
 cmake_minimum_required(VERSION 3.3)
 
 #########################
