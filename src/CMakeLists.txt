@@ -1,3 +1,6 @@
+# Copyright (c) 2014-2017, David Hirvonen
+# All rights reserved.
+
 ##########################################
 ### Initial 3RDPARTY SRC/PKG libraries ###
 ##########################################
@@ -223,13 +226,21 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 
-#################
-### NEONvsSSE ###
+##################
+### NEON_2_SSE ###
+##################
+
+add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/ARM_NEON_2_x86_SSE")
+add_library(NEON_2_SSE::NEON_2_SSE ALIAS NEON_2_SSE)
+list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS NEON_2_SSE::NEON_2_SSE)
+
+################
+### sse2neon ###
 #################
 
-add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/NEONvsSSE")
-add_library(NEONvsSSE::NEONvsSSE ALIAS NEONvsSSE)
-list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS NEONvsSSE::NEONvsSSE)
+add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/sse2neon")
+add_library(sse2neon::sse2neon ALIAS sse2neon)
+list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS sse2neon::sse2neon)
 
 ###########
 ### eos ### :: experimental ::

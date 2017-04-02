@@ -17,7 +17,10 @@
 #define RETf float32x4_t
 #define RETi int32x4_t
 
-#include "drishti/acf/toolbox/sse2neon.h"
+//#include "drishti/acf/toolbox/sse2neon.h"
+
+#include "SSE2NEON.h"
+
 #define _mm_load_ss(ptr)            ( vld1q_dup_f32( (ptr) ) )
 #define _mm_setzero_ps()            ( vmovq_n_f32( 0.f ) )
 #define _mm_set1_ps(a)              ( vmovq_n_f32( (a) ) )
@@ -33,13 +36,13 @@
 
 
 // http://clb.demon.fi/MathGeoLib/nightly/docs/simd.h_code.html
-inline RETf _mm_rsqrt_ps(const RETf &val)
-{
-    RETf e = vrsqrteq_f32(val);
-    e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(e, e), val), e);
-    e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(e, e), val), e);
-    return e;
-}
+// inline RETf _mm_rsqrt_ps(const RETf &val)
+// {
+//     RETf e = vrsqrteq_f32(val);
+//     e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(e, e), val), e);
+//     e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(e, e), val), e);
+//     return e;
+// }
 
 #define add_ps vaddq_f32
 #define sub_ps vsubq_f32
@@ -238,3 +241,4 @@ inline RETi CVT( const RETf x )
 #undef RETf
 #undef RETi
 #endif
+

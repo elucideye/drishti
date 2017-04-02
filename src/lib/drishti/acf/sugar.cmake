@@ -55,7 +55,6 @@ sugar_files(DRISHTI_ACF_HDRS_PUBLIC
   ### Toolbox headers ###
   #######################  
   toolbox/sse.hpp
-  toolbox/sse2neon.h
   toolbox/wrappers.hpp
   )
 
