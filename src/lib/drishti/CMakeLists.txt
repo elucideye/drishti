@@ -354,6 +354,10 @@ drishti_copy_3rdparty_licenses("${THIRD_PARTY_INSTALL_DIR}/licenses")
 ### Generate the main shared public interface
 ##############################################################
 
+set(drishti_sdk_hpp_in "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_sdk.hpp.in")
+set(drishti_sdk_hpp "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_sdk.hpp")
+configure_file("${drishti_sdk_hpp_in}" "${drishti_sdk_hpp}" @ONLY)
+
 if(DRISHTI_BUILD_SHARED_SDK)
   set(API_LIB_TYPE SHARED)
 else()
@@ -361,7 +365,7 @@ else()
 endif()
 
 # Create the public shared library
-add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
+add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC} ${drishti_sdk_hpp})
 target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
 drishti_hide(drishti)
@@ -421,7 +425,7 @@ endif()
 
 # Export minimal public SDK or full internal SDK
 set(TARGET_SDK "drishti") 
-set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC} ${drishti_export_header})
+set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC} "${drishti_export_header}" "${drishti_sdk_hpp}")
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${drishti_version_config}"
