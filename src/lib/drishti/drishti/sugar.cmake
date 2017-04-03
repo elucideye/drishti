@@ -27,7 +27,7 @@ sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
   EyeSegmenter.hpp
   Image.hpp
   drishti_cv.hpp
-  drishti_sdk.hpp
+  #drishti_sdk.hpp # generated file
   ### Exclude private header from install
   ### This could be included in the IDE headers
   # EyeSegmenterImpl.hpp
