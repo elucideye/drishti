@@ -19,6 +19,10 @@
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/core/drishti_cv_cereal.h"
 
+#if defined(DRISHTI_BUILD_EOS)
+#  include "drishti/face/FaceLandmarkMeshMapper.h"
+#endif
+
 #include "landmarks/FACE.h"
 #include "landmarks/MUCT.h"
 #include "landmarks/HELEN.h"
@@ -40,6 +44,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <cereal/archives/json.hpp>
+#include <cereal/types/array.hpp>
 
 #include "cxxopts.hpp"
 
@@ -50,44 +55,64 @@ struct FaceJittererMean : public FaceJitterer
     FaceJittererMean(const FACE::Table &table, const JitterParams &params, const FaceSpecification &face)
     : FaceJitterer(table, params, face) {}
 
-    void updateMean(const std::vector<cv::Mat> &faces)
+    void updateMean(const std::vector<FaceWithLandmarks> &faces)
     {
-        // update the face mean
-        cv::Mat3f F(faces.front().size());
-        for(auto &f : faces)
+        for(const auto &f : faces)
         {
-            f.convertTo(F, CV_32FC3, 1.0f/255.0f);
-            updateMean(F);
+            mu.updateMean(f);
         }
     }
     
-    void updateMean(const cv::Mat3f &f)
-    {
-        cumulativeMovingAverage(mu, f, ++count);
-    }
-  
-    void cumulativeMovingAverage(cv::Mat3f &mu, const cv::Mat3f &x, int n)
-    {
-        if(mu.empty())
-        {
-            mu = x.clone();
-        }
-        else
-        {
-            mu += (x - mu) * (1.0 / static_cast<float>(n));
-        }
-    }
-    
-    cv::Mat3f mu;
-    int count = 0;
+    FaceWithLandmarksMean mu;
 };
 
 using ImageVec=std::vector<cv::Mat>;
+
 using FaceJittererMeanPtr = std::unique_ptr<FaceJittererMean>;
 using FaceResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceJittererMeanPtr>;
-static cv::Mat3f computeMeanFace(FaceResourceManager &manager);
+
+static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager);
 static int saveDefaultConfigs(const std::string &sOutput, spdlog::logger &logger);
-static void save(const ImageVec &faces, const std::string &dir, const std::string &filename, int index);
+static void save(const std::vector<FaceWithLandmarks> &faces, const std::string &dir, const std::string &filename, int index);
+static int saveLandmarks(const std::string &sOutput, const std::array<cv::Point2f, 5> &landmarks, spdlog::logger &logger);
+
+#if defined(DRISHTI_BUILD_EOS)
+// Face pose estimation...
+using FaceLandmarkMeshMapperPtr = std::unique_ptr<drishti::face::FaceLandmarkMeshMapper>;
+using FacLandmarkeMeshMapperResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceLandmarkMeshMapperPtr>;
+
+static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger)
+{
+    FacLandmarkeMeshMapperResourceManager manager = [&]()
+    {
+        return drishti::core::make_unique<drishti::face::FaceLandmarkMeshMapper>(sModel, sMapping);
+    };
+    
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
+    {
+        // Get thread specific segmenter lazily:
+        auto tid = std::this_thread::get_id();
+        auto &meshMapper = manager[tid];
+
+        auto &record = table.lines[i];
+        record.pose = {180.f, 180.f, 180.f };
+        if(record.points.size() == 68)
+        {
+            eos::render::Mesh mesh;
+            cv::Mat iso;
+            iso.cols = iso.rows = 0;
+            for(const auto &p : record.points)
+            {
+                iso.cols = std::max(iso.cols, static_cast<int>(p.x));
+                iso.rows = std::max(iso.rows, static_cast<int>(p.y));
+            }
+            record.pose = (*meshMapper)(record.points, iso, mesh, iso);
+        }
+    };
+
+    cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, 8);
+}
+#endif // DRISHTI_BUILD_POSE
 
 enum GroundTruthFormat
 {
@@ -125,6 +150,11 @@ int main(int argc, char* argv[])
     std::string sExtension;
     std::string sFaceSpec;
     std::string sJitterIn;
+
+#if defined(DRISHTI_USE_IMSHOW)
+    std::string sEosModel;
+    std::string sEosMapping;
+#endif    
     
     int sampleCount = 0;
     int threads = -1;
@@ -145,7 +175,12 @@ int main(int argc, char* argv[])
         ("e,extension", "Image filename extensions", cxxopts::value<std::string>(sExtension))
         ("p,preview", "Do preview", cxxopts::value<bool>(doPreview))
         ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitterOnly))
-    
+
+#if defined(DRISHTI_USE_IMSHOW)
+        ("eos-model", "EOS 3D dephormable model", cxxopts::value<std::string>(sEosModel))
+        ("eos-mapping", "EOS Landmark mapping", cxxopts::value<std::string>(sEosMapping))
+#endif
+        
         // Output parameters:
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("h,help", "Print help message");
@@ -317,6 +352,26 @@ int main(int argc, char* argv[])
             return -1;
         }
     }
+    
+    
+#if defined(DRISHTI_BUILD_EOS)
+    if(!(sEosModel.empty() || sEosMapping.empty()))
+    {
+        computePose(table, sEosModel, sEosMapping, logger);
+        auto posePruner = [&](FACE::record &record)
+        {
+            const bool doPrune = (std::abs(record.pose.y) > 30.f) || (std::abs(record.pose.z) > 30.f);
+            if(doPrune)
+            {
+                logger->info() << "prune: " << record.pose;
+            }
+            return doPrune;
+        };
+        
+        auto &lines = table.lines;
+        lines.erase(std::remove_if(lines.begin(), lines.end(), posePruner), lines.end());
+    }
+#endif
 
     // Determine samples:
     std::vector<int> repeat(table.lines.size(), 1);
@@ -337,6 +392,7 @@ int main(int argc, char* argv[])
         return drishti::core::make_unique<FaceJittererMean>(table, jitterParams, faceSpec);
     };
 
+
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         // Get thread specific segmenter lazily:
@@ -354,7 +410,7 @@ int main(int argc, char* argv[])
             
             if(!image.empty())
             {
-                std::vector<cv::Mat> faces { (*jitterer)(image, table.lines[i].points, false, true) };
+                std::vector<FaceWithLandmarks> faces { (*jitterer)(image, table.lines[i].points, false, true) };
                 for(int j = 1; j < repeat[i]; j++)
                 {
                     faces.push_back((*jitterer)(image, table.lines[i].points, !doPhotometricJitterOnly, true));
@@ -374,9 +430,15 @@ int main(int argc, char* argv[])
                     previewFaceWithLandmarks(canvas, table.lines[i].points);
                     glfw::imshow("facecrop:image", canvas);
                     
-                    cv::hconcat(faces, canvas);
+                    std::vector<cv::Mat> images;
+                    for(const auto &f : faces)
+                    {
+                        images.push_back(f.image);
+                    }
+                    
+                    cv::hconcat(images, canvas);
                     glfw::imshow("facecrop:jitter", canvas);
-                    glfw::imshow("facecrop::mu", jitterer->mu);
+                    glfw::imshow("facecrop::mu", jitterer->mu.image);
                     
                     glfw::waitKey(0);
                 }
@@ -395,18 +457,21 @@ int main(int argc, char* argv[])
     }
 
     { // Save the mean face image:
-        cv::Mat mu = computeMeanFace(manager);
+        FaceWithLandmarks mu = computeMeanFace(manager);
         if(!sOutput.empty())
         {
             cv::Mat tmp;
-            mu.convertTo(tmp, CV_8UC3, 255.0);
+            mu.image.convertTo(tmp, CV_8UC3, 255.0);
             cv::imwrite(sOutput + "/mean.png", tmp);
+
+            // Output json for points
+            saveLandmarks(sOutput + "/mean.json", mu.landmarks, *logger);
         }
 
 #if defined(DRISHTI_USE_IMSHOW)        
         if(doPreview)
         {
-            glfw::imshow("facecrop::mu", mu);
+            glfw::imshow("facecrop::mu", mu.image);
             glfw::waitKey(0);
         }
 #endif
@@ -415,10 +480,28 @@ int main(int argc, char* argv[])
 
 // ### utility ###
 
+static int saveLandmarks(const std::string &sOutput, const std::array<cv::Point2f, 5> &landmarks, spdlog::logger &logger)
+{
+    // Write default jitter parameters:
+    std::ofstream os(sOutput);
+    if(os)
+    {
+        cereal::JSONOutputArchive oa(os);
+        typedef decltype(oa) Archive;
+        oa(GENERIC_NVP("landmarks", landmarks));
+    }
+    else
+    {
+        logger.error() << "Error: unable to write mean landmarks";
+        return -1;
+    }
+    return 0;
+}
+
 static int saveDefaultJitter(const std::string &sOutput, spdlog::logger &logger)
 {
     // Write default jitter parameters:
-    std::ofstream os(sOutput + "/jitter.json");
+    std::ofstream os(sOutput);
     if(os)
     {
         cereal::JSONOutputArchive oa(os);
@@ -453,43 +536,43 @@ static int saveDefaultFaceSpec(const std::string &sOutput, spdlog::logger &logge
 
 static int saveDefaultConfigs(const std::string &sOutput, spdlog::logger &logger)
 {
-    if(int code = saveDefaultJitter(sOutput, logger) != 0)
+    if(int code = saveDefaultJitter(sOutput  + "/jitter.json", logger) != 0)
     {
         return code;
     }
-    if(int code = saveDefaultFaceSpec(sOutput, logger) != 0)
+    if(int code = saveDefaultFaceSpec(sOutput + "/face.json", logger) != 0)
     {
         return code;
     }
     return 0;
 }
 
-static cv::Mat3f computeMeanFace(FaceResourceManager &manager)
+static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager)
 {
-    cv::Mat3f mu;
     int count = 0;
-    
     for(const auto &j : manager.getMap())
     {
-        count += j.second->count;
+        count += j.second->mu.count;
     }
-    
+ 
+    FaceWithLandmarks mu;
     for(const auto &j : manager.getMap())
     {
-        if(mu.empty())
+        const double w = double(j.second->mu.count)/count;
+        if(mu.image.empty())
         {
-            mu = (float(j.second->count)/count) * j.second->mu;
+            mu = (j.second->mu * w);
         }
         else
         {
-            mu += (float(j.second->count)/count) * j.second->mu;
+            mu += (j.second->mu * w);
         }
     }
     
     return mu;
 }
 
-static void save(const ImageVec &faces, const std::string &dir, const std::string &filename, int index)
+static void save(const std::vector<FaceWithLandmarks> &faces, const std::string &dir, const std::string &filename, int index)
 {
     for(int i = 0; i < faces.size(); i++)
     {
@@ -497,7 +580,7 @@ static void save(const ImageVec &faces, const std::string &dir, const std::strin
         ss << std::setfill('0') << std::setw(6) << index << "_" << std::setw(2) << i;
         std::string base = drishti::core::basename(filename);
         std::string sOutput = dir + "/" + ss.str() + "_" + base + ".png";
-        cv::imwrite(sOutput, faces[i]);
+        cv::imwrite(sOutput, faces[i].image);
     }
 }
 

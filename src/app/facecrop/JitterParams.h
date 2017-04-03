@@ -33,7 +33,8 @@ struct JitterParams
         cv::Vec2f params;
     };
     
-    cv::Matx33f operator()(cv::RNG &rng, const cv::Size &size) const;
+    std::pair<cv::Matx33f, bool> operator()(cv::RNG &rng, const cv::Size &size) const;
+    std::pair<cv::Matx33f, bool> mirror(cv::RNG &rng, const cv::Size &size) const;
     
     float getGain(cv::RNG &rng) const;
     
