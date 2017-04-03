@@ -230,17 +230,31 @@ endif()
 ### NEON_2_SSE ###
 ##################
 
-add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/ARM_NEON_2_x86_SSE")
-add_library(NEON_2_SSE::NEON_2_SSE ALIAS NEON_2_SSE)
-list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS NEON_2_SSE::NEON_2_SSE)
+option(DRISHTI_USE_LOCAL_NEON_2_SSE "Use local NEON_2_SSE package" OFF)
+if(DRISHTI_USE_LOCAL_NEON_2_SSE)
+  add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/ARM_NEON_2_x86_SSE")
+  add_library(ARM_NEON_2_x86_SSE::ARM_NEON_2_x86_SSE ALIAS ARM_NEON_2_x86_SSE)
+  list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ARM_NEON_2_x86_SSE::ARM_NEON_2_x86_SSE)
+else()
+  hunter_add_package(ARM_NEON_2_x86_SSE)
+  find_package(ARM_NEON_2_x86_SSE CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ARM_NEON_2_x86_SSE::ARM_NEON_2_x86_SSE)
+endif()
 
 ################
 ### sse2neon ###
 #################
 
-add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/sse2neon")
-add_library(sse2neon::sse2neon ALIAS sse2neon)
-list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS sse2neon::sse2neon)
+option(DRISHTI_USE_LOCAL_SSE2NEON "Use local SSE2NEON package" OFF)
+if(DRISHTI_USE_LOCAL_SSE2NEON)
+  add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/sse2neon")
+  add_library(sse2neon::sse2neon ALIAS sse2neon)
+  list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS sse2neon::sse2neon)
+else()
+  hunter_add_package(sse2neon)
+  find_package(sse2neon CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS sse2neon::sse2neon) # Add library
+endif()
 
 ###########
 ### eos ### :: experimental ::
