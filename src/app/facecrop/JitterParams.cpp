@@ -15,12 +15,14 @@ void serialize(Archive & ar, JitterParams::Distribution &d, const unsigned int v
     ar & GENERIC_NVP("params", d.params);
 }
 
-cv::Matx33f JitterParams::operator()(cv::RNG &rng, const cv::Size &size) const
+std::pair<cv::Matx33f, bool> JitterParams::operator()(cv::RNG &rng, const cv::Size &size) const
 {
     float signum = 1.f;
+    bool doMirror = false;
     if((flop > 0.f) && (rng.uniform(0.f, 1.f) < flop))
     {
         signum = -1.f;
+        doMirror = true;
     }
 
     const float x = tx(rng) * size.width;
@@ -36,7 +38,26 @@ cv::Matx33f JitterParams::operator()(cv::RNG &rng, const cv::Size &size) const
     const cv::Matx33f T2 = transformation::translate(center);
     const cv::Matx33f H = T2 * T * R * S * T1;
 
-    return H;
+    return std::make_pair(H, doMirror);
+}
+
+std::pair<cv::Matx33f, bool> JitterParams::mirror(cv::RNG &rng, const cv::Size &size) const
+{
+    float signum = 1.f;
+    bool doMirror = false;
+    if((flop > 0.f) && (rng.uniform(0.f, 1.f) < flop))
+    {
+        signum = -1.f;
+        doMirror = true;
+    }
+    
+    const cv::Point2f center(size.width/2, size.height/2);
+    const cv::Matx33f S = transformation::scale(signum, 1.f);
+    const cv::Matx33f T1 = transformation::translate(-center);
+    const cv::Matx33f T2 = transformation::translate(center);
+    const cv::Matx33f H = T2 * S * T1;
+    
+    return std::make_pair(H, doMirror);
 }
 
 float JitterParams::getGain(cv::RNG &rng) const

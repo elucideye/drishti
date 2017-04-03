@@ -30,18 +30,8 @@ FaceJitterer::FaceJitterer(const FACE::Table &table, const JitterParams &params,
 {
 }
 
-#define EYE_NORMALIZATION 0
-
-cv::Mat FaceJitterer::operator()(const cv::Mat &image, const Landmarks &landmarks, bool doJitter, bool doNoise)
+FaceWithLandmarks FaceJitterer::operator()(const cv::Mat &image, const Landmarks &landmarks, bool doJitter, bool doNoise)
 {
-#if EYE_NORMALIZATION
-    const std::array<cv::Point2f, 2> eyesCenters =
-    {{
-        mean(landmarks, m_table.eyeR),
-        mean(landmarks, m_table.eyeL)
-    }};
-    cv::Matx33f H = transformation::estimateSimilarity(eyesCenters, m_eyes);
-#else
     Landmarks facePoints
     {
         mean(landmarks, m_table.eyeR),
@@ -50,27 +40,36 @@ cv::Mat FaceJitterer::operator()(const cv::Mat &image, const Landmarks &landmark
         mean(landmarks, m_table.mouthR),
         mean(landmarks, m_table.mouthL)
     };
-
-    const cv::Matx33f P = drishti::geometry::procrustes(facePoints);
-    const cv::Matx33f S = m_face();
+    const cv::Matx33f P = drishti::geometry::procrustes(facePoints); // normalization transformation
+    const cv::Matx33f S = m_face(); // scale to target image dimensions
     cv::Matx33f H = S * P;
-#endif
     
-    if(doJitter)
-    {
-        H = m_params(m_rng, m_face.size) * H;
-    }
+    auto jitter = doJitter ? m_params(m_rng, m_face.size) : m_params.mirror(m_rng, m_face.size);
+    jitter.first = jitter.first * H;
 
     cv::Mat face(m_face.size, CV_8UC3, cv::Scalar::all(0));
-    cv::warpAffine(image, face, H.get_minor<2,3>(0,0), face.size(), cv::INTER_CUBIC);
+    cv::warpAffine(image, face, jitter.first.get_minor<2,3>(0,0), face.size(), cv::INTER_CUBIC);
     
     if(doNoise)
     {
+        // Set gain and noise (TODO) in transformed image:
         const float scale = m_params.getGain(m_rng);
         face.convertTo(face, CV_8UC3, scale);
     }
     
-    return face;
+    FaceWithLandmarks result;
+    result.image = face;
+    std::transform(facePoints.begin(), facePoints.end(), result.landmarks.begin(), [&](const cv::Point2f &p) {
+        cv::Point3f q = jitter.first * cv::Point3f(p.x, p.y, 1.f);
+        return cv::Point2f(q.x/q.z, q.y/q.z);
+    });
+    
+    if(jitter.second)
+    {
+        result.flop(); // account for mirror component
+    }
+
+    return result;
 }
     
 cv::Point2f FaceJitterer::mean(const std::vector<cv::Point2f> &landmarks, const std::vector<int> &index)
