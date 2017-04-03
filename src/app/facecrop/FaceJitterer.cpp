@@ -14,8 +14,6 @@
 #include "drishti/geometry/motion.h"
 #include "drishti/geometry/Primitives.h"
 
-#include "imshow/imshow.h"
-
 template <typename Iter>
 void denormalize(Iter first, Iter last, const cv::Size &size)
 {
