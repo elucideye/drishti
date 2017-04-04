@@ -392,7 +392,7 @@ int main(int argc, char* argv[])
 
                 if(!sOutput.empty())
                 {
-                    cv::Rect roi({faceSpec.border, faceSpec.border}, faceSpec.size);
+                    cv::Rect roi(cv::Point(faceSpec.border, faceSpec.border), faceSpec.size);
                     save(faces, roi, sOutput, table.lines[i].filename, i);
                 }
                 
