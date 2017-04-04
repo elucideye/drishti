@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
     std::string sFaceSpec;
     std::string sJitterIn;
 
-#if defined(DRISHTI_USE_IMSHOW)
+#if defined(DRISHTI_BUILD_EOS)
     std::string sEosModel;
     std::string sEosMapping;
 #endif    
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
         ("p,preview", "Do preview", cxxopts::value<bool>(doPreview))
         ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitterOnly))
 
-#if defined(DRISHTI_USE_IMSHOW)
+#if defined(DRISHTI_BUILD_EOS)
         ("eos-model", "EOS 3D dephormable model", cxxopts::value<std::string>(sEosModel))
         ("eos-mapping", "EOS Landmark mapping", cxxopts::value<std::string>(sEosMapping))
 #endif
