@@ -4,7 +4,7 @@ target_link_libraries(${test_app} ${DRISHTI_SDK_BOOST_LIBS} ${OpenCV_LIBS} cxxop
 
 if(DRISHTI_USE_IMSHOW)
   target_compile_definitions(${test_app} PUBLIC DRISHTI_USE_IMSHOW=1)
-  target_link_libraries(${test_app} cxxopts::cxxopts)
+  target_link_libraries(${test_app} imshow::imshow)
 endif()
 
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/console")

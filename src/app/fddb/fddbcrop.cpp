@@ -147,6 +147,7 @@ int main(int argc, char* argv[])
 
                 glfw::imshow("image", image);
                 glfw::waitKey(0);
+                glfw::destroyAllWindows();
             }
 #endif
             
