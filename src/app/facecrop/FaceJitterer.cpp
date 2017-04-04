@@ -44,10 +44,10 @@ FaceWithLandmarks FaceJitterer::operator()(const cv::Mat &image, const Landmarks
     const cv::Matx33f S = m_face(); // scale to target image dimensions
     cv::Matx33f H = S * P;
     
-    auto jitter = doJitter ? m_params(m_rng, m_face.size) : m_params.mirror(m_rng, m_face.size);
+    auto jitter = doJitter ? m_params(m_rng, m_face.size, m_face.tl()) : m_params.mirror(m_rng, m_face.size, m_face.tl());
     jitter.first = jitter.first * H;
 
-    cv::Mat face(m_face.size, CV_8UC3, cv::Scalar::all(0));
+    cv::Mat face(m_face.paddedSize(), CV_8UC3, cv::Scalar::all(0));
     cv::warpAffine(image, face, jitter.first.get_minor<2,3>(0,0), face.size(), cv::INTER_CUBIC);
     
     if(doNoise)
