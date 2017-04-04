@@ -48,6 +48,8 @@
 
 #include "cxxopts.hpp"
 
+#include <fstream>
+
 /// ######################## >> FACE << #############################
 
 struct FaceJittererMean : public FaceJitterer
@@ -72,46 +74,16 @@ using FaceJittererMeanPtr = std::unique_ptr<FaceJittererMean>;
 using FaceResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceJittererMeanPtr>;
 
 static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager);
+static void saveMeanFace(FaceResourceManager &manager, const std::string &sImage, const std::string &sPoints, spdlog::logger &logger);
 static int saveDefaultConfigs(const std::string &sOutput, spdlog::logger &logger);
-static void save(const std::vector<FaceWithLandmarks> &faces, const std::string &dir, const std::string &filename, int index);
+static void save(const std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, const std::string &dir, const std::string &filename, int index);
 static int saveLandmarks(const std::string &sOutput, const std::array<cv::Point2f, 5> &landmarks, spdlog::logger &logger);
 
 #if defined(DRISHTI_BUILD_EOS)
 // Face pose estimation...
 using FaceLandmarkMeshMapperPtr = std::unique_ptr<drishti::face::FaceLandmarkMeshMapper>;
 using FacLandmarkeMeshMapperResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceLandmarkMeshMapperPtr>;
-
-static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger)
-{
-    FacLandmarkeMeshMapperResourceManager manager = [&]()
-    {
-        return drishti::core::make_unique<drishti::face::FaceLandmarkMeshMapper>(sModel, sMapping);
-    };
-    
-    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
-    {
-        // Get thread specific segmenter lazily:
-        auto tid = std::this_thread::get_id();
-        auto &meshMapper = manager[tid];
-
-        auto &record = table.lines[i];
-        record.pose = {180.f, 180.f, 180.f };
-        if(record.points.size() == 68)
-        {
-            eos::render::Mesh mesh;
-            cv::Mat iso;
-            iso.cols = iso.rows = 0;
-            for(const auto &p : record.points)
-            {
-                iso.cols = std::max(iso.cols, static_cast<int>(p.x));
-                iso.rows = std::max(iso.rows, static_cast<int>(p.y));
-            }
-            record.pose = (*meshMapper)(record.points, iso, mesh, iso);
-        }
-    };
-
-    cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, 8);
-}
+static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger);
 #endif // DRISHTI_BUILD_POSE
 
 enum GroundTruthFormat
@@ -151,7 +123,7 @@ int main(int argc, char* argv[])
     std::string sFaceSpec;
     std::string sJitterIn;
 
-#if defined(DRISHTI_USE_IMSHOW)
+#if defined(DRISHTI_BUILD_EOS)
     std::string sEosModel;
     std::string sEosMapping;
 #endif    
@@ -176,7 +148,7 @@ int main(int argc, char* argv[])
         ("p,preview", "Do preview", cxxopts::value<bool>(doPreview))
         ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitterOnly))
 
-#if defined(DRISHTI_USE_IMSHOW)
+#if defined(DRISHTI_BUILD_EOS)
         ("eos-model", "EOS 3D dephormable model", cxxopts::value<std::string>(sEosModel))
         ("eos-mapping", "EOS Landmark mapping", cxxopts::value<std::string>(sEosMapping))
 #endif
@@ -420,7 +392,8 @@ int main(int argc, char* argv[])
 
                 if(!sOutput.empty())
                 {
-                    save(faces, sOutput, table.lines[i].filename, i);
+                    cv::Rect roi(cv::Point(faceSpec.border, faceSpec.border), faceSpec.size);
+                    save(faces, roi, sOutput, table.lines[i].filename, i);
                 }
                 
 #if defined(DRISHTI_USE_IMSHOW)
@@ -456,29 +429,62 @@ int main(int argc, char* argv[])
         cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, std::max(threads, -1));
     }
 
-    { // Save the mean face image:
-        FaceWithLandmarks mu = computeMeanFace(manager);
-        if(!sOutput.empty())
-        {
-            cv::Mat tmp;
-            mu.image.convertTo(tmp, CV_8UC3, 255.0);
-            cv::imwrite(sOutput + "/mean.png", tmp);
-
-            // Output json for points
-            saveLandmarks(sOutput + "/mean.json", mu.landmarks, *logger);
-        }
-
-#if defined(DRISHTI_USE_IMSHOW)        
-        if(doPreview)
-        {
-            glfw::imshow("facecrop::mu", mu.image);
-            glfw::waitKey(0);
-        }
-#endif
-    }
+    saveMeanFace(manager, sOutput + "/mean.png", sOutput + "/mean.json", *logger);
 }
 
 // ### utility ###
+
+#if defined(DRISHTI_BUILD_EOS)
+static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger)
+{
+    FacLandmarkeMeshMapperResourceManager manager = [&]()
+    {
+        return drishti::core::make_unique<drishti::face::FaceLandmarkMeshMapper>(sModel, sMapping);
+    };
+    
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
+    {
+        // Get thread specific segmenter lazily:
+        auto tid = std::this_thread::get_id();
+        auto &meshMapper = manager[tid];
+        
+        auto &record = table.lines[i];
+        record.pose = {180.f, 180.f, 180.f };
+        if(record.points.size() == 68)
+        {
+            eos::render::Mesh mesh;
+            cv::Mat iso;
+            iso.cols = iso.rows = 0;
+            for(const auto &p : record.points)
+            {
+                iso.cols = std::max(iso.cols, static_cast<int>(p.x));
+                iso.rows = std::max(iso.rows, static_cast<int>(p.y));
+            }
+            record.pose = (*meshMapper)(record.points, iso, mesh, iso);
+        }
+    };
+    
+    cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, 8);
+}
+#endif 
+
+static void saveMeanFace(FaceResourceManager &manager, const std::string &sImage, const std::string &sPoints, spdlog::logger &logger)
+{
+    // Save the mean face image:
+    FaceWithLandmarks mu = computeMeanFace(manager);
+    if(!sImage.empty())
+    {
+        cv::Mat tmp;
+        mu.image.convertTo(tmp, CV_8UC3, 255.0);
+        cv::imwrite(sImage, tmp);
+    }
+    
+    if(!sPoints.empty())
+    {
+        // Output json for points
+        saveLandmarks(sPoints, mu.landmarks, logger);
+    }
+}
 
 static int saveLandmarks(const std::string &sOutput, const std::array<cv::Point2f, 5> &landmarks, spdlog::logger &logger)
 {
@@ -519,7 +525,7 @@ static int saveDefaultJitter(const std::string &sOutput, spdlog::logger &logger)
 static int saveDefaultFaceSpec(const std::string &sOutput, spdlog::logger &logger)
 {
     // Write default face specification:
-    std::ofstream os(sOutput + "/face.json");
+    std::ofstream os(sOutput);
     if(os)
     {
         cereal::JSONOutputArchive oa(os);
@@ -572,15 +578,46 @@ static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager)
     return mu;
 }
 
-static void save(const std::vector<FaceWithLandmarks> &faces, const std::string &dir, const std::string &filename, int index)
+// Save in piotr's toolbox bbGt version=3 format
+//
+// % bbGt version=3
+// face 128 117 124 124 0 128 117 124 124 0 0
+
+static void save_bbGtv3(const std::string &sOutput, const std::vector<cv::Rect> &objects)
+{
+    static const char *sHeader = "% bbGt version=3";
+    static const char *sLabel = "face";
+    
+    std::ofstream ofs(sOutput);
+    if(ofs)
+    {
+        for(const auto &o : objects)
+        {
+            std::stringstream box;
+            box << o.x << ' ' << o.y << ' ' << o.width << ' ' << o.height;
+            ofs << sHeader << "\n" << sLabel << ' ' << box.str() << " 0 " << box.str() << " 0 0" << std::endl;
+        }
+    }
+}
+
+static void save(const std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, const std::string &dir, const std::string &filename, int index)
 {
     for(int i = 0; i < faces.size(); i++)
     {
+        
         std::stringstream ss;
         ss << std::setfill('0') << std::setw(6) << index << "_" << std::setw(2) << i;
         std::string base = drishti::core::basename(filename);
-        std::string sOutput = dir + "/" + ss.str() + "_" + base + ".png";
-        cv::imwrite(sOutput, faces[i].image);
+
+        { // save the image file
+            std::string sOutput = dir + "/" + ss.str() + "_" + base + ".png";
+            cv::imwrite(sOutput, faces[i].image);
+        }
+        
+        {  // Save bbox file for each face (compatible w/ Piotr's toolbox):
+            std::string sOutput = dir + "/" + ss.str() + "_" + base + ".txt";
+            save_bbGtv3(sOutput, {roi});
+        }
     }
 }
 

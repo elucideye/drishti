@@ -42,3 +42,5 @@ if(DRISHTI_BUILD_FACE)
     add_subdirectory(pose)
   endif()
 endif()
+
+add_subdirectory(fddb)
