@@ -65,6 +65,12 @@ QMLCameraManager::create(QQuickItem *root, std::shared_ptr<spdlog::logger> &logg
     QCamera* camera = qvariant_cast<QCamera*>(qmlCamera->property("mediaObject"));
     assert(camera != nullptr);
     
+    QCameraImageProcessing *processing = camera->imageProcessing();
+    if(processing->isAvailable())
+    {
+        processing->setWhiteBalanceMode(QCameraImageProcessing::WhiteBalanceAuto);
+    }
+    
     std::unique_ptr<QMLCameraManager> cameraManager;
 #if defined(Q_OS_ANDROID)
     cameraManager = drishti::core::make_unique<QMLCameraManagerAndroid>(camera, logger);
