@@ -207,6 +207,8 @@ protected:
 
     bool m_doEyeFlow = false;
     
+    float m_regressorCropScale = 0.f;
+    
     cv::Size m_eyesSize = { 480, 240 };
     
     std::vector<cv::Size> m_pyramidSizes;

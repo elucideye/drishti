@@ -1076,7 +1076,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
         // Perform modification
         drishti::acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", +0.001 };
+        dflt.cascCal = { "cascCal", -0.005 };
         m_detector->acfModify( dflt );
     }
 #endif
@@ -1090,7 +1090,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
         drishti::face::FaceModel faceDetectorMean = m_factory->getMeanFace();
 
         // We can change the regressor crop padding by doing a centered scaling of face features:
-        if(0)
+        if(m_regressorCropScale > 0.f)
         {
             std::vector<cv::Point2f> centers
             {
@@ -1099,7 +1099,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
                 *faceDetectorMean.noseTip
             };
             cv::Point2f center = core::centroid(centers);
-            cv::Matx33f S(cv::Matx33f::diag({0.75, 0.75, 1.0}));
+            cv::Matx33f S(cv::Matx33f::diag({m_regressorCropScale, m_regressorCropScale, 1.0}));
             cv::Matx33f T1(1,0,+center.x,0,1,+center.y,0,0,1);
             cv::Matx33f T2(1,0,-center.x,0,1,-center.y,0,0,1);
             cv::Matx33f H = T1 * S * T2;
