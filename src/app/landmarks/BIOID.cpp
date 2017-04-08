@@ -144,6 +144,19 @@ FACE::Table parseBIOID(const std::string &filename)
         }
     }
     
+    if(table.lines.front().points.size() == 68)
+    {
+        table.browR = { 17,18,19,20,21 };
+        table.browL = { 22,23,24,25,26 };
+        table.eyeR = { 36,37,38,39,40,41 };
+        table.eyeL = { 42,43,44,45,46,47 };
+        table.nose = { 27,28,29,30,31,32,33,34,35 };
+        table.mouth = { 48,49,50,51,52,53,54,55,56,57,58,59 };
+        table.mouthR = { 48 };
+        table.mouthL = { 54 };
+        table.brow = {};
+    }
+    
     return table;
 }
 
