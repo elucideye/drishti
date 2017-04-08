@@ -72,11 +72,16 @@ int main(int argc, char* argv[])
     for(auto &r : records)
     {
         bfs::path imageFilename, textFilename;
+        std::string flatFilename;
         
         {
             bfs::path file(r.filename);
             textFilename = (bfs::path(sTextDir) / file).replace_extension(".txt");
             imageFilename = (bfs::path(sFaceDir) / file).replace_extension(".jpg");
+            
+            flatFilename = r.filename;
+            std::replace(flatFilename.begin(), flatFilename.end(), '/', '_');
+            std::cout << r.filename << " = " << flatFilename << std::endl;
         }
         
         // lbl  - a string label describing object type (eg: 'pedestrian')
@@ -152,12 +157,14 @@ int main(int argc, char* argv[])
 #endif
             
             if(image.channels() == 3)
-            {   // Dump the object set in a file for training:
-                std::cout << textFilename.string() << std::endl;
-                std::ofstream stream( textFilename.string() );
-                if(stream)
-                {
-                    stream << objectSet;
+            {
+                {// Dump the object set in a file for training:
+                    std::cout << textFilename.string() << std::endl;
+                    std::ofstream stream( sOutput + "/" + flatFilename + ".txt" );
+                    if(stream)
+                    {
+                        stream << objectSet;
+                    }
                 }
                 
                 // Dump face crops:
