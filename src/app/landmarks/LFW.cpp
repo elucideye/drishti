@@ -94,6 +94,8 @@ FACE::Table parseLFW(const std::string &filename)
     table.eyeL = { 1 };
     table.nose = { 2 };
     table.mouth = { 3, 4 };
+    table.mouthR = { 3 };
+    table.mouthL = { 4 };
     
     // open file, disable skipping of whitespace
     std::ifstream file(filename);
