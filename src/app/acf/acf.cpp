@@ -19,6 +19,7 @@
 #include "drishti/core/string_utils.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/testlib/drishti_cli.h"
+#include "drishti/geometry/motion.h"
 
 // Package includes:
 #include "cxxopts.hpp"
@@ -86,8 +87,10 @@ int drishti_main(int argc, char **argv)
     int threads = -1;
     bool doAnnotation = false;
     bool doPositiveOnly = false;
+    bool doNegatives = false; // generate negative training samples
     bool doNms = false;
     double cascCal = 0.0;
+    int cropPad = 16;
     int minWidth = -1; // minimum object width
     int maxWidth = -1; // maximum object width TODO
     
@@ -102,6 +105,8 @@ int drishti_main(int argc, char **argv)
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
+        ("N,negatives", "Generate negative training samples", cxxopts::value<bool>(doNegatives))
+        ("P,padding", "Output crop padding", cxxopts::value<int>(cropPad))
         ("h,help", "Print help message");
     
     options.parse(argc, argv);
@@ -218,6 +223,37 @@ int drishti_main(int argc, char **argv)
                 
                 logger->info() << ++total << "/" << filenames.size() << " " << filename << " = " << objects.size();
 
+                if(doNegatives)
+                {
+                    for(int j = 0; j < objects.size(); j++)
+                    {
+                        const auto &roi = objects[j];
+                        if((roi & cv::Rect({0,0}, image.size())).area() == roi.area())
+                        {
+                            std::stringstream ss;
+                            ss << std::setw(2) << std::setfill('0') << j;
+                        
+                            cv::Size winSize = detector->getWindowSize();
+                            cv::Size winSizePad = winSize + cv::Size(cropPad, cropPad) * 2;
+                            
+                            const float s = static_cast<float>(winSize.width) / roi.width;
+                            cv::Matx33f T1 = transformation::translate(-roi.x, -roi.y);
+                            cv::Matx33f S = transformation::scale(s, s);
+                            cv::Matx33f T2 = transformation::translate(cropPad, cropPad);
+                            cv::Matx33f M = T2 * S * T1;
+                            
+                            cv::Mat crop;
+                            cv::warpAffine(image, crop, M.get_minor<2,3>(0,0), winSizePad, cv::INTER_AREA);
+
+                            cv::imwrite(filename + "_" + ss.str() + ".png", crop);
+
+                            logger->info() << filename + "_" + ss.str() + ".png" << " " << objects[j];
+                        }
+                    }
+                    return; // don't do metadata logging
+                }
+                
+                
                 // Save detection results in JSON:                
                 if(!writeAsJson(filename + ".json", objects))
                 {
