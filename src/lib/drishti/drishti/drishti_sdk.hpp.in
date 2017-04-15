@@ -15,6 +15,19 @@
 
 #include "drishti/drishti_export.hpp"
 
+#if __APPLE__
+#  ifdef DRISHTI_EXPORT
+#    undef DRISHTI_EXPORT
+#  endif
+#  ifdef drishti_EXPORTS
+      /* We are building this library */
+#    define DRISHTI_EXPORT __attribute__((visibility("default")))
+#  else
+      /* We are using this library */
+#    define DRISHTI_EXPORT __attribute__((visibility("default")))
+#  endif
+#endif
+
 #define _DRISHTI_BEGIN namespace drishti {
 #define _DRISHTI_END }
 

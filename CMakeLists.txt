@@ -357,15 +357,15 @@ drishti_mirror_definition(DRISHTI_BUILD_MIN_SIZE)
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
-# Use static SDK build for initial asan tests.
 option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
+option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." ON)
 option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
-option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 
+option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 option(DRISHTI_BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
 drishti_mirror_definition(DRISHTI_BUILD_REGRESSION_SIMD)
 
