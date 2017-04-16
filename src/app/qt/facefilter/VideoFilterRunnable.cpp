@@ -58,7 +58,7 @@
 #include <QDateTime>
 #include <QFile>
 
-#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 1
+#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 0
 
 namespace detail
 {

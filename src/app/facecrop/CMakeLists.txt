@@ -6,6 +6,8 @@ add_executable(${test_app} facecrop.cpp
   FaceSpecification.h
   JitterParams.h
   JitterParams.cpp
+  Pyramid.h
+  Pyramid.cpp
   )
 
 target_link_libraries(${test_app} drishtisdk cxxopts::cxxopts ${OpenCV_LIBS} drishti_landmarks)

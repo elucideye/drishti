@@ -79,13 +79,6 @@ void Detector::serialize(Archive & ar, const unsigned int version)
 template<class Archive>
 void Detector::Classifier::serialize(Archive & ar, const std::uint32_t version)
 {
-    //serialize32S(ar, fids, version);
-    //serialize32F(ar, thrs, version);
-    //serialize32S(ar, child, version);
-    //serialize32F(ar, hs, version);
-    //serialize32F(ar, weights, version);
-    //serialize32S(ar, depth, version);
-    
     ar & fids;    // cv::Mat_<int>
     ar & thrs;    // cv::Mat_<float>
     ar & child;   // cv::Mat_<int>
@@ -96,6 +89,11 @@ void Detector::Classifier::serialize(Archive & ar, const std::uint32_t version)
     ar & errs;
     ar & losses;
     ar & treeDepth;
+    
+    if(Archive::is_loading::value)
+    {
+        thrsU8 = thrs * 255.0; // precompute uint8_t thresholds
+    }
 }
 
 template<class Archive>

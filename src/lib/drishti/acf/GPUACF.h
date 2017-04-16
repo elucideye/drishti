@@ -46,7 +46,7 @@ public:
 
     enum FeatureKind
     {
-        kLM012345,   // 8
+        kM012345,   // 7
         kLUVM012345, // 10
     };
 

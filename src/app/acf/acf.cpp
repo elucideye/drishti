@@ -19,15 +19,51 @@
 #include "drishti/core/string_utils.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/testlib/drishti_cli.h"
+#include "drishti/geometry/motion.h"
+
+#if DRISHTI_SERIALIZE_WITH_BOOST
+# include "drishti/core/boost_serialize_common.h" // optional
+#endif
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+# include "drishti/core/drishti_cereal_pba.h" // optional
+#endif
+
+#if defined(DRISHTI_USE_IMSHOW)
+#  include "imshow/imshow.h"
+#endif
 
 // Package includes:
 #include "cxxopts.hpp"
+
 #include <opencv2/highgui.hpp>
+
+#include <cereal/types/map.hpp>
+#include <cereal/types/array.hpp>
+#include <cereal/types/string.hpp>
 #include <cereal/archives/json.hpp>
 
+#include <type_traits>
+
+using AcfPtr = std::unique_ptr<drishti::acf::Detector>;
+
+using Landmarks5 = std::array<cv::Point2f, 5>;
+struct FilenameAndLandmarks
+{
+    std::string filename;
+    std::vector<Landmarks5> landmarks;
+};
+
+using FaceLandmarks = std::map<std::string, std::vector<Landmarks5>>;
+using Landmarks5Vec = std::vector<Landmarks5>;
+using RectVec = std::vector<cv::Rect>;
+
+static FaceLandmarks parseFaceData(const std::string &sInput);
+static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winSize, const int pad, const RectVec &objects, const Landmarks5Vec &landmarks);
 static bool writeAsJson(const std::string &filename, const std::vector<cv::Rect> &objects);
 static void drawObjects(cv::Mat &canvas, const std::vector<cv::Rect> &objects);
 static cv::Rect2f operator*(const cv::Rect2f &roi, float scale);
+static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores);
 
 // Resize input image to detection objects of minimum width
 // given an object detection window size. i.e.,
@@ -71,6 +107,7 @@ public:
     cv::Mat reduced;
 };
 
+
 int drishti_main(int argc, char **argv)
 {
     const auto argumentCount = argc;
@@ -82,12 +119,18 @@ int drishti_main(int argc, char **argv)
     // ### Command line parsing ###
     // ############################
     
-    std::string sInput, sOutput, sModel;
+    std::string sInput, sOutput, sModel, sTruth;
     int threads = -1;
+    bool doScoreLog = false;
     bool doAnnotation = false;
     bool doPositiveOnly = false;
+    bool doNegatives = false; // generate negative training samples
+    bool doArchiveTranslation = false;
+    bool doSingleDetection = false;
+    bool doWindow = false;
     bool doNms = false;
     double cascCal = 0.0;
+    int cropPad = 0;
     int minWidth = -1; // minimum object width
     int maxWidth = -1; // maximum object width TODO
     
@@ -102,6 +145,22 @@ int drishti_main(int argc, char **argv)
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
+        ("s,scores", "Log the filenames + max score", cxxopts::value<bool>(doScoreLog))
+    
+        ("1,single", "Single detection (max)", cxxopts::value<bool>(doSingleDetection))
+    
+#if defined(DRISHTI_USE_IMSHOW)
+        ("w,window", "Use window preview", cxxopts::value<bool>(doWindow))
+#endif
+    
+        // ### Do archive conversion ###
+        ("A,archive", "Do archive translation", cxxopts::value<bool>(doArchiveTranslation))
+    
+        // ### Negative samples ###
+        ("T,truth", "Ground truth samples", cxxopts::value<std::string>(sTruth))
+        ("N,negatives", "Generate negative training samples", cxxopts::value<bool>(doNegatives))
+        ("P,padding", "Output crop padding", cxxopts::value<int>(cropPad))
+    
         ("h,help", "Print help message");
     
     options.parse(argc, argv);
@@ -146,22 +205,73 @@ int drishti_main(int argc, char **argv)
         return 1;
     }
     
+    // ::::::::::::::::::::::::::::::
+    // ::: Do archive translation :::
+    // ::::::::::::::::::::::::::::::
+    
+    if(doArchiveTranslation)
+    {
+        logger->info() << "Reserializing input archive";
+        AcfPtr acf = drishti::core::make_unique<drishti::acf::Detector>(sModel);
+        if(acf && acf->good())
+        {
+            std::string base = drishti::core::basename(sModel);
+            std::string filename = sOutput + "/" + base;
+            
+#if DRISHTI_SERIALIZE_WITH_CEREAL // "cpb"
+            save_cpb(filename + ".cpb", *acf);
+#endif
+            
+#if DRISHTI_SERIALIZE_WITH_BOOST // "pba.z"
+            save_pba_z(filename + ".pba.z", *acf);
+#endif
+            
+#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES  // "txt"
+            save_txt_z(filename + ".txt", *acf);
+#endif
+        }
+        else
+        {
+            logger->error() << "Failed to deserialize ACF archive: " << sModel;
+            return 1;
+        }
+        return 0;
+    }
+    
     // ### Input
-    if(sInput.empty())
+    if((sInput.empty() && sTruth.empty()) || (!sInput.empty() && !sTruth.empty()))
     {
-        logger->error() << "Must specify input image or list of images";
+        logger->error() << "Must specify exactly one input file or ground truth file (JSON) and not both!!!";
         return 1;
     }
-    if(!drishti::cli::file::exists(sInput))
-    {
-        logger->error() << "Specified input file does not exist or is not readable";
-        return 1;
-    }
+    
+    // :::::::::::::::::::::::::::::::::::::::::::::::
+    // ::: Pasre images w/ optional face landmarks :::
+    // :::::::::::::::::::::::::::::::::::::::::::::::
 
-    const auto filenames = drishti::cli::expand(sInput);
+    std::vector<FilenameAndLandmarks> filenames;
+    if(!sTruth.empty())
+    {
+        auto data = parseFaceData(sTruth);
+        for(const auto &r : data)
+        {
+            FilenameAndLandmarks record { r.first, r.second };
+            filenames.push_back(record);
+        }
+    }
+    else
+    {
+        const auto data = drishti::cli::expand(sInput);
+        for(const auto &f : data)
+        {
+            FilenameAndLandmarks record;
+            record.filename = f;
+            filenames.push_back(record);
+        }
+    }
     
     // Allocate resource manager:
-    using AcfPtr = std::unique_ptr<drishti::acf::Detector>;
+
     drishti::core::LazyParallelResource<std::thread::id, AcfPtr> manager = [&]()
     {
         AcfPtr acf = drishti::core::make_unique<drishti::acf::Detector>(sModel);
@@ -189,52 +299,113 @@ int drishti_main(int argc, char **argv)
     
     std::size_t total = 0;
     
+    std::vector<std::pair<std::string, float>> scores;
+    
     // Parallel loop:
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         // Get thread specific segmenter lazily:
         auto &detector = manager[std::this_thread::get_id()];
         assert(detector);
+        const auto winSize = detector->getWindowSize();
 
         // Load current image
-        cv::Mat image = cv::imread(filenames[i], cv::IMREAD_COLOR), imageRGB;
-        cv::cvtColor(image, imageRGB, cv::COLOR_BGR2RGB);
-        
+        cv::Mat image = cv::imread(filenames[i].filename, cv::IMREAD_COLOR);
         if(!image.empty())
         {
-            Resizer resizer(imageRGB, detector->getWindowSize(), minWidth);
-
+            cv::Mat imageRGB;
+            switch(image.channels())
+            {
+                case 1: cv::cvtColor(image, imageRGB, cv::COLOR_GRAY2RGB); break;
+                case 3: cv::cvtColor(image, imageRGB, cv::COLOR_BGR2RGB); break;
+                case 4: cv::cvtColor(image, imageRGB, cv::COLOR_BGRA2RGB); break;
+            }
+            
             std::vector<double> scores;
             std::vector<cv::Rect> objects;
-            (*detector)(resizer, objects, &scores);
-            
-            resizer(objects);
+            if(image.size() == winSize)
+            {
+                const float score = detector->evaluate(imageRGB);
+                scores.push_back(score);
+                objects.push_back(cv::Rect({0,0}, image.size()));
+            }
+            else
+            {
+                Resizer resizer(imageRGB, detector->getWindowSize(), minWidth);
+                (*detector)(resizer, objects, &scores);
+                resizer(objects);
+                
+                if(doSingleDetection)
+                {
+                    chooseBest(objects, scores);
+                }
+            }
 
             if(!doPositiveOnly || (objects.size() > 0))
             {
                 // Construct valid filename with no extension:
-                std::string base = drishti::core::basename(filenames[i]);
+                std::string base = drishti::core::basename(filenames[i].filename);
                 std::string filename = sOutput + "/" + base;
-                
-                logger->info() << ++total << "/" << filenames.size() << " " << filename << " = " << objects.size();
 
-                // Save detection results in JSON:                
+                float maxScore = -1e6f;
+                auto iter = std::max_element(scores.begin(), scores.end());
+                if(iter != scores.end())
+                {
+                    maxScore = *iter;
+                }
+                
+                if(doScoreLog)
+                {
+                    logger->info() << "SCORE: " << filenames[i].filename << " = " << maxScore;
+                }
+                else
+                {
+                    logger->info() << ++total << "/" << filenames.size() << " " << filename << " = " << objects.size() << "; score = " << maxScore;
+                }
+                
+                if(doNegatives)
+                {
+                    auto negatives = cropNegatives(image, winSize, cropPad, objects, filenames[i].landmarks);
+                    for(int j = 0; j < negatives.size(); j++)
+                    {
+                        std::stringstream ss;
+                        ss << filename << std::setw(2) << std::setfill('0') << j << ".png";
+                        cv::imwrite(ss.str(), negatives[j]);
+                    }
+                    
+                    return; // don't do metadata logging
+                }
+                
+                // Save detection results in JSON:
                 if(!writeAsJson(filename + ".json", objects))
                 {
                     logger->error() << "Failed to write: " << filename << ".json";
                 }
 
-                if(doAnnotation)
+                if(doAnnotation || doWindow)
                 {
                     cv::Mat canvas = image.clone();
                     drawObjects(canvas, objects);
-                    cv::imwrite(filename + "_objects.png", canvas);
+                    
+                    if(doAnnotation)
+                    {
+                        cv::imwrite(filename + "_objects.png", canvas);
+                    }
+                    
+#if defined(DRISHTI_USE_IMSHOW)
+                    if(doWindow)
+                    {
+                        glfw::imshow("acf", canvas);
+                        glfw::waitKey(0);
+                        glfw::destroyAllWindows();
+                    }
+#endif
                 }
             }
         }
     };
     
-    if(threads == 1 || threads == 0)
+    if(threads == 1 || threads == 0 || doWindow)
     {
         harness({0,static_cast<int>(filenames.size())});
     }
@@ -267,6 +438,41 @@ int main(int argc, char **argv)
 
 // utility
 
+
+static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores)
+{
+    if(objects.size() > 1)
+    {
+        int best = 0;
+        for(int i = 1; i < objects.size(); i++)
+        {
+            if(scores[i] > scores[best])
+            {
+                best = i;
+            }
+        }
+        objects = { objects[best] };
+        scores = { scores[best] };
+    }
+}
+
+static FaceLandmarks parseFaceData(const std::string &sInput)
+{
+    FaceLandmarks landmarks;
+    
+    // Write default faces:
+    std::ifstream is(sInput);
+    if(is)
+    {
+        cereal::JSONInputArchive ia(is);
+        typedef decltype(ia) Archive;
+        ia(GENERIC_NVP("faces", landmarks));
+    }
+    
+    return landmarks;
+}
+
+
 static bool writeAsJson(const std::string &filename, const std::vector<cv::Rect> &objects)
 {
     std::ofstream ofs(filename);
@@ -290,5 +496,55 @@ static void drawObjects(cv::Mat &canvas, const std::vector<cv::Rect> &objects)
 static cv::Rect2f operator*(const cv::Rect2f &roi, float scale)
 {
     return { roi.x * scale, roi.y * scale, roi.width * scale, roi.height * scale };
+}
+
+
+static cv::Mat cropNegative(const cv::Mat &I, const cv::Rect &roi, const cv::Size &winSize, const int pad)
+{
+    cv::Mat crop;
+    
+    const float s = static_cast<float>(winSize.width) / roi.width;
+    cv::Matx33f T1 = transformation::translate(-roi.x, -roi.y);
+    cv::Matx33f S = transformation::scale(s, s);
+    cv::Matx33f T2 = transformation::translate(pad, pad);
+    cv::Matx33f M = T2 * S * T1;
+    cv::Size winSizePad = winSize + cv::Size(pad, pad) * 2;
+    
+    cv::warpAffine(I, crop, M.get_minor<2,3>(0,0), winSizePad, cv::INTER_AREA);
+    return crop;
+}
+
+static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winSize, const int pad, const RectVec &objects, const Landmarks5Vec &landmarks)
+{
+    std::vector<cv::Mat> crops;
+    
+    for(int j = 0; j < objects.size(); j++)
+    {
+        const auto &roi = objects[j];
+        
+        // If we have ground truth, find maximum overlap:
+        float jaccard = 0.f;
+        for(const auto &p : landmarks)
+        {
+            std::vector<cv::Point2f> points(p.size());
+            std::copy(begin(p), end(p), begin(points));
+            
+            const cv::Rect truth = cv::boundingRect(points); // bounding box should be adequate
+            
+            //const float score = static_cast<float>((truth & roi).area()) / (truth | roi).area();
+            
+            // Overlap percentage may work better than jaccard index:
+            const float score = static_cast<float>((truth & roi).area()) / truth.area();
+            
+            jaccard = std::max(score, jaccard);
+        }
+        
+        if(((roi & cv::Rect({0,0}, I.size())).area() == roi.area()) && (jaccard < 0.25))
+        {
+            crops.push_back(cropNegative(I, roi, winSize, pad));
+        }
+    }
+    
+    return crops;
 }
 

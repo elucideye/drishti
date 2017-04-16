@@ -114,6 +114,18 @@ cv::Mat cvt8UC3To32FC3(const cv::Mat &I)
     return If;
 }
 
+float Detector::evaluate(const cv::Mat &I) const
+{
+    cv::Mat It = m_isTranspose ? I : I.t();
+    cv::Mat Itf = (It.depth() == CV_32F) ? It : cvt8UC3To32FC3(It);
+
+    MatP Ip;
+    computeChannels(Itf, Ip);
+    
+    auto &pPyramid = *(opts.pPyramid);
+    return evaluate(Ip, *(pPyramid.pChns->shrink), *(opts.modelDsPad), *(opts.stride));
+}
+
 int Detector::operator()(const cv::Mat &I, std::vector<cv::Rect> &objects, std::vector<double> *scores)
 {
     cv::Mat It = m_isTranspose ? I : I.t();

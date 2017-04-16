@@ -100,6 +100,7 @@ inline cv::Matx33f rotate(int degrees)
 //                  H20 H21 0 H22
 void R3x3To4x4(const cv::Matx33f &R3, cv::Matx44f &R4);
 
+// For OpenGL textures:
 inline cv::Matx33f normalize(const cv::Size &sizeIn)
 {
     const cv::Point center(sizeIn.width/2, sizeIn.height/2);

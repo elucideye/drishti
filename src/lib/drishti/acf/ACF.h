@@ -38,6 +38,9 @@
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
+// Forward declarations:
+class DetectionSink;
+class DetectionParams;
 template<class _T> struct ParserNode;
 
 class Detector : public drishti::ml::ObjectDetector
@@ -293,7 +296,7 @@ public:
         int treeDepth;
 
         cv::Mat thrsU8;  // prescaled threshold (x255) for uint8_t input
-        const cv::Mat & getScaledThresholds(int type);
+        const cv::Mat & getScaledThresholds(int type) const;
 
         template<class Archive> void serialize(Archive & ar, const uint32_t version);
     };
@@ -424,11 +427,12 @@ public:
     using DetectionVec = std::vector<Detection>;
 
     void acfDetect1(const MatP &chns, const RectVec &rois, int shrink, cv::Size modelDsPad, int stride, double cascThr, DetectionVec &objects);
-
     int bbNms(const DetectionVec &bbsIn, const Options::Nms &pNms, DetectionVec &bbs);
-
     int acfModify( const Detector::Modify &params );
-
+    
+    float evaluate(const cv::Mat &I) const;
+    float evaluate(const MatP &I, int shrink, cv::Size modelDsPad, int stride) const;
+    
     // (((((((( I/O ))))))))
     int initializeOpts();
     int deserialize(const std::string &filename);
@@ -481,6 +485,9 @@ public:
     }
 
 protected:
+    
+    using DetectionParamPtr = std::shared_ptr<DetectionParams>;
+    DetectionParamPtr createDetector(const MatP &chns, const RectVec &rois, int shrink, cv::Size modelDsPad, int stride, DetectionSink *sink) const;
 
     MatLoggerType m_logger;
 

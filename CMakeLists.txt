@@ -262,8 +262,8 @@ message("Faces directory: '${faces_dir}'")
 
 ### Download 'assets'
 drishti_download_private_data(
-    URL "https://github.com/elucideye/drishti-assets/archive/v1.3.tar.gz"
-    SHA1 "9dad041e66e6e2581b31619ae26dd45fbf1cc259"
+    URL "https://github.com/elucideye/drishti-assets/archive/v1.5.tar.gz"
+    SHA1 "b7beaaca2e5ac4653e6c3fa27826407665e01145"
     NAME "assets"
     DIR assets_dir
     PASSWORDS "${CMAKE_CURRENT_LIST_DIR}/passwords.cmake"

@@ -207,10 +207,13 @@ protected:
 
     bool m_doEyeFlow = false;
     
+    float m_regressorCropScale = 0.f;
+    
     cv::Size m_eyesSize = { 480, 240 };
     
     std::vector<cv::Size> m_pyramidSizes;
 
+    bool m_doNMSGlobal = true;
     drishti::acf::Detector *m_detector = nullptr; // weak ref
 
     std::shared_ptr<drishti::face::FaceDetector> m_faceDetector;
