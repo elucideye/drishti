@@ -112,9 +112,9 @@ if(DRISHTI_BUILD_WORLD)
 
   if(DRISHTI_COTIRE)  
     cotire(drishti_world)
-    set(DRISHTI_LIBS drishti_world_unity)
+    set(drishti_libs drishti_world_unity)
   else()
-    set(DRISHTI_LIBS drishti_world)
+    set(drishti_libs drishti_world)
   endif()
 
   if(ANDROID)
@@ -189,7 +189,7 @@ else()
   endif()
 
   # Define a list of individual static libraries
-  set(DRISHTI_LIBS
+  set(drishti_libs
     ${DRISHTI_OBJ_HCI}    
     ${DRISHIT_OBJ_ACF}
     ${DRISHTI_OBJ_FACE}
@@ -201,7 +201,7 @@ else()
     drishti_core
     )
 
-  foreach(library ${DRISHTI_LIBS})
+  foreach(library ${drishti_libs})
     target_link_libraries(${library} PUBLIC Eigen3::Eigen)
     drishti_hide(${library})
   endforeach()  
@@ -220,7 +220,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 set(DRISHTI_SDK_SRCS master/drishti_master.hpp master/drishti_master.cpp)
 
 # Create dependency list
-set(DRISHTI_SDK_LIBS ${DRISHTI_LIBS} ${DRISHTI_SDK_3RDPARTY_LIBS})
+set(DRISHTI_SDK_LIBS ${drishti_libs} ${DRISHTI_SDK_3RDPARTY_LIBS})
 
 ######################
 ####### OpenGL #######
@@ -280,7 +280,7 @@ if(NOT IOS)
 endif()
 
 # Set the serialization mode preprocessor flags (boost and/or cereal)
-set(DRISHTI_LIBRARY_LIST ${DRISHTI_LIBS} drishtisdk)
+set(DRISHTI_LIBRARY_LIST ${drishti_libs} drishtisdk)
 foreach(library ${DRISHTI_LIBRARY_LIST})
 
   # TODO: replace internal include_directories():
@@ -343,31 +343,58 @@ foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
   endif()
 endforeach()
 
-##
-## Install license files:
-##
-
+# Install license files
 include(drishti_copy_3rdparty_licenses)
 drishti_copy_3rdparty_licenses("${THIRD_PARTY_INSTALL_DIR}/licenses")
 
-##############################################################
-### Generate the main shared public interface
-##############################################################
+#################################################
+### Generate the main shared public interface ###
+#################################################
 
+# keep header file version strings up to date:
 set(drishti_sdk_hpp_in "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_sdk.hpp.in")
 set(drishti_sdk_hpp "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_sdk.hpp")
 configure_file("${drishti_sdk_hpp_in}" "${drishti_sdk_hpp}" @ONLY)
 
+# The public interface can be built as either SHARED or STATIC.
+# There are two classes of end users: 1) hunter and 2) non-hunter.
+# For hunter users, either SHARED OR STATIC targets can be used
+# transparently.  For non-hunter users, SHARED libraries will
+# provide dependency free use automatically, or the
+# DRISHTI_MERGE_ALL_LIBS option can be used to provide a single
+# static library (all dependencies are identified, split and
+# merged into a single monlithic library for convenient dependency
+# free linking.
+
 if(DRISHTI_BUILD_SHARED_SDK)
-  set(API_LIB_TYPE SHARED)
+  set(api_lib_type SHARED)
 else()
-  set(API_LIB_TYPE STATIC)
+  set(api_lib_type STATIC)
 endif()
 
+if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
+  set(drishti_api_name drishti_stage) # create a temporary target
+else()
+  set(drishti_api_name drishti)
+endif()
+
+# These targets will be configured with appropriate include paths:
+set(drishti_interface_libs "")
+
 # Create the public shared library
-add_library(drishti ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC} ${drishti_sdk_hpp})
-target_compile_definitions(drishti PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-target_link_libraries(drishti PRIVATE "${DRISHTI_SDK_LIBS}")
+add_library(${drishti_api_name} ${api_lib_type} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC} ${drishti_sdk_hpp})
+target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+target_link_libraries(${drishti_api_name} PRIVATE "${DRISHTI_SDK_LIBS}")
+list(APPEND drishti_interface_libs ${drishti_api_name})
+
+if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
+  # (Optional) merge top level library and all dependencies:
+  # Also see: http://stackoverflow.com/a/18949281  
+  include(drishti_merge_libraries)
+  drishti_merge_libraries(LIBRARIES ${drishti_api_name} FINAL drishti)
+  list(APPEND drishti_interface_libs drishti)
+endif()
+
 drishti_hide(drishti)
 drishti_strip(drishti)
 drishti_split_debug_symbols(drishti)
@@ -382,24 +409,21 @@ generate_export_header(drishti
   EXPORT_FILE_NAME "${drishti_export_header}"
   )
 
-target_include_directories(drishti
-  PUBLIC  
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
-  "$<INSTALL_INTERFACE:include>"  # <prefix>/include
-)
-
 set_target_properties(drishti
   PROPERTIES
   PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
   )
 
 if(IOS)
+  # This is required for some Xcode archive operations in end users of a shared framework
   set_target_properties(drishti
     PROPERTIES
     XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
     )
-else()
-  # iOS dynamic frameworks don't use this type of versioning:
+endif()
+
+if(NOT IOS)
+  # Use standrad shared lib versioning except for Xcode shared frameworks
   set_target_properties(drishti
     PROPERTIES
     VERSION "${drishtisdk_VERSION}"
@@ -407,7 +431,7 @@ else()
     )
 endif()
 
-foreach(library ${DRISHTI_LIBS} drishti drishtisdk)
+foreach(library ${drishti_libs} drishti drishtisdk)
   set_property(TARGET ${library} PROPERTY FOLDER "libs/drishti")
 endforeach()
 
@@ -416,11 +440,10 @@ endforeach()
 ###################
 
 # See: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
-
 if(DRISHTI_BUILD_SHARED_SDK)
   set(DRISHTI_INSTALL_TARGETS "")  
 else()
-  set(DRISHTI_INSTALL_TARGETS ${DRISHTI_LIBS})
+  set(DRISHTI_INSTALL_TARGETS ${drishti_libs})
 endif()
 
 # Export minimal public SDK or full internal SDK
@@ -470,33 +493,52 @@ install(
 ##################
 
 if(DRISHTI_BUILD_C_INTERFACE)
-  add_library(drishti_c ${API_LIB_TYPE} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
-  target_compile_definitions(drishti_c PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-  target_link_libraries(drishti_c PRIVATE "${DRISHTI_SDK_LIBS}")
+
+  if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
+    set(drishti_c_api_name drishti_c_stage) # create a temporary target
+  else()
+    set(drishti_c_api_name drishti_c)
+  endif()
+
+  add_library(${drishti_c_api_name} ${api_lib_type} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
+  set_property(TARGET ${drishti_c_api_name} PROPERTY FOLDER "libs/drishti")
+  target_compile_definitions(${drishti_c_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+  target_link_libraries(${drishti_c_api_name} PRIVATE "${DRISHTI_SDK_LIBS}")
+  list(APPEND drishti_interface_libs ${drishti_c_api_name})
+
+  if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
+    # (Optional) merge top level library and all dependencies:
+    # Also see: http://stackoverflow.com/a/18949281  
+    include(drishti_merge_libraries)
+    drishti_merge_libraries(LIBRARIES ${drishti_c_api_name} FINAL drishti_c)
+    list(APPEND drishti_interface_libs drishti_c)
+  else()
+    # Only use symbol_list and version script for non drishti_merge_libraries scenarios:
+    # Undefined symbols for architecture x86_64:
+    # "_drishti_eye_segmenter_create_from_file", referenced from:
+    drishti_symbol_list(drishti_c)
+  endif()
   drishti_hide(drishti_c)
   drishti_strip(drishti_c)
-  drishti_symbol_list(drishti_c)
-  drishti_split_debug_symbols(drishtisdk)
-  set_property(TARGET drishti_c PROPERTY FOLDER "libs/drishti")
 
-  target_include_directories(drishti_c
+  # Simple install to execute post build strip
+  install(
+    TARGETS drishti_c
+    EXPORT "${drishti_targets_export_name}"
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib"
+    RUNTIME DESTINATION "bin"
+    INCLUDES DESTINATION "${drishti_include_install_dir}"
+    )
+endif()
+
+foreach(library ${drishti_interface_libs})
+  target_include_directories(${library}
     PUBLIC  
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
     "$<INSTALL_INTERFACE:include>"  # <prefix>/include
     )
-
-  if(DRISHTI_BUILD_SHARED_SDK)
-    # Simple install to execute post build strip
-    install(
-      TARGETS drishti_c
-      EXPORT "${drishti_targets_export_name}"
-      LIBRARY DESTINATION "lib"
-      ARCHIVE DESTINATION "lib"
-      RUNTIME DESTINATION "bin"
-      INCLUDES DESTINATION "${drishti_include_install_dir}"
-      )
-  endif()
-endif()
+endforeach()  
 
 #################
 ## Unit tests ###
@@ -528,7 +570,6 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
       "$<INSTALL_INTERFACE:include>"  # <prefix>/include
       )
-
   endif()
   
   add_subdirectory(testlib)

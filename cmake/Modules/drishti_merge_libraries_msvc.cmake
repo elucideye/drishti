@@ -25,6 +25,10 @@ function(drishti_merge_libraries_msvc)
   if(is_single)
     set(extra_linker_flags "")
     foreach(x ${x_ALL_DEPENDENCIES})
+      get_target_property(_target_type "${x}" TYPE)
+      if(_target_type STREQUAL "INTERFACE_LIBRARY")
+        continue()
+      endif()
       drishti_get_library_location(
           LIBRARY "${x}"
           CONFIG "${CMAKE_BUILD_TYPE}"
@@ -44,6 +48,10 @@ function(drishti_merge_libraries_msvc)
 
     set(extra_linker_flags "")
     foreach(x ${x_ALL_DEPENDENCIES})
+      get_target_property(_target_type "${x}" TYPE)
+      if(_target_type STREQUAL "INTERFACE_LIBRARY")
+        continue()
+      endif()
       drishti_get_library_location(
           LIBRARY "${x}"
           CONFIG "${config_upper}"

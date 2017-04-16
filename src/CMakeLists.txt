@@ -6,8 +6,9 @@
 ##########################################
 
 # Initialize default lists and populate as we go
-set(DRISHTI_SDK_3RDPARTY_SRC_LIBS)
+
 set(DRISHTI_SDK_3RDPARTY_PKG_LIBS)
+set(DRISHTI_SDK_3RDPARTY_SRC_LIBS)
 
 set(LIB_TYPE STATIC)
 
@@ -137,7 +138,7 @@ if(DRISHTI_SERIALIZE_WITH_BOOST)
   if(DRISHTI_USE_LOCAL_BOOST_PBA)
     # Options:
     option(BOOST_PBA_BUILD_EXAMPLES "Build examples" OFF)
-    option(BOOST_PBA_INSTALL "Perform installation" OFF)
+    option(BOOST_PBA_INSTALL "Perform installation" ON)
     # Add library:
     add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/boost-pba")
     target_include_directories(boost-pba PUBLIC "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}>")
@@ -165,7 +166,7 @@ if(DRISHTI_USE_THREAD_POOL_CPP)
     option(THREAD_POOL_CPP_HAS_CPP14 "Has true C++14 support." OFF) # override option
     option(THREAD_POOL_CPP_BUILD_TESTS "Build tests." OFF)
     option(THREAD_POOL_CPP_BUILD_BENCHMARKS "Build benchmarks." OFF)
-    option(THREAD_POOL_CPP_INSTALL "Install library." OFF)
+    option(THREAD_POOL_CPP_INSTALL "Install library." ON)
     add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/thread-pool-cpp)
     add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
     list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS thread-pool-cpp::thread-pool-cpp) # Add library
@@ -183,7 +184,7 @@ endif()
 option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
 if(DRISHTI_USE_LOCAL_XGBOOST)
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
-  option(SKIP_INSTALL "Avoid installation of submodule libraries" ON)
+  option(SKIP_INSTALL "Avoid installation of submodule libraries" OFF)
   add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/xgboost)
   include_directories(${DRISHTI_3RD_PARTY_DIR})
   unset(SKIP_INSTALL CACHE)
@@ -210,7 +211,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" ON)
 
   if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
-    option(OGLES_GPGPU_INSTALL "Avoid installation of submodule libraries" OFF)
+    option(OGLES_GPGPU_INSTALL "Avoid installation of submodule libraries" ON)
     option(OGLES_GPGPU_BUILD_EXAMPLES "Don't build examples" OFF)
     option(OGLES_GPGPU_VERBOSE "Don't be verbose" OFF)
     add_subdirectory( "${DRISHTI_3RD_PARTY_DIR}/ogles_gpgpu" )
@@ -289,7 +290,7 @@ if(DRISHTI_USE_IMSHOW)
   if(DRISHTI_USE_LOCAL_IMSHOW)
     # Configure options (local use):
     option(IMSHOW_BUILD_EXAMPLES "Build examples" OFF)
-    option(IMSHOW_INSTALL "Perform installation" OFF)
+    option(IMSHOW_INSTALL "Perform installation" ON)
     option(IMSHOW_WITH_OPENCV "Build with support for OpenCV" ON)
     # Add library:
     add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/imshow)
@@ -324,21 +325,4 @@ add_subdirectory(app)
 if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
   add_subdirectory(benchmarks)
-endif()
-
-##########################
-### install: boost-pba ###
-##########################
-
-# This must be in the "${drishti_targets_export_name}" exports list for static builds
-if(NOT DRISHTI_BUILD_SHARED_SDK)
-  message("boost-pba install")
-  install(
-    TARGETS boost-pba
-    EXPORT "${drishti_targets_export_name}"
-    LIBRARY DESTINATION "lib"
-    ARCHIVE DESTINATION "lib"
-    RUNTIME DESTINATION "bin"
-    INCLUDES DESTINATION "${drishti_include_install_dir}"
-    )
 endif()
