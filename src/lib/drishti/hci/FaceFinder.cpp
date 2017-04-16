@@ -73,6 +73,8 @@ using drishti::core::operator*;
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
+
+static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores);
 static int getDetectionImageWidth(float, float, float, float, float);
 
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
@@ -111,10 +113,10 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
 
 , m_factory(factory)
 , m_sensor(args.sensor)
-, m_logger(args.logger)
-, m_threads(args.threads)
 , m_minDistanceMeters(args.minDetectionDistance)
 , m_maxDistanceMeters(args.maxDetectionDistance)
+, m_logger(args.logger)
+, m_threads(args.threads)
 {
     m_debugACF = false;
     m_doFlash = true;
@@ -245,8 +247,8 @@ void FaceFinder::initACF(const cv::Size &inputSizeUp)
     
     const int grayWidth = m_doLandmarks ? m_landmarksWidth : 0;
     const int flowWidth = m_doFlow ? m_flowWidth : 0;
-    const bool do10Channel = true;
-    const auto featureKind = do10Channel ? ogles_gpgpu::ACF::kLUVM012345 : ogles_gpgpu::ACF::kLM012345;
+    const bool do10Channel = false;
+    const auto featureKind = do10Channel ? ogles_gpgpu::ACF::kLUVM012345 : ogles_gpgpu::ACF::kM012345;
     const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
     m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, featureKind, grayWidth, flowWidth, m_debugACF);
     m_acf->setRotation(m_outputOrientation);
@@ -814,6 +816,10 @@ int FaceFinder::detect(const FrameInput &frame, ScenePrimitives &scene, bool doD
             core::ScopeTimeLogger scopeTimeLogger = [this](double t) { m_timerInfo.detectionTimeLogger(t); };
             
             (*m_detector)(*scene.m_P, scene.objects(), &scores);
+            if(m_doNMSGlobal)
+            {
+                chooseBest(scene.objects(), scores);
+            }
             m_objects = std::make_pair(HighResolutionClock::now(), scene.objects());
         }
         else
@@ -1064,6 +1070,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 #else
     m_faceDetector = std::make_shared<drishti::face::FaceDetector>(resources);
 #endif
+    m_faceDetector->setDoNMSGlobal(m_doNMSGlobal); // single detection only
     m_faceDetector->setDoNMS(true);
     m_faceDetector->setInits(1);
 
@@ -1076,7 +1083,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
         // Perform modification
         drishti::acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", -0.005 };
+        dflt.cascCal = { "cascCal", -0.002 };
         m_detector->acfModify( dflt );
     }
 #endif
@@ -1111,6 +1118,23 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory &resources)
 }
 
 // #### utilty: ####
+
+static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores)
+{
+    if(objects.size() > 1)
+    {
+        int best = 0;
+        for(int i = 1; i < objects.size(); i++)
+        {
+            if(scores[i] > scores[best])
+            {
+                best = i;
+            }
+        }
+        objects = { objects[best] };
+        scores = { scores[best] };
+    }
+}
 
 std::ostream& operator<< (std::ostream& os, const FaceFinder::TimerInfo& info)
 {

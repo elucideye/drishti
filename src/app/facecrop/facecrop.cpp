@@ -75,6 +75,7 @@
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/xml.hpp>
 #include <cereal/types/array.hpp>
+#include <cereal/types/map.hpp>
 
 #include "cxxopts.hpp"
 
@@ -148,13 +149,16 @@ struct FaceJittererMean : public FaceJitterer
 using ImageVec=std::vector<cv::Mat>;
 using FaceJittererMeanPtr = std::unique_ptr<FaceJittererMean>;
 using FaceResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceJittererMeanPtr>;
-
 static int saveNegatives(const FACE::Table &table, const std::string &sOutput, int sampleCount, int winSize, int threads, spdlog::logger &logger);
 static int saveInpaintedSamples(const FACE::Table &table, const std::string sBackground, const std::string &sOutput, spdlog::logger &logger);
 static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager);
 static void saveMeanFace(FaceResourceManager &manager, const FaceSpecification &faceSpec, const std::string &sImage, const std::string &sPoints, spdlog::logger &logger);
 static int saveDefaultConfigs(const std::string &sOutput, spdlog::logger &logger);
 static void save(const std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, const std::string &dir, const std::string &filename, int index);
+static void previewFaceWithLandmarks(cv::Mat &image, const std::vector<cv::Point2f> &landmarks);
+static GroundTruth parseInput(const std::string &sInput, const std::string &sFormat, const std::string &sDirectoryIn, const std::string &sExtension);
+static FACE::Table parseRAW(const std::string &sInput);
+static int standardizeFaceData(const FACE::Table &table, const std::string &sOutput);
 
 #if defined(DRISHTI_BUILD_EOS)
 // Face pose estimation...
@@ -162,12 +166,6 @@ using FaceLandmarkMeshMapperPtr = std::unique_ptr<drishti::face::FaceLandmarkMes
 using FacLandmarkeMeshMapperResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceLandmarkMeshMapperPtr>;
 static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger);
 #endif // DRISHTI_BUILD_POSE
-
-static void previewFaceWithLandmarks(cv::Mat &image, const std::vector<cv::Point2f> &landmarks);
-
-using string_hash::operator "" _hash;
-static GroundTruth parseInput(const std::string &sInput, const std::string &sFormat, const std::string &sDirectoryIn, const std::string &sExtension);
-static FACE::Table parseRAW(const std::string &sInput);
 
 int drishti_main(int argc, char* argv[])
 {
@@ -185,8 +183,9 @@ int drishti_main(int argc, char* argv[])
     std::string sPositives;
     std::string sNegatives;
     std::string sDirectory;
-    std::string sBackground;
     std::string sExtension;
+    std::string sBackground;
+    std::string sStandardize;
     std::string sFaceSpec;
     std::string sJitterIn;
 
@@ -202,7 +201,6 @@ int drishti_main(int argc, char* argv[])
     bool doPreview = false;
     bool doBoilerplate = false;
     bool doPhotometricJitterOnly = false;
-    float overlap = 0.25f;
 
     cxxopts::Options options("drishti-facecrop", "Command line interface for facecrop object detection.");
     options.add_options()
@@ -223,12 +221,13 @@ int drishti_main(int argc, char* argv[])
         ("eos-mapping", "EOS Landmark mapping", cxxopts::value<std::string>(sEosMapping))
 #endif
     
+        ("standardize", "Standardize input files to filename + bounding boxes", cxxopts::value<std::string>(sStandardize))
+    
         // ### Negative options ###
         ("I,inpaint", "Inpaint faces", cxxopts::value<bool>(doInpaint))
         ("N,negatives","Negatives", cxxopts::value<std::string>(sNegatives))
         ("W,winsize", "Minimum window size", cxxopts::value<int>(winSize))
         ("B,background", "Background image list", cxxopts::value<std::string>(sBackground))
-        ("O,overlap", "Amount of overlap to tolerate for hard negatives", cxxopts::value<std::string>(sBackground))
     
         // Output parameters:
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
@@ -294,7 +293,10 @@ int drishti_main(int argc, char* argv[])
         logger->error() << "Specified input file does not exist or is not readable";
         return 1;
     }
-
+    
+    //:::::::::::::::::::::::::::::::
+    //::: Parse input + landmarks :::
+    //:::::::::::::::::::::::::::::::
     GroundTruth gt = parseInput(sInput, sFormat, sDirectory, sExtension);
     auto &table = gt.table;
     
@@ -311,6 +313,11 @@ int drishti_main(int argc, char* argv[])
             logger->error() << "Error: unable to read input image, please check input file and (optionally) base directory";
             return -1;
         }
+    }
+    
+    if(!sStandardize.empty())
+    {
+        return standardizeFaceData(table, sStandardize);
     }
 
     if(doBoilerplate)
@@ -362,7 +369,7 @@ int drishti_main(int argc, char* argv[])
     //:::::::::::::::::::::::::::::::::
     //::: Face normalization params :::
     //:::::::::::::::::::::::::::::::::
-    FaceSpecification faceSpec; // { targetIod, {targetCenterX, targetCenterY},  {targetWidth, targetHeight} };
+    FaceSpecification faceSpec;
     if(sFaceSpec.empty())
     {
         logger->error() << "Error: must provide valid face specification";
@@ -457,11 +464,6 @@ int drishti_main(int argc, char* argv[])
                     save(faces, roi, sPositives, table.lines[i].filename, i);
                 }
                 
-                if(!sNegatives.empty())
-                {
-                    
-                }
-                
 #if defined(DRISHTI_USE_IMSHOW)
                 if(doPreview)
                 {
@@ -516,7 +518,7 @@ int main(int argc, char **argv)
     }
     catch(...)
     {
-
+        // just terminate
     }
     
     exit(-1);
@@ -591,6 +593,57 @@ static GroundTruth parseInput(const std::string &sInput, const std::string &sFor
     }
     
     return gt;
+}
+
+
+static FACE::Table parseRAW(const std::string &sInput)
+{
+    const auto filenames = drishti::cli::expand(sInput);
+    
+    FACE::Table table;
+    table.lines.resize(filenames.size());
+    for(int i = 0; i < filenames.size(); i++)
+    {
+        table.lines[i].filename = filenames[i];
+    }
+    return table;
+}
+
+static std::map<std::string, std::vector<std::array<cv::Point2f, 5>>> standardizeFaceData(const FACE::Table &table)
+{
+    std::map<std::string, std::vector<std::array<cv::Point2f, 5>>> landmarks;
+    for(const auto &r : table.lines)
+    {
+        std::array<cv::Point2f, 5> points
+        {{
+            r.points[table.eyeR.front()],
+            r.points[table.eyeL.front()],
+            r.points[table.nose.front()],
+            r.points[table.mouthR.front()],
+            r.points[table.mouthL.front()]
+        }};
+        landmarks[r.filename].emplace_back(points);
+    }
+    return landmarks;
+}
+
+static int standardizeFaceData(const FACE::Table &table, const std::string &sOutput)
+{
+    // Write default faces:
+    std::ofstream os(sOutput);
+    if(os)
+    {
+        auto landmarks = standardizeFaceData(table);
+        
+        cereal::JSONOutputArchive oa(os);
+        typedef decltype(oa) Archive;
+        oa(GENERIC_NVP("faces", landmarks));
+    }
+    else
+    {
+        return -1;
+    }
+    return 0;
 }
 
 #if defined(DRISHTI_BUILD_EOS)
@@ -722,7 +775,6 @@ static void saveMeanFace(FaceResourceManager &manager, const FaceSpecification &
         saveLandmarksXml(sPoints + ".xml", model, logger);
     }
 }
-
 
 static int saveDefaultJitter(const std::string &sOutput, spdlog::logger &logger)
 {
@@ -866,9 +918,7 @@ static int saveNegatives(const FACE::Table &table, const std::string &sOutput, i
             repeat[i]++;
         }
     }
-    
-    std::cout << " SAMPLES = " << sampleCount << std::endl;
-    
+
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         cv::RNG rng;
@@ -924,8 +974,9 @@ static int saveInpaintedSamples(const FACE::Table &table, const std::string sBac
         landmarks[r.filename].push_back(&r.points);
     }
     
-    for(const auto &r : table.lines)
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
+        const auto &r = table.lines[i];
         cv::Mat image = cv::imread(r.filename, cv::IMREAD_COLOR);
         if(!image.empty())
         {
@@ -957,20 +1008,10 @@ static int saveInpaintedSamples(const FACE::Table &table, const std::string sBac
                 cv::imwrite(sOutput + "/" + base + "_faceless.png", blended);
             }
         }
-    }
+    };
+    
+    //cv::parallel_for_({0,static_cast<int>(table.lines.size()}, harness, std::max(threads, -1));
+    harness({0,static_cast<int>(table.lines.size())});
+    
     return 0;
 }
-
-static FACE::Table parseRAW(const std::string &sInput)
-{
-    const auto filenames = drishti::cli::expand(sInput);
-    
-    FACE::Table table;
-    table.lines.resize(filenames.size());
-    for(int i = 0; i < filenames.size(); i++)
-    {
-        table.lines[i].filename = filenames[i];
-    }
-    return table;
-}
-

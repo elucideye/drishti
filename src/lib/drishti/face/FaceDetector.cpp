@@ -39,14 +39,8 @@ static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes);
 using drishti::geometry::operator*;
 
 // Map from normalized coordinate system to input ROI
-static cv::Matx33f denormalize(const cv::Rect &roi)
-{
-    cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f);
-    cv::Matx33f C1(1,0,-0.5,0,1,-0.5,0,0,1);
-    cv::Matx33f C2(1,0,+center.x,0,1,+center.y,0,0,1);
-    cv::Matx33f S = cv::Matx33f::diag({static_cast<float>(roi.width), static_cast<float>(roi.height),1.f});
-    return (C2 * S * C1);
-}
+static cv::Matx33f denormalize(const cv::Rect &roi);
+static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores);
 
 // ((((((((((((((( Impl )))))))))))))))
 class FaceDetector::Impl
@@ -104,8 +98,13 @@ public:
         // Detect objects:
         std::vector<double> scores;
         std::vector<cv::Rect> objects;
-        m_detector->setDoNonMaximaSuppression(m_doNMS);
         (*m_detector)(I, objects, &scores);
+        
+        if(m_doNMSGlobal)
+        {
+            chooseBest(objects, scores);
+        }
+        
         for(int i = 0; i < objects.size(); i++)
         {
             shapes.emplace_back(objects[i], scores[i]);
@@ -403,8 +402,11 @@ public:
     }
     void setDoNMS(bool doNMS)
     {
-        m_doNMS = doNMS;
         m_detector->setDoNonMaximaSuppression(doNMS);
+    }
+    void setDoNMSGlobal(bool doNMS)
+    {
+        m_doNMSGlobal = doNMS;
     }
     void setLogger(MatLoggerType logger)
     {
@@ -484,7 +486,7 @@ public:
 
     bool m_doIrisRefinement = true;
     bool m_doEyeRefinement = true;
-    bool m_doNMS = false;
+    bool m_doNMSGlobal = false;
     int m_inits = 1;
     float m_scaling = 1.0;
 
@@ -528,6 +530,10 @@ void FaceDetector::setInits(int inits)
 void FaceDetector::setDoNMS(bool doNMS)
 {
     m_impl->setDoNMS(doNMS);
+}
+void FaceDetector::setDoNMSGlobal(bool doNMS)
+{
+    m_impl->setDoNMSGlobal(doNMS);
 }
 void FaceDetector::setFaceDetectorMean(const FaceModel &mu)
 {
@@ -686,5 +692,34 @@ static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes)
 }
 
 #endif
+
+// utility
+
+// Map from normalized coordinate system to input ROI
+static cv::Matx33f denormalize(const cv::Rect &roi)
+{
+    cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f);
+    cv::Matx33f C1(1,0,-0.5,0,1,-0.5,0,0,1);
+    cv::Matx33f C2(1,0,+center.x,0,1,+center.y,0,0,1);
+    cv::Matx33f S = cv::Matx33f::diag({static_cast<float>(roi.width), static_cast<float>(roi.height),1.f});
+    return (C2 * S * C1);
+}
+
+static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores)
+{
+    if(objects.size() > 1)
+    {
+        int best = 0;
+        for(int i = 1; i < objects.size(); i++)
+        {
+            if(scores[i] > scores[best])
+            {
+                best = i;
+            }
+        }
+        objects = { objects[best] };
+        scores = { scores[best] };
+    }
+}
 
 DRISHTI_FACE_NAMESPACE_END

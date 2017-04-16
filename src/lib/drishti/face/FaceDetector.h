@@ -88,7 +88,7 @@ public:
 
     FaceModel getMeanShape(const cv::Size2f &size) const;
     FaceModel getMeanShape(const cv::Rect2f &roi) const;
-
+    
     void setScaling(float scale);
     cv::Size getWindowSize() const;
 
@@ -102,6 +102,7 @@ public:
     void setDoEyeRefinement(bool flag);
     void setInits(int inits);
     void setDoNMS(bool doNMS);
+    void setDoNMSGlobal(bool flag);
     void setDetectionTimeLogger(TimeLoggerType logger);
     void setRegressionTimeLogger(TimeLoggerType logger);
     void setEyeRegressionTimeLogger(TimeLoggerType logger);

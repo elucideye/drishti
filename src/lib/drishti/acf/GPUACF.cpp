@@ -187,7 +187,7 @@ void ACF::initACF(const SizeVec &scales, FeatureKind kind, bool debug)
     
     switch(kind)
     {
-        case kLM012345:
+        case kM012345:
             
             // This uses two swizzle steps to creaet LG56 output
             // Adding a 3 input texture swizzler might be slightly more efficient.
@@ -398,7 +398,7 @@ int ACF::getChannelCount() const
 {
     switch(m_featureKind)
     {
-        case kLM012345: return 8;        
+        case kM012345: return 7;
         case kLUVM012345: return 10;
     }
 }
@@ -575,11 +575,11 @@ ACF::ChannelSpecification ACF::getACFChannelSpecification(MatP &acf) const
             {{{acf[8],rgba[0]}, {acf[9],rgba[1]}}, reduceGradHistProcBSmooth.get()}
         };
             
-        // 8: { LMp; H0123p; H4567p } requires only 2 textures
-        case kLM012345: return ACF::ChannelSpecification
+        // 7: { Mp; H0123p; H4567p } requires only 2 textures
+        case kM012345: return ACF::ChannelSpecification
         {
-            {{{acf[0],rgba[0]}, {acf[1],rgba[1]}, {acf[6],rgba[2]}, {acf[7],rgba[3]}}, mergeProcLG56.get()},
-            {{{acf[2],rgba[0]}, {acf[3],rgba[1]}, {acf[4],rgba[2]}, {acf[5],rgba[3]}}, reduceGradHistProcASmooth.get()}
+            {{{acf[0],rgba[1]}, {acf[5],rgba[2]}, {acf[6],rgba[3]}}, mergeProcLG56.get()},
+            {{{acf[1],rgba[0]}, {acf[2],rgba[1]}, {acf[3],rgba[2]}, {acf[4],rgba[3]}}, reduceGradHistProcASmooth.get()}
         };
     }
 }
