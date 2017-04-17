@@ -518,7 +518,7 @@ int main(int argc, char **argv)
     }
     catch(...)
     {
-        // just terminate
+        std::cerr << "Unknown exception catched" << std::endl;
     }
     
     exit(-1);
