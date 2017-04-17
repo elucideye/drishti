@@ -44,7 +44,9 @@ function(drishti_merge_libraries)
 
   foreach(x ${all_dependencies})
     if(TARGET "${x}")
-      add_dependencies("${x_FINAL}" "${x}")
+      if(NOT "${x}" MATCHES "-framework")
+        add_dependencies("${x_FINAL}" "${x}")
+      endif()
     endif()
   endforeach()
 
