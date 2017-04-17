@@ -118,7 +118,8 @@ if(DRISHTI_BUILD_WORLD)
   endif()
 
   if(ANDROID)
-    target_link_libraries(drishti_world PRIVATE log) # for spdlog from android ndk
+    find_package(Log REQUIRED)
+    target_link_libraries(drishti_world PRIVATE ${LOG_LIBRARIES}) # for spdlog from android ndk
   endif()
 
 else()
@@ -234,10 +235,12 @@ if(APPLE)
     set(DRISHTI_OPENGL_LIBS "-framework OpenGL")
   endif()
 elseif(ANDROID)
-  set(DRISHTI_OPENGL_LIBS EGL GLESv2)
+  find_package(EGL REQUIRED)
+  find_package(OpenGLES2 REQUIRED)
+  set(DRISHTI_OPENGL_LIBS ${EGL_LIBRARIES} ${OpenGLES2_LIBRARIES})
 else()
   find_package(OpenGL REQUIRED)
-  set(DRISHTI_OPENGL_LIBS "${OPENGL_LIBRARIES}")
+  set(DRISHTI_OPENGL_LIBS OpenGL::GL)
 endif()
 list(APPEND DRISHTI_SDK_LIBS "${DRISHTI_OPENGL_LIBS}")
 
