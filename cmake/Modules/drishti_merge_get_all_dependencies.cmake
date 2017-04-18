@@ -69,7 +69,7 @@ function(drishti_merge_get_all_dependencies)
           list(APPEND result_list ${x})
         endif()
       else()
-        if(x MATCHES "^/.*/${CMAKE_SHARED_LIBRARY_PREFIX}[-_a-zA-Z0-9]\+\.${CMAKE_SHARED_LIBRARY_SUFFIX}$")
+        if(x MATCHES "^/.*/${CMAKE_SHARED_LIBRARY_PREFIX}[-_a-zA-Z0-9]+${CMAKE_SHARED_LIBRARY_SUFFIX}$")
           # skip shared libraries
         elseif(x MATCHES "^-l[a-zA-Z0-9]\+$")
           # skip standard libraries added by '-l' flags
