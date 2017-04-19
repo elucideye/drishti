@@ -228,18 +228,18 @@ protected:
         m_acf->fill(Pgpu, Pcpu);
         
         {
-            // This code block is a place holder for 8 channel ACF output, which conveniently fits in 2 textures
-            // for faster transfers on low performing Android devices.  Currently there is no 8 channel ACF
+            // This code block is a place holder for 7 channel ACF output, which conveniently fits in 2 textures
+            // for faster transfers on low performing Android devices.  Currently there is no 7 channel ACF
             // classifier/detector, so this is used as a place holder to illustrate the raw channel extraction
             // and pyramid formatting until equivalent CPU formatting is in place.
-            auto acf8 = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, ogles_gpgpu::ACF::kLM012345, doGrayscale, doCorners, false);
-            (*acf8)({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+            auto acf7 = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, ogles_gpgpu::ACF::kM012345, doGrayscale, doCorners, false);
+            (*acf7)({input.cols, input.rows}, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
 
-            drishti::acf::Detector::Pyramid Pgpu8;
-            acf8->fill(Pgpu8, Pcpu);
+            drishti::acf::Detector::Pyramid Pgpu7;
+            acf7->fill(Pgpu7, Pcpu);
             
-            //cv::imshow("Pgpu8", draw(Pgpu8);
-            //cv::imshow("LM012345", acf8->getChannels());
+            //cv::imshow("Pgpu7", draw(Pgpu7);
+            //cv::imshow("LM012345", acf7->getChannels());
             //cv::imshow("LUVM012345", m_acf->getChannels());
             //cv::waitKey(0);
         }
