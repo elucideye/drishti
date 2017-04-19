@@ -223,6 +223,12 @@ set(DRISHTI_SDK_SRCS master/drishti_master.hpp master/drishti_master.cpp)
 # Create dependency list
 set(DRISHTI_SDK_LIBS ${drishti_libs} ${DRISHTI_SDK_3RDPARTY_LIBS})
 
+if(DRISHTI_BUILD_HCI AND MSVC)
+  # FaceTracker.cpp -> FaceTracker.hpp -> Context.hpp -> drishti_gl.hpp -> gl/glew.h
+  hunter_add_package(glew)
+  find_package(glew CONFIG REQUIRED)
+endif()
+
 ######################
 ####### OpenGL #######
 ######################
@@ -366,8 +372,8 @@ configure_file("${drishti_sdk_hpp_in}" "${drishti_sdk_hpp}" @ONLY)
 # provide dependency free use automatically, or the
 # DRISHTI_MERGE_ALL_LIBS option can be used to provide a single
 # static library (all dependencies are identified, split and
-# merged into a single monlithic library for convenient dependency
-# free linking.
+# merged into a single monolithic library for convenient dependency
+# free linking).
 
 if(DRISHTI_BUILD_SHARED_SDK)
   set(api_lib_type SHARED)
