@@ -60,6 +60,15 @@ set(DRISHTI_3RD_PARTY_DIR "${CMAKE_CURRENT_LIST_DIR}/src/3rdparty")
 ## Do note move this!!!!!!!!
 #####################################################################
 
+option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
+option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
+
+if(DRISHTI_BUILD_MERGED_SDK)
+  # Override the drishti-upload DRISHTI_BUILD_OPENCV_WORLD option, since the opencv_world
+  # library contains duplicate object filenames that prevents a successful split + merge.
+  option(DRISHTI_BUILD_OPENCV_WORLD "Build OpenCV world (monolithic lib)" OFF)
+endif()
+
 message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 #######################
@@ -357,8 +366,6 @@ drishti_mirror_definition(DRISHTI_BUILD_MIN_SIZE)
 
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
-option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
-option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
