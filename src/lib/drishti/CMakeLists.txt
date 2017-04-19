@@ -405,7 +405,13 @@ if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
 endif()
 
 drishti_hide(drishti)
-drishti_strip(drishti)
+
+if(IOS AND DRISHTI_BUILD_MERGED_SDK)
+  # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
+else()
+  drishti_strip(drishti)
+endif()
+
 drishti_split_debug_symbols(drishti)
 
 ##############################################################
@@ -528,7 +534,12 @@ if(DRISHTI_BUILD_C_INTERFACE)
     drishti_symbol_list(drishti_c)
   endif()
   drishti_hide(drishti_c)
-  drishti_strip(drishti_c)
+
+  if(IOS AND DRISHTI_BUILD_MERGED_SDK)
+    # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
+  else()
+    drishti_strip(drishti_c)
+  endif()
 
   # Simple install to execute post build strip
   install(
