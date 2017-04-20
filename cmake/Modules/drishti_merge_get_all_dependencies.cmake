@@ -32,11 +32,14 @@ function(drishti_merge_get_all_dependencies)
     if(NOT TARGET ${x})
       continue()
     endif()
-    get_target_property(_target_type "${x}" TYPE)
-    if(_target_type STREQUAL "INTERFACE_LIBRARY")
-      continue()
+
+    set(link_libraries_property LINK_LIBRARIES)
+    get_target_property(target_type "${x}" TYPE)
+    if(target_type STREQUAL "INTERFACE_LIBRARY")
+      set(link_libraries_property INTERFACE_LINK_LIBRARIES)
     endif()
-    get_property(link_libraries TARGET ${x} PROPERTY LINK_LIBRARIES)
+
+    get_property(link_libraries TARGET ${x} PROPERTY ${link_libraries_property})
     if(NOT link_libraries)
       continue()
     endif()
@@ -57,7 +60,28 @@ function(drishti_merge_get_all_dependencies)
   list(SORT new_already_processed)
 
   if(NOT new_libraries)
-    set("${x_OUTPUT}" ${new_already_processed} PARENT_SCOPE)
+    # Exclude INTERFACE_LIBRARY targets
+    set(result_list)
+    foreach(x ${new_already_processed})
+      if(TARGET ${x})
+        get_target_property(target_type "${x}" TYPE)
+        if(target_type STREQUAL "STATIC_LIBRARY")
+          list(APPEND result_list ${x})
+        endif()
+      else()
+        if(x MATCHES "^/.*/${CMAKE_SHARED_LIBRARY_PREFIX}[-_a-zA-Z0-9]+${CMAKE_SHARED_LIBRARY_SUFFIX}$")
+          # skip shared libraries
+        elseif(x MATCHES "^-l[a-zA-Z0-9]+$")
+          # skip standard libraries added by '-l' flags
+        elseif(x MATCHES "^-framework [a-zA-Z0-9]+$")
+          # skip frameworks
+        else()
+          list(APPEND result_list ${x})
+        endif()
+      endif()
+    endforeach()
+
+    set("${x_OUTPUT}" ${result_list} PARENT_SCOPE)
     return()
   endif()
 
