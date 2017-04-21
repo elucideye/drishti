@@ -11,9 +11,14 @@
 #ifndef __drishti_core_drishti_stdlib_string_h__
 #define __drishti_core_drishti_stdlib_string_h__ 
 
+#if ANDROID
+
 #include "drishti/core/drishti_core.h"
 
-#if ANDROID 
+#include <string>
+#include <sstream>
+#include <cstdlib>
+
 DRISHTI_BEGIN_NAMESPACE(std)
 
 template <typename T> inline std::string to_string(T value)

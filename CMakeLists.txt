@@ -292,14 +292,6 @@ if(NOT DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
 endif()
 message("DRISHTI_HAVE_THREAD_LOCAL_STORAGE : ${DRISHTI_HAVE_THREAD_LOCAL_STORAGE}")
 
-# include(CheckTypeSize)
-# check_type_size("__fp16" FP16)
-# if(HAVE_FP16)
-#   add_definitions(-DHAVE_FP16=1)
-#   add_definitions(-DHAVE_HALF_FLOAT=1)
-#   add_definitions(-DDO_SQUEEZE=1)
-# endif()
-
 ###########################
 ### Print compiler info ###
 ###########################
