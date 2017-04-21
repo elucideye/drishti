@@ -23,7 +23,6 @@ sugar_include(${DRISHTI_3RD_PARTY_DIR})
 ##########
 
 option(DRISHTI_BUILD_QT "Build with Qt" OFF)
-drishti_mirror_definition(DRISHTI_BUILD_QT)
 
 if(DRISHTI_BUILD_QT)
   hunter_add_package(Qt COMPONENTS qtmultimedia qtsensors qtquickcontrols)
@@ -47,7 +46,6 @@ hunter_add_package(OpenCV)
 find_package(OpenCV REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${OpenCV_LIBS})
 
-include_directories("${OpenCV_INCLUDE_DIRS}") # to be deprecated
 message("OpenCV_INCLUDE_DIRS = ${OpenCV_INCLUDE_DIRS}")
 message("OpenCV_LIB_DIR = ${OpenCV_LIB_DIR}")
 message("OpenCV_LIBRARIES = ${OpenCV_LIBRARIES}")
@@ -61,7 +59,6 @@ message("${CMAKE_MODULE_PATH}")
 
 hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams)
 find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams)
-include_directories(${Boost_INCLUDE_DIRS})
 message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
 set(DRISHTI_SDK_BOOST_LIBS
   Boost::filesystem
@@ -96,8 +93,6 @@ list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cereal::cereal)
 
 hunter_add_package(dlib)
 find_package(dlib CONFIG REQUIRED)
-include_directories(${DLIB_INCLUDE_DIRS})
-add_definitions(-DDLIB_NO_GUI_SUPPORT=1)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dlib::dlib)
 
 ############
@@ -186,7 +181,6 @@ if(DRISHTI_USE_LOCAL_XGBOOST)
   option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
   option(SKIP_INSTALL "Avoid installation of submodule libraries" OFF)
   add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/xgboost)
-  include_directories(${DRISHTI_3RD_PARTY_DIR})
   unset(SKIP_INSTALL CACHE)
   add_library(xgboost::xgboost ALIAS xgboost)
   list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS xgboost::xgboost) # Add library
@@ -196,14 +190,12 @@ else()
   find_package(xgboost CONFIG REQUIRED)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS xgboost::xgboost) # Add library
 endif()
-add_definitions(-DHAS_XGBOOST=1) # legacy
 
 ###################
 ### ogles_gpgpu ###
 ###################
 
 option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
-drishti_mirror_definition(DRISHTI_BUILD_OGLES_GPGPU)
 
 if(DRISHTI_BUILD_OGLES_GPGPU)
 

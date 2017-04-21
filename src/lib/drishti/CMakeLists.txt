@@ -75,7 +75,6 @@ if(DRISHTI_BUILD_WORLD)
     ### acf
     source_group("acf\\Header Files" FILES ${DRISHTI_ACF_HDRS_PUBLIC})
     source_group("acf\\Source Files" FILES ${DRISHTI_ACF_SRCS})    
-    include_directories(acf/acf/toolbox)
     list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
   endif()
 
@@ -113,8 +112,12 @@ if(DRISHTI_BUILD_WORLD)
   if(DRISHTI_COTIRE)  
     cotire(drishti_world)
     set(drishti_libs drishti_world_unity)
+    set(drishti_regression_libs drishti_world_unity)
+    set(drishti_half_libs drishti_world_unity)
   else()
     set(drishti_libs drishti_world)
+    set(drishti_regression_libs drishti_world)
+    set(drishti_half_libs drishti_world)
   endif()
 
   if(ANDROID)
@@ -149,7 +152,7 @@ else()
   ## drishti_ml
   add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
   target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} xgboost::xgboost)
-
+  
   ## drishti_rcpr
   add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
   target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} xgboost::xgboost)
@@ -168,7 +171,6 @@ else()
 
   ## drishti_acf
   if(DRISHTI_BUILD_ACF)
-    include_directories(acf/acf/toolbox)
     add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
     if(DRISHTI_BUILD_OGLES_GPGPU)
       target_link_libraries(drishti_acf PUBLIC ${OGLES_GPGPU_LIB} ${OpenCV_LIBS})
@@ -202,14 +204,31 @@ else()
     drishti_core
     )
 
+  set(drishti_half_libs drishti_ml drishti_rcpr drishti_acf)
+  set(drishti_regression_libs drishti_ml) # for DRISHTI_BUILD_REGRESSION_*
+
   foreach(library ${drishti_libs})
     target_link_libraries(${library} PUBLIC Eigen3::Eigen)
     drishti_hide(${library})
-  endforeach()  
+  endforeach()
 
 endif(DRISHTI_BUILD_WORLD)
 
-include_directories("${PROJECT_BINARY_DIR}")
+if(ANDROID)
+  foreach(library ${drishti_half_libs})
+    # -DHALF_ENABLE_CPP11_CMATH=0    
+    target_compile_definitions(${library} PUBLIC HALF_ENABLE_CPP11_CMATH=0)
+  endforeach()    
+endif()
+
+foreach(library ${drishti_regression_libs})
+  # -DDRISHTI_BUILD_REGRESSION_SIMD=(0|1)  
+  drishti_bool_to_int(DRISHTI_BUILD_REGRESSION_SIMD build_regression_simd)
+  target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_REGRESSION_SIMD=${build_regression_simd})
+  # -DDRISHTI_BUILD_REGRESSION_FIXED_POINT=(0|1)
+  drishti_bool_to_int(DRISHTI_BUILD_REGRESSION_FIXED_POINT build_regression_fixed_point)
+  target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_REGRESSION_FIXED_POINT=${build_regression_fixed_point})
+endforeach()
 
 ##
 ## Build and install a single library or framework from our set of object libraries
@@ -292,15 +311,22 @@ endif()
 set(DRISHTI_LIBRARY_LIST ${drishti_libs} drishtisdk)
 foreach(library ${DRISHTI_LIBRARY_LIST})
 
-  # TODO: replace internal include_directories():
-  #
-  # target_include_directories(${library}
-  #   INTERFACE
-  #   "$<BUILD_INTERFACE:${CMAKE_PROJECT_DIR}/src/lib}>" 
-  #   "$<BUILD_INTERFACE:${CMAKE_PROJECT_DIR}/src/lib/drishti}>"
-  #   "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
-  # )
+  target_include_directories(${library}
+    PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/lib>" 
+    "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
+    )
+  
+  # -DDRISHTI_USE_TEXT_ARCHIVES=(0|1)  
+  drishti_bool_to_int(DRISHTI_USE_TEXT_ARCHIVES use_text_archives)
+  target_compile_definitions(${library} PUBLIC DRISHTI_USE_TEXT_ARCHIVES=${use_text_archives})  
 
+  # -DDRISHTI_BUILD_MIN_SIZE=(0|1)
+  drishti_bool_to_int(DRISHTI_BUILD_MIN_SIZE build_min_size)
+  target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_MIN_SIZE=${build_min_size})  
+
+  message("DRISHTI_BUILD_MIN_SIZE=${build_min_size} ${DRISHTI_BUILD_MIN_SIZE}")
+  
   # define M_PI_2 for MSVC
   target_compile_definitions(${library} PUBLIC _USE_MATH_DEFINES) 
 

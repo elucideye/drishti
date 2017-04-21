@@ -42,8 +42,8 @@
 
 // Check input preprocessor definitions for SIMD and FIXED_POINT behavior:
 //
-// BUILD_REGRESSION_SIMD
-// BUILD_REGRESSION_FIXED_POINT
+// DRISHTI_BUILD_REGRESSION_SIMD
+// DRISHTI_BUILD_REGRESSION_FIXED_POINT
 
 #define FIXED_PRECISION 10
 
@@ -114,7 +114,7 @@ void add16sAnd32s(const dlib::matrix<int32_t,0,1> &a, const dlib::matrix<int16_t
     else
     {
 
-#if BUILD_REGRESSION_SIMD
+#if DRISHTI_BUILD_REGRESSION_SIMD
         drishti::core::add16sAnd32s(&a(0), &b(0), &c(0), int(b.size()));
 #else
         for(int i = 0; i < b.size(); i++)
@@ -134,7 +134,7 @@ void add16sAnd16s(const dlib::matrix<int16_t,0,1> &a, const dlib::matrix<int16_t
     }
     else
     {
-#if BUILD_REGRESSION_SIMD
+#if DRISHTI_BUILD_REGRESSION_SIMD
         drishti::core::add16sAnd16s(&a(0), &b(0), &c(0), int(b.size()));
 #else
         c += b;
@@ -151,7 +151,7 @@ void add32F(const drishti::ml::fshape &a, const fshape &b, fshape &c)
     }
     else
     {
-#if BUILD_REGRESSION_SIMD
+#if DRISHTI_BUILD_REGRESSION_SIMD
         drishti::core::add32f(&a(0), &b(0), &c(0), int(a.size()));
 #else
         c += b;
@@ -857,7 +857,7 @@ public:
                 auto & active_shape = do_pca ? current_shape_ : current_shape;
 
                 DRISHTI_STREAM_LOG_FUNC(5,4,m_streamLogger);
-#if BUILD_REGRESSION_FIXED_POINT
+#if DRISHTI_BUILD_REGRESSION_FIXED_POINT
                 // Fixed point is currently only working for PCA in most cases (check numerical overflow)
                 dlib::matrix<int16_t,0,1> shape_accumulator;
                 for(auto &f : forests[iter])
@@ -870,12 +870,12 @@ public:
                     active_shape(i) = float(shape_accumulator(i)) / float(1 << FIXED_PRECISION);
                 }
 
-#else /* else don't BUILD_REGRESSION_FIXED_POINT */
+#else /* else don't DRISHTI_BUILD_REGRESSION_FIXED_POINT */
                 for(auto &f : forests[iter])
                 {
                     add32F(active_shape, f(feature_pixel_values, m_npd), active_shape);
                 }
-#endif /* BUILD_REGRESSION_FIXED_POINT */
+#endif /* DRISHTI_BUILD_REGRESSION_FIXED_POINT */
 
                 if(do_pca)
                 {

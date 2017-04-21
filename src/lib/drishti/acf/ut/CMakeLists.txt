@@ -36,6 +36,9 @@ target_link_libraries(${test_app} PUBLIC
   ${DRISHTI_OPENGL_LIBS}
   )
 
+drishti_bool_to_int(DRISHTI_BUILD_QT build_qt)
+target_compile_definitions(${test_app} PUBLIC DRISHTI_BUILD_QT=${build_qt})
+
 ### POST_BUILD GPU ADDITIONS ###
 if(DRISHTI_ACF_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)
