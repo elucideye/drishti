@@ -12,7 +12,6 @@
 #define __drishti_core_drishti_stdlib_string_h__ 
 
 #include "drishti/core/drishti_core.h"
-#include <opencv2/core/core.hpp>
 
 #if ANDROID 
 DRISHTI_BEGIN_NAMESPACE(std)
