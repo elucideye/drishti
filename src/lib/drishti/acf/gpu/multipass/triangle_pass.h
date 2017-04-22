@@ -14,7 +14,7 @@
 #ifndef __drishti_acf_gpu_multipass_triangle_pass_h__
 #define __drishti_acf_gpu_multipass_triangle_pass_h__
 
-#include "core/drishti_core.h"
+#include "drishti/core/drishti_core.h"
 #include "ogles_gpgpu/common/common_includes.h"
 #include "ogles_gpgpu/common/proc/base/filterprocbase.h"
 

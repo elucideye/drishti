@@ -92,6 +92,9 @@ target_link_libraries(${f_test_app} PUBLIC ${drishti_sdk_lib}
   drishtisdk # include drishtisdk for drishti::face::FaceModel serialization
   )
 
+drishti_bool_to_int(DRISHTI_BUILD_QT build_qt)
+target_compile_definitions(${f_test_app} PUBLIC DRISHTI_BUILD_QT=${build_qt})
+
 ### POST_BUILD GPU ADDITIONS ###
 if(DRISHTI_HCI_DO_GPU)
   find_package(Qt5PrintSupport REQUIRED)

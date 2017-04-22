@@ -28,49 +28,12 @@
 #include <sstream>
 #include <numeric>
 
-static std::vector<cv::Point2f> testTransform(const std::vector<cv::Point2f> &landmarks)
-{
-    std::vector<cv::Point2f> landmarks2 = landmarks;
-    
-    const float theta = 45.0;
-    const float ct = std::cos(theta*M_PI/180.0);
-    const float st = std::sin(theta*M_PI/180.0);
-    cv::Point2f center = landmarks[0];
-    
-    cv::Matx33f T(1,0,center.x,0,1,center.y,0,0,1);
-    cv::Matx33f R(+ct,-st,0.0,+st,+ct,0.0,0.0,0.0,1.0);
-    cv::Matx33f H = T * R * T.inv();
-    
-    for(auto &p : landmarks2)
-    {
-        cv::Point3f q = H * cv::Point3f(p.x, p.y, 1.f);
-        p = {q.x/q.z, q.y/q.z};
-    }
-    
-    return landmarks2;
-}
+using Landmarks = std::vector<cv::Point2f>;
 
-static void testMeshAlign(const cv::Mat &input, cv::Mat &output, drishti::face::FaceMesh &mesh, const std::vector<cv::Point2f> &landmarks)
-{
-    auto landmarks2 = testTransform(landmarks);
-    auto map = mesh.transform(landmarks2, landmarks, input.size());
-    
-    cv::Mat flow, canvas;
-    cv::hconcat(map[0], map[1], flow);
-    cv::normalize(flow, canvas, 0, 255, cv::NORM_MINMAX, CV_8UC1);
-    cv::cvtColor(canvas, canvas, cv::COLOR_GRAY2BGR);
-            
-    cv::Mat warped;
-    cv::remap(input, warped, map[0], map[1], cv::INTER_LINEAR);
-    cv::hconcat(warped, canvas, canvas);
+static Landmarks testTransform(const Landmarks &landmarks);
+static void testMeshAlign(const cv::Mat &input, cv::Mat &output, drishti::face::FaceMesh &mesh, const Landmarks &landmarks);
 
-#if defined(DRISHTI_USE_IMSHOW)    
-    glfw::imshow("remaped", canvas);
-    glfw::waitKey(0);
-#endif
-}
-
-int main(int argc, char *argv[])
+int drishti_main(int argc, char *argv[])
 {
     const auto argumentCount = argc;
     
@@ -179,7 +142,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::shared_ptr<drishti::ml::ShapeEstimator> landmarker = std::make_shared<drishti::ml::RegressionTreeEnsembleShapeEstimatorDEST>(sRegressor);
+    auto landmarker = std::make_shared<drishti::ml::RegressionTreeEnsembleShapeEstimatorDEST>(sRegressor);
     
     auto faceMesh = std::make_shared<drishti::face::FaceMesh>();
     if(!sTriangles.empty())
@@ -188,7 +151,7 @@ int main(int argc, char *argv[])
         faceMesh->readTriangulation(sTriangles);
     }
     
-    std::vector<cv::Point2f> landmarks;
+    Landmarks landmarks;
     if(detector && landmarker)
     {
         cv::Mat gray;
@@ -213,7 +176,11 @@ int main(int argc, char *argv[])
 
         { // Get landmarks:
             std::vector<bool> mask;
-            (*landmarker)(gray, face, landmarks, mask);
+            (*landmarker)(gray(face), landmarks, mask);
+            for(auto &p : landmarks)
+            {
+                p += cv::Point2f(face.x, face.y);
+            }
         }
 
         if(faceMesh && landmarks.size())
@@ -290,3 +257,58 @@ int main(int argc, char *argv[])
         }
     }
 }
+
+int main(int argc, char **argv)
+{
+    try
+    {
+        return drishti_main(argc, argv);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+}
+
+static Landmarks testTransform(const Landmarks &landmarks)
+{
+    Landmarks landmarks2 = landmarks;
+    
+    const float theta = 45.0;
+    const float ct = std::cos(theta*M_PI/180.0);
+    const float st = std::sin(theta*M_PI/180.0);
+    cv::Point2f center = landmarks[0];
+    
+    cv::Matx33f T(1,0,center.x,0,1,center.y,0,0,1);
+    cv::Matx33f R(+ct,-st,0.0,+st,+ct,0.0,0.0,0.0,1.0);
+    cv::Matx33f H = T * R * T.inv();
+    
+    for(auto &p : landmarks2)
+    {
+        cv::Point3f q = H * cv::Point3f(p.x, p.y, 1.f);
+        p = {q.x/q.z, q.y/q.z};
+    }
+    
+    return landmarks2;
+}
+
+static void testMeshAlign(const cv::Mat &input, cv::Mat &output, drishti::face::FaceMesh &mesh, const Landmarks &landmarks)
+{
+    auto landmarks2 = testTransform(landmarks);
+    auto map = mesh.transform(landmarks2, landmarks, input.size());
+    
+    cv::Mat flow, canvas;
+    cv::hconcat(map[0], map[1], flow);
+    cv::normalize(flow, canvas, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+    cv::cvtColor(canvas, canvas, cv::COLOR_GRAY2BGR);
+    
+    cv::Mat warped;
+    cv::remap(input, warped, map[0], map[1], cv::INTER_LINEAR);
+    cv::hconcat(warped, canvas, canvas);
+    
+#if defined(DRISHTI_USE_IMSHOW)
+    glfw::imshow("remaped", canvas);
+    glfw::waitKey(0);
+#endif
+}
+

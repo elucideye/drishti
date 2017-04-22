@@ -650,7 +650,6 @@ static int standardizeFaceData(const FACE::Table &table, const std::string &sOut
 
 #include <fstream>
 #include <iostream>
-//#include <winsock.h>
 
 static cv::Size read_png_size(const std::string &filename)
 {

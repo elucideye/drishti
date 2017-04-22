@@ -76,9 +76,9 @@ message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 #######################
 
 include(GenerateExportHeader)
-include(drishti_print_env_var)
-include(drishti_mirror_definition)
+include(drishti_bool_to_int)
 include(drishti_option)
+include(drishti_print_env_var)
 include(drishti_set_cxx_flags)
 
 drishti_set_cxx_flags()
@@ -194,7 +194,6 @@ option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with cereal" O
 option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
 option(DRISHTI_SERIALIZE_MODELS_WITH_CEREAL "Perform minor model serialization with cereal" ON)
 option(DRISHTI_USE_TEXT_ARCHIVES "Support TEXT archives for serialization (extra size)" OFF)
-drishti_mirror_definition(DRISHTI_USE_TEXT_ARCHIVES)
 
 ################
 #### Testing ###
@@ -293,18 +292,6 @@ if(NOT DRISHTI_HAVE_THREAD_LOCAL_STORAGE)
 endif()
 message("DRISHTI_HAVE_THREAD_LOCAL_STORAGE : ${DRISHTI_HAVE_THREAD_LOCAL_STORAGE}")
 
-include(CheckTypeSize)
-check_type_size("__fp16" FP16)
-if(HAVE_FP16)
-  add_definitions(-DHAVE_FP16=1)
-  add_definitions(-DHAVE_HALF_FLOAT=1)
-  add_definitions(-DDO_SQUEEZE=1)
-endif()
-
-if(ANDROID)
-  add_definitions(-DHALF_ENABLE_CPP11_CMATH=0) # use 'target' equivalent
-endif()
-
 ###########################
 ### Print compiler info ###
 ###########################
@@ -354,30 +341,23 @@ if(DRISHTI_COTIRE)
   include(cotire)
 endif()
 
+option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
+
 #################################
 ### Drishti LIB configuration ###
 #################################
 
 # This will build a static library using all specified modules
 option(DRISHTI_BUILD_WORLD "Build single library" ON)
-
 option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" OFF)
-drishti_mirror_definition(DRISHTI_BUILD_MIN_SIZE)
-
-option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
-
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib." ON)
 option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
-
 option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
 option(DRISHTI_BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
-drishti_mirror_definition(DRISHTI_BUILD_REGRESSION_SIMD)
-
 option(DRISHTI_BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
-drishti_mirror_definition(DRISHTI_BUILD_REGRESSION_FIXED_POINT)
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
@@ -399,10 +379,5 @@ set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
 ##################################
 ### Includes (to be deprecated ###
 ##################################
-
-# Legacy public interface:
-include_directories(src/lib/drishti)
-# Top level includes:
-include_directories(src/lib)
 
 add_subdirectory(src)

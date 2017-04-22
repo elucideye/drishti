@@ -6,6 +6,7 @@ find_package(nlohmann-json REQUIRED)
 
 add_executable(${test_app} test-json.cpp)
 target_link_libraries(${test_app} PUBLIC nlohmann-json::nlohmann-json GTest::gtest)
+target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/lib>")
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 
 drishti_add_test(
