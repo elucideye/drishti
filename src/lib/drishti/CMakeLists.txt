@@ -313,7 +313,7 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
 
   target_include_directories(${library}
     PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/lib>" 
+    "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
     "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
     )
   
