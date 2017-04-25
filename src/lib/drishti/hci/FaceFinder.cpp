@@ -221,12 +221,13 @@ void FaceFinder::initACF(const cv::Size &inputSizeUp)
 {
     // ### ACF (Transpose) ###
     // Find the detection image width required for object detection at the max distance:
-    int detectionWidth = computeDetectionWidth(inputSizeUp);
+    const int detectionWidth = computeDetectionWidth(inputSizeUp);
     m_ACFScale = float(inputSizeUp.width) / float(detectionWidth);
     
     // ACF implementation uses reduce resolution transposed image:
     cv::Size detectionSize = inputSizeUp * (1.0f/m_ACFScale);
     cv::Mat I(detectionSize.width, detectionSize.height, CV_32FC3, cv::Scalar::all(0));
+
     MatP Ip(I);
     m_detector->computePyramid(Ip, m_P);
     
@@ -247,8 +248,11 @@ void FaceFinder::initACF(const cv::Size &inputSizeUp)
     
     const int grayWidth = m_doLandmarks ? m_landmarksWidth : 0;
     const int flowWidth = m_doFlow ? m_flowWidth : 0;
-    const bool do10Channel = false;
-    const auto featureKind = do10Channel ? ogles_gpgpu::ACF::kLUVM012345 : ogles_gpgpu::ACF::kM012345;
+    const auto &pChns = m_detector->opts.pPyramid->pChns;
+    const auto featureKind = ogles_gpgpu::getFeatureKind(*pChns);
+
+    CV_Assert(featureKind != ogles_gpgpu::ACF::kUnknown);
+    
     const ogles_gpgpu::Size2d size(inputSizeUp.width,inputSizeUp.height);
     m_acf = std::make_shared<ogles_gpgpu::ACF>(m_glContext, size, sizes, featureKind, grayWidth, flowWidth, m_debugACF);
     m_acf->setRotation(m_outputOrientation);

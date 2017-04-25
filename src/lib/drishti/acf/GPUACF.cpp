@@ -480,9 +480,9 @@ void ACF::fill(drishti::acf::Detector::Pyramid &pyramid)
     auto acf = getChannels();
 
     // Build ACF input:
-    auto regions = getCropRegions();
-    int levelCount = static_cast<int>(regions.size());
-    int channelCount = static_cast<int>(regions.front().size());
+    const auto regions = getCropRegions();
+    const int levelCount = static_cast<int>(regions.size());
+    const int channelCount = static_cast<int>(regions.front().size());
 
     pyramid.nScales = int(levelCount);
 
@@ -733,6 +733,38 @@ cv::Mat ACF::getChannelsImpl()
     }
     
     return m_channels;
+}
+
+
+ACF::FeatureKind getFeatureKind(const drishti::acf::Detector::Options::Pyramid::Chns &chns)
+{
+    const auto &pColor = chns.pColor.get();
+    const auto &pGradMag = chns.pGradMag.get();
+    const auto &pGradHist = chns.pGradHist.get();
+    
+    // Currently all supported GPU ACF channel types have trailing M012345
+    if(!(pGradMag.enabled && pGradHist.enabled && (pGradHist.nOrients == 6)))
+    {
+        return ACF::kUnknown;
+    }
+    
+    if(pColor.enabled)
+    {
+        if(pColor.colorSpace.get() == "luv")
+        {
+            return ACF::kLUVM012345;
+        }
+        else
+        {
+            return ACF::kUnknown;
+        }
+    }
+    else
+    {
+        return ACF::kM012345;
+    }
+    
+    return ACF::kUnknown; // compiler warning
 }
 
 END_OGLES_GPGPU

@@ -48,6 +48,7 @@ public:
     {
         kM012345,   // 7
         kLUVM012345, // 10
+        kUnknown
     };
 
     using array_type = drishti::acf::Detector::Pyramid::array_type;
@@ -219,6 +220,8 @@ protected:
 
     std::shared_ptr<spdlog::logger> m_logger;
 };
+
+ACF::FeatureKind getFeatureKind(const drishti::acf::Detector::Options::Pyramid::Chns &chns);
 
 END_OGLES_GPGPU
 
