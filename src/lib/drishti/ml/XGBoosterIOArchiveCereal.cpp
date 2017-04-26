@@ -147,7 +147,7 @@ typedef xgboost::tree::TreeModel<bst_float, RTreeNodeStat> TreeModel;
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void XGBooster::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);

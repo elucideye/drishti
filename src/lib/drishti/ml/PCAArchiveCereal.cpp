@@ -15,7 +15,7 @@ DRISHTI_ML_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void StandardizedPCA::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void StandardizedPCA::Standardizer::serialize<OArchive>(OArchive & ar, const unsigned int version);
@@ -27,7 +27,7 @@ template void StandardizedPCA::Standardizer::serialize<IArchive>(IArchive & ar, 
 DRISHTI_ML_NAMESPACE_END
 
 DRISHTI_BEGIN_NAMESPACE(cv)
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;    
 template void serialize<OArchive>(OArchive &ar, cv::PCA &pca, const unsigned int);
 #endif

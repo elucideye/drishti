@@ -18,7 +18,7 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 // ############ PortableBinary{Input,Output}Archive ################
 // ##################################################################
 
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void EyeModel::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif

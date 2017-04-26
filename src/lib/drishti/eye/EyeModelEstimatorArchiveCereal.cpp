@@ -13,7 +13,7 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void EyeModelEstimator::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void EyeModelEstimator::serialize<OArchive>(OArchive &ar, const unsigned int);
