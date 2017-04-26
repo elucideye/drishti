@@ -235,17 +235,6 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
         
         drishti::eye::EyeModelEstimator segmenter2;
         load_cpb(filename, segmenter2);
-        
-        //    int i = 128;
-        //
-        //    assert(m_images[i].isRight);
-        //    drishti::eye::EyeModel eye;
-        //    int code = segmenter2(m_images[i].image, eye);
-        //    EXPECT_EQ(code, 0);
-        //
-        //    cv::Mat mask = cv::Mat(m_images[i].image.size(), CV_8UC3, cv::Scalar::all(0));
-        //    eye.draw(mask);
-        //    cv::imshow("mask", mask); cv::waitKey(0);
     }
 }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
