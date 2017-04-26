@@ -45,12 +45,12 @@ template void CPR::Model::Parts::serialize<OArchive>(OArchive &ar, const unsigne
 template void CPR::Model::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::CprPrm::FernPrm::serialize<OArchive>(OArchive &ar, const unsigned int);
-template void CPR::CprPrm::Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::CprPrm::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::RegModel::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
 typedef cereal::PortableBinaryInputArchive IArchive;
@@ -58,12 +58,12 @@ template void CPR::Model::Parts::serialize<IArchive>(IArchive &ar, const unsigne
 template void CPR::Model::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::CprPrm::FernPrm::serialize<IArchive>(IArchive &ar, const unsigned int);
-template void CPR::CprPrm::Recipe::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::CprPrm::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::RegModel::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void Recipe::serialize<IArchive>(IArchive &ar, const unsigned int);
 
 DRISHTI_RCPR_NAMESPACE_END
 

@@ -29,11 +29,12 @@
 #  include "drishti/rcpr/PointHalf.h"
 #endif
 
+#include "drishti/core/Logger.h"
 #include "drishti/rcpr/ImageMaskPair.h"
 #include "drishti/rcpr/Vector1d.h"
+#include "drishti/rcpr/Recipe.h"
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/ml/XGBooster.h"
-#include "drishti/core/Logger.h"
 
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/version.hpp>
@@ -71,6 +72,13 @@ class CPR : public drishti::ml::ShapeEstimator
 {
 public:
     
+    using ViewFunc = std::function<void(const std::string &name, const cv::Mat &image)>;
+    
+    void setViewer(ViewFunc &viewer)
+    {
+        m_viewer = viewer;
+    }
+    
     virtual std::vector<cv::Point2f> getMeanShape() const;
 
     cv::RotatedRect getPStar() const ; // get mean normalized ellipse
@@ -96,6 +104,7 @@ public:
     {
         stagesHint = stages;
     };
+    
     virtual int getStagesHint() const
     {
         return stagesHint;
@@ -105,6 +114,7 @@ public:
     {
         stagesRepetitionFactor = x;
     }
+    
     virtual int getStagesRepetitionFactor() const
     {
         return stagesRepetitionFactor;
@@ -170,49 +180,8 @@ public:
 
         acf::Field<RealType> verbose;
 
-        // ##### Experimental ######
-        struct Recipe
-        {
-            int maxLeafNodes = 5;
-            int maxDepth = 4;
-            int treesPerLevel = 500;
-            int featurePoolSize = 400;
-            int featureSampleSize = 40;
-            double learningRate = 0.1;
-            double dataSampleRatio = 0.5;
-            bool doMask = false;
+        typedef rcpr::Recipe Recipe;
 
-            double featureRadius = 1.66;
-            double lambda = RealType(0.1);
-
-            bool useNPD = false;
-
-            std::vector<int> paramIndex;
-
-            friend class boost::serialization::access;
-            template<class Archive> void serialize(Archive & ar, const unsigned int version);
-
-            void print(std::ostream &os)
-            {
-                os << "maxLeafNodes: " << maxLeafNodes << std::endl;
-                os << "maxDepth: " << maxDepth << std::endl;
-                os << "treesPerLevel: " << treesPerLevel << std::endl;
-                os << "featurePoolSize: " << featurePoolSize << std::endl;
-                os << "featureSampleSize: " << featureSampleSize << std::endl;
-                os << "learningRate: " << learningRate << std::endl;
-                os << "dataSampleRatio: " << dataSampleRatio << std::endl;
-                os << "featureRadius: " << featureRadius << std::endl;
-                os << "lambda: " << lambda << std::endl;
-                os << "useNPD: " << useNPD << std::endl;
-                os << "doMask: " << doMask << std::endl;
-                os << "paramIndex: {";
-                for(const auto &i : paramIndex)
-                {
-                    os << i;
-                }
-                os << "}" << std::endl;
-            }
-        };
         std::vector<Recipe> cascadeRecipes;
 
         // Boost serialization:
@@ -322,15 +291,8 @@ public:
     int cprApplyTree(const cv::Mat &Is, const RegModel &regModel, const Vector1d &p, CPRResult &result, bool preview=false) const;
     int cprApplyTree(const ImageMaskPair &Is, const RegModel &regModel, const Vector1d &p, CPRResult &result, bool preview=false) const;
 
-    void log(std::ofstream &os);
-
     virtual void setDoPreview(bool flag);
 
-    void setWindowName(const std::string &name)
-    {
-        m_windowName = name;
-    }
-    
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);
     
@@ -361,6 +323,8 @@ protected:
 
     int stagesHint = std::numeric_limits<int>::max();
     int stagesRepetitionFactor = 1;
+    
+    ViewFunc m_viewer;
 };
 
 // Alias:

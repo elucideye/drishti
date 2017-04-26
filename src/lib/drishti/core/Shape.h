@@ -99,6 +99,7 @@ struct Shape
     {
         return drishti::core::centroid(getPoints());
     }
+    
     std::vector<cv::Point2f> getPoints() const
     {
         std::vector<cv::Point2f> points;
@@ -114,28 +115,6 @@ struct Shape
     {
         contour.clear();
         roi = {};
-    }
-
-    //cv::Point2f centroid() const { return ::centroid(contour); }
-
-    // <image file='2007_007763.jpg'>
-    // <box top='90' left='194' width='37' height='37'>
-    // <part name='00' x='201' y='107'/>
-
-    std::string getLandmarksAsString(const std::string &indentation) const
-    {
-        std::stringstream buffer;
-        buffer << indentation << "    <box top=\'" << roi.y << "\' left=\'" << roi.x << "\' width=\'" << roi.width << "\' height=\'" << roi.height << "\'>\n";
-        for(int i = 0; i < contour.size(); i++)
-        {
-            std::stringstream index;
-            index << std::setw(4) << std::setfill('0') << i;
-
-            const auto &p = contour[i];
-            buffer << indentation << "        <part name=\'" << index.str() << "\' x=\'" << int(p.p.x+0.5f) << "\' y=\'" << int(p.p.y+0.5f) << "\'/>\n";
-        }
-        buffer << indentation << "    </box>\n";
-        return buffer.str();
     }
 
     void write(cv::FileStorage& fs) const;
@@ -168,26 +147,7 @@ struct AnnotatedContourImage
     // Add your output here as desired
     std::string filename;
     std::vector< Shape > contours;
-
-    std::string getLandmarksAsString(const std::string &indentation) const
-    {
-        std::stringstream buffer;
-        buffer << indentation << "<image file=\'" << filename << "\'>\n";
-
-        for(auto &contour : contours)
-        {
-            buffer << contour.getLandmarksAsString(indentation);
-        }
-
-        buffer << indentation << "</image>\n";
-        return buffer.str();
-    }
 };
-
-std::string getXMLHeader();
-std::string getXMLFooter();
-
-std::vector< std::vector<int> > readSpecification(const std::string &specification);
 
 // These functions must be within the same top level drishti namespace (opencv limitation)
 void write(cv::FileStorage& fs, const std::string&, const drishti::core::Shape& x);

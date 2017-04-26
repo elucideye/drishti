@@ -43,4 +43,6 @@ if(DRISHTI_BUILD_FACE)
   endif()
 endif()
 
+add_subdirectory(cpr)
+add_subdirectory(dlib)
 add_subdirectory(fddb)
