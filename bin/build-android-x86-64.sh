@@ -10,7 +10,6 @@ COMMAND=(
     "--verbose --fwd ANDROID=TRUE "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
-    "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
     "${DRISHTI_POLLY_ARGS[*]} "
     "--jobs 8 "
     "--strip "

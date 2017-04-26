@@ -11,7 +11,6 @@ COMMAND=(
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
     "ANDROID_COMPILER_VERSION=\"4.9\" "
-    "DRISHTI_BUILD_MIN_SIZE=${DRISHTI_BUILD_MIN_SIZE} "
     "${DRISHTI_POLLY_ARGS[*]} "
     "--jobs 8 "
     "--strip "
