@@ -26,9 +26,9 @@ template void EyeModel::serialize<OArchive>(OArchive &ar, const unsigned int);
 typedef cereal::PortableBinaryInputArchive IArchive;
 template void EyeModel::serialize<IArchive>(IArchive &ar, const unsigned int);
 
-// ##################################################################
+// #############################################
 // #################### XML ####################
-// ##################################################################
+// #############################################
 
 typedef cereal::XMLOutputArchive OArchiveXML;
 template void EyeModel::serialize<OArchiveXML>(OArchiveXML &ar, const unsigned int);
@@ -36,9 +36,9 @@ template void EyeModel::serialize<OArchiveXML>(OArchiveXML &ar, const unsigned i
 typedef cereal::XMLInputArchive IArchiveXML;
 template void EyeModel::serialize<IArchiveXML>(IArchiveXML &ar, const unsigned int);
 
-// ##################################################################
+// ##############################################
 // #################### JSON ####################
-// ##################################################################
+// ##############################################
 
 typedef cereal::JSONOutputArchive OArchiveJSON;
 template void EyeModel::serialize<OArchiveJSON>(OArchiveJSON &ar, const unsigned int);
