@@ -265,16 +265,16 @@ protected:
 };
 
 #if DRISHTI_HCI_DO_GPU
-TEST_F(HCITest, RunTestGPUAsync)
+TEST_F(HCITest, RunTestCPUAsync)
 {
-    static const bool doCpu = false;
+    static const bool doCpu = true;
     static const bool doAsync = true;
     runTest(doCpu, doAsync);
 }
 
-TEST_F(HCITest, RunTestCPUAsync)
+TEST_F(HCITest, RunTestGPUAsync)
 {
-    static const bool doCpu = true;
+    static const bool doCpu = false;
     static const bool doAsync = true;
     runTest(doCpu, doAsync);
 }

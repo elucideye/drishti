@@ -157,8 +157,8 @@ public:
     }
 
     // Input params:
-    const T *chns;
-    DetectionSink *sink;
+    const T *chns = nullptr;
+    DetectionSink *sink = nullptr;
 };
 
 const cv::Mat& Detector::Classifier::getScaledThresholds(int type) const
