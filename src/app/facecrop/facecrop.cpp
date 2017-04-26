@@ -651,6 +651,20 @@ static int standardizeFaceData(const FACE::Table &table, const std::string &sOut
 #include <fstream>
 #include <iostream>
 
+// http://stackoverflow.com/a/22926477
+template <typename T>
+inline T ntoh_any(T t)
+{
+    static const unsigned char int_bytes[sizeof(int)] = {0xFF};
+    static const int msb_0xFF = 0xFF << (sizeof(int) - 1) * CHAR_BIT;
+    static bool host_is_big_endian = (*(reinterpret_cast<const int *>(int_bytes)) & msb_0xFF ) != 0;
+    if (host_is_big_endian) { return t; }
+
+    unsigned char * ptr = reinterpret_cast<unsigned char *>(&t);
+    std::reverse(ptr, ptr + sizeof(t) );
+    return t;
+}
+
 static cv::Size read_png_size(const std::string &filename)
 {
     cv::Size size; // 0
@@ -661,7 +675,7 @@ static cv::Size read_png_size(const std::string &filename)
         in.seekg(16);
         in.read((char *)&width, 4);
         in.read((char *)&height, 4);
-        size = { ntohl(width), ntohl(height) };
+        size = { ntoh_any(width), ntoh_any(height) };
     }
     return size;
 }
