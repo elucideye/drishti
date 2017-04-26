@@ -19,32 +19,6 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-#if !DRISHTI_BUILD_MIN_SIZE
-const char * sXML = R"text(<?xml version='1.0' encoding='ISO-8859-1'?>
-<?xml-stylesheet type='text/xsl' href='image_metadata_stylesheet.xsl'?>
-<dataset>
-<name>Training faces</name>
-<comment>Custom face landmark images.</comment>
-<images>
-)text";
-#endif
-
-std::string getXMLHeader()
-{
-#if !DRISHTI_BUILD_MIN_SIZE    
-    std::string header = sXML;
-    return header;
-#endif
-}
-
-std::string getXMLFooter()
-{
-#if !DRISHTI_BUILD_MIN_SIZE        
-    const char * sXML = "    </images>\n</dataset>\n";
-    return std::string(sXML);
-#endif
-}
-
 void Shape::write(cv::FileStorage& fs) const
 {
 #if !DRISHTI_BUILD_MIN_SIZE    
@@ -229,49 +203,6 @@ void upsample(const PointVec &controlPoints, PointVec &interpolatedPoints, int f
     }
 }
 
-std::vector< std::vector<int> > readSpecification(const std::string &filename)
-{
-    std::vector<std::vector<int>> specification;
-
-#if !DRISHTI_BUILD_MIN_SIZE
-    std::vector<std::string> lines;
-    std::ifstream file(filename);
-    std::copy(std::istream_iterator<drishti::core::Line>(file), std::istream_iterator<drishti::core::Line>(), std::back_inserter(lines));
-    
-    specification.resize(lines.size());
-    for(int i = 0; i < lines.size(); i++)
-    {
-        std::vector<std::string> tokens;
-        drishti::core::tokenize(lines[i], tokens);
-        for(int j = 0; j < tokens.size(); j++)
-        {
-#if 1
-            int value;
-            std::stringstream ss(tokens[j]);
-            ss >> value;
-            specification[i].push_back(value);
-#else
-            specification[i].push_back( std::stoi(tokens[j]) );
-#endif
-        }
-    }
-    
-    // Specification is:
-    for(int i = 0; i < specification.size(); i++)
-    {
-        for(int j = 0; j < specification[i].size(); j++)
-        {
-            std::cout << specification[i][j] << " " ;
-        }
-        
-        std::cout << std::endl;
-    }
-#endif
-    
-    return specification;
-}
-
-
 // These OpenCV functions must be in global namespace
 void write(cv::FileStorage& fs, const std::string&, const drishti::core::Shape& x)
 {
@@ -279,6 +210,7 @@ void write(cv::FileStorage& fs, const std::string&, const drishti::core::Shape& 
     x.write(fs);
 #endif
 }
+
 void read(const cv::FileNode& node, drishti::core::Shape& x, const drishti::core::Shape & default_value)
 {
 #if !DRISHTI_BUILD_MIN_SIZE    

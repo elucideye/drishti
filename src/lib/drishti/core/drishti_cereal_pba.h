@@ -53,7 +53,7 @@ void load_cpb(const std::string &filename, T &object)
 template <typename T>
 void save_cpb(std::ostream &os, T &object)
 {
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
     cereal::PortableBinaryOutputArchive oa(os);
     oa << object;
 #endif
@@ -62,12 +62,11 @@ void save_cpb(std::ostream &os, T &object)
 template <typename T>
 void save_cpb(const std::string &filename, T &object)
 {
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
     std::ofstream ofs(filename, std::ios::binary);
     assert(ofs);
     save_cpb(ofs, object);
 #endif
 }
-
 
 #endif // __drishti_core_drishti_cereal_pba_h__

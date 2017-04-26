@@ -142,7 +142,7 @@ TEST(RTEShapeEstimator, StreamConstructor)
 }
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL
+#if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 TEST_F(RTEShapeEstimatorTest, CerealSerialization)
 {
     std::string filename = std::string(outputDirectory) + "/shape.cpb";

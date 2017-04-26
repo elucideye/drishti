@@ -1,7 +1,10 @@
 #include <opencv2/core.hpp>
 #include "drishti/core/drishti_cv_boost.h"
 
-#include "boost-pba/portable_binary_oarchive.hpp"
+
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include "boost-pba/portable_binary_oarchive.hpp"
+#endif
 #include "boost-pba/portable_binary_iarchive.hpp"
 
 #include "drishti/eye/Eye.h"

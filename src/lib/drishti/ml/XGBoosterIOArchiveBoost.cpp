@@ -2,7 +2,9 @@
 #include "drishti/ml/XGBoosterImpl.h"
 #include "drishti/core/drishti_core.h"
 
-#include "boost-pba/portable_binary_oarchive.hpp"
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include "boost-pba/portable_binary_oarchive.hpp"
+#endif
 #include "boost-pba/portable_binary_iarchive.hpp"
 
 #include <boost/serialization/serialization.hpp>
@@ -60,22 +62,26 @@ DRISHTI_END_NAMESPACE(boost)
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-template void XGBooster::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
 #if !DRISHTI_BUILD_MIN_SIZE
-template void XGBooster::Impl::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
-template void XGBooster::Recipe::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
+typedef portable_binary_oarchive OArchive;
+template void XGBooster::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void XGBooster::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void XGBooster::Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
-template void XGBooster::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-template void XGBooster::Impl::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
-template void XGBooster::Recipe::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+typedef portable_binary_iarchive IArchive;
+template void XGBooster::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void XGBooster::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void XGBooster::Recipe::serialize<IArchive>(IArchive &ar, const unsigned int);
 
 DRISHTI_ML_NAMESPACE_END
 
 #if !DRISHTI_BUILD_MIN_SIZE
-template void xgboost::tree::RegTree::serialize<portable_binary_oarchive>(portable_binary_oarchive &ar, const unsigned int);
+typedef portable_binary_oarchive OArchive;
+template void xgboost::tree::RegTree::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif
-template void xgboost::tree::RegTree::serialize<portable_binary_iarchive>(portable_binary_iarchive &ar, const unsigned int);
+typedef portable_binary_iarchive IArchive;
+template void xgboost::tree::RegTree::serialize<IArchive>(IArchive &ar, const unsigned int);
 
 #if DRISHTI_USE_TEXT_ARCHIVES
 // ##################################################################

@@ -14,6 +14,8 @@
 #include "drishti/rcpr/drishti_rcpr.h"
 #include "drishti/rcpr/CPR.h"
 
+#include "drishti/core/drishti_cv_cereal.h"
+
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
 // Boost serialization:
@@ -55,7 +57,7 @@ void CPR::CprPrm::FernPrm::serialize(Archive & ar, const unsigned int version)
 }
 
 template<class Archive>
-void CPR::CprPrm::Recipe::serialize(Archive & ar, const unsigned int version)
+void Recipe::serialize(Archive & ar, const unsigned int version)
 {
     ar & maxLeafNodes;
     ar & maxDepth;

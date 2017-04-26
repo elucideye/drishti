@@ -25,13 +25,13 @@ DRISHTI_ML_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-typedef portable_binary_oarchive OArchive;
-typedef portable_binary_iarchive IArchive;
-
 #if !DRISHTI_BUILD_MIN_SIZE
+typedef portable_binary_oarchive OArchive;
 template void StandardizedPCA::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void StandardizedPCA::Standardizer::serialize(OArchive & ar, const unsigned int version);
 #endif
+
+typedef portable_binary_iarchive IArchive;
 template void StandardizedPCA::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void StandardizedPCA::Standardizer::serialize(IArchive & ar, const unsigned int version);
 

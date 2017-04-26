@@ -1,3 +1,8 @@
+# The default dlib all/source.cpp file uses PNG and JPEG libraries for IO
+if(NOT (JPEG_FOUND AND PNG_FOUND))
+  return()
+endif()
+
 ###############
 ### cxxopts ###
 ###############
@@ -41,6 +46,13 @@ if(DRISHTI_BUILD_FACE)
   if(DRISHTI_BUILD_DEST AND DRISHTI_BUILD_EOS AND DRISHTI_BUILD_CV_ML)
     add_subdirectory(pose)
   endif()
+endif()
+
+if(DRISHTI_SERIALIZE_WITH_BOOST)
+  # TODO: generalize training model serialization
+  # Regressors currently use boost .pba.z  
+  add_subdirectory(cpr)
+  add_subdirectory(dlib)
 endif()
 
 add_subdirectory(fddb)

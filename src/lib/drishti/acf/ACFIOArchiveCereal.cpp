@@ -11,7 +11,7 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 // #################### PortableBinary[IO]Archive ###################
 // ##################################################################
 
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void Detector::serialize<OArchive>(OArchive & ar, const std::uint32_t);
 template void Detector::Options::serialize<OArchive>(OArchive & ar, const std::uint32_t);

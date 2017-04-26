@@ -24,14 +24,16 @@ struct EyeModelSpecification
 {
     static EyeModelSpecification create
     (
-        int eyelidCount = 8,
-        int creaseCount = 5,
+        int eyelidCount = 16,
+        int creaseCount = 9,
         bool irisCenter = true,
         bool irisOuter = true,
         bool irisInner = true,
         bool irisEllipse = true,
         bool pupilEllipse = true
     );
+    
+    template<class Archive> void serialize(Archive & ar, const uint32_t version);
 
     cv::Range eyelids;
     cv::Range crease;

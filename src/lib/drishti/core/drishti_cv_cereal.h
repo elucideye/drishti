@@ -48,6 +48,13 @@ void serialize(Archive & ar, cv::Rect &rect, const unsigned int version)
 }
 
 template< class Archive >
+void serialize(Archive & ar, cv::Range &range, const unsigned int version)
+{
+    ar & GENERIC_NVP("start", range.start);
+    ar & GENERIC_NVP("end", range.end);
+}
+
+template< class Archive >
 void serialize(Archive & ar, cv::Size &size, const unsigned int version)
 {
     ar & GENERIC_NVP("width", size.width);

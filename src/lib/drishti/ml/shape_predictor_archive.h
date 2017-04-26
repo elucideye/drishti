@@ -1,3 +1,6 @@
+// Warning: This file is used as a template and is included/inlined for each archive library
+// so the include guards should not be used here.
+
 //#ifndef shape_predictor_archive_h
 //#define shape_predictor_archive_h
 
@@ -107,12 +110,16 @@ void serialize(Archive & ar, drishti::ml::impl::regression_tree &g, const unsign
         for(int i = 0; i < g.leaf_values.size(); i++)
         {
             g.leaf_values_16[i].set_size( g.leaf_values[i].size() );
-            drishti::core::convertFixedPoint(&g.leaf_values[i](0,0), &g.leaf_values_16[i](0,0), int(g.leaf_values[i].size()), FIXED_PRECISION);
+            
+            const float *pSrc = &g.leaf_values[i](0,0);
+            int16_t *pDst = &g.leaf_values_16[i](0,0);
+            drishti::core::convertFixedPoint(pSrc, pDst, int(g.leaf_values[i].size()), FIXED_PRECISION);
         }
     }
 }
 
-template<class Archive> void serialize(Archive & ar, drishti::ml::shape_predictor &sp, const unsigned int version)
+template<class Archive>
+void serialize(Archive & ar, drishti::ml::shape_predictor &sp, const unsigned int version)
 {
     drishti::ml::fshape &initial_shape = sp.initial_shape;
     std::vector<std::vector<RTType>> &forests = sp.forests;
@@ -163,4 +170,4 @@ template<class Archive> void serialize(Archive & ar, drishti::ml::shape_predicto
     }
 }
 
-//#endif shape_predictor_archive_h
+//#endif /* shape_predictor_archive_h */

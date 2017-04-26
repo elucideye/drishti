@@ -41,16 +41,12 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 template <typename T>
 using MatrixType = std::vector<std::vector<T>>;
 
-void CPR::log(std::ofstream &os)
-{
-    // Legacy: non xgboost
-}
-
-typedef std::vector<std::shared_ptr<ml::XGBooster>> BoostVec;
+using BoostVec = std::vector<std::shared_ptr<ml::XGBooster>>;
 
 using IntVec = std::vector<int>;
-static void
-debug_features(BoostVec &gbdt, const EllipseVec &pCur, const ImageMaskPairVec &Is, const IntVec &imgIds, const PointVec &xs, const std::string &name)
+
+static cv::Mat
+draw(BoostVec &gbdt, const EllipseVec &pCur, const ImageMaskPairVec &Is, const IntVec &imgIds, const PointVec &xs)
 {
     std::vector<int> features;
 
@@ -125,14 +121,13 @@ debug_features(BoostVec &gbdt, const EllipseVec &pCur, const ImageMaskPairVec &I
     }
     cv::Mat canvas;
     cv::vconcat(canvases, canvas);
-
-    cv::imshow( name, canvas), cv::waitKey(100);
+    return canvas;
 };
-
 
 #if DRISHTI_CPR_DO_PREVIEW_GT || DRISHTI_CPR_DO_PREVIEW_JITTER
 
-static void debug_current_and_ground_truth(const cv::Mat &Is, const Vector1d &pCur, const Vector1d &pGtIn, const std::string &name)
+static void
+debug_current_and_ground_truth(const cv::Mat &Is, const Vector1d &pCur, const Vector1d &pGtIn, const std::string &name)
 {
     cv::Mat canvas;
     cv::cvtColor(Is, canvas, cv::COLOR_GRAY2BGR);
@@ -163,7 +158,8 @@ static void debug_current_and_ground_truth(const cv::Mat &Is, const Vector1d &pC
 // end;
 // pGt=repmat(pGt,[L 1]); N1=N; N=N*L;
 
-static void transform(const CPR::Model &model, const HVec &Hs, const EllipseVec &pGtIn, EllipseVec &pGtIn_, Vector1d &pStar_)
+static void
+transform(const CPR::Model &model, const HVec &Hs, const EllipseVec &pGtIn, EllipseVec &pGtIn_, Vector1d &pStar_)
 {
     pGtIn_.resize(Hs.size());
     for(int i = 0; i < pGtIn.size(); i++)
@@ -395,7 +391,11 @@ int CPR::cprTrain(const ImageMaskPairVec &Is, const EllipseVec &pGtIn, const HVe
         }
 
 #if DRISHTI_CPR_DO_FEATURE_DEBUG
-        debug_features(xgbdt, pCur, Is, imgIds, *ftrData.xs, m_windowName);
+        if(m_viewer)
+        {
+            cv::Mat canvas = draw(xgbdt, pCur, Is, imgIds, *ftrData.xs);
+            m_viewer("features", canvas);            
+        }
 #endif
         std::vector<double> losses(phiSets.size(), 0.0);
         std::vector<EllipseVec> pTmps(phiSets.size(), pCur);

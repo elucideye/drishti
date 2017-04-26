@@ -13,6 +13,10 @@
 
 #include "drishti/eye/EyeIO.h"
 #include "drishti/geometry/Ellipse.h"
+#include "drishti/core/drishti_stdlib_string.h" // ANDROID
+#include "drishti/core/drishti_cv_cereal.h"
+
+#include <cereal/archives/json.hpp>
 
 DRISHTI_EYE_NAMESPACE_BEGIN
 
@@ -184,5 +188,22 @@ std::vector<cv::Point2f> eyeToShape(const EyeModel &eye, const EyeModelSpecifica
     return points;
 }
 
+template<class Archive>
+void EyeModelSpecification::serialize(Archive & ar, const unsigned int version)
+{
+    ar & GENERIC_NVP("eyelids", eyelids);
+    ar & GENERIC_NVP("crease", crease);
+    ar & GENERIC_NVP("irisCenter", irisCenter);
+    ar & GENERIC_NVP("irisOuter", irisOuter);
+    ar & GENERIC_NVP("irisInner", irisInner);
+    ar & GENERIC_NVP("irisEllipse", irisEllipse);
+    ar & GENERIC_NVP("pupilEllipse", pupilEllipse);
+}
+
+typedef cereal::JSONOutputArchive OArchiveJSON;
+template void EyeModelSpecification::serialize<OArchiveJSON>(OArchiveJSON &ar, const unsigned int);
+
+typedef cereal::JSONInputArchive IArchiveJSON;
+template void EyeModelSpecification::serialize<IArchiveJSON>(IArchiveJSON &ar, const unsigned int);
 
 DRISHTI_EYE_NAMESPACE_END

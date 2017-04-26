@@ -2153,6 +2153,11 @@ struct PointHalf
 };
 #endif
 
+#define _SHAPE_PREDICTOR drishti::ml::shape_predictor
+
+// #############
+// ### BOOST ###
+// #############
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
 
@@ -2162,11 +2167,23 @@ DRISHTI_BEGIN_NAMESPACE(serialization)
 DRISHTI_END_NAMESPACE(serialization) // namespace serialization
 DRISHTI_END_NAMESPACE(boost) // namespace boost
 
+BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
+BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
+BOOST_CLASS_VERSION(_SHAPE_PREDICTOR, 4);
+
 #endif // DRISHTI_SERIALIZE_WITH_BOOST
 
+// ##############
+// ### CEREAL ###
+// ##############
+
+#if DRISHTI_SERIALIZE_WITH_CEREAL
+#include <cereal/cereal.hpp>
 DRISHTI_BEGIN_NAMESPACE(cereal)
 #include "drishti/ml/shape_predictor_archive.h"
 DRISHTI_END_NAMESPACE(cereal)
 
-#endif // __drishti_ml_shape_predictor_h__
+CEREAL_CLASS_VERSION(_SHAPE_PREDICTOR, 4);
+#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
+#endif // __drishti_ml_shape_predictor_h__

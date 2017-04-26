@@ -61,12 +61,47 @@ set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 ## Do note move this!!!!!!!!
 #####################################################################
 
+# Warning: The following options relate to
+# drishti-upload/config.cmake:
+#
+# DRISHTI_BUILD_MIN_SIZE:
+#   This is included via drishti-upload/config.cmake
+#
+# DRISHTI_BUILD_MERGED_SDK: (see: DRISHTI_BUILD_OPENCV_WORLD)
+#   Force DRISHTI_BUILD_OPENCV_WORLD=OFF since the merged
+#   library introduces duplicate object names (filenames)
+#   which causes errors when splitting libopencv_world.a
+#   into object files.
+#
+# DRISHTI_BUILD_OPENCV_WORLD: (see: DRISHTI_BUILD_MERGED_SDK)
+#   This is an override for the same setting in
+#   drishti-upload/config.cmake.
+#
+# DRISHTI_BIULD_MIN_SIZE:
+#   This can alter the hunter-package options for
+#   various dependencies in order to produce smaller builds,
+#   such as eliminating code related to model training.
+#
+# In typical CI builds we use the following settings:
+#   HUNTER_USE_CACHE_SERVERS=ONLY
+#   HUNTER_DISABLE_BUILDS=YES
+#
+# Note that any time we attempt to override a setting
+# in drishti-upload/config.cmake, the config-id will
+# often be different, which can invalidate the cache
+# and the CI builds are likely to terminate and report
+# an error.
+
 option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
 option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
 
+# See: drishti-upload/config.cmake
+# option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
+
 if(DRISHTI_BUILD_MERGED_SDK)
   # Override the drishti-upload DRISHTI_BUILD_OPENCV_WORLD option, since the opencv_world
-  # library contains duplicate object filenames that prevents a successful split + merge.
+  # library contains duplicate object filenames that prevents a successful split + merge
+  # due to limitations in the ar utility.
   option(DRISHTI_BUILD_OPENCV_WORLD "Build OpenCV world (monolithic lib)" OFF)
 endif()
 
@@ -195,6 +230,17 @@ option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with cereal" O
 option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
 option(DRISHTI_SERIALIZE_MODELS_WITH_CEREAL "Perform minor model serialization with cereal" ON)
 option(DRISHTI_USE_TEXT_ARCHIVES "Support TEXT archives for serialization (extra size)" OFF)
+
+# Currently we must always instantiate Output archives for any
+# Input archive we instantiate.  For boost the output archives
+# are excluded in DRISHTI_BUILD_MIN_SIZE=ON.  We can't do that
+# with cereal currently, so DRISHTI_SERIALIZE_WITH_CEREAL_OUTPUT
+# is introduced (default ON) for future use when this functionality
+# becomes possible in cereal.
+# see: https://github.com/USCiLab/cereal/issues/406
+# If this is resolved, the cereal output archives can be disabled (OFF) when
+# DRISHTI_BUILD_MIN_SIZE=ON.
+option(DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES "Instantiate CEREAL output archives" ON)
 
 ################
 #### Testing ###
@@ -350,7 +396,6 @@ option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
 # This will build a static library using all specified modules
 option(DRISHTI_BUILD_WORLD "Build single library" ON)
-option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" OFF)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)

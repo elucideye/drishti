@@ -144,17 +144,17 @@ typedef xgboost::tree::TreeModel<bst_float, RTreeNodeStat> TreeModel;
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-typedef cereal::PortableBinaryOutputArchive OArchive;
-typedef cereal::PortableBinaryInputArchive IArchive;
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-#if !DRISHTI_BUILD_MIN_SIZE
+#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
+typedef cereal::PortableBinaryOutputArchive OArchive;
 template void XGBooster::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void XGBooster::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
+typedef cereal::PortableBinaryInputArchive IArchive;
 template void XGBooster::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void XGBooster::Recipe::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void XGBooster::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);

@@ -15,7 +15,9 @@
 #include "drishti/core/drishti_cvmat_boost.h"
 #include "drishti/rcpr/CPRIOArchive.h"
 
-#include "boost-pba/portable_binary_oarchive.hpp"
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include "boost-pba/portable_binary_oarchive.hpp"
+#endif
 #include "boost-pba/portable_binary_iarchive.hpp"
 
 BOOST_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
@@ -32,7 +34,7 @@ template void CPR::Model::Parts::serialize<OArchive>(OArchive &ar, const unsigne
 template void CPR::Model::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::CprPrm::FernPrm::serialize<OArchive>(OArchive &ar, const unsigned int);
-template void CPR::CprPrm::Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void Recipe::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::CprPrm::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<OArchive>(OArchive &ar, const unsigned int);
@@ -45,7 +47,7 @@ template void CPR::Model::Parts::serialize<IArchive>(IArchive &ar, const unsigne
 template void CPR::Model::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::CprPrm::FernPrm::serialize<IArchive>(IArchive &ar, const unsigned int);
-template void CPR::CprPrm::Recipe::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void Recipe::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::CprPrm::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<IArchive>(IArchive &ar, const unsigned int);
@@ -68,24 +70,25 @@ template void CPR::Model::Parts::serialize<OArchiveTXT>(OArchiveTXT &ar, const u
 template void CPR::Model::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::CprPrm::FernPrm::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
-template void CPR::CprPrm::Recipe::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::CprPrm::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::RegModel::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 template void CPR::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
+template void Recipe::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
 
 typedef boost::archive::text_iarchive IArchiveTXT;
 template void CPR::Model::Parts::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::Model::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::CprPrm::FernPrm::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
-template void CPR::CprPrm::Recipe::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::CprPrm::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::RegModel::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
 template void CPR::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
+template void Recipe::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
+
 DRISHTI_RCPR_NAMESPACE_END
 
 #endif // DRISHTI_USE_TEXT_ARCHIVES

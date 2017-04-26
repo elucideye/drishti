@@ -142,7 +142,7 @@ protected:
         std::ifstream is(truthFilename);
         if(is.good())
         {
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
             auto eye = std::make_shared<drishti::eye::EyeModel>();
             cereal::JSONInputArchive ia(is);
             typedef decltype(ia) Archive;
@@ -225,7 +225,7 @@ TEST(EyeModelEstimator, StreamConstructor)
     }
 }
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL
+#if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 TEST_F(EyeModelEstimatorTest, CerealSerialization)
 {
     if(m_eyeSegmenter)
@@ -235,17 +235,6 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
         
         drishti::eye::EyeModelEstimator segmenter2;
         load_cpb(filename, segmenter2);
-        
-        //    int i = 128;
-        //
-        //    assert(m_images[i].isRight);
-        //    drishti::eye::EyeModel eye;
-        //    int code = segmenter2(m_images[i].image, eye);
-        //    EXPECT_EQ(code, 0);
-        //
-        //    cv::Mat mask = cv::Mat(m_images[i].image.size(), CV_8UC3, cv::Scalar::all(0));
-        //    eye.draw(mask);
-        //    cv::imshow("mask", mask); cv::waitKey(0);
     }
 }
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
@@ -263,7 +252,7 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
         assert(m_images[m_targetWidth].isRight);
         /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
         
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
+#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
         std::string filename(outputDirectory);
         filename += "/right_eye_2.json";
         
