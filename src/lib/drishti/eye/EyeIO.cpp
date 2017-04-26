@@ -14,6 +14,7 @@
 #include "drishti/eye/EyeIO.h"
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/core/drishti_cv_cereal.h"
+#include "drishti/core/drishti_stdlib_string.h" // ANDROID
 
 #include <cereal/archives/json.hpp>
 
