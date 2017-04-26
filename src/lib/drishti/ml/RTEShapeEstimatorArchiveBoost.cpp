@@ -3,29 +3,10 @@
 #include "drishti/core/drishti_pca_boost.h"
 #include "drishti/ml/RTEShapeEstimatorImpl.h"
 
-#include "boost-pba/portable_binary_oarchive.hpp"
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include "boost-pba/portable_binary_oarchive.hpp"
+#endif
 #include "boost-pba/portable_binary_iarchive.hpp"
-
-typedef portable_binary_oarchive OArchive;
-typedef portable_binary_iarchive IArchive;
-
-//DRISHTI_BEGIN_NAMESPACE(boost)
-//DRISHTI_BEGIN_NAMESPACE(serialization)
-//#include "drishti/ml/shape_predictor_archive.h"
-//#if !DRISHTI_BUILD_MIN_SIZE
-//template void serialize(OArchive & ar, drishti::ml::fshape &g, const unsigned int version);
-//template void serialize(OArchive & ar, dlib::vector<float,2> &g, const unsigned int version);
-//template void serialize(OArchive & ar, drishti::ml::impl::split_feature &g, const unsigned int version);
-//template void serialize(OArchive & ar, drishti::ml::impl::regression_tree &g, const unsigned int version);
-//template void serialize(OArchive & ar, drishti::ml::shape_predictor &sp, const unsigned int version);
-//#endif
-//template void serialize(IArchive & ar, drishti::ml::fshape &g, const unsigned int version);
-//template void serialize(IArchive & ar, dlib::vector<float,2> &g, const unsigned int version);
-//template void serialize(IArchive & ar, drishti::ml::impl::split_feature &g, const unsigned int version);
-//template void serialize(IArchive & ar, drishti::ml::impl::regression_tree &g, const unsigned int version);
-//template void serialize(IArchive & ar, drishti::ml::shape_predictor &sp, const unsigned int version);
-//DRISHTI_END_NAMESPACE(serialization) // namespace serialization
-//DRISHTI_END_NAMESPACE(boost) // namespace boost
 
 std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(const std::string &filename)
 {
@@ -50,11 +31,13 @@ std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(std::istream &is)
 DRISHTI_ML_NAMESPACE_BEGIN
 
 #if !DRISHTI_BUILD_MIN_SIZE
+typedef portable_binary_oarchive OArchive;
 template void RTEShapeEstimator::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<OArchive>(OArchive &ar, const unsigned int);
 #endif
 
+typedef portable_binary_iarchive IArchive;
 template void RTEShapeEstimator::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<IArchive>(IArchive &ar, const unsigned int);

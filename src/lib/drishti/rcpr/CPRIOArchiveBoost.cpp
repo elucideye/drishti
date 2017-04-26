@@ -15,7 +15,9 @@
 #include "drishti/core/drishti_cvmat_boost.h"
 #include "drishti/rcpr/CPRIOArchive.h"
 
-#include "boost-pba/portable_binary_oarchive.hpp"
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include "boost-pba/portable_binary_oarchive.hpp"
+#endif
 #include "boost-pba/portable_binary_iarchive.hpp"
 
 BOOST_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);

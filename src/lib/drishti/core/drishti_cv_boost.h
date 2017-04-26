@@ -25,8 +25,6 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/nvp.hpp>
 
-//#include <boost/archive/xml_oarchive.hpp>
-
 #define GENERIC_NVP(name, value) boost::serialization::make_nvp(name, value)
 
 #include <opencv2/core.hpp>

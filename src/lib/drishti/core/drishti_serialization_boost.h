@@ -27,7 +27,9 @@
 #include <boost/exception/exception.hpp>
 #include <boost/exception/all.hpp>
 
+#if !DRISHTI_BUILD_MIN_SIZE
+#  include "boost-pba/portable_binary_oarchive.hpp"
+#endif
 #include "boost-pba/portable_binary_iarchive.hpp"
-#include "boost-pba/portable_binary_oarchive.hpp"
 
 #endif

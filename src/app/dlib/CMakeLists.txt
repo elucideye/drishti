@@ -1,8 +1,9 @@
+# Skip if JPEG is not used:
+
 # dlib >= 19.2 forbids: #include <dlib/all/source.cpp>
 # Here we find the installed source.cpp file and add it explicitly.
 get_target_property(dlib_dir dlib::dlib INTERFACE_INCLUDE_DIRECTORIES)
 find_file(dlib_source_cpp "dlib/all/source.cpp" "${dlib_dir}")
-
 
 ################
 ### RapidXML ###

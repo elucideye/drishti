@@ -2186,5 +2186,4 @@ DRISHTI_END_NAMESPACE(cereal)
 CEREAL_CLASS_VERSION(_SHAPE_PREDICTOR, 4);
 #endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
-
 #endif // __drishti_ml_shape_predictor_h__
