@@ -1,5 +1,5 @@
 /*!
-  @file   gpu/FlashFilter.cpp
+  @file   gpu/BlobFilter.cpp
   @author David Hirvonen
   @brief  Illuminate the scene with pulses of LCD light.
 
@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishti_hci_gpu_FlashFilter_h__
-#define __drishti_hci_gpu_FlashFilter_h__
+#ifndef __drishti_hci_gpu_BlobFilter_h__
+#define __drishti_hci_gpu_BlobFilter_h__
 
 #include "ogles_gpgpu/common/proc/base/multipassproc.h"
 
@@ -20,34 +20,25 @@
 // #### Simple flash filter ####
 BEGIN_OGLES_GPGPU
 
-class FlashFilter : public MultiPassProc
+class BlobFilter : public MultiPassProc
 {
 public:
-    
-    enum FilterKind
-    {
-        kCenteredDifference,
-        kLaplacian
-    };
-    
+
     class Impl;
     
-    FlashFilter(FilterKind kind=kLaplacian);
-    ~FlashFilter();
+    BlobFilter();
+    ~BlobFilter();
     
     virtual ProcInterface* getInputFilter() const;
     virtual ProcInterface* getOutputFilter() const;
     
-    ProcInterface* getHessianOfSingleImage() const;
-    ProcInterface* getHessianOfDifferenceImage() const;
-    
-    ProcInterface* getHessianPeaksFromSingleImage() const;
-    ProcInterface* getHessianPeaksFromDifferenceImage() const;
+    ProcInterface* getHessian() const;
+    ProcInterface* getHessianPeaks() const;
     
     /**
      * Return the processor's name.
      */
-    virtual const char *getProcName() { return "FlashFilter"; }
+    virtual const char *getProcName() { return "BlobFilter"; }
     
     virtual int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false);
     virtual int reinit(int inW, int inH, bool prepareForExternalInput = false);
@@ -60,4 +51,4 @@ public:
 
 END_OGLES_GPGPU
 
-#endif // __drishti_hci_gpu_FlashFilter_h__
+#endif // __drishti_hci_gpu_BlobFilter_h__

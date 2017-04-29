@@ -10,7 +10,7 @@
 
 #include "drishti/hci/FaceFinder.h"
 #include "drishti/hci/gpu/FacePainter.h"
-#include "drishti/hci/gpu/FlashFilter.h"
+#include "drishti/hci/gpu/BlobFilter.h"
 
 #include "drishti/face/gpu/EyeFilter.h"
 #include "drishti/eye/gpu/EllipsoPolarWarp.h"
@@ -120,9 +120,6 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory> &fact
 {
     m_debugACF = false;
     m_doFlash = true;
-    
-    m_doDifferenceEyes = DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES;
-    m_doDifferenceEyesDisplay = DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES_DISPLAY;
 }
 
 std::unique_ptr<FaceFinder> FaceFinder::create(FaceDetectorFactoryPtr &factory, Settings &settings, void *glContext)
@@ -269,31 +266,14 @@ void FaceFinder::initFIFO(const cv::Size &inputSize, std::size_t n)
 
 void FaceFinder::initFlasher()
 {
-    // ### Flash ###
-    if(m_doDifferenceEyes)
-    {
-        assert(m_eyeFilter.get());
-        m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>(ogles_gpgpu::FlashFilter::kCenteredDifference);
-        m_flasher->init(128, 64, INT_MAX, false); // smoothProc.setOutputSize(48, 0);
-        m_flasher->createFBOTex(false);
-        
-        if(m_doDifferenceEyesDisplay)
-        {
-            m_eyeFilter->getOutputFilter()->add(m_flasher->getInputFilter());
-        }
-        else
-        {
-            m_eyeFilter->getInputFilter()->add(m_flasher->getInputFilter());
-        }
-    }
-    else
-    {
-        assert(m_acf.get());
-        m_flasher = std::make_shared<ogles_gpgpu::FlashFilter>(ogles_gpgpu::FlashFilter::kLaplacian);
-        m_flasher->init(48, 48, INT_MAX, false); // smoothProc.setOutputSize(48, 0);
-        m_flasher->createFBOTex(false);
-        m_acf->getRgbSmoothProc()->add(m_flasher->getInputFilter());
-    }
+    // ### Blobs ###
+    assert(m_eyeFilter.get());
+    m_flasher = std::make_shared<ogles_gpgpu::BlobFilter>();
+    m_flasher->init(128, 64, INT_MAX, false);
+    m_flasher->createFBOTex(false);
+
+    // ### Send eye images into the flash filter ###
+    m_eyeFilter->getOutputFilter()->add(m_flasher->getInputFilter());
 }
 
 void FaceFinder::initIris(const cv::Size &size)
@@ -971,22 +951,12 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives &scene)
         { // Grab reflection points for eye tracking etc:
             core::ScopeTimeLogger scopeTimeLogger = [this](double t) { this->m_timerInfo.blobExtractionTimeLogger(t); };
 
-            // Difference image on thread pool:
-            EyeBlobJob difference(filteredEyeSize, eyeWarps);
-            m_flasher->getHessianPeaksFromDifferenceImage()->getResultData(difference.filtered.ptr());
-            auto differenceResult = m_threads->process([&]() { difference.run(); });
-            
-            { // Single image in current thread:
-                EyeBlobJob single(filteredEyeSize, eyeWarps);
-                m_flasher->getHessianPeaksFromSingleImage()->getResultData(single.filtered.ptr());
-                single.run();
-                m_eyePointsSingle = single.eyePoints;
-            }
+            EyeBlobJob single(filteredEyeSize, eyeWarps);
+            m_flasher->getHessianPeaks()->getResultData(single.filtered.ptr());
+            single.run();
+            m_eyePoints = single.eyePoints;
             
             computeGazePoints();
-
-            differenceResult.get();            
-            m_eyePointsDifference = difference.eyePoints;            
         }
     }
 }
@@ -1002,7 +972,7 @@ void FaceFinder::computeGazePoints()
     cv::Point2f mu;
     for(int i = 0; i < 2; i++)
     {
-        for(const auto &p : m_eyePointsSingle[i])
+        for(const auto &p : m_eyePoints[i])
         {
             // Find iris center relative to specular reflection:
             const auto &iris = eyeWarps[i].eye.irisEllipse;

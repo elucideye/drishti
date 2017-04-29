@@ -1,8 +1,3 @@
-# The default dlib all/source.cpp file uses PNG and JPEG libraries for IO
-if(NOT (JPEG_FOUND AND PNG_FOUND))
-  return()
-endif()
-
 ###############
 ### cxxopts ###
 ###############

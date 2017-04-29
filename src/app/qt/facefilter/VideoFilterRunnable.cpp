@@ -58,8 +58,6 @@
 #include <QDateTime>
 #include <QFile>
 
-#define DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS 0
-
 namespace detail
 {
     inline bool isIOS()
@@ -248,19 +246,6 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
 {
     using FrameInput = ogles_gpgpu::FrameInput;
 
-#if DRISHTI_FACEFILTER_TOGGLE_BRIGHTNESS
-    const auto toc = std::chrono::high_resolution_clock::now();
-    const double elapsed = std::chrono::duration<double>(toc - m_pImpl->m_tic).count();
-    const int seconds = int(elapsed);
-    const static int interval = 1;
-    if(!(seconds % interval))
-    {
-        const int value = (seconds / interval) % 2;
-        adjustScreen(float(value));
-        m_pImpl->setBrightness(value);
-    }
-#endif
-    
     QOpenGLContext* openglContext = QOpenGLContext::currentContext();
     if (!openglContext)
     {
