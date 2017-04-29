@@ -165,11 +165,9 @@ FacePainter::FacePainter(int outputOrientation)
     assert(compiled);
     m_drawShParamAPosition = m_draw->getParam(ATTR, "position");
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
-    
-    m_eyeAttributes[0] = { &m_eyePointsFromSingleImage, 16.f, {1.0, 0.0, 1.0} };
-    m_eyeAttributes[1] = { &m_eyePointsFromDifferenceImage, 16.f, {1.0, 0.0, 1.0} };
-    
-    m_eyeAttributes[0].flow = &m_eyeFlow;
+
+    m_eyeAttributes = { &m_eyePoints, 16.f, {1.0, 0.0, 1.0} };
+    m_eyeAttributes.flow = &m_eyeFlow;
 }
 
 void FacePainter::setOutputSize(float scaleFactor)
@@ -434,13 +432,9 @@ int FacePainter::FacePainter::render(int position)
         Tools::checkGLErr(getProcName(), "render cleanup");
     }
     
-    if(m_eyesA.m_eyesInfo.texId >= 0)
+    if(m_eyes.m_eyesInfo.texId >= 0)
     {
-        renderTex(m_eyesA.m_eyesInfo);
-    }
-    if(m_eyesB.m_eyesInfo.texId >= 0)
-    {
-        renderTex(m_eyesB.m_eyesInfo);
+        renderTex(m_eyes.m_eyesInfo);
     }
     if(m_flowInfo.texId >= 0)
     {
@@ -609,8 +603,8 @@ std::array<drishti::eye::EyeWarp, 2> FacePainter::renderEyes(const drishti::face
         renderEye(cropInfo[i].roi, cropInfo[i].H, (i == 0) ? *face.eyeFullL : *face.eyeFullR);
     }
     
-    annotateEyes(m_eyesA, m_eyeAttributes[0]);
-    
+    annotateEyes(m_eyes, m_eyeAttributes);
+
     return cropInfo;
 }
 

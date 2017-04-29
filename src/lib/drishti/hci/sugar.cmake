@@ -17,11 +17,11 @@ sugar_files(DRISHTI_HCI_SRCS
   FaceFinderPainter.cpp
   GazeEstimator.cpp
   Scene.cpp
-  gpu/LineDrawing.cpp
+  gpu/BlobFilter.cpp
+  gpu/FacePainter.cpp
   gpu/GLCircle.cpp  
   gpu/GLPrinter.cpp
-  gpu/FacePainter.cpp
-  gpu/FlashFilter.cpp
+  gpu/LineDrawing.cpp
   )
 
 sugar_files(DRISHTI_HCI_HDRS_PUBLIC
@@ -31,9 +31,9 @@ sugar_files(DRISHTI_HCI_HDRS_PUBLIC
   FaceMonitor.h
   GazeEstimator.h
   Scene.hpp
-  gpu/LineDrawing.hpp
+  gpu/BlobFilter.h
+  gpu/FacePainter.h
   gpu/GLCircle.h
   gpu/GLPrinter.h
-  gpu/FacePainter.h
-  gpu/FlashFilter.h
+  gpu/LineDrawing.hpp
   )

@@ -11,7 +11,7 @@
 #include "drishti/hci/FaceFinderPainter.h"
 #include "drishti/hci/gpu/FacePainter.h"
 #include "drishti/hci/gpu/LineDrawing.hpp"
-#include "drishti/hci/gpu/FlashFilter.h"
+#include "drishti/hci/gpu/BlobFilter.h"
 #include "drishti/hci/gpu/GLCircle.h"
 #include "drishti/eye/gpu/EllipsoPolarWarp.h"
 #include "drishti/core/drishti_operators.h"
@@ -160,7 +160,6 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
     }
 #endif
     
-    
     MethodLog timeSummary(DRISHTI_LOCATION_SIMPLE);
     core::ScopeTimeLogger paintLogger = [&](double ts)
     {
@@ -211,18 +210,10 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives &scene, GLuint inputTextur
         //result1.get();
         
         {
-            m_painter->setEyeTextureA(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), eyeWarps);
-            FeaturePoints eyePointsSingle;
-            cat(m_eyePointsSingle[0], m_eyePointsSingle[1], eyePointsSingle);
-            m_painter->setEyePointsFromSingleImage(eyePointsSingle);
-        }
-        
-        if(m_doDifferenceEyesDisplay)
-        {
-            m_painter->setEyeTextureB(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize(), eyeWarps);
-            FeaturePoints eyePointsDifference;
-            cat(m_eyePointsDifference[0], m_eyePointsDifference[1], eyePointsDifference);
-            m_painter->setEyePointsFromDifferenceImage(eyePointsDifference);
+            m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), eyeWarps);
+            FeaturePoints eyePoints;
+            cat(m_eyePoints[0], m_eyePoints[1], eyePoints);
+            m_painter->setEyePoints(eyePoints);
         }
     }
     else if(scene.objects().size())

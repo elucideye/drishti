@@ -37,7 +37,7 @@
 namespace ogles_gpgpu
 {
     class SwizzleProc;
-    class FlashFilter;
+    class BlobFilter;
     class FacePainter;
     class FifoProc;
     class TransformProc;
@@ -198,9 +198,6 @@ protected:
     bool m_doFlash = false;
     int m_flashWidth = 128;
     
-    bool m_doDifferenceEyes = false;
-    bool m_doDifferenceEyesDisplay = false;
-    
     bool m_doIris = false;
     
     bool m_doCpuACF = false;
@@ -225,7 +222,7 @@ protected:
     std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo; // store last N faces
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
-    std::shared_ptr<ogles_gpgpu::FlashFilter> m_flasher; // EXPERIMENTAL
+    std::shared_ptr<ogles_gpgpu::BlobFilter> m_flasher; // EXPERIMENTAL
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
     
@@ -239,8 +236,7 @@ protected:
     cv::Point3f m_faceMotion;
 
     FeaturePoints m_gazePoints;
-    std::array<FeaturePoints,2> m_eyePointsSingle;
-    std::array<FeaturePoints,2> m_eyePointsDifference;
+    std::array<FeaturePoints,2> m_eyePoints;
     
     cv::Point2f m_eyeMotion;
     std::vector<cv::Vec4f> m_eyeFlowField;

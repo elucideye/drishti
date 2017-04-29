@@ -220,7 +220,7 @@ public:
     {
         int shrink = 3; // vertical shrink for small displays
         assert(index >= 0 && index <= 1);
-        Size2d irisSize(outFrameW, (outFrameW * m_eyesA.m_eyesInfo.size.height / m_eyesA.m_eyesInfo.size.width) / shrink);
+        Size2d irisSize(outFrameW, (outFrameW * m_eyes.m_eyesInfo.size.height / m_eyes.m_eyesInfo.size.width) / shrink);
         Rect2d irisRoi(0, index * (outFrameH - irisSize.height - 1), irisSize.width, irisSize.height);
         m_irisInfo[index] = { texIdx, size, irisRoi };
     }
@@ -228,44 +228,28 @@ public:
     //===========================
     //========= EYES ============
     //===========================
- 
-    void setEyeTextureA(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
-    {
-        // A) This stretches and preserves the aspect ratio across the top of the frame:
-        //Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height/size.width);
 
+#define DRISHTI_HC_FACE_PAINTER 1
+ 
+    void setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
+    {
+#if DRISHTI_HC_FACE_PAINTER
+        // A) This stretches and preserves the aspect ratio across the top of the frame:
+        Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height/size.width);
+#else
         // B) This stretches and centers the roi on top
         const int maxWidth = 512;
         const int width = std::min(maxWidth, outFrameW);
         Rect2d eyesRoi(0, 0, width, width * size.height/size.width);
+#endif
         eyesRoi.x = 0; // (outFrameW / 2);// - (size.width / 2);
         eyesRoi.y = eyesRoi.height / 4;
 
-        m_eyesA.m_eyes = eyes;
-        m_eyesA.m_eyesInfo = { texIdx, size, eyesRoi };
-        m_eyesA.m_eyesInfo.m_delegate = [&]()
+        m_eyes.m_eyes = eyes;
+        m_eyes.m_eyesInfo = { texIdx, size, eyesRoi };
+        m_eyes.m_eyesInfo.m_delegate = [&]()
         {
-            annotateEyes(m_eyesA, m_eyeAttributes[0]);
-        };
-    }
-    
-    void setEyeTextureB(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
-    {
-        // A) This stretches and preserves the aspect ratio across the top of the frame:
-        //Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height/size.width);
-        
-        // B) This stretches and centers the roi on top
-        const int maxWidth = 512;
-        const int width = std::min(maxWidth, outFrameW);
-        Rect2d eyesRoi(0, 0, width, width * size.height/size.width);
-        eyesRoi.x = outFrameW / 2;
-        eyesRoi.y = eyesRoi.height / 4;
-        
-        m_eyesB.m_eyes = eyes;
-        m_eyesB.m_eyesInfo = { texIdx, size, eyesRoi };
-        m_eyesB.m_eyesInfo.m_delegate = [&]()
-        {
-            annotateEyes(m_eyesB, m_eyeAttributes[1]);
+            annotateEyes(m_eyes, m_eyeAttributes);
         };
     }
     
@@ -275,15 +259,9 @@ public:
     }
 
     // points: normalized points wrt eye textures
-    void setEyePointsFromDifferenceImage(const FeaturePoints &points)
+    void setEyePoints(const FeaturePoints &points)
     {
-        m_eyePointsFromDifferenceImage = points;
-    }
-
-    // points: normalized points wrt eye textures
-    void setEyePointsFromSingleImage(const FeaturePoints &points)
-    {
-        m_eyePointsFromSingleImage = points;
+        m_eyePoints = points;
     }
     
     void setEyeFlow(const FlowField &flow)
@@ -366,12 +344,11 @@ private:
     std::vector<drishti::face::FaceModel> m_faces;
 
     // #### Draw eye texture
-    EyePairInfo m_eyesA, m_eyesB;
-    EyeAttributes m_eyeAttributes[2];
+    EyePairInfo m_eyes;
+    EyeAttributes m_eyeAttributes;
 
     FlowField m_eyeFlow;
-    FeaturePoints m_eyePointsFromSingleImage;
-    FeaturePoints m_eyePointsFromDifferenceImage;
+    FeaturePoints m_eyePoints;
     
     std::unique_ptr<GLPrinterShader> m_printer;
 
