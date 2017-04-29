@@ -17,7 +17,7 @@ sugar_files(DRISHTI_HCI_SRCS
   FaceFinderPainter.cpp
   GazeEstimator.cpp
   Scene.cpp
-  gpu/Blobfilter.cpp
+  gpu/BlobFilter.cpp
   gpu/FacePainter.cpp
   gpu/GLCircle.cpp  
   gpu/GLPrinter.cpp
