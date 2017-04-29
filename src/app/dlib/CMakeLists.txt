@@ -103,9 +103,6 @@ if(JPEG_FOUND AND PNG_FOUND)
         "--model=${eye_out_model}"
         )    
       
-      endyif()
     endif()
   endif()
 endif()
-
-
