@@ -48,9 +48,6 @@ if(JPEG_FOUND AND PNG_FOUND)
     install(TARGETS train_shape_predictor DESTINATION bin)
 
     if(DRISHTI_BUILD_TESTS AND NOT (IOS OR ANDROID))
-
-      enable_testing()
-
       set(eye_src_model_private "${assets_dir}/images/2318-eye_private.json")
       set(eye_src_image_private "${assets_dir}/images/2318-eye.png")
       set(eye_src_model "${CMAKE_CURRENT_BINARY_DIR}/2318-eye.json")
