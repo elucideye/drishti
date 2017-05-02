@@ -62,19 +62,15 @@ using Landmarks5Vec = std::vector<Landmarks5>;
 using RectVec = std::vector<cv::Rect>;
 
 static FaceLandmarks parseFaceData(const std::string &sInput);
-static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winSize, const int pad, const RectVec &objects, const Landmarks5Vec &landmarks);
 static bool writeAsJson(const std::string &filename, const std::vector<cv::Rect> &objects);
 static void drawObjects(cv::Mat &canvas, const std::vector<cv::Rect> &objects);
 static cv::Rect2f operator*(const cv::Rect2f &roi, float scale);
 static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores);
-
-class VideoSourceLandmarks : public VideoSourceCV
-{
-    VideoSourceLandmarks(const std::string &filenames)
-    {
-        
-    }
-};
+static std::vector<cv::Mat> cropNegatives(const cv::Mat &I,
+                                          const cv::Size &winSize,
+                                          const int pad, const
+                                          RectVec &objects,
+                                          const Landmarks5Vec &landmarks);
 
 // Resize input image to detection objects of minimum width
 // given an object detection window size. i.e.,
@@ -546,7 +542,11 @@ static cv::Mat cropNegative(const cv::Mat &I, const cv::Rect &roi, const cv::Siz
     return crop;
 }
 
-static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winSize, const int pad, const RectVec &objects, const Landmarks5Vec &landmarks)
+static std::vector<cv::Mat> cropNegatives(const cv::Mat &I,
+                                          const cv::Size &winSize,
+                                          const int pad,
+                                          const RectVec &objects,
+                                          const Landmarks5Vec &landmarks)
 {
     std::vector<cv::Mat> crops;
     
