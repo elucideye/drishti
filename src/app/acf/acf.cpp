@@ -33,6 +33,9 @@
 #  include "imshow/imshow.h"
 #endif
 
+#include "videoio/VideoSourceCV.h"
+#include "videoio/VideoSourceStills.h"
+
 // Package includes:
 #include "cxxopts.hpp"
 
@@ -59,11 +62,15 @@ using Landmarks5Vec = std::vector<Landmarks5>;
 using RectVec = std::vector<cv::Rect>;
 
 static FaceLandmarks parseFaceData(const std::string &sInput);
-static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winSize, const int pad, const RectVec &objects, const Landmarks5Vec &landmarks);
 static bool writeAsJson(const std::string &filename, const std::vector<cv::Rect> &objects);
 static void drawObjects(cv::Mat &canvas, const std::vector<cv::Rect> &objects);
 static cv::Rect2f operator*(const cv::Rect2f &roi, float scale);
 static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores);
+static std::vector<cv::Mat> cropNegatives(const cv::Mat &I,
+                                          const cv::Size &winSize,
+                                          const int pad, const
+                                          RectVec &objects,
+                                          const Landmarks5Vec &landmarks);
 
 // Resize input image to detection objects of minimum width
 // given an object detection window size. i.e.,
@@ -107,7 +114,6 @@ public:
     cv::Mat reduced;
 };
 
-
 int drishti_main(int argc, char **argv)
 {
     const auto argumentCount = argc;
@@ -146,13 +152,12 @@ int drishti_main(int argc, char **argv)
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("s,scores", "Log the filenames + max score", cxxopts::value<bool>(doScoreLog))
-    
         ("1,single", "Single detection (max)", cxxopts::value<bool>(doSingleDetection))
     
 #if defined(DRISHTI_USE_IMSHOW)
         ("w,window", "Use window preview", cxxopts::value<bool>(doWindow))
 #endif
-    
+
         // ### Do archive conversion ###
         ("A,archive", "Do archive translation", cxxopts::value<bool>(doArchiveTranslation))
     
@@ -239,7 +244,8 @@ int drishti_main(int argc, char **argv)
     }
     
     // ### Input
-    if((sInput.empty() && sTruth.empty()) || (!sInput.empty() && !sTruth.empty()))
+    int tally = int(!sInput.empty()) + int(!sTruth.empty());
+    if(tally != 1)
     {
         logger->error() << "Must specify exactly one input file or ground truth file (JSON) and not both!!!";
         return 1;
@@ -249,25 +255,21 @@ int drishti_main(int argc, char **argv)
     // ::: Pasre images w/ optional face landmarks :::
     // :::::::::::::::::::::::::::::::::::::::::::::::
 
-    std::vector<FilenameAndLandmarks> filenames;
+    FaceLandmarks landmarks; // ground truth map
+    std::shared_ptr<VideoSourceCV> video;
     if(!sTruth.empty())
     {
-        auto data = parseFaceData(sTruth);
-        for(const auto &r : data)
+        landmarks = parseFaceData(sTruth);
+        std::vector<std::string> filenames;
+        for(const auto &r : landmarks)
         {
-            FilenameAndLandmarks record { r.first, r.second };
-            filenames.push_back(record);
+            filenames.push_back(r.first);
         }
+        video = std::make_shared<VideoSourceStills>(filenames);
     }
     else
     {
-        const auto data = drishti::cli::expand(sInput);
-        for(const auto &f : data)
-        {
-            FilenameAndLandmarks record;
-            record.filename = f;
-            filenames.push_back(record);
-        }
+        video = VideoSourceCV::create(sInput);
     }
     
     // Allocate resource manager:
@@ -310,7 +312,11 @@ int drishti_main(int argc, char **argv)
         const auto winSize = detector->getWindowSize();
 
         // Load current image
-        cv::Mat image = cv::imread(filenames[i].filename, cv::IMREAD_COLOR);
+        auto frame = (*video)(i);
+        const auto &image = frame.image;
+
+        //cv::imwrite("/tmp/i.png", image);
+        
         if(!image.empty())
         {
             cv::Mat imageRGB;
@@ -344,7 +350,7 @@ int drishti_main(int argc, char **argv)
             if(!doPositiveOnly || (objects.size() > 0))
             {
                 // Construct valid filename with no extension:
-                std::string base = drishti::core::basename(filenames[i].filename);
+                std::string base = drishti::core::basename(frame.name);
                 std::string filename = sOutput + "/" + base;
 
                 float maxScore = -1e6f;
@@ -356,21 +362,25 @@ int drishti_main(int argc, char **argv)
                 
                 if(doScoreLog)
                 {
-                    logger->info() << "SCORE: " << filenames[i].filename << " = " << maxScore;
+                    logger->info() << "SCORE: " << filename << " = " << maxScore;
                 }
                 else
                 {
-                    logger->info() << ++total << "/" << filenames.size() << " " << filename << " = " << objects.size() << "; score = " << maxScore;
+                    logger->info() << ++total << "/" << video->count() << " " << frame.name << " = " << objects.size() << "; score = " << maxScore;
                 }
                 
                 if(doNegatives)
                 {
-                    auto negatives = cropNegatives(image, winSize, cropPad, objects, filenames[i].landmarks);
-                    for(int j = 0; j < negatives.size(); j++)
+                    auto iter = landmarks.find(filename); // find landmarks by name
+                    if(iter != landmarks.end())
                     {
-                        std::stringstream ss;
-                        ss << filename << std::setw(2) << std::setfill('0') << j << ".png";
-                        cv::imwrite(ss.str(), negatives[j]);
+                        auto negatives = cropNegatives(image, winSize, cropPad, objects, iter->second);
+                        for(int j = 0; j < negatives.size(); j++)
+                        {
+                            std::stringstream ss;
+                            ss << filename << std::setw(2) << std::setfill('0') << j << ".png";
+                            cv::imwrite(ss.str(), negatives[j]);
+                        }
                     }
                     
                     return; // don't do metadata logging
@@ -395,9 +405,9 @@ int drishti_main(int argc, char **argv)
 #if defined(DRISHTI_USE_IMSHOW)
                     if(doWindow)
                     {
+                        glfw::destroyWindow("acf");
                         glfw::imshow("acf", canvas);
-                        glfw::waitKey(0);
-                        glfw::destroyAllWindows();
+                        glfw::waitKey(1);
                     }
 #endif
                 }
@@ -405,13 +415,22 @@ int drishti_main(int argc, char **argv)
         }
     };
     
-    if(threads == 1 || threads == 0 || doWindow)
+    if(threads == 1 || threads == 0 || doWindow || !video->isRandomAccess())
     {
-        harness({0,static_cast<int>(filenames.size())});
+        auto count = video->count();
+        for(int i = 0; (i < count); i++)
+        {
+            // Increment manually, to check for end of file:
+            harness({i, i+1});
+            if(!video->good())
+            {
+                break;
+            }
+        }
     }
     else 
     {
-        cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness, std::max(threads, -1));
+        cv::parallel_for_({0,static_cast<int>(video->count())}, harness, std::max(threads, -1));
     }
 
     return 0;
@@ -419,6 +438,15 @@ int drishti_main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+    
+#if defined(DRISHTI_USE_IMSHOW)
+    // Hack/workaround needed for continuous preview in current imshow lib
+    cv::Mat canvas(480, 640, CV_8UC3, cv::Scalar(0,255,0));
+    glfw::imshow("acf", canvas);
+    glfw::waitKey(1);
+    glfw::destroyWindow("acf");
+#endif
+    
     try
     {
         return drishti_main(argc, argv);
@@ -514,7 +542,11 @@ static cv::Mat cropNegative(const cv::Mat &I, const cv::Rect &roi, const cv::Siz
     return crop;
 }
 
-static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winSize, const int pad, const RectVec &objects, const Landmarks5Vec &landmarks)
+static std::vector<cv::Mat> cropNegatives(const cv::Mat &I,
+                                          const cv::Size &winSize,
+                                          const int pad,
+                                          const RectVec &objects,
+                                          const Landmarks5Vec &landmarks)
 {
     std::vector<cv::Mat> crops;
     
@@ -547,4 +579,3 @@ static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winS
     
     return crops;
 }
-

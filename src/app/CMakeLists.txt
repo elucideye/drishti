@@ -10,6 +10,8 @@ find_package(cxxopts CONFIG REQUIRED)
 ### Libraries ###
 #################
 
+add_subdirectory(videoio)
+
 if(DRISHTI_BUILD_FACE)
   add_subdirectory(landmarks)
 endif()
