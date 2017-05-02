@@ -23,8 +23,6 @@ endif()
 
 add_library(drishti_videoio ${videoio_srcs})
 
-target_compile_options(drishti_videoio PUBLIC "-fobjc-arc")
-
 target_include_directories(drishti_videoio
   PUBLIC
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
@@ -33,6 +31,7 @@ target_include_directories(drishti_videoio
 target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS} drishtisdk)
 
 if(APPLE)
+  target_compile_options(drishti_videoio PUBLIC "-fobjc-arc")  
   target_compile_definitions(drishti_videoio PUBLIC DRISHTI_USE_AVFOUNDATION=1)
   target_link_libraries(drishti_videoio PUBLIC
     "-framework AVFoundation"
