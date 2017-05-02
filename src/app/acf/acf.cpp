@@ -444,12 +444,12 @@ int main(int argc, char **argv)
 {
     
 #if defined(DRISHTI_USE_IMSHOW)
+    // Hack/workaround needed for continuous preview in current imshow lib
     cv::Mat canvas(480, 640, CV_8UC3, cv::Scalar(0,255,0));
     glfw::imshow("acf", canvas);
     glfw::waitKey(1);
     glfw::destroyWindow("acf");
 #endif
-
     
     try
     {
@@ -579,4 +579,3 @@ static std::vector<cv::Mat> cropNegatives(const cv::Mat &I, const cv::Size &winS
     
     return crops;
 }
-
