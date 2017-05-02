@@ -7,16 +7,17 @@ set(videoio_srcs
   VideoSourceCV.cpp
   VideoSourceStills.h
   VideoSourceStills.cpp
-  MICMSampleBuffer.h
-  MICMSampleBuffer.m
-  MIMovieVideoSampleAccessor.h
-  MIMovieVideoSampleAccessor.m
   )
 
 if(APPLE)
   list(APPEND videoio_srcs
+    # AVFoundation framework video (i.e., quicktime *.MOV)
     VideoSourceApple.h
     VideoSourceApple.mm
+    MICMSampleBuffer.h
+    MICMSampleBuffer.m
+    MIMovieVideoSampleAccessor.h
+    MIMovieVideoSampleAccessor.m    
     )
 endif()
 
@@ -29,9 +30,10 @@ target_include_directories(drishti_videoio
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
   )
 
-target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS})
+target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS} drishtisdk)
 
 if(APPLE)
+  target_compile_definitions(drishti_videoio PUBLIC DRISHTI_USE_AVFOUNDATION=1)
   target_link_libraries(drishti_videoio PUBLIC
     "-framework AVFoundation"
     "-framework CoreFoundation"
@@ -39,12 +41,12 @@ if(APPLE)
     "-framework CoreVideo"
     "-framework CoreMedia"
     )
-  )
+endif()
 
 set_property(TARGET drishti_videoio PROPERTY FOLDER "libs/drishti")
 
 ### app ###
 
-add_executable(videoio_test videoio.cpp)
-target_link_libraries(videoio_test drishti_videoio)
-set_property(TARGET videoio_test PROPERTY FOLDER "app/console")
+add_executable(test-videoio videoio.cpp)
+target_link_libraries(test-videoio drishti_videoio cxxopts::cxxopts)
+set_property(TARGET test-videoio PROPERTY FOLDER "app/console")

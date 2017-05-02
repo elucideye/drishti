@@ -1,7 +1,7 @@
 #include "VideoSourceCV.h"
 
 #include "VideoSourceStills.h"
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
 #  include "VideoSourceApple.h"
 #endif
 
@@ -32,7 +32,7 @@ std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string &filename
         return std::make_shared<VideoSourceStills>(filename);
         break;
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
     case ".mov"_hash:
         return std::make_shared<VideoSourceApple>(filename);
         break;
@@ -42,7 +42,7 @@ std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string &filename
     case ".png"_hash:
     case ".jpg"_hash:
     case ".jpeg"_hash:
-        CV_Assert(false); // TODO
+        return std::make_shared<VideoSourceStills>(std::vector<std::string>{filename});
         break;
 
         // not supported
