@@ -15,15 +15,19 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h"
 #endif
+// clang-format on
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_CEREAL
 #  include "drishti/core/drishti_stdlib_string.h"
 #  include "drishti/core/drishti_cereal_pba.h"
 #  include "drishti/core/drishti_cv_cereal.h"
 #endif
+// clang-format on
 
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 
@@ -37,22 +41,22 @@ const char* truthFilename;
 const char* outputDirectory;
 bool isTextArchive;
 
-#define BEGIN_EMPTY_NAMESPACE namespace {
+// clang-format off
+#define BEGIN_EMPTY_NAMESPACE  namespace {
 #define END_EMPTY_NAMESPACE }
+// clang-format on
 
 BEGIN_EMPTY_NAMESPACE
 
 class RTEShapeEstimatorTest : public ::testing::Test
 {
 public:
-    
-    static std::shared_ptr<drishti::ml::RegressionTreeEnsembleShapeEstimator> create(const std::string &filename)
+    static std::shared_ptr<drishti::ml::RegressionTreeEnsembleShapeEstimator> create(const std::string& filename)
     {
         return std::make_shared<drishti::ml::RegressionTreeEnsembleShapeEstimator>(filename);
     }
-    
-protected:
 
+protected:
     // Setup
     RTEShapeEstimatorTest()
     {
@@ -83,7 +87,7 @@ protected:
         // First get our 4x3 aspect ratio image
         cv::Mat image = cv::imread(imageFilename, cv::IMREAD_GRAYSCALE);
         assert(!image.empty());
-        
+
         m_image = image;
     }
 
@@ -91,7 +95,7 @@ protected:
     {
         assert(truthFilename);
         std::ifstream is(truthFilename);
-        if(is)
+        if (is)
         {
             // TODO: Load ground truth model here
         }
@@ -100,12 +104,12 @@ protected:
             std::cerr << "Unable to find ground truth file: " << truthFilename << std::endl;
         }
     }
-    
+
     // Objects declared here can be used by all tests in the test case for RTEShapeEstimator.
     std::shared_ptr<drishti::ml::RegressionTreeEnsembleShapeEstimator> m_shapePredictor;
 
     int m_targetWidth = 127;
-    
+
     // Ground truth image:
     cv::Mat m_image;
 
@@ -121,7 +125,7 @@ protected:
 TEST(RTEShapeEstimator, StringConstructor)
 {
     // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char *)NULL);
+    ASSERT_NE(modelFilename, (const char*)NULL);
     auto predictor = RTEShapeEstimatorTest::create(modelFilename);
     ASSERT_NE(predictor, nullptr);
 }
@@ -131,8 +135,8 @@ TEST(RTEShapeEstimator, StringConstructor)
 TEST(RTEShapeEstimator, StreamConstructor)
 {
     // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char *)NULL);
-    if(std::string(modelFilename).find(".pba.z") != std::string::npos)
+    ASSERT_NE(modelFilename, (const char*)NULL);
+    if (std::string(modelFilename).find(".pba.z") != std::string::npos)
     {
         std::ifstream is(modelFilename, std::ios::binary);
         ASSERT_TRUE((bool)is);
@@ -164,4 +168,3 @@ TEST_F(RTEShapeEstimatorTest, ShapeSerialization)
 }
 
 END_EMPTY_NAMESPACE
-

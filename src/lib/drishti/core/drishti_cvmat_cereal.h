@@ -14,24 +14,24 @@
 
 DRISHTI_BEGIN_NAMESPACE(cv)
 
-template<class Archive>
+template <class Archive>
 void save(Archive& ar, const cv::Mat& mat, const std::uint32_t version)
 {
     int rows, cols, type;
     bool continuous;
-    
+
     rows = mat.rows;
     cols = mat.cols;
     type = mat.type();
     continuous = mat.isContinuous();
-    
-    ar & rows & cols & type & continuous;
-    
+
+    ar& rows& cols& type& continuous;
+
     if (continuous)
     {
         const int data_size = rows * cols * static_cast<int>(mat.elemSize());
         auto mat_data = cereal::binary_data(mat.ptr(), data_size);
-        ar & mat_data;
+        ar& mat_data;
     }
     else
     {
@@ -39,25 +39,25 @@ void save(Archive& ar, const cv::Mat& mat, const std::uint32_t version)
         for (int i = 0; i < rows; i++)
         {
             auto row_data = cereal::binary_data(mat.ptr(i), row_size);
-            ar & row_data;
+            ar& row_data;
         }
     }
 };
 
-template<class Archive>
+template <class Archive>
 void load(Archive& ar, cv::Mat& mat, const std::uint32_t version)
 {
     int rows, cols, type;
     bool continuous;
-    
-    ar & rows & cols & type & continuous;
-    
+
+    ar& rows& cols& type& continuous;
+
     if (continuous)
     {
         mat.create(rows, cols, type);
         const int data_size = rows * cols * static_cast<int>(mat.elemSize());
         auto mat_data = cereal::binary_data(mat.ptr(), data_size);
-        ar & mat_data;
+        ar& mat_data;
     }
     else
     {
@@ -66,7 +66,7 @@ void load(Archive& ar, cv::Mat& mat, const std::uint32_t version)
         for (int i = 0; i < rows; i++)
         {
             auto row_data = cereal::binary_data(mat.ptr(i), row_size);
-            ar & row_data;
+            ar& row_data;
         }
     }
 };

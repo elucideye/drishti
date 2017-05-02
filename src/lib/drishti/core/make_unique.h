@@ -16,8 +16,8 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-template <typename Value, typename ... Arguments>
-std::unique_ptr<Value> make_unique(Arguments && ... arguments_for_constructor)
+template <typename Value, typename... Arguments>
+std::unique_ptr<Value> make_unique(Arguments&&... arguments_for_constructor)
 {
     return std::unique_ptr<Value>(new Value(std::forward<Arguments>(arguments_for_constructor)...));
 }

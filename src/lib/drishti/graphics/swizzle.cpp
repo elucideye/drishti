@@ -10,7 +10,7 @@
 
 #include "drishti/graphics/swizzle.h"
 
-// *INDENT-OFF*
+// clang-format off
 BEGIN_OGLES_GPGPU
 const char * SwizzleProc::fshaderBGRASrc = OG_TO_STR
 (
@@ -25,4 +25,4 @@ const char * SwizzleProc::fshaderBGRASrc = OG_TO_STR
      gl_FragColor = val.bgra;
  });
 END_OGLES_GPGPU
-// *INDENT-ON*
+// clang-format on

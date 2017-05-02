@@ -54,23 +54,23 @@ typedef unsigned char boolean;
 // _feature_pool_region_padding = 0;
 
 static std::vector<std::vector<double>>
-get_interocular_distances (const std::vector<std::vector<dlib::full_object_detection> >& objects);
+get_interocular_distances(const std::vector<std::vector<dlib::full_object_detection>>& objects);
 
 using DlibImageArray = dlib::array<dlib::array2d<uint8_t>>;
-using DlibObjectSet=std::vector<std::vector<dlib::full_object_detection>>;
+using DlibObjectSet = std::vector<std::vector<dlib::full_object_detection>>;
 
-static void reduce_images(DlibImageArray &images_train, DlibObjectSet &faces_train, int ellipse_count, int width);
-static void dump_thumbs(DlibImageArray &images_train, DlibObjectSet  &faces_train, const std::string &dir, int ellipse_count);
+static void reduce_images(DlibImageArray& images_train, DlibObjectSet& faces_train, int ellipse_count, int width);
+static void dump_thumbs(DlibImageArray& images_train, DlibObjectSet& faces_train, const std::string& dir, int ellipse_count);
 
-static std::vector<int> parse_dimensions(const std::string &str);
-static dlib::rectangle parse_roi(const std::string &str);
+static std::vector<int> parse_dimensions(const std::string& str);
+static dlib::rectangle parse_roi(const std::string& str);
 
-int drishti_main(int argc, char *argv[])
+int drishti_main(int argc, char* argv[])
 {
     auto logger = drishti::core::Logger::create("train_shape_predictor");
-    
+
     const auto argumentCount = argc;
-    
+
     bool do_help = false;
     bool do_threads = false;
     bool do_thumbs = false;
@@ -95,33 +95,36 @@ int drishti_main(int argc, char *argv[])
     std::string sTest;
     std::string sTrain;
     std::string sOutput;
-    
+
     cxxopts::Options options("train_shape_predictor", "Command line interface for dlib shape_predictor training");
+
+    // clang-format off
     options.add_options()
-    ( "output", "Output directory for intermediate results", cxxopts::value<std::string>(sOutput))
-    ( "interpolate", "do interpolated features", cxxopts::value<bool>(do_interpolate))
-    ( "roi", "exclusion roi (x,y,w,h) normalized cs", cxxopts::value<std::string>(sRoi))
-    ( "thumbs", "dump thumbnails of width n", cxxopts::value<bool>(do_thumbs))
-    ( "affine", "do affine normalization", cxxopts::value<bool>(do_affine))
-    ( "npd", "use normalized pixel differences" ,cxxopts::value<bool>(npd))
-    ( "ellipse", "last 5*N points are ellipse coords", cxxopts::value<int>(ellipse_count))
-    ( "dimensions", "e.g. 2,2,4,4,4,4,6,6,8,8,8,8", cxxopts::value<std::string>(sDimensions))
-    ( "width", "processing resolution", cxxopts::value<int>(width))
-    ( "train", "training file", cxxopts::value<std::string>(sTrain))
-    ( "test", "testing file", cxxopts::value<std::string>(sTest))
-    ( "model", "Model file", cxxopts::value<std::string>(sModel))
-    ( "cascades", "Cascade depth", cxxopts::value<int>(cascades))
-    ( "depth", "Depth", cxxopts::value<int>(depth))
-    ( "trees-per-level", "Number of trees per cascade level", cxxopts::value<int>(trees_per_level))
-    ( "nu", "Regularization (lower == more)", cxxopts::value<float>(nu))
-    ( "oversampling", "Oversampling amount", cxxopts::value<int>(oversampling))
-    ( "features", "Feature pool size ", cxxopts::value<int>(features))
-    ( "lambda", "Lambda for feature separation", cxxopts::value<float>(lambda))
-    ( "splits", "Number of test splits", cxxopts::value<int>(splits))
-    ( "padding", "Feature pool region padding", cxxopts::value<float>(padding))
-    ( "threads", "Use worker threads when possible", cxxopts::value<bool>(do_threads))
-    ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(do_verbose))
-    ( "help", "Print the help message", cxxopts::value<bool>(do_help));
+        ( "output", "Output directory for intermediate results", cxxopts::value<std::string>(sOutput))
+        ( "interpolate", "do interpolated features", cxxopts::value<bool>(do_interpolate))
+        ( "roi", "exclusion roi (x,y,w,h) normalized cs", cxxopts::value<std::string>(sRoi))
+        ( "thumbs", "dump thumbnails of width n", cxxopts::value<bool>(do_thumbs))
+        ( "affine", "do affine normalization", cxxopts::value<bool>(do_affine))
+        ( "npd", "use normalized pixel differences" ,cxxopts::value<bool>(npd))
+        ( "ellipse", "last 5*N points are ellipse coords", cxxopts::value<int>(ellipse_count))
+        ( "dimensions", "e.g. 2,2,4,4,4,4,6,6,8,8,8,8", cxxopts::value<std::string>(sDimensions))
+        ( "width", "processing resolution", cxxopts::value<int>(width))
+        ( "train", "training file", cxxopts::value<std::string>(sTrain))
+        ( "test", "testing file", cxxopts::value<std::string>(sTest))
+        ( "model", "Model file", cxxopts::value<std::string>(sModel))
+        ( "cascades", "Cascade depth", cxxopts::value<int>(cascades))
+        ( "depth", "Depth", cxxopts::value<int>(depth))
+        ( "trees-per-level", "Number of trees per cascade level", cxxopts::value<int>(trees_per_level))
+        ( "nu", "Regularization (lower == more)", cxxopts::value<float>(nu))
+        ( "oversampling", "Oversampling amount", cxxopts::value<int>(oversampling))
+        ( "features", "Feature pool size ", cxxopts::value<int>(features))
+        ( "lambda", "Lambda for feature separation", cxxopts::value<float>(lambda))
+        ( "splits", "Number of test splits", cxxopts::value<int>(splits))
+        ( "padding", "Feature pool region padding", cxxopts::value<float>(padding))
+        ( "threads", "Use worker threads when possible", cxxopts::value<bool>(do_threads))
+        ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(do_verbose))
+        ( "help", "Print the help message", cxxopts::value<bool>(do_help));
+    // clang-format on    
 
     options.parse(argc, argv);
     

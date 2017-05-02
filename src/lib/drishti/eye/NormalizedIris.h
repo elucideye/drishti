@@ -21,9 +21,13 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 class NormalizedIris
 {
 public:
-
     NormalizedIris() {}
-    NormalizedIris(const cv::Mat &image, const cv::Mat &mask, const cv::Rect &roi) :  roi(roi), image(image), mask(mask) {}
+    NormalizedIris(const cv::Mat& image, const cv::Mat& mask, const cv::Rect& roi)
+        : roi(roi)
+        , image(image)
+        , mask(mask)
+    {
+    }
 
     const cv::Mat getImage() const
     {
@@ -34,29 +38,29 @@ public:
         return mask(roi);
     }
 
-    const cv::Rect & getRoi() const
+    const cv::Rect& getRoi() const
     {
         return roi;
     }
-    cv::Rect & getRoi()
+    cv::Rect& getRoi()
     {
         return roi;
     }
 
-    const cv::Mat &getPaddedImage() const
+    const cv::Mat& getPaddedImage() const
     {
         return image;
     }
-    cv::Mat &getPaddedImage()
+    cv::Mat& getPaddedImage()
     {
         return image;
     }
 
-    const cv::Mat &getPaddedMask() const
+    const cv::Mat& getPaddedMask() const
     {
         return mask;
     }
-    cv::Mat &getPaddedMask()
+    cv::Mat& getPaddedMask()
     {
         return mask;
     }
@@ -65,16 +69,14 @@ public:
 
     void oblp();
 
-    static void rotate(const cv::Mat &src, cv::Mat &dst, int x);
+    static void rotate(const cv::Mat& src, cv::Mat& dst, int x);
 
 protected:
-
     cv::Rect roi;
     cv::Mat image;
     cv::Mat mask;
 
-    std::vector< cv::Mat > features;
-
+    std::vector<cv::Mat> features;
 };
 
 DRISHTI_EYE_NAMESPACE_END

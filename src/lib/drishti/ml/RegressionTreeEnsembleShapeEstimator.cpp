@@ -11,8 +11,8 @@
 #include "drishti/ml/RTEShapeEstimatorImpl.h"
 
 #if DRISHTI_SERIALIZE_WITH_BOOST
-std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(const std::string &filename);
-std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(std::istream &is);
+std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(const std::string& filename);
+std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(std::istream& is);
 #endif
 
 // C++ exception with description:
@@ -24,10 +24,10 @@ std::shared_ptr<_SHAPE_PREDICTOR> load_pba_z(std::istream &is);
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-RTEShapeEstimator::Impl::Impl(const std::string &filename)
+RTEShapeEstimator::Impl::Impl(const std::string& filename)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
-    if((filename.find(".pba.z") != std::string::npos) && !m_predictor)
+    if ((filename.find(".pba.z") != std::string::npos) && !m_predictor)
     {
         m_predictor = load_pba_z(filename);
         return;
@@ -35,11 +35,11 @@ RTEShapeEstimator::Impl::Impl(const std::string &filename)
 #endif
 }
 
-RTEShapeEstimator::Impl::Impl(std::istream &is)
+RTEShapeEstimator::Impl::Impl(std::istream& is)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
     // istream test breaks qt stream reading:
-    if( /* is_pba_z(is) && */ !m_predictor)
+    if (/* is_pba_z(is) && */ !m_predictor)
     {
         m_predictor = load_pba_z(is);
         return;
@@ -47,19 +47,19 @@ RTEShapeEstimator::Impl::Impl(std::istream &is)
 #endif
 }
 
-void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
+void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 {
     m_streamLogger = logger;
-    if(m_impl)
+    if (m_impl)
     {
         m_impl->setStreamLogger(logger);
     }
 }
 
-RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string &filename)
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string& filename)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
-    if(filename.find(".pba.z") != std::string::npos)
+    if (filename.find(".pba.z") != std::string::npos)
     {
         // Legacy format (Impl serialization):
         m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(filename);
@@ -67,7 +67,7 @@ RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string &filen
     }
 #endif
 #if DRISHTI_SERIALIZE_WITH_CEREAL
-    if((filename.find(".cpb") != std::string::npos))
+    if ((filename.find(".cpb") != std::string::npos))
     {
         load_cpb(filename, *this);
         return;
@@ -75,10 +75,10 @@ RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string &filen
 #endif
 }
 
-RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream &is, const std::string &hint)
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
-    if((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
+    if ((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
     {
         // Legacy format (Impl serialization):
         m_impl = std::make_shared<RegressionTreeEnsembleShapeEstimator::Impl>(is);
@@ -95,32 +95,32 @@ RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream &is, const 
 
 void RTEShapeEstimator::setStagesHint(int stages)
 {
-    DRISHTI_STREAM_LOG_FUNC(6,7,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(6, 7, m_streamLogger);
     m_impl->setStagesHint(stages);
 }
 
 int RTEShapeEstimator::getStagesHint() const
 {
-    DRISHTI_STREAM_LOG_FUNC(6,8,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(6, 8, m_streamLogger);
     return m_impl->getStagesHint();
 }
 
-int RTEShapeEstimator::operator()(const cv::Mat &gray, std::vector<cv::Point2f> &points, std::vector<bool> &mask) const
+int RTEShapeEstimator::operator()(const cv::Mat& gray, std::vector<cv::Point2f>& points, std::vector<bool>& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(6,9,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(6, 9, m_streamLogger);
     return (*m_impl)(gray, points, mask);
 }
 
-int RTEShapeEstimator::operator()(const cv::Mat &I, const cv::Mat &M, Point2fVec &points, BoolVec &mask) const
+int RTEShapeEstimator::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(6,10,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(6, 10, m_streamLogger);
     CV_Assert(false);
     return 0;
 }
 
 bool RTEShapeEstimator::isPCA() const
 {
-    DRISHTI_STREAM_LOG_FUNC(6,11,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(6, 11, m_streamLogger);
     return m_impl->isPCA();
 }
 

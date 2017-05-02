@@ -23,9 +23,11 @@
 
 #include "drishti/core/Logger.h"
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/drishti_serialization_boost.h" // (optional)
 #endif
+// clang-format on
 
 #include <memory>
 
@@ -44,24 +46,24 @@ public:
     };
 
     EyeModelEstimator() {}
-    EyeModelEstimator(const std::string &filename);
-    EyeModelEstimator(std::istream &is, const std::string &hint={});
-    EyeModelEstimator(const RegressorConfig &config);
+    EyeModelEstimator(const std::string& filename);
+    EyeModelEstimator(std::istream& is, const std::string& hint = {});
+    EyeModelEstimator(const RegressorConfig& config);
     virtual ~EyeModelEstimator();
 
     bool good() const;
     operator bool() const;
-    
-    void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
 
-    virtual int operator()(const cv::Mat &crop, EyeModel &eye) const;
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger);
+
+    virtual int operator()(const cv::Mat& crop, EyeModel& eye) const;
 
     void setOpennessThreshold(float threshold);
     float getOpennessThreshold() const;
 
-    static cv::RotatedRect estimateIrisFromLimbusPoints(const EyeModel &eye);
+    static cv::RotatedRect estimateIrisFromLimbusPoints(const EyeModel& eye);
 
-    void normalize(const cv::Mat &crop, const EyeModel &eye, const cv::Size &size, NormalizedIris &code, int padding=0) const;
+    void normalize(const cv::Mat& crop, const EyeModel& eye, const cv::Size& size, NormalizedIris& code, int padding = 0) const;
 
     void setDoIndependentIrisAndPupil(bool flag);
 
@@ -84,7 +86,7 @@ public:
     void setIrisInits(int n);
     int getIrisInits() const;
 
-    cv::Mat drawMeanShape(const cv::Size &size) const;
+    cv::Mat drawMeanShape(const cv::Size& size) const;
 
     bool getDoMask() const;
     void setDoMask(bool flag);
@@ -97,12 +99,12 @@ public:
 
     void setOptimizationLevel(int level);
 
-    EyeModel getMeanShape(const cv::Size &size) const;
+    EyeModel getMeanShape(const cv::Size& size) const;
 
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
-    
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version);
+
 protected:
-
     std::shared_ptr<spdlog::logger> m_streamLogger;
 
     std::shared_ptr<Impl> m_impl;

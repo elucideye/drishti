@@ -35,14 +35,12 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceModelEstimator
 {
 public:
+    FaceModelEstimator(const sensor::SensorModel& sensor);
 
-    FaceModelEstimator(const sensor::SensorModel &sensor);
-
-    cv::Point3f operator()(const face::FaceModel &face);
+    cv::Point3f operator()(const face::FaceModel& face);
 
 protected:
-
-    cv::Point3f getDepth(const DRISHTI_EYE::EyeModel &eyeR, const DRISHTI_EYE::EyeModel &eyeL);
+    cv::Point3f getDepth(const DRISHTI_EYE::EyeModel& eyeR, const DRISHTI_EYE::EyeModel& eyeL);
 
     sensor::SensorModel m_sensor;
 };

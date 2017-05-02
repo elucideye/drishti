@@ -19,18 +19,19 @@
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-template <typename T> struct Field
+template <typename T>
+struct Field
 {
     Field()
     {
         has = false;
     }
-    Field(const T &t)
+    Field(const T& t)
     {
         value = t;
         has = true;
     }
-    Field(const std::string &name_, const T &value_, bool)
+    Field(const std::string& name_, const T& value_, bool)
     {
         isLeaf = true;
         has = true;
@@ -40,10 +41,9 @@ template <typename T> struct Field
 
     ~Field()
     {
-
     }
 
-    Field<T>& operator=(const std::pair<std::string, T> &src)
+    Field<T>& operator=(const std::pair<std::string, T>& src)
     {
         isLeaf = true;
         has = true;
@@ -52,7 +52,7 @@ template <typename T> struct Field
         return *this;
     }
 
-    void set(const std::string &name_, bool has_, bool isLeaf_, const T& value_)
+    void set(const std::string& name_, bool has_, bool isLeaf_, const T& value_)
     {
         name = name_;
         has = has_;
@@ -60,22 +60,22 @@ template <typename T> struct Field
         value = value_;
     }
 
-    void set(const std::string &name_, bool has_, bool isLeaf_)
+    void set(const std::string& name_, bool has_, bool isLeaf_)
     {
         name = name_;
         has = has_;
         isLeaf = isLeaf_;
     }
 
-    void merge(const Field<T> &df, int checkExtra)
+    void merge(const Field<T>& df, int checkExtra)
     {
-        if(!has && df.has)
+        if (!has && df.has)
         {
             set(df.name, df.has, df.isLeaf, df.value);
         }
     }
 
-    void set(const std::string &src)
+    void set(const std::string& src)
     {
         name = src;
     }
@@ -93,16 +93,16 @@ template <typename T> struct Field
         assert(has);
         return value;
     }
-    const T &get() const
+    const T& get() const
     {
         return value;
     }
 
-    T& operator *()
+    T& operator*()
     {
         return value;
     }
-    const T& operator *() const
+    const T& operator*() const
     {
         return value;
     }
@@ -116,7 +116,7 @@ template <typename T> struct Field
         return &value;
     }
 
-    T &get()
+    T& get()
     {
         return value;
     }
@@ -124,13 +124,13 @@ template <typename T> struct Field
     //friend template<typename T2> std::ostream& operator<<(std::ostream &os, const Field<T2>& src);
     //friend template<typename T2> std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src);
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
     {
-        ar & value;
-        ar & name;
-        ar & has;
-        ar & isLeaf;
+        ar& value;
+        ar& name;
+        ar& has;
+        ar& isLeaf;
     }
 
     T value;
@@ -142,4 +142,3 @@ template <typename T> struct Field
 DRISHTI_ACF_NAMESPACE_END
 
 #endif // __drishti_acf_ACFField_h__
-

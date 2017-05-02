@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <fstream>
 
-const char *filename;
+const char* filename;
 
 int drishti_main(int argc, char** argv)
 {
@@ -24,30 +24,30 @@ int drishti_main(int argc, char** argv)
     filename = argv[1];
 
     std::cout << "FILENAME: " << filename << std::endl;
-    
+
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
 
 TEST(NLohmannJson, NLohmannJSonParse)
 {
-    static const char *sName = "com.apple.avfoundation.avcapturedevice.built-in_video:1";
+    static const char* sName = "com.apple.avfoundation.avcapturedevice.built-in_video:1";
     const std::string name(sName);
-    
+
     std::ifstream ifs(filename, std::ifstream::in);
     nlohmann::json json;
     ASSERT_EQ(ifs.is_open(), true);
-    if(!ifs.is_open())
+    if (!ifs.is_open())
     {
         std::cerr << "Failed to open test file: " << filename << std::endl;
         return;
     }
-    
+
     ifs >> json;
-    const auto &device = json[name];
-    
+    const auto& device = json[name];
+
     ASSERT_EQ(device.empty(), false);
-    if(device.empty())
+    if (device.empty())
     {
         std::cerr << "Failure to parse settings for device:" << name;
         return;
@@ -57,17 +57,17 @@ TEST(NLohmannJson, NLohmannJSonParse)
     ASSERT_FLOAT_EQ(minDepth, 0.1f);
     float maxDepth = device["detectionRange"]["maxDepth"];
     ASSERT_FLOAT_EQ(maxDepth, 0.5f);
-    
-    const auto &sensor = device["sensor"];
-    const auto &intrinsic = sensor["intrinsic"];
-    
+
+    const auto& sensor = device["sensor"];
+    const auto& intrinsic = sensor["intrinsic"];
+
     int width = intrinsic["size"]["width"].get<int>();
     ASSERT_EQ(width, 1280);
     int height = intrinsic["size"]["height"].get<int>();
     ASSERT_EQ(height, 720);
-    
+
     float x = intrinsic["principal"]["x"].get<float>();
     ASSERT_FLOAT_EQ(x, 640.f);
     float y = intrinsic["principal"]["y"].get<float>();
-    ASSERT_FLOAT_EQ(y, 360.f);    
+    ASSERT_FLOAT_EQ(y, 360.f);
 }

@@ -15,7 +15,8 @@
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-template <typename T> std::string xtos(const T &t)
+template <typename T>
+std::string xtos(const T& t)
 {
     std::stringstream ss;
     ss << t;
@@ -25,7 +26,6 @@ template <typename T> std::string xtos(const T &t)
 class XGBooster::Impl
 {
 public:
-
     typedef XGBooster::Recipe Recipe;
 
     Impl()
@@ -38,7 +38,8 @@ public:
 
         init();
     }
-    Impl(const Recipe &recipe) : m_recipe(recipe)
+    Impl(const Recipe& recipe)
+        : m_recipe(recipe)
     {
         init();
     }
@@ -63,7 +64,7 @@ public:
         m_booster->SetParam("min_child_weight", "1"); // TODO (1 == dflt)
         m_booster->SetParam("max_delta_step", "0");   // TODO (1 == dflt)
 
-        if(m_recipe.regression)
+        if (m_recipe.regression)
         {
             m_booster->SetParam("objective", "reg:linear"); // linear regression (vs. logistic)
         }
@@ -73,15 +74,15 @@ public:
         }
     }
 
-    float operator()(const std::vector<float> &features)
+    float operator()(const std::vector<float>& features)
     {
-        std::shared_ptr<DMatrixSimple> dTest = xgboost::DMatrixSimpleFromMat(&features[0], 1, features.size(),NAN);
+        std::shared_ptr<DMatrixSimple> dTest = xgboost::DMatrixSimpleFromMat(&features[0], 1, features.size(), NAN);
         std::vector<float> predictions(1, 0.f);
         m_booster->Predict(*dTest, false, &predictions);
         return predictions.front();
     }
 
-    void train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask= {})
+    void train(const MatrixType<float>& features, const std::vector<float>& values, const MatrixType<uint8_t>& mask = {})
     {
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
@@ -89,21 +90,21 @@ public:
         std::shared_ptr<DMatrixSimple> dTrain = xgboost::DMatrixSimpleFromMat(features, features.size(), features[0].size(), mask);
         dTrain->info.labels = values;
 
-        std::vector< xgboost::learner::DMatrix *> dmats { dTrain.get() };
+        std::vector<xgboost::learner::DMatrix*> dmats{ dTrain.get() };
         m_booster->SetCacheData(dmats);
         m_booster->CheckInitModel();
         m_booster->CheckInit(dTrain.get());
 
         //std::vector<DataMatrix *> dmats { dTrain.get() }; // what is this for?
 
-        for(int t = 0; t < m_recipe.numberOfTrees; t++)
+        for (int t = 0; t < m_recipe.numberOfTrees; t++)
         {
             m_booster->UpdateOneIter(t, *dTrain);
         }
 #endif
     }
 
-    void read(const std::string &name)
+    void read(const std::string& name)
     {
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
@@ -113,7 +114,7 @@ public:
 #endif
     }
 
-    void write(const std::string &name)
+    void write(const std::string& name)
     {
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
@@ -122,23 +123,23 @@ public:
 #endif
     }
 
-    template<class Archive> void serialize(Archive & ar, const unsigned int version)
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
     {
-        ar & m_recipe;
-        ar & m_booster;
+        ar& m_recipe;
+        ar& m_booster;
     }
 
-    void setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {
         m_streamLogger = logger;
-        if(m_booster)
+        if (m_booster)
         {
             m_booster->setStreamLogger(logger);
         }
     }
 
 protected:
-
     Recipe m_recipe;
     std::shared_ptr<xgboost::wrapper::Booster> m_booster;
 
@@ -149,22 +150,24 @@ protected:
 // #########                      XGBooster                                #########
 // #################################################################################
 
-template<class Archive> void XGBooster::Recipe::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void XGBooster::Recipe::serialize(Archive& ar, const unsigned int version)
 {
-    ar & numberOfTrees;
-    ar & maxDepth;
-    ar & dataSubsample;
-    ar & learningRate;
-    if(version >= 1)
+    ar& numberOfTrees;
+    ar& maxDepth;
+    ar& dataSubsample;
+    ar& learningRate;
+    if (version >= 1)
     {
-        ar & featureSubsample;
+        ar& featureSubsample;
     }
 }
 
 // Boost serialization:
-template<class Archive> void XGBooster::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void XGBooster::serialize(Archive& ar, const unsigned int version)
 {
-    ar & m_impl;
+    ar& m_impl;
 }
 
 DRISHTI_ML_NAMESPACE_END

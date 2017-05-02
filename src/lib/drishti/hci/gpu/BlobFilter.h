@@ -23,29 +23,28 @@ BEGIN_OGLES_GPGPU
 class BlobFilter : public MultiPassProc
 {
 public:
-
     class Impl;
-    
+
     BlobFilter();
     ~BlobFilter();
-    
+
     virtual ProcInterface* getInputFilter() const;
     virtual ProcInterface* getOutputFilter() const;
-    
+
     ProcInterface* getHessian() const;
     ProcInterface* getHessianPeaks() const;
-    
+
     /**
      * Return the processor's name.
      */
-    virtual const char *getProcName() { return "BlobFilter"; }
-    
+    virtual const char* getProcName() { return "BlobFilter"; }
+
     virtual int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false);
     virtual int reinit(int inW, int inH, bool prepareForExternalInput = false);
-    virtual int render(int position=0);
-    
+    virtual int render(int position = 0);
+
     cv::Mat paint();
-    
+
     std::shared_ptr<Impl> m_impl;
 };
 

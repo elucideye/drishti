@@ -20,7 +20,6 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 class Regressor
 {
 public:
-
     template <typename T>
     using MatrixType = std::vector<std::vector<T>>;
 
@@ -36,30 +35,30 @@ public:
         double oversamplingFactor = 20.0;
         int featurePoolSize = 400;
         double lambda = 0.1;
-        double numTestSplits = 20; // not used
+        double numTestSplits = 20;   // not used
         double featureRadius = 1.66; // feature_pool_region_padding
 
         friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version)
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
         {
-            ar & maxLeafNodes;
-            ar & trees;
-            ar & nu;
-            ar & featurePoolSize;
-            ar & lambda;
-            ar & featureRadius;
+            ar& maxLeafNodes;
+            ar& trees;
+            ar& nu;
+            ar& featurePoolSize;
+            ar& lambda;
+            ar& featureRadius;
         }
     };
 
     Regressor() {}
 
     // Evaluate:
-    virtual float operator()(const RealVector &features) = 0;
+    virtual float operator()(const RealVector& features) = 0;
 
     // Train:
-    virtual void train(const MatrixType<float> &values, const RealVector &labels, const MatrixType<uint8_t> &mask= {}) = 0;
+    virtual void train(const MatrixType<float>& values, const RealVector& labels, const MatrixType<uint8_t>& mask = {}) = 0;
 };
-
 
 DRISHTI_RCPR_NAMESPACE_END
 

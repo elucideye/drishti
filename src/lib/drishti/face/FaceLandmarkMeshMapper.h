@@ -33,28 +33,26 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceLandmarkMeshMapper
 {
 public:
-
     struct Impl;
 
     using LandmarkCollection2d = eos::core::LandmarkCollection<cv::Vec2f>;
 
-    FaceLandmarkMeshMapper(const std::string &modelfile, const std::string &mappingsfile);
+    FaceLandmarkMeshMapper(const std::string& modelfile, const std::string& mappingsfile);
 
-    cv::Point3f operator()(const LandmarkCollection2d &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap);
+    cv::Point3f operator()(const LandmarkCollection2d& landmarks, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap);
 
-    cv::Point3f operator()(const std::vector<cv::Point2f> &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap);
+    cv::Point3f operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap);
 
-    cv::Point3f operator()(const FaceModel &face, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap);
+    cv::Point3f operator()(const FaceModel& face, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap);
 
-    static void save(const eos::render::Mesh &mesh, const std::string &filename);
-    
-    static void draw(cv::Mat &iso, const eos::render::Mesh &meshIn);
+    static void save(const eos::render::Mesh& mesh, const std::string& filename);
+
+    static void draw(cv::Mat& iso, const eos::render::Mesh& meshIn);
 
 protected:
-
     std::shared_ptr<Impl> m_pImpl;
 };
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // __drishti_face_FaceLandmarkMeshMapper_h__ 
+#endif // __drishti_face_FaceLandmarkMeshMapper_h__

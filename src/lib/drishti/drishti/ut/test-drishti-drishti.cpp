@@ -21,8 +21,8 @@ int drishti_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc >= 4);
-    drishti::testlib::hasFiles(argv, {1,2,3});    
-    
+    drishti::testlib::hasFiles(argv, { 1, 2, 3 });
+
     modelFilename = argv[1];
     imageFilename = argv[2];
     truthFilename = argv[3];

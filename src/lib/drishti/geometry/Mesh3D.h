@@ -21,32 +21,36 @@ template <typename T>
 class Mesh3D
 {
 public:
-    
     using APoint3d = cv::Point3_<T>;
     using APointVec3d = std::vector<APoint3d>;
 
     Mesh3D() {}
-    Mesh3D(const Mesh3D &mesh) : m_vertices(mesh.m_vertices) {}
-    Mesh3D(Mesh3D &&mesh) : m_vertices(std::move(mesh.m_vertices)) {}
-    
-    Mesh3D<T>& operator=(const Mesh3D<T> &src)
+    Mesh3D(const Mesh3D& mesh)
+        : m_vertices(mesh.m_vertices)
+    {
+    }
+    Mesh3D(Mesh3D&& mesh)
+        : m_vertices(std::move(mesh.m_vertices))
+    {
+    }
+
+    Mesh3D<T>& operator=(const Mesh3D<T>& src)
     {
         this->m_vertices = src.m_vertices;
         return *this;
     }
-    
+
     std::size_t size() const { return m_vertices.size(); }
 
-    void push_back(const APoint3d &p) { m_vertices.push_back(p); }
-    
+    void push_back(const APoint3d& p) { m_vertices.push_back(p); }
+
     APoint3d& front() { return m_vertices.front(); }
     const APoint3d& front() const { return m_vertices.front(); }
-    
+
     typename APointVec3d::iterator begin() { return m_vertices.begin(); }
     typename APointVec3d::iterator end() { return m_vertices.end(); }
-    
+
 protected:
-    
     APointVec3d m_vertices;
 };
 

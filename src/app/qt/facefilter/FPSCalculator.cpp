@@ -12,7 +12,9 @@
 
 #include <cassert> // assert
 
-FPSCalculator::FPSCalculator(): count_(0), fps_(0)
+FPSCalculator::FPSCalculator()
+    : count_(0)
+    , fps_(0)
 {
 }
 

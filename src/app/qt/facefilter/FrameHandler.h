@@ -8,8 +8,8 @@
 
 */
 
-#ifndef _frame_handler_h_
-#define _frame_handler_h_
+#ifndef __drishti_qt_facefilter_FrameHandler_h__
+#define __drishti_qt_facefilter_FrameHandler_h__
 
 #include "drishti/hci/FaceMonitor.h"
 
@@ -24,7 +24,7 @@
 #include <vector>
 #include <memory>
 
-// *INDENT-OFF*
+// clang-format off
 namespace drishti
 {
     namespace sensor
@@ -34,28 +34,27 @@ namespace drishti
 };
 
 namespace spdlog { class logger; }
-// *INDENT-ON*
+// clang-format on
 
 class FrameHandlerManager
 {
 public:
-    
     struct DetectionParams
     {
         float m_minDepth; // meters
         float m_maxDepth; // meters
     };
-    
-    using Settings=nlohmann::json;
-    typedef std::function<void(const cv::Mat &)> FrameHandler;
-    
-    FrameHandlerManager(Settings *settings, const std::string &name, const std::string &description);
-    
+
+    using Settings = nlohmann::json;
+    typedef std::function<void(const cv::Mat&)> FrameHandler;
+
+    FrameHandlerManager(Settings* settings, const std::string& name, const std::string& description);
+
     ~FrameHandlerManager();
-    
+
     bool good() const;
-    
-    static FrameHandlerManager *get(Settings *settings=nullptr, const std::string &name={}, const std::string &description={});
+
+    static FrameHandlerManager* get(Settings* settings = nullptr, const std::string& name = {}, const std::string& description = {});
 
     int getOrientation() const
     {
@@ -66,78 +65,77 @@ public:
     {
         m_orientation = orientation;
     }
-    
-    void setDeviceInfo(const std::string &name, const std::string &description)
+
+    void setDeviceInfo(const std::string& name, const std::string& description)
     {
         m_deviceName = name;
         m_deviceDescription = description;
     }
-    
-    void setSize(const cv::Size &size);
-    
+
+    void setSize(const cv::Size& size);
+
     cv::Size getSize() const;
 
-    void add(FrameHandler &handler)
+    void add(FrameHandler& handler)
     {
         m_handlers.push_back(handler);
     }
 
-    std::vector<FrameHandler> &getHandlers()
+    std::vector<FrameHandler>& getHandlers()
     {
         return m_handlers;
     }
-    
-    std::shared_ptr<drishti::sensor::SensorModel> & getSensor()
+
+    std::shared_ptr<drishti::sensor::SensorModel>& getSensor()
     {
         return m_sensor;
     }
-    
-    std::shared_ptr<spdlog::logger> & getLogger()
+
+    std::shared_ptr<spdlog::logger>& getLogger()
     {
         return m_logger;
     }
-    
-    std::shared_ptr<tp::ThreadPool<>> & getThreadPool()
+
+    std::shared_ptr<tp::ThreadPool<>>& getThreadPool()
     {
         return m_threads;
     }
-    
-    const DetectionParams & getDetectionParameters()
+
+    const DetectionParams& getDetectionParameters()
     {
         return m_detectionParams;
     }
-    
+
     drishti::hci::FaceMonitor* getFaceMonitor()
     {
         return m_faceMonitor.get();
     }
-    
-    Settings * getSettings() { return m_settings; }
-    const Settings * getSettings() const { return m_settings; }
+
+    Settings* getSettings() { return m_settings; }
+    const Settings* getSettings() const { return m_settings; }
 
 protected:
+    Settings* m_settings = nullptr;
 
-    Settings *m_settings = nullptr;
-    
     DetectionParams m_detectionParams;
-    
+
     std::string m_deviceName;
-    
+
     std::string m_deviceDescription;
-    
+
     int m_orientation = 0;
-    
+
     std::shared_ptr<spdlog::logger> m_logger;
 
     std::shared_ptr<tp::ThreadPool<>> m_threads;
 
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
-    
+
     std::vector<FrameHandler> m_handlers;
-    
+
     std::unique_ptr<drishti::hci::FaceMonitor> m_faceMonitor;
-    
-    static FrameHandlerManager * m_instance;
+
+    static FrameHandlerManager* m_instance;
 };
 
-#endif // _frame_handler_h_
+#endif // __drishti_qt_facefilter_FrameHandler_h__

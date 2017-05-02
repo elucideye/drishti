@@ -21,7 +21,7 @@ BEGIN_OGLES_GPGPU
 //luv.y = ((luv.y+88.0)/270.0);
 //luv.z = ((luv.z+134.0)/270.0);
 
-// *INDENT-OFF*
+// clang-format off
 const char * Rgb2LuvProc::fshaderRgb2LuvSrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -60,6 +60,6 @@ const char * Rgb2LuvProc::fshaderRgb2LuvSrc = OG_TO_STR
       //gl_FragColor = vec4(0.0, 0.5, 1.0, 1.0);
   }
 );
-// *INDENT-ON*
+// clang-format on
 
 END_OGLES_GPGPU

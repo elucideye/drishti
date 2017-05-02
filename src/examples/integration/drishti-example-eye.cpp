@@ -15,16 +15,16 @@
 
 #include <string>
 
-static bool toBool(const char *str);
+static bool toBool(const char* str);
 
-int drishti_main(int argc, char **argv)
+int drishti_main(int argc, char** argv)
 {
-    for(int i = 0; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         std::cerr << "argv[" << i << "]=" << argv[i] << std::endl;
     }
-    
-    if(argc != 5)
+
+    if (argc != 5)
     {
         std::cerr << "Usage: drishti-example-eye <model> <input> <is-right> <output-dir>" << std::endl;
         exit(1);
@@ -36,14 +36,14 @@ int drishti_main(int argc, char **argv)
     const std::string output = argv[4];
 
     drishti::sdk::EyeSegmenter segmenter(model);
-    if(!segmenter)
+    if (!segmenter)
     {
         std::cerr << "Unable to load model specified in: " << model << std::endl;
         exit(1);
     }
-        
+
     cv::Mat image = cv::imread(filename, cv::IMREAD_COLOR);
-    if(image.empty())
+    if (image.empty())
     {
         std::cerr << "Unable to load image specified in: " << filename << std::endl;
         exit(1);
@@ -58,11 +58,11 @@ int drishti_main(int argc, char **argv)
     drishti::sdk::createMask(mask_, eye, static_cast<int>(drishti::sdk::kScleraRegion));
 
     cv::imwrite(output + "/mask.png", mask);
-    
+
     return 0;
 }
 
-static int string_to_int(const std::string &str)
+static int string_to_int(const std::string& str)
 {
 #if ANDROID // add cmake system check
     return atoi(str.c_str());
@@ -71,16 +71,16 @@ static int string_to_int(const std::string &str)
 #endif
 }
 
-static bool toBool(const char *str)
+static bool toBool(const char* str)
 {
-    bool value = true;    
+    bool value = true;
 
     std::string arg(str);
-    if(string_to_int(arg) == 0 || arg == "false" || arg == "FALSE")
+    if (string_to_int(arg) == 0 || arg == "false" || arg == "FALSE")
     {
         value = false;
     }
-    else if(string_to_int(arg) == 1 || arg == "true" || arg == "TRUE")
+    else if (string_to_int(arg) == 1 || arg == "true" || arg == "TRUE")
     {
         value = true;
     }

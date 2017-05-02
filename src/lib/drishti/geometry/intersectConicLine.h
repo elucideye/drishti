@@ -47,7 +47,7 @@ DRISHTI_GEOMETRY_BEGIN
 
 // function P = intersectConicLine(C, l)
 //     P = [];
-//     [p1 p2] = getPointsOnLine(l);  
+//     [p1 p2] = getPointsOnLine(l);
 //
 //     %p1'Cp1 + 2k p1'Cp2 + k^2 p2'Cp2 = 0
 //     p1Cp1 = p1' *C* p1;
@@ -71,17 +71,17 @@ DRISHTI_GEOMETRY_BEGIN
 //     end
 
 template <typename T>
-int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Vec<T,3> &l, cv::Vec<T,3> P[2])
+int intersectConicLine(const cv::Matx<T, 3, 3>& C, const cv::Vec<T, 3>& l, cv::Vec<T, 3> P[2])
 {
     int n = 0;
-    
-    cv::Vec<T,3> p1, p2;
+
+    cv::Vec<T, 3> p1, p2;
     getPointsOnLine(l, p1, p2);
-    
+
     const auto p1Cp1 = (p1.t() * C * p1)[0];
     const auto p2Cp2 = (p2.t() * C * p2)[0];
     const auto p1Cp2 = (p1.t() * C * p2)[0];
-    
+
     if (p2Cp2 == T(0.0))
     {
         n = 1;
@@ -90,15 +90,15 @@ int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Vec<T,3> &l, cv::Vec<
     }
     else
     {
-        const auto delta = (p1Cp2*p1Cp2) - (p1Cp1*p2Cp2);
-        if(delta >= T(0.0))
+        const auto delta = (p1Cp2 * p1Cp2) - (p1Cp1 * p2Cp2);
+        if (delta >= T(0.0))
         {
             n = 2;
             const auto deltaSqrt = std::sqrt(delta);
-            const auto k1 = (-p1Cp2 + deltaSqrt)/p2Cp2;
-            const auto k2 = (-p1Cp2 - deltaSqrt)/p2Cp2;
-            P[0] = p1 + k1*p2;
-            P[1] = p1 + k2*p2;
+            const auto k1 = (-p1Cp2 + deltaSqrt) / p2Cp2;
+            const auto k2 = (-p1Cp2 - deltaSqrt) / p2Cp2;
+            P[0] = p1 + k1 * p2;
+            P[1] = p1 + k2 * p2;
         }
         else
         {
@@ -106,14 +106,14 @@ int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Vec<T,3> &l, cv::Vec<
             n = 0;
         }
     }
-    
+
     return n;
 }
 
 template <typename T>
-int intersectConicLine(const cv::Matx<T,3,3> &C, const cv::Point3_<T> &l, cv::Vec<T,3> P[2])
+int intersectConicLine(const cv::Matx<T, 3, 3>& C, const cv::Point3_<T>& l, cv::Vec<T, 3> P[2])
 {
-    return intersectConicLine(C, cv::Vec<T,3>(l.x, l.y, l.z), P);
+    return intersectConicLine(C, cv::Vec<T, 3>(l.x, l.y, l.z), P);
 }
 
 DRISHTI_GEOMETRY_END

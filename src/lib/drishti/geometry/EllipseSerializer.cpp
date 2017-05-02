@@ -15,8 +15,9 @@ void EllipseSerializer::read(const cv::FileNode& node)
 
 void EllipseSerializer::write(cv::FileStorage& fs) const
 {
-#if !DRISHTI_BUILD_MIN_SIZE    
-    fs << "{" << "center" << center << "size" << size << "angle" << angle << "}";
+#if !DRISHTI_BUILD_MIN_SIZE
+    fs << "{"
+       << "center" << center << "size" << size << "angle" << angle << "}";
 #else
     CV_Assert(false);
 #endif
@@ -24,17 +25,17 @@ void EllipseSerializer::write(cv::FileStorage& fs) const
 
 void write(cv::FileStorage& fs, const std::string&, const EllipseSerializer& x)
 {
-#if !DRISHTI_BUILD_MIN_SIZE    
+#if !DRISHTI_BUILD_MIN_SIZE
     x.write(fs);
 #else
     CV_Assert(false);
 #endif
 }
 
-void read(const cv::FileNode& node, EllipseSerializer& x, const EllipseSerializer & default_value)
+void read(const cv::FileNode& node, EllipseSerializer& x, const EllipseSerializer& default_value)
 {
-#if !DRISHTI_BUILD_MIN_SIZE    
-    if(node.empty())
+#if !DRISHTI_BUILD_MIN_SIZE
+    if (node.empty())
     {
         x = default_value;
     }
@@ -48,4 +49,3 @@ void read(const cv::FileNode& node, EllipseSerializer& x, const EllipseSerialize
 }
 
 DRISHTI_GEOMETRY_END
-

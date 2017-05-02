@@ -62,7 +62,7 @@
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-void Detector::Modify::merge(const Modify &src, int mode)
+void Detector::Modify::merge(const Modify& src, int mode)
 {
     nPerOct.merge(src.nPerOct, mode);
     nOctUp.merge(src.nOctUp, mode);
@@ -78,23 +78,23 @@ void Detector::Modify::merge(const Modify &src, int mode)
 }
 
 // Modify detector in place:
-int Detector::acfModify( const Detector::Modify &pIn )
+int Detector::acfModify(const Detector::Modify& pIn)
 {
-    auto &p = opts.pPyramid;
+    auto& p = opts.pPyramid;
 
     // Since this is a subset
     Modify dflt;
-    dflt.nPerOct = {"nPerOct",p->nPerOct};
-    dflt.nOctUp = {"nOctUp",p->nOctUp};
-    dflt.nApprox = {"nApprox",p->nApprox};
-    dflt.lambdas = {"lambdas", p->lambdas};
-    dflt.pad = {"pad", p->pad};
-    dflt.minDs = {"minDs",p->minDs};
-    dflt.pNms = {"pNms",opts.pNms};
-    dflt.stride = {"stride", opts.stride};
-    dflt.cascThr = {"cascThr", opts.cascThr};
-    dflt.cascCal = {"cascCal", 0.0 };
-    dflt.rescale = {"rescale", 1.0 };
+    dflt.nPerOct = { "nPerOct", p->nPerOct };
+    dflt.nOctUp = { "nOctUp", p->nOctUp };
+    dflt.nApprox = { "nApprox", p->nApprox };
+    dflt.lambdas = { "lambdas", p->lambdas };
+    dflt.pad = { "pad", p->pad };
+    dflt.minDs = { "minDs", p->minDs };
+    dflt.pNms = { "pNms", opts.pNms };
+    dflt.stride = { "stride", opts.stride };
+    dflt.cascThr = { "cascThr", opts.cascThr };
+    dflt.cascCal = { "cascCal", 0.0 };
+    dflt.rescale = { "rescale", 1.0 };
 
     int checkExtra = 1;
     Detector::Modify params = pIn;
@@ -134,13 +134,13 @@ int Detector::acfModify( const Detector::Modify &pIn )
     p->pChns->complete = 1;
 
     double shrink = p->pChns->shrink;
-    opts.stride = std::max(1.0, /*std::*/round(double(opts.stride)/shrink)) * shrink;
+    opts.stride = std::max(1.0, /*std::*/ round(double(opts.stride) / shrink)) * shrink;
     opts.pPyramid = pyramid.pPyramid;
 
     // calibrate and rescale detector:
     clf.hs += (*params.cascCal);
 
-    if(dflt.rescale != 1.0)
+    if (dflt.rescale != 1.0)
     {
         // detector=detectorRescale(detector,rescale);
         CV_Assert(false);

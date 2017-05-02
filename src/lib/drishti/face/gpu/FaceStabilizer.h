@@ -22,7 +22,7 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceStabilizer
 {
 public:
-    FaceStabilizer(const cv::Size &sizeOut);
+    FaceStabilizer(const cv::Size& sizeOut);
     void setEyeWidth(int width)
     {
         m_maxEyeWidth = width;
@@ -35,11 +35,10 @@ public:
     {
         m_autoScaling = flag;
     }
-    std::array<eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel &face, const cv::Size &sizeIn) const;
-    std::array<eye::EyeWarp, 2> renderEyes(const std::array<cv::Point2f, 2> &eyes, const cv::Size &sizeIn) const;
+    std::array<eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel& face, const cv::Size& sizeIn) const;
+    std::array<eye::EyeWarp, 2> renderEyes(const std::array<cv::Point2f, 2>& eyes, const cv::Size& sizeIn) const;
 
 protected:
-
     bool m_autoScaling = false;
 
     // Per eye geometry:

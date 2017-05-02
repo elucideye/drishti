@@ -41,12 +41,11 @@
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
 
-
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 
 // (((((( VERTEX ))))))
-// *INDENT-OFF*
+// clang-format off
 const char *vshaderSrc = STRINGIFY(
 
 #if DRISHTI_OPENGL_ES
@@ -61,10 +60,10 @@ const char *vshaderSrc = STRINGIFY(
         coords = vertices.xy;
 
     });
-// *INDENT-ON*
+// clang-format on
 
 // (((((( FRAGMENT ))))))
-// *INDENT-OFF*
+// clang-format off
 const char *fshaderSrc = STRINGIFY(
 
 #if DRISHTI_OPENGL_ES
@@ -80,7 +79,7 @@ const char *fshaderSrc = STRINGIFY(
         i = floor(i * 20.) / 20.;
         gl_FragColor = vec4(coords * .5 + .5, i, i);
     });
-// *INDENT-ON*
+// clang-format on
 
 QTRenderGL::QTRenderGL()
     : m_t(0)
@@ -103,7 +102,7 @@ void QTRenderGL::setT(qreal t)
     }
 }
 
-void QTRenderGL::handleWindowChanged(QQuickWindow *win)
+void QTRenderGL::handleWindowChanged(QQuickWindow* win)
 {
     if (win)
     {
@@ -151,21 +150,19 @@ void QTRenderGLRenderer::paint()
         m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fshaderSrc);
         m_program->bindAttributeLocation("vertices", 0);
         m_program->link();
-
     }
     m_program->bind();
 
     m_program->enableAttributeArray(0);
 
-    float values[] =
-    {
+    float values[] = {
         -1, -1,
         1, -1,
         -1, 1,
         1, 1
     };
     m_program->setAttributeArray(0, GL_FLOAT, values, 2);
-    m_program->setUniformValue("t", (float) m_t);
+    m_program->setUniformValue("t", (float)m_t);
 
     glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
 
@@ -182,4 +179,3 @@ void QTRenderGLRenderer::paint()
     m_program->disableAttributeArray(0);
     m_program->release();
 }
-

@@ -11,7 +11,9 @@
 #ifndef __drishti_ml_drishti_ml_h__
 #define __drishti_ml_drishti_ml_h__
 
+// clang-format off
 #define DRISHTI_ML_NAMESPACE_BEGIN namespace drishti { namespace ml {
 #define DRISHTI_ML_NAMESPACE_END } }
+// clang-format on
 
 #endif

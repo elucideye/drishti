@@ -21,26 +21,27 @@ struct PointHalf
 {
     PointHalf() {}
 
-    PointHalf( const cv::Point2f &p )
-        : x( half_float::detail::float2half<std::round_to_nearest>(p.x) )
-        , y( half_float::detail::float2half<std::round_to_nearest>(p.y) )
-    {}
+    PointHalf(const cv::Point2f& p)
+        : x(half_float::detail::float2half<std::round_to_nearest>(p.x))
+        , y(half_float::detail::float2half<std::round_to_nearest>(p.y))
+    {
+    }
 
     operator cv::Point2f() const
     {
         return cv::Point2f(asFloat(x), asFloat(y));
     }
 
-    static float asFloat(const half_float::detail::uint16 &src)
+    static float asFloat(const half_float::detail::uint16& src)
     {
         return half_float::detail::half2float(src);
     }
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
     {
-        ar & x;
-        ar & y;
+        ar& x;
+        ar& y;
     }
 
     half_float::detail::uint16 x, y;

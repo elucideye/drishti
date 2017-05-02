@@ -29,21 +29,19 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT Context
 {
 public:
-    
     class Impl;
-    Context(const drishti::sensor::SensorModel &sensor);
+    Context(const drishti::sensor::SensorModel& sensor);
     ~Context();
-    
-    Impl * get() { return m_impl.get(); }
-    
+
+    Impl* get() { return m_impl.get(); }
+
     void setMinDetectionDistance(float value);
     float getMinDetectionDistance() const;
-    
+
     void setMaxDetectionDistance(float value);
     float getMaxDetectionDistance() const;
-    
+
 protected:
-    
     std::unique_ptr<Impl> m_impl;
 };
 

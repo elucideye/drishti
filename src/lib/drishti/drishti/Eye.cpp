@@ -31,7 +31,7 @@ Eye::Eye()
 {
 }
 
-Eye::Eye(const Eye &src)
+Eye::Eye(const Eye& src)
     : iris(src.iris)
     , pupil(src.pupil)
     , eyelids(src.eyelids)
@@ -39,11 +39,12 @@ Eye::Eye(const Eye &src)
     , innerCorner(src.innerCorner)
     , outerCorner(src.outerCorner)
     , roi(src.roi)
-{}
-
-void createMask(Image1b &mask, const Eye &eye, int components)
 {
-    if(mask.getRows() && mask.getCols() && eye.getEyelids().size())
+}
+
+void createMask(Image1b& mask, const Eye& eye, int components)
+{
+    if (mask.getRows() && mask.getCols() && eye.getEyelids().size())
     {
         // Convert eyelids to opencv contour:
         auto eyelids = drishtiToCv(eye.getEyelids());
@@ -51,7 +52,7 @@ void createMask(Image1b &mask, const Eye &eye, int components)
         std::copy(eyelids.begin(), eyelids.end(), std::back_inserter(contours[0]));
 
         cv::Mat maskHandle = drishtiToCv<uint8_t, uint8_t>(mask); // wrapper (shallow copy)
-        if((components & kScleraRegion) && (components & kIrisRegion) && (components & kPupilRegion))
+        if ((components & kScleraRegion) && (components & kIrisRegion) && (components & kPupilRegion))
         {
             cv::fillPoly(maskHandle, contours, 255, 4);
             return;
@@ -59,15 +60,15 @@ void createMask(Image1b &mask, const Eye &eye, int components)
 
         cv::Mat1b eyeMask(mask.getRows(), mask.getCols(), uint8_t(0));
         cv::fillPoly(eyeMask, contours, 2550, 4);
-        if(components & kScleraRegion)
+        if (components & kScleraRegion)
         {
             maskHandle.setTo(255, eyeMask);
         }
-        if(eye.getIris().size.width > 0.f && eye.getIris().size.height > 0.f)
+        if (eye.getIris().size.width > 0.f && eye.getIris().size.height > 0.f)
         {
             cv::ellipse(maskHandle, drishtiToCv(eye.getIris()), (components & kIrisRegion) ? 255 : 0, -1, 4);
         }
-        if(eye.getPupil().size.width > 0.f && eye.getPupil().size.height > 0.f)
+        if (eye.getPupil().size.width > 0.f && eye.getPupil().size.height > 0.f)
         {
             cv::ellipse(maskHandle, drishtiToCv(eye.getPupil()), (components & kPupilRegion) ? 255 : 0, -1, 4);
         }

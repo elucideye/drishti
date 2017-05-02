@@ -76,33 +76,33 @@
 #include "drishti/acf/ACF.h"
 #include <opencv2/highgui/highgui.hpp>
 
-void grad1( float *I, float *Gx, float *Gy, int h, int w, int x );
-void grad2( float *I, float *Gx, float *Gy, int h, int w, int d );
-void gradMag( float *I, float *M, float *O, int h, int w, int d, bool full );
-void gradMagNorm( float *M, float *S, int h, int w, float norm );
+void grad1(float* I, float* Gx, float* Gy, int h, int w, int x);
+void grad2(float* I, float* Gx, float* Gy, int h, int w, int d);
+void gradMag(float* I, float* M, float* O, int h, int w, int d, bool full);
+void gradMagNorm(float* M, float* S, int h, int w, float norm);
 
-void gradMag( const cv::Mat &I, cv::Mat &M, cv::Mat &O, int d, bool full )
+void gradMag(const cv::Mat& I, cv::Mat& M, cv::Mat& O, int d, bool full)
 {
     M.create(I.size(), I.type());
     O.create(I.size(), I.type());
-    float *i = const_cast<float *>(I.ptr<float>());
-    float *m = M.ptr<float>();
-    float *o = O.ptr<float>();
+    float* i = const_cast<float*>(I.ptr<float>());
+    float* m = M.ptr<float>();
+    float* o = O.ptr<float>();
     gradMag(i, m, o, M.cols, M.rows, M.channels(), full);
 }
 
-void gradMagNorm( cv::Mat &M, const cv::Mat &S, float norm ) // operates on M
+void gradMagNorm(cv::Mat& M, const cv::Mat& S, float norm) // operates on M
 {
-    float *m = M.ptr<float>();
-    float *s = const_cast<float *>(S.ptr<float>());
+    float* m = M.ptr<float>();
+    float* s = const_cast<float*>(S.ptr<float>());
     gradMagNorm(m, s, M.cols, M.rows, norm);
 }
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-int Detector::gradientMag( const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel, int normRad, double normConst, int full, MatLoggerType logger)
+int Detector::gradientMag(const cv::Mat& I, cv::Mat& M, cv::Mat& O, int channel, int normRad, double normConst, int full, MatLoggerType logger)
 {
-    if(I.empty())
+    if (I.empty())
     {
         return 0;
     }
@@ -110,19 +110,19 @@ int Detector::gradientMag( const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel
     cv::Mat data;
     ::gradMag(I, M, O, channel, full); // TODO: support M or M&O
 
-    if(logger)
+    if (logger)
     {
         std::stringstream ss;
         ss << "M:" << M.cols << "x" << M.rows;
         logger(M, ss.str());
     }
 
-    if(normRad != 0)
+    if (normRad != 0)
     {
         cv::Mat S(I.size(), I.depth());
         MatP Sp(S), Mp(M); // wrappers
-        convTri( Mp, Sp, normRad );
-        ::gradMagNorm( M, S, normConst );
+        convTri(Mp, Sp, normRad);
+        ::gradMagNorm(M, S, normConst);
     }
 
     return 0;

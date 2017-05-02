@@ -28,7 +28,7 @@ using namespace MyGame::Sample;
 
 // Example how to use FlatBuffers to create and read binary buffers.
 
-void monster_serialize(flatbuffers::FlatBufferBuilder &builder)
+void monster_serialize(flatbuffers::FlatBufferBuilder& builder)
 {
     // First, lets serialize some weapons for the Monster: A 'sword' and an 'axe'.
     auto weapon_one_name = builder.CreateString("Sword");
@@ -60,10 +60,10 @@ void monster_serialize(flatbuffers::FlatBufferBuilder &builder)
 
     builder.Finish(orc); // Serialize the root of the object.
 
-    // We now have a FlatBuffer we can store on disk or send over a network.    
+    // We now have a FlatBuffer we can store on disk or send over a network.
 }
 
-void monster_deserialize(unsigned char *buffer)
+void monster_deserialize(unsigned char* buffer)
 {
     // Instead, we're going to access it right away (as if we just received it).
 
@@ -72,7 +72,7 @@ void monster_deserialize(unsigned char *buffer)
 
     // Get and test some scalar types from the FlatBuffer.
     assert(monster->hp() == 80);
-    assert(monster->mana() == 150);  // default
+    assert(monster->mana() == 150); // default
     assert(monster->name()->str() == "MyMonster");
 
     // Get and test a field of the FlatBuffer's `struct`.
@@ -88,8 +88,8 @@ void monster_deserialize(unsigned char *buffer)
     (void)inv;
 
     // Get and test the `weapons` FlatBuffers's `vector`.
-    std::string expected_weapon_names[] = {"Sword", "Axe"};
-    short expected_weapon_damages[] = {3, 5};
+    std::string expected_weapon_names[] = { "Sword", "Axe" };
+    short expected_weapon_damages[] = { 3, 5 };
     auto weps = monster->weapons();
     for (unsigned int i = 0; i < weps->size(); i++)
     {
@@ -109,18 +109,18 @@ void monster_deserialize(unsigned char *buffer)
     printf("The FlatBuffer was successfully created and verified!\n");
 }
 
-int main(int /*argc*/, const char * /*argv*/[])
+int main(int /*argc*/, const char* /*argv*/ [])
 {
     {
         // Build up a serialized buffer algorithmically:
         flatbuffers::FlatBufferBuilder builder;
         monster_serialize(builder);
-        
+
         // ** file/network code goes here :) **
         // access builder.GetBufferPointer() for builder.GetSize() bytes
         monster_deserialize(builder.GetBufferPointer());
     }
-    
+
     {
         flatbuffers::FlatBufferBuilder builder;
 
@@ -132,10 +132,10 @@ int main(int /*argc*/, const char * /*argv*/[])
         monsterSrc.mana = 4;
         monsterSrc.pos = { 1.f, 2.f, 3.f };
         monsterSrc.name = "Trogdor";
-        monsterSrc.weapons = { {"axe", 4}, {"hammer", 3} };
-        
+        monsterSrc.weapons = { { "axe", 4 }, { "hammer", 3 } };
+
         monsterSrc.serialize(builder);
-        
+
         drishti::Monster monsterDst;
         monsterDst.deserialize(builder.GetBufferPointer());
     }

@@ -10,46 +10,47 @@
  
 */
 
-#ifndef QML_CAMERA_MANAGER_H
-#define QML_CAMERA_MANAGER_H 1
+#ifndef __drishti_qt_facefilter_QMLCameraManager_h__
+#define __drishti_qt_facefilter_QMLCameraManager_h__ 1
 
-#include <memory> // std::shared_ptr
+#include <memory>           // std::shared_ptr
 #include <opencv2/core.hpp> // for cv::Size
 
-// *INDENT-OFF*
+// clang-format off
 namespace spdlog { class logger; }
-// *INDENT-ON*
+// clang-format on
 class QCamera;
 class QQuickItem;
 
 class QMLCameraManager
 {
 public:
-    QMLCameraManager(QCamera *camera, std::shared_ptr<spdlog::logger> &logger)
-    : m_camera(camera)
-    , m_logger(logger) {}
-    
+    QMLCameraManager(QCamera* camera, std::shared_ptr<spdlog::logger>& logger)
+        : m_camera(camera)
+        , m_logger(logger)
+    {
+    }
+
     virtual std::string getDeviceName() const;
 
     virtual std::string getDescription() const;
 
     virtual int getOrientation() const;
-    
+
     virtual cv::Size getSize() const;
-    
+
     virtual cv::Size configure();
-    
-    static std::unique_ptr<QMLCameraManager> create(QQuickItem *root, std::shared_ptr<spdlog::logger> &logger);
-    
+
+    static std::unique_ptr<QMLCameraManager> create(QQuickItem* root, std::shared_ptr<spdlog::logger>& logger);
+
 protected:
-    
     virtual cv::Size configureCamera()
     {
         return cv::Size();
     }
-    
+
     cv::Size m_size;
-    QCamera *m_camera = nullptr;
+    QCamera* m_camera = nullptr;
     std::shared_ptr<spdlog::logger> m_logger;
 };
 
@@ -57,8 +58,10 @@ protected:
 class QMLCameraManagerAndroid : public QMLCameraManager
 {
 public:
-    QMLCameraManagerAndroid(QCamera *camera, std::shared_ptr<spdlog::logger> &logger)
-    : QMLCameraManager(camera, logger) {}
+    QMLCameraManagerAndroid(QCamera* camera, std::shared_ptr<spdlog::logger>& logger)
+        : QMLCameraManager(camera, logger)
+    {
+    }
     virtual cv::Size configureCamera();
 };
 
@@ -66,9 +69,11 @@ public:
 class QMLCameraManagerApple : public QMLCameraManager
 {
 public:
-    QMLCameraManagerApple(QCamera *camera, std::shared_ptr<spdlog::logger> &logger)
-    : QMLCameraManager(camera, logger) {}
+    QMLCameraManagerApple(QCamera* camera, std::shared_ptr<spdlog::logger>& logger)
+        : QMLCameraManager(camera, logger)
+    {
+    }
     virtual cv::Size configureCamera();
 };
 
-#endif // QML_CAMERA_MANAGER_H
+#endif // __drishti_qt_facefilter_QMLCameraManager_h__

@@ -15,18 +15,17 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 
 #if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
-template void FaceModel::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void FaceModel::serialize<OArchive>(OArchive& ar, const unsigned int);
 #endif
 
 typedef cereal::PortableBinaryInputArchive IArchive;
-template void FaceModel::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void FaceModel::serialize<IArchive>(IArchive& ar, const unsigned int);
 DRISHTI_FACE_NAMESPACE_END
-
 
 #include <cereal/archives/xml.hpp>
 DRISHTI_FACE_NAMESPACE_BEGIN
 typedef cereal::XMLInputArchive IArchiveXML;
 typedef cereal::XMLOutputArchive OArchiveXML;
-template void FaceModel::serialize<OArchiveXML>(OArchiveXML &ar, const unsigned int);
-template void FaceModel::serialize<IArchiveXML>(IArchiveXML &ar, const unsigned int);
+template void FaceModel::serialize<OArchiveXML>(OArchiveXML& ar, const unsigned int);
+template void FaceModel::serialize<IArchiveXML>(IArchiveXML& ar, const unsigned int);
 DRISHTI_FACE_NAMESPACE_END

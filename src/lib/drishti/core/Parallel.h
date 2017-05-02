@@ -20,79 +20,92 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 struct ParallelHeterogeneousLambda : public cv::ParallelLoopBody
 {
 public:
-    ParallelHeterogeneousLambda(std::vector<std::function<void()> > &functions) : m_functions(functions) {}
-    void operator()(const cv::Range &range) const
+    ParallelHeterogeneousLambda(std::vector<std::function<void()>>& functions)
+        : m_functions(functions)
     {
-        for(int i = range.start; i < range.end; i++)
+    }
+    void operator()(const cv::Range& range) const
+    {
+        for (int i = range.start; i < range.end; i++)
         {
             m_functions[i]();
         }
     }
-    
+
     ParallelHeterogeneousLambda(const ParallelHeterogeneousLambda&) = delete;
-    void operator = (const ParallelHeterogeneousLambda&) = delete;
-    
+    void operator=(const ParallelHeterogeneousLambda&) = delete;
+
 protected:
-    
     std::vector<std::function<void()>> m_functions;
 };
 
 struct ParallelHomogeneousLambda : public cv::ParallelLoopBody
 {
 public:
-    ParallelHomogeneousLambda(std::function<void(int)> &function) : m_function(function) {}
-    
-    template <class Callable>
-    ParallelHomogeneousLambda(Callable && func) : m_function(std::forward<Callable>(func)) {}
+    ParallelHomogeneousLambda(std::function<void(int)>& function)
+        : m_function(function)
+    {
+    }
 
-    ParallelHomogeneousLambda(ParallelHomogeneousLambda && other) : m_function(std::move(other.m_function))
+    template <class Callable>
+    ParallelHomogeneousLambda(Callable&& func)
+        : m_function(std::forward<Callable>(func))
+    {
+    }
+
+    ParallelHomogeneousLambda(ParallelHomogeneousLambda&& other)
+        : m_function(std::move(other.m_function))
     {
         other.m_function = nullptr;
     }
 
-    void operator()(const cv::Range &range) const
+    void operator()(const cv::Range& range) const
     {
-        for(int i = range.start; i < range.end; i++)
+        for (int i = range.start; i < range.end; i++)
         {
             m_function(i);
         }
     }
-    
+
     ParallelHomogeneousLambda(const ParallelHomogeneousLambda&) = delete;
-    void operator = (const ParallelHomogeneousLambda&) = delete;
-    
+    void operator=(const ParallelHomogeneousLambda&) = delete;
+
 protected:
-    
     std::function<void(int)> m_function;
 };
 
 struct ParallelLambdaRange : public cv::ParallelLoopBody
 {
 public:
-    ParallelLambdaRange(std::function<void(const cv::Range &r)> &function) : m_function(function) {}
-    
+    ParallelLambdaRange(std::function<void(const cv::Range& r)>& function)
+        : m_function(function)
+    {
+    }
+
     template <class Callable>
-    ParallelLambdaRange(Callable && func) : m_function(std::forward<Callable>(func)) {}
-    
-    ParallelLambdaRange(ParallelLambdaRange &&other) : m_function(std::move(other.m_function))
+    ParallelLambdaRange(Callable&& func)
+        : m_function(std::forward<Callable>(func))
+    {
+    }
+
+    ParallelLambdaRange(ParallelLambdaRange&& other)
+        : m_function(std::move(other.m_function))
     {
         other.m_function = nullptr;
     }
-    
-    void operator()(const cv::Range &range) const
+
+    void operator()(const cv::Range& range) const
     {
         m_function(range);
     }
-    
+
     ParallelLambdaRange(const ParallelLambdaRange&) = delete;
-    void operator = (const ParallelLambdaRange&) = delete;
-    
+    void operator=(const ParallelLambdaRange&) = delete;
+
 protected:
-    
-    std::function<void(const cv::Range &r)> m_function;
+    std::function<void(const cv::Range& r)> m_function;
 };
 
 DRISHTI_CORE_NAMESPACE_END
-
 
 #endif

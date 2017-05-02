@@ -22,18 +22,17 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 
 struct EyeModelSpecification
 {
-    static EyeModelSpecification create
-    (
+    static EyeModelSpecification create(
         int eyelidCount = 16,
         int creaseCount = 9,
         bool irisCenter = true,
         bool irisOuter = true,
         bool irisInner = true,
         bool irisEllipse = true,
-        bool pupilEllipse = true
-    );
-    
-    template<class Archive> void serialize(Archive & ar, const uint32_t version);
+        bool pupilEllipse = true);
+
+    template <class Archive>
+    void serialize(Archive& ar, const uint32_t version);
 
     cv::Range eyelids;
     cv::Range crease;
@@ -44,12 +43,12 @@ struct EyeModelSpecification
     cv::Range pupilEllipse;
 };
 
-EyeModel shapeToEye(const std::vector<cv::Point2f> &points, const EyeModelSpecification &spec);
+EyeModel shapeToEye(const std::vector<cv::Point2f>& points, const EyeModelSpecification& spec);
 
-std::vector<cv::Point2f> eyeToShape(const EyeModel &eye, const EyeModelSpecification &spec);
-std::vector<float> eyeToVector(const EyeModel &eye, bool crease=true);
-std::vector<float> pointsToVector(const std::vector<cv::Point2f> &points);
-std::vector<float>& cat(std::vector<float> &src, const std::vector<float> &params);
+std::vector<cv::Point2f> eyeToShape(const EyeModel& eye, const EyeModelSpecification& spec);
+std::vector<float> eyeToVector(const EyeModel& eye, bool crease = true);
+std::vector<float> pointsToVector(const std::vector<cv::Point2f>& points);
+std::vector<float>& cat(std::vector<float>& src, const std::vector<float>& params);
 
 DRISHTI_EYE_NAMESPACE_END
 

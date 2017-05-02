@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __facecrop_Pyramid_h__
-#define __facecrop_Pyramid_h__
+#ifndef __drishti_facecrop_Pyramid_h__
+#define __drishti_facecrop_Pyramid_h__
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -18,6 +18,6 @@
 bool gaussianPyramid(const cv::Mat& src, std::vector<cv::Mat>& result, int level);
 bool laplacianPyramid(const cv::Mat& src, std::vector<cv::Mat>& result, int level);
 bool inverseLaplacianPyramid(std::vector<cv::Mat>& src, cv::Mat& result);
-cv::Mat blend(const cv::Mat &im1, const cv::Mat &im2, const cv::Mat &mask, int level);
+cv::Mat blend(const cv::Mat& im1, const cv::Mat& im2, const cv::Mat& mask, int level);
 
-#endif // __facecrop_Pyramid_h__
+#endif // __drishti_facecrop_Pyramid_h__

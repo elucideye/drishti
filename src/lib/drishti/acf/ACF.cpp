@@ -20,18 +20,18 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////
 
-Detector::Detector(const Detector &src)
+Detector::Detector(const Detector& src)
 {
     clf = src.clf;
     opts = src.opts;
 }
 
-Detector::Detector(std::istream &is, const std::string &hint)
+Detector::Detector(std::istream& is, const std::string& hint)
 {
     m_good = deserializeAny(is, hint) == 0;
 }
 
-Detector::Detector(const std::string &filename)
+Detector::Detector(const std::string& filename)
 {
     m_good = deserializeAny(filename) == 0;
 }
@@ -45,11 +45,11 @@ int Detector::initializeOpts() // Seems to be required
 {
     {
         Options dfs;
-        dfs.modelDs = { "modelDs", cv::Size(41,100) };
+        dfs.modelDs = { "modelDs", cv::Size(41, 100) };
         dfs.modelDsPad = { "modelDsPad", cv::Size(64, 128) };
         dfs.stride = { "stride", 4 };
         dfs.cascThr = { "cascThr", -1 };
-        dfs.nWeak = { "nWeak", std::vector<int>{128} };
+        dfs.nWeak = { "nWeak", std::vector<int>{ 128 } };
         dfs.seed = { "seed", 0 };
         dfs.nPos = { "nPos", std::numeric_limits<int>::infinity() };
         dfs.nNeg = { "nNeg", 5000 };
@@ -63,8 +63,8 @@ int Detector::initializeOpts() // Seems to be required
     chnsPyramid({}, &opts.pPyramid.get(), pyramid, true);
     auto p = pyramid.pPyramid;
     auto shrink = *(p.pChns->shrink);
-    opts.modelDsPad = ((*(opts.modelDsPad))/shrink)*shrink;
-    p.pad = ((opts.modelDsPad.get() - opts.modelDs.get())/shrink/2)*shrink; // TODO: check this
+    opts.modelDsPad = ((*(opts.modelDsPad)) / shrink) * shrink;
+    p.pad = ((opts.modelDsPad.get() - opts.modelDs.get()) / shrink / 2) * shrink; // TODO: check this
     p.minDs = opts.modelDs;
 
     chnsPyramid({}, &p, pyramid, true);
@@ -107,30 +107,30 @@ int Detector::initializeOpts() // Seems to be required
     return 0;
 }
 
-cv::Mat cvt8UC3To32FC3(const cv::Mat &I)
+cv::Mat cvt8UC3To32FC3(const cv::Mat& I)
 {
     cv::Mat If;
-    I.convertTo(If, CV_32FC3, (1.0/255.0));
+    I.convertTo(If, CV_32FC3, (1.0 / 255.0));
     return If;
 }
 
-float Detector::evaluate(const cv::Mat &I) const
+float Detector::evaluate(const cv::Mat& I) const
 {
     cv::Mat It = m_isTranspose ? I : I.t();
     cv::Mat Itf = (It.depth() == CV_32F) ? It : cvt8UC3To32FC3(It);
 
     MatP Ip;
     computeChannels(Itf, Ip);
-    
-    auto &pPyramid = *(opts.pPyramid);
+
+    auto& pPyramid = *(opts.pPyramid);
     return evaluate(Ip, *(pPyramid.pChns->shrink), *(opts.modelDsPad), *(opts.stride));
 }
 
-int Detector::operator()(const cv::Mat &I, std::vector<cv::Rect> &objects, std::vector<double> *scores)
+int Detector::operator()(const cv::Mat& I, std::vector<cv::Rect>& objects, std::vector<double>* scores)
 {
     cv::Mat It = m_isTranspose ? I : I.t();
     cv::Mat Itf = (It.depth() == CV_32F) ? It : cvt8UC3To32FC3(It);
-    MatP Ip( Itf );
+    MatP Ip(Itf);
     return (*this)(Ip, objects, scores);
 }
 
@@ -138,19 +138,19 @@ int Detector::operator()(const cv::Mat &I, std::vector<cv::Rect> &objects, std::
  * Compute pyramid from input image
  */
 
-void Detector::computePyramid(const cv::Mat &I, Pyramid &P)
+void Detector::computePyramid(const cv::Mat& I, Pyramid& P)
 {
     cv::Mat It = m_isTranspose ? I : I.t();
     cv::Mat Itf = (It.depth() == CV_32F) ? It : cvt8UC3To32FC3(It);
-    MatP Ip( Itf );
+    MatP Ip(Itf);
     computePyramid(Ip, P);
 }
 
-void Detector::computePyramid(const MatP &Ip, Pyramid &P)
+void Detector::computePyramid(const MatP& Ip, Pyramid& P)
 {
     CV_Assert(Ip[0].depth() == CV_32F);
-    
-    auto &pPyramid = *(opts.pPyramid);
+
+    auto& pPyramid = *(opts.pPyramid);
     auto pad = *(pPyramid.pad);
     auto modelDsPad = *(opts.modelDsPad);
     auto modelDs = *(opts.modelDs);
@@ -162,14 +162,14 @@ void Detector::computePyramid(const MatP &Ip, Pyramid &P)
  * Compute channels from input image
  */
 
-void Detector::computeChannels(const cv::Mat &I, MatP &Ip2, MatLoggerType pLogger)
+void Detector::computeChannels(const cv::Mat& I, MatP& Ip2, MatLoggerType pLogger)
 {
     CV_Assert(I.channels() == 3);
 
     cv::Mat If;
-    if(I.depth() != CV_32F)
+    if (I.depth() != CV_32F)
     {
-        I.convertTo(If, CV_32FC3, (1.0/255.0));
+        I.convertTo(If, CV_32FC3, (1.0 / 255.0));
     }
     else
     {
@@ -180,26 +180,26 @@ void Detector::computeChannels(const cv::Mat &I, MatP &Ip2, MatLoggerType pLogge
     computeChannels(Ip, Ip2, pLogger);
 }
 
-void Detector::computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLogger)
+void Detector::computeChannels(const MatP& Ip, MatP& Ip2, MatLoggerType pLogger)
 {
     // 'pChns',{},'nPerOct',8,'nOctUp',0,'nApprox',-1,'lambdas',[],'pad',[0 0],'minDs',[16 16],'smooth',1,'concat',1,'complete',1};
     Options::Pyramid dfs;
-    dfs.nPerOct = {"nPerOct", 4};
-    dfs.nOctUp = {"nOctUp", 0};
-    dfs.nApprox = {"nApprox", -1};
-    dfs.pad = {"pad", cv::Size(0,0)};
-    dfs.minDs = {"minDs", cv::Size(16,16)};
-    dfs.smooth = {"smooth", 1};
-    dfs.concat = {"concat", 1};
-    dfs.complete = {"complete", 1};
+    dfs.nPerOct = { "nPerOct", 4 };
+    dfs.nOctUp = { "nOctUp", 0 };
+    dfs.nApprox = { "nApprox", -1 };
+    dfs.pad = { "pad", cv::Size(0, 0) };
+    dfs.minDs = { "minDs", cv::Size(16, 16) };
+    dfs.smooth = { "smooth", 1 };
+    dfs.concat = { "concat", 1 };
+    dfs.complete = { "complete", 1 };
 
-    auto &pChns = (*dfs.pChns);
+    auto& pChns = (*dfs.pChns);
 
     {
         // top level
         Options::Pyramid::Chns dfs;
-        dfs.shrink = {"shrink", 4};
-        dfs.complete = {"complete", 1};
+        dfs.shrink = { "shrink", 4 };
+        dfs.complete = { "complete", 1 };
         pChns.merge(dfs, 1);
     }
     {
@@ -217,8 +217,9 @@ void Detector::computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLogger)
         dfs.colorChn = { "colorChn", 0 };
         dfs.normRad = { "normRad", 5 };
         dfs.normConst = { "normConst", 0.005 };
-        dfs.full = { "full", 0  };
-        pChns.pGradMag.merge(dfs, 1);;
+        dfs.full = { "full", 0 };
+        pChns.pGradMag.merge(dfs, 1);
+        ;
     }
     {
         // pGradHist
@@ -242,15 +243,15 @@ void Detector::computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLogger)
  * Input is transposed planar format image: LUVMO
  */
 
-int Detector::operator()(const MatP &IpTranspose, std::vector<cv::Rect> &objects, std::vector<double> *scores)
+int Detector::operator()(const MatP& IpTranspose, std::vector<cv::Rect>& objects, std::vector<double>* scores)
 {
     // Create features:
     Pyramid P;
     chnsPyramid(IpTranspose, &opts.pPyramid.get(), P, true);
 
-    if(m_logger)
+    if (m_logger)
     {
-        for(int i = 0; i < P.nScales; i++)
+        for (int i = 0; i < P.nScales; i++)
         {
             std::stringstream ss;
             ss << std::setfill('0') << std::setw(6) << i;
@@ -264,22 +265,22 @@ int Detector::operator()(const MatP &IpTranspose, std::vector<cv::Rect> &objects
 }
 
 // Multiscale search:
-int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::vector<double> *scores)
+int Detector::operator()(const Pyramid& P, std::vector<cv::Rect>& objects, std::vector<double>* scores)
 {
-    auto &pPyramid = *(opts.pPyramid);
+    auto& pPyramid = *(opts.pPyramid);
     auto shrink = *(pPyramid.pChns->shrink);
     auto pad = *(pPyramid.pad);
     auto modelDsPad = *(opts.modelDsPad);
     auto modelDs = *(opts.modelDs);
-    auto shift=(modelDsPad-modelDs)/2-pad;
+    auto shift = (modelDsPad - modelDs) / 2 - pad;
 
-    std::vector< Detection > bbs;
-    for(int i = 0; i < P.nScales; i++)
+    std::vector<Detection> bbs;
+    for (int i = 0; i < P.nScales; i++)
     {
         DetectionVec ds;
 
         // ROI fields indicates row major storage, else column major:
-        if(P.rois.size() > i)
+        if (P.rois.size() > i)
         {
             acfDetect1(P.data[i][0], P.rois[i], shrink, modelDsPad, *(opts.stride), *(opts.cascThr), ds);
         }
@@ -289,7 +290,7 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
         }
 
         // Scale up the detections
-        for(auto &bb : ds)
+        for (auto& bb : ds)
         {
             //std::cout << bb.weight << std::endl;
             cv::Size size(cv::Size2d(modelDs) / P.scales[i]);
@@ -305,9 +306,9 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
         std::copy(ds.begin(), ds.end(), std::back_inserter(bbs));
     }
 
-    if(m_doNms)
+    if (m_doNms)
     {
-        if(bbs.size())
+        if (bbs.size())
         {
             // Run non maximal suppression:
             DetectionVec bbOut;
@@ -315,13 +316,13 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
             std::copy(bbOut.begin(), bbOut.end(), std::back_inserter(objects));
 
             std::vector<double> bbScores;
-            for(auto &b : bbOut)
+            for (auto& b : bbOut)
             {
                 bbScores.push_back(b.score);
             }
 
             prune(objects, bbScores);
-            if(scores)
+            if (scores)
             {
                 *scores = bbScores;
             }
@@ -330,9 +331,9 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
     else
     {
         std::copy(bbs.begin(), bbs.end(), std::back_inserter(objects));
-        if(scores)
+        if (scores)
         {
-            for(auto &b : bbs)
+            for (auto& b : bbs)
             {
                 scores->push_back(b.score);
             }
@@ -344,7 +345,7 @@ int Detector::operator()(const Pyramid &P, std::vector<cv::Rect> &objects, std::
 
 // (((((((((((((((((((( ostream ))))))))))))))))))))
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chns::Color &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Pyramid::Chns::Color& src)
 {
     os << src.enabled << std::endl;
     os << src.smooth << std::endl;
@@ -352,7 +353,7 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chn
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chns::GradMag &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Pyramid::Chns::GradMag& src)
 {
     os << src.enabled << std::endl;
     os << src.colorChn << std::endl;
@@ -362,7 +363,7 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chn
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chns::GradHist &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Pyramid::Chns::GradHist& src)
 {
     os << src.enabled << std::endl;
     os << src.binSize << std::endl;
@@ -372,12 +373,12 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chn
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chns::Custom &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Pyramid::Chns::Custom& src)
 {
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Pyramid& src)
 {
     os << src.nPerOct << std::endl;
     os << src.nOctUp << std::endl;
@@ -392,7 +393,7 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid &src
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chns &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Pyramid::Chns& src)
 {
     os << src.shrink << std::endl;
     os << src.pColor << std::endl;
@@ -403,7 +404,7 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Pyramid::Chn
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Nms &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Nms& src)
 {
     os << src.type << std::endl;
     os << src.overlap << std::endl;
@@ -411,7 +412,7 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Nms &src)
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Boost::Tree &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Boost::Tree& src)
 {
     os << src.nBins << std::endl;
     os << src.maxDepth << std::endl;
@@ -421,7 +422,7 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Boost::Tree 
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Boost &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Boost& src)
 {
     os << src.nWeak << std::endl;
     os << src.discrete << std::endl;
@@ -430,13 +431,13 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options::Boost &src)
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options::Jitter &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options::Jitter& src)
 {
     os << src.flip;
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Options &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Options& src)
 {
     os << src.modelDs << std::endl;
     os << src.modelDsPad << std::endl;
@@ -467,7 +468,7 @@ std::ostream& operator<<(std::ostream &os, const Detector::Options &src)
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, const Detector::Modify &src)
+std::ostream& operator<<(std::ostream& os, const Detector::Modify& src)
 {
     os << src.nPerOct << std::endl;
     os << src.nOctUp << std::endl;
@@ -485,23 +486,23 @@ std::ostream& operator<<(std::ostream &os, const Detector::Modify &src)
 }
 
 // (((((((((((((((((((((((( merge ))))))))))))))))))))))))
-void Detector::Options::Pyramid::Chns::Color::merge(const Color &src, int checkExtra)
+void Detector::Options::Pyramid::Chns::Color::merge(const Color& src, int checkExtra)
 {
     enabled.merge(src.enabled, checkExtra);
     smooth.merge(src.smooth, checkExtra);
     colorSpace.merge(src.colorSpace, checkExtra);
 }
 
-void Detector::Options::Pyramid::Chns::GradMag::merge(const GradMag &src, int checkExtra)
+void Detector::Options::Pyramid::Chns::GradMag::merge(const GradMag& src, int checkExtra)
 {
     enabled.merge(src.enabled, checkExtra);
-    colorChn.merge(src.colorChn , checkExtra);
+    colorChn.merge(src.colorChn, checkExtra);
     normRad.merge(src.normRad, checkExtra);
     normConst.merge(src.normConst, checkExtra);
     full.merge(src.full, checkExtra);
 }
 
-void Detector::Options::Pyramid::Chns::GradHist::merge(const GradHist &src, int checkExtra)
+void Detector::Options::Pyramid::Chns::GradHist::merge(const GradHist& src, int checkExtra)
 {
     enabled.merge(src.enabled, checkExtra);
     binSize.merge(src.binSize, checkExtra);
@@ -510,12 +511,11 @@ void Detector::Options::Pyramid::Chns::GradHist::merge(const GradHist &src, int 
     useHog.merge(src.useHog, checkExtra);
 }
 
-void Detector::Options::Pyramid::Chns::Custom::merge(const Custom &src, int checkExtra)
+void Detector::Options::Pyramid::Chns::Custom::merge(const Custom& src, int checkExtra)
 {
-
 }
 
-void Detector::Options::Pyramid::merge(const Pyramid &src, int checkExtra)
+void Detector::Options::Pyramid::merge(const Pyramid& src, int checkExtra)
 {
     nPerOct.merge(src.nPerOct, checkExtra);
     nOctUp.merge(src.nOctUp, checkExtra);
@@ -529,8 +529,7 @@ void Detector::Options::Pyramid::merge(const Pyramid &src, int checkExtra)
     pChns.merge(src.pChns, checkExtra);
 }
 
-
-void Detector::Options::Pyramid::Chns::merge(const Chns &src, int checkExtra)
+void Detector::Options::Pyramid::Chns::merge(const Chns& src, int checkExtra)
 {
     shrink.merge(src.shrink, checkExtra);
     pColor.merge(src.pColor, checkExtra);
@@ -540,7 +539,7 @@ void Detector::Options::Pyramid::Chns::merge(const Chns &src, int checkExtra)
     complete.merge(src.complete, checkExtra);
 }
 
-void Detector::Options::Nms::merge(const Nms &src, int checkExtra)
+void Detector::Options::Nms::merge(const Nms& src, int checkExtra)
 {
     type.merge(src.type, checkExtra);
     overlap.merge(src.overlap, checkExtra);
@@ -551,7 +550,7 @@ void Detector::Options::Nms::merge(const Nms &src, int checkExtra)
     separate.merge(src.separate, checkExtra);
 }
 
-void Detector::Options::Boost::Tree::merge(const Tree &src, int checkExtra)
+void Detector::Options::Boost::Tree::merge(const Tree& src, int checkExtra)
 {
     nBins.merge(src.nBins, checkExtra);
     maxDepth.merge(src.maxDepth, checkExtra);
@@ -560,7 +559,7 @@ void Detector::Options::Boost::Tree::merge(const Tree &src, int checkExtra)
     nThreads.merge(src.nThreads, checkExtra);
 }
 
-void Detector::Options::Boost::merge(const Boost &src, int checkExtra)
+void Detector::Options::Boost::merge(const Boost& src, int checkExtra)
 {
     nWeak.merge(src.nWeak, checkExtra);
     discrete.merge(src.discrete, checkExtra);
@@ -568,12 +567,12 @@ void Detector::Options::Boost::merge(const Boost &src, int checkExtra)
     pTree.merge(src.pTree, checkExtra);
 }
 
-void Detector::Options::Jitter::merge(const Jitter &src, int checkExtra)
+void Detector::Options::Jitter::merge(const Jitter& src, int checkExtra)
 {
     //flip;
 }
 
-void Detector::Options::merge(const Options &src, int checkExtra)
+void Detector::Options::merge(const Options& src, int checkExtra)
 {
     modelDs.merge(src.modelDs, checkExtra);
     modelDs.merge(src.modelDsPad, checkExtra);

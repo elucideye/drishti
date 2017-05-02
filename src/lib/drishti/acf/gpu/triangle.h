@@ -24,11 +24,11 @@ BEGIN_OGLES_GPGPU
 class TriangleProc : public MultiPassProc
 {
 public:
-    TriangleProc(int radius, bool doNorm=false, float normConst=0.005f);
+    TriangleProc(int radius, bool doNorm = false, float normConst = 0.005f);
     /**
      * Return the processors name.
      */
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "TriangleProc";
     }

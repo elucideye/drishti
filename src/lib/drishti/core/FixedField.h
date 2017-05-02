@@ -15,18 +15,23 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 
 struct FixedField
 {
-    FixedField(float f, int p=2, int w=4) : f(f), p(p), w(w) {}
+    FixedField(float f, int p = 2, int w = 4)
+        : f(f)
+        , p(p)
+        , w(w)
+    {
+    }
     float f;
     int p;
     int w;
 };
 
-inline std::ostream& operator<<(std::ostream &os, const FixedField &f)
+inline std::ostream& operator<<(std::ostream& os, const FixedField& f)
 {
     os << std::fixed << std::showpoint << std::setw(f.w) << std::setprecision(f.p) << std::setfill('0') << f.f;
     return os;
 }
 
-#endif // __drishti_core_FixedField_h__ 
+#endif // __drishti_core_FixedField_h__
 
 DRISHTI_CORE_NAMESPACE_END

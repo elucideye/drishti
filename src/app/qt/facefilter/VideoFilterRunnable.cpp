@@ -60,47 +60,47 @@
 
 namespace detail
 {
-    inline bool isIOS()
-    {
+inline bool isIOS()
+{
 #if defined(Q_OS_IOS)
-        return true;
+    return true;
 #endif
-        return false;
-    }
+    return false;
+}
 
-    inline GLenum getTextureFormat()
-    {
+inline GLenum getTextureFormat()
+{
 #if defined(Q_OS_IOS) || defined(Q_OS_OSX)
-        return GL_BGRA;
+    return GL_BGRA;
 #else
-        return GL_RGBA;
+    return GL_RGBA;
 #endif
-    }
+}
 
-    inline void * getPixels(QVideoFrame *input)
-    {
+inline void* getPixels(QVideoFrame* input)
+{
 #if defined(Q_OS_IOS)
-        return input->pixelBufferRef();
+    return input->pixelBufferRef();
 #else
-        return input->bits();
+    return input->bits();
 #endif
-    }
+}
 }
 
 struct VideoFilterRunnable::Impl
 {
     using FrameInput = ogles_gpgpu::FrameInput;
 
-    Impl(void *glContext, int orientation)
+    Impl(void* glContext, int orientation)
     {
         m_tic = std::chrono::high_resolution_clock::now();
-        
+
         // Retrieve sensor intrinsic calibration:
         auto manager = FrameHandlerManager::get();
 
         // Allocate the face detector:
         std::shared_ptr<drishti::face::FaceDetectorFactory> resources = std::make_shared<QtFaceDetectorFactory>();
-        
+
         drishti::hci::FaceFinder::Settings settings;
         settings.sensor = manager->getSensor();
         settings.logger = manager->getLogger();
@@ -109,9 +109,9 @@ struct VideoFilterRunnable::Impl
         settings.frameDelay = 1; // 1 frame delay
         settings.minDetectionDistance = manager->getDetectionParameters().m_minDepth;
         settings.maxDetectionDistance = manager->getDetectionParameters().m_maxDepth;
-        
-        auto *pSettings = manager->getSettings();
-        if(pSettings != nullptr)
+
+        auto* pSettings = manager->getSettings();
+        if (pSettings != nullptr)
         {
             settings.frameDelay = (*pSettings)["frameDelay"].get<int>();
             settings.doLandmarks = (*pSettings)["doLandmarks"].get<bool>();
@@ -122,52 +122,50 @@ struct VideoFilterRunnable::Impl
         m_detector = drishti::hci::FaceFinderPainter::create(resources, settings, glContext);
 
         // Face filter:
-        if(manager->getFaceMonitor())
+        if (manager->getFaceMonitor())
         {
             m_detector->registerFaceMonitorCallback(manager->getFaceMonitor());
         }
     }
 
-    GLuint operator()(const ogles_gpgpu::FrameInput &frame)
+    GLuint operator()(const ogles_gpgpu::FrameInput& frame)
     {
         assert(m_detector);
         return (*m_detector)(frame);
     }
-    
+
     void setBrightness(float value)
     {
-        if(m_detector)
+        if (m_detector)
         {
             m_detector->setBrightness(value);
         }
     }
-    
+
     std::chrono::high_resolution_clock::time_point m_tic;
 
     std::unique_ptr<drishti::hci::FaceFinder> m_detector;
 };
 
-
-VideoFilterRunnable::VideoFilterRunnable(VideoFilter *filter) :
-    m_filter(filter),
-    m_outTexture(0)
+VideoFilterRunnable::VideoFilterRunnable(VideoFilter* filter)
+    : m_filter(filter)
+    , m_outTexture(0)
 {
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    const char *vendor = (const char *) f->glGetString(GL_VENDOR);
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    const char* vendor = (const char*)f->glGetString(GL_VENDOR);
     qDebug("GL_VENDOR: %s", vendor);
 }
 
 VideoFilterRunnable::~VideoFilterRunnable()
 {
-
 }
 
-QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceFormat &surfaceFormat, RunFlags flags)
+QVideoFrame VideoFilterRunnable::run(QVideoFrame* input, const QVideoSurfaceFormat& surfaceFormat, RunFlags flags)
 {
     Q_UNUSED(surfaceFormat);
     Q_UNUSED(flags);
 
-    QOpenGLContext * qContext = QOpenGLContext::currentContext();
+    QOpenGLContext* qContext = QOpenGLContext::currentContext();
     QOpenGLFunctions glFuncs(qContext);
 
     void* glContext = 0;
@@ -177,7 +175,7 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
     glContext = qContext;
 #endif
 
-    if(!m_pImpl)
+    if (!m_pImpl)
     {
         int orientation = FrameHandlerManager::get()->getOrientation();
         m_pImpl = std::make_shared<Impl>(glContext, orientation);
@@ -242,7 +240,7 @@ GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
     return outTexture;
 }
 
-int VideoFilterRunnable::detectFaces(QVideoFrame *input)
+int VideoFilterRunnable::detectFaces(QVideoFrame* input)
 {
     using FrameInput = ogles_gpgpu::FrameInput;
 
@@ -254,14 +252,14 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
     }
     assert(openglContext->isValid());
 
-    QOpenGLFunctions *f = openglContext->functions();
+    QOpenGLFunctions* f = openglContext->functions();
     assert(f != 0);
 
     GLint inputTexture = 0, outputTexture = 0;
     GLenum textureFormat = 0;
     const ogles_gpgpu::Size2d size(input->width(), input->height());
     void* pixelBuffer = nullptr; //  we are using texture
-    bool useRawPixels = false; //  - // -
+    bool useRawPixels = false;   //  - // -
 
     // Already an OpenGL texture.
     if (input->handleType() == QAbstractVideoBuffer::GLTextureHandle)
@@ -276,10 +274,10 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
     else
     {
         static const bool isIOS = detail::isIOS();
-        
-        // Scope based pixel buffer lock for non ios platforms        
+
+        // Scope based pixel buffer lock for non ios platforms
         QVideoFrameScopeMap scopeMap(isIOS ? nullptr : input, QAbstractVideoBuffer::ReadOnly);
-        if((isIOS && !scopeMap) || !isIOS) // for non ios platforms
+        if ((isIOS && !scopeMap) || !isIOS) // for non ios platforms
         {
             assert((input->pixelFormat() == QVideoFrame::Format_ARGB32) || (isIOS && input->pixelFormat() == QVideoFrame::Format_NV12));
             static const GLenum rgbaFormat = detail::getTextureFormat();
@@ -303,4 +301,3 @@ int VideoFilterRunnable::detectFaces(QVideoFrame *input)
 
     return m_outTexture;
 }
-

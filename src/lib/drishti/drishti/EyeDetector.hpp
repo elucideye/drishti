@@ -28,27 +28,30 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT EyeDetector
 {
 public:
-
     struct Rect
     {
-        Rect(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {}
+        Rect(int x, int y, int width, int height)
+            : x(x)
+            , y(y)
+            , width(width)
+            , height(height)
+        {
+        }
         int x, y, width, height;
     };
 
     class Impl;
 
     EyeDetector();
-    EyeDetector(const std::string &filename);
+    EyeDetector(const std::string& filename);
     ~EyeDetector();
-    int operator()(const Image3b &image, std::vector<Rect> &objects);
+    int operator()(const Image3b& image, std::vector<Rect>& objects);
 
 protected:
-
-    void init(const std::string &filename);
+    void init(const std::string& filename);
     std::unique_ptr<Impl> m_impl;
 };
 
 _DRISHTI_SDK_END
-
 
 #endif /* defined(__drishti_drishti_EyeDetector_hpp__) */

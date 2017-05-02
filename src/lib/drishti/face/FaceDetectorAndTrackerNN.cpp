@@ -28,17 +28,15 @@ std::vector<cv::Point2f> TrackerNN::getFeatures() const
     return features;
 }
 
-
-void TrackerNN::initialize(const cv::Mat1b &image, const FaceModel &face)
+void TrackerNN::initialize(const cv::Mat1b& image, const FaceModel& face)
 {
     m_face = face;
 }
 
-bool TrackerNN::update(const cv::Mat1b &image, FaceModel &face)
+bool TrackerNN::update(const cv::Mat1b& image, FaceModel& face)
 {
     face = m_face;
     return true;
 }
-
 
 DRISHTI_FACE_NAMESPACE_END

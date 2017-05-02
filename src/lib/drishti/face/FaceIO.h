@@ -49,8 +49,7 @@ struct FaceSpecification
     static FaceSpecification create(Format format);
 };
 
-FaceModel shapeToFace(drishti::core::Shape &shape, FaceSpecification::Format kind = FaceSpecification::HELEN );
-
+FaceModel shapeToFace(drishti::core::Shape& shape, FaceSpecification::Format kind = FaceSpecification::HELEN);
 
 DRISHTI_FACE_NAMESPACE_END
 

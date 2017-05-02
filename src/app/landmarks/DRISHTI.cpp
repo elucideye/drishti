@@ -13,19 +13,19 @@
 
 // ====== DRISHTI =======
 
-void parseDRISHTI(const std::string &filename, FACE::record &output)
+void parseDRISHTI(const std::string& filename, FACE::record& output)
 {
     cv::FileStorage fs(filename, cv::FileStorage::READ);
-    if(fs.isOpened())
+    if (fs.isOpened())
     {
         {
             auto node = fs["points"];
-            if(!node.empty())
+            if (!node.empty())
             {
                 drishti::core::AnnotatedContourImage data;
                 data.contours.resize(1);
                 node >> data.contours[0];
-                if(data.contours[0].contour.size())
+                if (data.contours[0].contour.size())
                 {
                     output.filename = filename;
                     output.points = data.contours[0].getPoints();
@@ -36,12 +36,12 @@ void parseDRISHTI(const std::string &filename, FACE::record &output)
 
         {
             auto node = fs["tight"];
-            if(!node.empty())
+            if (!node.empty())
             {
                 drishti::core::AnnotatedContourImage data;
                 data.contours.resize(1);
                 node >> data.contours[0];
-                if(data.contours[0].contour.size())
+                if (data.contours[0].contour.size())
                 {
                     output.filename = filename;
                     output.glasses = data.contours[0].getPoints();
@@ -52,7 +52,7 @@ void parseDRISHTI(const std::string &filename, FACE::record &output)
     }
 }
 
-FACE::Table parseDRISHTI(const std::string &filename)
+FACE::Table parseDRISHTI(const std::string& filename)
 {
     using drishti::core::Line;
 
@@ -68,10 +68,10 @@ FACE::Table parseDRISHTI(const std::string &filename)
 
     std::vector<std::string> lines;
     std::ifstream file(filename.c_str());
-    if(file.is_open())
+    if (file.is_open())
     {
         std::copy(std::istream_iterator<Line>(file), std::istream_iterator<Line>(), std::back_inserter(lines));
-        for(auto &l : lines)
+        for (auto& l : lines)
         {
             std::stringstream iss(l);
             std::vector<std::string> tokens;
@@ -79,7 +79,7 @@ FACE::Table parseDRISHTI(const std::string &filename)
 
             //for(auto &t : tokens) std::cout << t << " "; std::cout << std::endl;
 
-            if(tokens.size() == 2)
+            if (tokens.size() == 2)
             {
                 FACE::record record;
                 parseDRISHTI(tokens[1], record);

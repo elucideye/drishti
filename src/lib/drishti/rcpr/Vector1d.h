@@ -15,18 +15,18 @@
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
-inline cv::RotatedRect operator*(const cv::RotatedRect &e, float scale)
+inline cv::RotatedRect operator*(const cv::RotatedRect& e, float scale)
 {
     return cv::RotatedRect(e.center * scale, e.size * scale, e.angle);
 }
 
-// 
+//
 
 template <typename T>
-std::vector<T> operator*(const std::vector<T> &a, const T &b)
+std::vector<T> operator*(const std::vector<T>& a, const T& b)
 {
     std::vector<T> c(a.size());
-    for(int i = 0; i < a.size(); i++)
+    for (int i = 0; i < a.size(); i++)
     {
         c[i] = a[i] * b;
     }
@@ -34,22 +34,22 @@ std::vector<T> operator*(const std::vector<T> &a, const T &b)
 }
 
 template <typename T>
-std::vector<T> operator+(const std::vector<T> &a, const std::vector<T> &b)
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
 {
     std::vector<T> c(a.size());
-    for(int i = 0; i < a.size(); i++)
+    for (int i = 0; i < a.size(); i++)
     {
         c[i] = a[i] + b[i];
     }
-    
+
     return c;
 }
 
 template <typename T>
-std::vector<T> operator-(const std::vector<T> &a, const std::vector<T> &b)
+std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
 {
     std::vector<T> c(a.size());
-    for(int i = 0; i < a.size(); i++)
+    for (int i = 0; i < a.size(); i++)
     {
         c[i] = a[i] - b[i];
     }
@@ -58,9 +58,9 @@ std::vector<T> operator-(const std::vector<T> &a, const std::vector<T> &b)
 }
 
 template <typename T>
-std::vector<T>& operator+=(std::vector<T> &a, const std::vector<T> &b)
+std::vector<T>& operator+=(std::vector<T>& a, const std::vector<T>& b)
 {
-    for(int i = 0; i < a.size(); i++)
+    for (int i = 0; i < a.size(); i++)
     {
         a[i] += b[i];
     }
@@ -69,9 +69,9 @@ std::vector<T>& operator+=(std::vector<T> &a, const std::vector<T> &b)
 }
 
 template <typename T>
-std::vector<T>& operator*=(std::vector<T> &a, const T &value)
+std::vector<T>& operator*=(std::vector<T>& a, const T& value)
 {
-    for(int i = 0; i < a.size(); i++)
+    for (int i = 0; i < a.size(); i++)
     {
         a[i] *= value;
     }

@@ -10,9 +10,11 @@
 
 #include "drishti/testlib/drishti_test_utils.h"
 
+// clang-format off
 #if DRISHTI_ACF_DO_GPU
 #  include "drishti/qtplus/QGLContext.h"
 #endif
+// clang-format on
 
 #include <gtest/gtest.h>
 
@@ -26,15 +28,15 @@ int drishti_main(int argc, char** argv)
 #if DRISHTI_BUILD_QT && DRISHTI_ACF_DO_GPU
     QApplication app(argc, argv);
 #endif
-    
+
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 5);
-    drishti::testlib::hasFiles(argv, {1,2,3});
-    
+    drishti::testlib::hasFiles(argv, { 1, 2, 3 });
+
     imageFilename = argv[1];
     truthFilename = argv[2];
     modelFilename = argv[3];
     outputDirectory = argv[4];
-    
+
     return RUN_ALL_TESTS();
 }

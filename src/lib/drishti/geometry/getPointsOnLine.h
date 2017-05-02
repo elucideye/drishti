@@ -51,12 +51,12 @@ DRISHTI_GEOMETRY_BEGIN
 //         p1 = [0, -l(3), l(2)]';
 //     else
 //         p1 = [-l(3), 0, l(1)]';
-//     end  
+//     end
 //    end
 // end
 
 template <typename T>
-void getPointsOnLine(const cv::Vec<T,3> &l, cv::Vec<T,3> &p1, cv::Vec<T,3> &p2)
+void getPointsOnLine(const cv::Vec<T, 3>& l, cv::Vec<T, 3>& p1, cv::Vec<T, 3>& p2)
 {
     if ((l[0] == T(0.0)) && (l[1] == T(0.0)))
     {
@@ -66,7 +66,7 @@ void getPointsOnLine(const cv::Vec<T,3> &l, cv::Vec<T,3> &p1, cv::Vec<T,3> &p2)
     else
     {
         p2 = { -l[1], l[0], T(0.0) };
-        if(std::abs(l[0]) < std::abs(l[1]))
+        if (std::abs(l[0]) < std::abs(l[1]))
         {
             p1 = { T(0.0), -l[2], l[1] };
         }

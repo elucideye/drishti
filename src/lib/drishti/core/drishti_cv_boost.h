@@ -14,10 +14,13 @@
 #include "drishti/core/drishti_core.h"
 
 // see: https://github.com/USCiLab/cereal/issues/104
+
+// clang-format off
 #ifdef __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES
 #  undef __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES
 #  define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0
 #endif
+// clang-format on
 
 // Boost serialization:
 #include <boost/serialization/string.hpp>
@@ -31,42 +34,42 @@
 
 DRISHTI_BEGIN_NAMESPACE(cv)
 
-template< class Archive >
-void serialize(Archive & ar, cv::Rect &rect, const unsigned int version)
+template <class Archive>
+void serialize(Archive& ar, cv::Rect& rect, const unsigned int version)
 {
-    ar & GENERIC_NVP("x", rect.x);
-    ar & GENERIC_NVP("y", rect.y);
-    ar & GENERIC_NVP("width", rect.width);
-    ar & GENERIC_NVP("height", rect.height);
+    ar& GENERIC_NVP("x", rect.x);
+    ar& GENERIC_NVP("y", rect.y);
+    ar& GENERIC_NVP("width", rect.width);
+    ar& GENERIC_NVP("height", rect.height);
 }
 
-template< class Archive >
-void serialize(Archive & ar, cv::Size &size, const unsigned int version)
+template <class Archive>
+void serialize(Archive& ar, cv::Size& size, const unsigned int version)
 {
-    ar & GENERIC_NVP("width", size.width);
-    ar & GENERIC_NVP("height", size.height);
+    ar& GENERIC_NVP("width", size.width);
+    ar& GENERIC_NVP("height", size.height);
 }
 
-template< class Archive >
-void serialize(Archive & ar, cv::Size2f &size, const unsigned int version)
+template <class Archive>
+void serialize(Archive& ar, cv::Size2f& size, const unsigned int version)
 {
-    ar & GENERIC_NVP("width", size.width);
-    ar & GENERIC_NVP("height", size.height);
+    ar& GENERIC_NVP("width", size.width);
+    ar& GENERIC_NVP("height", size.height);
 }
 
-template<class Archive>
-void serialize(Archive & ar, cv::Point2f & p, const unsigned int version)
+template <class Archive>
+void serialize(Archive& ar, cv::Point2f& p, const unsigned int version)
 {
-    ar & GENERIC_NVP("x", p.x);
-    ar & GENERIC_NVP("y", p.y);
+    ar& GENERIC_NVP("x", p.x);
+    ar& GENERIC_NVP("y", p.y);
 }
 
-template<class Archive>
-void serialize(Archive & ar, cv::RotatedRect & e, const unsigned int version)
+template <class Archive>
+void serialize(Archive& ar, cv::RotatedRect& e, const unsigned int version)
 {
-    ar & GENERIC_NVP ("center", e.center);
-    ar & GENERIC_NVP ("size", e.size);
-    ar & GENERIC_NVP ("angle", e.angle);
+    ar& GENERIC_NVP("center", e.center);
+    ar& GENERIC_NVP("size", e.size);
+    ar& GENERIC_NVP("angle", e.angle);
 }
 
 DRISHTI_END_NAMESPACE(cv)

@@ -27,7 +27,7 @@ using namespace std;
 #include "xgboost/src/data.h"
 #include "xgboost/src/io/io.h"
 #include "xgboost/src/io/simple_dmatrix-inl.hpp" // DMatrixSimple
-#include "xgboost/src/utils/utils.h" // CheckNaN
+#include "xgboost/src/utils/utils.h"             // CheckNaN
 #include "xgboost/src/learner/learner-inl.hpp"
 #include "xgboost/src/utils/math.h"
 #include "xgboost/src/utils/group_data.h"
@@ -37,9 +37,11 @@ using namespace std;
 
 #include "drishti/core/Logger.h"
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h"
 #endif
+// clang-format on
 
 #include <random>
 #include <iostream>
@@ -56,12 +58,12 @@ using namespace xgboost::io;
 DRISHTI_BEGIN_NAMESPACE(xgboost)
 
 inline std::shared_ptr<DMatrixSimple>
-DMatrixSimpleFromMat(const float *data, bst_ulong nrow, bst_ulong ncol, float  missing)
+DMatrixSimpleFromMat(const float* data, bst_ulong nrow, bst_ulong ncol, float missing)
 {
     bool nan_missing = utils::CheckNAN(missing);
-    
+
     std::shared_ptr<DMatrixSimple> p_mat = std::make_shared<DMatrixSimple>();
-    DMatrixSimple &mat = *p_mat;
+    DMatrixSimple& mat = *p_mat;
     mat.info.info.num_row = nrow;
     mat.info.info.num_col = ncol;
     for (bst_ulong i = 0; i < nrow; ++i, data += ncol)
@@ -88,16 +90,16 @@ DMatrixSimpleFromMat(const float *data, bst_ulong nrow, bst_ulong ncol, float  m
 }
 
 inline std::shared_ptr<DMatrixSimple>
-DMatrixSimpleFromMat(const MatrixType<float> &data, bst_ulong nrow, bst_ulong ncol, float  missing)
+DMatrixSimpleFromMat(const MatrixType<float>& data, bst_ulong nrow, bst_ulong ncol, float missing)
 {
 #if DRISHTI_BUILD_MIN_SIZE
     assert(false);
     return std::shared_ptr<DMatrixSimple>();
 #else
     bool nan_missing = utils::CheckNAN(missing);
-    
+
     std::shared_ptr<DMatrixSimple> p_mat = std::make_shared<DMatrixSimple>();
-    DMatrixSimple &mat = *p_mat;
+    DMatrixSimple& mat = *p_mat;
     mat.info.info.num_row = nrow;
     mat.info.info.num_col = ncol;
     for (bst_ulong i = 0; i < nrow; ++i)
@@ -125,10 +127,10 @@ DMatrixSimpleFromMat(const MatrixType<float> &data, bst_ulong nrow, bst_ulong nc
 }
 
 inline std::shared_ptr<DMatrixSimple>
-DMatrixSimpleFromMat(const MatrixType<float> &data, bst_ulong nrow, bst_ulong ncol, const MatrixType<uint8_t> &mask)
+DMatrixSimpleFromMat(const MatrixType<float>& data, bst_ulong nrow, bst_ulong ncol, const MatrixType<uint8_t>& mask)
 {
     std::shared_ptr<DMatrixSimple> p_mat = std::make_shared<DMatrixSimple>();
-    DMatrixSimple &mat = *p_mat;
+    DMatrixSimple& mat = *p_mat;
     mat.info.info.num_row = nrow;
     mat.info.info.num_col = ncol;
     for (bst_ulong i = 0; i < nrow; ++i)
@@ -150,7 +152,7 @@ DMatrixSimpleFromMat(const MatrixType<float> &data, bst_ulong nrow, bst_ulong nc
 DRISHTI_BEGIN_NAMESPACE(wrapper)
 
 // booster wrapper class
-class Booster: public learner::BoostLearner
+class Booster : public learner::BoostLearner
 {
 public:
     explicit Booster(const std::vector<DataMatrix*>& mats = {})
@@ -158,35 +160,35 @@ public:
         this->silent = 1;
         this->init_model = false;
 
-        if(mats.size())
+        if (mats.size())
         {
             this->SetCacheData(mats);
         }
     }
-    inline const float *Pred(const DataMatrix &dmat, int option_mask, unsigned ntree_limit, bst_ulong *len)
+    inline const float* Pred(const DataMatrix& dmat, int option_mask, unsigned ntree_limit, bst_ulong* len)
     {
-        DRISHTI_STREAM_LOG_FUNC(7,1,m_streamLogger);
+        DRISHTI_STREAM_LOG_FUNC(7, 1, m_streamLogger);
 
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
         return nullptr;
 #else
         this->CheckInitModel();
-        this->Predict(dmat, (option_mask&1) != 0, &this->preds_, ntree_limit, (option_mask&2) != 0);
+        this->Predict(dmat, (option_mask & 1) != 0, &this->preds_, ntree_limit, (option_mask & 2) != 0);
         *len = static_cast<bst_ulong>(this->preds_.size());
         return BeginPtr(this->preds_);
 #endif
     }
-    inline void BoostOneIter(const DataMatrix &train, float *grad, float *hess, bst_ulong len)
+    inline void BoostOneIter(const DataMatrix& train, float* grad, float* hess, bst_ulong len)
     {
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
 #else
-        DRISHTI_STREAM_LOG_FUNC(7,2,m_streamLogger);
+        DRISHTI_STREAM_LOG_FUNC(7, 2, m_streamLogger);
 
         this->gpair_.resize(len);
         const bst_omp_uint ndata = static_cast<bst_omp_uint>(len);
-        #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
         for (bst_omp_uint j = 0; j < ndata; ++j)
         {
             gpair_[j] = bst_gpair(grad[j], hess[j]);
@@ -202,7 +204,7 @@ public:
             init_model = true;
         }
     }
-    inline void LoadModel(const char *fname)
+    inline void LoadModel(const char* fname)
     {
         this->init_model = true;
 #if DRISHTI_BUILD_MIN_SIZE
@@ -211,7 +213,7 @@ public:
         learner::BoostLearner::LoadModel(fname);
 #endif
     }
-    inline void LoadModelFromBuffer(const void *buf, size_t size)
+    inline void LoadModelFromBuffer(const void* buf, size_t size)
     {
         this->init_model = true;
 #if DRISHTI_BUILD_MIN_SIZE
@@ -221,7 +223,7 @@ public:
         learner::BoostLearner::LoadModel(fs, true);
 #endif
     }
-    inline const char *GetModelRaw(bst_ulong *out_len)
+    inline const char* GetModelRaw(bst_ulong* out_len)
     {
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
@@ -242,28 +244,29 @@ public:
         }
 #endif
     }
-    
+
     friend class boost::serialization::access;
-    template<class Archive> void serialize(Archive & ar, const unsigned int version)
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
     {
 #if USE_XGBOOST_WITH_BOOST
-        ar & boost::serialization::base_object<learner::BoostLearner>(*this);
+        ar& boost::serialization::base_object<learner::BoostLearner>(*this);
 #else
         if (Archive::is_loading::value)
         {
-            ar & model_str;
+            ar& model_str;
             LoadModelFromBuffer(&model_str[0], model_str.size());
         }
         else
         {
             bst_ulong length = 0;
             GetModelRaw(&length); // uses internal model_str
-            ar & model_str;
+            ar& model_str;
         }
 #endif
     }
 
-    void setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {
         m_streamLogger = logger;
     }
@@ -272,7 +275,6 @@ public:
     std::string model_str;
 
 private:
-
     bool init_model;
 
     std::shared_ptr<spdlog::logger> m_streamLogger;

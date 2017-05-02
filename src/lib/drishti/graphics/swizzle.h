@@ -20,15 +20,17 @@ BEGIN_OGLES_GPGPU
 class SwizzleProc : public ogles_gpgpu::FilterProcBase
 {
 public:
-
     // Relative to input {RGBA}
     enum SwizzleKind
     {
         kSwizzleBGRA
     };
 
-    SwizzleProc(SwizzleKind swizzleKind = kSwizzleBGRA) : swizzleKind(swizzleKind) {}
-    virtual const char *getProcName()
+    SwizzleProc(SwizzleKind swizzleKind = kSwizzleBGRA)
+        : swizzleKind(swizzleKind)
+    {
+    }
+    virtual const char* getProcName()
     {
         return "SwizzleProc";
     }
@@ -36,18 +38,18 @@ public:
     {
         swizzleKind = kind;
     }
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
-        switch(swizzleKind)
+        switch (swizzleKind)
         {
-           case kSwizzleBGRA:
-               return fshaderBGRASrc;
+            case kSwizzleBGRA:
+                return fshaderBGRASrc;
             default:
                 assert(false);
         }
     }
 
-    static const char *fshaderBGRASrc; // fragment shader source
+    static const char* fshaderBGRASrc; // fragment shader source
     SwizzleKind swizzleKind = kSwizzleBGRA;
 };
 

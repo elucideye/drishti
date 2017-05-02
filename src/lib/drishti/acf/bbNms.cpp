@@ -95,26 +95,25 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 
 typedef Detector::Detection Detection;
 
-static std::vector<Detection> nmsMs(const std::vector<Detection> &bbsIn, double thr, const std::vector<double> &radii )
+static std::vector<Detection> nmsMs(const std::vector<Detection>& bbsIn, double thr, const std::vector<double>& radii)
 {
     return bbsIn;
 }
 
-static std::vector<Detection> nmsCover(const std::vector<Detection> &bbsIn, double overlap, double ovrDnm)
+static std::vector<Detection> nmsCover(const std::vector<Detection>& bbsIn, double overlap, double ovrDnm)
 {
     return bbsIn;
 }
 
 // Note: This is very close to the opencv rectangle grouping code (need to compare the two)
-static std::vector<Detection> nmsMax(const std::vector<Detection> &bbsIn, double overlap, bool greedy, double ovrDnm)
+static std::vector<Detection> nmsMax(const std::vector<Detection>& bbsIn, double overlap, bool greedy, double ovrDnm)
 {
     // for each i suppress all j st j>i and area-overlap>overlap:
 
     //std::cout << bbsIn.size() << std::endl;
 
     // i.e., ord = sort(bbsIn(:,5), 'descend');  bbs=bbsIn(ord,:)
-    auto ord = drishti::core::ordered(bbsIn, [](const Detection &a, const Detection &b)
-    {
+    auto ord = drishti::core::ordered(bbsIn, [](const Detection& a, const Detection& b) {
         return a.score > b.score;
     });
     std::vector<Detector::Detection> bbs(bbsIn.size());
@@ -126,7 +125,7 @@ static std::vector<Detection> nmsMax(const std::vector<Detection> &bbsIn, double
         int as, xs, xe, ys, ye, kp;
     };
     std::vector<Roi> coords(n);
-    for(int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
     {
         bbs[i] = bbsIn[ord[i]];
 
@@ -141,36 +140,36 @@ static std::vector<Detection> nmsMax(const std::vector<Detection> &bbsIn, double
         coords[i].ye = bbs[i].roi.br().y;
     }
 
-    for(int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
     {
-        if( greedy && !coords[i].kp )
+        if (greedy && !coords[i].kp)
         {
             continue;
         }
 
-        for(int j = i+1; j < n; j++)
+        for (int j = i + 1; j < n; j++)
         {
-            if(coords[j].kp == 0)
+            if (coords[j].kp == 0)
             {
                 continue;
             }
 
             int iw = std::min(coords[i].xe, coords[j].xe) - std::max(coords[i].xs, coords[j].xs);
-            if(iw <= 0)
+            if (iw <= 0)
             {
                 continue;
             }
 
             int ih = std::min(coords[i].ye, coords[j].ye) - std::max(coords[i].ys, coords[j].ys);
-            if(ih <= 0)
+            if (ih <= 0)
             {
                 continue;
             }
 
-            double o = (iw * ih) , u = (ovrDnm) ? (coords[i].as + coords[j].as - o) : std::min(coords[i].as, coords[j].as);
+            double o = (iw * ih), u = (ovrDnm) ? (coords[i].as + coords[j].as - o) : std::min(coords[i].as, coords[j].as);
             o /= u;
 
-            if(o > overlap)
+            if (o > overlap)
             {
                 coords[j].kp = 0;
 
@@ -182,37 +181,37 @@ static std::vector<Detection> nmsMax(const std::vector<Detection> &bbsIn, double
     // Delete the boxes with kp[i] < 0
     auto pkp = coords.begin();
     auto pbb = bbs.begin();
-    while(pkp != coords.end())
+    while (pkp != coords.end())
     {
-        pbb = (pkp++)->kp ? (pbb+1) : bbs.erase( pbb );
+        pbb = (pkp++)->kp ? (pbb + 1) : bbs.erase(pbb);
     }
 
     return bbs;
 }
 
-static void nms1( const std::vector<Detection> &bbsIn, std::vector<Detection> &bbs, const Detector::Options::Nms &pNms, double ovrDnm )
+static void nms1(const std::vector<Detection>& bbsIn, std::vector<Detection>& bbs, const Detector::Options::Nms& pNms, double ovrDnm)
 {
     // TODO: The original code splits large vectors in two, runs nms on each half, then runs nms again on result
     // We don't bother with that here:
 
-    switch( string_hash::hash( (*pNms.type) ) )
+    switch (string_hash::hash((*pNms.type)))
     {
-        case "max"_hash   :
+        case "max"_hash:
         {
             bbs = nmsMax(bbsIn, pNms.overlap, 0, ovrDnm);
         }
         break;
-        case "maxg"_hash  :
+        case "maxg"_hash:
         {
             bbs = nmsMax(bbsIn, pNms.overlap, 1, ovrDnm);
         }
         break;
-        case "ms"_hash    :
+        case "ms"_hash:
         {
             bbs = nmsMs(bbsIn, pNms.thr, pNms.radii);
         }
         break;
-        case "cover"_hash :
+        case "cover"_hash:
         {
             bbs = nmsCover(bbsIn, pNms.overlap, ovrDnm);
         }
@@ -225,35 +224,35 @@ static void nms1( const std::vector<Detection> &bbsIn, std::vector<Detection> &b
 
 #define ACF_INFINITY std::numeric_limits<double>::max()
 
-int Detector::bbNms(const std::vector<Detection> &bbsIn, const Options::Nms &pNmsI, std::vector<Detection> &bbs)
+int Detector::bbNms(const std::vector<Detection>& bbsIn, const Options::Nms& pNmsI, std::vector<Detection>& bbs)
 {
     Detector::Options::Nms dflt;
-    dflt.type = {"type", std::string("max")};
-    dflt.maxn = {"maxn", std::numeric_limits<double>::infinity()};
-    dflt.radii = {"radii", std::vector<double>{0.15,0.15,1.0,1.0}};
-    dflt.overlap = {"overlap", 0.5};
-    dflt.ovrDnm = {"ovrDnm", std::string("union")};
-    dflt.separate = {"separate", 0}; // NOTE: we are currently dealing with single class detections, so we don't need this
+    dflt.type = { "type", std::string("max") };
+    dflt.maxn = { "maxn", std::numeric_limits<double>::infinity() };
+    dflt.radii = { "radii", std::vector<double>{ 0.15, 0.15, 1.0, 1.0 } };
+    dflt.overlap = { "overlap", 0.5 };
+    dflt.ovrDnm = { "ovrDnm", std::string("union") };
+    dflt.separate = { "separate", 0 }; // NOTE: we are currently dealing with single class detections, so we don't need this
 
     Options::Nms pNms = pNmsI;
-    pNms.merge( dflt, 1 );
+    pNms.merge(dflt, 1);
 
     double thr = (pNms.thr.has) ? (*pNms.thr) : ((pNms.type.has && !pNms.type->compare("ms")) ? 0.0 : -ACF_INFINITY);
 
     int ovrDnm = 0; // std::cout << pNms.ovrDnm << " in " << pNmsI.ovrDnm << std::endl;
-    switch( string_hash::hash( (*pNms.ovrDnm)) )
+    switch (string_hash::hash((*pNms.ovrDnm)))
     {
-        case "union"_hash :
+        case "union"_hash:
             ovrDnm = 1;
             break;
-        case "min"_hash   :
+        case "min"_hash:
             ovrDnm = 0;
             break;
-        default :
+        default:
             CV_Assert(false);
     }
 
-    CV_Assert( (*pNms.maxn) >= 2 );
+    CV_Assert((*pNms.maxn) >= 2);
 
     // (((((((((((( TODO ))))))))))))
     //   Original code looks like this, but why woul.d we proceed of bbs are set to zero?
@@ -262,22 +261,22 @@ int Detector::bbNms(const std::vector<Detection> &bbsIn, const Options::Nms &pNm
     // (((((((((((( TODO ))))))))))))
 
     bbs = bbsIn;
-    if(bbs.size() == 0)
+    if (bbs.size() == 0)
     {
-        return 0;    // For now we'll just return (TODO: check original code)
+        return 0; // For now we'll just return (TODO: check original code)
     }
 
-    if(!pNms.type->compare("none"))
+    if (!pNms.type->compare("none"))
     {
         return 0;
     }
 
     // Find all bb with score > thr
-    bbs.erase( std::remove_if(bbs.begin(), bbs.end(), [=](const Detection &bb)
-    {
+    bbs.erase(std::remove_if(bbs.begin(), bbs.end(), [=](const Detection& bb) {
         return bb.score < thr;
-    }), bbs.end() );
-    if(bbs.size() == 0)
+    }),
+        bbs.end());
+    if (bbs.size() == 0)
     {
         return 0;
     }
@@ -303,4 +302,3 @@ int Detector::bbNms(const std::vector<Detection> &bbsIn, const Options::Nms &pNm
 }
 
 DRISHTI_ACF_NAMESPACE_END
-

@@ -15,21 +15,20 @@
 
 _DRISHTI_SDK_BEGIN
 
-Context::Impl::Impl(const drishti::sensor::SensorModel &sensor)
+Context::Impl::Impl(const drishti::sensor::SensorModel& sensor)
 {
     m_sensor = std::make_shared<drishti::sensor::SensorModel>(sensor);
     m_logger = drishti::core::Logger::create(DRISHTI_LOGGER_NAME);
     m_threads = std::make_shared<tp::ThreadPool<>>(); // thread-pool
 }
 
-Context::Context(const drishti::sensor::SensorModel &sensor)
+Context::Context(const drishti::sensor::SensorModel& sensor)
 {
     m_impl = drishti::core::make_unique<Impl>(sensor);
 }
 
 Context::~Context()
 {
-
 }
 
 void Context::setMinDetectionDistance(float value)
@@ -53,4 +52,3 @@ float Context::getMaxDetectionDistance() const
 }
 
 _DRISHTI_SDK_END
-

@@ -22,7 +22,7 @@
 @interface MIMovieVideoSampleAccessor : NSObject
 
 // The last requested buffer.
-@property (readonly) MICMSampleBuffer *currentBuffer;
+@property (readonly) MICMSampleBuffer* currentBuffer;
 
 // The time of the last requested buffer.
 @property (readonly) CMTime currentTime;
@@ -41,11 +41,11 @@
  @param videoComposition The video composition to be used. If nil then the 
         composition will use the movie asset composition.
 */
--(instancetype)initWithMovie:(AVURLAsset *)movie
-             firstSampleTime:(CMTime)firstTime
-                      tracks:(NSArray *)tracks
-               videoSettings:(NSDictionary *)videoSettings
-            videoComposition:(AVVideoComposition *)composition;
+- (instancetype)initWithMovie:(AVURLAsset*)movie
+              firstSampleTime:(CMTime)firstTime
+                       tracks:(NSArray*)tracks
+                videoSettings:(NSDictionary*)videoSettings
+             videoComposition:(AVVideoComposition*)composition;
 
 /**
  @brief Designated initializer. Can return nil.
@@ -58,16 +58,16 @@
  @param videoComposition The video composition to be used. If nil then the
  composition will use the movie asset composition.
  */
--(instancetype)initWithMovie:(AVURLAsset *)movie
-             firstSampleTime:(CMTime)firstTime;
+- (instancetype)initWithMovie:(AVURLAsset*)movie
+              firstSampleTime:(CMTime)firstTime;
 
 /// Get the sample buffer at the specified time.
--(MICMSampleBuffer *)sampleBufferAtTime:(CMTime)time;
+- (MICMSampleBuffer*)sampleBufferAtTime:(CMTime)time;
 
 /// Get the next sample buffer.
--(MICMSampleBuffer *)nextSampleBuffer;
+- (MICMSampleBuffer*)nextSampleBuffer;
 
 /// Is the array of tracks the same as the sample accessor's list of tracks.
--(BOOL)equalTracks:(NSArray *)tracks;
+- (BOOL)equalTracks:(NSArray*)tracks;
 
 @end

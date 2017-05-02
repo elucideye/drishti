@@ -13,8 +13,6 @@ DRISHTI_GEOMETRY_BEGIN
 
 DynamicObject3D::DynamicObject3D()
 {
-
 }
 
 DRISHTI_GEOMETRY_END
-

@@ -15,12 +15,11 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 FaceDetectorAndTracker::TrackImpl::TrackImpl() {}
 FaceDetectorAndTracker::TrackImpl::~TrackImpl() {}
 
-void FaceDetectorAndTracker::TrackImpl::initializeWithRegions(const cv::Mat1b &image, const std::vector<cv::Rect> &regions)
+void FaceDetectorAndTracker::TrackImpl::initializeWithRegions(const cv::Mat1b& image, const std::vector<cv::Rect>& regions)
 {
-
 }
 
-void FaceDetectorAndTracker::TrackImpl::initialize(const cv::Mat1b &image, const FaceModel &face)
+void FaceDetectorAndTracker::TrackImpl::initialize(const cv::Mat1b& image, const FaceModel& face)
 {
     std::vector<cv::Rect> rois;
 
@@ -29,7 +28,7 @@ void FaceDetectorAndTracker::TrackImpl::initialize(const cv::Mat1b &image, const
     // Get the eye regions
     cv::Rect2f eyeR, eyeL;
     face.getEyeRegions(eyeR, eyeL);
-    if(eyeR.size().area() && eyeL.size().area())
+    if (eyeR.size().area() && eyeL.size().area())
     {
         rois = { eyeR, eyeL };
     }
@@ -44,16 +43,16 @@ void FaceDetectorAndTracker::TrackImpl::initialize(const cv::Mat1b &image, const
     m_isInitialized = true;
 }
 
-void drawEyes(const cv::Mat1b &image, const FaceModel &face)
+void drawEyes(const cv::Mat1b& image, const FaceModel& face)
 {
     cv::Mat canvas;
     cv::cvtColor(image, canvas, cv::COLOR_GRAY2BGR);
-    cv::rectangle(canvas, face.eyeFullR->roi, {0,255,0}, 1, 8);
-    cv::rectangle(canvas, face.eyeFullL->roi, {0,255,0}, 1, 8);
+    cv::rectangle(canvas, face.eyeFullR->roi, { 0, 255, 0 }, 1, 8);
+    cv::rectangle(canvas, face.eyeFullL->roi, { 0, 255, 0 }, 1, 8);
     cv::imshow("update", canvas), cv::waitKey(0);
 }
 
-cv::Rect getNoseBridge(const FaceModel &face)
+cv::Rect getNoseBridge(const FaceModel& face)
 {
     const cv::Point2f cR = face.eyeFullR->getInnerCorner();
     const cv::Point2f cL = face.eyeFullL->getInnerCorner();

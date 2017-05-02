@@ -134,20 +134,20 @@
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-static int addChn(Detector::Channels &chns, const MatP &data, const std::string &name, const std::string &padWith, int h, int w);
+static int addChn(Detector::Channels& chns, const MatP& data, const std::string& name, const std::string& padWith, int h, int w);
 
-int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn, Detector::Channels &chns, bool isInit, MatLoggerType pLogger)
+int Detector::chnsCompute(const MatP& IIn, const Options::Pyramid::Chns& pChnsIn, Detector::Channels& chns, bool isInit, MatLoggerType pLogger)
 {
     Options::Pyramid::Chns pChns = pChnsIn;
-    if( !pChnsIn.complete.has || (pChnsIn.complete.get() != 1) || IIn.empty() )
+    if (!pChnsIn.complete.has || (pChnsIn.complete.get() != 1) || IIn.empty())
     {
         // Create default structures and merge:
 
         {
             // top level
             Options::Pyramid::Chns dfs;
-            dfs.shrink = {"shrink", 4};
-            dfs.complete = {"complete", 1};
+            dfs.shrink = { "shrink", 4 };
+            dfs.complete = { "complete", 1 };
             pChns.merge(dfs, 1);
         }
         {
@@ -165,8 +165,9 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
             dfs.colorChn = { "colorChn", 0 };
             dfs.normRad = { "normRad", 5 };
             dfs.normConst = { "normConst", 0.005 };
-            dfs.full = { "full", 0  };
-            pChns.pGradMag.merge(dfs, 1);;
+            dfs.full = { "full", 0 };
+            pChns.pGradMag.merge(dfs, 1);
+            ;
         }
         {
             // pGradHist
@@ -190,30 +191,29 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
     auto shrink = pChns.shrink.get();
     int h = IIn.rows();
     int w = IIn.cols();
-    cv::Size cr( w % shrink, h % shrink );
-    if(cr.width || cr.height)
+    cv::Size cr(w % shrink, h % shrink);
+    if (cr.width || cr.height)
     {
         h = h - cr.height;
         w = w - cr.width;
-        I = IIn(cv::Range(0,h), cv::Range(0,w));
+        I = IIn(cv::Range(0, h), cv::Range(0, w));
     }
     else
     {
         I = IIn;
     }
 
-    if(I.channels() > 3)
+    if (I.channels() > 3)
     {
         std::copy(I.begin() + 3, I.end(), std::back_inserter(MO));
-        while(I.channels() > 3)
+        while (I.channels() > 3)
         {
             I.pop_back();
         }
     }
 
-
-    h = h/shrink;
-    w = w/shrink;
+    h = h / shrink;
+    w = w / shrink;
 
     {
         // Compute color channels:
@@ -221,14 +221,14 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
         std::string nm = "color channels";
         rgbConvert(I, I, p.colorSpace, true);
 
-        if(I.channels())
+        if (I.channels())
         {
             convTri(I, I, p.smooth, 1);
 
-            if(pLogger)
+            if (pLogger)
             {
-                std::vector<char> TAGS { 'L', 'U', 'V' };
-                for(int i = 0; i < 3; i++)
+                std::vector<char> TAGS{ 'L', 'U', 'V' };
+                for (int i = 0; i < 3; i++)
                 {
                     std::stringstream ss;
                     ss << TAGS[i] << ":" << I[i].cols << "x" << I[i].rows;
@@ -237,7 +237,7 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
             }
         }
 
-        if(p.enabled.get())
+        if (p.enabled.get())
         {
             addChn(chns, I, nm, "replicate", h, w);
         }
@@ -253,7 +253,7 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
         std::string nm = "gradient magnitude";
         full = (p.full.has) ? p.full.get() : 0;
 
-        if(MO.channels() == 2)
+        if (MO.channels() == 2)
         {
             M = MO[0];
             O = MO[1];
@@ -262,18 +262,18 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
             //cv::minMaxLoc(O, &vals[0], &vals[1]);
             //std::cout << vals << std::endl;
         }
-        else if(I.channels())
+        else if (I.channels())
         {
-            if( pChns.pGradHist->enabled )
+            if (pChns.pGradHist->enabled)
             {
                 gradientMag(I[p.colorChn], M, O, /*p.colorChn*/ 0, p.normRad, p.normConst, full, pLogger);
             }
-            else if( p.enabled )
+            else if (p.enabled)
             {
                 gradientMag(I[p.colorChn], M, O, /*p.colorChn*/ 0, p.normRad, p.normConst, full, pLogger);
             }
 
-            if(pLogger && !M.empty() && !O.empty())
+            if (pLogger && !M.empty() && !O.empty())
             {
                 {
                     // Log gradient magnitude:
@@ -291,7 +291,7 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
             }
         }
 
-        if( p.enabled )
+        if (p.enabled)
         {
             MatP Mp(M);
             addChn(chns, Mp, nm, {}, h, w);
@@ -302,14 +302,14 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
         // Compute gradient histogram channels:
         auto p = pChns.pGradHist.get();
         std::string nm = "gradient histogram";
-        if(p.enabled.get())
+        if (p.enabled.get())
         {
             int binSize = (p.binSize.has) ? p.binSize.get() : shrink;
             MatP Hp;
-            if(!M.empty())
+            if (!M.empty())
             {
                 gradientHist(M, O, Hp, binSize, p.nOrients, p.softBin, p.useHog, p.clipHog, full);
-                if(pLogger && !I.empty())
+                if (pLogger && !I.empty())
                 {
                     cv::Mat canvas, h;
                     cv::hconcat(Hp.get(), h);
@@ -328,16 +328,16 @@ int Detector::chnsCompute(const MatP &IIn, const Options::Pyramid::Chns &pChnsIn
     return 0;
 }
 
-static int addChn(Detector::Channels &chns, const MatP &dataIn, const std::string &name, const std::string &padWith, int h, int w)
+static int addChn(Detector::Channels& chns, const MatP& dataIn, const std::string& name, const std::string& padWith, int h, int w)
 {
     //[h1,w1,~]=size(data);
     //if(h1~=h || w1~=w), data=imResampleMex(data,h,w,1);
     //assert(all(mod([h1 w1]./[h w],1)==0)); end
 
     MatP data;
-    if(dataIn.size() != cv::Size(w,h))
+    if (dataIn.size() != cv::Size(w, h))
     {
-        data.create( cv::Size(w,h), dataIn.depth(), dataIn.channels() );
+        data.create(cv::Size(w, h), dataIn.depth(), dataIn.channels());
 
 #if 0
         // OpenCV resize is typically a little faster than resample acf code are similar:
@@ -359,18 +359,17 @@ static int addChn(Detector::Channels &chns, const MatP &dataIn, const std::strin
 #else
         imResample(dataIn, data, cv::Size(w, h), 1.0);
 #endif
-
     }
     else
     {
         data = dataIn;
     }
 
-    CV_Assert( data.size() == cv::Size(w,h) );
+    CV_Assert(data.size() == cv::Size(w, h));
 
     // TODO: chns.info (C++ requires strong type)
     chns.nTypes++;
-    chns.data.push_back( data );
+    chns.data.push_back(data);
 
     Detector::Channels::Info info;
     info.name = name;

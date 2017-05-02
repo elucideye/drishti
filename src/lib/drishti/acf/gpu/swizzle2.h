@@ -19,7 +19,6 @@ BEGIN_OGLES_GPGPU
 class MergeProc : public TwoInputProc
 {
 public:
-
     enum SwizzleKind
     {
         kSwizzleABC1, // {ABCD} {1234}
@@ -27,8 +26,11 @@ public:
         kSwizzleAD12, // ...
     };
 
-    MergeProc(SwizzleKind swizzleKind = kSwizzleABC1) : swizzleKind(swizzleKind) {}
-    virtual const char *getProcName()
+    MergeProc(SwizzleKind swizzleKind = kSwizzleABC1)
+        : swizzleKind(swizzleKind)
+    {
+    }
+    virtual const char* getProcName()
     {
         return "MergeProc";
     }
@@ -44,12 +46,11 @@ public:
     virtual void useTexture(GLuint id, GLuint useTexUnit = 1, GLenum target = GL_TEXTURE_2D, int position = 0);
 
 private:
-
     SwizzleKind swizzleKind = kSwizzleABC1;
 
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
-        switch(swizzleKind)
+        switch (swizzleKind)
         {
             case kSwizzleABC1:
                 return fshaderMergeSrcABC1;
@@ -61,9 +62,9 @@ private:
                 assert(false);
         }
     }
-    static const char *fshaderMergeSrcABC1;   // fragment shader source
-    static const char *fshaderMergeSrcAB12;   // fragment shader source
-    static const char *fshaderMergeSrcAD12;   // fragment shader source
+    static const char* fshaderMergeSrcABC1; // fragment shader source
+    static const char* fshaderMergeSrcAB12; // fragment shader source
+    static const char* fshaderMergeSrcAD12; // fragment shader source
 };
 
 END_OGLES_GPGPU

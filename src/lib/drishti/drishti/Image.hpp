@@ -24,22 +24,27 @@ _DRISHTI_SDK_BEGIN
  * Vec types
  */
 
-template <typename T, int D> struct Vec
+template <typename T, int D>
+struct Vec
 {
 public:
     Vec() {}
 
     template <typename... Tail>
-    Vec(typename std::enable_if<sizeof...(Tail)+1 == D, T>::type head, Tail... tail) : val{ head, T(tail)... } {}
+    Vec(typename std::enable_if<sizeof...(Tail) + 1 == D, T>::type head, Tail... tail)
+        : val{ head, T(tail)... }
+    {
+    }
 
-    T & operator [](int i)
+    T& operator[](int i)
     {
         return val[i];
     }
-    const T & operator [](int i) const
+    const T& operator[](int i) const
     {
         return val[i];
     }
+
 protected:
     T val[D];
 };
@@ -55,11 +60,19 @@ typedef Vec<int, 3> Vec3i;
  * Size2 types
  */
 
-template < typename T >
+template <typename T>
 struct Size2
 {
-    Size2() : width(0), height(0) {}
-    Size2(T width, T height) : width(width), height(height) {}
+    Size2()
+        : width(0)
+        , height(0)
+    {
+    }
+    Size2(T width, T height)
+        : width(width)
+        , height(height)
+    {
+    }
     T width, height;
 };
 
@@ -70,11 +83,23 @@ typedef Size2<int> Size2i;
  * Rect types
  */
 
-template < typename T >
+template <typename T>
 struct Rect
 {
-    Rect() : x(0), y(0), width(0), height(0) {}
-    Rect(T x, T y, T width, T height) : x(x), y(y),  width(width), height(height) {}
+    Rect()
+        : x(0)
+        , y(0)
+        , width(0)
+        , height(0)
+    {
+    }
+    Rect(T x, T y, T width, T height)
+        : x(x)
+        , y(y)
+        , width(width)
+        , height(height)
+    {
+    }
 
     Size2<T> size() const
     {
@@ -91,13 +116,13 @@ typedef Rect<float> Rectf;
  * Image types
  */
 
-
-template <typename T> class DRISHTI_EXPORT Image
+template <typename T>
+class DRISHTI_EXPORT Image
 {
 public:
     Image();
-    Image(const Image &src);
-    Image(size_t rows, size_t cols, T *data, size_t stride, bool keep = false);
+    Image(const Image& src);
+    Image(size_t rows, size_t cols, T* data, size_t stride, bool keep = false);
     ~Image();
     size_t getRows() const
     {
@@ -109,13 +134,15 @@ public:
     }
     size_t getStride() const
     {
-        return stride;    // bytes
+        return stride; // bytes
     }
-    template<typename T2> const T2* ptr() const
+    template <typename T2>
+    const T2* ptr() const
     {
         return reinterpret_cast<T2*>(data);
     }
     Image<T> clone();
+
 protected:
     size_t rows = 0;
     size_t cols = 0;

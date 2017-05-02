@@ -19,16 +19,16 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 
 // Local template definitions:
 template <typename T1, typename T2>
-cv::Rect operator *(const cv::Rect_<T1> &roi, const T2 &scale)
+cv::Rect operator*(const cv::Rect_<T1>& roi, const T2& scale)
 {
     return cv::Rect_<T1>(roi.x * scale, roi.y * scale, roi.width * scale, roi.height * scale);
 }
 
 template <typename T1, typename T2>
-std::vector<T1> operator *(const std::vector<T1> &src, const T2 &scale)
+std::vector<T1> operator*(const std::vector<T1>& src, const T2& scale)
 {
     auto dst = src;
-    for(auto &r : dst)
+    for (auto& r : dst)
     {
         r = r * scale;
     }
@@ -36,7 +36,7 @@ std::vector<T1> operator *(const std::vector<T1> &src, const T2 &scale)
 }
 
 template <typename T1, typename T2>
-cv::Size_<T1> operator*(const cv::Size_<T1> &size, const T2 &scale)
+cv::Size_<T1> operator*(const cv::Size_<T1>& size, const T2& scale)
 {
     return cv::Size_<T1>(T2(size.width) * scale, T2(size.height) * scale);
 }

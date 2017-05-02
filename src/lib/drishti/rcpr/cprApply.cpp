@@ -17,10 +17,12 @@
 
 #define DRISHTI_CPR_DO_DEBUG 0
 
+// clang-format off
 #if DRISHTI_CPR_DO_DEBUG
 #  include <opencv2/imgproc/imgproc.hpp>
 #  include <opencv2/highgui/highgui.hpp>
 #endif
+// clang-format on
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
@@ -55,9 +57,9 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 // Please email me if you find bugs, or have suggestions or questions!
 // Licensed under the Simplified BSD License [see bsd.txt]
 
-int CPR::cprApply( const cv::Mat &I, const RegModel &regModel, CPRResult &result, const CPROpts & pOpts ) const
+int CPR::cprApply(const cv::Mat& I, const RegModel& regModel, CPRResult& result, const CPROpts& pOpts) const
 {
-    DRISHTI_STREAM_LOG_FUNC(9,1,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(9, 1, m_streamLogger);
 
     CPROpts opts = pOpts;
     {
@@ -72,18 +74,18 @@ int CPR::cprApply( const cv::Mat &I, const RegModel &regModel, CPRResult &result
     auto K = *(opts.K);
     auto rad = *(opts.rad);
 
-    if(p.empty())
+    if (p.empty())
     {
         std::copy((*regModel.pStar).begin(), (*regModel.pStar).begin() + 2, std::back_inserter(p));
     }
 
     // Run regressor starting from a single pose:
-    if(K == 1)
+    if (K == 1)
     {
         ScopeTimer timer("cpr");
-        if(p.size() == 2) // just center, augment model params
+        if (p.size() == 2) // just center, augment model params
         {
-            std::copy((*regModel.pStar).begin()+2,  (*regModel.pStar).end(), std::back_inserter(p));
+            std::copy((*regModel.pStar).begin() + 2, (*regModel.pStar).end(), std::back_inserter(p));
         }
         cprApply1(I, regModel, p, result);
     }
@@ -93,43 +95,42 @@ int CPR::cprApply( const cv::Mat &I, const RegModel &regModel, CPRResult &result
     //cv::ellipse(canvas, phiToEllipse(result.p), {0,255,0}, 1, 8);
     //cv::imshow("canvas", canvas.t()); // opt
     //cv::waitKey(0);
-    
+
     return 0;
 }
 
-int CPR::cprApply1( const cv::Mat &I, const RegModel &regModel, const Vector1d &pIn, CPRResult &result )
+int CPR::cprApply1(const cv::Mat& I, const RegModel& regModel, const Vector1d& pIn, CPRResult& result)
 {
     cv::Mat It = I.t();
 
-    auto &p = result.p;
+    auto& p = result.p;
     p = pIn;
 
     // Apply each single stage regressor, starting from pose p:
-    auto &model = *(regModel.model);
+    auto& model = *(regModel.model);
     auto T = *(regModel.T);
     result.pAll.resize(T); // store result at end of each stage
 
-    for(int t = 0; t < T; t++)
+    for (int t = 0; t < T; t++)
     {
-        auto &reg = *(*(regModel.regs))[t];
+        auto& reg = *(*(regModel.regs))[t];
         uint32_t r = *(reg.r);
 
         FeaturesResult ftrResult;
-        featuresComp( model, p, It, *(reg.ftrData), ftrResult );
+        featuresComp(model, p, It, *(reg.ftrData), ftrResult);
 
         FernResult fernResult;
-        fernsRegApply( ftrResult.ftrs, *(reg.ferns), fernResult, {} );
+        fernsRegApply(ftrResult.ftrs, *(reg.ferns), fernResult, {});
 
-        const auto &del = fernResult.ys;
+        const auto& del = fernResult.ys;
         auto pDel = identity(model);
-        pDel[r-1] = del; // BASE ZERO
+        pDel[r - 1] = del; // BASE ZERO
 
         p = compose(model, p, pDel);
     }
 
     return 0;
 }
-
 
 //function inds = fernsInds( data, fids, thrs )
 // Compute indices for each input by each fern.
@@ -154,15 +155,15 @@ int CPR::cprApply1( const cv::Mat &I, const RegModel &regModel, const Vector1d &
 //  Please email me if you find bugs, or have suggestions or questions!
 //  Licensed under the Simplified BSD License [see external/bsd.txt]
 
-static uint32_t fernsIndx(const Vector1d &data, const std::vector<uint32_t> &fids, const Vector1d &thrs)
+static uint32_t fernsIndx(const Vector1d& data, const std::vector<uint32_t>& fids, const Vector1d& thrs)
 {
     size_t index = 0;
-    for(size_t i = 0; i < fids.size(); i++)
+    for (size_t i = 0; i < fids.size(); i++)
     {
         index *= 2;
-        if(data[fids[i]-1] < thrs[i])
+        if (data[fids[i] - 1] < thrs[i])
         {
-            index ++;
+            index++;
         }
     }
     return index; // matlab increments for base 1 indexing
@@ -192,52 +193,52 @@ static uint32_t fernsIndx(const Vector1d &data, const std::vector<uint32_t> &fid
 //  Please email me if you find bugs, or have suggestions or questions!
 //  Licensed under the Simplified BSD License [see external/bsd.txt]
 
-int CPR::fernsRegApply(const Vector1d &data, const RegModel::Regs::Ferns &ferns, FernResult &result, const std::vector<uint32_t> &indsIn)
+int CPR::fernsRegApply(const Vector1d& data, const RegModel::Regs::Ferns& ferns, FernResult& result, const std::vector<uint32_t>& indsIn)
 {
-    size_t index = fernsIndx( data, *(ferns.fids), *(ferns.thrs) );
+    size_t index = fernsIndx(data, *(ferns.fids), *(ferns.thrs));
     result.ys = (*ferns.ysFern)[index];
     return 0;
 }
 
 #endif // !DRISHTI_CPR_DO_LEAN
 
-void CPR::CPROpts::merge(const CPR::CPROpts &opts, int checkExtra)
+void CPR::CPROpts::merge(const CPR::CPROpts& opts, int checkExtra)
 {
     pInit.merge(opts.pInit, checkExtra);
     K.merge(opts.K, checkExtra);
     rad.merge(opts.rad, checkExtra);
 }
 
-std::ostream & operator<<(std::ostream &os, const cv::RotatedRect &e)
+std::ostream& operator<<(std::ostream& os, const cv::RotatedRect& e)
 {
-    os << e.center << ","  << e.size << " " << e.angle;
+    os << e.center << "," << e.size << " " << e.angle;
     return os;
 }
 
-int CPR::cprApplyTree(const cv::Mat &I, const RegModel &regModel, const Vector1d &pIn, CPRResult &result, bool doPreview) const
+int CPR::cprApplyTree(const cv::Mat& I, const RegModel& regModel, const Vector1d& pIn, CPRResult& result, bool doPreview) const
 {
     cv::Mat1b mask = cv::Mat1b::ones(I.size());
-    return cprApplyTree({I,mask}, regModel, pIn, result, doPreview);
+    return cprApplyTree({ I, mask }, regModel, pIn, result, doPreview);
 }
 
 #define STAGE_REPETITION_FACTOR 1
 
-int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const Vector1d &pIn, CPRResult &result, bool doPreview) const
+int CPR::cprApplyTree(const ImageMaskPair& IsIn, const RegModel& regModel, const Vector1d& pIn, CPRResult& result, bool doPreview) const
 {
-    DRISHTI_STREAM_LOG_FUNC(9,2,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(9, 2, m_streamLogger);
 
     ImageMaskPair Is = IsIn;
-    if(DRISHTI_CPR_TRANSPOSE)
+    if (DRISHTI_CPR_TRANSPOSE)
     {
         Is.getImage() = Is.getImage().t();
         Is.getMask() = Is.getMask().t();
     }
 
-    auto &p = result.p;
+    auto& p = result.p;
     p = pIn;
 
     // Apply each single stage regressor, starting from pose p:
-    auto &model = *(regModel.model);
+    auto& model = *(regModel.model);
     auto T = *(regModel.T);
     result.pAll.resize(T); // store result at end of each stage
 
@@ -245,24 +246,24 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
     std::vector<int> stage;
 
     // Create a recipe for executing the stages:
-    for(int i = 0; i < std::min(stagesHint, int(T)); i++)
+    for (int i = 0; i < std::min(stagesHint, int(T)); i++)
     {
-        for(int j = 0; j < std::max(1, stagesRepetitionFactor); j++)
+        for (int j = 0; j < std::max(1, stagesRepetitionFactor); j++)
         {
             stage.push_back(i);
         }
     }
 
     //for(int t = 0; t < T; t++)
-    for(const auto &t : stage)
+    for (const auto& t : stage)
     {
-        auto &reg = *(*(regModel.regs))[t];
+        auto& reg = *(*(regModel.regs))[t];
 
-        DRISHTI_STREAM_LOG_FUNC(9,3,m_streamLogger);
+        DRISHTI_STREAM_LOG_FUNC(9, 3, m_streamLogger);
         FeaturesResult ftrResult;
-        featuresComp( model, p, Is, *(reg.ftrData), ftrResult);
-        DRISHTI_STREAM_LOG_FUNC(9,4,m_streamLogger);
-        
+        featuresComp(model, p, Is, *(reg.ftrData), ftrResult);
+        DRISHTI_STREAM_LOG_FUNC(9, 4, m_streamLogger);
+
         auto pDel = identity(model);
 
         cv::Mat features;
@@ -272,16 +273,16 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
         {
             // XGBOOST
             std::vector<std::vector<float>> data(features.rows);
-            for(int i = 0; i < features.rows; i++)
+            for (int i = 0; i < features.rows; i++)
             {
                 data[i] = features.row(i);
             }
 
-            for(auto &t : reg.xgbdt)
+            for (auto& t : reg.xgbdt)
             {
-                DRISHTI_STREAM_LOG_FUNC(9,5,m_streamLogger);
+                DRISHTI_STREAM_LOG_FUNC(9, 5, m_streamLogger);
                 pDel[t.first] = (*t.second)(data[0]);
-                DRISHTI_STREAM_LOG_FUNC(9,6,m_streamLogger);
+                DRISHTI_STREAM_LOG_FUNC(9, 6, m_streamLogger);
             }
         }
 
@@ -295,22 +296,21 @@ int CPR::cprApplyTree(const ImageMaskPair &IsIn, const RegModel &regModel, const
 
 #if DRISHTI_CPR_DO_DEBUG && !HAS_XGBOOST
         // TODO: Legacy non xgboost
-        if(doPreview)
+        if (doPreview)
         {
             cv::Mat canvas;
             cv::cvtColor(I, canvas, cv::COLOR_GRAY2BGR);
 
             const auto e = phiToEllipse(p), eIn = phiToEllipse(pIn);
-            cv::ellipse(canvas, eIn, {255,0,0}, 1, 8);
-            cv::ellipse(canvas, e, {0,255,0}, 1, 8);
+            cv::ellipse(canvas, eIn, { 255, 0, 0 }, 1, 8);
+            cv::ellipse(canvas, e, { 0, 255, 0 }, 1, 8);
 
             drishti::geometry::Ellipse e2(e);
-            cv::line(canvas, e.center, e2.getMajorAxisPos(), {0,255,0}, 1, 8);
+            cv::line(canvas, e.center, e2.getMajorAxisPos(), { 0, 255, 0 }, 1, 8);
             cv::imshow("I", canvas); // opt
             cv::waitKey(0);
         }
 #endif
-
     }
     return 0;
 }

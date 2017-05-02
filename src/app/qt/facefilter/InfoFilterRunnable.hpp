@@ -41,20 +41,22 @@
 
 class InfoFilter;
 
-class InfoFilterRunnable: public QVideoFilterRunnable
+class InfoFilterRunnable : public QVideoFilterRunnable
 {
 public:
-    InfoFilterRunnable(InfoFilter* filter) : m_filter(filter) {}
+    InfoFilterRunnable(InfoFilter* filter)
+        : m_filter(filter)
+    {
+    }
 
     QVideoFrame run(
-        QVideoFrame *input,
-        const QVideoSurfaceFormat &surfaceFormat,
-        RunFlags flags
-    ) Q_DECL_OVERRIDE;
+        QVideoFrame* input,
+        const QVideoSurfaceFormat& surfaceFormat,
+        RunFlags flags) Q_DECL_OVERRIDE;
 
 private:
     FPSCalculator m_fps_calculator;
-    InfoFilter *m_filter;
+    InfoFilter* m_filter;
 };
 
 #endif // INFO_FILTER_RUNNABLE_HPP_

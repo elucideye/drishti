@@ -27,9 +27,12 @@
 #include <boost/exception/exception.hpp>
 #include <boost/exception/all.hpp>
 
+// clang-format off
 #if !DRISHTI_BUILD_MIN_SIZE
 #  include "boost-pba/portable_binary_oarchive.hpp"
 #endif
+// clang-format on
+
 #include "boost-pba/portable_binary_iarchive.hpp"
 
 #endif

@@ -14,9 +14,11 @@
 #include "FDDB.h"
 #include "cxxopts.hpp"
 
+// clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
 #  include "imshow/imshow.h"
 #endif
+// clang-format on
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -27,7 +29,7 @@ namespace bfs = boost::filesystem;
 int main(int argc, char* argv[])
 {
     const auto argumentCount = argc;
-    
+
     std::string sInput;
     std::string sOutput;
     std::string sTextDir;
@@ -35,6 +37,8 @@ int main(int argc, char* argv[])
     bool doVerbose = false;
 
     cxxopts::Options options("drishti-fddb", "Command line parser for fddb images");
+
+    // clang-format off
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
@@ -42,7 +46,8 @@ int main(int argc, char* argv[])
         ("f,face", "Face directory", cxxopts::value<std::string>(sFaceDir))
         ("v,verbose", "Verbose output", cxxopts::value<bool>(doVerbose))        
         ("h,help", "Print help message");
-    
+    // clang-format on    
+
     options.parse(argc, argv);
 
     if((argumentCount <= 1) || options.count("help"))

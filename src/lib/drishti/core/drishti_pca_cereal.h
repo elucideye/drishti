@@ -13,12 +13,12 @@
 #include <cereal/cereal.hpp>
 
 DRISHTI_BEGIN_NAMESPACE(cv)
-template<class Archive>
-void serialize(Archive & ar, cv::PCA &pca, const unsigned int version)
+template <class Archive>
+void serialize(Archive& ar, cv::PCA& pca, const unsigned int version)
 {
-    ar & pca.eigenvalues;
-    ar & pca.eigenvectors;
-    ar & pca.mean;
+    ar& pca.eigenvalues;
+    ar& pca.eigenvectors;
+    ar& pca.mean;
 }
 DRISHTI_END_NAMESPACE(cv)
 

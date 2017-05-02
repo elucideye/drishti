@@ -28,27 +28,27 @@ QGLContext::QGLContext()
 
     m_context = std::make_shared<QOpenGLContext>();
     m_context->setFormat(format);
-    
+
     // Note: If you crash here, it is likely that you have not instantiated:
     // QGuiApplication a(argc, argv) or ...
     // QApplication a(argc, argv)
-    if(!m_context->create() || !m_context->isValid())
+    if (!m_context->create() || !m_context->isValid())
     {
-        qDebug()<<Q_FUNC_INFO<<"QOpenGLContext create";
+        qDebug() << Q_FUNC_INFO << "QOpenGLContext create";
         return;
     }
-    
+
     m_surface = std::make_shared<QOffscreenSurface>();
     m_surface->setFormat(format);
     m_surface->create();
-    if(!m_surface->isValid())
+    if (!m_surface->isValid())
     {
         qDebug() << Q_FUNC_INFO << "QOffscreenSurface create";
     }
 
-    if(!m_context->makeCurrent(m_surface.get()))
+    if (!m_context->makeCurrent(m_surface.get()))
     {
-        qDebug()<<Q_FUNC_INFO<<"Shit happens with QOpenGLContext makeCurrent";
+        qDebug() << Q_FUNC_INFO << "Shit happens with QOpenGLContext makeCurrent";
     }
 }
 
@@ -58,4 +58,3 @@ QGLContext::~QGLContext()
     m_context->doneCurrent();
     m_surface->deleteLater();
 }
-

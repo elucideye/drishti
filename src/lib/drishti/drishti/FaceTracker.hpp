@@ -23,13 +23,13 @@
 struct drishti_face_tracker_result_t
 {
     double time; //TimePoint time;
-    
+
     drishti::sdk::Image4b image;
     drishti::sdk::Array<drishti::sdk::Face, 2> faceModels;
-    
+
     drishti::sdk::Image4b eyes; // eye pair image [ left | right ]
     drishti::sdk::Array<drishti::sdk::Eye, 2> eyeModels;
-    
+
     drishti::sdk::Image4b extra;
 };
 
@@ -43,13 +43,13 @@ typedef struct drishti_image
 } drishti_image_t;
 
 // User defined callbacks:
-typedef int (*drishti_face_tracker_callback_t)(void *context, drishti::sdk::Array<drishti_face_tracker_result_t, 64> &results);
-typedef int (*drishti_face_tracker_trigger_t)(void *context, const drishti::sdk::Vec3f &point, double timestamp);
-typedef int (*drishti_face_tracker_allocator_t)(void *context, const drishti_image_t &spec, drishti::sdk::Image4b &image);
+typedef int (*drishti_face_tracker_callback_t)(void* context, drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results);
+typedef int (*drishti_face_tracker_trigger_t)(void* context, const drishti::sdk::Vec3f& point, double timestamp);
+typedef int (*drishti_face_tracker_allocator_t)(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image);
 
 typedef struct drishti_face_tracker
 {
-    void *context;
+    void* context;
     drishti_face_tracker_trigger_t trigger;
     drishti_face_tracker_callback_t callback;
     drishti_face_tracker_allocator_t allocator;
@@ -67,37 +67,35 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT FaceTracker
 {
 public:
-    
     // Maintain raw pointers as this code may need to interface with non-coypable istream sources.
     // The referenced streams must stay in scope for the scope of the construction.
     struct Resources
     {
-        std::istream *sFaceDetector;
-        std::vector<std::istream *> sFaceRegressors;
-        std::istream *sEyeRegressor;
-        std::istream *sFaceModel;
+        std::istream* sFaceDetector;
+        std::vector<std::istream*> sFaceRegressors;
+        std::istream* sEyeRegressor;
+        std::istream* sFaceModel;
     };
-    
+
     class Impl;
-    
-    FaceTracker(Context *manager, Resources &factory);
+
+    FaceTracker(Context* manager, Resources& factory);
 
     // FaceTracker cannot be moved or copied:
-    FaceTracker(const FaceTracker &) = delete;
-    FaceTracker& operator=(const FaceTracker &) = delete;
-    FaceTracker(FaceTracker &&) = delete;
+    FaceTracker(const FaceTracker&) = delete;
+    FaceTracker& operator=(const FaceTracker&) = delete;
+    FaceTracker(FaceTracker&&) = delete;
 
-    int operator()(const VideoFrame &image);
+    int operator()(const VideoFrame& image);
 
-     ~FaceTracker();
+    ~FaceTracker();
 
     bool good() const;
     explicit operator bool() const;
 
-    void add(drishti_face_tracker_t &table);
+    void add(drishti_face_tracker_t& table);
 
 protected:
-
     std::unique_ptr<Impl> m_impl;
 };
 
@@ -110,16 +108,16 @@ _DRISHTI_SDK_END
 DRISHTI_EXTERN_C_BEGIN
 
 DRISHTI_EXPORT drishti::sdk::FaceTracker*
-drishti_face_tracker_create_from_streams(drishti::sdk::Context *manager, drishti::sdk::FaceTracker::Resources &resources);
+drishti_face_tracker_create_from_streams(drishti::sdk::Context* manager, drishti::sdk::FaceTracker::Resources& resources);
 
 DRISHTI_EXPORT void
-drishti_face_tracker_destroy(drishti::sdk::FaceTracker *tracker);
+drishti_face_tracker_destroy(drishti::sdk::FaceTracker* tracker);
 
 DRISHTI_EXPORT int
-drishti_face_tracker_track(drishti::sdk::FaceTracker *tracker, const drishti::sdk::VideoFrame &frame);
+drishti_face_tracker_track(drishti::sdk::FaceTracker* tracker, const drishti::sdk::VideoFrame& frame);
 
 DRISHTI_EXPORT int
-drishti_face_tracker_callback(drishti::sdk::FaceTracker *tracker, drishti_face_tracker_t &table);
+drishti_face_tracker_callback(drishti::sdk::FaceTracker* tracker, drishti_face_tracker_t& table);
 
 DRISHTI_EXTERN_C_END
 

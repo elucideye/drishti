@@ -13,7 +13,9 @@
 #ifndef __drishti_sensor_drishti_sensor_h__
 #define __drishti_sensor_drishti_sensor_h__
 
+// clang-format off
 #define DRISHTI_SENSOR_NAMESPACE_BEGIN namespace drishti { namespace sensor {
 #define DRISHTI_SENSOR_NAMESPACE_END } }
+// clang-format on
 
 #endif

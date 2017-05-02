@@ -12,9 +12,12 @@
 #ifndef __drishti_graphics_drishti_graphics_h__
 #define __drishti_graphics_drishti_graphics_h__
 
+// clang-format off
 #define DRISHTI_GRAPHICS_BEGIN namespace drishti { namespace graphics {
 #define DRISHTI_GRAPHICS_END } }
+// clang-format on
 
+// clang-format off
 //define something for Windows (64-bit)
 #if defined(_WIN32) || defined(_WIN64)
 #  include <algorithm> // min/max
@@ -48,5 +51,6 @@
 #else
 #  error platform not supported.
 #endif
+// clang-format on
 
 #endif

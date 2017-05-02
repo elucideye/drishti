@@ -1,10 +1,11 @@
 #include <opencv2/core.hpp>
 #include "drishti/core/drishti_cv_boost.h"
 
-
+// clang-format off
 #if !DRISHTI_BUILD_MIN_SIZE
 #  include "boost-pba/portable_binary_oarchive.hpp"
 #endif
+// clang-format on
 #include "boost-pba/portable_binary_iarchive.hpp"
 
 #include "drishti/eye/Eye.h"
@@ -20,11 +21,11 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 
 #if !DRISHTI_BUILD_MIN_SIZE
 typedef portable_binary_oarchive OArchive;
-template void EyeModel::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void EyeModel::serialize<OArchive>(OArchive& ar, const unsigned int);
 #endif
 
 typedef portable_binary_iarchive IArchive;
-template void EyeModel::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void EyeModel::serialize<IArchive>(IArchive& ar, const unsigned int);
 DRISHTI_EYE_NAMESPACE_END
 
 // ##################################################################
@@ -37,13 +38,9 @@ DRISHTI_EYE_NAMESPACE_END
 
 DRISHTI_EYE_NAMESPACE_BEGIN
 typedef boost::archive::text_oarchive OArchiveTXT;
-template void EyeModel::serialize<OArchiveTXT>(OArchiveTXT &ar, const unsigned int);
+template void EyeModel::serialize<OArchiveTXT>(OArchiveTXT& ar, const unsigned int);
 
 typedef boost::archive::text_iarchive IArchiveTXT;
-template void EyeModel::serialize<IArchiveTXT>(IArchiveTXT &ar, const unsigned int);
+template void EyeModel::serialize<IArchiveTXT>(IArchiveTXT& ar, const unsigned int);
 DRISHTI_EYE_NAMESPACE_END
 #endif
-
-
-
-

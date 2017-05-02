@@ -20,14 +20,16 @@ class ThreadPoolSource
 {
 public:
     using FixedThreadPool = tp::ThreadPool<>;
-    static FixedThreadPool * getInstance();
+    static FixedThreadPool* getInstance();
+
 private:
     ThreadPoolSource() {}
+
 public:
-    ThreadPoolSource(ThreadPoolSource const &)  = delete;
-    void operator=(ThreadPoolSource const &)    = delete;
+    ThreadPoolSource(ThreadPoolSource const&) = delete;
+    void operator=(ThreadPoolSource const&) = delete;
 };
 
 DRISHTI_CORE_NAMESPACE_END
 
-#endif // __drishti_core_ThreadPool_h__ 
+#endif // __drishti_core_ThreadPool_h__

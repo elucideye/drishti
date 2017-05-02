@@ -24,20 +24,18 @@ struct MappedTextureRegion
 class MultiTransformProc : public ogles_gpgpu::TransformProc
 {
 public:
-
     MultiTransformProc() {}
     virtual ~MultiTransformProc() {}
 
-    void renderRegion(const Rect2d &dstRoiPix, const Mat44f &Heye);
+    void renderRegion(const Rect2d& dstRoiPix, const Mat44f& Heye);
     virtual void filterRenderDraw();
 
-    void addCrop(const MappedTextureRegion &crop)
+    void addCrop(const MappedTextureRegion& crop)
     {
         m_crops.push_back(crop);
     }
 
 protected:
-
     std::vector<MappedTextureRegion> m_crops;
 };
 

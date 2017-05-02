@@ -13,6 +13,7 @@
 using namespace std;
 using namespace ogles_gpgpu;
 
+// clang-format off
 const char *Nms2Proc::fshaderNmsSrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -62,59 +63,94 @@ precision OGLES_GPGPU_HIGHP float;
      
      gl_FragColor = vec4(finalValue, centerColor.gba); // DO NOT EDIT (see swizzle)
 });
+// clang-format on
 
-Nms2Proc::Nms2Proc() {
-
+Nms2Proc::Nms2Proc()
+{
 }
 
-void Nms2Proc::setUniforms() {
+void Nms2Proc::setUniforms()
+{
     Filter3x3Proc::setUniforms();
     glUniform1f(shParamUThreshold, threshold);
 }
 
-void Nms2Proc::getUniforms() {
+void Nms2Proc::getUniforms()
+{
     Filter3x3Proc::getUniforms();
     shParamUInputTex = shader->getParam(UNIF, "inputImageTexture");
     shParamUThreshold = shader->getParam(UNIF, "threshold");
 }
 
-void Nms2Proc::swizzle(int channelIn, int channelOut) {
+void Nms2Proc::swizzle(int channelIn, int channelOut)
+{
     std::string new1, new2;
-    
-    if(channelOut < 0) {
+
+    if (channelOut < 0)
+    {
         channelOut = channelIn;
     }
 
     fshaderNmsSwizzleSrc.clear();
     fshaderNmsSwizzleSrc += fshaderNmsSrc; // deep copy
-    
-    switch(channelIn)
+
+    switch (channelIn)
     {
-        case 0: break;                   // R
-        case 1: { new1 = ".g"; break; }  // G
-        case 2: { new1 = ".b"; break; }  // B
-        case 3: { new1 = ".a"; break; }  // A
-        default: assert(false);
+        case 0:
+            break; // R
+        case 1:
+        {
+            new1 = ".g";
+            break;
+        } // G
+        case 2:
+        {
+            new1 = ".b";
+            break;
+        } // B
+        case 3:
+        {
+            new1 = ".a";
+            break;
+        } // A
+        default:
+            assert(false);
     }
-    
-    switch(channelOut)
+
+    switch (channelOut)
     {
-        case 0: break;
-        case 1: { new2 = "vec4(centerColor.r, finalValue, centerColor.ba)"; break; }
-        case 2: { new2 = "vec4(centerColor.rg, finalValue, centerColor.a)"; break; }
-        case 3: { new2 = "vec4(centerColor.rgb, finalValue)"; break; }
-        default: assert(false);
+        case 0:
+            break;
+        case 1:
+        {
+            new2 = "vec4(centerColor.r, finalValue, centerColor.ba)";
+            break;
+        }
+        case 2:
+        {
+            new2 = "vec4(centerColor.rg, finalValue, centerColor.a)";
+            break;
+        }
+        case 3:
+        {
+            new2 = "vec4(centerColor.rgb, finalValue)";
+            break;
+        }
+        default:
+            assert(false);
     }
-    
+
     const std::regex pattern1("\\.r");
     const std::regex pattern2("vec4\\(finalValue, centerColor.gba\\)");
-    
-    if(!new1.empty()) {
+
+    if (!new1.empty())
+    {
         auto fshader1 = std::regex_replace(fshaderNmsSwizzleSrc, pattern1, new1);
         std::swap(fshader1, fshaderNmsSwizzleSrc);
     }
-    
-    if(!new2.empty()) {
+
+    if (!new2.empty())
+    {
         auto fshader2 = std::regex_replace(fshaderNmsSwizzleSrc, pattern2, new2);
         std::swap(fshader2, fshaderNmsSwizzleSrc);
     }

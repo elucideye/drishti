@@ -26,40 +26,39 @@
 //    return std::chrono::duration_cast<T>(u);
 //}
 
-double QtFaceMonitor::PositionAndTime::estimateVelocity(const PositionAndTime &current)
+double QtFaceMonitor::PositionAndTime::estimateVelocity(const PositionAndTime& current)
 {
     double translation = cv::norm(current.position - position);
     double interval = std::chrono::duration_cast<std::chrono::duration<double>>(current.time - time).count();
     return translation / (interval + std::numeric_limits<double>::epsilon());
 }
 
-QtFaceMonitor::QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<tp::ThreadPool<>> &threads)
-: m_range(range)
-, m_frameCounter(0)
-, m_stackCounter(0)
-, m_threads(threads)
+QtFaceMonitor::QtFaceMonitor(const cv::Vec2d& range, std::shared_ptr<tp::ThreadPool<>>& threads)
+    : m_range(range)
+    , m_frameCounter(0)
+    , m_stackCounter(0)
+    , m_threads(threads)
 {
-    
 }
 
-bool QtFaceMonitor::isValid(const cv::Point3f &position, const TimePoint &now)
+bool QtFaceMonitor::isValid(const cv::Point3f& position, const TimePoint& now)
 {
     bool okay = false;
-    
-    // Here we can apply various heuristics 
+
+    // Here we can apply various heuristics
     m_frameCounter++;
     PositionAndTime current(position, now);
-    
-    if(m_previousPosition.has)
+
+    if (m_previousPosition.has)
     {
         const double velocity = m_previousPosition->estimateVelocity(current);
-        
-        if((m_range[0] < position.z) && (position.z < m_range[1]))
+
+        if ((m_range[0] < position.z) && (position.z < m_range[1]))
         {
-            if(velocity < m_velocityTreshold)
+            if (velocity < m_velocityTreshold)
             {
                 double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - m_previousStack->time).count();
-                if(elapsed > m_stackSampleInterval)
+                if (elapsed > m_stackSampleInterval)
                 {
                     okay = true;
                     m_previousStack = current;
@@ -73,7 +72,7 @@ bool QtFaceMonitor::isValid(const cv::Point3f &position, const TimePoint &now)
     return okay;
 }
 
-void QtFaceMonitor::grab(const std::vector<FaceImage> &frames, bool isInitialized)
+void QtFaceMonitor::grab(const std::vector<FaceImage>& frames, bool isInitialized)
 {
     std::string tmp;
 #if defined(Q_OS_IOS)
@@ -83,22 +82,21 @@ void QtFaceMonitor::grab(const std::vector<FaceImage> &frames, bool isInitialize
 #else
     tmp = "/tmp";
 #endif
-    
+
     auto counter = m_stackCounter++;
-    std::function<void()> logger = [tmp, frames, counter, this]()
-    {
+    std::function<void()> logger = [tmp, frames, counter, this]() {
         std::vector<cv::Mat> faces, eyes;
-        
-        for(int i = 0; i < frames.size(); i++)
+
+        for (int i = 0; i < frames.size(); i++)
         {
             faces.push_back(frames[i].image);
-            if(!frames[i].eyes.empty())
+            if (!frames[i].eyes.empty())
             {
                 eyes.push_back(frames[i].eyes);
             }
         }
-        
-        if(faces.size())
+
+        if (faces.size())
         {
             cv::Mat stack;
             hconcat(faces, stack);
@@ -107,30 +105,31 @@ void QtFaceMonitor::grab(const std::vector<FaceImage> &frames, bool isInitialize
             ss << tmp << "/frame_" << counter << ".png";
             cv::imwrite(ss.str(), stack);
         }
-        
-        if(eyes.size())
+
+        if (eyes.size())
         {
             cv::Mat stack;
             cv::vconcat(eyes, stack);
 
             std::stringstream ss;
-            ss << tmp << "/eyes_" << counter << "_" << ".png";
+            ss << tmp << "/eyes_" << counter << "_"
+               << ".png";
             cv::imwrite(ss.str(), stack);
         }
-        
-        if(frames.size() && !frames[0].extra.empty())
+
+        if (frames.size() && !frames[0].extra.empty())
         {
             cv::Mat bgr;
             cv::cvtColor(frames[0].extra, bgr, cv::COLOR_BGRA2BGR);
-            
+
             std::stringstream ss;
             ss << tmp << "/eye_mean_" << counter << ".png";
             cv::imwrite(ss.str(), bgr);
         }
-        
+
     };
-    
-    if(m_threads)
+
+    if (m_threads)
     {
         m_threads->process(logger);
     }

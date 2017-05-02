@@ -6,16 +6,17 @@
 //
 //
 
-#ifndef QVideoFrameScopeMap_h
-#define QVideoFrameScopeMap_h
+#ifndef __drishti_qt_facefilter_QVideoFrameScopeMap_h__
+#define __drishti_qt_facefilter_QVideoFrameScopeMap_h__
 
 #include <QVideoFilterRunnable>
 
 struct QVideoFrameScopeMap
 {
-    QVideoFrameScopeMap(QVideoFrame *frame, QAbstractVideoBuffer::MapMode mode) : frame(frame)
+    QVideoFrameScopeMap(QVideoFrame* frame, QAbstractVideoBuffer::MapMode mode)
+        : frame(frame)
     {
-        if(frame)
+        if (frame)
         {
             status = frame->map(mode);
             if (!status)
@@ -26,7 +27,7 @@ struct QVideoFrameScopeMap
     }
     ~QVideoFrameScopeMap()
     {
-        if(frame)
+        if (frame)
         {
             frame->unmap();
         }
@@ -35,8 +36,8 @@ struct QVideoFrameScopeMap
     {
         return status;
     }
-    QVideoFrame *frame = nullptr;
+    QVideoFrame* frame = nullptr;
     bool status = false;
 };
 
-#endif /* QVideoFrameScopeMap_h */
+#endif /* __drishti_qt_facefilter_QVideoFrameScopeMap_h__ */

@@ -13,13 +13,17 @@
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/eye/EyeModelEstimator.h"
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_CEREAL
 #  include "drishti/core/drishti_cereal_pba.h"
 #endif
+// clang-format on
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h"
 #endif
+// clang-format on
 
 #include <iostream>
 
@@ -29,11 +33,11 @@ using namespace string_hash;
 
 // { "cpb", "pba.z", "mat" }
 #if DRISHTI_SERIALIZE_WITH_CEREAL
-#  define DRISHTI_ARCHIVE "cpb"
+#define DRISHTI_ARCHIVE "cpb"
 #elif DRISHTI_SERIALIZE_WITH_BOOST && !MSVC
-#  define DRISHTI_ARCHIVE "pba.z"
+#define DRISHTI_ARCHIVE "pba.z"
 #elif DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES
-#  define DRISHTI_ARCHIVE "txt"
+#define DRISHTI_ARCHIVE "txt"
 #endif
 
 //#define DRISHTI_FACE_MEAN_5_POINT "drishti_face_5_point_mean_48x48.xml"
@@ -44,27 +48,27 @@ using namespace string_hash;
 #define DRISHTI_FACE_INNER "drishti_face_inner." DRISHTI_ARCHIVE
 #define DRISHTI_EYE_FULL "drishti_eye_full_npd_eix." DRISHTI_ARCHIVE
 
-bool QtFaceDetectorFactory::load(const std::string &filename, LoaderFunction &loader)
+bool QtFaceDetectorFactory::load(const std::string& filename, LoaderFunction& loader)
 {
     std::string resource;
-    
+
     QDirIterator it(":", QDirIterator::Subdirectories);
     while (it.hasNext())
     {
         std::string name = it.next().toStdString();
         auto pos = name.find(filename);
-        if(pos != std::string::npos)
+        if (pos != std::string::npos)
         {
             resource = name;
             break;
         }
     }
-    
-    if(resource.empty())
+
+    if (resource.empty())
     {
         return false;
     }
-    
+
     // Then open it:
     QFile inputFile(resource.c_str());
     if (!inputFile.open(QIODevice::ReadOnly))
@@ -72,7 +76,7 @@ bool QtFaceDetectorFactory::load(const std::string &filename, LoaderFunction &lo
         std::cerr << "Can't open file" << std::endl;
         return false;
     }
-    
+
     QByteArray raw(inputFile.readAll());
     QtStream streambuf(raw);
     std::istream is(&streambuf);
@@ -82,7 +86,7 @@ bool QtFaceDetectorFactory::load(const std::string &filename, LoaderFunction &lo
 QtFaceDetectorFactory::QtFaceDetectorFactory()
 {
     sFaceDetector = DRISHTI_FACE_INNER_DETECT;
-    sFaceRegressors = {{ DRISHTI_FACE_INNER }};
+    sFaceRegressors = { { DRISHTI_FACE_INNER } };
     sEyeRegressor = DRISHTI_EYE_FULL;
     sFaceDetectorMean = DRISHTI_FACE_MEAN_5_POINT;
 }
@@ -90,26 +94,24 @@ QtFaceDetectorFactory::QtFaceDetectorFactory()
 std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetector()
 {
     std::unique_ptr<drishti::ml::ObjectDetector> ptr;
-    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
-    {
+    LoaderFunction loader = [&](std::istream& is, const std::string& hint) {
         ptr = drishti::core::make_unique<drishti::acf::Detector>(is, hint);
         return true;
     };
 
     load(sFaceDetector, loader);
-    
+
     return ptr;
 }
 
 std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getInnerFaceEstimator()
 {
     std::unique_ptr<drishti::ml::ShapeEstimator> ptr;
-    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
-    {
+    LoaderFunction loader = [&](std::istream& is, const std::string& hint) {
         ptr = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is, hint);
         return true;
     };
-    if(sFaceRegressors.size())
+    if (sFaceRegressors.size())
     {
         load(sFaceRegressors[0], loader);
     }
@@ -119,12 +121,11 @@ std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getInnerFace
 std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getOuterFaceEstimator()
 {
     std::unique_ptr<drishti::ml::ShapeEstimator> ptr;
-    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
-    {
+    LoaderFunction loader = [&](std::istream& is, const std::string& hint) {
         ptr = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is);
         return true;
     };
-    if(sFaceRegressors.size() > 1)
+    if (sFaceRegressors.size() > 1)
     {
         load(sFaceRegressors[1], loader);
     }
@@ -134,8 +135,7 @@ std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getOuterFace
 std::unique_ptr<drishti::eye::EyeModelEstimator> QtFaceDetectorFactory::getEyeEstimator()
 {
     std::unique_ptr<drishti::eye::EyeModelEstimator> ptr;
-    LoaderFunction loader = [&](std::istream &is, const std::string &hint)
-    {
+    LoaderFunction loader = [&](std::istream& is, const std::string& hint) {
         ptr = drishti::core::make_unique<DRISHTI_EYE::EyeModelEstimator>(is, hint);
         return true;
     };

@@ -21,25 +21,25 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-static cv::Point2f interpolate(const cv::Point2f &p, const cv::Point2f &q, float f);
-static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::FaceModel &face);
-static eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f> &points);
+static cv::Point2f interpolate(const cv::Point2f& p, const cv::Point2f& q, float f);
+static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::FaceModel& face);
+static eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f>& points);
 
 struct FaceLandmarkMeshMapper::Impl
 {
-    using LandmarkSet=eos::core::LandmarkCollection<cv::Vec2f>;
+    using LandmarkSet = eos::core::LandmarkCollection<cv::Vec2f>;
 
-    Impl(const std::string &modelfile, const std::string &mappingsfile)
+    Impl(const std::string& modelfile, const std::string& mappingsfile)
     {
         morphable_model = eos::morphablemodel::load_model(modelfile);
         landmark_mapper = mappingsfile.empty() ? eos::core::LandmarkMapper() : eos::core::LandmarkMapper(mappingsfile);
     }
 
-    cv::Point3f operator()(const LandmarkSet &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap)
+    cv::Point3f operator()(const LandmarkSet& landmarks, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap)
     {
         // These will be the final 2D and 3D points used for the fitting:
         std::vector<cv::Vec4f> model_points; // the points in the 3D shape model
-        std::vector<int> vertex_indices; // their vertex indices
+        std::vector<int> vertex_indices;     // their vertex indices
         std::vector<cv::Vec2f> image_points; // the corresponding 2D landmark points
 
         // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
@@ -76,7 +76,7 @@ struct FaceLandmarkMeshMapper::Impl
         mesh = morphable_model.draw_sample(fitted_coeffs, std::vector<float>());
 
         // Extract the texture from the image using given mesh and camera parameters:
-        if(!image.empty())
+        if (!image.empty())
         {
             isomap = eos::render::extract_texture(mesh, affine_from_ortho, image);
         }
@@ -84,7 +84,7 @@ struct FaceLandmarkMeshMapper::Impl
         return cv::Point3f(pitch, yaw, roll);
     }
 
-    cv::Point3f operator()(const DRISHTI_FACE::FaceModel &face, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap)
+    cv::Point3f operator()(const DRISHTI_FACE::FaceModel& face, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap)
     {
         return (*this)(extractLandmarks(face), image, mesh, isomap);
     }
@@ -93,103 +93,102 @@ struct FaceLandmarkMeshMapper::Impl
     eos::core::LandmarkMapper landmark_mapper;
 };
 
-FaceLandmarkMeshMapper::FaceLandmarkMeshMapper(const std::string &modelfile, const std::string &mappingsfile)
+FaceLandmarkMeshMapper::FaceLandmarkMeshMapper(const std::string& modelfile, const std::string& mappingsfile)
 {
     m_pImpl = std::make_shared<Impl>(modelfile, mappingsfile);
 }
 
-cv::Point3f FaceLandmarkMeshMapper::operator()(const std::vector<cv::Point2f> &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap)
+cv::Point3f FaceLandmarkMeshMapper::operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap)
 {
     return (*this)(convertLandmarks(landmarks), image, mesh, isomap);
 }
 
-cv::Point3f FaceLandmarkMeshMapper::operator()(const LandmarkCollection2d &landmarks, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap)
+cv::Point3f FaceLandmarkMeshMapper::operator()(const LandmarkCollection2d& landmarks, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap)
 {
     return (*m_pImpl)(landmarks, image, mesh, isomap);
 }
 
-cv::Point3f FaceLandmarkMeshMapper::operator()(const DRISHTI_FACE::FaceModel &face, const cv::Mat &image, eos::render::Mesh &mesh, cv::Mat &isomap)
+cv::Point3f FaceLandmarkMeshMapper::operator()(const DRISHTI_FACE::FaceModel& face, const cv::Mat& image, eos::render::Mesh& mesh, cv::Mat& isomap)
 {
     return (*m_pImpl)(face, image, mesh, isomap);
 }
 
-void FaceLandmarkMeshMapper::save(const eos::render::Mesh &mesh, const std::string &filename)
+void FaceLandmarkMeshMapper::save(const eos::render::Mesh& mesh, const std::string& filename)
 {
     // Save the mesh as textured obj:
     eos::render::write_textured_obj(mesh, filename);
 }
 
-void FaceLandmarkMeshMapper::draw(cv::Mat &iso, const eos::render::Mesh &meshIn)
+void FaceLandmarkMeshMapper::draw(cv::Mat& iso, const eos::render::Mesh& meshIn)
 {
     auto mesh = meshIn;
-    for(auto & p : mesh.texcoords)
+    for (auto& p : mesh.texcoords)
     {
         p[0] *= iso.cols;
         p[1] *= iso.rows;
     }
-    
-    for(int i = 0; i < mesh.tvi.size(); i++)
+
+    for (int i = 0; i < mesh.tvi.size(); i++)
     {
-        const auto &t = mesh.tvi[i];
+        const auto& t = mesh.tvi[i];
         cv::Point2f v0 = mesh.texcoords[t[0]];
         cv::Point2f v1 = mesh.texcoords[t[1]];
         cv::Point2f v2 = mesh.texcoords[t[2]];
-        cv::line(iso, v0, v1, {0,255,0}, 1, 8);
-        cv::line(iso, v1, v2, {0,255,0}, 1, 8);
-        cv::line(iso, v2, v0, {0,255,0}, 1, 8);
+        cv::line(iso, v0, v1, { 0, 255, 0 }, 1, 8);
+        cv::line(iso, v1, v2, { 0, 255, 0 }, 1, 8);
+        cv::line(iso, v2, v0, { 0, 255, 0 }, 1, 8);
     }
 }
 
 /// ===== UTILITY  ====
 
-static cv::Point2f interpolate(const cv::Point2f &p, const cv::Point2f &q, float f)
+static cv::Point2f interpolate(const cv::Point2f& p, const cv::Point2f& q, float f)
 {
     return p + (q - p) * f;
 }
 
-static eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f> &points)
+static eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f>& points)
 {
     int ibugId = 1;
     eos::core::LandmarkCollection<cv::Vec2f> landmarks;
-    for(const auto &p : points)
+    for (const auto& p : points)
     {
         eos::core::Landmark<cv::Vec2f> landmark;
         landmark.name = std::to_string(ibugId++);
         landmark.coordinates = { p.x, p.y };
         landmarks.emplace_back(landmark);
     }
-    
+
     return landmarks;
 }
 
-static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::FaceModel &face)
+static eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::FaceModel& face)
 {
     std::vector<cv::Point2f> points = face.points.get(); //  (*face.points);
 
     // Override global eye point estimates with eye models (if we have them):
-    if(face.eyeFullL.has && face.eyeFullR.has)
+    if (face.eyeFullL.has && face.eyeFullR.has)
     {
-        std::vector<int> indexEyeR { 36,37,38,39,40,41 };
-        std::vector<int> indexEyeL { 45,47,46,42,44,43 }; // mirrored
+        std::vector<int> indexEyeR{ 36, 37, 38, 39, 40, 41 };
+        std::vector<int> indexEyeL{ 45, 47, 46, 42, 44, 43 }; // mirrored
 
-        const auto &eyeR = face.eyeFullR->eyelids;
-        const auto &eyeL = face.eyeFullL->eyelids;
-
+        const auto& eyeR = face.eyeFullR->eyelids;
+        const auto& eyeL = face.eyeFullL->eyelids;
 
         float ratio = float(eyeR.size()) / float(indexEyeL.size());
-        for(int i = 0; i < indexEyeR.size(); i++)
+        for (int i = 0; i < indexEyeR.size(); i++)
         {
             float f = float(i) * ratio;
             int k0 = int(f);
-            int k1 = int(f+0.5f);
-            points[indexEyeR[i]] = interpolate(eyeR[k0], eyeR[k1], f-float(k0));
-            points[indexEyeL[i]] = interpolate(eyeL[k0], eyeL[k1], f-float(k0));
+            int k1 = int(f + 0.5f);
+            points[indexEyeR[i]] = interpolate(eyeR[k0], eyeR[k1], f - float(k0));
+            points[indexEyeL[i]] = interpolate(eyeL[k0], eyeL[k1], f - float(k0));
         }
     }
 
     int ibugId = 1;
     eos::core::LandmarkCollection<cv::Vec2f> landmarks;
-    for(const auto &p : points)
+    for (const auto& p : points)
     {
         eos::core::Landmark<cv::Vec2f> landmark;
         landmark.name = std::to_string(ibugId++);

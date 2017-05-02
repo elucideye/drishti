@@ -114,32 +114,32 @@
 #include <opencv2/highgui/highgui.hpp>
 
 DRISHTI_ACF_NAMESPACE_BEGIN
-float round(const float &x)
+float round(const float& x)
 {
     return ::round(x);
 }
-double round(const double &x)
+double round(const double& x)
 {
     return ::round(x);
 }
 DRISHTI_ACF_NAMESPACE_END
 
 // Declarations:
-void convBoxY( float *I, float *O, int h, int r, int s );
-void convBox( float *I, float *O, int h, int w, int d, int r, int s );
-void conv11Y( float *I, float *O, int h, int side, int s );
-void conv11( float *I, float *O, int h, int w, int d, int side, int s );
-void convTriY( float *I, float *O, int h, int r, int s );
-void convTri( float *I, float *O, int h, int w, int d, int r, int s );
-void convTri1Y( float *I, float *O, int h, float p, int s );
-void convTri1( float *I, float *O, int h, int w, int d, float p, int s );
-void convMaxY( float *I, float *O, float *T, int h, int r );
-void convMax( float *I, float *O, int h, int w, int d, int r );
+void convBoxY(float* I, float* O, int h, int r, int s);
+void convBox(float* I, float* O, int h, int w, int d, int r, int s);
+void conv11Y(float* I, float* O, int h, int side, int s);
+void conv11(float* I, float* O, int h, int w, int d, int side, int s);
+void convTriY(float* I, float* O, int h, int r, int s);
+void convTri(float* I, float* O, int h, int w, int d, int r, int s);
+void convTri1Y(float* I, float* O, int h, float p, int s);
+void convTri1(float* I, float* O, int h, int w, int d, float p, int s);
+void convMaxY(float* I, float* O, float* T, int h, int r);
+void convMax(float* I, float* O, int h, int w, int d, int r);
 
-void convConst(const MatP &A, MatP &B, const std::string &type, float p, int s )
+void convConst(const MatP& A, MatP& B, const std::string& type, float p, int s)
 {
     B.create(A.size(), A.depth(), A.channels());
-    int ns[2] { A.cols(), A.rows() };
+    int ns[2]{ A.cols(), A.rows() };
     int d = A.channels();
     int m = std::min(ns[0], ns[1]);
     int r = drishti::acf::round(p);
@@ -149,49 +149,49 @@ void convConst(const MatP &A, MatP &B, const std::string &type, float p, int s )
         //cv::imshow("canvas", canvas), cv::waitKey(0);
     }
 
-    float *a = const_cast<float *>(A.ptr<float>());
-    float *b = B.ptr<float>();
+    float* a = const_cast<float*>(A.ptr<float>());
+    float* b = B.ptr<float>();
 
     // perform appropriate type of convolution
-    if(!type.compare("convBox"))
+    if (!type.compare("convBox"))
     {
-        if(r>=m/2)
+        if (r >= m / 2)
         {
             CV_Error(-1, "mask larger than image (r too large)");
         }
-        convBox( a, b, ns[0], ns[1], d, r, s );
+        convBox(a, b, ns[0], ns[1], d, r, s);
     }
-    else if(!type.compare("convTri"))
+    else if (!type.compare("convTri"))
     {
-        if(r>=m/2)
+        if (r >= m / 2)
         {
             CV_Error(-1, "mask larger than image (r too large)");
         }
-        convTri( a, b, ns[0], ns[1], d, r, s );
+        convTri(a, b, ns[0], ns[1], d, r, s);
     }
-    else if(!type.compare("conv11"))
+    else if (!type.compare("conv11"))
     {
-        if( s>2 )
+        if (s > 2)
         {
             CV_Error(-1, "conv11 can sample by at most s=2");
         }
-        conv11( a, b, ns[0], ns[1], d, r, s );
+        conv11(a, b, ns[0], ns[1], d, r, s);
     }
-    else if(!type.compare("convTri1"))
+    else if (!type.compare("convTri1"))
     {
-        if( s>2 )
+        if (s > 2)
         {
             CV_Error(-1, "convTri1 can sample by at most s=2");
         }
-        convTri1( a, b, ns[0], ns[1], d, p, s );
+        convTri1(a, b, ns[0], ns[1], d, p, s);
     }
-    else if(!type.compare("convMax"))
+    else if (!type.compare("convMax"))
     {
-        if( s>1 )
+        if (s > 1)
         {
             CV_Error(-1, "convMax cannot sample");
         }
-        convMax( a, b, ns[0], ns[1], d, r );
+        convMax(a, b, ns[0], ns[1], d, r);
     }
     else
     {
@@ -201,20 +201,20 @@ void convConst(const MatP &A, MatP &B, const std::string &type, float p, int s )
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-int Detector::convTri(const MatP &I, MatP &J, double r, int s )
+int Detector::convTri(const MatP& I, MatP& J, double r, int s)
 {
-    if(I.empty() || (r==0 && s==1))
+    if (I.empty() || (r == 0 && s == 1))
     {
         J = I;
         return 0;
     }
 
-    int m = std::min(I.rows(), I.cols()), nomex = ((m < 4) || (2*r+1)>=m);
-    if(nomex == 0)
+    int m = std::min(I.rows(), I.cols()), nomex = ((m < 4) || (2 * r + 1) >= m);
+    if (nomex == 0)
     {
-        if((r > 0) && (r<=1.0) && (s<=2))
+        if ((r > 0) && (r <= 1.0) && (s <= 2))
         {
-            convConst(I, J, "convTri1", 12.0/r/(r+2.0)-2.0, s);
+            convConst(I, J, "convTri1", 12.0 / r / (r + 2.0) - 2.0, s);
         }
         else
         {
@@ -224,24 +224,24 @@ int Detector::convTri(const MatP &I, MatP &J, double r, int s )
     else
     {
         cv::Mat f;
-        if(r <= 1.0)
+        if (r <= 1.0)
         {
-            double p = 12.0/r/(r+2.0)-2.0;
-            f = cv::Mat( cv::Matx33f( 1.0, p, 1.0 ) * (1.0 / (2.0+p)) );
+            double p = 12.0 / r / (r + 2.0) - 2.0;
+            f = cv::Mat(cv::Matx33f(1.0, p, 1.0) * (1.0 / (2.0 + p)));
             // r = 1;
         }
         else
         {
             cv::Mat1f k(1, 2 * acf::round(r) + 1);
-            double d = std::pow(r+1,2.0);
-            for(int i = 0; i < k.cols; i++)
+            double d = std::pow(r + 1, 2.0);
+            for (int i = 0; i < k.cols; i++)
             {
-                k(0,i) = (i-r) / d;
+                k(0, i) = (i - r) / d;
             }
-            f = cv::Mat( k );
+            f = cv::Mat(k);
         }
 
-        for(auto &j : J)
+        for (auto& j : J)
         {
             cv::sepFilter2D(j, j, j.type(), f, f.t());
         }

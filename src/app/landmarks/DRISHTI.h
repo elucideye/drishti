@@ -8,14 +8,13 @@
 
 */
 
-#ifndef __landmarks_DRISHTI_h__
-#define __landmarks_DRISHTI_h__
+#ifndef __drishti_landmarks_DRISHTI_h__
+#define __drishti_landmarks_DRISHTI_h__
 
 #include "landmarks/FACE.h"
 #include <fstream>
 
-void parseDRISHTI(const std::string &filename, FACE::record &output);
-FACE::Table parseDRISHTI(const std::string &filename);
+void parseDRISHTI(const std::string& filename, FACE::record& output);
+FACE::Table parseDRISHTI(const std::string& filename);
 
-#endif // __landmarks_DRISHTI_h__
-
+#endif // __drishti_landmarks_DRISHTI_h__

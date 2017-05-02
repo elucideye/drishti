@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __landmarks_FDDB_h__
-#define __landmarks_FDDB_h__
+#ifndef __drishti_fddb_FDDB_h__
+#define __drishti_fddb_FDDB_h__
 
 #include <fstream>
 
@@ -27,19 +27,19 @@ namespace ascii = boost::spirit::ascii;
 
 namespace FDDB
 {
-    struct record
-    {
-        typedef std::vector<double> Ellipse;
-        typedef std::pair<Ellipse, bool> EllipseEntry;
-        
-        std::string filename;
-        std::vector< EllipseEntry > ellipses;
-        friend std::ostream & operator<<(const std::ostream &os, const record &r);
-    };
-    
-    std::ostream & operator<<(std::ostream &os, const record &r);
+struct record
+{
+    typedef std::vector<double> Ellipse;
+    typedef std::pair<Ellipse, bool> EllipseEntry;
+
+    std::string filename;
+    std::vector<EllipseEntry> ellipses;
+    friend std::ostream& operator<<(const std::ostream& os, const record& r);
+};
+
+std::ostream& operator<<(std::ostream& os, const record& r);
 }
 
-std::vector<FDDB::record> parseFDDB(const std::string &filename);
+std::vector<FDDB::record> parseFDDB(const std::string& filename);
 
 #endif // FDDB_H

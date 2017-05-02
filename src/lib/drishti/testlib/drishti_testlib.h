@@ -11,7 +11,9 @@
 #ifndef __drishti_testlib_drishti_testlib_h__
 #define __drishti_testlib_drishti_testlib_h__
 
+// clang-format off
 #define DRISHTI_TESTLIB_NAMESPACE_BEGIN namespace drishti { namespace testlib {
 #define DRISHTI_TESTLIB_NAMESPACE_END } }
+// clang-format on
 
 #endif

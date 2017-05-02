@@ -39,15 +39,15 @@
 
 // InfoFilter will just provide some information about the video frame, to
 // demonstrate passing arbitrary data to QML via its finished() signal.
-class InfoFilter: public QAbstractVideoFilter
+class InfoFilter : public QAbstractVideoFilter
 {
     Q_OBJECT
 
 public:
-    QVideoFilterRunnable *createFilterRunnable() Q_DECL_OVERRIDE;
+    QVideoFilterRunnable* createFilterRunnable() Q_DECL_OVERRIDE;
 
 signals:
-    void finished(QObject *result);
+    void finished(QObject* result);
 
 private:
     friend class InfoFilterRunnable;

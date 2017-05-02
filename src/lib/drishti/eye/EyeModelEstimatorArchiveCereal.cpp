@@ -15,12 +15,12 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 
 #if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
-template void EyeModelEstimator::Impl::serialize<OArchive>(OArchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<OArchive>(OArchive &ar, const unsigned int);
+template void EyeModelEstimator::Impl::serialize<OArchive>(OArchive& ar, const unsigned int);
+template void EyeModelEstimator::serialize<OArchive>(OArchive& ar, const unsigned int);
 #endif
 
 typedef cereal::PortableBinaryInputArchive IArchive;
-template void EyeModelEstimator::Impl::serialize<IArchive>(IArchive &ar, const unsigned int);
-template void EyeModelEstimator::serialize<IArchive>(IArchive &ar, const unsigned int);
+template void EyeModelEstimator::Impl::serialize<IArchive>(IArchive& ar, const unsigned int);
+template void EyeModelEstimator::serialize<IArchive>(IArchive& ar, const unsigned int);
 
 DRISHTI_EYE_NAMESPACE_END

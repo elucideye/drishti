@@ -18,13 +18,17 @@ BEGIN_OGLES_GPGPU
 class SaturationProc : public ogles_gpgpu::FilterProcBase
 {
 public:
-    SaturationProc(float gain=1.f) : gain(gain) {}
-    virtual const char *getProcName()
+    SaturationProc(float gain = 1.f)
+        : gain(gain)
+    {
+    }
+    virtual const char* getProcName()
     {
         return "SaturationProc";
     }
+
 private:
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderSaturationSrc;
     }
@@ -36,7 +40,7 @@ private:
     {
         glUniform1f(shParamUGain, gain);
     }
-    static const char *fshaderSaturationSrc; // fragment shader source
+    static const char* fshaderSaturationSrc; // fragment shader source
     float gain = 1.f;
     GLint shParamUGain;
 };

@@ -17,39 +17,40 @@
 
 struct Bar
 {
-    template <typename Archive> void serialize(Archive &ar, const std::uint32_t version)
+    template <typename Archive>
+    void serialize(Archive& ar, const std::uint32_t version)
     {
         std::int16_t tmp = foo;
-        if(Archive::is_loading::value)
+        if (Archive::is_loading::value)
         {
-            ar & tmp;
+            ar& tmp;
             foo = tmp;
         }
         else
         {
             tmp = foo;
-            ar & tmp;
+            ar& tmp;
         }
-        ar & foo;
+        ar& foo;
     }
     std::int32_t foo;
 };
 
-int drishti_main(int argc, char **argv)
+int drishti_main(int argc, char** argv)
 {
-    if(argc != 2)
+    if (argc != 2)
     {
         std::cerr << "Usage: " << argv[0] << " filename.out" << std::endl;
         exit(1);
     }
-    
+
     std::string filename = argv[1];
 
     { // Dump the record:
         drishti::Monster monsterSrc = drishti::createMonster();
-        
+
         std::ofstream ofs(filename, std::ios_base::out | std::ios_base::binary);
-        if(ofs)
+        if (ofs)
         {
             cereal::PortableBinaryOutputArchive oa(ofs);
             oa(monsterSrc);
@@ -60,7 +61,7 @@ int drishti_main(int argc, char **argv)
         drishti::Monster monsterDst;
 
         std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-        if(ifs)
+        if (ifs)
         {
             cereal::PortableBinaryInputArchive ia(ifs);
             ia(monsterDst);
@@ -68,5 +69,5 @@ int drishti_main(int argc, char **argv)
         }
     }
 
-    return 0;    
+    return 0;
 }

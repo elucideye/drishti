@@ -18,13 +18,17 @@ BEGIN_OGLES_GPGPU
 class Rgb2HsvProc : public ogles_gpgpu::FilterProcBase
 {
 public:
-    Rgb2HsvProc(float gain=1.f) : gain(gain) {}
-    virtual const char *getProcName()
+    Rgb2HsvProc(float gain = 1.f)
+        : gain(gain)
+    {
+    }
+    virtual const char* getProcName()
     {
         return "Rgb2HsvProc";
     }
+
 private:
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderRgb2HsvSrc;
     }
@@ -36,7 +40,7 @@ private:
     {
         glUniform1f(shParamUGain, gain);
     }
-    static const char *fshaderRgb2HsvSrc; // fragment shader source
+    static const char* fshaderRgb2HsvSrc; // fragment shader source
     float gain = 1.f;
     GLint shParamUGain;
 };

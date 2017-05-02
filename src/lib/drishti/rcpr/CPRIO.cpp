@@ -17,20 +17,20 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 
 // This is the original matlab serialization code
 
-int CPR::deserialize(const std::string &filename)
+int CPR::deserialize(const std::string& filename)
 {
     m_isMat = filename.rfind(".mat") != std::string::npos;
-    if(m_isMat)
+    if (m_isMat)
     {
         return deserialize(filename.c_str());
     }
     return 0;
 }
 
-static void ParseNode(acf::ParserNode< acf::Field<rcpr::CPR::Model>> &model)
+static void ParseNode(acf::ParserNode<acf::Field<rcpr::CPR::Model>>& model)
 {
     // Parse model parts:
-    auto && parts_ = model.create("parts", (*model)->parts );
+    auto&& parts_ = model.create("parts", (*model)->parts);
     parts_.parse<decltype((*parts_)->prn)>("prn", (*parts_)->prn);
     parts_.parse<decltype((*parts_)->lks)>("lks", (*parts_)->lks);
     parts_.parse<decltype((*parts_)->mus)>("mus", (*parts_)->mus);
@@ -40,25 +40,25 @@ static void ParseNode(acf::ParserNode< acf::Field<rcpr::CPR::Model>> &model)
     // Currently nothing else in model struct
 }
 
-int CPR::deserialize(const char *filename)
+int CPR::deserialize(const char* filename)
 {
     MatlabIO matio;
     acf::ParserNode<CPR> root_(filename, *this);
 
     {
         // Parse the cpr params
-        auto && cprPrm_ = root_.create("cprPrm", cprPrm);
-        cprPrm_.parse<acf::Field<double>>( "T", (*cprPrm_)->T );
-        cprPrm_.parse<acf::Field<double>>( "L", (*cprPrm_)->L );
+        auto&& cprPrm_ = root_.create("cprPrm", cprPrm);
+        cprPrm_.parse<acf::Field<double>>("T", (*cprPrm_)->T);
+        cprPrm_.parse<acf::Field<double>>("L", (*cprPrm_)->L);
 
         {
             // Parse the model:
-            auto && model_ = cprPrm_.create("model", (*cprPrm_)->model );
+            auto&& model_ = cprPrm_.create("model", (*cprPrm_)->model);
             ParseNode(model_);
         }
         {
             // Parse the feature parameters:
-            auto && ftrPrm_ = cprPrm_.create("ftrPrm", (*cprPrm_)->ftrPrm );
+            auto&& ftrPrm_ = cprPrm_.create("ftrPrm", (*cprPrm_)->ftrPrm);
             {
                 ftrPrm_.parse<decltype((*ftrPrm_)->type)>("type", (*ftrPrm_)->type);
                 ftrPrm_.parse<decltype((*ftrPrm_)->type)>("F", (*ftrPrm_)->F);
@@ -68,7 +68,7 @@ int CPR::deserialize(const char *filename)
 
         {
             // Parse teh fern parameters:
-            auto && fernPrm_ = cprPrm_.create("fernPrm", (*cprPrm_)->fernPrm);
+            auto&& fernPrm_ = cprPrm_.create("fernPrm", (*cprPrm_)->fernPrm);
             {
                 fernPrm_.parse<decltype((*fernPrm_)->thrr)>("thrr", (*fernPrm_)->thrr);
                 fernPrm_.parse<decltype((*fernPrm_)->reg)>("reg", (*fernPrm_)->reg);
@@ -81,11 +81,11 @@ int CPR::deserialize(const char *filename)
     }
 
     {
-        auto && regModel_ = root_.create("regModel", regModel);
+        auto&& regModel_ = root_.create("regModel", regModel);
         {
             {
                 // Parse the model: (currently repeated)
-                auto && model_ = regModel_.create("model", (*regModel_)->model);
+                auto&& model_ = regModel_.create("model", (*regModel_)->model);
                 ParseNode(model_);
             }
 
@@ -93,26 +93,26 @@ int CPR::deserialize(const char *filename)
                 // vector<RegModel>
 
                 // TODO: Add Cell<ParserNode<T>> or something similar for matlab cell types, need to think through:
-                auto && variables = regModel_.m_matio.find< acf::VecVecContainer >( regModel_.m_variables, "regs" );
-                (*regModel_)->regs->resize( variables.size() );
+                auto&& variables = regModel_.m_matio.find<acf::VecVecContainer>(regModel_.m_variables, "regs");
+                (*regModel_)->regs->resize(variables.size());
                 (*regModel_)->regs.set("reg[]");
                 (*regModel_)->regs.mark(true);
 
-                auto &regs = (*regModel_)->regs;
-                for(int i = 0; i < variables.size(); i++)
+                auto& regs = (*regModel_)->regs;
+                for (int i = 0; i < variables.size(); i++)
                 {
-                    auto &reg = (*regs)[i];
+                    auto& reg = (*regs)[i];
                     acf::ParserNode<acf::Field<RegModel::Regs>> reg_("reg", reg, variables[i]);
 
                     {
-                        auto && ferns_ = reg_.create<decltype((*reg_)->ferns)>("ferns", (*reg_)->ferns);
+                        auto&& ferns_ = reg_.create<decltype((*reg_)->ferns)>("ferns", (*reg_)->ferns);
                         ferns_.parse<decltype((*ferns_)->fids)>("fids", (*ferns_)->fids);
                         ferns_.parse<decltype((*ferns_)->thrs)>("thrs", (*ferns_)->thrs);
                         ferns_.parse<decltype((*ferns_)->ysFern)>("ysFern", (*ferns_)->ysFern);
                     }
 
                     {
-                        auto && ftrData_ = reg_.create<decltype((*reg_)->ftrData)>("ftrData", (*reg_)->ftrData);
+                        auto&& ftrData_ = reg_.create<decltype((*reg_)->ftrData)>("ftrData", (*reg_)->ftrData);
                         ftrData_.parse<decltype((*ftrData_)->type)>("type", (*ftrData_)->type);
                         ftrData_.parse<decltype((*ftrData_)->F)>("F", (*ftrData_)->F);
                         ftrData_.parse<decltype((*ftrData_)->F)>("nChn", (*ftrData_)->nChn);
@@ -135,5 +135,3 @@ int CPR::deserialize(const char *filename)
 DRISHTI_RCPR_NAMESPACE_END
 
 #endif // DRISHTI_CPR_DO_LEAN
-
-

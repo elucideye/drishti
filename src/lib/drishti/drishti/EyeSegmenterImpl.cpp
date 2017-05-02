@@ -28,7 +28,7 @@
 #include <iomanip>
 
 // TODO: Store this somewhere in the file
-#define EYE_ASPECT_RATIO (4.0/3.0)
+#define EYE_ASPECT_RATIO (4.0 / 3.0)
 
 #define MINIMUM_EYE_WIDTH 32
 
@@ -38,21 +38,20 @@ static std::string kindToHint(ArchiveKind kind);
 
 EyeSegmenter::Impl::Impl(bool doLoad)
 {
-
 }
 
-EyeSegmenter::Impl::Impl(const std::string &filename, ArchiveKind kind)
+EyeSegmenter::Impl::Impl(const std::string& filename, ArchiveKind kind)
 {
     std::ifstream is(filename);
     init(is, kind);
 }
 
-EyeSegmenter::Impl::Impl(std::istream &is, ArchiveKind kind)
+EyeSegmenter::Impl::Impl(std::istream& is, ArchiveKind kind)
 {
     init(is, kind);
 }
 
-void EyeSegmenter::Impl::init(std::istream &is, ArchiveKind kind)
+void EyeSegmenter::Impl::init(std::istream& is, ArchiveKind kind)
 {
     auto hint = kindToHint(kind);
     m_eme = core::make_unique<eye::EyeModelEstimator>(is, hint);
@@ -69,15 +68,15 @@ void EyeSegmenter::Impl::init(std::istream &is, ArchiveKind kind)
 
 EyeSegmenter::Impl::~Impl() {}
 
-int EyeSegmenter::Impl::operator()(const Image3b &image, Eye &eye, bool isRight)
+int EyeSegmenter::Impl::operator()(const Image3b& image, Eye& eye, bool isRight)
 {
-    DRISHTI_STREAM_LOG_FUNC(1,1,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(1, 1, m_streamLogger);
 
     int status = 0;
 
     const int minWidth = getMinWidth();
     const int minHeight = int(float(getMinWidth()) / getRequiredAspectRatio() + 0.5f);
-    if(image.getCols() < minWidth || image.getRows() < minHeight)
+    if (image.getCols() < minWidth || image.getRows() < minHeight)
     {
         return 1;
     }
@@ -90,7 +89,7 @@ int EyeSegmenter::Impl::operator()(const Image3b &image, Eye &eye, bool isRight)
         cv::Mat3b I = drishtiToCv<Vec3b, cv::Vec3b>(image), If;
 
         // If input is left eye, we flop and must allocate a new image:
-        if(!isRight)
+        if (!isRight)
         {
             cv::flip(I, If, 1);
         }
@@ -102,15 +101,15 @@ int EyeSegmenter::Impl::operator()(const Image3b &image, Eye &eye, bool isRight)
         DRISHTI_EYE::EyeModel model;
         status = (*m_eme)(If, model);
 
-        if(!isRight)
+        if (!isRight)
         {
             model.flop(If.cols);
         }
         model.refine();
-        model.roi = cv::Rect({0,0}, If.size()); // default roi
+        model.roi = cv::Rect({ 0, 0 }, If.size()); // default roi
         eye = convert(model);
     }
-    catch(...)
+    catch (...)
     {
         std::cerr << "exception: EyeSegmenter::Impl::operator()" << std::endl;
         status = 1;
@@ -124,9 +123,9 @@ int EyeSegmenter::Impl::operator()(const Image3b &image, Eye &eye, bool isRight)
 Eye EyeSegmenter::Impl::getMeanEye(int width) const
 {
     int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
-    DRISHTI_EYE::EyeModel model = m_eme->getMeanShape( cv::Size(width, height));
+    DRISHTI_EYE::EyeModel model = m_eme->getMeanShape(cv::Size(width, height));
     drishti::sdk::Eye eye = convert(model);
-    eye.setRoi( {0, 0, width, height} );
+    eye.setRoi({ 0, 0, width, height });
 
     return eye;
 }
@@ -138,7 +137,7 @@ int EyeSegmenter::Impl::getIrisInits() const
 
 void EyeSegmenter::Impl::setIrisInits(int count)
 {
-    m_eme->setIrisInits(count);  // not reentrant when > 1
+    m_eme->setIrisInits(count); // not reentrant when > 1
 }
 
 int EyeSegmenter::Impl::getEyelidInits() const
@@ -148,7 +147,7 @@ int EyeSegmenter::Impl::getEyelidInits() const
 
 void EyeSegmenter::Impl::setEyelidInits(int count)
 {
-    m_eme->setEyelidInits(count);  // not reentrant when > 1
+    m_eme->setEyelidInits(count); // not reentrant when > 1
 }
 
 void EyeSegmenter::Impl::setOptimizationLevel(int level)
@@ -172,12 +171,16 @@ float EyeSegmenter::Impl::getRequiredAspectRatio()
 
 static std::string kindToHint(ArchiveKind kind)
 {
-    switch(kind)
+    switch (kind)
     {
-        case kTXT: return "hint.txt";
-        case kPBA: return "hint.pba.z";
-        case kCPB: return "hint.cpb";
-        default: assert(0 && "Archive is not supported");
+        case kTXT:
+            return "hint.txt";
+        case kPBA:
+            return "hint.pba.z";
+        case kCPB:
+            return "hint.cpb";
+        default:
+            assert(0 && "Archive is not supported");
     }
     return std::string();
 }

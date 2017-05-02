@@ -16,7 +16,8 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 
 // =============================
 
-FaceDetectorAndTracker::FaceDetectorAndTracker(FaceDetectorFactory &resources) : FaceDetector(resources)
+FaceDetectorAndTracker::FaceDetectorAndTracker(FaceDetectorFactory& resources)
+    : FaceDetector(resources)
 {
     //m_pImpl = std::make_shared<CorrelationTracker>();
     //m_pImpl = std::make_shared<LKTracker>();
@@ -38,12 +39,12 @@ double FaceDetectorAndTracker::getMaxTrackAge() const
     return m_pImpl->getMaxTrackAge();
 }
 
-void FaceDetectorAndTracker::operator()(const MatP &I, const PaddedImage &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H)
+void FaceDetectorAndTracker::operator()(const MatP& I, const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H)
 {
-    if(!m_pImpl->hasTracks() || (m_pImpl->trackAge() > m_pImpl->getMaxTrackAge()))
+    if (!m_pImpl->hasTracks() || (m_pImpl->trackAge() > m_pImpl->getMaxTrackAge()))
     {
         FaceDetector::operator()(I, Ib, faces, H); // do detection + regression
-        if(faces.size())
+        if (faces.size())
         {
             m_pImpl->initialize(Ib.Ib, faces[0]); // initialize tracks
         }
@@ -53,7 +54,7 @@ void FaceDetectorAndTracker::operator()(const MatP &I, const PaddedImage &Ib, st
         bool okay = false;
         FaceModel face;
         bool trackOkay = m_pImpl->update(Ib.Ib, face); // here we have the left+right eyes
-        if(trackOkay && face.roi->area())
+        if (trackOkay && face.roi->area())
         {
             okay = true;
         }
@@ -62,13 +63,12 @@ void FaceDetectorAndTracker::operator()(const MatP &I, const PaddedImage &Ib, st
             m_pImpl->reset();
         }
 
-        if(okay)
+        if (okay)
         {
             faces = { face };
             refine(Ib, faces, cv::Matx33f::eye(), false);
         }
     }
 }
-
 
 DRISHTI_FACE_NAMESPACE_END

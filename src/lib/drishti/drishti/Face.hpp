@@ -29,15 +29,13 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT Face
 {
 public:
-
     Face() {}
 
-    Eye & getEye(int i) { return m_eyes[i]; }
-    const Eye & getEye(int i) const { return m_eyes[i]; }
+    Eye& getEye(int i) { return m_eyes[i]; }
+    const Eye& getEye(int i) const { return m_eyes[i]; }
 
 protected:
-
-    std::array<Eye,2> m_eyes;
+    std::array<Eye, 2> m_eyes;
 };
 
 _DRISHTI_SDK_END

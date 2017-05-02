@@ -20,21 +20,23 @@
 
 DRISHTI_GEOMETRY_BEGIN
 
-template <typename T> T sign(T A)
+template <typename T>
+T sign(T A)
 {
     return T(int(A > 0) - int(A < 0));
 }
 
-template <typename T> T pow2(const T&x)
+template <typename T>
+T pow2(const T& x)
 {
-    return x*x;
+    return x * x;
 }
-cv::RotatedRect conicPar2Cen(const cv::Vec6d &par);
-cv::Vec6d conicCen2Par(const cv::RotatedRect &cen);
+cv::RotatedRect conicPar2Cen(const cv::Vec6d& par);
+cv::Vec6d conicCen2Par(const cv::RotatedRect& cen);
 
 #if !DRISHTI_BUILD_MIN_SIZE
-cv::RotatedRect fitEllipse(const std::vector<cv::Point2d> &pts);
-cv::RotatedRect fitEllipse(const std::vector<cv::Point2d> &points, const cv::Point2d &center);
+cv::RotatedRect fitEllipse(const std::vector<cv::Point2d>& pts);
+cv::RotatedRect fitEllipse(const std::vector<cv::Point2d>& points, const cv::Point2d& center);
 #endif // !DRISHTI_BUILD_MIN_SIZE
 
 DRISHTI_GEOMETRY_END

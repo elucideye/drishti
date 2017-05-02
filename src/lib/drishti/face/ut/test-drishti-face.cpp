@@ -16,10 +16,10 @@
 
 #include "drishti/face/FaceDetectorAndTracker.h"
 
-const char *sFaceDetector;
-const char *sFaceDetectorMean;
-const char *sFaceRegressor;
-const char *sEyeRegressor;
+const char* sFaceDetector;
+const char* sFaceDetectorMean;
+const char* sFaceRegressor;
+const char* sEyeRegressor;
 
 int drishti_main(int argc, char** argv)
 {
@@ -31,7 +31,7 @@ int drishti_main(int argc, char** argv)
     sFaceDetectorMean = argv[2];
     sFaceRegressor = argv[3];
     sEyeRegressor = argv[4];
-    
+
     return RUN_ALL_TESTS();
 }
 
@@ -40,10 +40,10 @@ TEST(FaceDetectorAndTracker, Instantiation)
     auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
     factory->sFaceDetector = sFaceDetector;
     factory->sFaceRegressors = { sFaceRegressor };
-    factory->sEyeRegressor = sEyeRegressor; 
+    factory->sEyeRegressor = sEyeRegressor;
     factory->sFaceDetectorMean = sFaceDetectorMean;
 
     drishti::face::FaceDetectorAndTracker detector(*factory);
-    
+
     ASSERT_EQ(true, true);
 }

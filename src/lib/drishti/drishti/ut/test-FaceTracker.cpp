@@ -16,9 +16,11 @@
 #include "drishti/core/Logger.h"
 #include "drishti/core/ThreadPool.h"
 
+// clang-format off
 #if DRISHTI_HCI_DO_GPU
 #  include "drishti/qtplus/QGLContext.h"
 #endif
+// clang-format on
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -26,24 +28,26 @@
 #include <memory>
 #include <fstream>
 
+// clang-format off
 #ifdef ANDROID
 #  define DFLT_TEXTURE_FORMAT GL_RGBA
 #else
 #  define DFLT_TEXTURE_FORMAT GL_BGRA
 #endif
+// clang-format on
 
-const char *sFaceDetector;
-const char *sFaceDetectorMean;
-const char *sFaceRegressor;
-const char *sEyeRegressor;
-const char *sImageFilename;
+const char* sFaceDetector;
+const char* sFaceDetectorMean;
+const char* sFaceRegressor;
+const char* sEyeRegressor;
+const char* sImageFilename;
 
 int drishti_main(int argc, char** argv)
 {
 #if DRISHTI_BUILD_QT && DRISHTI_HCI_DO_GPU
     QApplication app(argc, argv);
 #endif
-    
+
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 6);
     sFaceDetector = argv[1];
@@ -54,8 +58,10 @@ int drishti_main(int argc, char** argv)
     return RUN_ALL_TESTS();
 }
 
+// clang-format off
 #define BEGIN_EMPTY_NAMESPACE namespace {
 #define END_EMPTY_NAMESPACE }
+// clang-format on
 
 BEGIN_EMPTY_NAMESPACE
 
@@ -73,7 +79,6 @@ struct WaitKey
 class FaceTest : public ::testing::Test
 {
 protected:
-
     bool m_hasTranspose = false;
 
     // Setup
@@ -87,7 +92,7 @@ protected:
 #if DRISHTI_HCI_DO_GPU
         m_context = std::make_shared<QGLContext>();
 #endif
-        
+
         // TODO: we need to load ground truth output for each shader
         // (some combinations could be tested, but that is probably excessive!)
         //truth = loadImage(truthFilename);
@@ -98,7 +103,7 @@ protected:
     {
         drishti::core::Logger::drop("test-drishti-drishti-face");
     }
-    
+
     /*
      * FaceFinder configuration can be achieved by modifying the input
      * configurations stored as member variables in the test fixture prior
@@ -108,24 +113,24 @@ protected:
      * @orientation : orientation of input frames
      * @doThreads   : support testing with and without threadpool
      */
-    std::shared_ptr<drishti::sdk::FaceTracker> create(const cv::Size &size, int orientation, bool doThreads)
+    std::shared_ptr<drishti::sdk::FaceTracker> create(const cv::Size& size, int orientation, bool doThreads)
     {
         const float fx = size.width;
-        const cv::Point2f p(image.cols/2, image.rows/2);
+        const cv::Point2f p(image.cols / 2, image.rows / 2);
         drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
         drishti::sensor::SensorModel sensor(params);
-        
+
         drishti::sdk::Context context(sensor);
-        
+
         /*
          * Lazy construction requires that streams are in scope at the time of construction:
          */
-        
+
         std::ifstream iFaceDetector(sFaceDetector, std::ios_base::binary);
         std::ifstream iFaceRegressor(sFaceRegressor, std::ios_base::binary);
         std::ifstream iEyeRegressor(sEyeRegressor, std::ios_base::binary);
         std::ifstream iFaceDetectorMean(sFaceDetectorMean, std::ios_base::binary);
-        
+
         assert(iFaceDetector.good());
         assert(iFaceRegressor.good());
         assert(iEyeRegressor.good());
@@ -136,7 +141,7 @@ protected:
         factory.sFaceRegressors = { &iFaceRegressor };
         factory.sEyeRegressor = &iEyeRegressor;
         factory.sFaceModel = &iFaceDetectorMean;
-        
+
         return std::make_shared<drishti::sdk::FaceTracker>(&context, factory);
     }
 
@@ -144,46 +149,46 @@ protected:
     {
         // Instantiate a face finder and register a callback:
         auto tracker = create(image.size(), 0, doAsync);
-        
+
         ASSERT_TRUE(tracker->good());
-        
-        drishti::sdk::VideoFrame frame({image.cols, image.rows}, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
-        
+
+        drishti::sdk::VideoFrame frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+
         const int iterations = 10;
-        for(int i = 0; i < iterations; i++)
+        for (int i = 0; i < iterations; i++)
         {
             (*tracker)(frame);
         }
     }
 
 #ifdef DRISHTI_BUILD_C_INTERFACE
-    std::shared_ptr<drishti::sdk::FaceTracker> createC(const cv::Size &size, int orientation, bool doThreads)
+    std::shared_ptr<drishti::sdk::FaceTracker> createC(const cv::Size& size, int orientation, bool doThreads)
     {
         const float fx = size.width;
-        const cv::Point2f p(image.cols/2, image.rows/2);
+        const cv::Point2f p(image.cols / 2, image.rows / 2);
         drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
         drishti::sensor::SensorModel sensor(params);
-        
+
         drishti::sdk::Context context(sensor);
         context.setMinDetectionDistance(0.0);
         context.setMaxDetectionDistance(1.0);
-        
+
         std::ifstream iFaceDetector(sFaceDetector, std::ios_base::binary);
         std::ifstream iFaceRegressor(sFaceRegressor, std::ios_base::binary);
         std::ifstream iEyeRegressor(sEyeRegressor, std::ios_base::binary);
         std::ifstream iFaceDetectorMean(sFaceDetectorMean, std::ios_base::binary);
-        
+
         drishti::sdk::FaceTracker::Resources factory;
         factory.sFaceDetector = &iFaceDetector;
         factory.sFaceRegressors = { &iFaceRegressor };
         factory.sEyeRegressor = &iEyeRegressor;
         factory.sFaceModel = &iFaceDetectorMean;
-        
+
         auto tracker = drishti_face_tracker_create_from_streams(&context, factory);
-        
-        if(tracker)
+
+        if (tracker)
         {
-            if(tracker->good())
+            if (tracker->good())
             {
                 return std::shared_ptr<drishti::sdk::FaceTracker>(tracker, drishti_face_tracker_destroy);
             }
@@ -200,96 +205,95 @@ protected:
         }
     }
 
-    int callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64> &results)
+    int callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
     {
         m_logger->info() << "callback: Received results";
 
         int count = 0;
-        for(const auto &r : results)
+        for (const auto& r : results)
         {
             //std::stringstream ss;
             //ss << "/tmp/image_" << count++ << ".png";
             //cv::imwrite(ss.str(), drishti::sdk::drishtiToCv<drishti::sdk::Vec4b, cv::Vec4b>(r.image));
         }
-        
+
         return 0;
     }
 
-    int trigger(const drishti::sdk::Vec3f &point, double timestamp)
+    int trigger(const drishti::sdk::Vec3f& point, double timestamp)
     {
-        m_logger->info() << "trigger: Received results: " << point[0] << "," << point[1] << "," << point[2] << " " << timestamp ;
+        m_logger->info() << "trigger: Received results: " << point[0] << "," << point[1] << "," << point[2] << " " << timestamp;
         return 1; // force trigger
     }
-    
-    int allocator(const drishti_image_t &spec, drishti::sdk::Image4b &image)
+
+    int allocator(const drishti_image_t& spec, drishti::sdk::Image4b& image)
     {
         m_logger->info() << "allocator: " << spec.width << " " << spec.height;
-        return 0;        
-    }    
+        return 0;
+    }
 
     /*
      * C API:
      */
-    
-    static int callbackFunc(void *context, drishti::sdk::Array<drishti_face_tracker_result_t, 64> &results)
+
+    static int callbackFunc(void* context, drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
     {
-        if(FaceTest *ft = static_cast<FaceTest *>(context))
+        if (FaceTest* ft = static_cast<FaceTest*>(context))
         {
             return ft->callback(results);
         }
         return -1;
     }
 
-    static int triggerFunc(void *context, const drishti::sdk::Vec3f &point, double timestamp)
+    static int triggerFunc(void* context, const drishti::sdk::Vec3f& point, double timestamp)
     {
-        if(FaceTest *ft = static_cast<FaceTest *>(context))
+        if (FaceTest* ft = static_cast<FaceTest*>(context))
         {
             return ft->trigger(point, timestamp);
         }
         return -1;
     }
-    
-    static int allocatorFunc(void *context, const drishti_image_t &spec, drishti::sdk::Image4b &image)
+
+    static int allocatorFunc(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image)
     {
-        if(FaceTest *ft = static_cast<FaceTest *>(context))
+        if (FaceTest* ft = static_cast<FaceTest*>(context))
         {
             return ft->allocator(spec, image);
         }
         return -1;
     }
-    
+
     void runTestC(bool doCpu, bool doAsync)
     {
         // Instantiate a face finder and register a callback:
         auto tracker = createC(image.size(), 0, doAsync);
-        
-        drishti_face_tracker_t table
-        {
+
+        drishti_face_tracker_t table{
             this,
             triggerFunc,
             callbackFunc,
             allocatorFunc
         };
-        
+
         drishti_face_tracker_callback(tracker.get(), table);
-        
-        drishti::sdk::VideoFrame frame({image.cols, image.rows}, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+
+        drishti::sdk::VideoFrame frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
 
         const int iterations = 10;
-        for(int i = 0; i < iterations; i++)
+        for (int i = 0; i < iterations; i++)
         {
             drishti_face_tracker_track(tracker.get(), frame);
         }
     }
 #endif // DRISHTI_BUILD_C_INTERFACE
-    
+
     // Called after constructor for each test
     virtual void SetUp() {}
 
     // Called after destructor for each test
     virtual void TearDown() {}
-    
-    static cv::Mat loadImage(const std::string &filename)
+
+    static cv::Mat loadImage(const std::string& filename)
     {
         assert(!filename.empty());
         cv::Mat image = cv::imread(filename, cv::IMREAD_COLOR);
@@ -305,13 +309,12 @@ protected:
     std::shared_ptr<QGLContext> m_context;
 #endif
 
-    void * m_glContext = nullptr;
+    void* m_glContext = nullptr;
     std::shared_ptr<spdlog::logger> m_logger;
- 
+
     // Test images:
     cv::Mat image, truth;
 };
-
 
 TEST_F(FaceTest, RunSimpleTest)
 {

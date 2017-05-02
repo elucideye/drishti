@@ -34,7 +34,6 @@
 
 */
 
-
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/core/Logger.h"
 #include "drishti/core/make_unique.h"
@@ -47,9 +46,11 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/face/Face.h" // for face model
 
+// clang-format off
 #if defined(DRISHTI_BUILD_EOS)
 #  include "drishti/face/FaceLandmarkMeshMapper.h"
 #endif
+// clang-format on
 
 #include "landmarks/FACE.h"
 #include "landmarks/MUCT.h"
@@ -64,9 +65,11 @@
 #include "FaceJitterer.h"
 #include "Pyramid.h"
 
+// clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
 #  include "imshow/imshow.h"
 #endif
+// clang-format on
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -99,8 +102,12 @@ enum GroundTruthFormat
 struct GroundTruth
 {
     GroundTruth() {}
-    GroundTruth(const FACE::Table &table, GroundTruthFormat format) : table(table), format(format) {}
-    
+    GroundTruth(const FACE::Table& table, GroundTruthFormat format)
+        : table(table)
+        , format(format)
+    {
+    }
+
     FACE::Table table;
     GroundTruthFormat format;
 };
@@ -114,17 +121,17 @@ std::string get_sha1(void const* buffer, std::size_t byte_count)
 {
     boost::uuids::detail::sha1 sha1;
     sha1.process_bytes(buffer, byte_count);
-    unsigned hash[5] = {0};
+    unsigned hash[5] = { 0 };
     sha1.get_digest(hash);
-    
+
     // Back to string
-    char buf[41] = {0};
-    
+    char buf[41] = { 0 };
+
     for (int i = 0; i < 5; i++)
     {
         std::sprintf(buf + (i << 3), "%08x", hash[i]);
     }
-    
+
     return std::string(buf);
 }
 
@@ -132,52 +139,54 @@ std::string get_sha1(void const* buffer, std::size_t byte_count)
 
 struct FaceJittererMean : public FaceJitterer
 {
-    FaceJittererMean(const FACE::Table &table, const JitterParams &params, const FaceSpecification &face)
-    : FaceJitterer(table, params, face) {}
-
-    void updateMean(const std::vector<FaceWithLandmarks> &faces)
+    FaceJittererMean(const FACE::Table& table, const JitterParams& params, const FaceSpecification& face)
+        : FaceJitterer(table, params, face)
     {
-        for(const auto &f : faces)
+    }
+
+    void updateMean(const std::vector<FaceWithLandmarks>& faces)
+    {
+        for (const auto& f : faces)
         {
             mu.updateMean(f);
         }
     }
-    
+
     FaceWithLandmarksMean mu;
 };
 
-using ImageVec=std::vector<cv::Mat>;
+using ImageVec = std::vector<cv::Mat>;
 using FaceJittererMeanPtr = std::unique_ptr<FaceJittererMean>;
 using FaceResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceJittererMeanPtr>;
-static int saveNegatives(const FACE::Table &table, const std::string &sOutput, int sampleCount, int winSize, int threads, spdlog::logger &logger);
-static int saveInpaintedSamples(const FACE::Table &table, const std::string sBackground, const std::string &sOutput, spdlog::logger &logger);
-static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager);
-static void saveMeanFace(FaceResourceManager &manager, const FaceSpecification &faceSpec, const std::string &sImage, const std::string &sPoints, spdlog::logger &logger);
-static int saveDefaultConfigs(const std::string &sOutput, spdlog::logger &logger);
-static void save(const std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, const std::string &dir, const std::string &filename, int index);
-static void previewFaceWithLandmarks(cv::Mat &image, const std::vector<cv::Point2f> &landmarks);
-static GroundTruth parseInput(const std::string &sInput, const std::string &sFormat, const std::string &sDirectoryIn, const std::string &sExtension);
-static FACE::Table parseRAW(const std::string &sInput);
-static int standardizeFaceData(const FACE::Table &table, const std::string &sOutput);
+static int saveNegatives(const FACE::Table& table, const std::string& sOutput, int sampleCount, int winSize, int threads, spdlog::logger& logger);
+static int saveInpaintedSamples(const FACE::Table& table, const std::string sBackground, const std::string& sOutput, spdlog::logger& logger);
+static FaceWithLandmarks computeMeanFace(FaceResourceManager& manager);
+static void saveMeanFace(FaceResourceManager& manager, const FaceSpecification& faceSpec, const std::string& sImage, const std::string& sPoints, spdlog::logger& logger);
+static int saveDefaultConfigs(const std::string& sOutput, spdlog::logger& logger);
+static void save(const std::vector<FaceWithLandmarks>& faces, const cv::Rect& roi, const std::string& dir, const std::string& filename, int index);
+static void previewFaceWithLandmarks(cv::Mat& image, const std::vector<cv::Point2f>& landmarks);
+static GroundTruth parseInput(const std::string& sInput, const std::string& sFormat, const std::string& sDirectoryIn, const std::string& sExtension);
+static FACE::Table parseRAW(const std::string& sInput);
+static int standardizeFaceData(const FACE::Table& table, const std::string& sOutput);
 
 #if defined(DRISHTI_BUILD_EOS)
 // Face pose estimation...
 using FaceLandmarkMeshMapperPtr = std::unique_ptr<drishti::face::FaceLandmarkMeshMapper>;
 using FacLandmarkeMeshMapperResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceLandmarkMeshMapperPtr>;
-static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger);
+static void computePose(FACE::Table& table, const std::string& sModel, const std::string& sMapping, std::shared_ptr<spdlog::logger>& logger);
 #endif // DRISHTI_BUILD_POSE
 
 int drishti_main(int argc, char* argv[])
 {
     const auto argumentCount = argc;
-    
+
     // Instantiate line logger:
     auto logger = drishti::core::Logger::create("drishti-facecrop");
-    
+
     // ############################
     // ### Command line parsing ###
     // ############################
-    
+
     std::string sInput;
     std::string sFormat;
     std::string sPositives;
@@ -192,8 +201,8 @@ int drishti_main(int argc, char* argv[])
 #if defined(DRISHTI_BUILD_EOS)
     std::string sEosModel;
     std::string sEosMapping;
-#endif    
-    
+#endif
+
     int sampleCount = 0;
     int winSize = 48; // min crop width
     int threads = -1;
@@ -203,6 +212,8 @@ int drishti_main(int argc, char* argv[])
     bool doPhotometricJitterOnly = false;
 
     cxxopts::Options options("drishti-facecrop", "Command line interface for facecrop object detection.");
+
+    // clang-format off
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("p,positives", "Positives directory", cxxopts::value<std::string>(sPositives))
@@ -232,6 +243,7 @@ int drishti_main(int argc, char* argv[])
         // Output parameters:
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("h,help", "Print help message");
+    // clang-format on    
     
     options.parse(argc, argv);
     

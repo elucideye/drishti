@@ -16,27 +16,24 @@
 
 #include <opencv2/objdetect.hpp>
 
-
-
 DRISHTI_ML_NAMESPACE_BEGIN
 
-ObjectDetectorCV::ObjectDetectorCV(const std::string &filename)
+ObjectDetectorCV::ObjectDetectorCV(const std::string& filename)
 {
     m_classifier = drishti::core::make_unique<cv::CascadeClassifier>(filename);
 }
 
-ObjectDetectorCV::~ObjectDetectorCV ()
+ObjectDetectorCV::~ObjectDetectorCV()
 {
-    
 }
 
-int ObjectDetectorCV::operator()(const cv::Mat &image, std::vector<cv::Rect> &objects, std::vector<double> *scores)
+int ObjectDetectorCV::operator()(const cv::Mat& image, std::vector<cv::Rect>& objects, std::vector<double>* scores)
 {
     m_classifier->detectMultiScale(image, objects, m_scaleStep, m_minNeighbors, 0, m_minSize, m_maxSize);
     return 0;
 }
 
-int ObjectDetectorCV::operator()(const MatP &image, std::vector<cv::Rect> &objects, std::vector<double> *scores)
+int ObjectDetectorCV::operator()(const MatP& image, std::vector<cv::Rect>& objects, std::vector<double>* scores)
 {
     assert(false);
     return 0;

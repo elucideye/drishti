@@ -22,10 +22,10 @@ int MergeProc::init(int inW, int inH, unsigned int order, bool prepareForExterna
 
 void MergeProc::useTexture(GLuint id, GLuint useTexUnit, GLenum target, int position)
 {
-    return TwoInputProc::useTexture(id, useTexUnit+position, target, position);
+    return TwoInputProc::useTexture(id, useTexUnit + position, target, position);
 }
 
-// *INDENT-OFF*
+// clang-format off
 const char *MergeProc::fshaderMergeSrcABC1 = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -43,9 +43,9 @@ const char *MergeProc::fshaderMergeSrcABC1 = OG_TO_STR
 
      gl_FragColor = vec4(textureColor.rgb, textureColor2.r);
  });
-// *INDENT-ON*
+// clang-format on
 
-// *INDENT-OFF*
+// clang-format off
 const char *MergeProc::fshaderMergeSrcAB12 = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -63,9 +63,9 @@ const char *MergeProc::fshaderMergeSrcAB12 = OG_TO_STR
 
      gl_FragColor = vec4(textureColor.rg, textureColor2.rg);
  });
-// *INDENT-ON*
+// clang-format on
 
-// *INDENT-OFF*
+// clang-format off
 const char *MergeProc::fshaderMergeSrcAD12 = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -83,6 +83,6 @@ const char *MergeProc::fshaderMergeSrcAD12 = OG_TO_STR
      
      gl_FragColor = vec4(textureColor.ra, textureColor2.rg);
  });
-// *INDENT-ON*
+// clang-format on
 
 END_OGLES_GPGPU

@@ -24,36 +24,36 @@ class ScopeTimeLogger
     using TimePoint = HighResolutionClock::time_point;
 
 public:
-    
     template <class Callable>
-    ScopeTimeLogger(Callable &&logger) : m_logger(std::forward<Callable>(logger))
+    ScopeTimeLogger(Callable&& logger)
+        : m_logger(std::forward<Callable>(logger))
     {
         m_tic = HighResolutionClock::now();
     }
-    
-    ScopeTimeLogger(ScopeTimeLogger && other)
-    : m_logger(std::move(other.m_logger))
-    , m_tic(std::move(other.m_tic))
-    {}
-    
+
+    ScopeTimeLogger(ScopeTimeLogger&& other)
+        : m_logger(std::move(other.m_logger))
+        , m_tic(std::move(other.m_tic))
+    {
+    }
+
     ~ScopeTimeLogger()
     {
         auto now = HighResolutionClock::now();
         m_logger(timeDifference(now, m_tic));
     }
-    
-    ScopeTimeLogger(const ScopeTimeLogger &) = delete;
-    void operator =(const ScopeTimeLogger &) = delete;
-    
-    static double timeDifference(const TimePoint &a, const TimePoint &b)
+
+    ScopeTimeLogger(const ScopeTimeLogger&) = delete;
+    void operator=(const ScopeTimeLogger&) = delete;
+
+    static double timeDifference(const TimePoint& a, const TimePoint& b)
     {
         return std::chrono::duration_cast<std::chrono::duration<double>>(a - b).count();
     }
-    
-    const TimePoint &getTime() const { return m_tic; }
+
+    const TimePoint& getTime() const { return m_tic; }
 
 protected:
-    
     std::function<void(double)> m_logger;
     TimePoint m_tic;
 };

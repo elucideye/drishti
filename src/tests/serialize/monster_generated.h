@@ -3,6 +3,8 @@
 #ifndef FLATBUFFERS_GENERATED_MONSTER_MYGAME_SAMPLE_H_
 #define FLATBUFFERS_GENERATED_MONSTER_MYGAME_SAMPLE_H_
 
+// clang-format off
+
 #include "flatbuffers/flatbuffers.h"
 
 namespace MyGame {
@@ -200,4 +202,6 @@ inline void FinishMonsterBuffer(flatbuffers::FlatBufferBuilder &fbb, flatbuffers
 }  // namespace Sample
 }  // namespace MyGame
 
-#endif  // FLATBUFFERS_GENERATED_MONSTER_MYGAME_SAMPLE_H_
+// clang-format on
+
+#endif // FLATBUFFERS_GENERATED_MONSTER_MYGAME_SAMPLE_H_

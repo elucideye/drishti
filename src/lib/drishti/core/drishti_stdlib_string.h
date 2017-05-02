@@ -9,7 +9,7 @@
 */
 
 #ifndef __drishti_core_drishti_stdlib_string_h__
-#define __drishti_core_drishti_stdlib_string_h__ 
+#define __drishti_core_drishti_stdlib_string_h__
 
 #if ANDROID
 
@@ -21,14 +21,16 @@
 
 DRISHTI_BEGIN_NAMESPACE(std)
 
-template <typename T> inline std::string to_string(T value)
+template <typename T>
+inline std::string to_string(T value)
 {
-    std::ostringstream os ;
-    os << value ;
-    return os.str() ;
+    std::ostringstream os;
+    os << value;
+    return os.str();
 }
 
-template <typename T> inline T stringTo(const std::string &s)
+template <typename T>
+inline T stringTo(const std::string& s)
 {
     std::stringstream conv;
     conv << s;
@@ -37,43 +39,43 @@ template <typename T> inline T stringTo(const std::string &s)
     return t;
 }
 
-inline long double strtold(const std::string &s)
+inline long double strtold(const std::string& s)
 {
     return stringTo<long double>(s);
 }
-inline long double strtold(const char * str, char ** str_end)
+inline long double strtold(const char* str, char** str_end)
 {
     return strtod(str, str_end);
 }
-inline long long stoll(const std::string &s)
+inline long long stoll(const std::string& s)
 {
     return stringTo<long long>(s);
 }
-inline int stoi(const std::string &s)
+inline int stoi(const std::string& s)
 {
     return stringTo<int>(s);
 }
-inline unsigned long stoul(const std::string &s)
+inline unsigned long stoul(const std::string& s)
 {
     return stringTo<unsigned long>(s);
 }
-inline unsigned long long stoull(const std::string &s)
+inline unsigned long long stoull(const std::string& s)
 {
     return stringTo<unsigned long long>(s);
 }
-inline float stof(const std::string &s)
+inline float stof(const std::string& s)
 {
     return stringTo<float>(s);
 }
-inline long stol(const std::string &s)
+inline long stol(const std::string& s)
 {
     return stringTo<long>(s);
 }
-inline double stod(const std::string &s)
+inline double stod(const std::string& s)
 {
     return stringTo<double>(s);
 }
-inline long double stold(const std::string &s)
+inline long double stold(const std::string& s)
 {
     return stringTo<long double>(s);
 }

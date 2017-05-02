@@ -33,12 +33,12 @@
 DRISHTI_ACF_NAMESPACE_BEGIN
 
 template <typename T2>
-std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
+std::ostream& operator<<(std::ostream& os, const Field<T2>& src)
 {
     os << src.name << ":";
-    if(src.has)
+    if (src.has)
     {
-        if(!src.isLeaf)
+        if (!src.isLeaf)
         {
             os << "\n{\n";
             {
@@ -46,11 +46,10 @@ std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
                 os << src.value;
             }
             os << "\n}";
-
         }
         else
         {
-            os << src.value ;
+            os << src.value;
         }
     }
     else
@@ -61,17 +60,17 @@ std::ostream& operator<<(std::ostream &os, const Field<T2>& src)
 }
 
 template <typename T2>
-std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src)
+std::ostream& operator<<(std::ostream& os, const Field<std::vector<T2>>& src)
 {
     os << src.name << ":";
-    if(src.has)
+    if (src.has)
     {
-        for(int i = 0; i < src.value.size()-1; i++)
+        for (int i = 0; i < src.value.size() - 1; i++)
         {
             os << src.value[i] << ",";
         }
 
-        os << src.value.back() ;
+        os << src.value.back();
     }
     else
     {
@@ -89,9 +88,10 @@ std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src)
 typedef std::vector<MatlabIOContainer> VecContainer;
 typedef std::vector<VecContainer> VecVecContainer;
 
-template <typename T1, typename T2> struct Cast
+template <typename T1, typename T2>
+struct Cast
 {
-    T2 operator()(const T1 &t1)
+    T2 operator()(const T1& t1)
     {
         return T2(t1);
     }
@@ -100,82 +100,86 @@ template <typename T1, typename T2> struct Cast
 template <typename T1, typename T2>
 struct Cast<std::vector<T1>, std::vector<T2>>
 {
-    std::vector<T2> operator()(const std::vector<T1> &t1)
+    std::vector<T2> operator()(const std::vector<T1>& t1)
     {
         return std::vector<T2>(t1.begin(), t1.end());
     }
 };
 
 template <typename T1, typename T2>
-struct Cast<std::vector<T1>, Field<std::vector<T2>> >
+struct Cast<std::vector<T1>, Field<std::vector<T2>>>
 {
-    std::vector<T2> operator()(const std::vector<T1> &t1)
+    std::vector<T2> operator()(const std::vector<T1>& t1)
     {
         return std::vector<T2>(t1.begin(), t1.end());
     }
 };
 
-template <typename T1, typename T2=T1, typename C=Cast<T1,T2> > struct Finder
+template <typename T1, typename T2 = T1, typename C = Cast<T1, T2>>
+struct Finder
 {
     // Handle all numbers:
-    bool operator()(MatlabIO &matio, std::vector<MatlabIOContainer>& variables, const std::string &name, T2 &value)
+    bool operator()(MatlabIO& matio, std::vector<MatlabIOContainer>& variables, const std::string& name, T2& value)
     {
         bool status = false;
         cv::Mat src = matio.find<cv::Mat>(variables, name);
-        if(src.size().area() > 0)
+        if (src.size().area() > 0)
         {
             status = true;
-            T1 stage = src.at<T1>(0,0);
+            T1 stage = src.at<T1>(0, 0);
             value = C()(stage);
         }
         return status;
     }
 
     // Handle strings and other miscellaneous types;
-
 };
 
-template <> struct Finder<cv::Mat, cv::Mat>
+template <>
+struct Finder<cv::Mat, cv::Mat>
 {
-    bool operator()(MatlabIO &matio, std::vector<MatlabIOContainer>& variables, const std::string &name, cv::Mat &value)
+    bool operator()(MatlabIO& matio, std::vector<MatlabIOContainer>& variables, const std::string& name, cv::Mat& value)
     {
         value = matio.find<cv::Mat>(variables, name);
         return !value.empty();
     }
 };
 
-template <> struct Finder<std::string, std::string >
+template <>
+struct Finder<std::string, std::string>
 {
-    bool operator()(MatlabIO &matio, std::vector<MatlabIOContainer>& variables, const std::string &name, std::string &value)
+    bool operator()(MatlabIO& matio, std::vector<MatlabIOContainer>& variables, const std::string& name, std::string& value)
     {
         value = matio.find<std::string>(variables, name);
         return value.size();
     }
 };
 
-template <> struct Finder<cv::Size, cv::Size >
+template <>
+struct Finder<cv::Size, cv::Size>
 {
-    bool operator()(MatlabIO &matio, std::vector<MatlabIOContainer>& variables, const std::string &name, cv::Size &value)
+    bool operator()(MatlabIO& matio, std::vector<MatlabIOContainer>& variables, const std::string& name, cv::Size& value)
     {
         bool status = false;
         cv::Mat src = matio.find<cv::Mat>(variables, name);
-        if(src.size().area() > 0)
+        if (src.size().area() > 0)
         {
             status = true;
-            value = { int(src.at<double>(0,0)), int(src.at<double>(0,1)) };
+            value = { int(src.at<double>(0, 0)), int(src.at<double>(0, 1)) };
         }
         return status;
     }
 };
 
 // Specialize for vectors:
-template <typename T1, typename T2> struct Finder<std::vector<T1>, std::vector<T2>>
+template <typename T1, typename T2>
+struct Finder<std::vector<T1>, std::vector<T2>>
 {
-    bool operator()(MatlabIO &matio, std::vector<MatlabIOContainer>& variables, const std::string &name, std::vector<T2> &value)
+    bool operator()(MatlabIO& matio, std::vector<MatlabIOContainer>& variables, const std::string& name, std::vector<T2>& value)
     {
         bool status = false;
         cv::Mat src = matio.find<cv::Mat>(variables, name);
-        if(src.size().area() > 0)
+        if (src.size().area() > 0)
         {
             status = true;
             std::copy(src.begin<T1>(), src.end<T1>(), std::back_inserter(value));
@@ -184,13 +188,14 @@ template <typename T1, typename T2> struct Finder<std::vector<T1>, std::vector<T
     }
 };
 
-template <typename T1, typename T2 > struct Finder<Field<T1>, Field<T2> >
+template <typename T1, typename T2>
+struct Finder<Field<T1>, Field<T2>>
 {
-    bool operator()(MatlabIO &matio, std::vector<MatlabIOContainer>& variables, const std::string &name, Field<T2> &value)
+    bool operator()(MatlabIO& matio, std::vector<MatlabIOContainer>& variables, const std::string& name, Field<T2>& value)
     {
         T1 tmp;
-        bool status = Finder<T1,T1>()(matio, variables, name, tmp);
-        value.set(name, status, true, Cast<T1,T2>()(tmp));
+        bool status = Finder<T1, T1>()(matio, variables, name, tmp);
+        value.set(name, status, true, Cast<T1, T2>()(tmp));
         return status;
     }
 };
@@ -200,13 +205,15 @@ struct ParserNode
 {
     ParserNode() {}
 
-    ParserNode(const ParserNode &node)
+    ParserNode(const ParserNode& node)
         : m_name(node.m_name)
         , m_object(node.m_object)
         , m_variables(node.m_variables)
-        , m_indent(node.m_indent)  {}
+        , m_indent(node.m_indent)
+    {
+    }
 
-    ParserNode(const std::string &filename, T &object)
+    ParserNode(const std::string& filename, T& object)
         : m_name("root")
         , m_object(&object)
     {
@@ -217,7 +224,7 @@ struct ParserNode
         log();
     }
 
-    ParserNode(const std::string &name, T &object, VecContainer &variables)
+    ParserNode(const std::string& name, T& object, VecContainer& variables)
         : m_name(name)
         , m_object(&object)
         , m_variables(variables)
@@ -229,7 +236,7 @@ struct ParserNode
     }
 
     // Istream input
-    ParserNode(std::istream &is, T &object)
+    ParserNode(std::istream& is, T& object)
         : m_name("root")
         , m_object(&object)
     {
@@ -240,7 +247,7 @@ struct ParserNode
         log();
     }
 
-    ParserNode & operator=(const ParserNode &src)
+    ParserNode& operator=(const ParserNode& src)
     {
         m_name = src.m_name;
         m_object = src.m_object;
@@ -253,13 +260,13 @@ struct ParserNode
     {
 #if DRISHTI_ACF_DO_DEBUG_LOAD
         std::cout << "====" << m_name << "====" << std::endl;
-        for(auto &v : m_variables)
+        for (auto& v : m_variables)
         {
             std::cout << v.name() << " " << v.type() << std::endl;
         }
 #endif
     }
-    int open(std::istream &is)
+    int open(std::istream& is)
     {
         // create a new reader
         bool ok = m_matio.attach(is);
@@ -271,10 +278,10 @@ struct ParserNode
         // read all of the variables in the file
         m_variables = m_matio.read();
 
-        return 0;        
+        return 0;
     }
 
-    int open(const std::string &filename)
+    int open(const std::string& filename)
     {
         // create a new reader
         bool ok = m_matio.open(filename, "r");
@@ -292,44 +299,42 @@ struct ParserNode
 
     // Return single instance
     template <typename T2>
-    ParserNode<T2> create(const std::string &name, T2 &object)
+    ParserNode<T2> create(const std::string& name, T2& object)
     {
-        return ParserNode<T2>(name, object, m_matio.find< VecVecContainer >(m_variables, name)[0]);
+        return ParserNode<T2>(name, object, m_matio.find<VecVecContainer>(m_variables, name)[0]);
     }
 
     template <typename T2>
-    ParserNode<Field<T2>> create(const std::string &name, Field<T2> &object)
+    ParserNode<Field<T2>> create(const std::string& name, Field<T2>& object)
     {
         object.set(name);
         object.mark(true);
-        return ParserNode<Field<T2>>(name, object, m_matio.find< VecVecContainer >(m_variables, name)[0]);
+        return ParserNode<Field<T2>>(name, object, m_matio.find<VecVecContainer>(m_variables, name)[0]);
     }
 
     // Return single instance
     template <typename T2>
-    std::vector<ParserNode<Field<typename T2::value_type>>> createVec(const std::string &name, Field<T2> &object)
+    std::vector<ParserNode<Field<typename T2::value_type>>> createVec(const std::string& name, Field<T2>& object)
     {
-
     }
-
 
     T& operator()()
     {
         return m_object;
     }
 
-    template <typename T1, typename T2 >
-    bool parse(const std::string &name, T2 &value)
+    template <typename T1, typename T2>
+    bool parse(const std::string& name, T2& value)
     {
         Finder<T1, T2>()(m_matio, m_variables, name, value);
         return true;
     }
 
-    T& operator *()
+    T& operator*()
     {
         return *m_object;
     }
-    const T& operator *() const
+    const T& operator*() const
     {
         return *m_object;
     }
@@ -343,13 +348,13 @@ struct ParserNode
         return m_object;
     }
 
-    T & get()
+    T& get()
     {
         return *m_object;
     }
 
     std::string m_name;
-    T *m_object;
+    T* m_object;
     VecContainer m_variables;
 
     std::shared_ptr<IndentingOStreambuf> m_indent;

@@ -1,10 +1,10 @@
-#ifndef QT_STREAM_H
-#define QT_STREAM_H
+#ifndef __drishti_qt_facefilter_QtStream_h__
+#define __drishti_qt_facefilter_QtStream_h__
 
 #include <QByteArray>
 #include <streambuf>
 
-class QtStream: public std::basic_streambuf<char>
+class QtStream : public std::basic_streambuf<char>
 {
 public:
     using Base = std::basic_streambuf<char>;
@@ -14,4 +14,4 @@ public:
     }
 };
 
-#endif // QT_STREAM_H
+#endif // __drishti_qt_facefilter_QtStream_h__

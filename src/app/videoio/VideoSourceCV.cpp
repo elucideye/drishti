@@ -1,9 +1,11 @@
 #include "VideoSourceCV.h"
-
 #include "VideoSourceStills.h"
+
+// clang-format off
 #if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
 #  include "VideoSourceApple.h"
 #endif
+// clang-format on
 
 #include "drishti/core/drishti_string_hash.h"
 
@@ -14,40 +16,41 @@
 
 namespace bfs = boost::filesystem;
 
-using string_hash::operator "" _hash;
+using string_hash::operator"" _hash;
 
-std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string &filename)
+std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename)
 {
     std::string ext = bfs::path(filename).extension().string();
 
     std::locale loc;
-    for(auto &elem : ext)
+    for (auto& elem : ext)
     {
         elem = std::tolower(elem, loc);
     }
 
-    switch(string_hash::hash(ext))
+    switch (string_hash::hash(ext))
     {
-    case ".txt"_hash:
-        return std::make_shared<VideoSourceStills>(filename);
-        break;
+        case ".txt"_hash:
+            return std::make_shared<VideoSourceStills>(filename);
+            break;
 
 #if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
-    case ".mov"_hash:
-        return std::make_shared<VideoSourceApple>(filename);
-        break;
+        case ".mov"_hash:
+            return std::make_shared<VideoSourceApple>(filename);
+            break;
 #endif
 
         // Single image video:
-    case ".png"_hash:
-    case ".jpg"_hash:
-    case ".jpeg"_hash:
-        return std::make_shared<VideoSourceStills>(std::vector<std::string>{filename});
-        break;
+        case ".png"_hash:
+        case ".jpg"_hash:
+        case ".jpeg"_hash:
+            return std::make_shared<VideoSourceStills>(std::vector<std::string>{ filename });
+            break;
 
         // not supported
-    default: CV_Assert(false);
-        break;
+        default:
+            CV_Assert(false);
+            break;
     }
 
     return nullptr;

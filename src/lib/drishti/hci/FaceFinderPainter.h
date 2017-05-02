@@ -16,14 +16,14 @@
 
 #include <memory>
 
-// *INDENT-OFF*
+// clang-format off
 namespace ogles_gpgpu
 {
     class FacePainter;
     class TransformProc;
     class CircleProc;
 }
-// *INDENT-ON*
+// clang-format on
 
 #define DRISHTI_HCI_FACE_FINDER_PAINTER_SHOW_CIRCLE 0
 
@@ -32,20 +32,18 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceFinderPainter : public FaceFinder
 {
 public:
-    
     class Impl;
 
-    FaceFinderPainter(FaceDetectorFactoryPtr &factory, Settings &settings, void *glContext = nullptr);
+    FaceFinderPainter(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext = nullptr);
     ~FaceFinderPainter();
-    virtual void init(const cv::Size &inputSize);
+    virtual void init(const cv::Size& inputSize);
     void drawIris(bool flag) { m_drawIris = flag; }
 
-    static std::unique_ptr<FaceFinderPainter> create(FaceDetectorFactoryPtr &factory, Settings &settings, void *glContext);
-    
+    static std::unique_ptr<FaceFinderPainter> create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext);
+
 protected:
-    
-    virtual void initPainter(const cv::Size &inputSizeUp);    
-    virtual GLuint paint(const ScenePrimitives &scene, GLuint inputTexture);    
+    virtual void initPainter(const cv::Size& inputSizeUp);
+    virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);
 
     bool m_drawIris = false;
 
@@ -54,7 +52,7 @@ protected:
 #endif
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater;
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
-    
+
     std::unique_ptr<Impl> m_pImpl;
 };
 

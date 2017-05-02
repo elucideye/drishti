@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __facecrop_FaceSpecification_h__
-#define __facecrop_FaceSpecification_h__
+#ifndef __drishti_facecrop_FaceSpecification_h__
+#define __drishti_facecrop_FaceSpecification_h__
 
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/core/drishti_cv_cereal.h"
@@ -30,22 +30,22 @@ struct FaceSpecification
         return T * S;
     }
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
     {
-        ar & GENERIC_NVP("scale", scale);
-        ar & GENERIC_NVP("center", center);
-        ar & GENERIC_NVP("size", size);
-        ar & GENERIC_NVP("border", border);
+        ar& GENERIC_NVP("scale", scale);
+        ar& GENERIC_NVP("center", center);
+        ar& GENERIC_NVP("size", size);
+        ar& GENERIC_NVP("border", border);
     }
-    
+
     cv::Point tl() const { return cv::Point(border, border); }
     cv::Size paddedSize() const { return size + cv::Size(border, border) * 2; }
-    
+
     float scale = 0.33f;
     cv::Point2f center = { 0.5f, 0.5f };
     cv::Size size = { 64, 64 };
     std::size_t border = 16; // TODO
 };
 
-#endif // __facecrop_FaceSpecification_h__
+#endif // __drishti_facecrop_FaceSpecification_h__

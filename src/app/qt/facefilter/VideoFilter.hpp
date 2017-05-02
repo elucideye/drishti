@@ -37,8 +37,7 @@
 
 #include <QAbstractVideoFilter>
 
-
-class VideoFilter: public QAbstractVideoFilter
+class VideoFilter : public QAbstractVideoFilter
 {
     Q_OBJECT
     Q_PROPERTY(qreal factor READ factor WRITE setFactor NOTIFY factorChanged)
@@ -74,7 +73,7 @@ public:
         return m_rectangleVisible;
     }
 
-    QVideoFilterRunnable *createFilterRunnable() Q_DECL_OVERRIDE;
+    QVideoFilterRunnable* createFilterRunnable() Q_DECL_OVERRIDE;
 
 signals:
     void factorChanged();

@@ -23,13 +23,13 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
 
-cv::Mat estimateGlobalMotionLeastSquares(const FaceModel &a, const FaceModel &b, cv::videostab::MotionModel model)
+cv::Mat estimateGlobalMotionLeastSquares(const FaceModel& a, const FaceModel& b, cv::videostab::MotionModel model)
 {
     CV_Assert(a.eyeLeftCenter.has);
     CV_Assert(a.eyeRightCenter.has);
     CV_Assert(a.noseTip.has);
-    PointVec ptsA { a.eyeRightCenter, a.eyeLeftCenter, a.noseTip };
-    if(a.mouthCornerLeft.has && a.mouthCornerRight.has)
+    PointVec ptsA{ a.eyeRightCenter, a.eyeLeftCenter, a.noseTip };
+    if (a.mouthCornerLeft.has && a.mouthCornerRight.has)
     {
         ptsA.push_back(a.mouthCornerLeft);
         ptsA.push_back(a.mouthCornerRight);
@@ -38,8 +38,8 @@ cv::Mat estimateGlobalMotionLeastSquares(const FaceModel &a, const FaceModel &b,
     CV_Assert(b.eyeLeftCenter.has);
     CV_Assert(b.eyeRightCenter.has);
     CV_Assert(b.noseTip.has);
-    PointVec ptsB { b.eyeRightCenter, b.eyeLeftCenter, b.noseTip };
-    if(b.mouthCornerLeft.has && b.mouthCornerRight.has)
+    PointVec ptsB{ b.eyeRightCenter, b.eyeLeftCenter, b.noseTip };
+    if (b.mouthCornerLeft.has && b.mouthCornerRight.has)
     {
         ptsB.push_back(b.mouthCornerLeft);
         ptsB.push_back(b.mouthCornerRight);
@@ -51,21 +51,21 @@ cv::Mat estimateGlobalMotionLeastSquares(const FaceModel &a, const FaceModel &b,
     return M;
 }
 
-std::vector<float> faceToVector(const FaceModel &face, bool crease, bool brow, bool nose)
+std::vector<float> faceToVector(const FaceModel& face, bool crease, bool brow, bool nose)
 {
     std::vector<float> params;
-    if(face.eyeFullR.has && face.eyeFullL.has)
+    if (face.eyeFullR.has && face.eyeFullL.has)
     {
         DRISHTI_EYE::cat(params, DRISHTI_EYE::eyeToVector(*face.eyeFullR, crease));
         DRISHTI_EYE::cat(params, DRISHTI_EYE::eyeToVector(*face.eyeFullL, crease));
     }
 
-    if(brow)
+    if (brow)
     {
         DRISHTI_EYE::cat(params, DRISHTI_EYE::pointsToVector(face.eyebrowRight));
         DRISHTI_EYE::cat(params, DRISHTI_EYE::pointsToVector(face.eyebrowLeft));
     }
-    if(nose)
+    if (nose)
     {
         DRISHTI_EYE::cat(params, DRISHTI_EYE::pointsToVector(face.nose));
     }

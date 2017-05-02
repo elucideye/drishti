@@ -11,7 +11,9 @@
 #ifndef __drishti_hci_drishti_hci_h__
 #define __drishti_hci_drishti_hci_h__
 
+// clang-format off
 #define DRISHTI_HCI_NAMESPACE_BEGIN namespace drishti { namespace hci {
 #define DRISHTI_HCI_NAMESPACE_END } }
+// clang-format on
 
 #endif

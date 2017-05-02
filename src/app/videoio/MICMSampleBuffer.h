@@ -15,18 +15,18 @@
 @interface MICMSampleBuffer : NSObject <NSCopying>
 
 /// Copy initializer. Designated initializer.
--(instancetype)initWithMICMSampleBuffer:(MICMSampleBuffer *)sampleBuffer;
+- (instancetype)initWithMICMSampleBuffer:(MICMSampleBuffer*)sampleBuffer;
 
 /// Initialize with a CMSampleBuffer. Designated initializer.
--(instancetype)initWithCMSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (instancetype)initWithCMSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 /// copy this object method.
--(instancetype)copy;
+- (instancetype)copy;
 
 /// Retains the sampleBuffer and releases previously owned buffer.
--(void)setCMSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void)setCMSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 /// Returns the CMSampleBuffer.
--(CMSampleBufferRef)CMSampleBuffer CF_RETURNS_NOT_RETAINED;
+- (CMSampleBufferRef)CMSampleBuffer CF_RETURNS_NOT_RETAINED;
 
 @end

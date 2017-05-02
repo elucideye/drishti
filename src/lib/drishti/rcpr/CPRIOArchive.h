@@ -19,139 +19,139 @@
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
 // Boost serialization:
-template<class Archive>
-void CPR::Model::Parts::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::Model::Parts::serialize(Archive& ar, const unsigned int version)
 {
-    ar & prn;
-    ar & lks;
-    ar & joint;
-    ar & mus;
-    ar & sigs;
-    ar & wts;
+    ar& prn;
+    ar& lks;
+    ar& joint;
+    ar& mus;
+    ar& sigs;
+    ar& wts;
 }
 
-template<class Archive>
-void CPR::Model::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::Model::serialize(Archive& ar, const unsigned int version)
 {
-    ar & parts;
+    ar& parts;
 }
 
-template<class Archive>
-void CPR::CprPrm::FtrPrm::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::CprPrm::FtrPrm::serialize(Archive& ar, const unsigned int version)
 {
-    ar & type;
-    ar & F;
-    ar & radius;
-    ar & nChn;
+    ar& type;
+    ar& F;
+    ar& radius;
+    ar& nChn;
 }
 
-template<class Archive>
-void CPR::CprPrm::FernPrm::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::CprPrm::FernPrm::serialize(Archive& ar, const unsigned int version)
 {
-    ar & thrr;
-    ar & reg;
-    ar & S;
-    ar & M;
-    ar & R;
-    ar & eta;
+    ar& thrr;
+    ar& reg;
+    ar& S;
+    ar& M;
+    ar& R;
+    ar& eta;
 }
 
-template<class Archive>
-void Recipe::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void Recipe::serialize(Archive& ar, const unsigned int version)
 {
-    ar & maxLeafNodes;
-    ar & maxDepth;
-    ar & treesPerLevel;
-    ar & featurePoolSize;
-    ar & featureSampleSize;
-    ar & featureRadius;
-    ar & learningRate;
-    ar & dataSampleRatio;
-    ar & useNPD;
-    ar & doMask;
-    ar & paramIndex;
-    ar & lambda;
+    ar& maxLeafNodes;
+    ar& maxDepth;
+    ar& treesPerLevel;
+    ar& featurePoolSize;
+    ar& featureSampleSize;
+    ar& featureRadius;
+    ar& learningRate;
+    ar& dataSampleRatio;
+    ar& useNPD;
+    ar& doMask;
+    ar& paramIndex;
+    ar& lambda;
 }
 
-template<class Archive>
-void CPR::CprPrm::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::CprPrm::serialize(Archive& ar, const unsigned int version)
 {
-    ar & model;
-    ar & T;
-    ar & L;
-    ar & ftrPrm;
+    ar& model;
+    ar& T;
+    ar& L;
+    ar& ftrPrm;
 #if !DRISHTI_CPR_DO_LEAN
-    ar & fernPrm;
+    ar& fernPrm;
 #endif
-    ar & verbose;
-    
+    ar& verbose;
+
     // New experimental features
-    ar & cascadeRecipes;
+    ar& cascadeRecipes;
 }
 
-template<class Archive>
-void CPR::RegModel::Regs::FtrData::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::RegModel::Regs::FtrData::serialize(Archive& ar, const unsigned int version)
 {
-    ar & type;
-    ar & F;
-    ar & nChn;
-    
+    ar& type;
+    ar& F;
+    ar& nChn;
+
 #if DRISHTI_CPR_DO_HALF_FLOAT
     std::vector<PointHalf> xs_;
-    if(Archive::is_loading::value)
+    if (Archive::is_loading::value)
     {
-        ar & xs_;
+        ar& xs_;
         copy(xs_, (*xs));
     }
     else
     {
         copy((*xs), xs_);
-        ar & xs_;
+        ar& xs_;
     }
 #else
-    ar & xs;
+    ar& xs;
 #endif
-    
-    ar & pids;
+
+    ar& pids;
 }
 
-template<class Archive>
-void CPR::RegModel::Regs::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::RegModel::Regs::serialize(Archive& ar, const unsigned int version)
 {
 #if !DRISHTI_CPR_DO_LEAN
-    ar & ferns;
+    ar& ferns;
 #endif
-    
-    ar & ftrData;
-    ar & r;
-    ar & xgbdt;
+
+    ar& ftrData;
+    ar& r;
+    ar& xgbdt;
 }
 
-template<class Archive>
-void CPR::RegModel::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::RegModel::serialize(Archive& ar, const unsigned int version)
 {
-    ar & model;
-    ar & pStar;
-    ar & pDstr;
-    ar & T;
-    ar & regs;
-    
-    if(version >= 1)
+    ar& model;
+    ar& pStar;
+    ar& pDstr;
+    ar& T;
+    ar& regs;
+
+    if (version >= 1)
     {
-        ar & pStar_;
+        ar& pStar_;
     }
 }
 
-template<class Archive>
-void CPR::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void CPR::serialize(Archive& ar, const unsigned int version)
 {
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #ifndef __clang_analyzer__ // expected undefined
     boost::serialization::void_cast_register<drishti::rcpr::CPR, drishti::ml::ShapeEstimator>();
 #endif
 #endif
-    ar & cprPrm;
-    ar & regModel;
+    ar& cprPrm;
+    ar& regModel;
 }
 
 DRISHTI_RCPR_NAMESPACE_END

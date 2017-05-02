@@ -20,7 +20,7 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-using geometry::operator *;
+using geometry::operator*;
 
 struct FaceModel
 {
@@ -28,13 +28,16 @@ struct FaceModel
     using ContourVec = std::vector<Contour>;
 
     FaceModel();
-    FaceModel(const cv::Rect &roi) : roi(roi) {}
+    FaceModel(const cv::Rect& roi)
+        : roi(roi)
+    {
+    }
 
     float getInterPupillaryDistance() const;
     cv::Point2f getEyeLeftCenter() const;
     cv::Point2f getEyeRightCenter() const;
-    std::vector< ContourVec > getFaceParts(bool fullEyes=false, bool browClosed=true) const;
-    bool getEyeRegions(cv::Rect2f &eyeR, cv::Rect2f &eyeL, float scale=0.666f) const;
+    std::vector<ContourVec> getFaceParts(bool fullEyes = false, bool browClosed = true) const;
+    bool getEyeRegions(cv::Rect2f& eyeR, cv::Rect2f& eyeL, float scale = 0.666f) const;
 
     // ======================
 
@@ -86,48 +89,50 @@ struct FaceModel
     std::vector<cv::Rect2d> rois;
 
     core::Field<cv::Point3f> eyesCenter;
-    
-    template <typename T> FaceModel& operator +=(const cv::Point_<T> &p)
+
+    template <typename T>
+    FaceModel& operator+=(const cv::Point_<T>& p)
     {
         *this = *this + p;
         return *this;
     }
-    template <typename T> FaceModel& operator -=(const cv::Point_<T> &p)
+    template <typename T>
+    FaceModel& operator-=(const cv::Point_<T>& p)
     {
         *this = *this - p;
         return *this;
     }
 
-    template <typename T> FaceModel& operator *=(const T &s)
+    template <typename T>
+    FaceModel& operator*=(const T& s)
     {
         *this = *this * s;
         return *this;
     }
 
-    void draw(cv::Mat &canvas, int width=1, bool fullEyes=false, bool allPoints=false) const;
+    void draw(cv::Mat& canvas, int width = 1, bool fullEyes = false, bool allPoints = false) const;
 
     // ((( IO )))
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version);
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version);
 };
 
 template <typename T>
-FaceModel operator *(const cv::Matx<T, 3, 3> &H, const FaceModel & src)
+FaceModel operator*(const cv::Matx<T, 3, 3>& H, const FaceModel& src)
 {
     // Transform all feature contours:
     FaceModel dst = src;
 
-    if(dst.points.has)
+    if (dst.points.has)
     {
-        for(auto &p : *dst.points)
+        for (auto& p : *dst.points)
         {
             cv::Point3f q = H * cv::Point3_<T>(p.x, p.y, 1.f);
-            p = cv::Point2f(q.x/q.z, q.y/q.z);
+            p = cv::Point2f(q.x / q.z, q.y / q.z);
         }
     }
 
-    std::vector< core::Field<cv::Point2f> * > points
-    {
+    std::vector<core::Field<cv::Point2f>*> points{
         &dst.eyeLeftInner,
         &dst.eyeLeftCenter,
         &dst.eyeLeftOuter,
@@ -144,17 +149,16 @@ FaceModel operator *(const cv::Matx<T, 3, 3> &H, const FaceModel & src)
         &dst.mouthCornerLeft,
         &dst.mouthCornerRight
     };
-    for(auto &p : points)
+    for (auto& p : points)
     {
-        if(p->has)
+        if (p->has)
         {
             cv::Point3f q = H * cv::Point3_<T>(p->value.x, p->value.y, 1.f);
-            p->value = cv::Point2f(q.x/q.z, q.y/q.z);
+            p->value = cv::Point2f(q.x / q.z, q.y / q.z);
         }
     }
 
-    std::vector< std::vector<cv::Point2f> * > features
-    {
+    std::vector<std::vector<cv::Point2f>*> features{
         &dst.eyeLeft,
         &dst.eyeRight,
         &dst.nose,
@@ -163,27 +167,27 @@ FaceModel operator *(const cv::Matx<T, 3, 3> &H, const FaceModel & src)
         &dst.mouthOuter,
         &dst.mouthInner
     };
-    for(auto &f : features)
+    for (auto& f : features)
     {
-        for(auto &p : *f)
+        for (auto& p : *f)
         {
             cv::Point3f q = H * cv::Point3_<T>(p.x, p.y, 1.f);
-            p = cv::Point2f(q.x/q.z, q.y/q.z);
+            p = cv::Point2f(q.x / q.z, q.y / q.z);
         }
     }
 
     // Transform the roi:
     dst.roi = H * dst.roi.value;
 
-    for(auto &r : dst.rois)
+    for (auto& r : dst.rois)
     {
         r = H * r;
     }
 
-    std::vector< core::Field<DRISHTI_EYE::EyeModel>* > eyes { &dst.eyeFullR, &dst.eyeFullL };
-    for(auto &e : eyes)
+    std::vector<core::Field<DRISHTI_EYE::EyeModel>*> eyes{ &dst.eyeFullR, &dst.eyeFullL };
+    for (auto& e : eyes)
     {
-        if(e->has)
+        if (e->has)
         {
             e->value = H * e->value;
         }
@@ -193,39 +197,39 @@ FaceModel operator *(const cv::Matx<T, 3, 3> &H, const FaceModel & src)
 }
 
 template <typename AType>
-FaceModel operator *(const FaceModel & src, AType scale)
+FaceModel operator*(const FaceModel& src, AType scale)
 {
-    cv::Matx<AType,3,3> S(cv::Matx33f::diag({scale,scale,1}));
+    cv::Matx<AType, 3, 3> S(cv::Matx33f::diag({ scale, scale, 1 }));
     auto dst = S * src;
     return dst;
 }
 
 template <typename AType>
-FaceModel operator +(const FaceModel & src, const cv::Point_<AType> &offset )
+FaceModel operator+(const FaceModel& src, const cv::Point_<AType>& offset)
 {
-    cv::Matx<AType,3,3> T(1,0,offset.x,0,1,offset.y,0,0,1);
+    cv::Matx<AType, 3, 3> T(1, 0, offset.x, 0, 1, offset.y, 0, 0, 1);
     auto dst = T * src;
     return dst;
 }
 
 template <typename AType>
-FaceModel operator -(const FaceModel &src, const cv::Point_<AType> &offset)
+FaceModel operator-(const FaceModel& src, const cv::Point_<AType>& offset)
 {
-    cv::Matx<AType,3,3> T(1,0,-offset.x,0,1,-offset.y,0,0,1);
+    cv::Matx<AType, 3, 3> T(1, 0, -offset.x, 0, 1, -offset.y, 0, 0, 1);
     auto dst = T * src;
     return dst;
 }
 
 // Two eye similarity transformation:
-cv::Mat getSimilarityMotion(const FaceModel &a, const FaceModel &b);
+cv::Mat getSimilarityMotion(const FaceModel& a, const FaceModel& b);
 
-cv::Mat getSimilarityMotionFromEyes(const FaceModel &a, const FaceModel &b);
+cv::Mat getSimilarityMotionFromEyes(const FaceModel& a, const FaceModel& b);
 
 // Two eyes + nose affine transformation:
-cv::Mat getAffineMotion(const FaceModel &a, const FaceModel &b);
+cv::Mat getAffineMotion(const FaceModel& a, const FaceModel& b);
 
 // Two eyes + nose similarity transformation:
-cv::Mat estimateMotionLeastSquares(const FaceModel &a, const FaceModel &b);
+cv::Mat estimateMotionLeastSquares(const FaceModel& a, const FaceModel& b);
 
 DRISHTI_FACE_NAMESPACE_END
 

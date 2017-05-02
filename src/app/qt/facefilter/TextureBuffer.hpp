@@ -37,10 +37,12 @@
 
 #include <QAbstractVideoBuffer>
 
-class TextureBuffer: public QAbstractVideoBuffer
+class TextureBuffer : public QAbstractVideoBuffer
 {
 public:
-    TextureBuffer(uint id): QAbstractVideoBuffer(GLTextureHandle), id_(id)
+    TextureBuffer(uint id)
+        : QAbstractVideoBuffer(GLTextureHandle)
+        , id_(id)
     {
         assert(id != 0);
     }
@@ -91,8 +93,7 @@ public:
     */
     static QVideoFrame createVideoFrame(
         uint textureId,
-        const QSize& size
-    )
+        const QSize& size)
     {
         return QVideoFrame(new TextureBuffer(textureId), size, qtTextureFormat());
     }

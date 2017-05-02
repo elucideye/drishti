@@ -8,10 +8,10 @@
 #include <fstream>
 
 DRISHTI_BEGIN_NAMESPACE(cpr)
-void loadJSON(const std::string &filename, drishti::eye::EyeModel &eye)
+void loadJSON(const std::string& filename, drishti::eye::EyeModel& eye)
 {
     std::ifstream is(filename);
-    if(is)
+    if (is)
     {
         cereal::JSONInputArchive ia(is);
         typedef decltype(ia) Archive;
@@ -19,10 +19,10 @@ void loadJSON(const std::string &filename, drishti::eye::EyeModel &eye)
     }
 }
 
-void saveJSON(const std::string &filename, const drishti::eye::EyeModel &eye)
+void saveJSON(const std::string& filename, const drishti::eye::EyeModel& eye)
 {
     std::ofstream os(filename);
-    if(os)
+    if (os)
     {
         cereal::JSONOutputArchive oa(os);
         typedef decltype(oa) Archive;
