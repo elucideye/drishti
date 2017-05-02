@@ -51,6 +51,7 @@ string(REGEX REPLACE "^v" "" version "${version}")
 project(drishtisdk VERSION ${version})
 
 set(DRISHTI_3RD_PARTY_DIR "${CMAKE_CURRENT_LIST_DIR}/src/3rdparty")
+set(DRISHTI_APP_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/app")
 set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 
 #####################################################################
