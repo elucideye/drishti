@@ -39,10 +39,10 @@ DRISHTI_BEGIN_NAMESPACE(eye)
  * Write an eye model in JSON format:
  */
 
-static bool writeAsJson(const std::string &filename, drishti::eye::EyeModel &eye)
+static bool writeAsJson(const std::string& filename, drishti::eye::EyeModel& eye)
 {
     std::ofstream ofs(filename);
-    if(ofs)
+    if (ofs)
     {
         cereal::JSONOutputArchive oa(ofs);
         typedef decltype(oa) Archive; // needed by macro
@@ -59,17 +59,21 @@ static bool writeAsJson(const std::string &filename, drishti::eye::EyeModel &eye
 
 struct Transform
 {
-    Transform(drishti::eye::EyeModel &eye) : eye(eye) {}
+    Transform(drishti::eye::EyeModel& eye)
+        : eye(eye)
+    {
+    }
     operator cv::Mat() { return image; }
-    cv::Mat image; // transformed image
-    drishti::eye::EyeModel &eye; // handle image to transform
+    cv::Mat image;               // transformed image
+    drishti::eye::EyeModel& eye; // handle image to transform
 };
 
 struct Padder : public Transform
 {
-    Padder(const cv::Mat &input, drishti::eye::EyeModel &eye, float aspectRatio=4.f/3.f) : Transform(eye)
+    Padder(const cv::Mat& input, drishti::eye::EyeModel& eye, float aspectRatio = 4.f / 3.f)
+        : Transform(eye)
     {
-        if(!isGoodAspectRatio(input.size(), aspectRatio))
+        if (!isGoodAspectRatio(input.size(), aspectRatio))
         {
             tl = drishti::core::padToAspectRatio(input, image, aspectRatio, false);
         }
@@ -82,21 +86,23 @@ struct Padder : public Transform
     {
         eye = eye - tl;
     }
-    
-    static bool isGoodAspectRatio(const cv::Size &size, float targetAspectRatio)
+
+    static bool isGoodAspectRatio(const cv::Size& size, float targetAspectRatio)
     {
-        const float currentAspectRatio = std::abs(static_cast<float>(size.width)/static_cast<float>(size.height));
+        const float currentAspectRatio = std::abs(static_cast<float>(size.width) / static_cast<float>(size.height));
         return (std::abs(targetAspectRatio - currentAspectRatio) < 0.1f);
     }
-    
+
     cv::Point tl;
 };
 
 struct Flopper : public Transform
 {
-    Flopper(const cv::Mat &input, drishti::eye::EyeModel &eye, bool isRight) : Transform(eye), isRight(isRight)
+    Flopper(const cv::Mat& input, drishti::eye::EyeModel& eye, bool isRight)
+        : Transform(eye)
+        , isRight(isRight)
     {
-        if(!isRight)
+        if (!isRight)
         {
             cv::flip(input, image, 1);
         }
@@ -105,10 +111,10 @@ struct Flopper : public Transform
             image = input;
         }
     }
-    
+
     ~Flopper()
     {
-        if(!isRight)
+        if (!isRight)
         {
             eye.flop(image.cols);
         }
@@ -119,9 +125,11 @@ struct Flopper : public Transform
 
 struct Warper : public Transform
 {
-    Warper(const cv::Mat &input, drishti::eye::EyeModel &eye, const cv::Matx33f *H) : Transform(eye), H(H)
+    Warper(const cv::Mat& input, drishti::eye::EyeModel& eye, const cv::Matx33f* H)
+        : Transform(eye)
+        , H(H)
     {
-        if(H)
+        if (H)
         {
             cv::warpPerspective(input, image, cv::Mat1f(*H), input.size(), cv::INTER_LINEAR);
         }
@@ -130,23 +138,23 @@ struct Warper : public Transform
             image = input;
         }
     }
-    
+
     ~Warper()
     {
-        if(H)
+        if (H)
         {
             eye = H->inv() * eye;
         }
     }
-    
-    const cv::Matx33f *H = nullptr;
+
+    const cv::Matx33f* H = nullptr;
 };
 
-static void fitEyeModel(eye::EyeModelEstimator &fitter, cv::Mat &image, eye::EyeModel &eye, bool isRight, const cv::Matx33f *prewarp=nullptr)
+static void fitEyeModel(eye::EyeModelEstimator& fitter, cv::Mat& image, eye::EyeModel& eye, bool isRight, const cv::Matx33f* prewarp = nullptr)
 {
     Warper warper(image, eye, prewarp);
     { // First scope provides padding transformation
-        static const float targetAspectRatio = 4.0/3.0;
+        static const float targetAspectRatio = 4.0 / 3.0;
         Flopper flopper(image, eye, isRight);
         { // Second scope provides LEFT vs RIGHT:
             Padder padder(flopper, eye, targetAspectRatio);
@@ -159,28 +167,30 @@ DRISHTI_END_NAMESPACE(eye)
 DRISHTI_END_NAMESPACE(drishti)
 
 // Use drishti_main to support cross platform interface:
-int drishti_main(int argc, char **argv)
+int drishti_main(int argc, char** argv)
 {
     const auto argumentCount = argc;
-    
+
     // Instantiate line logger:
     auto logger = drishti::core::Logger::create("drishti-eye");
-    
+
     // ############################
     // ### Command line parsing ###
     // ############################
-    
+
     std::string sInput, sOutput, sModel, sPrewarp;
     int threads = -1;
     bool doJson = true;
     bool doAnnotation = false;
-    bool isRight=false;
-    bool isLeft=false;
+    bool isRight = false;
+    bool isLeft = false;
     bool doLabels = false;
-    
+
     cv::Matx33f prewarp = cv::Matx33f::eye();
-    
+
     cxxopts::Options options("drishti-eye", "Command line interface for eye model fitting");
+
+    // clang-format off
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
@@ -193,6 +203,7 @@ int drishti_main(int argc, char **argv)
         ("p,prewarp", "Prewarp", cxxopts::value<std::string>(sPrewarp))
         ("L,labels", "Generate label image", cxxopts::value<bool>(doLabels))
         ("h,help", "Print help message");
+    // clang-format on    
     
     options.parse(argc, argv);
     

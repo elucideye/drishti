@@ -8,9 +8,9 @@
 
 */
 
-#ifndef DEVICE_H_
-#define DEVICE_H_
+#ifndef __drishti_qt_facefilter_Device_h__
+#define __drishti_qt_facefilter_Device_h__
 
 void adjustScreen(float value);
 
-#endif // DEVICE_H_
+#endif // __drishti_qt_facefilter_Device_h__

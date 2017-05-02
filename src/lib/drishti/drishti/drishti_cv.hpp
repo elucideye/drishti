@@ -24,13 +24,13 @@
 _DRISHTI_SDK_BEGIN
 
 template <typename T1, typename T2>
-cv::Mat_<T2> drishtiToCv(const Image<T1> &src)
+cv::Mat_<T2> drishtiToCv(const Image<T1>& src)
 {
     return cv::Mat_<T2>(int(src.getRows()), int(src.getCols()), const_cast<T2*>(src.template ptr<T2>()), src.getStride());
 }
 
 template <typename T1, typename T2>
-Image<T2> cvToDrishti(const cv::Mat_<T1> &src)
+Image<T2> cvToDrishti(const cv::Mat_<T1>& src)
 {
     return Image<T2>(src.rows, src.cols, const_cast<T2*>(src.template ptr<T2>()), src.step[0]);
 }
@@ -38,13 +38,13 @@ Image<T2> cvToDrishti(const cv::Mat_<T1> &src)
 // Rect
 
 template <typename T>
-inline cv::Rect drishtiToCv(const drishti::sdk::Rect<T> &r)
+inline cv::Rect drishtiToCv(const drishti::sdk::Rect<T>& r)
 {
     return cv::Rect_<T>(r.x, r.y, r.width, r.height);
 }
 
 template <typename T>
-inline drishti::sdk::Recti cvToDrishti(const cv::Rect_<T> &r)
+inline drishti::sdk::Recti cvToDrishti(const cv::Rect_<T>& r)
 {
     return drishti::sdk::Rect<T>(r.x, r.y, r.width, r.height);
 }
@@ -52,71 +52,69 @@ inline drishti::sdk::Recti cvToDrishti(const cv::Rect_<T> &r)
 // Size
 
 template <typename T>
-inline cv::Size drishtiToCv(const drishti::sdk::Size2<T> &r)
+inline cv::Size drishtiToCv(const drishti::sdk::Size2<T>& r)
 {
     return cv::Size_<T>(r.width, r.height);
 }
 
 template <typename T>
-inline drishti::sdk::Size2<T> cvToDrishti(const cv::Size_<T> &r)
+inline drishti::sdk::Size2<T> cvToDrishti(const cv::Size_<T>& r)
 {
     return drishti::sdk::Size2<T>(r.width, r.height);
 }
 
 // Point
 
-inline cv::Point2f drishtiToCv(const drishti::sdk::Vec2f &v)
+inline cv::Point2f drishtiToCv(const drishti::sdk::Vec2f& v)
 {
     return cv::Point2f(v[0], v[1]);
 }
 
-inline drishti::sdk::Vec2f cvToDrishti(const cv::Point2f &p)
+inline drishti::sdk::Vec2f cvToDrishti(const cv::Point2f& p)
 {
     return drishti::sdk::Vec2f(p.x, p.y);
 }
 
-inline cv::Point3f drishtiToCv(const drishti::sdk::Vec3f &v)
+inline cv::Point3f drishtiToCv(const drishti::sdk::Vec3f& v)
 {
     return cv::Point3f(v[0], v[1], v[2]);
 }
 
-inline drishti::sdk::Vec3f cvToDrishti(const cv::Point3f &p)
+inline drishti::sdk::Vec3f cvToDrishti(const cv::Point3f& p)
 {
     return drishti::sdk::Vec3f(p.x, p.y, p.z);
 }
 
 // vector<Point>
 
-template <std::size_t N=128>
-inline std::vector<cv::Point2f> drishtiToCv(const Array<drishti::sdk::Vec2f,N> &v)
+template <std::size_t N = 128>
+inline std::vector<cv::Point2f> drishtiToCv(const Array<drishti::sdk::Vec2f, N>& v)
 {
     std::vector<cv::Point2f> p(v.size());
 
 #ifdef _MSC_VER
-	// MSVC standard library pecularities require specialization of iterator_traits
-	// for custom iterators that are not derived from std::iterator, since this is
-	// a lightweight interface class, we simply avoid the use of MSVC standard library
-	// calls here:
-	// https://groups.google.com/forum/#!topic/microsoft.public.vc.stl/4BTPkpGhzDQ
-	for (int i = 0; i < v.size(); i++)
-	{
-		p[i] = drishtiToCv(v[i]);
-	}
+    // MSVC standard library pecularities require specialization of iterator_traits
+    // for custom iterators that are not derived from std::iterator, since this is
+    // a lightweight interface class, we simply avoid the use of MSVC standard library
+    // calls here:
+    // https://groups.google.com/forum/#!topic/microsoft.public.vc.stl/4BTPkpGhzDQ
+    for (int i = 0; i < v.size(); i++)
+    {
+        p[i] = drishtiToCv(v[i]);
+    }
 #else
-	std::transform(v.begin(), v.end(), p.begin(), [](const drishti::sdk::Vec2f &v)
-	{
-		return drishtiToCv(v);
-	});
+    std::transform(v.begin(), v.end(), p.begin(), [](const drishti::sdk::Vec2f& v) {
+        return drishtiToCv(v);
+    });
 #endif
     return p;
 }
 
-template <std::size_t N=128>
-inline Array<drishti::sdk::Vec2f, N> cvToDrishti(const std::vector<cv::Point2f> &p)
+template <std::size_t N = 128>
+inline Array<drishti::sdk::Vec2f, N> cvToDrishti(const std::vector<cv::Point2f>& p)
 {
     Array<drishti::sdk::Vec2f, N> v(p.size());
-    std::transform(p.begin(), p.end(), v.begin(), [](const cv::Point2f &p)
-    {
+    std::transform(p.begin(), p.end(), v.begin(), [](const cv::Point2f& p) {
         return cvToDrishti(p);
     });
     return v;
@@ -124,7 +122,7 @@ inline Array<drishti::sdk::Vec2f, N> cvToDrishti(const std::vector<cv::Point2f> 
 
 // Ellipse
 
-inline cv::RotatedRect drishtiToCv(const drishti::sdk::Eye::Ellipse &src)
+inline cv::RotatedRect drishtiToCv(const drishti::sdk::Eye::Ellipse& src)
 {
     cv::RotatedRect ellipse;
     ellipse.center = { src.center[0], src.center[1] };
@@ -133,7 +131,7 @@ inline cv::RotatedRect drishtiToCv(const drishti::sdk::Eye::Ellipse &src)
     return ellipse;
 }
 
-inline drishti::sdk::Eye::Ellipse cvToDrishti(const cv::RotatedRect &src)
+inline drishti::sdk::Eye::Ellipse cvToDrishti(const cv::RotatedRect& src)
 {
     drishti::sdk::Eye::Ellipse ellipse;
     ellipse.center = { src.center.x, src.center.y };

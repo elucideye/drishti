@@ -18,31 +18,31 @@
 #include <string>
 #include <vector>
 
-// *INDENT-OFF*
+// clang-format off
 namespace drishti { namespace ml { class ObjectDetector; } };
 namespace drishti { namespace ml { class ShapeEstimator; } };
 namespace drishti { namespace eye { class EyeModelEstimator; } };
-// *INDENT-ON*
+// clang-format on
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
 class FaceDetectorFactory
 {
 public:
-    
     FaceDetectorFactory() {}
-    
+
     FaceDetectorFactory(
-        const std::string &sFaceDetector,
-        const std::vector<std::string> &sFaceRegressors,
-        const std::string &sEyeRegressor,
-        const std::string &sFaceDetectorMean)
-    : sFaceDetector(sFaceDetector)
-    , sFaceRegressors(sFaceRegressors)
-    , sEyeRegressor(sEyeRegressor)
-    , sFaceDetectorMean(sFaceDetectorMean)
-    {}
-    
+        const std::string& sFaceDetector,
+        const std::vector<std::string>& sFaceRegressors,
+        const std::string& sEyeRegressor,
+        const std::string& sFaceDetectorMean)
+        : sFaceDetector(sFaceDetector)
+        , sFaceRegressors(sFaceRegressors)
+        , sEyeRegressor(sEyeRegressor)
+        , sFaceDetectorMean(sFaceDetectorMean)
+    {
+    }
+
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
     virtual std::unique_ptr<drishti::ml::ShapeEstimator> getInnerFaceEstimator();
     virtual std::unique_ptr<drishti::ml::ShapeEstimator> getOuterFaceEstimator();
@@ -58,33 +58,33 @@ public:
 class FaceDetectorFactoryStream : public FaceDetectorFactory
 {
 public:
-
     FaceDetectorFactoryStream() {}
-    
+
     FaceDetectorFactoryStream(
-        std::istream *iFaceDetector,
-        std::vector<std::istream*> &iFaceRegressors,
-        std::istream *iEyeRegressor,
-        std::istream *iFaceDetectorMean)
-    : iFaceDetector(iFaceDetector)
-    , iFaceRegressors(iFaceRegressors)
-    , iEyeRegressor(iEyeRegressor)
-    , iFaceDetectorMean(iFaceDetectorMean)
-    {}
-        
+        std::istream* iFaceDetector,
+        std::vector<std::istream*>& iFaceRegressors,
+        std::istream* iEyeRegressor,
+        std::istream* iFaceDetectorMean)
+        : iFaceDetector(iFaceDetector)
+        , iFaceRegressors(iFaceRegressors)
+        , iEyeRegressor(iEyeRegressor)
+        , iFaceDetectorMean(iFaceDetectorMean)
+    {
+    }
+
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
     virtual std::unique_ptr<drishti::ml::ShapeEstimator> getInnerFaceEstimator();
     virtual std::unique_ptr<drishti::ml::ShapeEstimator> getOuterFaceEstimator();
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
     virtual drishti::face::FaceModel getMeanFace();
 
-    std::istream *iFaceDetector = nullptr;
-    std::vector<std::istream *> iFaceRegressors;
-    std::istream *iEyeRegressor = nullptr;
-    std::istream *iFaceDetectorMean = nullptr;    
+    std::istream* iFaceDetector = nullptr;
+    std::vector<std::istream*> iFaceRegressors;
+    std::istream* iEyeRegressor = nullptr;
+    std::istream* iFaceDetectorMean = nullptr;
 };
 
-std::ostream & operator <<(std::ostream &os, const FaceDetectorFactory &factory);
+std::ostream& operator<<(std::ostream& os, const FaceDetectorFactory& factory);
 
 DRISHTI_FACE_NAMESPACE_END
 

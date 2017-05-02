@@ -22,7 +22,7 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 // http://coliru.stacked-crooked.com/view?id=33b305c4fa7eb1f3bd133e829e3bf82e-93e6c6235a92d0c233f44beab03470ad
 
 namespace qi = boost::spirit::qi;
-using Column  = std::string;
+using Column = std::string;
 using Columns = std::vector<Column>;
 using CsvLine = Columns;
 using CsvFile = std::vector<CsvLine>;
@@ -30,23 +30,25 @@ using CsvFile = std::vector<CsvLine>;
 template <typename It>
 struct CsvGrammar : qi::grammar<It, CsvFile(), qi::blank_type>
 {
-    CsvGrammar() : CsvGrammar::base_type(start)
+    CsvGrammar()
+        : CsvGrammar::base_type(start)
     {
         using namespace qi;
 
         static const char colsep = ',';
 
-        start  = -line % eol;
-        line   = column % colsep;
+        start = -line % eol;
+        line = column % colsep;
         column = quoted | *~char_(colsep);
         quoted = '"' >> *("\"\"" | ~char_('"')) >> '"';
 
         BOOST_SPIRIT_DEBUG_NODES((start)(line)(column)(quoted));
     }
+
 private:
     qi::rule<It, CsvFile(), qi::blank_type> start;
     qi::rule<It, CsvLine(), qi::blank_type> line;
-    qi::rule<It, Column(),  qi::blank_type> column;
+    qi::rule<It, Column(), qi::blank_type> column;
     qi::rule<It, std::string()> quoted;
 };
 

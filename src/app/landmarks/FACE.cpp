@@ -24,7 +24,6 @@
 
 // cereal:
 
-
 #define FACE_DRAW_WITH_EYES 0
 #define FACE_SHOW_POINTS 0
 

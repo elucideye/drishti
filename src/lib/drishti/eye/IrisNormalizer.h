@@ -24,15 +24,15 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 class IrisNormalizer
 {
 public:
-
-    using Ray=std::array<cv::Point2f, 2>;
-    using Rays=std::vector<Ray>;
+    using Ray = std::array<cv::Point2f, 2>;
+    using Rays = std::vector<Ray>;
 
     IrisNormalizer();
 
-    cv::Size createRays(const EyeModel &eye, const cv::Size &size, Rays &rayPixels, Rays &rayTexels, int padding=0) const;
-    void warpIris(const cv::Mat &crop, const cv::Mat1b &mask, const cv::Size &paddedSize, Rays &rayPixels, Rays &rayTexels, NormalizedIris &code, int padding=0) const;
-    void operator()(const cv::Mat &crop, const EyeModel &eye, const cv::Size &size, NormalizedIris &code, int padding=0) const;
+    cv::Size createRays(const EyeModel& eye, const cv::Size& size, Rays& rayPixels, Rays& rayTexels, int padding = 0) const;
+    void warpIris(const cv::Mat& crop, const cv::Mat1b& mask, const cv::Size& paddedSize, Rays& rayPixels, Rays& rayTexels, NormalizedIris& code, int padding = 0) const;
+    void operator()(const cv::Mat& crop, const EyeModel& eye, const cv::Size& size, NormalizedIris& code, int padding = 0) const;
+
 protected:
 };
 

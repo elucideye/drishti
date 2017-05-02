@@ -10,14 +10,14 @@ class VideoSourceApple : public VideoSourceCV
 {
 public:
     class Impl;
-    
-    VideoSourceApple(const std::string &filename);
+
+    VideoSourceApple(const std::string& filename);
     ~VideoSourceApple();
-    virtual Frame operator()(int i=-1);
+    virtual Frame operator()(int i = -1);
     virtual bool good() const;
     virtual std::size_t count() const;
     virtual bool isRandomAccess() const { return false; }
-    
+
 protected:
     std::unique_ptr<Impl> m_impl;
 };

@@ -12,7 +12,7 @@
 
 BEGIN_OGLES_GPGPU
 
-// *INDENT-OFF*
+// clang-format off
 const char * BinomialProc::fshaderBinomialSrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -50,4 +50,4 @@ const char * BinomialProc::fshaderBinomialSrc = OG_TO_STR
     gl_FragColor = final;
 });
 END_OGLES_GPGPU
-// *INDENT-ON*
+// clang-format on

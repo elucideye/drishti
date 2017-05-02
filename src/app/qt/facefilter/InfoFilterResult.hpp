@@ -37,7 +37,7 @@
 
 #include <QString>
 
-class InfoFilterResult: public QObject
+class InfoFilterResult : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QSize frameResolution READ frameResolution)

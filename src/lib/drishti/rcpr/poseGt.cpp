@@ -21,8 +21,8 @@
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
-static Matx33Real getPose( const Vector1d &phi  );
-static std::vector<uint32_t> xsToInds(const Matx33Real &HS, const PointVec &xs, int w, int h, int nChn, bool doTranspose, int stride);
+static Matx33Real getPose(const Vector1d& phi);
+static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, bool doTranspose, int stride);
 
 // function part = createPart( parent, wts )
 // % Create single part for model (parent==0 implies root).
@@ -34,60 +34,48 @@ static std::vector<uint32_t> xsToInds(const Matx33Real &HS, const PointVec &xs, 
 // end
 // end
 
-int createPart(int parent, CPR::Model::Parts &part)
+int createPart(int parent, CPR::Model::Parts& part)
 {
     CV_Assert(parent == 0); // for now, just one part
 
-    part.prn =  { "prn", parent };
-    part.lks =
-        {
-            "lks",
-            {
-                static_cast<RealType>(0.0),
-                static_cast<RealType>(0.0),
-                static_cast<RealType>(0.0),
-                static_cast<RealType>(0.0),
-                static_cast<RealType>(1.0f)
-            }
-        };
-    part.mus =
-        {
-            "mus",
-            {
-                static_cast<RealType>(100.0),
-                static_cast<RealType>(100.0),
-                static_cast<RealType>(0.0),
-                static_cast<RealType>(6.0),
-                static_cast<RealType>(-1.0)
-            }
-        };
-    part.sigs =
-        {
-            "sigs",
-            {
-                static_cast<RealType>(10.0),
-                static_cast<RealType>(10.0),
-                static_cast<RealType>(M_PI),
-                static_cast<RealType>(0.5),
-                static_cast<RealType>(0.5)
-            }
-        };
-    part.wts =
-        {
-            "wts",
-            {
-                static_cast<RealType>(0.313),
-                static_cast<RealType>(0.342),
-                static_cast<RealType>(11.339),
-                static_cast<RealType>(13.059),
-                static_cast<RealType>(48.0)
-            }
-        };
+    part.prn = { "prn", parent };
+    part.lks = {
+        "lks",
+        { static_cast<RealType>(0.0),
+            static_cast<RealType>(0.0),
+            static_cast<RealType>(0.0),
+            static_cast<RealType>(0.0),
+            static_cast<RealType>(1.0f) }
+    };
+    part.mus = {
+        "mus",
+        { static_cast<RealType>(100.0),
+            static_cast<RealType>(100.0),
+            static_cast<RealType>(0.0),
+            static_cast<RealType>(6.0),
+            static_cast<RealType>(-1.0) }
+    };
+    part.sigs = {
+        "sigs",
+        { static_cast<RealType>(10.0),
+            static_cast<RealType>(10.0),
+            static_cast<RealType>(M_PI),
+            static_cast<RealType>(0.5),
+            static_cast<RealType>(0.5) }
+    };
+    part.wts = {
+        "wts",
+        { static_cast<RealType>(0.313),
+            static_cast<RealType>(0.342),
+            static_cast<RealType>(11.339),
+            static_cast<RealType>(13.059),
+            static_cast<RealType>(48.0) }
+    };
 
     return 0;
 }
 
-int createModel(int type, CPR::Model &model)
+int createModel(int type, CPR::Model& model)
 {
     CPR::Model::Parts parts;
     createPart(0, parts);
@@ -121,25 +109,25 @@ int createModel(int type, CPR::Model &model)
 // ########
 
 using FtrData = CPR::RegModel::Regs::FtrData;
-int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPair &Im, const FtrData &ftrData, CPR::FeaturesResult &result, bool useNPD)
+int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPair& Im, const FtrData& ftrData, CPR::FeaturesResult& result, bool useNPD)
 {
-    const auto &I = Im.getImage();
+    const auto& I = Im.getImage();
     int h = I.rows;
     int w = I.cols;
     int stride = I.step1();
     int nChn = I.channels();
 
     // compute image inds from xs adjusted for pose
-    Matx33Real HS = getPose( phi ); // just single component model for now (don't need multiple parts)
+    Matx33Real HS = getPose(phi); // just single component model for now (don't need multiple parts)
 
-    const auto &xs = *(ftrData.xs);
+    const auto& xs = *(ftrData.xs);
 
     std::vector<cv::Point> pts;
-    auto && inds = xsToInds(HS, xs, w, h, nChn, DRISHTI_CPR_TRANSPOSE, stride); // TODO: rowStride != cols
+    auto&& inds = xsToInds(HS, xs, w, h, nChn, DRISHTI_CPR_TRANSPOSE, stride); // TODO: rowStride != cols
 
 #if DRISHTI_CPR_DO_FEATURE_MASK
-    const auto &M = Im.getMask();
-    auto &mask = result.ftrMask;
+    const auto& M = Im.getMask();
+    auto& mask = result.ftrMask;
 #endif
 
 #if DRISHTI_CPR_DO_FTR_DEBUG
@@ -147,23 +135,23 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
 #endif
 
     // Compute features:
-    CV_Assert( !(inds.size() % 2) );
-    auto &ftrs = result.ftrs;
+    CV_Assert(!(inds.size() % 2));
+    auto& ftrs = result.ftrs;
 
     int size = (w * h);
-    for(auto &i : inds)
+    for (auto& i : inds)
     {
-        i = std::max(std::min(int(i), int(size-1)), 0);
+        i = std::max(std::min(int(i), int(size - 1)), 0);
     }
 
-    ftrs.resize(inds.size()/2);
-    for(int j = 0, i = 0; i < inds.size(); j++, i+= 2)
+    ftrs.resize(inds.size() / 2);
+    for (int j = 0, i = 0; i < inds.size(); j++, i += 2)
     {
-        double f1 = double(I.ptr()[inds[i+0]]) / 255.0;
-        double f2 = double(I.ptr()[inds[i+1]]) / 255.0;
+        double f1 = double(I.ptr()[inds[i + 0]]) / 255.0;
+        double f2 = double(I.ptr()[inds[i + 1]]) / 255.0;
 
         double d;
-        if(useNPD) // possibly use functor (opt)
+        if (useNPD) // possibly use functor (opt)
         {
             double denom = (f1 + f2);
             d = (denom > 0.0) ? ((f1 - f2) / denom) : 0.0; // NPD
@@ -173,27 +161,27 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
             d = (f1 - f2);
         }
 
-        ftrs[j] =  d;
+        ftrs[j] = d;
 
 #if DRISHTI_CPR_DO_FEATURE_MASK
         // Store occlusion estimate
         // TODO: test impact of full and partial occlusion
-        if(!M.empty())
+        if (!M.empty())
         {
-            uint8_t m1 = M.ptr()[inds[i+0]];
-            uint8_t m2 = M.ptr()[inds[i+1]];
+            uint8_t m1 = M.ptr()[inds[i + 0]];
+            uint8_t m2 = M.ptr()[inds[i + 1]];
             uint8_t valid = m1 & m2;
-            mask.push_back( valid );
+            mask.push_back(valid);
 
-            if(!valid)
+            if (!valid)
             {
                 ftrs[j] = NAN;
             }
 
 #if DRISHTI_CPR_DO_FTR_DEBUG
             m1 = m2 = 255;
-            tmp1.ptr()[inds[i+0]] = 255 * int(m1 && m2);
-            tmp1.ptr()[inds[i+1]] = 255 * int(m1 && m2);
+            tmp1.ptr()[inds[i + 0]] = 255 * int(m1 && m2);
+            tmp1.ptr()[inds[i + 1]] = 255 * int(m1 && m2);
 #endif
         }
 #endif
@@ -201,9 +189,9 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
 
 #if DRISHTI_CPR_DO_FTR_DEBUG
     cv::imshow("tmp1", tmp1); // opt
-    cv::imshow("M", M); // opt
-    cv::imshow("I", I); // opt
-    cv::waitKey(0); // opt
+    cv::imshow("M", M);       // opt
+    cv::imshow("I", I);       // opt
+    cv::waitKey(0);           // opt
 #endif
 
     // Create V for visualization:
@@ -258,37 +246,37 @@ int featuresComp(const CPR::Model &model, const Vector1d &phi, const ImageMaskPa
 // ftrData=struct('type',type,'F',F,'nChn',nChn,'xs',xs,'pids',pids);
 // end
 
-int ftrsGen(const CPR::Model &model, const CPR::CprPrm::FtrPrm &ftrPrmIn, FtrData &ftrData, float lambda)
+int ftrsGen(const CPR::Model& model, const CPR::CprPrm::FtrPrm& ftrPrmIn, FtrData& ftrData, float lambda)
 {
     CPR::CprPrm::FtrPrm dfs, ftrPrm;
-    dfs.type = {"type", 2};
-    dfs.F = {"F", 100};
-    dfs.radius = {"radius", 2};
-    dfs.nChn = {"nChn", 1};
+    dfs.type = { "type", 2 };
+    dfs.F = { "F", 100 };
+    dfs.radius = { "radius", 2 };
+    dfs.nChn = { "nChn", 1 };
 
     ftrPrm = ftrPrmIn;
     ftrPrm.merge(dfs, 1);
 
-    const auto &type = *(ftrPrm.type);
-    const auto &F = *(ftrPrm.F);
-    const auto &radius = *(ftrPrm.radius);
-    const auto &nChn = *(ftrPrm.nChn);
+    const auto& type = *(ftrPrm.type);
+    const auto& F = *(ftrPrm.F);
+    const auto& radius = *(ftrPrm.radius);
+    const auto& nChn = *(ftrPrm.nChn);
 
     int F1 = F * type;
     //std::cout << *(ftrData.xs) << std::endl;
 
     // currently only one model part:
-    ftrData.xs = { "xs",  PointVec() };
+    ftrData.xs = { "xs", PointVec() };
 
 #if DRISHTI_CPR_USE_FEATURE_SEPARATION_PRIOR
     // Generate a bunch of pixels:
     std::vector<cv::Point2f> points;
     cv::RNG rng;
-    while(points.size() < (F1*4))
+    while (points.size() < (F1 * 4))
     {
         rng.state = rand();
-        cv::Point2f p( rng.uniform(-1.0, +1.0), rng.uniform(-1.0, +1.0) );
-        if(cv::norm(p) < 1.0)
+        cv::Point2f p(rng.uniform(-1.0, +1.0), rng.uniform(-1.0, +1.0));
+        if (cv::norm(p) < 1.0)
         {
             points.push_back(p);
         }
@@ -299,25 +287,24 @@ int ftrsGen(const CPR::Model &model, const CPR::CprPrm::FtrPrm &ftrPrmIn, FtrDat
     float scale = radius / 2.0;
 
     cv::Mat1b mask(points.size(), points.size(), uint8_t(0));
-    while(PointVecSize(*ftrData.xs) < F1)
+    while (PointVecSize(*ftrData.xs) < F1)
     {
         int idx1, idx2;
         do
         {
             idx1 = rng.uniform(0, int(points.size()));
             idx2 = rng.uniform(0, int(points.size()));
-            if(idx1 > idx2)
+            if (idx1 > idx2)
             {
-                std::swap(idx1,idx2);
+                std::swap(idx1, idx2);
             }
 
             const double dist = cv::norm(points[idx1] - points[idx2]);
-            accept_prob = std::exp(-dist/lambda);
-        }
-        while((idx1 == idx2) || !(accept_prob > rng.uniform(0.0, 1.0)) || mask(idx1, idx2));
+            accept_prob = std::exp(-dist / lambda);
+        } while ((idx1 == idx2) || !(accept_prob > rng.uniform(0.0, 1.0)) || mask(idx1, idx2));
 
-        ftrData.xs->push_back( points[idx1] * scale );
-        ftrData.xs->push_back( points[idx2] * scale );
+        ftrData.xs->push_back(points[idx1] * scale);
+        ftrData.xs->push_back(points[idx2] * scale);
 
         mask(idx1, idx2) = 1;
 
@@ -328,14 +315,14 @@ int ftrsGen(const CPR::Model &model, const CPR::CprPrm::FtrPrm &ftrPrmIn, FtrDat
     int F2 = std::max(100.0, std::ceil(double(F1) * 1.5));
 
     // Uniform features
-    while(PointVecSize(*ftrData.xs) < F1)
+    while (PointVecSize(*ftrData.xs) < F1)
     {
         cv::Mat xs(F2, 2, CV_REAL_TYPE);
         cv::RNG().fill(xs, cv::RNG::UNIFORM, -1.0, +1.0);
-        for(int i = 0; (i < F2) && (PointVecSize(*ftrData.xs) < F1); i++)
+        for (int i = 0; (i < F2) && (PointVecSize(*ftrData.xs) < F1); i++)
         {
-            cv::Point_<RealType>  p = xs.at<cv::Point_<RealType>>(i, 0);
-            if(cv::norm(p) <= 1.0)
+            cv::Point_<RealType> p = xs.at<cv::Point_<RealType>>(i, 0);
+            if (cv::norm(p) <= 1.0)
             {
                 ftrData.xs->push_back(p * RealType(radius / RealType(2.0)));
             }
@@ -346,18 +333,18 @@ int ftrsGen(const CPR::Model &model, const CPR::CprPrm::FtrPrm &ftrPrmIn, FtrDat
     //std::cout << *(ftrData.xs) << std::endl;
 
     CV_Assert(nChn == 1); // for now just one channel
-    ftrData.type = {"type", type};
-    ftrData.F = {"F", F};
-    ftrData.nChn = {"nChn", nChn};
-    if(ftrData.pids->empty())
+    ftrData.type = { "type", type };
+    ftrData.F = { "F", F };
+    ftrData.nChn = { "nChn", nChn };
+    if (ftrData.pids->empty())
     {
-        ftrData.pids = {"pids", {0.0, RealType(F1)}};
+        ftrData.pids = { "pids", { 0.0, RealType(F1) } };
     }
 
     return 0;
 }
 
-static Matx33Real getPose( const Vector1d &phi  )
+static Matx33Real getPose(const Vector1d& phi)
 {
     // Currently only 1 part is supported in parametric mode:
     double x, y, ang, scl, asp, c, s, t;
@@ -371,7 +358,7 @@ static Matx33Real getPose( const Vector1d &phi  )
     s = std::sin(-ang) * t;
     c = std::cos(-ang) * t;
     t = std::pow(2.0, asp);
-    Matx33Real HS(c, -s*t, x, s, c*t, y, 0, 0, 1);
+    Matx33Real HS(c, -s * t, x, s, c * t, y, 0, 0, 1);
 
     return HS;
 }
@@ -382,13 +369,13 @@ static int index(RealType x, RealType y, int w, int h, int stride)
 #if DRISHTI_CPR_TRANSPOSE
     RealType cs = std::max(RealType(1.0), std::min(RealType(h), RealType(x))); // note: tranpose
     RealType rs = std::max(RealType(1.0), std::min(RealType(w), RealType(y)));
-    return (int(cs-1.0+0.5) * w + int(rs+0.5)) - 1; // base zero
+    return (int(cs - 1.0 + 0.5) * w + int(rs + 0.5)) - 1; // base zero
 #else
-    return std::min(int(y+0.5f), h-1) * stride + std::min(int(x+0.5f), w-1);
+    return std::min(int(y + 0.5f), h - 1) * stride + std::min(int(x + 0.5f), w - 1);
 #endif
 }
 
-static std::vector<uint32_t> xsToInds(const Matx33Real &HS, const PointVec &xs, int w, int h, int nChn, bool doTranspose, int stride)
+static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, bool doTranspose, int stride)
 {
     CV_Assert(nChn == 1);
 
@@ -399,38 +386,38 @@ static std::vector<uint32_t> xsToInds(const Matx33Real &HS, const PointVec &xs, 
 #endif
 
     std::vector<uint32_t> inds(n);
-    for(int i = 0; i < inds.size(); i++)
+    for (int i = 0; i < inds.size(); i++)
     {
 #if DRISHTI_CPR_DO_LEAN
-        cv::Vec<RealType,2> p = xs[i];
+        cv::Vec<RealType, 2> p = xs[i];
 #else
-        cv::Vec<RealType,2> p = xs.at<cv::Vec<RealType,2>>(i,0);
+        cv::Vec<RealType, 2> p = xs.at<cv::Vec<RealType, 2>>(i, 0);
 #endif
-        cv::Point3_<RealType> q = HS * cv::Point3_<RealType>(p[0], p[1], RealType(1.0) );
+        cv::Point3_<RealType> q = HS * cv::Point3_<RealType>(p[0], p[1], RealType(1.0));
         inds[i] = index(q.x, q.y, w, h, stride);
     }
     return inds;
 }
 
-Vector1d identity(const CPR::Model &model)
+Vector1d identity(const CPR::Model& model)
 {
     return Vector1d(5, 0.0);
 }
 
-Vector1d compose(const CPR::Model &mnodel, const Vector1d &phis0, const Vector1d &phis1 )
+Vector1d compose(const CPR::Model& mnodel, const Vector1d& phis0, const Vector1d& phis1)
 {
     bool isNew = true;
-    Vector1d phis(phis0.size(),0);
-    for(int i = 0; i < phis0.size(); i++)
+    Vector1d phis(phis0.size(), 0);
+    for (int i = 0; i < phis0.size(); i++)
     {
         phis[i] = phis0[i] + phis1[i];
-        if(phis0[i] != RealType(0.0))
+        if (phis0[i] != RealType(0.0))
         {
             isNew = false;
         }
     }
 
-    if(!isNew)
+    if (!isNew)
     {
         Matx33Real H0 = phisToHs(phis0);
         Matx33Real H1 = phisToHs(phis1);
@@ -456,12 +443,12 @@ Vector1d compose(const CPR::Model &mnodel, const Vector1d &phis0, const Vector1d
 // phis(:,3:3:R) = normAng(phis(:,3:3:R),2*pi);
 // end
 
-bool any(const Vector1d &phi)
+bool any(const Vector1d& phi)
 {
     bool status = false;
-    for(int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
-        if(phi[i] != 0.0)
+        if (phi[i] != 0.0)
         {
             status = true;
             break;
@@ -474,13 +461,13 @@ bool any(const Vector1d &phi)
 
 // A\B is roughly the same as inv(A)*B
 
-Vector1d inverse(const CPR::Model &mnodel, const Vector1d &phis0 )
+Vector1d inverse(const CPR::Model& mnodel, const Vector1d& phis0)
 {
     Vector1d phis = (phis0 * Vector1d::value_type(-1.0));
-    if( any(phis0) )
+    if (any(phis0))
     {
         Vector1d phis1 = phisFrHs(phisToHs(phis0).inv());
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             phis[i] = phis1[i];
         }
@@ -489,17 +476,16 @@ Vector1d inverse(const CPR::Model &mnodel, const Vector1d &phis0 )
     return phis;
 }
 
-Vector1d phisFrHs( const Matx33Real &Hs)
+Vector1d phisFrHs(const Matx33Real& Hs)
 {
     double a, ss, sc, s, x, y;
-    a = std::atan2(Hs(1,0), Hs(0,0));
-    ss = Hs(0,0);
-    sc = Hs(0,1);
-    s = core::logN(std::sqrt(sc*sc+ss*ss),2.0);
-    x = Hs(0,2);
-    y = Hs(1,2);
-    Vector1d phis
-    {
+    a = std::atan2(Hs(1, 0), Hs(0, 0));
+    ss = Hs(0, 0);
+    sc = Hs(0, 1);
+    s = core::logN(std::sqrt(sc * sc + ss * ss), 2.0);
+    x = Hs(0, 2);
+    y = Hs(1, 2);
+    Vector1d phis{
         static_cast<RealType>(x),
         static_cast<RealType>(y),
         static_cast<RealType>(a),
@@ -508,7 +494,7 @@ Vector1d phisFrHs( const Matx33Real &Hs)
     return phis;
 }
 
-Matx33Real phisToHs(const Vector1d &phis)
+Matx33Real phisToHs(const Vector1d& phis)
 {
     double sc = std::pow(2.0, phis[3]);
     double c = std::cos(phis[2]) * sc;
@@ -541,10 +527,10 @@ Matx33Real phisToHs(const Vector1d &phis)
 //  end
 //end
 
-Vector1d compPhiStar(const CPR::Model &model, const EllipseVec &phis)
+Vector1d compPhiStar(const CPR::Model& model, const EllipseVec& phis)
 {
     Vector1d phi(phis.front().size(), 0);
-    for(int i = 0; i < phis.size(); i++)
+    for (int i = 0; i < phis.size(); i++)
     {
         phi += phis[i];
     }
@@ -554,17 +540,17 @@ Vector1d compPhiStar(const CPR::Model &model, const EllipseVec &phis)
     // Now we search over all rotations:
     int M = 1000;
     std::pair<double, double> best(0.0, std::numeric_limits<double>::max());
-    for(int j = 0; j < M; j++)
+    for (int j = 0; j < M; j++)
     {
         double t = (2.0 * M_PI) * double(j) / (M - 1), del = 0.0;
-        for(int i = 0; i < phis.size(); i++)
+        for (int i = 0; i < phis.size(); i++)
         {
             del += std::pow(normAng(phis[i][2] - t, DRISHTI_CPR_ANGLE_RANGE), 2.0);
         }
 
-        if(del < best.second)
+        if (del < best.second)
         {
-            best = {t, del};
+            best = { t, del };
         }
     }
 
@@ -578,16 +564,16 @@ double normAng(double ang, double rng)
 #if 1
     return ang;
 #else
-    ang = (ang/rng)+1000.0;
+    ang = (ang / rng) + 1000.0;
     ang = (ang - std::floor(ang)) * rng;
-    return (ang > (rng/2.0)) ? (ang - rng) : ang;
+    return (ang > (rng / 2.0)) ? (ang - rng) : ang;
 #endif
 }
 
-void print(const Vector1d &p, bool eol)
+void print(const Vector1d& p, bool eol)
 {
     std::cout << "{" << p[0] << ' ' << p[1] << ' ' << p[2] << ' ' << p[3] << ' ' << p[4] << "}";
-    if(eol)
+    if (eol)
     {
         std::cout << std::endl;
     }
@@ -603,10 +589,10 @@ void print(const Vector1d &p, bool eol)
 // ds=sum(dsAll,2)/R;
 //end
 
-Vector1d diff( const Vector1d &phis0, const Vector1d &phis1 )
+Vector1d diff(const Vector1d& phis0, const Vector1d& phis1)
 {
     Vector1d del(phis0.size());
-    for(int i = 0; i < del.size(); i++)
+    for (int i = 0; i < del.size(); i++)
     {
         del[i] = phis0[i] - phis1[i];
     }
@@ -615,50 +601,50 @@ Vector1d diff( const Vector1d &phis0, const Vector1d &phis1 )
     return del;
 }
 
-double dist( const CPR::Model &model, const Vector1d &phis0, const Vector1d &phis1 )
+double dist(const CPR::Model& model, const Vector1d& phis0, const Vector1d& phis1)
 {
     double ds = 0.0;
     Vector1d del = diff(phis0, phis1);
-    for(int i = 0; i < del.size(); i++)
+    for (int i = 0; i < del.size(); i++)
     {
-        ds += std::pow(del[i]*(*model.parts->wts)[i], 2.0);
+        ds += std::pow(del[i] * (*model.parts->wts)[i], 2.0);
     }
 
     return ds / double(del.size());
 }
 
-Vector1d ellipseToPhi(const cv::RotatedRect &e)
+Vector1d ellipseToPhi(const cv::RotatedRect& e)
 {
     float cx = e.center.x;
     float cy = e.center.y;
-    float angle = (e.angle) * M_PI/180.0; // NOTE: -e.angle
-    float scale = core::logN( e.size.width, 2.0f );
-    float aspectRatio = core::logN( e.size.height / e.size.width, 2.0f );
-    return Vector1d { cx, cy, angle, scale, aspectRatio };
+    float angle = (e.angle) * M_PI / 180.0; // NOTE: -e.angle
+    float scale = core::logN(e.size.width, 2.0f);
+    float aspectRatio = core::logN(e.size.height / e.size.width, 2.0f);
+    return Vector1d{ cx, cy, angle, scale, aspectRatio };
 }
 
 // Note: This is for ellipse drawn in transposed image
-cv::RotatedRect phiToEllipse(const Vector1d &phi, bool transpose)
+cv::RotatedRect phiToEllipse(const Vector1d& phi, bool transpose)
 {
     double width = std::pow(2.0, phi[3]);
     cv::Size2f size(width, std::pow(2.0, phi[4]) * width);
-    cv::RotatedRect ellipse(cv::Point2f(phi[0], phi[1]), size, phi[2]*180.0/M_PI);
+    cv::RotatedRect ellipse(cv::Point2f(phi[0], phi[1]), size, phi[2] * 180.0 / M_PI);
 
-    if(transpose)
+    if (transpose)
     {
         // Be explicit and apply transpose here:
         std::swap(ellipse.center.x, ellipse.center.y);
-        ellipse.angle = atan2(std::cos(phi[2]),std::sin(phi[2])) * 180.0/M_PI;
+        ellipse.angle = atan2(std::cos(phi[2]), std::sin(phi[2])) * 180.0 / M_PI;
     }
 
     return ellipse;
 }
 
 #if !DRISHTI_BUILD_MIN_SIZE
-void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, const std::vector<int> &features, float scale, bool doTranspose)
+void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, const std::vector<int>& features, float scale, bool doTranspose)
 {
     // Draw the feature pairs
-    if(scale != 1.f)
+    if (scale != 1.f)
     {
         cv::resize(canvas, canvas, {}, scale, scale, cv::INTER_CUBIC);
     }
@@ -668,24 +654,24 @@ void drawFeatures(cv::Mat &canvas, const PointVec &xs, const Vector1d &phi, cons
     cv::RNG rng;
     rng.state = 100;
 
-    for(const auto &i : features)
+    for (const auto& i : features)
     {
         int k = (i * 2);
-        cv::Scalar color(rng.uniform(0,255), rng.uniform(0,255), rng.uniform(0,255));
+        cv::Scalar color(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 
 #if DRISHTI_CPR_DO_LEAN
-        const cv::Vec<RealType,2> p0 = xs[k+0];
-        const cv::Vec<RealType,2> p1 = xs[k+1];
+        const cv::Vec<RealType, 2> p0 = xs[k + 0];
+        const cv::Vec<RealType, 2> p1 = xs[k + 1];
 #else
-        cv::Vec<RealType,2> p0 = xs.at<cv::Vec<RealType,2>>(k+0,0);
-        cv::Vec<RealType,2> p1 = xs.at<cv::Vec<RealType,2>>(k+1,0);
+        cv::Vec<RealType, 2> p0 = xs.at<cv::Vec<RealType, 2>>(k + 0, 0);
+        cv::Vec<RealType, 2> p1 = xs.at<cv::Vec<RealType, 2>>(k + 1, 0);
 #endif
-        cv::Point3_<RealType> q0 = (Hs * cv::Point3_<RealType>(p0[0], p0[1], 1.0 )) * RealType(scale);
-        cv::Point3_<RealType> q1 = (Hs * cv::Point3_<RealType>(p1[0], p1[1], 1.0 )) * RealType(scale);
+        cv::Point3_<RealType> q0 = (Hs * cv::Point3_<RealType>(p0[0], p0[1], 1.0)) * RealType(scale);
+        cv::Point3_<RealType> q1 = (Hs * cv::Point3_<RealType>(p1[0], p1[1], 1.0)) * RealType(scale);
         cv::Point f0(q0.x, q0.y);
         cv::Point f1(q1.x, q1.y);
 
-        if(doTranspose)
+        if (doTranspose)
         {
             std::swap(f0.x, f0.y);
             std::swap(f1.x, f1.y);

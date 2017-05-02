@@ -20,7 +20,7 @@
 #include <cassert>
 #include <fstream>
 
-inline bool is_cpb(std::istream &is)
+inline bool is_cpb(std::istream& is)
 {
     bool ok = false;
     is.seekg(0, std::ios_base::beg);
@@ -28,22 +28,25 @@ inline bool is_cpb(std::istream &is)
     {
         cereal::PortableBinaryInputArchive ia(is);
         ok = true;
-    } catch (...) { }
-    
+    }
+    catch (...)
+    {
+    }
+
     is.seekg(0, std::ios_base::beg);
     is.clear();
     return ok;
 }
 
 template <typename T>
-void load_cpb(std::istream &is, T &object)
+void load_cpb(std::istream& is, T& object)
 {
     cereal::PortableBinaryInputArchive ia(is);
     ia >> object;
 }
 
 template <typename T>
-void load_cpb(const std::string &filename, T &object)
+void load_cpb(const std::string& filename, T& object)
 {
     std::ifstream ifs(filename, std::ios::binary);
     assert(ifs);
@@ -51,7 +54,7 @@ void load_cpb(const std::string &filename, T &object)
 }
 
 template <typename T>
-void save_cpb(std::ostream &os, T &object)
+void save_cpb(std::ostream& os, T& object)
 {
 #if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
     cereal::PortableBinaryOutputArchive oa(os);
@@ -60,7 +63,7 @@ void save_cpb(std::ostream &os, T &object)
 }
 
 template <typename T>
-void save_cpb(const std::string &filename, T &object)
+void save_cpb(const std::string& filename, T& object)
 {
 #if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
     std::ofstream ofs(filename, std::ios::binary);

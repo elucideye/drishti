@@ -8,13 +8,12 @@
 
 */
 
-#ifndef __landmarks_HELEN_h__
-#define __landmarks_HELEN_h__
+#ifndef __drishti_landmarks_HELEN_h__
+#define __drishti_landmarks_HELEN_h__
 
 #include "landmarks/FACE.h"
 #include <fstream>
 
-FACE::Table parseHELEN(const std::string &filename);
+FACE::Table parseHELEN(const std::string& filename);
 
-#endif // __landmarks_HELEN_h__
-
+#endif // __drishti_landmarks_HELEN_h__

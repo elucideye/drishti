@@ -33,20 +33,19 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class ShapeEstimator
 {
 public:
-
     typedef std::vector<bool> BoolVec;
     typedef std::vector<cv::Point2f> Point2fVec;
 
     virtual ~ShapeEstimator() {}
 
-    virtual void setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
+    virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {
         m_streamLogger = logger;
     }
 
-    virtual int operator()(const cv::Mat &I, const cv::Mat &M, Point2fVec &points, BoolVec &mask) const = 0;
-    virtual int operator()(const cv::Mat &crop, Point2fVec &points, BoolVec &mask) const = 0;
-    virtual int operator()(const cv::Mat &image, const cv::Rect &roi, Point2fVec &points, BoolVec &mask) const;
+    virtual int operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const = 0;
+    virtual int operator()(const cv::Mat& crop, Point2fVec& points, BoolVec& mask) const = 0;
+    virtual int operator()(const cv::Mat& image, const cv::Rect& roi, Point2fVec& points, BoolVec& mask) const;
     virtual std::vector<cv::Point2f> getMeanShape() const
     {
         return std::vector<cv::Point2f>();
@@ -56,20 +55,21 @@ public:
     {
         return false;
     }
-    virtual void setStagesHint(int stages) {};
+    virtual void setStagesHint(int stages){};
     virtual int getStagesHint() const
     {
         return 0;
     }
 
-    virtual void setStagesRepetitionFactor(int x) {};
+    virtual void setStagesRepetitionFactor(int x){};
     virtual int getStagesRepetitionFactor() const
     {
-        return 0;    // 0 == not set
+        return 0; // 0 == not set
     }
 
     // Boost serialization:
-    template<class Archive> void serialize(Archive & ar, const unsigned int version) {}
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version) {}
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };

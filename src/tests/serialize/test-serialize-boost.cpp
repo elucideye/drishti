@@ -3,14 +3,14 @@
 #include <fstream>
 #include <iostream>
 
-int drishti_main(int argc, char **argv)
+int drishti_main(int argc, char** argv)
 {
-    if(argc != 2)
+    if (argc != 2)
     {
         std::cerr << "Usage: " << argv[0] << " filename.out" << std::endl;
         exit(1);
     }
-    
+
     std::string filename = argv[1];
 
     typedef boost::iostreams::zlib_compressor Compressor;
@@ -18,9 +18,9 @@ int drishti_main(int argc, char **argv)
 
     { // Dump the record:
         drishti::Monster monsterSrc = drishti::createMonster();
-        
+
         std::ofstream ofs(filename, std::ios_base::out | std::ios_base::binary);
-        if(ofs)
+        if (ofs)
         {
             boost::iostreams::filtering_stream<boost::iostreams::output> buffer;
             buffer.push(Compressor());
@@ -33,7 +33,7 @@ int drishti_main(int argc, char **argv)
     { // Load the record
         drishti::Monster monsterDst;
         std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
-        if(ifs)
+        if (ifs)
         {
             boost::iostreams::filtering_streambuf<boost::iostreams::input> buffer;
             buffer.push(Decompressor());

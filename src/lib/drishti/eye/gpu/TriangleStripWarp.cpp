@@ -12,7 +12,7 @@
 
 BEGIN_OGLES_GPGPU
 
-// *INDENT-OFF*
+// clang-format off
 const char * TriangleStripWarp::fshaderTriangleSrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -26,9 +26,9 @@ const char * TriangleStripWarp::fshaderTriangleSrc = OG_TO_STR
      vec4 val = texture2D(uInputTex, vTexCoord);
      gl_FragColor = val;
 });
-// *INDENT-ON*
+// clang-format on
 
-// *INDENT-OFF*
+// clang-format off
 //const char *FilterProcBase::vshaderDefault = OG_TO_STR(
 //attribute vec4 aPos;
 //attribute vec2 aTexCoord;
@@ -38,7 +38,7 @@ const char * TriangleStripWarp::fshaderTriangleSrc = OG_TO_STR
 //    gl_Position = aPos;
 //    vTexCoord = aTexCoord;
 //});
-// *INDENT-ON*
+// clang-format on
 
 TriangleStripWarp::TriangleStripWarp() {}
 
@@ -55,7 +55,7 @@ void TriangleStripWarp::filterRenderSetCoords()
     glEnableVertexAttribArray(shParamAPos);
 
     // Destination point in clip space:
-    glVertexAttribPointer(shParamAPos, 2, GL_FLOAT, GL_FALSE, 0, &m_texels[0]);      // [(-1,-1)  (+1,+1)]
+    glVertexAttribPointer(shParamAPos, 2, GL_FLOAT, GL_FALSE, 0, &m_texels[0]); // [(-1,-1)  (+1,+1)]
 
     // Source point in texture space:
     glVertexAttribPointer(shParamATexCoord, 2, GL_FLOAT, GL_FALSE, 0, &m_pixels[0]); // [(0,0)  (1,1)]

@@ -12,23 +12,21 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-FaceModelEstimator::FaceModelEstimator(const sensor::SensorModel &sensor) : m_sensor(sensor)
+FaceModelEstimator::FaceModelEstimator(const sensor::SensorModel& sensor)
+    : m_sensor(sensor)
 {
-
 }
 
-cv::Point3f FaceModelEstimator::getDepth(const DRISHTI_EYE::EyeModel &eyeR, const DRISHTI_EYE::EyeModel &eyeL)
+cv::Point3f FaceModelEstimator::getDepth(const DRISHTI_EYE::EyeModel& eyeR, const DRISHTI_EYE::EyeModel& eyeL)
 {
-    std::array<cv::Point2f, 2> eyes {{ eyeR.irisEllipse.center, eyeL.irisEllipse.center }};
+    std::array<cv::Point2f, 2> eyes{ { eyeR.irisEllipse.center, eyeL.irisEllipse.center } };
     cv::Point3f P = m_sensor.intrinsic().getDepth(eyes, 0.064);
     return P;
 }
 
-cv::Point3f FaceModelEstimator::operator()(const face::FaceModel &face)
+cv::Point3f FaceModelEstimator::operator()(const face::FaceModel& face)
 {
     return getDepth(face.eyeFullR, face.eyeFullL);
 }
 
 DRISHTI_FACE_NAMESPACE_END
-
-

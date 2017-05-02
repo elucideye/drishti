@@ -13,7 +13,7 @@
 
 #include "drishti/graphics/saturation.h"
 
-// *INDENT-OFF*
+// clang-format off
 BEGIN_OGLES_GPGPU
 const char * SaturationProc::fshaderSaturationSrc = OG_TO_STR
 (
@@ -34,4 +34,4 @@ const char * SaturationProc::fshaderSaturationSrc = OG_TO_STR
      gl_FragColor = vec4(d3, 1.0);
  });
 END_OGLES_GPGPU
-// *INDENT-ON*
+// clang-format on

@@ -12,10 +12,10 @@ class VideoSourceStills : public VideoSourceCV
 public:
     class Impl;
 
-    VideoSourceStills(const std::string &filename);
-    VideoSourceStills(const std::vector<std::string> &filenames);
+    VideoSourceStills(const std::string& filename);
+    VideoSourceStills(const std::vector<std::string>& filenames);
     ~VideoSourceStills();
-    virtual Frame operator()(int i=-1);
+    virtual Frame operator()(int i = -1);
     virtual std::size_t count() const;
     virtual bool isRandomAccess() const { return true; }
 

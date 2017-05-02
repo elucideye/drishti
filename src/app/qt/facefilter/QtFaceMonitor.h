@@ -8,8 +8,8 @@
 
 */
 
-#ifndef QT_FACE_MONITOR_H
-#define QT_FACE_MONITOR_H
+#ifndef __drishti_qt_facefilter_QtFaceMonitor_h__
+#define __drishti_qt_facefilter_QtFaceMonitor_h__
 
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/FaceMonitor.h"
@@ -24,36 +24,38 @@
 class QtFaceMonitor : public drishti::hci::FaceMonitor
 {
 public:
+    using TimePoint = HighResolutionClock::time_point;
 
-    using TimePoint = HighResolutionClock::time_point;    
-    
     struct PositionAndTime
     {
         PositionAndTime() {}
-        PositionAndTime(const cv::Point3f &position, const TimePoint &time) : position(position), time(time) {}
-        double estimateVelocity(const PositionAndTime &current);
+        PositionAndTime(const cv::Point3f& position, const TimePoint& time)
+            : position(position)
+            , time(time)
+        {
+        }
+        double estimateVelocity(const PositionAndTime& current);
         double estimateVelocity(double position, double timeStamp);
-        
+
         cv::Point3f position;
         TimePoint time;
     };
-    
-    QtFaceMonitor(const cv::Vec2d &range, std::shared_ptr<tp::ThreadPool<>> &threads);
-    virtual bool isValid(const cv::Point3f &position, const TimePoint &timestamp);
-    virtual void grab(const std::vector<FaceImage> &frames, bool isInitialized);
-    
+
+    QtFaceMonitor(const cv::Vec2d& range, std::shared_ptr<tp::ThreadPool<>>& threads);
+    virtual bool isValid(const cv::Point3f& position, const TimePoint& timestamp);
+    virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized);
+
 protected:
-    
     cv::Vec2d m_range;
 
     drishti::core::Field<PositionAndTime> m_previousStack;
     drishti::core::Field<PositionAndTime> m_previousPosition;
-    double m_velocityTreshold = 0.1; // m/s
+    double m_velocityTreshold = 0.1;     // m/s
     double m_stackSampleInterval = 2.0f; // seconds
     uint64_t m_frameCounter = 0;
     uint64_t m_stackCounter = 0;
-    
+
     std::shared_ptr<tp::ThreadPool<>> m_threads;
 };
 
-#endif // QT_FACE_MONITOR_H
+#endif // __drishti_qt_facefilter_QtFaceMonitor_h__

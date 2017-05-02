@@ -21,11 +21,10 @@ BEGIN_OGLES_GPGPU
 class EllipsoPolarWarp : public TriangleStripWarp
 {
 public:
-
     using EyeDelegate = std::function<drishti::eye::EyeWarp(void)>;
 
     EllipsoPolarWarp();
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "EllipsoPolarWarp";
     }
@@ -38,9 +37,8 @@ public:
     }
 
 protected:
-
     void renderIrises();
-    void renderIris(const DRISHTI_EYE::EyeModel &eye);
+    void renderIris(const DRISHTI_EYE::EyeModel& eye);
 
     EyeDelegate m_eyeDelegate;
     drishti::eye::EyeWarp m_eye;

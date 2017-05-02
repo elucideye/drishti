@@ -20,20 +20,20 @@
 #include "drishti/eye/Eye.h"
 #include "drishti/drishti_cv.hpp"
 
-// *INDENT-OFF*
+// clang-format off
 namespace drishti { namespace eye { class EyeModelEstimator; } };
-// *INDENT-ON*
+// clang-format on
 
 _DRISHTI_SDK_BEGIN
 
 class DRISHTI_EXPORT EyeSegmenter::Impl
 {
 public:
-    Impl(bool doLoad=false);
-    Impl(const std::string &filename, ArchiveKind kind);
-    Impl(std::istream &is, ArchiveKind kind);
+    Impl(bool doLoad = false);
+    Impl(const std::string& filename, ArchiveKind kind);
+    Impl(std::istream& is, ArchiveKind kind);
     ~Impl();
-    int operator()(const Image3b &image, Eye &eye, bool isRight);
+    int operator()(const Image3b& image, Eye& eye, bool isRight);
 
     Eye getMeanEye(int width) const;
 
@@ -50,8 +50,7 @@ public:
     void setOptimizationLevel(int level);
 
 protected:
-
-    void init(std::istream &is, ArchiveKind);
+    void init(std::istream& is, ArchiveKind);
 
     std::unique_ptr<eye::EyeModelEstimator> m_eme;
 
@@ -59,12 +58,12 @@ protected:
 };
 
 // Maintain lightweight inline conversions in private header for internal use
-inline drishti::sdk::Eye convert(const drishti::eye::EyeModel &model)
+inline drishti::sdk::Eye convert(const drishti::eye::EyeModel& model)
 {
     drishti::sdk::Eye e;
 
-    const auto & inner = model.getInnerCorner();
-    const auto & outer = model.getOuterCorner();
+    const auto& inner = model.getInnerCorner();
+    const auto& outer = model.getOuterCorner();
 
     e.setIris(cvToDrishti(model.irisEllipse));
     e.setPupil(cvToDrishti(model.pupilEllipse));
@@ -76,12 +75,12 @@ inline drishti::sdk::Eye convert(const drishti::eye::EyeModel &model)
     return e;
 }
 
-inline drishti::eye::EyeModel convert(const drishti::sdk::Eye &eye)
+inline drishti::eye::EyeModel convert(const drishti::sdk::Eye& eye)
 {
     drishti::eye::EyeModel e;
 
-    const auto & inner = eye.getInnerCorner();
-    const auto & outer = eye.getOuterCorner();
+    const auto& inner = eye.getInnerCorner();
+    const auto& outer = eye.getOuterCorner();
 
     e.irisEllipse = drishtiToCv(eye.getIris());
     e.pupilEllipse = drishtiToCv(eye.getPupil());

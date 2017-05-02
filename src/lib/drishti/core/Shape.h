@@ -24,16 +24,16 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
 
-void fitSpline(const PointVec &controlPoints, PointVec &interpolatedPoints, int count=64, bool closed=true);
+void fitSpline(const PointVec& controlPoints, PointVec& interpolatedPoints, int count = 64, bool closed = true);
 
-void upsample(const PointVec &controlPoints, PointVec &interpolatedPoints, int factor, bool closed);
+void upsample(const PointVec& controlPoints, PointVec& interpolatedPoints, int factor, bool closed);
 
-template <typename T> inline
-cv::Point_<T> centroid(const std::vector<cv::Point_<T>> &contour, int n = std::numeric_limits<int>::max())
+template <typename T>
+inline cv::Point_<T> centroid(const std::vector<cv::Point_<T>>& contour, int n = std::numeric_limits<int>::max())
 {
-    cv::Point_<T> c(0,0);
+    cv::Point_<T> c(0, 0);
     n = std::min(int(contour.size()), n);
-    for(int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
     {
         c += contour[i];
     }
@@ -43,15 +43,23 @@ cv::Point_<T> centroid(const std::vector<cv::Point_<T>> &contour, int n = std::n
 struct ControlPoint
 {
     ControlPoint() {}
-    ControlPoint(float x, float y, bool knot) : p(x, y), knot(knot) {}
-    ControlPoint(const cv::Point2f &position, bool k=false) : p(position), knot(k) {}
-    ControlPoint& operator=(const cv::Point &p)
+    ControlPoint(float x, float y, bool knot)
+        : p(x, y)
+        , knot(knot)
+    {
+    }
+    ControlPoint(const cv::Point2f& position, bool k = false)
+        : p(position)
+        , knot(k)
+    {
+    }
+    ControlPoint& operator=(const cv::Point& p)
     {
         this->p = p;
         this->knot = false;
         return (*this);
     }
-    ControlPoint& operator=(const cv::Point2f &p)
+    ControlPoint& operator=(const cv::Point2f& p)
     {
         this->p = p;
         this->knot = false;
@@ -79,16 +87,22 @@ struct Shape
     }
 
     Shape() {}
-    Shape(const cv::Rect &bbox, double score_=0.0) : roi(bbox), score(score_) {}
-    Shape(const cv::Rect &bbox, const std::vector<cv::Point2f> &points, double score_=0.0) : roi(bbox), score(score_)
+    Shape(const cv::Rect& bbox, double score_ = 0.0)
+        : roi(bbox)
+        , score(score_)
     {
-        for(const auto &p : points)
+    }
+    Shape(const cv::Rect& bbox, const std::vector<cv::Point2f>& points, double score_ = 0.0)
+        : roi(bbox)
+        , score(score_)
+    {
+        for (const auto& p : points)
         {
-            contour.emplace_back( ControlPoint(p, false) );
+            contour.emplace_back(ControlPoint(p, false));
         }
     }
 
-    Shape & operator=(const cv::Rect &bbox)
+    Shape& operator=(const cv::Rect& bbox)
     {
         roi = bbox;
         contour = {};
@@ -99,11 +113,11 @@ struct Shape
     {
         return drishti::core::centroid(getPoints());
     }
-    
+
     std::vector<cv::Point2f> getPoints() const
     {
         std::vector<cv::Point2f> points;
-        for(const auto &p : contour)
+        for (const auto& p : contour)
         {
             points.push_back(p.p);
         }
@@ -120,8 +134,8 @@ struct Shape
     void write(cv::FileStorage& fs) const;
     void read(const cv::FileNode& node);
 
-    void write(const std::string &filename) const;
-    void read(const std::string &filename);
+    void write(const std::string& filename) const;
+    void read(const std::string& filename);
 
     // (((( Data members ))))
 
@@ -131,13 +145,13 @@ struct Shape
 };
 
 template <typename T>
-Shape operator *(const cv::Matx<T, 3, 3> &H, const Shape & src)
+Shape operator*(const cv::Matx<T, 3, 3>& H, const Shape& src)
 {
     auto dst = src;
-    for(auto & p : dst.contour)
+    for (auto& p : dst.contour)
     {
         cv::Point3_<T> q = H * cv::Point3_<T>(p.p.x, p.p.y, 1.f);
-        p.p = { q.x/q.z, q.y/q.z };
+        p.p = { q.x / q.z, q.y / q.z };
     }
     return dst;
 }
@@ -146,12 +160,12 @@ struct AnnotatedContourImage
 {
     // Add your output here as desired
     std::string filename;
-    std::vector< Shape > contours;
+    std::vector<Shape> contours;
 };
 
 // These functions must be within the same top level drishti namespace (opencv limitation)
 void write(cv::FileStorage& fs, const std::string&, const drishti::core::Shape& x);
-void read(const cv::FileNode& node, drishti::core::Shape& x, const drishti::core::Shape & default_value = {});
+void read(const cv::FileNode& node, drishti::core::Shape& x, const drishti::core::Shape& default_value = {});
 
 // TODO: move this somewhere else
 std::vector<cv::Vec3b> makeRainbow();

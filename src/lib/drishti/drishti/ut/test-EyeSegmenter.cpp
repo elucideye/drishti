@@ -25,22 +25,26 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/drishti_serialize.h"
 
+// clang-format off
 #ifdef DRISHTI_CEREAL_XML_JSON
 #  undef DRISHTI_CEREAL_XML_JSON
 #  define DRISHTI_CEREAL_XML_JSON 1
 #endif
+// clang-format on
 
+// clang-format off
 #if DRISHTI_CEREAL_XML_JSON
-# include <cereal/archives/json.hpp>
-# include <cereal/archives/xml.hpp>
+#  include <cereal/archives/json.hpp>
+#  include <cereal/archives/xml.hpp>
 #endif
+// clang-format on
 
 // https://code.google.com/p/googletest/wiki/Primer
 const char* modelFilename;
 const char* imageFilename;
 const char* truthFilename;
 bool isTextArchive;
-const char *outputDirectory;
+const char* outputDirectory;
 
 int drishti_main(int argc, char** argv)
 {
@@ -54,25 +58,27 @@ int drishti_main(int argc, char** argv)
     return RUN_ALL_TESTS();
 }
 
+// clang-format off
 #define BEGIN_EMPTY_NAMESPACE namespace {
 #define END_EMPTY_NAMESPACE }
+// clang-format on
 
 BEGIN_EMPTY_NAMESPACE
 
-static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio);
-static float detectionScore(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB);
+static cv::Point padToAspectRatio(const cv::Mat& image, cv::Mat& padded, double aspectRatio);
+static float detectionScore(const drishti::sdk::Eye& eyeA, const drishti::sdk::Eye& eyeB);
 
-static drishti::sdk::ArchiveKind getArchiveKind(const std::string &filename)
+static drishti::sdk::ArchiveKind getArchiveKind(const std::string& filename)
 {
-    if(filename.find(".txt") != std::string::npos)
+    if (filename.find(".txt") != std::string::npos)
     {
         return drishti::sdk::kTXT;
     }
-    if(filename.find(".pba.z") != std::string::npos)
+    if (filename.find(".pba.z") != std::string::npos)
     {
         return drishti::sdk::kPBA;
     }
-    if(filename.find(".cpb") != std::string::npos)
+    if (filename.find(".cpb") != std::string::npos)
     {
         return drishti::sdk::kCPB;
     }
@@ -82,10 +88,9 @@ static drishti::sdk::ArchiveKind getArchiveKind(const std::string &filename)
 class EyeSegmenterTest : public ::testing::Test
 {
 public:
-    
-    static std::shared_ptr<drishti::sdk::EyeSegmenter> create(const std::string &filename)
+    static std::shared_ptr<drishti::sdk::EyeSegmenter> create(const std::string& filename)
     {
-        if(isArchiveSupported(filename))
+        if (isArchiveSupported(filename))
         {
             auto kind = getArchiveKind(filename);
             auto segmenter = std::make_shared<drishti::sdk::EyeSegmenter>(filename, kind);
@@ -98,17 +103,17 @@ public:
         }
     }
 
-#ifdef DRISHTI_BUILD_C_INTERFACE    
-    static std::shared_ptr<drishti::sdk::EyeSegmenter> createC(const std::string &filename)
+#ifdef DRISHTI_BUILD_C_INTERFACE
+    static std::shared_ptr<drishti::sdk::EyeSegmenter> createC(const std::string& filename)
     {
-        if(isArchiveSupported(filename))
+        if (isArchiveSupported(filename))
         {
             auto kind = getArchiveKind(filename);
             auto segmenter = drishti_eye_segmenter_create_from_file(filename, kind);
 
-            if(segmenter)
+            if (segmenter)
             {
-                if(segmenter->good())
+                if (segmenter->good())
                 {
                     return std::shared_ptr<drishti::sdk::EyeSegmenter>(segmenter, drishti_eye_segmenter_destroy);
                 }
@@ -128,7 +133,6 @@ public:
 #endif
 
 protected:
-
     using Vec3b = drishti::sdk::Vec3b;
     using Image3b = drishti::sdk::Image3b;
 
@@ -139,7 +143,6 @@ protected:
         bool isRight;
     };
 
-    
     // Setup
     EyeSegmenterTest()
     {
@@ -156,7 +159,6 @@ protected:
     // Cleanup
     virtual ~EyeSegmenterTest()
     {
-
     }
 
     // Called after constructor for each test
@@ -175,23 +177,23 @@ protected:
         assert(!image.empty());
 
         cv::Mat padded;
-        cv::Rect roi({0,0}, image.size());
-        padToAspectRatio(image, padded, 4.0/3.0);
+        cv::Rect roi({ 0, 0 }, image.size());
+        padToAspectRatio(image, padded, 4.0 / 3.0);
         assert(!padded.empty());
 
         // Next create each possible size from 0 to 1000:
-        for(int width = 0; width < 512; width++)
+        for (int width = 0; width < 512; width++)
         {
             cv::Mat resized;
-            if(width > 0)
+            if (width > 0)
             {
                 int height(float(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
-                cv::resize(padded, resized, {width, height}, width);
+                cv::resize(padded, resized, { width, height }, width);
             }
 
             {
                 // Create right image
-                Entry entry { drishti::sdk::cvToDrishti<cv::Vec3b, drishti::sdk::Vec3b>(resized), resized, true };
+                Entry entry{ drishti::sdk::cvToDrishti<cv::Vec3b, drishti::sdk::Vec3b>(resized), resized, true };
                 m_images.emplace_back(entry);
             }
         }
@@ -204,26 +206,26 @@ protected:
             drishti::sdk::Eye eye;
             drishti::sdk::EyeIStream adapter(eye, drishti::sdk::EyeStream::JSON);
             std::ifstream is(truthFilename);
-            if(is)
+            if (is)
             {
                 is >> adapter;
                 m_eye = std::make_shared<drishti::sdk::Eye>(eye);
             }
         }
 
-        if(m_eye)
+        if (m_eye)
         {
             // Convert this for use by private API
             auto eye = drishti::sdk::convert(*m_eye);
             eye.eyelids = eye.eyelidsSpline;
-            
+
             std::string sTruthFilename(truthFilename);
             auto pos = sTruthFilename.find(".json");
-            if(pos != std::string::npos)
+            if (pos != std::string::npos)
             {
                 std::string base = sTruthFilename.substr(0, pos);
                 std::ofstream os(base + "_private.json");
-                if(os)
+                if (os)
                 {
 #if DRISHTI_CEREAL_XML_JSON
                     cereal::JSONOutputArchive oa(os);
@@ -237,7 +239,7 @@ protected:
         }
     }
 
-    void createImage(Entry &entry, int rows, int cols, const Vec3b &color)
+    void createImage(Entry& entry, int rows, int cols, const Vec3b& color)
     {
         entry.storage.create(rows, cols, CV_8UC3);
         entry.image = drishti::sdk::cvToDrishti<cv::Vec3b, drishti::sdk::Vec3b>(entry.storage);
@@ -250,7 +252,7 @@ protected:
     std::shared_ptr<drishti::sdk::EyeSegmenter> m_eyeSegmenter;
 
     // Test images:
-    std::vector< Entry > m_images;
+    std::vector<Entry> m_images;
 
     // Ground truth:
     std::shared_ptr<drishti::sdk::Eye> m_eye;
@@ -265,9 +267,9 @@ protected:
 
 TEST(EyeSegmenter, StringConstructor)
 {
-    if(isArchiveSupported(modelFilename))
+    if (isArchiveSupported(modelFilename))
     {
-        ASSERT_NE(modelFilename, (const char *)NULL);
+        ASSERT_NE(modelFilename, (const char*)NULL);
         auto segmenter = EyeSegmenterTest::create(modelFilename);
         ASSERT_EQ(segmenter && segmenter->good(), true);
     }
@@ -275,10 +277,10 @@ TEST(EyeSegmenter, StringConstructor)
 
 TEST(EyeSegmenter, StreamConstructor)
 {
-    if(isArchiveSupported(modelFilename))
+    if (isArchiveSupported(modelFilename))
     {
         // Make sure modelFilename is not null:
-        ASSERT_NE(modelFilename, (const char *)NULL);
+        ASSERT_NE(modelFilename, (const char*)NULL);
         std::ifstream is(modelFilename, std::ios_base::binary | std::ios::in);
         ASSERT_TRUE((bool)is);
         drishti::sdk::EyeSegmenter segmenter(is, getArchiveKind(modelFilename));
@@ -286,7 +288,7 @@ TEST(EyeSegmenter, StreamConstructor)
     }
 }
 
-static void checkValid(const drishti::sdk::Eye &eye, const cv::Size &size)
+static void checkValid(const drishti::sdk::Eye& eye, const cv::Size& size)
 {
     EXPECT_EQ(eye.getRoi().width, size.width);
     EXPECT_EQ(eye.getRoi().height, size.height);
@@ -295,7 +297,7 @@ static void checkValid(const drishti::sdk::Eye &eye, const cv::Size &size)
     EXPECT_GT(eye.getPupil().size.width, 0);
 }
 
-static void checkInvalid(const drishti::sdk::Eye &eye)
+static void checkInvalid(const drishti::sdk::Eye& eye)
 {
     EXPECT_EQ(eye.getEyelids().size(), 0);
     EXPECT_EQ(eye.getIris().size.width, 0);
@@ -308,18 +310,18 @@ static void checkInvalid(const drishti::sdk::Eye &eye)
 
 TEST_F(EyeSegmenterTest, EyeSerialization)
 {
-    if(m_eyeSegmenter && outputDirectory)
+    if (m_eyeSegmenter && outputDirectory)
     {
         int targetWidth = 127;
         drishti::sdk::Eye eye;
         /* int code = */ (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
-        
+
 #if DRISHTI_CEREAL_XML_JSON
         drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
         std::string filename = outputDirectory;
         filename += "/right_eye.json";
         std::ofstream os(filename);
-        if(os)
+        if (os)
         {
             os << adapter;
         }
@@ -331,14 +333,14 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
 
 TEST_F(EyeSegmenterTest, ImageEmpty)
 {
-    if(m_eyeSegmenter)
+    if (m_eyeSegmenter)
     {
         // Requires at least 1 image:
         ASSERT_GE(m_images.size(), 1);
-        
+
         // Make sure image is empty:
         ASSERT_EQ(m_images[0].image.getCols(), 0);
-        
+
         drishti::sdk::Eye eye;
         int code = (*m_eyeSegmenter)(m_images[0].image, eye, m_images[0].isRight);
         EXPECT_EQ(code, 1);
@@ -348,16 +350,16 @@ TEST_F(EyeSegmenterTest, ImageEmpty)
 
 TEST_F(EyeSegmenterTest, ImageTooSmall)
 {
-    if(m_eyeSegmenter)
+    if (m_eyeSegmenter)
     {
         // Requires at least 1 image:
         EXPECT_GE(m_images.size(), m_eyeSegmenter->getMinWidth());
-        
-        for(int i = 1; i < m_eyeSegmenter->getMinWidth(); i++)
+
+        for (int i = 1; i < m_eyeSegmenter->getMinWidth(); i++)
         {
             // Make sure image has the expected size:
             ASSERT_EQ(m_images[i].image.getCols(), i);
-            
+
             drishti::sdk::Eye eye;
             int code = (*m_eyeSegmenter)(m_images[i].image, eye, m_images[i].isRight);
             EXPECT_EQ(code, 1);
@@ -370,29 +372,29 @@ TEST_F(EyeSegmenterTest, ImageTooSmall)
 // * hamming distance for sclera and iris masks components
 TEST_F(EyeSegmenterTest, ImageValid)
 {
-    if(m_eyeSegmenter)
+    if (m_eyeSegmenter)
     {
         // Requires at least m_eyeSegmenter->getMinWidth() + 1
         ASSERT_GT(m_images.size(), m_eyeSegmenter->getMinWidth());
-        
-        for(int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
+
+        for (int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
         {
             // Make sure image has the expected size:
             EXPECT_EQ(m_images[i].image.getCols(), i);
-            
+
             drishti::sdk::Eye eye;
             int code = (*m_eyeSegmenter)(m_images[i].image, eye, m_images[i].isRight);
-            
+
             // Sanity check on each model:
-            
+
             EXPECT_EQ(code, 0);
             checkValid(eye, m_images[i].storage.size());
-            
+
             // Ground truth comparison for reasonable resolutions
-            if(i > 128)
+            if (i > 128)
             {
                 const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
-                ASSERT_GT( detectionScore(eye, *m_eye), threshold );
+                ASSERT_GT(detectionScore(eye, *m_eye), threshold);
             }
         }
     }
@@ -401,13 +403,13 @@ TEST_F(EyeSegmenterTest, ImageValid)
 // Currently there is no internal quality check, but this is included for regression:
 TEST_F(EyeSegmenterTest, ImageIsBlack)
 {
-    if(m_eyeSegmenter)
+    if (m_eyeSegmenter)
     {
         Entry entry;
         int width = 256;
         int height = int(float(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
-        createImage(entry, height, width, {0,0,0});
-        
+        createImage(entry, height, width, { 0, 0, 0 });
+
         drishti::sdk::Eye eye;
         int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
         EXPECT_EQ(code, 0);
@@ -417,13 +419,13 @@ TEST_F(EyeSegmenterTest, ImageIsBlack)
 
 TEST_F(EyeSegmenterTest, ImageIsWhite)
 {
-    if(m_eyeSegmenter)
+    if (m_eyeSegmenter)
     {
         Entry entry;
         int width = 256;
         int height = int(float(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
-        createImage(entry, height, width, {0,0,0});
-        
+        createImage(entry, height, width, { 0, 0, 0 });
+
         drishti::sdk::Eye eye;
         int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
         EXPECT_EQ(code, 0);
@@ -436,28 +438,28 @@ TEST_F(EyeSegmenterTest, ExternCInterface)
 {
     auto segmenter = createC(modelFilename);
 
-    if(segmenter)
+    if (segmenter)
     {
         // Requires at least m_eyeSegmenter->getMinWidth() + 1
         ASSERT_GT(m_images.size(), m_eyeSegmenter->getMinWidth());
-        
-        for(int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
+
+        for (int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
         {
             // Make sure image has the expected size:
             EXPECT_EQ(m_images[i].image.getCols(), i);
-            
+
             drishti::sdk::Eye eye;
-            int code = drishti_eye_segmenter_segment(segmenter.get(), m_images[i].image, eye,  m_images[i].isRight);
-            
+            int code = drishti_eye_segmenter_segment(segmenter.get(), m_images[i].image, eye, m_images[i].isRight);
+
             // Sanity check on each model:
             EXPECT_EQ(code, 0);
             checkValid(eye, m_images[i].storage.size());
-            
+
             // Ground truth comparison for reasonable resolutions
-            if(i > 128)
+            if (i > 128)
             {
                 const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
-                ASSERT_GT( detectionScore(eye, *m_eye), threshold );
+                ASSERT_GT(detectionScore(eye, *m_eye), threshold);
             }
         }
     }
@@ -466,9 +468,9 @@ TEST_F(EyeSegmenterTest, ExternCInterface)
 
 // #######
 
-static cv::Mat scleraMask(const drishti::sdk::Eye &eye)
+static cv::Mat scleraMask(const drishti::sdk::Eye& eye)
 {
-    using Vec2f=drishti::sdk::Vec2f;
+    using Vec2f = drishti::sdk::Vec2f;
 
     // TODO: deal with non zero offset
     assert(eye.getRoi().x == 0);
@@ -488,12 +490,12 @@ static cv::Mat scleraMask(const drishti::sdk::Eye &eye)
     return mask;
 }
 
-static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio)
+static cv::Point padToAspectRatio(const cv::Mat& image, cv::Mat& padded, double aspectRatio)
 {
     CV_Assert(image.channels() == 3);
 
     int top = 0, left = 0, bottom = 0, right = 0;
-    if(double(image.cols)/image.rows > aspectRatio)
+    if (double(image.cols) / image.rows > aspectRatio)
     {
         int padding = int(double(image.cols) / aspectRatio + 0.5) - image.rows;
         top = padding / 2;
@@ -512,13 +514,13 @@ static cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double 
     return cv::Point(left, top);
 }
 
-static float detectionScore(const drishti::sdk::Eye &eyeA, const drishti::sdk::Eye &eyeB)
+static float detectionScore(const drishti::sdk::Eye& eyeA, const drishti::sdk::Eye& eyeB)
 {
     cv::Mat maskA = scleraMask(eyeA);
     cv::Mat maskB = scleraMask(eyeB);
 
     // Resize maskA to maskB coordinate system
-    if(maskA.size() != maskB.size())
+    if (maskA.size() != maskB.size())
     {
         cv::resize(maskA, maskA, maskB.size(), 0, 0, cv::INTER_LANCZOS4);
         maskA = (maskA > 200);
@@ -529,12 +531,16 @@ static float detectionScore(const drishti::sdk::Eye &eyeA, const drishti::sdk::E
     {
         numerator = cv::countNonZero(maskA & maskB);
     }
-    catch(...) {}
+    catch (...)
+    {
+    }
     try
     {
         denominator = cv::countNonZero(maskA | maskB);
     }
-    catch(...) {}
+    catch (...)
+    {
+    }
     float score = denominator ? float(numerator) / (denominator) : 0;
 
 #define DEBUG_DETECTION_SCORE 0

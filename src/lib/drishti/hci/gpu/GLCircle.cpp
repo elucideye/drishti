@@ -10,7 +10,7 @@
 
 #include "drishti/hci/gpu/GLCircle.h"
 
-// *INDENT-OFF*
+// clang-format off
 BEGIN_OGLES_GPGPU
 const char * CircleProc::fshaderCircleSrc = OG_TO_STR
 (
@@ -31,5 +31,4 @@ const char * CircleProc::fshaderCircleSrc = OG_TO_STR
      gl_FragColor = vec4(d * color + (1.0 - d) * val.rgb, val.a);
  });
 END_OGLES_GPGPU
-// *INDENT-ON*
-
+// clang-format on

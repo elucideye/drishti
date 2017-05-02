@@ -25,19 +25,20 @@ DRISHTI_BEGIN_NAMESPACE(FACE)
 template <typename Iterator, typename Skipper = qi::blank_type>
 struct muct_parser : qi::grammar<Iterator, FACE::Table(), Skipper>
 {
-    muct_parser() : muct_parser::base_type(start)
+    muct_parser()
+        : muct_parser::base_type(start)
     {
         static const char colsep = ',';
-        
+
         key = qi::lexeme[+((qi::alnum | qi::char_('-')) - qi::blank)];
         point = (qi::float_ >> colsep >> qi::float_);
         line = key >> colsep >> qi::int_ >> colsep >> (point % colsep) >> qi::eol;
         header = (key % colsep) >> qi::eol;
         start = header >> +line >> qi::eoi;
-        
-        BOOST_SPIRIT_DEBUG_NODES( (start)(header)(key)(line) );
+
+        BOOST_SPIRIT_DEBUG_NODES((start)(header)(key)(line));
     }
-    
+
     qi::rule<Iterator, std::string(), Skipper> key;
     qi::rule<Iterator, cv::Point2f(), Skipper> point;
     qi::rule<Iterator, FACE::record(), Skipper> line;
@@ -55,21 +56,21 @@ DRISHTI_END_NAMESPACE(FACE)
 // 36        => right eye
 // 37-45     => nose
 
-FACE::Table parseMUCT(const std::string &filename)
+FACE::Table parseMUCT(const std::string& filename)
 {
     FACE::Table table;
     table.eyeR = { 27, 29 };
     table.eyeL = { 34, 32 };
     table.nose = { 46, 47, 67 };
     table.brow = { 24, 18 };
-    table.mouth = { 48,49,50,51,52,53,54,55,56,57,58,59 };
-    
+    table.mouth = { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59 };
+
     //table.eyeL = { 32, 33, 34, 35 };
     //table.eyeR = { 27, 28, 29, 30 };
     //table.nose = { 37, 38, 39, 40, 41, 42, 43, 44, 45 };
-    
+
     std::ifstream is(filename);
-    if(is.is_open())
+    if (is.is_open())
     {
         is.unsetf(std::ios::skipws);
         boost::spirit::istream_iterator begin(is), end;
@@ -78,4 +79,3 @@ FACE::Table parseMUCT(const std::string &filename)
     }
     return table;
 }
-

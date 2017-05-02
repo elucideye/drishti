@@ -16,16 +16,20 @@
 #include "drishti/core/Shape.h"
 #include "drishti/geometry/Ellipse.h"
 
+// clang-format off
 #if !DRISHTI_BUILD_MIN_SIZE
 #  include "drishti/geometry/EllipseSerializer.h"
 #endif
+// clang-format on
 
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
 
+// clang-format off
 #if !DRISHTI_BUILD_MIN_SIZE
 #  include <opencv2/highgui.hpp>
 #endif
+// clang-format on
 
 #define DO_DRAW_INITIAL_SHAPE 0
 
@@ -35,8 +39,8 @@ using namespace drishti::core;
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 typedef std::vector<cv::Point2f> PointVec;
-static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, const PointVec &eyelids= {});
-static void fillPolly(cv::Mat &image, const PointVec &polly, const cv::Scalar &value);
+static std::vector<PointVec> ellipseToContours(const cv::RotatedRect& ellipse, const PointVec& eyelids = {});
+static void fillPolly(cv::Mat& image, const PointVec& polly, const cv::Scalar& value);
 
 std::vector<cv::Point2f> EyeModel::getUpperEyelid() const
 {
@@ -51,16 +55,16 @@ std::vector<cv::Point2f> EyeModel::getLowerEyelid() const
 float EyeModel::openness() const
 {
     float openness = -1.f;
-    if(eyelids.size())
+    if (eyelids.size())
     {
         // Moments
         cv::Moments mom = cv::moments(eyelids);
-        cv::Matx22f C(mom.mu20/mom.m00, mom.mu11/mom.m00, mom.mu11/mom.m00, mom.mu02/mom.m00);
+        cv::Matx22f C(mom.mu20 / mom.m00, mom.mu11 / mom.m00, mom.mu11 / mom.m00, mom.mu02 / mom.m00);
         cv::Matx22f vecs;
         cv::Vec2f vals;
         cv::eigen(C, vals, vecs);
 
-        openness = vals[1] / float(vals[0]+1e-6f);
+        openness = vals[1] / float(vals[0] + 1e-6f);
     }
     return openness;
 }
@@ -78,7 +82,7 @@ void EyeModel::clear()
 void EyeModel::upsample(int eyelidFactor, int creaseFactor)
 {
     roi = cv::boundingRect(eyelids);
-    if(eyelids.size() > 2)
+    if (eyelids.size() > 2)
     {
         std::vector<cv::Point2f> spline;
         core::upsample(eyelids, spline, eyelidFactor, true);
@@ -87,7 +91,7 @@ void EyeModel::upsample(int eyelidFactor, int creaseFactor)
         cornerIndices[1] *= eyelidFactor;
     }
 
-    if(crease.size() > 2)
+    if (crease.size() > 2)
     {
         std::vector<cv::Point2f> spline;
         core::upsample(crease, spline, creaseFactor, false);
@@ -96,16 +100,16 @@ void EyeModel::upsample(int eyelidFactor, int creaseFactor)
 }
 
 // Check for numerical stability (errors at very low resolution, etc)
-static bool isValid(const PointVec &contour, const PointVec &spline, float tolerance)
+static bool isValid(const PointVec& contour, const PointVec& spline, float tolerance)
 {
     PointVec contourHull;
     cv::convexHull(contour, contourHull);
     const cv::Rect roi = cv::boundingRect(contourHull);
     const cv::Point2f tl = roi.tl(), br = roi.br(), center = (tl + br) * 0.5f, diag = br - center;
     const cv::Rect2f zone(center - diag * tolerance, center + diag * tolerance);
-    for(const auto &p : spline)
+    for (const auto& p : spline)
     {
-        if(!zone.contains(p))
+        if (!zone.contains(p))
         {
             return false;
         }
@@ -116,58 +120,57 @@ static bool isValid(const PointVec &contour, const PointVec &spline, float toler
 void EyeModel::refine(int eyelidPoints, int creasePoints)
 {
     roi = cv::boundingRect(eyelids);
-    if(eyelids.size() > 2)
+    if (eyelids.size() > 2)
     {
         eyelidsSpline.clear();
         fitSpline(eyelids, eyelidsSpline, eyelidPoints);
-        if(!isValid(eyelids, eyelidsSpline, 1.25))
+        if (!isValid(eyelids, eyelidsSpline, 1.25))
         {
             eyelidsSpline = eyelids;
         }
         cornerIndices[0] = 0;
-        cornerIndices[1] = int(eyelids.size())/2;
+        cornerIndices[1] = int(eyelids.size()) / 2;
     }
 
-    if(crease.size() > 2)
+    if (crease.size() > 2)
     {
         creaseSpline.clear();
         fitSpline(crease, creaseSpline, creasePoints, false);
-        if(!isValid(crease, creaseSpline, 1.25f))
+        if (!isValid(crease, creaseSpline, 1.25f))
         {
             crease = creaseSpline;
         }
     }
 }
 
-void EyeModel::normalizeEllipse(cv::RotatedRect &ellipse)
+void EyeModel::normalizeEllipse(cv::RotatedRect& ellipse)
 {
     // Find closest angle to
     float theta = ellipse.angle * M_PI / 180.0;
     cv::Vec2f v(std::cos(theta), std::sin(theta));
 
     // First make sure it is oriented veritically:
-    if(std::abs(v[1]) < std::abs(v[0]))
+    if (std::abs(v[1]) < std::abs(v[0]))
     {
         v = v[0] < 0.f ? cv::Vec2f(v[1], -v[0]) : cv::Vec2f(-v[1], v[0]);
         std::swap(ellipse.size.width, ellipse.size.height);
     }
 
     ellipse.angle = std::atan2(v[1], v[0]) * 180.0 / M_PI;
-    if(ellipse.angle < 0.0f)
+    if (ellipse.angle < 0.0f)
     {
         ellipse.angle += 360.0f;
     }
 
     CV_Assert(ellipse.angle >= 0.f);
-
 }
 void EyeModel::normalize()
 {
-    if(irisEllipse.size.area())
+    if (irisEllipse.size.area())
     {
         normalizeEllipse(irisEllipse);
     }
-    if(pupilEllipse.size.area())
+    if (pupilEllipse.size.area())
     {
         normalizeEllipse(pupilEllipse);
     }
@@ -177,32 +180,32 @@ cv::Point2f EyeModel::estimateGaze(bool isRight) const
 {
     // Get rotation that maps eye corners to axis aligned:
     int right(isRight);
-    std::array<cv::Point2f, 2> corners {{ eyelids[cornerIndices[1-right]], eyelids[cornerIndices[right]] }};
-    cv::Matx33f H = transformation::estimateSimilarity(corners, {{{-1.0f,0.0f},{+1.0f,0.0f}}});
+    std::array<cv::Point2f, 2> corners{ { eyelids[cornerIndices[1 - right]], eyelids[cornerIndices[right]] } };
+    cv::Matx33f H = transformation::estimateSimilarity(corners, { { { -1.0f, 0.0f }, { +1.0f, 0.0f } } });
     // NOTE: {{{25.0,50.0}, {75.0,50.0}}});
     cv::Point3f q = H * cv::Point3f(irisEllipse.center.x, irisEllipse.center.y, 1.f);
-    return cv::Point2f(q.x/q.z, q.y/q.z);
+    return cv::Point2f(q.x / q.z, q.y / q.z);
 }
 
-void EyeModel::estimateIrisLandmarks(cv::Point2f &irisCenter, cv::Point2f &irisInner, cv::Point2f &irisOuter) const
+void EyeModel::estimateIrisLandmarks(cv::Point2f& irisCenter, cv::Point2f& irisInner, cv::Point2f& irisOuter) const
 {
-    if(irisEllipse.size.width)
+    if (irisEllipse.size.width)
     {
         std::vector<PointVec> points = ellipseToContours(irisEllipse);
         irisCenter = irisEllipse.center;
 
         std::pair<float, int> innerBest(std::numeric_limits<float>::max(), -1);
         std::pair<float, int> outerBest(std::numeric_limits<float>::max(), -1);
-        for(int i = 0; i < points[0].size(); i++)
+        for (int i = 0; i < points[0].size(); i++)
         {
-            const auto &p = points[0][i];
-            float innerD = cv::norm( getInnerCorner() - p );
-            float outerD = cv::norm( getOuterCorner() - p );
-            if(innerD < innerBest.first)
+            const auto& p = points[0][i];
+            float innerD = cv::norm(getInnerCorner() - p);
+            float outerD = cv::norm(getOuterCorner() - p);
+            if (innerD < innerBest.first)
             {
                 innerBest = std::make_pair(innerD, i);
             }
-            if(outerD < outerBest.first)
+            if (outerD < outerBest.first)
             {
                 outerBest = std::make_pair(outerD, i);
             }
@@ -213,30 +216,32 @@ void EyeModel::estimateIrisLandmarks(cv::Point2f &irisCenter, cv::Point2f &irisI
     }
 }
 
-cv::Mat EyeModel::irisMask(const cv::Size &size, bool removeEyelids) const
+cv::Mat EyeModel::irisMask(const cv::Size& size, bool removeEyelids) const
 {
     cv::Mat1b mask(size, 0);
     try
     {
         cv::ellipse(mask, irisEllipse, 255, -1, 4);
     }
-    catch(...) {}
-    if(removeEyelids)
+    catch (...)
+    {
+    }
+    if (removeEyelids)
     {
         mask &= this->mask(size, false);
     }
     return mask;
 }
 
-cv::Mat EyeModel::labels(const cv::Size &size) const
+cv::Mat EyeModel::labels(const cv::Size& size) const
 {
-    if(size.area() == 0)
+    if (size.area() == 0)
     {
         return cv::Mat1b();
     }
 
-    const auto &curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
-    
+    const auto& curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
+
     // Eye mask:
     cv::Mat1b eyeMask = cv::Mat1b::zeros(size);
     fillPolly(eyeMask, curve, 255);
@@ -250,22 +255,22 @@ cv::Mat EyeModel::labels(const cv::Size &size) const
     return eyeMask;
 }
 
-cv::Mat EyeModel::mask(const cv::Size &size, bool sclera, float irisScale) const
+cv::Mat EyeModel::mask(const cv::Size& size, bool sclera, float irisScale) const
 {
     cv::Mat1b mask;
 
-    if(size.area() == 0)
+    if (size.area() == 0)
     {
         return mask;
     }
-    
-    const auto &curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
-    if(curve.size())
+
+    const auto& curve = eyelidsSpline.size() ? eyelidsSpline : eyelids;
+    if (curve.size())
     {
         mask = cv::Mat1b::zeros(size);
         fillPolly(mask, curve, 255);
-        
-        if(sclera && irisEllipse.size.width)
+
+        if (sclera && irisEllipse.size.width)
         {
             cv::RotatedRect ellipse = irisEllipse;
             ellipse.size = ellipse.size * irisScale;
@@ -273,45 +278,47 @@ cv::Mat EyeModel::mask(const cv::Size &size, bool sclera, float irisScale) const
             {
                 cv::ellipse(mask, ellipse, 0, -1);
             }
-            catch (...) {}
+            catch (...)
+            {
+            }
         }
     }
-    
+
     return mask;
 }
 
-std::vector<std::vector<cv::Point2f> > EyeModel::getContours(bool doPupil) const
+std::vector<std::vector<cv::Point2f>> EyeModel::getContours(bool doPupil) const
 {
     std::vector<std::vector<cv::Point2f>> contours;
-    
+
     contours.push_back(eyelidsSpline);
 
-    if(irisEllipse.size.width)
+    if (irisEllipse.size.width)
     {
         auto segments = ellipseToContours(irisEllipse, eyelidsSpline);
-        for(auto &s : segments)
+        for (auto& s : segments)
         {
             contours.push_back(s);
         }
     }
 
-    if(pupilEllipse.size.width && doPupil)
+    if (pupilEllipse.size.width && doPupil)
     {
         auto segments = ellipseToContours(pupilEllipse, eyelidsSpline);
-        for(auto &s : segments)
+        for (auto& s : segments)
         {
             contours.push_back(s);
         }
     }
 
-    if(creaseSpline.size())
+    if (creaseSpline.size())
     {
         contours.push_back(creaseSpline);
     }
 
-    if(irisCenter.has && doPupil)
+    if (irisCenter.has && doPupil)
     {
-        std::vector<cv::Point2f> contour { irisInner, irisCenter, irisOuter };
+        std::vector<cv::Point2f> contour{ irisInner, irisCenter, irisOuter };
         contours.push_back(contour);
 
         // Add a cross hair:
@@ -319,7 +326,7 @@ std::vector<std::vector<cv::Point2f> > EyeModel::getContours(bool doPupil) const
         cv::Point2f n(v.y, -v.x);
         float diameter = cv::norm(v);
         n *= (1.0 / diameter);
-        contours.push_back( {(*irisCenter)-(n*diameter*0.25f), (*irisCenter)+(n*diameter*0.25f) } );
+        contours.push_back({ (*irisCenter) - (n * diameter * 0.25f), (*irisCenter) + (n * diameter * 0.25f) });
     }
 
     return contours;
@@ -327,51 +334,51 @@ std::vector<std::vector<cv::Point2f> > EyeModel::getContours(bool doPupil) const
 
 void EyeModel::flop(int width)
 {
-    if(angle.has)
+    if (angle.has)
     {
         angle = (M_PI - angle.value);
     }
 
-    if(roi.has)
+    if (roi.has)
     {
-        roi = cv::Rect(int(width)-(roi->x+roi->width), roi->y, roi->width, roi->height);
+        roi = cv::Rect(int(width) - (roi->x + roi->width), roi->y, roi->width, roi->height);
     }
-    if(pupil[2])
+    if (pupil[2])
     {
         flop(pupil[0], width);
     }
-    if(iris[2])
+    if (iris[2])
     {
         flop(iris[0], width);
     }
-    if(irisEllipse.size.width)
+    if (irisEllipse.size.width)
     {
         flop(irisEllipse.center.x, width);
         irisEllipse.angle = (180 - irisEllipse.angle);
     }
-    if(pupilEllipse.size.width)
+    if (pupilEllipse.size.width)
     {
         flop(pupilEllipse.center.x, width);
         pupilEllipse.angle = (180 - pupilEllipse.angle);
     }
-    for(auto &p : eyelids)
+    for (auto& p : eyelids)
     {
         flop(p.x, width);
     }
-    for(auto &p : eyelidsSpline)
+    for (auto& p : eyelidsSpline)
     {
         flop(p.x, width);
     }
-    for(auto &p : crease)
+    for (auto& p : crease)
     {
         flop(p.x, width);
     }
-    for(auto &p : creaseSpline)
+    for (auto& p : creaseSpline)
     {
         flop(p.x, width);
     }
 
-    if(irisCenter.has)
+    if (irisCenter.has)
     {
         flop(irisCenter->x, width);
         flop(irisInner->x, width);
@@ -383,11 +390,11 @@ void EyeModel::flop(int width)
     outerCorner = getOuterCorner();
 }
 
-void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &color, int width) const
+void EyeModel::draw(cv::Mat& canvas, int level, bool doMask, const cv::Scalar& color, int width) const
 {
 #if !DRISHTI_BUILD_MIN_SIZE
     CV_Assert(canvas.type() == CV_8UC3 || canvas.type() == CV_8UC4);
-    if(eyelids.size() < 3)
+    if (eyelids.size() < 3)
     {
         return;
     }
@@ -395,7 +402,7 @@ void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &c
     {
         // Draw the ellipse contours:
         auto contours = getContours();
-        for(int i = 0; i < contours.size(); i++)
+        for (int i = 0; i < contours.size(); i++)
         {
             std::vector<std::vector<cv::Point>> contour(1);
             std::copy(contours[i].begin(), contours[i].end(), std::back_inserter(contour[0]));
@@ -404,45 +411,45 @@ void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &c
     }
 
     // Draw the bounding box:
-    if(roi.has)
+    if (roi.has)
     {
         cv::rectangle(canvas, roi, color, 1, 8);
     }
 
-    std::vector< std::vector<cv::Point> > contours(2);
-    if(eyelidsSpline.size())
+    std::vector<std::vector<cv::Point>> contours(2);
+    if (eyelidsSpline.size())
     {
         std::copy(eyelidsSpline.begin(), eyelidsSpline.end(), std::back_inserter(contours[0]));
         cv::polylines(canvas, contours, true, color, width, 8);
     }
 
-    if(creaseSpline.size())
+    if (creaseSpline.size())
     {
         std::copy(creaseSpline.begin(), creaseSpline.end(), std::back_inserter(contours[1]));
         cv::polylines(canvas, contours, false, color, width, 8);
     }
 
-    if(level > 1) // model specific points, etc
+    if (level > 1) // model specific points, etc
     {
-        if(iris[2] > 0.f)
+        if (iris[2] > 0.f)
         {
-            cv::circle(canvas, cv::Point(iris[0], iris[1]), iris[2], {0,255,0}, 1, 8);
+            cv::circle(canvas, cv::Point(iris[0], iris[1]), iris[2], { 0, 255, 0 }, 1, 8);
         }
-        for(int i = 0; i < eyelids.size(); i++)
+        for (int i = 0; i < eyelids.size(); i++)
         {
-            cv::circle(canvas, eyelids[i], 4, {0,255,0}, 1, 8);
+            cv::circle(canvas, eyelids[i], 4, { 0, 255, 0 }, 1, 8);
         }
-        for(const auto &i : cornerIndices)
+        for (const auto& i : cornerIndices)
         {
-            cv::circle(canvas, eyelids[i], 8, {0,255,255}, 1, 8);
+            cv::circle(canvas, eyelids[i], 8, { 0, 255, 255 }, 1, 8);
         }
     }
 
 #if DO_DRAW_INITIAL_SHAPE
     // Draw the initial shape for visualization:
-    const cv::Point2f *pI = reinterpret_cast<const cv::Point2f *>(&initial_shape_ref(0,0));
-    for(int i = 0; i < n; i++)
-        cv::circle(canvas, cv::Point2f(pI[i].x * image.cols, pI[i].y * image.rows), 1, {255,0,255}, CV_AA);
+    const cv::Point2f* pI = reinterpret_cast<const cv::Point2f*>(&initial_shape_ref(0, 0));
+    for (int i = 0; i < n; i++)
+        cv::circle(canvas, cv::Point2f(pI[i].x * image.cols, pI[i].y * image.rows), 1, { 255, 0, 255 }, CV_AA);
 #endif
 
 #else
@@ -450,14 +457,14 @@ void EyeModel::draw(cv::Mat &canvas, int level, bool doMask, const cv::Scalar &c
 #endif
 }
 
-void EyeModel::read(const std::string &filename)
+void EyeModel::read(const std::string& filename)
 {
 #if !DRISHTI_BUILD_MIN_SIZE
     cv::FileStorage storage(filename, cv::FileStorage::READ);
-    if(storage.isOpened())
+    if (storage.isOpened())
     {
         auto node = storage["eye"];
-        if(!node.empty())
+        if (!node.empty())
         {
             read(node);
             refine();
@@ -468,17 +475,17 @@ void EyeModel::read(const std::string &filename)
 #endif
 };
 
-void EyeModel::write(const std::string &filename) const
+void EyeModel::write(const std::string& filename) const
 {
-#if !DRISHTI_BUILD_MIN_SIZE    
+#if !DRISHTI_BUILD_MIN_SIZE
     cv::FileStorage storage(filename, cv::FileStorage::WRITE);
-    if(storage.isOpened())
+    if (storage.isOpened())
     {
         storage << "eye" << (*this);
     }
 #else
     CV_Assert(false);
-#endif    
+#endif
 };
 
 void EyeModel::read(const cv::FileNode& node)
@@ -487,7 +494,7 @@ void EyeModel::read(const cv::FileNode& node)
     {
         // Parse eyelids
         auto n = node["eyelids"];
-        if(!n.empty())
+        if (!n.empty())
         {
             drishti::core::Shape contour;
             n >> contour;
@@ -498,7 +505,7 @@ void EyeModel::read(const cv::FileNode& node)
     {
         // Parse crease
         auto n = node["crease"];
-        if(!n.empty())
+        if (!n.empty())
         {
             n >> crease;
         }
@@ -506,7 +513,7 @@ void EyeModel::read(const cv::FileNode& node)
 
     {
         auto n = node["iris"];
-        if(!n.empty())
+        if (!n.empty())
         {
             n >> iris;
         }
@@ -514,7 +521,7 @@ void EyeModel::read(const cv::FileNode& node)
 
     {
         auto n = node["pupil"];
-        if(!n.empty())
+        if (!n.empty())
         {
             n >> pupil;
         }
@@ -523,7 +530,7 @@ void EyeModel::read(const cv::FileNode& node)
     {
         // Parse optional irisEllipse
         auto n = node["irisEllipse"];
-        if(!n.empty())
+        if (!n.empty())
         {
             drishti::geometry::EllipseSerializer ellipse;
             ellipse.read(n);
@@ -534,7 +541,7 @@ void EyeModel::read(const cv::FileNode& node)
     {
         // Parse optional pupilEllipse
         auto n = node["pupilEllipse"];
-        if(!n.empty())
+        if (!n.empty())
         {
             drishti::geometry::EllipseSerializer ellipse;
             ellipse.read(n);
@@ -545,44 +552,42 @@ void EyeModel::read(const cv::FileNode& node)
 #else
     CV_Assert(false);
 #endif
-    
 };
 
 void DRISHTI_EYE::EyeModel::write(cv::FileStorage& fs) const
 {
-#if !DRISHTI_BUILD_MIN_SIZE    
+#if !DRISHTI_BUILD_MIN_SIZE
     fs << "{";
 
-    if(eyelids.size())
+    if (eyelids.size())
     {
         fs << "eyelids" << drishti::core::Shape(roi, eyelids);
     }
 
-    if(crease.size())
+    if (crease.size())
     {
         fs << "crease" << crease;
     }
 
-    if(iris.dot(iris) > 0.0)
+    if (iris.dot(iris) > 0.0)
     {
         fs << "iris" << iris;
     }
 
-    if(pupil.dot(pupil) > 0.0)
+    if (pupil.dot(pupil) > 0.0)
     {
         fs << "pupil" << pupil;
     }
 
-    if(irisEllipse.size.area() > 0.0)
+    if (irisEllipse.size.area() > 0.0)
     {
         fs << "irisEllipse" << drishti::geometry::EllipseSerializer(irisEllipse);
     }
 
-    if(pupilEllipse.size.area() > 0.0)
+    if (pupilEllipse.size.area() > 0.0)
     {
         fs << "pupilEllipse" << drishti::geometry::EllipseSerializer(pupilEllipse);
     }
-
 
     fs << "}";
 #else
@@ -599,10 +604,10 @@ void write(cv::FileStorage& fs, const std::string&, const DRISHTI_EYE::EyeModel&
 #endif
 }
 
-void read(const cv::FileNode& node, DRISHTI_EYE::EyeModel& x, const DRISHTI_EYE::EyeModel & default_value)
+void read(const cv::FileNode& node, DRISHTI_EYE::EyeModel& x, const DRISHTI_EYE::EyeModel& default_value)
 {
 #if !DRISHTI_BUILD_MIN_SIZE
-    if(node.empty())
+    if (node.empty())
     {
         x = default_value;
     }
@@ -617,7 +622,7 @@ void read(const cv::FileNode& node, DRISHTI_EYE::EyeModel& x, const DRISHTI_EYE:
 
 // ==========
 
-static void fillPolly(cv::Mat &image, const PointVec &polly, const cv::Scalar &value)
+static void fillPolly(cv::Mat& image, const PointVec& polly, const cv::Scalar& value)
 {
     std::vector<std::vector<cv::Point>> contours(1);
     contours[0].resize(polly.size());
@@ -628,10 +633,10 @@ static void fillPolly(cv::Mat &image, const PointVec &polly, const cv::Scalar &v
 // http://stackoverflow.com/a/23214219
 static int mod(int k, int n)
 {
-    return ((k %= n) < 0) ? k+n : k;
+    return ((k %= n) < 0) ? k + n : k;
 }
 
-static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, const PointVec &eyelids)
+static std::vector<PointVec> ellipseToContours(const cv::RotatedRect& ellipse, const PointVec& eyelids)
 {
     std::vector<std::vector<cv::Point2f>> contours;
 
@@ -640,35 +645,35 @@ static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, c
     drishti::geometry::ellipse2Poly(ellipse, 1.f, contour);
 
     bool doCopy = true;
-    if(eyelids.size())
+    if (eyelids.size())
     {
         int validCount = 0;
         std::vector<uint8_t> mask(contour.size(), 0);
-        for(int i = 0; i < contour.size(); i++)
+        for (int i = 0; i < contour.size(); i++)
         {
             mask[i] = uint8_t(cv::pointPolygonTest(eyelids, contour[i], false) > 0);
             validCount += int(mask[i]);
         }
 
-        if(validCount > 0 && validCount < contour.size())
+        if (validCount > 0 && validCount < contour.size())
         {
             // Search for zero crossing
             doCopy = false;
             int n = int(mask.size());
-            for(int i = 0; (i < mask.size()) && validCount; i++)
+            for (int i = 0; (i < mask.size()) && validCount; i++)
             {
-                int j = mod(i-1, n);
+                int j = mod(i - 1, n);
                 // Found zero crossing, read the segment:
-                if(mask[i] && !mask[j])
+                if (mask[i] && !mask[j])
                 {
                     std::vector<cv::Point2f> segment;
-                    for(int k = i; (mask[k] && validCount); k = mod(k+1, n), i = k)
+                    for (int k = i; (mask[k] && validCount); k = mod(k + 1, n), i = k)
                     {
                         validCount--;
                         segment.push_back(contour[k]);
                         mask[k] = 0;
                     }
-                    if(segment.size() >= 2)
+                    if (segment.size() >= 2)
                     {
                         contours.push_back(segment);
                     }
@@ -679,7 +684,7 @@ static std::vector<PointVec> ellipseToContours(const cv::RotatedRect &ellipse, c
 
     //std::cout << "CONTOURS:" << contours.size() << std::endl;
 
-    if(doCopy)
+    if (doCopy)
     {
         contours.resize(1);
         std::copy(contour.begin(), contour.end(), std::back_inserter(contours[0]));

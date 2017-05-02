@@ -21,25 +21,26 @@ BEGIN_OGLES_GPGPU
 class GradHistProc : public ::ogles_gpgpu::FilterProcBase
 {
 public:
-    GradHistProc(int nOrientations, int base=0, float strength = 1.f)
+    GradHistProc(int nOrientations, int base = 0, float strength = 1.f)
         : nOrientations(nOrientations)
         , strength(strength)
     {
         setBase(base);
     }
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "GradHistProc";
     }
     void setBase(int b)
     {
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             index[i] = b + i;
         }
     }
+
 private:
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderGradHistSrcN;
     }
@@ -66,7 +67,7 @@ private:
     GLint shParamUIndex;
     GLint shParamUNOrientations;
 
-    static const char *fshaderGradHistSrcN;   // fragment shader source
+    static const char* fshaderGradHistSrcN; // fragment shader source
 };
 
 END_OGLES_GPGPU

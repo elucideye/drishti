@@ -36,13 +36,15 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 
 struct ACFObject
 {
-    ACFObject(const  std::string &lbl, const cv::Rect &bb, float occ, const cv::Rect &bbV, bool ign, double ang)
+    ACFObject(const std::string& lbl, const cv::Rect& bb, float occ, const cv::Rect& bbV, bool ign, double ang)
         : lbl(lbl)
         , bb(bb)
         , occ(occ)
         , bbV(bbV)
         , ign(ign)
-        , ang(ang) {}
+        , ang(ang)
+    {
+    }
 
     std::string lbl;
     cv::Rect bb;
@@ -53,43 +55,42 @@ struct ACFObject
 
     cv::RotatedRect ellipse; // NOTE: preserve FDDG ellipse -- not in the output
 
-    friend std::ostream & operator<<(std::ostream &os, const ACFObject &src);
+    friend std::ostream& operator<<(std::ostream& os, const ACFObject& src);
 };
 
 struct ACFObjectSet
 {
     ACFObjectSet() {}
-    friend std::ostream & operator<<(std::ostream &os, const ACFObjectSet &src);
+    friend std::ostream& operator<<(std::ostream& os, const ACFObjectSet& src);
 
     std::vector<ACFObject> objects;
 };
 
 // ((((((((( IO )))))))))
 
-inline std::ostream & operator<<(std::ostream &os, const ACFObject &src)
+inline std::ostream& operator<<(std::ostream& os, const ACFObject& src)
 {
     static const char space = ' ';
     os << src.lbl << space;
     os << src.bb.x << ' ' << src.bb.y << ' ' << src.bb.width << ' ' << src.bb.height << space;
-    os << src.occ << space; // occluded
+    os << src.occ << space;                                                                        // occluded
     os << src.bbV.x << ' ' << src.bbV.y << ' ' << src.bbV.width << ' ' << src.bbV.height << space; // visible bounding box
-    os << src.ign << space; // ignore
-    os << src.ang << space; // angle
+    os << src.ign << space;                                                                        // ignore
+    os << src.ang << space;                                                                        // angle
     return os;
 }
 
-inline std::ostream & operator<<(std::ostream &os, const ACFObjectSet &src)
+inline std::ostream& operator<<(std::ostream& os, const ACFObjectSet& src)
 {
     static const std::string header = "% bbGt version=3\n";
     os << header;
-    for(int i = 0; i < src.objects.size(); i++)
+    for (int i = 0; i < src.objects.size(); i++)
     {
         os << src.objects[i] << std::endl;
     }
 
     return os;
 }
-
 
 DRISHTI_ACF_NAMESPACE_END
 

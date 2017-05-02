@@ -13,8 +13,8 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-drishti::face::FaceModel loadFaceModel(std::istream &is);
-drishti::face::FaceModel loadFaceModel(const std::string &filename);
+drishti::face::FaceModel loadFaceModel(std::istream& is);
+drishti::face::FaceModel loadFaceModel(const std::string& filename);
 
 /*
  * FaceDetectorFactor (string)
@@ -42,8 +42,8 @@ std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
 
 face::FaceModel FaceDetectorFactory::getMeanFace()
 {
-    face::FaceModel faceDetectorMean;    
-    if(!sFaceDetectorMean.empty())
+    face::FaceModel faceDetectorMean;
+    if (!sFaceDetectorMean.empty())
     {
         faceDetectorMean = loadFaceModel(sFaceDetectorMean);
     }
@@ -77,7 +77,7 @@ std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimat
 face::FaceModel FaceDetectorFactoryStream::getMeanFace()
 {
     face::FaceModel faceDetectorMean;
-    if(iFaceDetectorMean && *iFaceDetectorMean)
+    if (iFaceDetectorMean && *iFaceDetectorMean)
     {
         faceDetectorMean = loadFaceModel(*iFaceDetectorMean);
     }
@@ -90,28 +90,30 @@ face::FaceModel FaceDetectorFactoryStream::getMeanFace()
 
 struct OptionalList
 {
-    OptionalList(const std::vector<std::string> &list) : list(list) {}
-    const std::vector<std::string> &list;
+    OptionalList(const std::vector<std::string>& list)
+        : list(list)
+    {
+    }
+    const std::vector<std::string>& list;
 };
 
-std::ostream & operator<<(std::ostream &os, const OptionalList &opt)
+std::ostream& operator<<(std::ostream& os, const OptionalList& opt)
 {
     std::copy(opt.list.begin(), opt.list.end(), infix_ostream_iterator<std::string>(os, ","));
     return os;
 }
 
-std::ostream & operator <<(std::ostream &os, const FaceDetectorFactory &factory)
+std::ostream& operator<<(std::ostream& os, const FaceDetectorFactory& factory)
 {
     os // standardized output for active face and eye models
-    << "{\n"
-    << "  faceDetector " << factory.sFaceDetector << "\n"
-    << "  faceRegressor " << OptionalList(factory.sFaceRegressors) << "\n"
-    << "  eyeRegressor " << factory.sEyeRegressor << "\n"
-    << "  faceDetectorMean " << factory.sFaceDetectorMean << "\n"
-    << "}";
-    
+        << "{\n"
+        << "  faceDetector " << factory.sFaceDetector << "\n"
+        << "  faceRegressor " << OptionalList(factory.sFaceRegressors) << "\n"
+        << "  eyeRegressor " << factory.sEyeRegressor << "\n"
+        << "  faceDetectorMean " << factory.sFaceDetectorMean << "\n"
+        << "}";
+
     return os;
 }
 
 DRISHTI_FACE_NAMESPACE_END
-

@@ -40,14 +40,13 @@
 #include "InfoFilterResult.hpp"
 
 QVideoFrame InfoFilterRunnable::run(
-    QVideoFrame *input,
-    const QVideoSurfaceFormat &surfaceFormat,
-    RunFlags flags
-)
+    QVideoFrame* input,
+    const QVideoSurfaceFormat& surfaceFormat,
+    RunFlags flags)
 {
     Q_UNUSED(surfaceFormat);
     Q_UNUSED(flags);
-    InfoFilterResult *result = new InfoFilterResult;
+    InfoFilterResult* result = new InfoFilterResult;
     result->m_frameResolution = input->size();
     result->m_fps = m_fps_calculator.fps();
     switch (input->handleType())

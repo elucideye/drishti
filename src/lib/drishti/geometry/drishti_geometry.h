@@ -11,7 +11,9 @@
 #ifndef __drishti_geometry_drishti_geometry_h__
 #define __drishti_geometry_drishti_geometry_h__
 
+// clang-format off
 #define DRISHTI_GEOMETRY_BEGIN namespace drishti { namespace geometry {
 #define DRISHTI_GEOMETRY_END } }
+// clang-format on
 
 #endif

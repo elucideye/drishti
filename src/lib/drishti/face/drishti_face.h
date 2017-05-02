@@ -11,8 +11,10 @@
 #ifndef __drishti_face_drishti_face_h__
 #define __drishti_face_drishti_face_h__
 
+// clang-format off
 #define DRISHTI_FACE_NAMESPACE_BEGIN namespace drishti { namespace face {
 #define DRISHTI_FACE_NAMESPACE_END } }
+// clang-format on
 
 #define DRISHTI_FACE drishti::face
 

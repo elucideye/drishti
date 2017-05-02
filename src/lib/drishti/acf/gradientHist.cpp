@@ -91,16 +91,16 @@
 #include "drishti/acf/drishti_acf.h"
 #include <opencv2/highgui/highgui.hpp>
 
-void gradQuantize( float *O, float *M, int *O0, int *O1, float *M0, float *M1, int nb, int n, float norm, int nOrients, bool full, bool interpolate );
-void gradHist( float *M, float *O, float *H, int h, int w, int bin, int nOrients, int softBin, bool full );
+void gradQuantize(float* O, float* M, int* O0, int* O1, float* M0, float* M1, int nb, int n, float norm, int nOrients, bool full, bool interpolate);
+void gradHist(float* M, float* O, float* H, int h, int w, int bin, int nOrients, int softBin, bool full);
 
-void gradHist( const cv::Mat &M, const cv::Mat &O, MatP &H, int bin, int nOrients, int softBin, bool full)
+void gradHist(const cv::Mat& M, const cv::Mat& O, MatP& H, int bin, int nOrients, int softBin, bool full)
 {
-    H.create( {M.cols/bin, M.rows/bin}, M.depth(), nOrients);
+    H.create({ M.cols / bin, M.rows / bin }, M.depth(), nOrients);
     H.setTo<float>(0.f);
 
-    float *m = const_cast<float *>(M.ptr<float>());
-    float *o = const_cast<float *>(O.ptr<float>());
+    float* m = const_cast<float*>(M.ptr<float>());
+    float* o = const_cast<float*>(O.ptr<float>());
 
     int w = M.cols;
     int h = M.rows;
@@ -128,12 +128,11 @@ void gradHist( const cv::Mat &M, const cv::Mat &O, MatP &H, int bin, int nOrient
         cv::imshow("H", canvas), cv::waitKey(0);
     }
 #endif
-
 }
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-int Detector::gradientHist( const cv::Mat &M, const cv::Mat &O, MatP &H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full )
+int Detector::gradientHist(const cv::Mat& M, const cv::Mat& O, MatP& H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full)
 {
     gradHist(M, O, H, binSize, nOrients, softBin, full);
 

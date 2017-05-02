@@ -17,40 +17,44 @@
 
 class IndentingOStreambuf : public std::streambuf
 {
-    std::streambuf*     myDest;
-    bool                myIsAtStartOfLine;
-    std::string         myIndent;
-    std::ostream*       myOwner;
+    std::streambuf* myDest;
+    bool myIsAtStartOfLine;
+    std::string myIndent;
+    std::ostream* myOwner;
+
 protected:
-    virtual int overflow( int ch )
+    virtual int overflow(int ch)
     {
-        if ( myIsAtStartOfLine && ch != '\n' )
+        if (myIsAtStartOfLine && ch != '\n')
         {
-            myDest->sputn( myIndent.data(), myIndent.size() );
+            myDest->sputn(myIndent.data(), myIndent.size());
         }
         myIsAtStartOfLine = ch == '\n';
-        return myDest->sputc( ch );
+        return myDest->sputc(ch);
     }
-public:
-    explicit IndentingOStreambuf( std::streambuf* dest, int indent = 4 )
-        : myDest( dest )
-        , myIsAtStartOfLine( true )
-        , myIndent( indent, ' ' )
-        , myOwner( NULL ) {}
 
-    explicit IndentingOStreambuf( std::ostream& dest, int indent = 4 )
-        : myDest( dest.rdbuf() )
-        , myIsAtStartOfLine( true )
-        , myIndent( indent, ' ' )
-        , myOwner( &dest )
+public:
+    explicit IndentingOStreambuf(std::streambuf* dest, int indent = 4)
+        : myDest(dest)
+        , myIsAtStartOfLine(true)
+        , myIndent(indent, ' ')
+        , myOwner(NULL)
     {
-        myOwner->rdbuf( this );
+    }
+
+    explicit IndentingOStreambuf(std::ostream& dest, int indent = 4)
+        : myDest(dest.rdbuf())
+        , myIsAtStartOfLine(true)
+        , myIndent(indent, ' ')
+        , myOwner(&dest)
+    {
+        myOwner->rdbuf(this);
     }
     virtual ~IndentingOStreambuf()
     {
-        if ( myOwner != NULL )
+        if (myOwner != NULL)
         {
-            myOwner->rdbuf( myDest );
+            myOwner->rdbuf(myDest);
         }
     }
 };

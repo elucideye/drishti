@@ -43,12 +43,15 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceDetector
 {
 public:
-
     struct PaddedImage
     {
         PaddedImage() {}
-        PaddedImage(const cv::Mat &Ib, const cv::Rect &roi= {}) : Ib(Ib), roi(roi) {}
-        PaddedImage &operator=(const PaddedImage &I)
+        PaddedImage(const cv::Mat& Ib, const cv::Rect& roi = {})
+            : Ib(Ib)
+            , roi(roi)
+        {
+        }
+        PaddedImage& operator=(const PaddedImage& I)
         {
             Ib = I.Ib;
             roi = I.roi;
@@ -62,33 +65,33 @@ public:
         cv::Rect roi;
     };
 
-    typedef std::function<std::array<cv::Mat,2>(const cv::Point2f &L, const cv::Point2f &R)> EyeCropper;
-    typedef std::function<int(const cv::Mat&, const std::string &tag)> MatLoggerType;
+    typedef std::function<std::array<cv::Mat, 2>(const cv::Point2f& L, const cv::Point2f& R)> EyeCropper;
+    typedef std::function<int(const cv::Mat&, const std::string& tag)> MatLoggerType;
     typedef std::function<void(double seconds)> TimeLoggerType;
 
     class Impl;
     typedef std::vector<cv::Point2f> Landmarks;
 
-    FaceDetector(FaceDetectorFactory &Resources);
+    FaceDetector(FaceDetectorFactory& Resources);
 
     void setLandmarkFormat(FaceSpecification::Format format);
 
-    virtual void operator()(const MatP &I, const PaddedImage &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H=EYE);
-    virtual void setFaceDetectorMean(const FaceModel &mu);
-    virtual const FaceModel &getFaceDetectorMean() const;
+    virtual void operator()(const MatP& I, const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H = EYE);
+    virtual void setFaceDetectorMean(const FaceModel& mu);
+    virtual const FaceModel& getFaceDetectorMean() const;
     virtual cv::Mat getUprightImage();
 
     // Legacy (doesn't use virtual detect):
-    virtual void operator()(const MatP &I, const PaddedImage &Ib, std::vector<dsdkc::Shape> &shapes, const cv::Matx33f &H=EYE);
+    virtual void operator()(const MatP& I, const PaddedImage& Ib, std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& H = EYE);
 
     // TODO: Add this for detector modification (cascThr, etc), but eventually make limited public API
-    drishti::ml::ObjectDetector * getDetector();
+    drishti::ml::ObjectDetector* getDetector();
 
     virtual std::vector<cv::Point2f> getFeatures() const;
 
-    FaceModel getMeanShape(const cv::Size2f &size) const;
-    FaceModel getMeanShape(const cv::Rect2f &roi) const;
-    
+    FaceModel getMeanShape(const cv::Size2f& size) const;
+    FaceModel getMeanShape(const cv::Rect2f& roi) const;
+
     void setScaling(float scale);
     cv::Size getWindowSize() const;
 
@@ -107,19 +110,18 @@ public:
     void setRegressionTimeLogger(TimeLoggerType logger);
     void setEyeRegressionTimeLogger(TimeLoggerType logger);
     void setLogger(MatLoggerType logger);
-    void setHrd(const cv::Matx33f &Hrd); // regression face => detection face
-    void setEyeCropper(EyeCropper &cropper);
-    void paint(cv::Mat &frame);
+    void setHrd(const cv::Matx33f& Hrd); // regression face => detection face
+    void setEyeCropper(EyeCropper& cropper);
+    void paint(cv::Mat& frame);
 
-    virtual void detect(const MatP &I, std::vector<FaceModel> &faces);
-    virtual void refine(const PaddedImage &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H, bool isDetection);
+    virtual void detect(const MatP& I, std::vector<FaceModel>& faces);
+    virtual void refine(const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H, bool isDetection);
 
 protected:
-
     std::shared_ptr<Impl> m_impl; // make_unique<> errors
 };
 
-void splitContour(const std::vector<cv::Point2f> &points, std::vector<std::vector<cv::Point2f>> &contours);
+void splitContour(const std::vector<cv::Point2f>& points, std::vector<std::vector<cv::Point2f>>& contours);
 
 DRISHTI_FACE_NAMESPACE_END
 

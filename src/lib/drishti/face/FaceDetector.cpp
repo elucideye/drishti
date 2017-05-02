@@ -21,9 +21,11 @@
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/geometry/Rectangle.h"
 
-#if DRISHTI_SERIALIZE_WITH_BOOST    
+// clang-format off
+#if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h" // (optional)
 #endif
+// clang-format on
 
 #include <stdio.h>
 
@@ -33,45 +35,44 @@
 DRISHTI_FACE_NAMESPACE_BEGIN
 
 #if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS
-static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes);
+static void previewDetections(const MatP& I, std::vector<dsdkc::Shape>& shapes);
 #endif
 
 using drishti::geometry::operator*;
 
 // Map from normalized coordinate system to input ROI
-static cv::Matx33f denormalize(const cv::Rect &roi);
-static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores);
+static cv::Matx33f denormalize(const cv::Rect& roi);
+static void chooseBest(std::vector<cv::Rect>& objects, std::vector<double>& scores);
 
 // ((((((((((((((( Impl )))))))))))))))
 class FaceDetector::Impl
 {
 public:
-
     typedef FaceDetector::MatLoggerType MatLoggerType;
     typedef FaceDetector::TimeLoggerType TimeLoggerType;
     typedef FaceDetector::EyeCropper EyeCropper;
 
-    Impl(FaceDetectorFactory &resources)
+    Impl(FaceDetectorFactory& resources)
     {
         create(resources);
     }
 
-    void create(FaceDetectorFactory &resources)
+    void create(FaceDetectorFactory& resources)
     {
         m_detector = resources.getFaceDetector();
         m_regressor = resources.getInnerFaceEstimator();
-        if(resources.sFaceRegressors.size() > 1)
+        if (resources.sFaceRegressors.size() > 1)
         {
             m_regressor2 = resources.getOuterFaceEstimator();
         }
         m_eyeRegressor.resize(2);
-        for(int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             m_eyeRegressor[i] = resources.getEyeEstimator();
         }
     }
 
-    void setLandmarkFormat( FaceSpecification::Format format )
+    void setLandmarkFormat(FaceSpecification::Format format)
     {
         m_landmarkFormat = format;
     }
@@ -85,56 +86,54 @@ public:
      */
 
     template <typename ImageType>
-    void detect(const ImageType &I, std::vector<dsdkc::Shape> &shapes)
+    void detect(const ImageType& I, std::vector<dsdkc::Shape>& shapes)
     {
-        drishti::core::ScopeTimeLogger scopeTimeLogger = [this](double elapsed)
-        {
-            if(m_detectionTimeLogger)
+        drishti::core::ScopeTimeLogger scopeTimeLogger = [this](double elapsed) {
+            if (m_detectionTimeLogger)
             {
                 m_detectionTimeLogger(elapsed);
             }
         };
-        
+
         // Detect objects:
         std::vector<double> scores;
         std::vector<cv::Rect> objects;
         (*m_detector)(I, objects, &scores);
-        
-        if(m_doNMSGlobal)
+
+        if (m_doNMSGlobal)
         {
             chooseBest(objects, scores);
         }
-        
-        for(int i = 0; i < objects.size(); i++)
+
+        for (int i = 0; i < objects.size(); i++)
         {
             shapes.emplace_back(objects[i], scores[i]);
         }
     }
 
-    void refineFace(const PaddedImage &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H, bool isDetection)
+    void refineFace(const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H, bool isDetection)
     {
         // Find the landmarks:
-        if(m_regressor)
+        if (m_regressor)
         {
             std::vector<dsdkc::Shape> shapes(faces.size());
-            std::transform(faces.begin(), faces.end(), shapes.begin(), [](const FaceModel &face)
-            {
+            std::transform(faces.begin(), faces.end(), shapes.begin(), [](const FaceModel& face) {
                 return dsdkc::Shape(face.roi);
             });
             findLandmarks(Ib, shapes, H, isDetection);
             shapesToFaces(shapes, faces);
         }
 
-        if(m_eyeRegressor.size() && m_eyeRegressor[0] && m_eyeRegressor[1] && m_doEyeRefinement && faces.size())
+        if (m_eyeRegressor.size() && m_eyeRegressor[0] && m_eyeRegressor[1] && m_doEyeRefinement && faces.size())
         {
             DRISHTI_EYE::EyeModel eyeR, eyeL;
             segmentEyes(Ib.Ib, faces[0], eyeR, eyeL);
-            if(eyeR.eyelids.size())
+            if (eyeR.eyelids.size())
             {
                 faces[0].eyeFullR = eyeR;
                 faces[0].eyeRightCenter = core::centroid(eyeR.eyelids);
             }
-            if(eyeL.eyelids.size())
+            if (eyeL.eyelids.size())
             {
                 faces[0].eyeFullL = eyeL;
                 faces[0].eyeLeftCenter = core::centroid(eyeL.eyelids);
@@ -142,9 +141,9 @@ public:
         }
     }
 
-    static void extractCrops(const cv::Mat &Ib, cv::Rect eyes[2], const cv::Rect &bounds, cv::Mat crops[2])
+    static void extractCrops(const cv::Mat& Ib, cv::Rect eyes[2], const cv::Rect& bounds, cv::Mat crops[2])
     {
-        for(int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             // TODO: replace this with a zero copy version:
             // NOTE: Iris code seems to assume continuous memory layout
@@ -155,53 +154,51 @@ public:
         }
     }
 
-    void segmentEyes(const cv::Mat1b &Ib, FaceModel &face, DRISHTI_EYE::EyeModel &eyeR, DRISHTI_EYE::EyeModel &eyeL)
+    void segmentEyes(const cv::Mat1b& Ib, FaceModel& face, DRISHTI_EYE::EyeModel& eyeR, DRISHTI_EYE::EyeModel& eyeL)
     {
         cv::Rect2f roiR, roiL;
         bool hasEyes = face.getEyeRegions(roiR, roiL, 0.666);
-        if(hasEyes && roiR.area() && roiL.area())
+        if (hasEyes && roiR.area() && roiL.area())
         {
-            drishti::core::ScopeTimeLogger scopeTimeLogger = [this](double elapsed)
-            {
-                if(m_eyeRegressionTimeLogger)
+            drishti::core::ScopeTimeLogger scopeTimeLogger = [this](double elapsed) {
+                if (m_eyeRegressionTimeLogger)
                 {
                     m_eyeRegressionTimeLogger(elapsed);
                 }
             };
 
             // Apply some fixed offset to eye crops:
-//            const cv::Point2f centerR = drishti::geometry::centroid<float,float>(roiR);
-//            const cv::Point2f centerL = drishti::geometry::centroid<float,float>(roiL);
-//            const cv::Point2f v1 = (centerL - centerR), v2(-v1.y,v1.x);
-//            roiR -=(v2 * 0.05);
-//            roiL -=(v2 * 0.05);
+            //            const cv::Point2f centerR = drishti::geometry::centroid<float,float>(roiR);
+            //            const cv::Point2f centerL = drishti::geometry::centroid<float,float>(roiL);
+            //            const cv::Point2f v1 = (centerL - centerR), v2(-v1.y,v1.x);
+            //            roiR -=(v2 * 0.05);
+            //            roiL -=(v2 * 0.05);
 
             cv::Mat crops[2], flipped;
             cv::Rect eyes[2] = { roiR, roiL };
-            extractCrops(Ib, eyes, {{0,0}, Ib.size()}, crops);
+            extractCrops(Ib, eyes, { { 0, 0 }, Ib.size() }, crops);
             cv::flip(crops[1], flipped, 1); // Flip left eye to right eye cs
             crops[1] = flipped;
 
-            cv::Point2f v = geometry::centroid<float,float>(roiR) - geometry::centroid<float,float>(roiL);
+            cv::Point2f v = geometry::centroid<float, float>(roiR) - geometry::centroid<float, float>(roiL);
             float theta = std::atan2(v.y, v.x);
             eyeR.angle = theta;
             eyeL.angle = (-theta);
-            DRISHTI_EYE::EyeModel* results[2] { &eyeR, &eyeL };
+            DRISHTI_EYE::EyeModel* results[2]{ &eyeR, &eyeL };
 
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 m_eyeRegressor[i]->setDoIndependentIrisAndPupil(m_doIrisRefinement);
                 m_eyeRegressor[i]->setEyelidInits(1);
                 m_eyeRegressor[i]->setIrisInits(1);
             }
 
-            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
-            {
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
                 (*m_eyeRegressor[i])(crops[i], *results[i]);
             };
 
             //harness({0, 2});
-            cv::parallel_for_({0, 2}, harness, 2);
+            cv::parallel_for_({ 0, 2 }, harness, 2);
 
             eyeL.flop(crops[1].cols);
             eyeL += eyes[1].tl(); // shift features to image coordinate system
@@ -211,51 +208,48 @@ public:
         }
     }
 
-    static cv::Rect scaleRoi(cv::Rect &roi, float scale)
+    static cv::Rect scaleRoi(cv::Rect& roi, float scale)
     {
         cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f), diag(br - center);
-        return cv::Rect( center - (diag * scale), center + (diag * scale));
+        return cv::Rect(center - (diag * scale), center + (diag * scale));
     }
 
-    void findLandmarks(const PaddedImage &Ib, std::vector<dsdkc::Shape> &shapes, const cv::Matx33f &Hdr_, bool isDetection)
+    void findLandmarks(const PaddedImage& Ib, std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& Hdr_, bool isDetection)
     {
         // Scope based eye segmentation timer:
-        drishti::core::ScopeTimeLogger scopeTimeLogger =  [this](double elapsed)
-        {
-            if(m_regressionTimeLogger)
+        drishti::core::ScopeTimeLogger scopeTimeLogger = [this](double elapsed) {
+            if (m_regressionTimeLogger)
             {
                 m_regressionTimeLogger(elapsed);
             }
         };
 
-        
         const cv::Mat gray = Ib.Ib;
         CV_Assert(gray.type() == CV_8UC1);
 
-        std::vector< std::pair< drishti::ml::ShapeEstimator *, cv::Matx33f > > regressors
-        {
+        std::vector<std::pair<drishti::ml::ShapeEstimator*, cv::Matx33f>> regressors{
             { m_regressor.get(), m_Hrd },
         };
 
-        if(m_regressor2.get())
+        if (m_regressor2.get())
         {
             regressors.emplace_back(m_regressor2.get(), m_Hrd2);
         }
 
-        cv::Rect fullBounds({0,0}, Ib.Ib.size());
+        cv::Rect fullBounds({ 0, 0 }, Ib.Ib.size());
         cv::Rect bounds = Ib.roi.area() ? Ib.roi : fullBounds;
 
-        for(int i = 0; i < shapes.size(); i++)
+        for (int i = 0; i < shapes.size(); i++)
         {
             int best = 0;
 
             // Use richest regressor whos projected roi still fits in the image (or almost)
             cv::Rect roi;
-            for(int j = int(regressors.size())-1; j >= 0; j--)
+            for (int j = int(regressors.size()) - 1; j >= 0; j--)
             {
                 roi = isDetection ? mapDetectionToRegressor(shapes[i].roi, regressors[j].second, Hdr_) : shapes[i].roi;
                 roi = scaleRoi(roi, m_scaling);
-                if((roi & bounds) == roi)
+                if ((roi & bounds) == roi)
                 {
                     best = j;
                     break;
@@ -267,21 +261,21 @@ public:
             cv::Mat crop = gray(clipped);
 
             // TODO [DJH]: Avoid the need for clipping the image
-            if(clipped.size() != shapes[i].roi.size())
+            if (clipped.size() != shapes[i].roi.size())
             {
                 cv::Mat padded(shapes[i].roi.size(), crop.type(), cv::Scalar::all(0));
                 crop.copyTo(padded(clipped - shapes[i].roi.tl()));
                 cv::swap(crop, padded);
             }
 
-            auto &regressor = regressors[best].first;
+            auto& regressor = regressors[best].first;
 
             const float scaleInv = 1.f;
             std::vector<cv::Point2f> points;
             std::vector<bool> mask;
             (*regressor)(crop, points, mask);
 
-            for(const auto &p : points)
+            for (const auto& p : points)
             {
                 cv::Point q((p.x * scaleInv) + shapes[i].roi.x, (p.y * scaleInv) + shapes[i].roi.y);
                 shapes[i].contour.emplace_back(q.x, q.y, 0);
@@ -295,38 +289,38 @@ public:
     // denormalize(s.roi)  : denormalize points
     // Hdr                 : detector image to regressor
 
-    cv::Rect mapDetectionToRegressor(const cv::Rect &roi, const cv::Matx33f &Hrd, const cv::Matx33f &Hdr_)
+    cv::Rect mapDetectionToRegressor(const cv::Rect& roi, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)
     {
         // 1) map the unit square from regressor to the detector;
         // 2) denormalize coordinates in the detector image;
         // 3) transform from the detector image to the regressor image;
         cv::Matx33f H = Hdr_ * denormalize(roi) * Hrd;
-        return H * cv::Rect_<float>(0,0,1,1);
+        return H * cv::Rect_<float>(0, 0, 1, 1);
     }
 
-    void mapDetectionsToRegressor(std::vector<dsdkc::Shape> &shapes, const cv::Matx33f &Hrd, const cv::Matx33f &Hdr_)
+    void mapDetectionsToRegressor(std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)
     {
-        for(auto & s : shapes)
+        for (auto& s : shapes)
         {
             s.roi = mapDetectionToRegressor(s.roi, Hrd, Hdr_);
         }
     }
 
-    void shapesToFaces(std::vector<dsdkc::Shape> &shapes, std::vector<FaceModel> &faces)
+    void shapesToFaces(std::vector<dsdkc::Shape>& shapes, std::vector<FaceModel>& faces)
     {
         faces.clear();
-        for(auto &s : shapes)
+        for (auto& s : shapes)
         {
             FaceModel f;
-            faces.push_back( shapeToFace(s, m_landmarkFormat) );
+            faces.push_back(shapeToFace(s, m_landmarkFormat));
         }
     }
 
-    FaceModel getMeanShape(const drishti::ml::ShapeEstimator &regressor, const cv::Rect2f &roi) const
+    FaceModel getMeanShape(const drishti::ml::ShapeEstimator& regressor, const cv::Rect2f& roi) const
     {
         auto mu = regressor.getMeanShape();
         drishti::core::Shape shape;
-        for(auto &p : mu)
+        for (auto& p : mu)
         {
             shape.contour.emplace_back(roi.x + p.x * roi.width, roi.y + p.y * roi.height, 0);
         }
@@ -336,19 +330,19 @@ public:
         return face;
     }
 
-    FaceModel getMeanShape(const cv::Size2f &size) const
+    FaceModel getMeanShape(const cv::Size2f& size) const
     {
-        return getMeanShape(*m_regressor, cv::Rect2f({0.f,0.f}, size));
+        return getMeanShape(*m_regressor, cv::Rect2f({ 0.f, 0.f }, size));
     }
 
-    FaceModel getMeanShape(const cv::Rect2f &roi) const
+    FaceModel getMeanShape(const cv::Rect2f& roi) const
     {
         return getMeanShape(*m_regressor, roi);
     }
 
-    cv::Matx33f getAffineMotionFromRegressorToDetector(const ml::ShapeEstimator &regressor)
+    cv::Matx33f getAffineMotionFromRegressorToDetector(const ml::ShapeEstimator& regressor)
     {
-        FaceModel faceRegressorMean = getMeanShape(regressor, {0.f, 0.f, 1.f, 1.f});
+        FaceModel faceRegressorMean = getMeanShape(regressor, { 0.f, 0.f, 1.f, 1.f });
 
 #if DRISHTI_FACE_DETECTOR_DO_SIMILARITY_MOTION
         cv::Mat M = estimateMotionLeastSquares(faceRegressorMean, m_faceDetectorMean);
@@ -356,30 +350,30 @@ public:
         cv::Mat M = getAffineMotion(faceRegressorMean, m_faceDetectorMean);
 #endif
         cv::Matx33f Hrd = cv::Matx33f::eye();
-        for(int y = 0; y < 2; y++)
+        for (int y = 0; y < 2; y++)
         {
-            for(int x = 0; x < 3; x++)
+            for (int x = 0; x < 3; x++)
             {
-                Hrd(y,x) = M.at<double>(y,x);
+                Hrd(y, x) = M.at<double>(y, x);
             }
         }
         return Hrd;
     }
 
-    void setFaceDetectorMean(const FaceModel &mu)
+    void setFaceDetectorMean(const FaceModel& mu)
     {
         m_faceDetectorMean = mu;
-        if(m_regressor)
+        if (m_regressor)
         {
             m_Hrd = getAffineMotionFromRegressorToDetector(*m_regressor);
         }
-        if(m_regressor2)
+        if (m_regressor2)
         {
             m_Hrd2 = getAffineMotionFromRegressorToDetector(*m_regressor2);
         }
     }
 
-    const FaceModel &getFaceDetectorMean()
+    const FaceModel& getFaceDetectorMean()
     {
         return m_faceDetectorMean;
     }
@@ -410,7 +404,7 @@ public:
     }
     void setLogger(MatLoggerType logger)
     {
-        if(m_detector)
+        if (m_detector)
         {
             std::cerr << "TODO: must add logger method" << std::endl;
             //m_detector->setLogger(logger);
@@ -428,14 +422,14 @@ public:
     {
         m_eyeRegressionTimeLogger = logger;
     }
-    void setEyeCropper(EyeCropper &cropper)
+    void setEyeCropper(EyeCropper& cropper)
     {
         m_eyeCropper = cropper;
     }
 
-    void setUprightImage(const cv::Mat &Ib)
+    void setUprightImage(const cv::Mat& Ib)
     {
-        m_Ib =  Ib;
+        m_Ib = Ib;
     }
     const cv::Mat& getUprightImage() const
     {
@@ -444,41 +438,41 @@ public:
 
     void setFaceStagesHint(int stages)
     {
-        if(m_regressor)
+        if (m_regressor)
         {
             m_regressor->setStagesHint(stages);
         }
     }
     void setFace2StagesHint(int stages)
     {
-        if(m_regressor2)
+        if (m_regressor2)
         {
             m_regressor2->setStagesHint(stages);
         }
     }
     void setEyelidStagesHint(int stages)
     {
-        for(auto &regressor : m_eyeRegressor)
+        for (auto& regressor : m_eyeRegressor)
         {
             regressor->setEyelidStagesHint(stages);
         }
     }
     void setIrisStagesHint(int stages)
     {
-        for(auto &regressor : m_eyeRegressor)
+        for (auto& regressor : m_eyeRegressor)
         {
             regressor->setIrisStagesHint(stages);
         }
     }
     void setIrisStagesRepetitionFactor(int x)
     {
-        for(auto &regressor : m_eyeRegressor)
+        for (auto& regressor : m_eyeRegressor)
         {
             regressor->setIrisStagesRepetitionFactor(x);
         }
     }
 
-//private:
+    //private:
 
     FaceSpecification::Format m_landmarkFormat = FaceSpecification::HELEN;
 
@@ -535,7 +529,7 @@ void FaceDetector::setDoNMSGlobal(bool doNMS)
 {
     m_impl->setDoNMSGlobal(doNMS);
 }
-void FaceDetector::setFaceDetectorMean(const FaceModel &mu)
+void FaceDetector::setFaceDetectorMean(const FaceModel& mu)
 {
     m_impl->setFaceDetectorMean(mu);
 }
@@ -543,15 +537,14 @@ void FaceDetector::setLogger(MatLoggerType logger)
 {
     m_impl->setLogger(logger);
 }
-drishti::ml::ObjectDetector * FaceDetector::getDetector()
+drishti::ml::ObjectDetector* FaceDetector::getDetector()
 {
     return m_impl->m_detector.get();
 }
 
-FaceDetector::FaceDetector(FaceDetectorFactory &resources)
-    : m_impl( std::make_shared<Impl>(resources) )
+FaceDetector::FaceDetector(FaceDetectorFactory& resources)
+    : m_impl(std::make_shared<Impl>(resources))
 {
-
 }
 
 void FaceDetector::setLandmarkFormat(FaceSpecification::Format format)
@@ -564,7 +557,7 @@ cv::Mat FaceDetector::getUprightImage()
     return m_impl->getUprightImage();
 }
 
-void FaceDetector::detect(const MatP &I, std::vector<FaceModel> &faces)
+void FaceDetector::detect(const MatP& I, std::vector<FaceModel>& faces)
 {
     // Run detections
     std::vector<dsdkc::Shape> shapes;
@@ -575,7 +568,7 @@ void FaceDetector::detect(const MatP &I, std::vector<FaceModel> &faces)
 #endif
 
     faces.resize(shapes.size());
-    for(int i = 0; i < faces.size(); i++)
+    for (int i = 0; i < faces.size(); i++)
     {
         faces[i].roi = shapes[i].roi;
 
@@ -583,15 +576,14 @@ void FaceDetector::detect(const MatP &I, std::vector<FaceModel> &faces)
         //FaceModel &mu = m_impl->getFaceDetectorMean();
     }
 
-    std::transform(shapes.begin(), shapes.end(), faces.begin(), [](const dsdkc::Shape &shape)
-    {
+    std::transform(shapes.begin(), shapes.end(), faces.begin(), [](const dsdkc::Shape& shape) {
         return FaceModel(shape.roi);
     });
 }
 
-void FaceDetector::refine(const PaddedImage &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H, bool isDetection)
+void FaceDetector::refine(const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H, bool isDetection)
 {
-    if(faces.size() && m_impl)
+    if (faces.size() && m_impl)
     {
         m_impl->refineFace(Ib, faces, H, isDetection);
     }
@@ -600,16 +592,15 @@ void FaceDetector::refine(const PaddedImage &Ib, std::vector<FaceModel> &faces, 
 //virtual void operator()(const MatP &I, const cv::Mat &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H=EYE);
 
 // face.area() > 0 indicates detection
-void FaceDetector::operator()(const MatP &I, const PaddedImage &Ib, std::vector<FaceModel> &faces, const cv::Matx33f &H)
+void FaceDetector::operator()(const MatP& I, const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H)
 {
     detect(I, faces);
     refine(Ib, faces, H, true);
 }
 
 // Legacy (doesn't use virtual detect):
-void FaceDetector::operator()(const MatP &I, const PaddedImage &Ib, std::vector<dsdkc::Shape> &shapes, const cv::Matx33f &H)
+void FaceDetector::operator()(const MatP& I, const PaddedImage& Ib, std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& H)
 {
-
 }
 
 cv::Size FaceDetector::getWindowSize() const
@@ -628,7 +619,7 @@ void FaceDetector::setEyeRegressionTimeLogger(TimeLoggerType logger)
 {
     m_impl->setEyeRegressionTimeLogger(logger);
 }
-void FaceDetector::setEyeCropper( EyeCropper &cropper )
+void FaceDetector::setEyeCropper(EyeCropper& cropper)
 {
     m_impl->setEyeCropper(cropper);
 }
@@ -637,11 +628,11 @@ void FaceDetector::setScaling(float scale)
     m_impl->setScaling(scale);
 }
 
-FaceModel FaceDetector::getMeanShape(const cv::Size2f &size) const
+FaceModel FaceDetector::getMeanShape(const cv::Size2f& size) const
 {
     return m_impl->getMeanShape(size);
 }
-FaceModel FaceDetector::getMeanShape(const cv::Rect2f &roi) const
+FaceModel FaceDetector::getMeanShape(const cv::Rect2f& roi) const
 {
     return m_impl->getMeanShape(roi);
 }
@@ -674,18 +665,18 @@ void FaceDetector::setIrisStagesRepetitionFactor(int x)
 
 #if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS
 
-static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes)
+static void previewDetections(const MatP& I, std::vector<dsdkc::Shape>& shapes)
 {
-    if(shapes.size())
+    if (shapes.size())
     {
         cv::Mat canvas;
         cv::Mat It = I[0].t();
         It.convertTo(canvas, CV_8UC1, 255);
         cv::cvtColor(canvas, canvas, cv::COLOR_GRAY2BGR);
-        for(auto &f : shapes)
+        for (auto& f : shapes)
         {
             //std::cout << "Roi:" << f.roi << std::endl;
-            cv::rectangle(canvas, f.roi, {0,255,0}, 1, 8);
+            cv::rectangle(canvas, f.roi, { 0, 255, 0 }, 1, 8);
         }
         cv::imshow("input", canvas), cv::waitKey(0);
     }
@@ -696,23 +687,23 @@ static void previewDetections(const MatP &I, std::vector<dsdkc::Shape> &shapes)
 // utility
 
 // Map from normalized coordinate system to input ROI
-static cv::Matx33f denormalize(const cv::Rect &roi)
+static cv::Matx33f denormalize(const cv::Rect& roi)
 {
     cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f);
-    cv::Matx33f C1(1,0,-0.5,0,1,-0.5,0,0,1);
-    cv::Matx33f C2(1,0,+center.x,0,1,+center.y,0,0,1);
-    cv::Matx33f S = cv::Matx33f::diag({static_cast<float>(roi.width), static_cast<float>(roi.height),1.f});
+    cv::Matx33f C1(1, 0, -0.5, 0, 1, -0.5, 0, 0, 1);
+    cv::Matx33f C2(1, 0, +center.x, 0, 1, +center.y, 0, 0, 1);
+    cv::Matx33f S = cv::Matx33f::diag({ static_cast<float>(roi.width), static_cast<float>(roi.height), 1.f });
     return (C2 * S * C1);
 }
 
-static void chooseBest(std::vector<cv::Rect> &objects, std::vector<double> &scores)
+static void chooseBest(std::vector<cv::Rect>& objects, std::vector<double>& scores)
 {
-    if(objects.size() > 1)
+    if (objects.size() > 1)
     {
         int best = 0;
-        for(int i = 1; i < objects.size(); i++)
+        for (int i = 1; i < objects.size(); i++)
         {
-            if(scores[i] > scores[best])
+            if (scores[i] > scores[best])
             {
                 best = i;
             }

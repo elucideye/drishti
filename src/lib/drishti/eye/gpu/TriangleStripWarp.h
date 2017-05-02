@@ -21,20 +21,19 @@ BEGIN_OGLES_GPGPU
 class TriangleStripWarp : public ogles_gpgpu::FilterProcBase
 {
 public:
-
     using PointSet2f = std::vector<cv::Point2f>;
 
     TriangleStripWarp();
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "TriangleStripWarp";
     }
 
-    virtual const char *getVertexShaderSource()
+    virtual const char* getVertexShaderSource()
     {
         return vshaderDefault;
     }
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderTriangleSrc;
     }
@@ -46,7 +45,7 @@ public:
     PointSet2f m_pixels;
     PointSet2f m_texels;
 
-    static const char * fshaderTriangleSrc;
+    static const char* fshaderTriangleSrc;
 };
 
 END_OGLES_GPGPU

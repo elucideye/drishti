@@ -13,20 +13,20 @@
 */
 
 #if DRISHTI_HCI_DO_GPU
-#  include "drishti/qtplus/QGLContext.h"
+#include "drishti/qtplus/QGLContext.h"
 #endif
 
 #include <gtest/gtest.h>
 
 #include <fstream>
 
-extern const char *sFaceDetector;
-extern const char *sFaceDetectorMean;
-extern const char *sFaceRegressor;
-extern const char *sEyeRegressor;
-extern const char *sImageFilename;
+extern const char* sFaceDetector;
+extern const char* sFaceDetectorMean;
+extern const char* sFaceRegressor;
+extern const char* sEyeRegressor;
+extern const char* sImageFilename;
 
-static bool hasFile(const std::string &filename)
+static bool hasFile(const std::string& filename)
 {
     std::ifstream ifs(filename);
     return ifs.good();
@@ -37,7 +37,7 @@ int drishti_main(int argc, char** argv)
 #if DRISHTI_BUILD_QT && DRISHTI_HCI_DO_GPU
     QApplication app(argc, argv);
 #endif
-    
+
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 6);
 
@@ -46,12 +46,12 @@ int drishti_main(int argc, char** argv)
     sFaceRegressor = argv[3];
     sEyeRegressor = argv[4];
     sImageFilename = argv[5];
-    
+
     assert(hasFile(sFaceDetector));
     assert(hasFile(sFaceDetectorMean));
     assert(hasFile(sFaceRegressor));
     assert(hasFile(sEyeRegressor));
     assert(hasFile(sImageFilename));
-    
+
     return RUN_ALL_TESTS();
 }

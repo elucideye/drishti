@@ -29,7 +29,7 @@ public:
     /**
      * Construct as render pass <pass> (1 or 2).
      */
-    TriangleProcPass(int pass, float radius, bool doNorm=false, float normConst=0.005f)
+    TriangleProcPass(int pass, float radius, bool doNorm = false, float normConst = 0.005f)
         : FilterProcBase()
         , doNorm(doNorm)
         , renderPass(pass)
@@ -46,24 +46,23 @@ public:
     /**
      * Return the processors name.
      */
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "TriangleProcPass";
     }
 
-    virtual void filterShaderSetup(const char *vShaderSrc, const char *fShaderSrc, GLenum target);
+    virtual void filterShaderSetup(const char* vShaderSrc, const char* fShaderSrc, GLenum target);
     virtual void setUniforms();
     virtual void getUniforms();
-    virtual const char *getFragmentShaderSource();
-    virtual const char *getVertexShaderSource();
+    virtual const char* getFragmentShaderSource();
+    virtual const char* getVertexShaderSource();
 
 private:
-
     bool doNorm = false;
     int renderPass; // render pass number. must be 1 or 2
 
-    float pxDx;	// pixel delta value for texture access
-    float pxDy;	// pixel delta value for texture access
+    float pxDx; // pixel delta value for texture access
+    float pxDy; // pixel delta value for texture access
 
     float normConst = 0.005;
 
@@ -78,4 +77,3 @@ private:
 
 END_OGLES_GPGPU
 #endif
-

@@ -30,7 +30,10 @@ using namespace ogles_gpgpu;
 
 struct DrawingSpec
 {
-    DrawingSpec(int type) : type(type) {}
+    DrawingSpec(int type)
+        : type(type)
+    {
+    }
     int type;
     std::vector<cv::Vec3f> colors;
     std::vector<cv::Point2f> points;
@@ -38,7 +41,7 @@ struct DrawingSpec
 
 // =====
 
-// *INDENT-OFF*
+// clang-format off
 const char *FacePainter::fshaderLetterBoxSrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -59,11 +62,11 @@ void main()
     gl_FragColor = vec4(mixed, 1.0);
 }
 );
-// *INDENT-ON*
+// clang-format on
 
 // ===== constant color shader ======
 
-// *INDENT-OFF*
+// clang-format off
 const char * FacePainter::vshaderColorSrc = OG_TO_STR
 (
  uniform mat4 modelViewProjMatrix;
@@ -72,9 +75,9 @@ const char * FacePainter::vshaderColorSrc = OG_TO_STR
     color = vertexColor;
     gl_Position = modelViewProjMatrix * position;
  });
-// *INDENT-ON*
+// clang-format on
 
-// *INDENT-OFF*
+// clang-format off
 const char * FacePainter::fshaderColorSrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -86,11 +89,11 @@ const char * FacePainter::fshaderColorSrc = OG_TO_STR
  {
      gl_FragColor = vec4(color, 1.0);
  });
-// *INDENT-ON*
+// clang-format on
 
 // ===== varying color shader ======
 
-// *INDENT-OFF*
+// clang-format off
 const char * FacePainter::vshaderColorVaryingSrc = OG_TO_STR
 (
  attribute vec4 position;
@@ -103,9 +106,9 @@ const char * FacePainter::vshaderColorVaryingSrc = OG_TO_STR
      lineColor = color;
      gl_Position = modelViewProjMatrix * position;
  });
-// *INDENT-ON*
+// clang-format on
 
-// *INDENT-OFF*
+// clang-format off
 const char * FacePainter::fshaderColorVaryingSrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -116,11 +119,10 @@ const char * FacePainter::fshaderColorVaryingSrc = OG_TO_STR
  {
      gl_FragColor = vec4(lineColor, 1.0);
  });
-// *INDENT-ON*
+// clang-format on
 
 FacePainter::~FacePainter()
 {
-    
 }
 
 void FacePainter::getUniforms()
@@ -128,7 +130,7 @@ void FacePainter::getUniforms()
     TransformProc::getUniforms();
 
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
-    
+
 #if DO_COLOR
     m_drawShParamULineColor = 0;
 #else
@@ -136,7 +138,7 @@ void FacePainter::getUniforms()
 #endif
 
     // color overlays
-    m_colorRGB = {0.0, 0.0, 1.0};
+    m_colorRGB = { 0.0, 0.0, 1.0 };
     m_colorWeight = 1.f;
     m_colorShParamRGB = shader->getParam(UNIF, "color");
     m_colorShParamUWeight = shader->getParam(UNIF, "colorWeight");
@@ -153,7 +155,7 @@ FacePainter::FacePainter(int outputOrientation)
 
     // Font rendering:
     m_printer = drishti::core::make_unique<GLPrinterShader>();
-    
+
     m_draw = std::make_shared<Shader>();
 #if DO_COLOR
     bool compiled = m_draw->buildFromSrc(vshaderColorVaryingSrc, fshaderColorVaryingSrc);
@@ -166,7 +168,7 @@ FacePainter::FacePainter(int outputOrientation)
     m_drawShParamAPosition = m_draw->getParam(ATTR, "position");
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
 
-    m_eyeAttributes = { &m_eyePoints, 16.f, {1.0, 0.0, 1.0} };
+    m_eyeAttributes = { &m_eyePoints, 16.f, { 1.0, 0.0, 1.0 } };
     m_eyeAttributes.flow = &m_eyeFlow;
 }
 
@@ -190,22 +192,22 @@ cv::Matx33f FacePainter::uprightImageToTexture()
     cv::Size2f size(inFrameW, inFrameH);
 
     // Transform to rectangle defined by (-1,-1) (+1,+1)
-    const cv::Matx33f T = transformation::translate(-size.width/2, -size.height/2);
-    const cv::Matx33f S = transformation::scale(2.0/size.width,2.0/size.height);
+    const cv::Matx33f T = transformation::translate(-size.width / 2, -size.height / 2);
+    const cv::Matx33f S = transformation::scale(2.0 / size.width, 2.0 / size.height);
     cv::Matx33f H = S * T;
 
     return H;
 }
 
-static void addCross(DrawingSpec &lines, const cv::Point2f &point, const cv::Vec3f &color, float span)
+static void addCross(DrawingSpec& lines, const cv::Point2f& point, const cv::Vec3f& color, float span)
 {
     static const cv::Point2f dx(1.f, 0.f), dy(0.f, 1.f);
- 
+
     lines.points.push_back(point - (dx * span));
     lines.points.push_back(point + (dx * span));
     lines.points.push_back(point - (dy * span));
     lines.points.push_back(point + (dy * span));
-    
+
     lines.colors.push_back(color);
     lines.colors.push_back(color);
     lines.colors.push_back(color);
@@ -216,23 +218,23 @@ void FacePainter::renderDrawings()
 {
     //const std::string tag = DRISHTI_LOCATION_SIMPLE;
     //drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
-    
+
     DrawingSpec lines(GL_LINES);
-    
+
     std::copy(m_permanentDrawings.begin(), m_permanentDrawings.end(), std::back_inserter(m_drawings));
 
     glLineWidth(6.0);
-    for(const auto &e : m_drawings)
+    for (const auto& e : m_drawings)
     {
-        if(e.strip == true)
+        if (e.strip == true)
         {
             // Convert line strips to line segments for ios (no glMultiDrawArrays())
-            for(auto &c : e.contours)
+            for (auto& c : e.contours)
             {
-                for(int i = 1; i < c.size(); i++)
+                for (int i = 1; i < c.size(); i++)
                 {
-                    lines.points.emplace_back(c[i-1]);
-                    lines.points.emplace_back(c[i+0]);
+                    lines.points.emplace_back(c[i - 1]);
+                    lines.points.emplace_back(c[i + 0]);
                     lines.colors.emplace_back(e.color);
                     lines.colors.emplace_back(e.color);
                 }
@@ -240,9 +242,9 @@ void FacePainter::renderDrawings()
         }
         else
         {
-            for(const auto &c : e.contours)
+            for (const auto& c : e.contours)
             {
-                for(int i = 0; i < c.size(); i++)
+                for (int i = 0; i < c.size(); i++)
                 {
                     lines.points.emplace_back(c[i]);
                     lines.colors.emplace_back(e.color);
@@ -250,41 +252,41 @@ void FacePainter::renderDrawings()
             }
         }
     }
-    
+
     {
-        cv::Point2f origin(outFrameW/2, outFrameH/2);
+        cv::Point2f origin(outFrameW / 2, outFrameH / 2);
         float scale = cv::norm(origin);
         lines.points.emplace_back(origin);
         lines.points.emplace_back(origin + m_eyeMotion * scale);
         lines.colors.emplace_back(1.f, 0.f, 1.f);
         lines.colors.emplace_back(1.f, 0.f, 1.f);
     }
-    
-    if(m_gazePoints.size())
+
+    if (m_gazePoints.size())
     {
-        static const cv::Point2f origin(outFrameW/2, outFrameH/2);
-        addCross(lines, origin, {1.f, 1.f, 0.f}, 1000.f);
-        for(const auto &f : m_gazePoints)
-        {// Project normalized gaze point to screen:
+        static const cv::Point2f origin(outFrameW / 2, outFrameH / 2);
+        addCross(lines, origin, { 1.f, 1.f, 0.f }, 1000.f);
+        for (const auto& f : m_gazePoints)
+        { // Project normalized gaze point to screen:
             const float radius = (outFrameW / 2);
             const float gain = radius * 2.f;
             const cv::Point2f gaze = (f.point * gain) + origin;
-            addCross(lines, gaze, {1.f, 1.f, 0.5f}, 200.f * f.radius);
+            addCross(lines, gaze, { 1.f, 1.f, 0.5f }, 200.f * f.radius);
         }
     }
-    
-    if(m_faces.size())
+
+    if (m_faces.size())
     { // Show position of nearest face
-        const auto &position = (*m_faces.front().eyesCenter);
+        const auto& position = (*m_faces.front().eyesCenter);
         std::wstringstream wss;
         wss << position.z;
-        
+
         m_printer->begin();
         const float scale = 10.f;
         const float sx = scale / static_cast<float>(outFrameW);
         const float sy = scale / static_cast<float>(outFrameH);
         m_printer->printAt(wss.str(), 0.0f, 0.5f, sx, sy);
-     
+
         m_printer->end();
     }
 
@@ -295,7 +297,7 @@ void FacePainter::renderDrawings()
     cv::Matx44f MVPt;
     transformation::R3x3To4x4(H.t(), MVPt);
 
-    glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat *)&MVPt(0,0));
+    glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat*)&MVPt(0, 0));
     Tools::checkGLErr(getProcName(), "render drawings");
 
     glViewport(0, 0, outFrameW, outFrameH);
@@ -311,7 +313,7 @@ void FacePainter::renderDrawings()
     Tools::checkGLErr(getProcName(), "glDrawArrays()");
 }
 
-void FacePainter::setAxes(const cv::Point3f & axes)
+void FacePainter::setAxes(const cv::Point3f& axes)
 {
     m_motion = axes;
 }
@@ -328,55 +330,55 @@ void FacePainter::renderAxes()
     cv::Point3f motion(-m_motion.x, m_motion.y, m_motion.z);
     m_axes = drishti::geometry::drawAxes(motion, 0.05f, 32, 0.125f);
     m_axesColors = m_axes;
-    for(int i = 0; i < m_axesColors.size(); i++)
+    for (int i = 0; i < m_axesColors.size(); i++)
     {
-        cv::Point3f color(float(i==0), float(i==1), float(i==2));
-        auto &axis = m_axesColors[i];
+        cv::Point3f color(float(i == 0), float(i == 1), float(i == 2));
+        auto& axis = m_axesColors[i];
         std::fill(axis.begin(), axis.end(), color);
     }
-    
-    if(m_axes.size())
+
+    if (m_axes.size())
     {
         const float aspectRatio = static_cast<float>(outFrameW) / static_cast<float>(outFrameH);
         cv::Matx44f K = transformation::glPerspective(1000.f, aspectRatio, 0.f, 100.f);
 
         const float theta = M_PI;
         cv::Matx44f R = cv::Matx44f::eye();
-        R(0,0) = +std::cos(theta);
-        R(0,2) = -std::sin(theta);
-        R(2,0) = +std::sin(theta);
-        R(2,2) = +std::cos(theta);
-       
+        R(0, 0) = +std::cos(theta);
+        R(0, 2) = -std::sin(theta);
+        R(2, 0) = +std::sin(theta);
+        R(2, 2) = +std::cos(theta);
+
         cv::Matx44f T = cv::Matx44f::eye();
-        T(0,3) = -4.0f;   // X
-        T(1,3) = +4.0f;   // Y
-        T(2,3) = -16.0f;  // Z
-        
+        T(0, 3) = -4.0f;  // X
+        T(1, 3) = +4.0f;  // Y
+        T(2, 3) = -16.0f; // Z
+
         cv::Matx44f P = T * R;
-        
+
         cv::Matx44f MVP, MVPt;
         MVP = K * P;
         MVPt = MVP.t();
 
         glLineWidth(1.f);
-        
+
         m_draw->use();
         Tools::checkGLErr(getProcName(), "m_draw->use()");
-        
-        glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat *)&MVPt(0,0));
+
+        glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat*)&MVPt(0, 0));
         Tools::checkGLErr(getProcName(), "render drawings");
-        
+
         glViewport(0, 0, outFrameW, outFrameH);
         Tools::checkGLErr(getProcName(), "glViewport()");
 
-        for(int i = m_axes.size()-1; i >= 0; i--)
+        for (int i = m_axes.size() - 1; i >= 0; i--)
         {
             glVertexAttribPointer(m_drawShParamAColor, 3, GL_FLOAT, 0, 0, &m_axesColors[i].front().x);
             Tools::checkGLErr(getProcName(), "glVertexAttribPointer()");
-            
+
             glVertexAttribPointer(m_drawShParamAPosition, 3, GL_FLOAT, 0, 0, &m_axes[i].front().x);
             Tools::checkGLErr(getProcName(), "glVertexAttribPointer()");
-            
+
             glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_axes[i].size()));
             Tools::checkGLErr(getProcName(), "glDrawArrays()");
         }
@@ -385,7 +387,6 @@ void FacePainter::renderAxes()
 
 void FacePainter::renderGaze()
 {
-    
 }
 
 void FacePainter::FacePainter::setUniforms()
@@ -397,60 +398,60 @@ int FacePainter::FacePainter::render(int position)
 {
     const std::string tag = DRISHTI_LOCATION_SIMPLE;
     drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
-    
+
     OG_LOGINF(getProcName(), "input tex %d, target %d, framebuffer of size %dx%d", texId, texTarget, outFrameW, outFrameH);
-    
+
     { // ... main render routine ...
         filterRenderPrepare();
         Tools::checkGLErr(getProcName(), "render prepare");
         setUniforms();
-        
+
 #if DRISHTI_HCI_FACEPAINTER_COLOR_TINTING
-        if(m_flashInfo.texId >= 0)
+        if (m_flashInfo.texId >= 0)
         {
             m_colorRGB = Vec3f(0.f, 0.f, 0.f);
             m_colorRGB.data[0] = 1.f;
             m_colorRGB.data[1] = 1.f;
             m_colorRGB.data[2] = 1.f;
-            
+
             glUniform3fv(m_colorShParamRGB, 1, &m_colorRGB.data[0]);
             glUniform1f(m_colorShParamUWeight, m_brightness);
         }
 #endif
-        
+
         filterRenderSetCoords();
         Tools::checkGLErr(getProcName(), "render set coords");
-        
+
         // Draw the frame, line drawings and normalized face/eyes
         filterRenderDraw();
         renderDrawings(); // 2d
-        renderAxes(); // render w/ glPerspective (world coordinates)
+        renderAxes();     // render w/ glPerspective (world coordinates)
 
         Tools::checkGLErr(getProcName(), "render draw");
-        
+
         filterRenderCleanup();
         Tools::checkGLErr(getProcName(), "render cleanup");
     }
-    
-    if(m_eyes.m_eyesInfo.texId >= 0)
+
+    if (m_eyes.m_eyesInfo.texId >= 0)
     {
         renderTex(m_eyes.m_eyesInfo);
     }
-    if(m_flowInfo.texId >= 0)
+    if (m_flowInfo.texId >= 0)
     {
         renderTex(m_flowInfo);
     }
-    
+
 #if DRISHTI_HCI_FACEPAINTER_SHOW_FLASH_INPUT
-    if(m_flashInfo.texId >= 0)
+    if (m_flashInfo.texId >= 0)
     {
         renderTex(m_flashInfo);
     }
 #endif
-    
-    for(int i = 0; i < 2; i++)
+
+    for (int i = 0; i < 2; i++)
     {
-        if(m_irisInfo[i].texId >= 0)
+        if (m_irisInfo[i].texId >= 0)
         {
             renderTex(m_irisInfo[i]);
         }
@@ -472,10 +473,10 @@ int FacePainter::init(int inW, int inH, unsigned int order, bool prepareForExter
 //1, 1
 
 template <typename T>
-std::vector<cv::Point_<T>> getCorners(const cv::Rect_<T> &roi)
+std::vector<cv::Point_<T>> getCorners(const cv::Rect_<T>& roi)
 {
     cv::Point_<T> tl = roi.tl(), br = roi.br(), tr(br.x, tl.y), bl(tl.x, br.y);
-    return std::vector<cv::Point_<T>> { tl, tr, bl, br };
+    return std::vector<cv::Point_<T>>{ tl, tr, bl, br };
 }
 
 // =========================
@@ -483,16 +484,16 @@ std::vector<cv::Point_<T>> getCorners(const cv::Rect_<T> &roi)
 // =========================
 
 static void
-drawCrosses(const FacePainter::FeaturePoints &points, const cv::Vec3f &color, DrawingSpec &lines, float span)
+drawCrosses(const FacePainter::FeaturePoints& points, const cv::Vec3f& color, DrawingSpec& lines, float span)
 {
     drishti::hci::LineDrawingVec crosses;
     drishti::hci::pointsToCircles(points, crosses, span);
-    
-    for(const auto &x : crosses)
+
+    for (const auto& x : crosses)
     {
-        for(const auto &c : x.contours)
+        for (const auto& c : x.contours)
         {
-            for(const auto &p : c)
+            for (const auto& p : c)
             {
                 lines.points.emplace_back(p);
                 lines.colors.emplace_back(color);
@@ -502,14 +503,14 @@ drawCrosses(const FacePainter::FeaturePoints &points, const cv::Vec3f &color, Dr
 }
 
 static void
-drawFlow(const FacePainter::FlowField &flow, const cv::Vec3f &color, DrawingSpec &lines, float span)
+drawFlow(const FacePainter::FlowField& flow, const cv::Vec3f& color, DrawingSpec& lines, float span)
 {
     drishti::hci::LineDrawingVec needles;
-    
-    for(const auto &f : flow)
+
+    for (const auto& f : flow)
     {
         lines.points.emplace_back(f[0], f[1]);
-        lines.points.emplace_back(f[0]+f[2], f[1]+f[3]);
+        lines.points.emplace_back(f[0] + f[2], f[1] + f[3]);
         lines.colors.emplace_back(color);
         lines.colors.emplace_back(color);
     }
@@ -521,41 +522,41 @@ drawFlow(const FacePainter::FlowField &flow, const cv::Vec3f &color, DrawingSpec
  * Heye : transformation from full frame to
  */
 
-void FacePainter::annotateEye(const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size, const EyeAttributes &attributes)
+void FacePainter::annotateEye(const drishti::eye::EyeWarp& eyeWarp, const cv::Size& size, const EyeAttributes& attributes)
 {
     //const std::string tag = DRISHTI_LOCATION_SIMPLE;
     //drishti::core::ScopeTimeLogger paintLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
-    
+
     auto contours = eyeWarp.getContours(false);
 
     DrawingSpec lines(0);
-    for(auto &c : contours)
+    for (auto& c : contours)
     {
-        for(int i = 1; i < c.size(); i++)
+        for (int i = 1; i < c.size(); i++)
         {
-            lines.points.emplace_back(c[i-1]);
-            lines.points.emplace_back(c[i+0]);
+            lines.points.emplace_back(c[i - 1]);
+            lines.points.emplace_back(c[i + 0]);
 
-            lines.colors.emplace_back(0.0,1.0,0.0);
-            lines.colors.emplace_back(0.0,1.0,0.0);
+            lines.colors.emplace_back(0.0, 1.0, 0.0);
+            lines.colors.emplace_back(0.0, 1.0, 0.0);
         }
     }
 
-    if(attributes.points && attributes.points->size())
+    if (attributes.points && attributes.points->size())
     {
         drawCrosses(*attributes.points, attributes.color, lines, attributes.scale);
     }
 
-    if(attributes.flow && attributes.flow->size())
+    if (attributes.flow && attributes.flow->size())
     {
         drawFlow(*attributes.flow, attributes.color, lines, 100.f);
     }
-    
+
     glLineWidth(4.0);
     cv::Matx44f MVPt;
     transformation::R3x3To4x4(eyeWarp.H.t(), MVPt);
 
-    glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat *)&MVPt(0,0));
+    glUniformMatrix4fv(m_drawShParamUMVP, 1, 0, (GLfloat*)&MVPt(0, 0));
     Tools::checkGLErr(getProcName(), "FacePainter::renderEye() : glUniformMatrix4fv()");
 
     glVertexAttribPointer(m_drawShParamAColor, 3, GL_FLOAT, 0, 0, &lines.colors[0]);
@@ -572,14 +573,14 @@ void FacePainter::annotateEye(const drishti::eye::EyeWarp &eyeWarp, const cv::Si
 // H: src pixels => dest texels [-1 ... +1]
 // N:
 
-void FacePainter::renderEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, const DRISHTI_EYE::EyeModel &eye)
+void FacePainter::renderEye(const cv::Rect& dstRoiPix, const cv::Matx33f& Heye, const DRISHTI_EYE::EyeModel& eye)
 {
     // Limit warping to desired eye crop region
     cv::Matx44f MVPt;
     transformation::R3x3To4x4(Heye.t(), MVPt);
     glScissor(dstRoiPix.x, dstRoiPix.y, dstRoiPix.width, dstRoiPix.height);
 
-    glUniformMatrix4fv(shParamUTransform, 1, 0, (GLfloat *)&MVPt(0,0));
+    glUniformMatrix4fv(shParamUTransform, 1, 0, (GLfloat*)&MVPt(0, 0));
     Tools::checkGLErr(getProcName(), "FacePainter::renderEye() : glUniformMatrix4fv()");
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, OGLES_GPGPU_QUAD_VERTICES);
@@ -593,16 +594,16 @@ void FacePainter::renderEye(const cv::Rect &dstRoiPix, const cv::Matx33f &Heye, 
 // both left and right eyes
 // don't exceed native specified width
 
-std::array<drishti::eye::EyeWarp, 2> FacePainter::renderEyes(const drishti::face::FaceModel &face)
+std::array<drishti::eye::EyeWarp, 2> FacePainter::renderEyes(const drishti::face::FaceModel& face)
 {
-    drishti::face::FaceStabilizer stabilizer({inFrameW, inFrameH});
-    std::array<drishti::eye::EyeWarp, 2> cropInfo = stabilizer.renderEyes(face, {inFrameW, inFrameH});
+    drishti::face::FaceStabilizer stabilizer({ inFrameW, inFrameH });
+    std::array<drishti::eye::EyeWarp, 2> cropInfo = stabilizer.renderEyes(face, { inFrameW, inFrameH });
 
-    for(int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         renderEye(cropInfo[i].roi, cropInfo[i].H, (i == 0) ? *face.eyeFullL : *face.eyeFullR);
     }
-    
+
     annotateEyes(m_eyes, m_eyeAttributes);
 
     return cropInfo;
@@ -610,7 +611,7 @@ std::array<drishti::eye::EyeWarp, 2> FacePainter::renderEyes(const drishti::face
 
 void FacePainter::renderFaces()
 {
-    if(m_faces.size())
+    if (m_faces.size())
     {
         const cv::Size screenSize(outFrameW, outFrameH);
 
@@ -620,9 +621,9 @@ void FacePainter::renderFaces()
         Tools::checkGLErr(getProcName(), "FacePainter::renderFaces() : glBindTexture()");
 
         // Set vertices so transformations can be performed in pixel coordinates:
-        const std::vector<cv::Point2f> vertices = getCorners<float>(cv::Rect({0,0}, screenSize)); // tl, tr, bl, br
+        const std::vector<cv::Point2f> vertices = getCorners<float>(cv::Rect({ 0, 0 }, screenSize)); // tl, tr, bl, br
         glEnableVertexAttribArray(shParamAPos);
-        glVertexAttribPointer(shParamAPos, 2, GL_FLOAT, GL_FALSE, 0, & vertices[0]);
+        glVertexAttribPointer(shParamAPos, 2, GL_FLOAT, GL_FALSE, 0, &vertices[0]);
         Tools::checkGLErr(getProcName(), "FacePainter::renderFaces() : glVertexAttribPointer()");
     }
 }
@@ -631,18 +632,18 @@ void FacePainter::renderFaces()
 // === Eyes ============
 // =====================
 
-void FacePainter::annotateEyes(const EyePairInfo &eyes, const EyeAttributes &attributes)
+void FacePainter::annotateEyes(const EyePairInfo& eyes, const EyeAttributes& attributes)
 {
     m_draw->use();
     Tools::checkGLErr(getProcName(), "m_draw->use()");
 
     glEnable(GL_SCISSOR_TEST);
-    const auto &roi = eyes.m_eyesInfo.roi;
+    const auto& roi = eyes.m_eyesInfo.roi;
     glScissor(roi.x, roi.y, roi.width, roi.height);
-    
-    for(const auto &eye : eyes.m_eyes)
+
+    for (const auto& eye : eyes.m_eyes)
     {
-        annotateEye(eye, {eyes.m_eyesInfo.size.width, eyes.m_eyesInfo.size.height}, attributes);
+        annotateEye(eye, { eyes.m_eyesInfo.size.width, eyes.m_eyesInfo.size.height }, attributes);
     }
     glDisable(GL_SCISSOR_TEST);
 }
@@ -650,7 +651,7 @@ void FacePainter::annotateEyes(const EyePairInfo &eyes, const EyeAttributes &att
 // ################### UTILITY ############################
 
 // Implement all utilty texture drawing in terms of these:
-void FacePainter::renderTex(DisplayTexture &texInfo)
+void FacePainter::renderTex(DisplayTexture& texInfo)
 {
     OG_LOGINF(getProcName(), "input tex %d, target %d, framebuffer of size %dx%d", texId, texTarget, outFrameW, outFrameH);
 
@@ -672,7 +673,7 @@ void FacePainter::renderTex(DisplayTexture &texInfo)
     Tools::checkGLErr(getProcName(), "render cleanup");
 }
 
-void FacePainter::filterRenderPrepareTex(DisplayTexture &texInfo)
+void FacePainter::filterRenderPrepareTex(DisplayTexture& texInfo)
 {
     // Use the same shader as the normal Eyes:
     shader->use();
@@ -695,7 +696,7 @@ void FacePainter::filterRenderPrepareTex(DisplayTexture &texInfo)
     Tools::checkGLErr(getProcName(), "glUniform1i()");
 }
 
-void FacePainter::filterRenderSetCoordsTex(DisplayTexture &texInfo)
+void FacePainter::filterRenderSetCoordsTex(DisplayTexture& texInfo)
 {
     // render to FBO
     if (fbo)

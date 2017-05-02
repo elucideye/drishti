@@ -34,9 +34,10 @@ struct Recipe
 
     std::vector<int> paramIndex;
 
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version);
 
-    void print(std::ostream &os)
+    void print(std::ostream& os)
     {
         os << "maxLeafNodes: " << maxLeafNodes << std::endl;
         os << "maxDepth: " << maxDepth << std::endl;
@@ -50,7 +51,7 @@ struct Recipe
         os << "useNPD: " << useNPD << std::endl;
         os << "doMask: " << doMask << std::endl;
         os << "paramIndex: {";
-        for(const auto &i : paramIndex)
+        for (const auto& i : paramIndex)
         {
             os << i;
         }

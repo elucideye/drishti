@@ -9,7 +9,7 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-drishti::face::FaceModel loadFaceModel(std::istream &is)
+drishti::face::FaceModel loadFaceModel(std::istream& is)
 {
     drishti::face::FaceModel faceDetectorMean;
     {
@@ -25,11 +25,11 @@ drishti::face::FaceModel loadFaceModel(std::istream &is)
     return faceDetectorMean;
 }
 
-drishti::face::FaceModel loadFaceModel(const std::string &filename)
+drishti::face::FaceModel loadFaceModel(const std::string& filename)
 {
     drishti::face::FaceModel faceDetectorMean;
     std::ifstream is(filename);
-    if(is)
+    if (is)
     {
         faceDetectorMean = loadFaceModel(is);
     }
@@ -37,4 +37,3 @@ drishti::face::FaceModel loadFaceModel(const std::string &filename)
 }
 
 DRISHTI_FACE_NAMESPACE_END
-

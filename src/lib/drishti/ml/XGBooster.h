@@ -28,7 +28,6 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class XGBooster
 {
 public:
-
     struct Recipe
     {
         int numberOfTrees = 512;
@@ -38,25 +37,26 @@ public:
         double featureSubsample = 0.1;
         bool regression = true;
 
-        template<class Archive> void serialize(Archive & ar, const unsigned int version);
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version);
     };
 
     class Impl;
     XGBooster();
-    XGBooster(const Recipe &recipe);
-    float operator()(const std::vector<float> &features);
-    void train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask={});
+    XGBooster(const Recipe& recipe);
+    float operator()(const std::vector<float>& features);
+    void train(const MatrixType<float>& features, const std::vector<float>& values, const MatrixType<uint8_t>& mask = {});
 
-    void read(const std::string &filename);
-    void write(const std::string &filename) const;
+    void read(const std::string& filename);
+    void write(const std::string& filename) const;
 
     // Boost serialization:
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version);
 
-    void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger);
 
 protected:
-
     std::shared_ptr<Impl> m_impl;
 
     std::shared_ptr<spdlog::logger> m_streamLogger;

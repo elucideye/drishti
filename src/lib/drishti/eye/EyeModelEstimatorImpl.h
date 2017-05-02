@@ -33,9 +33,10 @@ using EllipseVec = std::vector<cv::RotatedRect>;
 
 #define EYE_OPENNESS_IRIS_THRESHOLD 0.10
 
-template <typename T> T median(std::vector<T> &params)
+template <typename T>
+T median(std::vector<T>& params)
 {
-    std::vector<float>::iterator nth = params.begin() + params.size()/2;
+    std::vector<float>::iterator nth = params.begin() + params.size() / 2;
     std::nth_element(params.begin(), nth, params.end());
     return *nth;
 }
@@ -45,16 +46,15 @@ using DRISHTI_EYE::operator*;
 class EyeModelEstimator::Impl
 {
 public:
-
-    using PointVec=std::vector<cv::Point2f>;
+    using PointVec = std::vector<cv::Point2f>;
 
     Impl();
 
-    Impl(const std::string &eyeRegressor, const std::string &irisRegressor= {}, const std::string &pupilRegressor= {});
+    Impl(const std::string& eyeRegressor, const std::string& irisRegressor = {}, const std::string& pupilRegressor = {});
 
     void init();
 
-    void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger);
 
     void setEyelidStagesHint(int stages)
     {
@@ -127,13 +127,13 @@ public:
     // Input: grayscale for contour regression
     // Red channel is closest to NIR for iris
     // TODO: Need a lazy image conversion type
-    int operator()(const cv::Mat &crop, EyeModel &eye) const;
-    void normalize(const cv::Mat &crop, const EyeModel &eye, const cv::Size &size, NormalizedIris &code, int padding=0) const
+    int operator()(const cv::Mat& crop, EyeModel& eye) const;
+    void normalize(const cv::Mat& crop, const EyeModel& eye, const cv::Size& size, NormalizedIris& code, int padding = 0) const
     {
         IrisNormalizer()(crop, eye, size, code, padding);
     }
 
-    cv::Mat drawMeanShape(const cv::Size &size) const
+    cv::Mat drawMeanShape(const cv::Size& size) const
     {
         EyeModel eye = getMeanShape(size);
         cv::Mat canvas(size, CV_8UC3, cv::Scalar::all(0));
@@ -141,12 +141,12 @@ public:
         return canvas;
     }
 
-    EyeModel getMeanShape(const cv::Size &size) const
+    EyeModel getMeanShape(const cv::Size& size) const
     {
         EyeModel eye = shapeToEye(m_eyeEstimator->getMeanShape(), EyeModelSpecification::create(16, 9));
 
         auto mu = m_irisEstimator->getMeanShape();
-        eye.irisEllipse = cv::RotatedRect( {mu[1].x, mu[0].x}, {mu[3].x, mu[2].x}, mu[4].x);
+        eye.irisEllipse = cv::RotatedRect({ mu[1].x, mu[0].x }, { mu[3].x, mu[2].x }, mu[4].x);
 
         const float scale = size.width;
         eye = eye * scale; // TODO: need to normalizatino mean shape during training
@@ -198,27 +198,25 @@ public:
     }
 
     // Boost serialization:
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
     {
         assert(version >= 1); // drop support for older versions
-        ar & m_eyeEstimator;
-        ar & m_irisEstimator;
-        ar & m_pupilEstimator;
+        ar& m_eyeEstimator;
+        ar& m_irisEstimator;
+        ar& m_pupilEstimator;
     }
-    
+
 private:
+    cv::RotatedRect estimateCentralIris(const cv::Mat& I, const cv::Mat& M, const EllipseVec& irses) const;
 
-    cv::RotatedRect estimateCentralIris(const cv::Mat &I, const cv::Mat &M, const EllipseVec &irses) const;
-
-    void segmentPupil(const cv::Mat &I, EyeModel &eye, int targetWidth=128) const;
-    void segmentIris(const cv::Mat &I, EyeModel &eye) const;
-    void segmentEyelids(const cv::Mat &I, EyeModel &eye) const;
-    void segmentEyelids_(const cv::Mat &I, EyeModel &eye) const; // deprecated (shape based jitter)
-    std::vector< std::vector<cv::Point2f> > createInitialEyelidPoses() const;
+    void segmentPupil(const cv::Mat& I, EyeModel& eye, int targetWidth = 128) const;
+    void segmentIris(const cv::Mat& I, EyeModel& eye) const;
+    void segmentEyelids(const cv::Mat& I, EyeModel& eye) const;
+    void segmentEyelids_(const cv::Mat& I, EyeModel& eye) const; // deprecated (shape based jitter)
+    std::vector<std::vector<cv::Point2f>> createInitialEyelidPoses() const;
 
 protected:
-
     EyeModelSpecification m_eyeSpec;
 
     geometry::UniformSimilarityParams m_jitterIrisParams;
@@ -244,10 +242,10 @@ protected:
 };
 
 // Boost serialization:
-template<class Archive>
-void EyeModelEstimator::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void EyeModelEstimator::serialize(Archive& ar, const unsigned int version)
 {
-    ar & m_impl;
+    ar& m_impl;
 }
 
 DRISHTI_EYE_NAMESPACE_END

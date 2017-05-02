@@ -21,25 +21,29 @@ template <typename Key, typename Value>
 struct LazyParallelResource
 {
     template <class Callable>
-    LazyParallelResource(Callable && func) : m_alloc(std::forward<Callable>(func)) {}
-    LazyParallelResource(LazyParallelResource &&other) : m_alloc(std::move(other.m_alloc))
+    LazyParallelResource(Callable&& func)
+        : m_alloc(std::forward<Callable>(func))
+    {
+    }
+    LazyParallelResource(LazyParallelResource&& other)
+        : m_alloc(std::move(other.m_alloc))
     {
         other.m_alloc = nullptr;
     }
-    
-    virtual Value & operator [](const Key &key)
+
+    virtual Value& operator[](const Key& key)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         auto iter = m_map.find(key);
-        if(iter == m_map.end())
+        if (iter == m_map.end())
         {
             return m_map[key] = m_alloc();
         }
         return iter->second;
     }
 
-    std::map<Key, Value> & getMap() { return m_map; }
-    const std::map<Key, Value> & getMap() const { return m_map; }
+    std::map<Key, Value>& getMap() { return m_map; }
+    const std::map<Key, Value>& getMap() const { return m_map; }
 
     std::map<Key, Value> m_map;
     std::mutex m_mutex;

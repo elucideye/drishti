@@ -17,15 +17,18 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-template<typename T> T logN(const T &x, const T &n)
+template <typename T>
+T logN(const T& x, const T& n)
 {
-    return std::log(x)/ std::log(n);
+    return std::log(x) / std::log(n);
 }
-template<typename T> T log2(const T &x)
+template <typename T>
+T log2(const T& x)
 {
     return logN(x, T(2));
 }
-template<typename T> T round(T x);
+template <typename T>
+T round(T x);
 
 DRISHTI_CORE_NAMESPACE_END
 

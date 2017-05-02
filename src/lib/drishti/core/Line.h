@@ -32,8 +32,9 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 class Line
 {
     std::string data;
+
 public:
-    friend std::istream &operator>>(std::istream &is, Line &l)
+    friend std::istream& operator>>(std::istream& is, Line& l)
     {
         std::getline(is, l.data);
         return is;
@@ -47,9 +48,12 @@ public:
 };
 
 // http://stackoverflow.com/a/19280868
-struct csv_reader: std::ctype<char>
+struct csv_reader : std::ctype<char>
 {
-    csv_reader(): std::ctype<char>(get_table()) {}
+    csv_reader()
+        : std::ctype<char>(get_table())
+    {
+    }
     static std::ctype_base::mask const* get_table()
     {
         static std::vector<std::ctype_base::mask> rc(table_size, std::ctype_base::mask());
@@ -63,5 +67,3 @@ struct csv_reader: std::ctype<char>
 DRISHTI_CORE_NAMESPACE_END
 
 #endif // __drishti_core_Line_h__
-
-

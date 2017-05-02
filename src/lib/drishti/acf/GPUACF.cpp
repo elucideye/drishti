@@ -49,6 +49,7 @@
 #include <sys/types.h> // for umask()
 #include <sys/stat.h>  // -/-
 
+// clang-format off
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
 #  define TEXTURE_FORMAT_IS_RGBA 1
@@ -56,6 +57,7 @@
 #  define TEXTURE_FORMAT GL_BGRA
 #  define TEXTURE_FORMAT_IS_RGBA 0
 #endif
+// clang-format on
 
 #define GPU_ACF_DEBUG_CHANNELS 0
 
@@ -64,32 +66,32 @@
 BEGIN_OGLES_GPGPU
 
 // { 1280 x 960 } x 0.25 => 320x240
-ACF::ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind kind, int grayWidth, int flowWidth, bool debug)
+ACF::ACF(void* glContext, const Size2d& size, const SizeVec& scales, FeatureKind kind, int grayWidth, int flowWidth, bool debug)
     : VideoSource(glContext)
     , m_featureKind(kind)
     , m_size(size)
     , m_debug(debug)
     , m_doGray(grayWidth > 0)
-    , m_grayscaleScale(float(grayWidth)/float(size.width))
+    , m_grayscaleScale(float(grayWidth) / float(size.width))
     , m_doFlow(flowWidth > 0)
-    , m_flowScale(float(flowWidth)/float(size.width)) // TODO: not when using pyramid
+    , m_flowScale(float(flowWidth) / float(size.width)) // TODO: not when using pyramid
 
 {
     initACF(scales, kind, debug);
-  
-    if(m_doGray)
+
+    if (m_doGray)
     {
         Size2d graySize(grayWidth, int(m_grayscaleScale * size.height + 0.5f));
         reduceRgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
         reduceRgbSmoothProc->setOutputSize(graySize.width, graySize.height);
         rgbSmoothProc->add(reduceRgbSmoothProc.get()); // ### OUTPUT ###
     }
-    
-    if(m_doFlow) // use the same scale as corners:
+
+    if (m_doFlow) // use the same scale as corners:
     {
         // Compute scale relative to bottom pyramid level in pyramidProc()
         float pyramidToFlow = float(flowWidth) / scales[0].width;
-        
+
         // ((( Optical flow )))
         flow = drishti::core::make_unique<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
         pyramidProc->add(flow.get());
@@ -103,8 +105,8 @@ ACF::ACF(void *glContext, const Size2d &size, const SizeVec &scales, FeatureKind
         flowBgraInterface = flow.get();
 #endif
     }
-    
-    if(m_doLuvTransfer)
+
+    if (m_doLuvTransfer)
     {
         // Add transposed Luv output for CPU processing (optional)
         luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
@@ -118,7 +120,7 @@ ACF::~ACF()
     // with forward declares std::unique_ptr<> member variables.
 }
 
-void ACF::initACF(const SizeVec &scales, FeatureKind kind, bool debug)
+void ACF::initACF(const SizeVec& scales, FeatureKind kind, bool debug)
 {
     rotationProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
     rgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(2.0f);
@@ -135,74 +137,74 @@ void ACF::initACF(const SizeVec &scales, FeatureKind kind, bool debug)
     gradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(3.0f);
     reduceGradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
     reduceGradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-    
+
     // Reduce base LUV image to highest resolution used in pyramid:
     rgb2luvProc->setOutputSize(scales[0].width, scales[0].height);
-    
+
     reduceGradProc->setOutputSize(0.25);
     reduceLuvProc->setOutputSize(0.25);
     reduceGradHistProcASmooth->setOutputSize(0.25);
     reduceGradHistProcBSmooth->setOutputSize(0.25);
-    
+
 #if GPU_ACF_TRANSPOSE
     reduceGradProc->setOutputRenderOrientation(RenderOrientationDiagonal);
     reduceLuvProc->setOutputRenderOrientation(RenderOrientationDiagonal);
     reduceGradHistProcASmooth->setOutputRenderOrientation(RenderOrientationDiagonal);
     reduceGradHistProcBSmooth->setOutputRenderOrientation(RenderOrientationDiagonal);
 #endif
-    
+
     pyramidProc->setInterpolation(ogles_gpgpu::TransformProc::BICUBIC);
-    
+
     // ((( video -> smooth(luv) )))
     set(rotationProc.get());
-    
+
     rotationProc->add(rgbSmoothProc.get());
     rgbSmoothProc->add(rgb2luvProc.get());
-    
+
     // ((( luv -> pyramid(luv) )))
     rgb2luvProc->add(pyramidProc.get());
-    
+
     // ((( pyramid(luv) -> smooth(pyramid(luv)) )))
     pyramidProc->add(smoothProc.get());
-    
+
     // ((( smooth(pyramid(luv)) -> {luv_out, MOXY} )))
     smoothProc->add(reduceLuvProc.get()); // output 1/4 LUV
     smoothProc->add(gradProc.get());      // MOXY
-    
+
     // ((( MOXY -> norm(M) ))
-    gradProc->add(normProc.get());        // norm(M)OX.
-    
+    gradProc->add(normProc.get()); // norm(M)OX.
+
     // ((( norm(M) -> {histA, histB} )))
     normProc->add(reduceGradProc.get());
     normProc->add(gradHistProcA.get());
     normProc->add(gradHistProcB.get());
-    
+
     // ((( histA -> smooth(histA) )))
     gradHistProcA->add(gradHistProcASmooth.get());
     gradHistProcASmooth->add(reduceGradHistProcASmooth.get());
-    
+
     // ((( histB -> smooth(histB) )))
     gradHistProcB->add(gradHistProcBSmooth.get());
     gradHistProcBSmooth->add(reduceGradHistProcBSmooth.get());
-    
-    switch(kind)
+
+    switch (kind)
     {
         case kM012345:
-            
+
             // This uses two swizzle steps to creaet LG56 output
             // Adding a 3 input texture swizzler might be slightly more efficient.
-            
+
             // ((( MERGE(luv, grad) )))
             mergeProcLUVG = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleABC1);
             reduceLuvProc->add(mergeProcLUVG.get(), 0);
             reduceGradProc->add(mergeProcLUVG.get(), 1);
-            
+
             // ((( MERGE(lg, 56) )))
             mergeProcLG56 = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleAD12);
             mergeProcLUVG->add(mergeProcLG56.get(), 0);
             reduceGradHistProcBSmooth->add(mergeProcLG56.get(), 1);
             break;
-            
+
         case kLUVM012345:
             // ((( MERGE(luv, grad) )))
             mergeProcLUVG = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleABC1);
@@ -210,34 +212,33 @@ void ACF::initACF(const SizeVec &scales, FeatureKind kind, bool debug)
             reduceGradProc->add(mergeProcLUVG.get(), 1);
             break;
     }
-    
-    if(debug)
+
+    if (debug)
     {
         // #### OUTPUT ###
         normProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(0.33f);
         gradProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
         gradHistProcAOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
         gradHistProcBOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-        
-        gradProc->add(gradProcOut.get());  // ### OUTPUT ###
-        normProc->add(normProcOut.get());  // ### OUTPUT ###
+
+        gradProc->add(gradProcOut.get());                       // ### OUTPUT ###
+        normProc->add(normProcOut.get());                       // ### OUTPUT ###
         reduceGradHistProcBSmooth->add(gradHistProcBOut.get()); // ### OUTPUT ###
         reduceGradHistProcASmooth->add(gradHistProcAOut.get()); // ### OUTPUT ###
     }
 }
 
-ProcInterface * ACF::first()
+ProcInterface* ACF::first()
 {
     return rotationProc.get();
 }
 
-ProcInterface * ACF::getRgbSmoothProc()
+ProcInterface* ACF::getRgbSmoothProc()
 {
     return dynamic_cast<ProcInterface*>(rgbSmoothProc.get());
 }
 
-
-void ACF::connect(std::shared_ptr<spdlog::logger> &logger)
+void ACF::connect(std::shared_ptr<spdlog::logger>& logger)
 {
     m_logger = logger;
 }
@@ -247,7 +248,7 @@ void ACF::setRotation(int degrees)
     first()->setOutputRenderOrientation(ogles_gpgpu::degreesToOrientation(degrees));
 }
 
-const cv::Mat & ACF::getGrayscale()
+const cv::Mat& ACF::getGrayscale()
 {
     assert(m_doGray);
     return m_grayscale;
@@ -257,12 +258,12 @@ std::vector<cv::Mat> ACF::getFlowPyramid()
 {
     // Build flow pyramid:
     const float scale = float(m_flow.rows) / float(m_crops[0].height);
-    const cv::Rect bounds({0,0}, m_flow.size());
+    const cv::Rect bounds({ 0, 0 }, m_flow.size());
 
     std::vector<cv::Mat> flow(m_crops.size());
-    for(int i = 0; i < m_crops.size(); i++)
+    for (int i = 0; i < m_crops.size(); i++)
     {
-        const auto &c = m_crops[i];
+        const auto& c = m_crops[i];
         cv::Rect2f crop(c.x, c.y, c.width, c.height);
         cv::Rect roi(crop.tl() * scale, crop.br() * scale);
         flow[i] = m_flow(roi & bounds);
@@ -275,7 +276,7 @@ std::vector<cv::Mat> ACF::getFlowPyramid()
  * Texture swizzling will be used to ensure BGRA format on texture read.
  */
 
-const cv::Mat & ACF::getFlow()
+const cv::Mat& ACF::getFlow()
 {
     return m_flow;
 }
@@ -288,14 +289,14 @@ void ACF::initLuvTransposeOutput()
     rgb2luvProc->add(luvTransposeOut.get());
 }
 
-void ACF::operator()(const Size2d &size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum inputPixFormat)
+void ACF::operator()(const Size2d& size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum inputPixFormat)
 {
     FrameInput frame(size, pixelBuffer, useRawPixels, inputTexture, inputPixFormat);
     return (*this)(frame);
 }
 
 // Implement virtual API to toggle detection + tracking:
-void ACF::operator()(const FrameInput &frame)
+void ACF::operator()(const FrameInput& frame)
 {
     // Inial pipeline filters:
     // this -> rotationProc -> rgbSmoothProc -> rgb2luvProc -> pyramidProc
@@ -303,32 +304,32 @@ void ACF::operator()(const FrameInput &frame)
     bool needsLuv = (needsPyramid | m_doLuvTransfer);
 
     // Initial LUV transpose operation (upright image):
-    if(m_doLuvTransfer & !luvTransposeOut.get())
+    if (m_doLuvTransfer & !luvTransposeOut.get())
     {
         initLuvTransposeOutput();
     }
-    
-    if(rgb2luvProc.get())
+
+    if (rgb2luvProc.get())
     {
         rgb2luvProc->setActive(needsLuv);
     }
-    
-    if(pyramidProc.get())
+
+    if (pyramidProc.get())
     {
         pyramidProc->setActive(needsPyramid);
     }
-    
-    if(flow.get())
+
+    if (flow.get())
     {
         flow->setActive(m_doFlow);
     }
-    
+
     // smoothProc is the highest level unique ACF processing filter:
-    if(smoothProc.get())
+    if (smoothProc.get())
     {
         smoothProc->setActive(m_doAcfTransfer);
     }
-    
+
     frameIndex++;
 
     VideoSource::operator()(frame); // call main method
@@ -346,19 +347,19 @@ void ACF::postConfig()
 {
     // Obtain the scaled image rois:
     m_crops.clear();
-    const auto &rois = pyramidProc->getLevelCrops();
-    for(auto &r : rois)
+    const auto& rois = pyramidProc->getLevelCrops();
+    for (auto& r : rois)
     {
-        m_crops.emplace_back(r.x>>2, r.y>>2, r.width>>2, r.height>>2); // TODO: check rounding error (add clipping)?
+        // TODO: check rounding error (add clipping)?
+        m_crops.emplace_back(r.x >> 2, r.y >> 2, r.width >> 2, r.height >> 2);
     }
 }
 
-cv::Mat ACF::getImage(ProcInterface &proc, cv::Mat &frame)
+cv::Mat ACF::getImage(ProcInterface& proc, cv::Mat& frame)
 {
-    if(dynamic_cast<MemTransferOptimized*>(proc.getMemTransferObj()))
+    if (dynamic_cast<MemTransferOptimized*>(proc.getMemTransferObj()))
     {
-        MemTransfer::FrameDelegate delegate = [&](const Size2d &size, const void *pixels, size_t bytesPerRow)
-        {
+        MemTransfer::FrameDelegate delegate = [&](const Size2d& size, const void* pixels, size_t bytesPerRow) {
             frame = cv::Mat(size.height, size.width, CV_8UC4, (void*)pixels, bytesPerRow).clone();
         };
         proc.getResultData(delegate);
@@ -371,17 +372,17 @@ cv::Mat ACF::getImage(ProcInterface &proc, cv::Mat &frame)
     return frame;
 }
 
-cv::Mat ACF::getImage(ProcInterface &proc)
+cv::Mat ACF::getImage(ProcInterface& proc)
 {
     cv::Mat frame;
     return getImage(proc, frame);
 }
 
-bool ACF::processImage(ProcInterface &proc, MemTransfer::FrameDelegate &delegate)
+bool ACF::processImage(ProcInterface& proc, MemTransfer::FrameDelegate& delegate)
 {
     bool status = false;
-    MemTransfer *pTransfer = proc.getMemTransferObj();
-    if(dynamic_cast<MemTransferOptimized*>(pTransfer))
+    MemTransfer* pTransfer = proc.getMemTransferObj();
+    if (dynamic_cast<MemTransferOptimized*>(pTransfer))
     {
         proc.getResultData(delegate);
         status = true;
@@ -396,10 +397,12 @@ bool ACF::processImage(ProcInterface &proc, MemTransfer::FrameDelegate &delegate
 
 int ACF::getChannelCount() const
 {
-    switch(m_featureKind)
+    switch (m_featureKind)
     {
-        case kM012345: return 7;
-        case kLUVM012345: return 10;
+        case kM012345:
+            return 7;
+        case kLUVM012345:
+            return 10;
     }
 }
 
@@ -408,7 +411,7 @@ std::vector<std::vector<Rect2d>> ACF::getCropRegions() const
     // CReate array of channel rois for each pyramid level
     size_t levelCount = m_crops.size();
     std::vector<std::vector<Rect2d>> crops(levelCount);
-    for(size_t i = 0; i < levelCount; i++)
+    for (size_t i = 0; i < levelCount; i++)
     {
         crops[i] = getChannelCropRegions(int(i));
     }
@@ -416,7 +419,7 @@ std::vector<std::vector<Rect2d>> ACF::getCropRegions() const
 }
 
 // Copy the parameters from a reference pyramid
-void ACF::fill(drishti::acf::Detector::Pyramid &Pout, const drishti::acf::Detector::Pyramid &Pin)
+void ACF::fill(drishti::acf::Detector::Pyramid& Pout, const drishti::acf::Detector::Pyramid& Pin)
 {
     Pout.pPyramid = Pin.pPyramid;
     Pout.nTypes = Pin.nTypes;
@@ -425,17 +428,17 @@ void ACF::fill(drishti::acf::Detector::Pyramid &Pout, const drishti::acf::Detect
     Pout.lambdas = Pin.lambdas;
     Pout.scales = Pin.scales;
     Pout.scaleshw = Pin.scaleshw;
-    
+
     auto crops = getCropRegions();
     assert(crops.size() > 1);
-    
+
     Pout.rois.resize(crops.size());
-    for(int i = 0; i < crops.size(); i++)
+    for (int i = 0; i < crops.size(); i++)
     {
         Pout.rois[i].resize(crops[i].size());
-        for(int j = 0; j < crops[i].size(); j++)
+        for (int j = 0; j < crops[i].size(); j++)
         {
-            const auto &r = crops[i][j];
+            const auto& r = crops[i][j];
             Pout.rois[i][j] = cv::Rect(r.x, r.y, r.width, r.height);
         }
     }
@@ -453,13 +456,13 @@ std::vector<Rect2d> ACF::getChannelCropRegions(int level) const
     std::swap(roi.x, roi.y);
     std::swap(roi.width, roi.height);
     std::vector<Rect2d> crops(getChannelCount(), roi);
-    for(int i = 1; i < getChannelCount(); i++)
+    for (int i = 1; i < getChannelCount(); i++)
     {
         crops[i].x += (step * i);
     }
 #else
     std::vector<Rect2d> crops(getChannelCount(), m_crops[level]);
-    for(int i = 1; i < getChannelCount(); i++)
+    for (int i = 1; i < getChannelCount(); i++)
     {
         crops[i].y += (m_crops[0].height * i);
     }
@@ -469,13 +472,12 @@ std::vector<Rect2d> ACF::getChannelCropRegions(int level) const
 
 void ACF::prepare()
 {
-
 }
 
 using array_type = drishti::acf::Detector::Pyramid::array_type;
 
 // Fill
-void ACF::fill(drishti::acf::Detector::Pyramid &pyramid)
+void ACF::fill(drishti::acf::Detector::Pyramid& pyramid)
 {
     auto acf = getChannels();
 
@@ -487,42 +489,51 @@ void ACF::fill(drishti::acf::Detector::Pyramid &pyramid)
     pyramid.nScales = int(levelCount);
 
     // Create multiresolution representation:
-    auto &data = pyramid.data;
-    data.resize( boost::extents[levelCount][1]);
+    auto& data = pyramid.data;
+    data.resize(boost::extents[levelCount][1]);
 
-    for(int i = 0; i < levelCount; i++)
+    for (int i = 0; i < levelCount; i++)
     {
-        auto &channels = data[i][0];
+        auto& channels = data[i][0];
         channels.base() = acf;
         channels.resize(int(channelCount));
-        for(int j = 0; j < channelCount; j++)
+        for (int j = 0; j < channelCount; j++)
         {
-            const auto &roi = regions[i][j];
-            channels[j] = acf({roi.x, roi.y, roi.width, roi.height});
+            const auto& roi = regions[i][j];
+            channels[j] = acf({ roi.x, roi.y, roi.width, roi.height });
         }
     }
 }
 
-static void unpackImage(const cv::Mat4b &frame, std::vector<drishti::core::PlaneInfo> &dst)
+static void unpackImage(const cv::Mat4b& frame, std::vector<drishti::core::PlaneInfo>& dst)
 {
-    switch(dst.front().plane.depth())
+    switch (dst.front().plane.depth())
     {
-        case CV_8UC1: drishti::core::unpack(frame, dst); break;
-        case CV_32FC1: drishti::core::convertU8ToF32(frame, dst); break;
-        default: break;
+        case CV_8UC1:
+            drishti::core::unpack(frame, dst);
+            break;
+        case CV_32FC1:
+            drishti::core::convertU8ToF32(frame, dst);
+            break;
+        default:
+            break;
     }
 }
 
-static void unpackImage(ProcInterface &proc, std::vector<drishti::core::PlaneInfo> &dst)
+static void unpackImage(ProcInterface& proc, std::vector<drishti::core::PlaneInfo>& dst)
 {
-    MemTransfer::FrameDelegate handler = [&](const Size2d &size, const void *pixels, size_t rowStride)
-    {
+    MemTransfer::FrameDelegate handler = [&](const Size2d& size, const void* pixels, size_t rowStride) {
         cv::Mat4b frame(size.height, size.width, (cv::Vec4b*)pixels, rowStride);
-        switch(dst.front().plane.depth())
+        switch (dst.front().plane.depth())
         {
-            case CV_8UC1: drishti::core::unpack(frame, dst); break;
-            case CV_32FC1: drishti::core::convertU8ToF32(frame, dst); break;
-            default: break;
+            case CV_8UC1:
+                drishti::core::unpack(frame, dst);
+                break;
+            case CV_32FC1:
+                drishti::core::convertU8ToF32(frame, dst);
+                break;
+            default:
+                break;
         }
     };
     proc.getResultData(handler);
@@ -554,34 +565,39 @@ cv::Mat ACF::getChannels()
     // This needs to be done after full pipeline execution, but before
     // the channels are retrieved.
     m_rgba = initChannelOrder();
-    
+
     cv::Mat result = getChannelsImpl();
-    
+
     return result;
 }
 
 // This provides a map for unpacking/swizzling OpenGL textures (i.e., RGBA or BGRA) to user
 // memory using NEON optimized instructions.
-ACF::ChannelSpecification ACF::getACFChannelSpecification(MatP &acf) const
+ACF::ChannelSpecification ACF::getACFChannelSpecification(MatP& acf) const
 {
-    const auto &rgba = m_rgba;
-    switch(m_featureKind)
+    // clang-format on    
+    const auto& rgba = m_rgba;
+    switch (m_featureKind)
     {
-        // 10 : { LUVMp; H0123p; H4567p } requires 3 textures
-        case kLUVM012345: return ACF::ChannelSpecification
+    case kLUVM012345:
+        // 10 : { LUVMp; H0123p; H4567p } requires 3 textures        
+        return ACF::ChannelSpecification
         {
-            {{{acf[0],rgba[0]}, {acf[1],rgba[1]}, {acf[2],rgba[2]}, {acf[3],rgba[3]}}, mergeProcLUVG.get()},
-            {{{acf[4],rgba[0]}, {acf[5],rgba[1]}, {acf[6],rgba[2]}, {acf[7],rgba[3]}}, reduceGradHistProcASmooth.get()},
-            {{{acf[8],rgba[0]}, {acf[9],rgba[1]}}, reduceGradHistProcBSmooth.get()}
+            {{{acf[0],rgba[0]},{acf[1],rgba[1]},{acf[2],rgba[2]},{acf[3],rgba[3]}},mergeProcLUVG.get()},
+            {{{acf[4],rgba[0]},{acf[5],rgba[1]},{acf[6],rgba[2]},{acf[7],rgba[3]}},reduceGradHistProcASmooth.get()},
+            {{{acf[8],rgba[0]},{acf[9],rgba[1]}}, reduceGradHistProcBSmooth.get()}
         };
-            
-        // 7: { Mp; H0123p; H4567p } requires only 2 textures
-        case kM012345: return ACF::ChannelSpecification
+
+    case kM012345:
+        // 7: { Mp; H0123p; H4567p } requires only 2 textures        
+        return ACF::ChannelSpecification
         {
-            {{{acf[0],rgba[1]}, {acf[5],rgba[2]}, {acf[6],rgba[3]}}, mergeProcLG56.get()},
-            {{{acf[1],rgba[0]}, {acf[2],rgba[1]}, {acf[3],rgba[2]}, {acf[4],rgba[3]}}, reduceGradHistProcASmooth.get()}
+            {{{acf[0],rgba[1]},{acf[5],rgba[2]},{acf[6],rgba[3]}}, mergeProcLG56.get()},
+            {{{acf[1],rgba[0]},{acf[2],rgba[1]},{acf[3],rgba[2]},{acf[4],rgba[3]}}, reduceGradHistProcASmooth.get()}
         };
+    default: CV_Assert(false);        
     }
+    // clang-format on
 }
 
 void ACF::release()
@@ -595,8 +611,8 @@ std::array<int, 4> ACF::initChannelOrder()
 {
     // Default GL_BGRA so we can use GL_RGBA for comparisons
     // since GL_BGRA is undefined on Android
-    std::array<int,4> rgba = {{ 2, 1, 0, 3 }};
-    if(pipeline->getMemTransferObj()->getOutputPixelFormat() == GL_RGBA) // assume BGRA
+    std::array<int, 4> rgba = { { 2, 1, 0, 3 } };
+    if (pipeline->getMemTransferObj()->getOutputPixelFormat() == GL_RGBA) // assume BGRA
     {
         std::swap(rgba[0], rgba[2]);
     }
@@ -610,17 +626,16 @@ cv::Mat ACF::getChannelsImpl()
 
     const auto tag = DRISHTI_LOCATION_SIMPLE;
     std::stringstream ss;
-    drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed)
-    {
-        if(m_logger)
+    drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed) {
+        if (m_logger)
         {
             m_logger->info() << "TIMING:" << tag << ":" << ss.str() << ";total=" << elapsed;
         }
     };
-    
+
     {
         drishti::core::ScopeTimeLogger glFinishTimer = [&](double t) { ss << "glFinish=" << t << ";"; };
-        if(auto pTransfer = dynamic_cast<MemTransferOptimized *>(rgb2luvProc->getMemTransferObj()))
+        if (auto pTransfer = dynamic_cast<MemTransferOptimized*>(rgb2luvProc->getMemTransferObj()))
         {
             pTransfer->flush();
         }
@@ -629,128 +644,125 @@ cv::Mat ACF::getChannelsImpl()
             glFlush();
         }
     }
-    
-    if(m_doFlow && !m_hasFlowOutput)
+
+    if (m_doFlow && !m_hasFlowOutput)
     {
         drishti::core::ScopeTimeLogger flowTimer = [&](double t) { ss << "flow=" << t << ";"; };
         getImage(*flowBgraInterface, m_flow);
         m_hasFlowOutput = true;
     }
 
-    if(!m_hasChannelOutput)
+    if (!m_hasChannelOutput)
     {
         prepare();
 
-        if(m_timer)
+        if (m_timer)
         {
             m_timer("read begin");
         }
 
-        const auto &rgba = m_rgba; // alias
-        
+        const auto& rgba = m_rgba; // alias
+
         ACF::ChannelSpecification planeIndex;
         MatP acf, gray, luv;
-        
-        if(m_doAcfTransfer)
+
+        if (m_doAcfTransfer)
         {
             const auto acfSize = reduceGradHistProcASmooth->getOutFrameSize();
-            acf.create({acfSize.width, acfSize.height}, CV_8UC1, getChannelCount(), GPU_ACF_TRANSPOSE);
+            acf.create({ acfSize.width, acfSize.height }, CV_8UC1, getChannelCount(), GPU_ACF_TRANSPOSE);
             planeIndex = getACFChannelSpecification(acf);
         }
-    
-        if(m_doGray)
+
+        if (m_doGray)
         {
             // Here we use the green channel:
             const auto graySize = reduceRgbSmoothProc->getOutFrameSize();
-            gray.create({graySize.width, graySize.height}, CV_8UC1, 1);
-            PlaneInfoVec grayInfo {{gray[0], rgba[1]}};
+            gray.create({ graySize.width, graySize.height }, CV_8UC1, 1);
+            PlaneInfoVec grayInfo{ { gray[0], rgba[1] } };
             planeIndex.emplace_back(grayInfo, reduceRgbSmoothProc.get());
         }
-        
-        if(m_doLuvTransfer)
+
+        if (m_doLuvTransfer)
         {
-            const float alpha = 1.0f/255.0f;
+            const float alpha = 1.0f / 255.0f;
             const auto luvSize = luvTransposeOut->getOutFrameSize();
-            luv.create({luvSize.width, luvSize.height}, CV_32FC1, 3);
-            PlaneInfoVec luvInfo {{luv[0],rgba[0],alpha},{luv[1],rgba[1],alpha},{luv[2],rgba[2],alpha}};
+            luv.create({ luvSize.width, luvSize.height }, CV_32FC1, 3);
+            PlaneInfoVec luvInfo{ { luv[0], rgba[0], alpha }, { luv[1], rgba[1], alpha }, { luv[2], rgba[2], alpha } };
             planeIndex.emplace_back(luvInfo, luvTransposeOut.get());
         }
 
         // We can use either the direct MemTransferOptimized acces, or glReadPixels()
-        if(dynamic_cast<MemTransferOptimized *>(rgb2luvProc->getMemTransferObj()))
+        if (dynamic_cast<MemTransferOptimized*>(rgb2luvProc->getMemTransferObj()))
         {
             drishti::core::ScopeTimeLogger unpackTimer = [&](double t) { ss << "unpack=" << t << ";"; };
-            
+
             // TODO: confirm in documentation that ios texture caches can be queried in parallel
             // Experimentally this seems to be the case.
-            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
-            {
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
                 unpackImage(*planeIndex[i].second, planeIndex[i].first);
             };
 
 #if OGLES_GPGPU_IOS
             // iOS texture cache can be queried in parallel:
-            cv::parallel_for_({0, int(planeIndex.size())}, harness);
+            cv::parallel_for_({ 0, int(planeIndex.size()) }, harness);
 #else
-            harness({0, int(planeIndex.size())});
+            harness({ 0, int(planeIndex.size()) });
 #endif
         }
         else
         {
             drishti::core::ScopeTimeLogger unpackTimer = [&](double t) { ss << "unpack=" << t << ";"; };
-            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
-            {
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
                 unpackImage(getImage(*planeIndex[i].second), planeIndex[i].first);
             };
 
-            harness({0, int(planeIndex.size())});
+            harness({ 0, int(planeIndex.size()) });
         }
 
-        if(m_doAcfTransfer)
+        if (m_doAcfTransfer)
         {
             m_channels = acf.base();
             m_hasChannelOutput = true;
         }
-        
-        if(m_doGray)
+
+        if (m_doGray)
         {
             m_grayscale = gray[0];
             m_hasGrayscaleOutput = true;
         }
 
-        if(m_doLuvTransfer)
+        if (m_doLuvTransfer)
         {
             m_luvPlanar = luv;
             m_hasLuvOutput = true;
         }
-        
-        if(m_timer)
+
+        if (m_timer)
         {
             m_timer("read end");
         }
     }
-    
+
     return m_channels;
 }
 
-
-ACF::FeatureKind getFeatureKind(const drishti::acf::Detector::Options::Pyramid::Chns &chns)
+ACF::FeatureKind getFeatureKind(const drishti::acf::Detector::Options::Pyramid::Chns& chns)
 {
-    const auto &pColor = chns.pColor.get();
-    const auto &pGradMag = chns.pGradMag.get();
-    const auto &pGradHist = chns.pGradHist.get();
-    
+    const auto& pColor = chns.pColor.get();
+    const auto& pGradMag = chns.pGradMag.get();
+    const auto& pGradHist = chns.pGradHist.get();
+
     // Currently all supported GPU ACF channel types have trailing M012345
-    if(!(pGradMag.enabled && pGradHist.enabled && (pGradHist.nOrients == 6)))
+    if (!(pGradMag.enabled && pGradHist.enabled && (pGradHist.nOrients == 6)))
     {
         return ACF::kUnknown;
     }
-    
-    if(pColor.enabled)
+
+    if (pColor.enabled)
     {
-        if(pColor.colorSpace.get() == "luv")
+        if (pColor.colorSpace.get() == "luv")
         {
             return ACF::kLUVM012345;
         }
@@ -763,7 +775,7 @@ ACF::FeatureKind getFeatureKind(const drishti::acf::Detector::Options::Pyramid::
     {
         return ACF::kM012345;
     }
-    
+
     return ACF::kUnknown; // compiler warning
 }
 

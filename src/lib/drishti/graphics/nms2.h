@@ -15,12 +15,14 @@
 
 #include "ogles_gpgpu/common/proc/filter3x3.h"
 
-namespace ogles_gpgpu {
+namespace ogles_gpgpu
+{
 
 /**
  * GPGPU non max suppression, gradient magnitude and orientation 
  */
-class Nms2Proc : public Filter3x3Proc {
+class Nms2Proc : public Filter3x3Proc
+{
 public:
     /**
      * Constructor.
@@ -30,51 +32,54 @@ public:
     /**
      * Return the processors name.
      */
-    virtual const char *getProcName() {
+    virtual const char* getProcName()
+    {
         return "Nms2Proc";
     }
-    
+
     /**
      * Set threshold for non maximal suppression
      */
-    void setThreshold(float value) {
+    void setThreshold(float value)
+    {
         threshold = value;
     }
-    
+
     /**
      * Get threhsold for non maximal suppression
      */
-    float getThreshold() const {
+    float getThreshold() const
+    {
         return threshold;
     }
-    
-    void swizzle(int channelIn, int channelOut=-1);
+
+    void swizzle(int channelIn, int channelOut = -1);
 
 private:
-    
     /**
      * Get the fragment shader source.
      */
-    virtual const char *getFragmentShaderSource() {
+    virtual const char* getFragmentShaderSource()
+    {
         return fshaderNmsSwizzleSrc.empty() ? fshaderNmsSrc : fshaderNmsSwizzleSrc.c_str();
     }
-    
+
     /**
      * Get uniform indices.
      */
     virtual void getUniforms();
-    
+
     /**
      * Set uniforms.
      */
     virtual void setUniforms();
 
-    static const char *fshaderNmsSrc;   // fragment shader source
-    
+    static const char* fshaderNmsSrc; // fragment shader source
+
     std::string fshaderNmsSwizzleSrc;
-    
+
     GLuint shParamUThreshold;
-    
+
     float threshold = 0.9;
 };
 }

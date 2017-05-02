@@ -15,9 +15,11 @@
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
 #  include "drishti/core/boost_serialize_common.h"
 #endif
+// clang-format on
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/video/video.hpp>
@@ -30,17 +32,14 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class GazeEstimator::Impl
 {
 public:
-
     using PointPair = GazeEstimator::GazeEstimate;
 
     struct GazeMeasurement
     {
-     
     };
 
     Impl()
     {
-
     }
     void begin()
     {
@@ -55,28 +54,26 @@ public:
     {
     }
 
-    std::pair<face::FaceModel, cv::Matx33f> getNormalizedFace(const face::FaceModel &faceIn) const
+    std::pair<face::FaceModel, cv::Matx33f> getNormalizedFace(const face::FaceModel& faceIn) const
     {
         // Do similarity normalization on iris centers::
-        std::array<cv::Point2f,2> ptsA {{ faceIn.eyeFullR->irisEllipse.center, faceIn.eyeFullL->irisEllipse.center }};
-        std::array<cv::Point2f,2> ptsB {{ {0.25, 0.25}, {0.75, 0.25} }};
+        std::array<cv::Point2f, 2> ptsA{ { faceIn.eyeFullR->irisEllipse.center, faceIn.eyeFullL->irisEllipse.center } };
+        std::array<cv::Point2f, 2> ptsB{ { { 0.25, 0.25 }, { 0.75, 0.25 } } };
         cv::Matx33f H = transformation::estimateSimilarity(ptsA, ptsB);
         DRISHTI_FACE::FaceModel face = H * faceIn;
         return std::make_pair(face, H);
     }
 
-    PointPair operator()(const face::FaceModel &faceIn)
+    PointPair operator()(const face::FaceModel& faceIn)
     {
         PointPair gaze;
         return gaze;
     }
 
 protected:
-
 };
 
 // ### gaze ###
-
 
 GazeEstimator::GazeEstimator()
 {
@@ -98,7 +95,7 @@ GazeEstimator::GazeEstimate GazeEstimator::end()
     return m_pImpl->end();
 }
 
-GazeEstimator::GazeEstimate GazeEstimator::operator()(const face::FaceModel &face) const
+GazeEstimator::GazeEstimate GazeEstimator::operator()(const face::FaceModel& face) const
 {
     return (*m_pImpl)(face);
 }

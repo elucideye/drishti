@@ -20,18 +20,23 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-template <typename T> struct Field
+template <typename T>
+struct Field
 {
     Field()
     {
         has = false;
     }
-    Field(const T &t) : value(t), has(true) {}
+    Field(const T& t)
+        : value(t)
+        , has(true)
+    {
+    }
     ~Field()
     {
     }
 
-    Field<T>& operator=(const T &src)
+    Field<T>& operator=(const T& src)
     {
         has = true;
         value = src;
@@ -48,20 +53,20 @@ template <typename T> struct Field
         CV_Assert(has);
         return value;
     }
-    const T &get() const
+    const T& get() const
     {
         return value;
     }
-    T &get()
+    T& get()
     {
         return value;
     }
 
-    T& operator *()
+    T& operator*()
     {
         return value;
     }
-    const T& operator *() const
+    const T& operator*() const
     {
         return value;
     }
@@ -75,13 +80,13 @@ template <typename T> struct Field
         return &value;
     }
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
     {
         //ar & GENERIC_NVP("has", has);
         //ar & GENERIC_NVP("value", value);
-        ar & has;
-        ar & value;
+        ar& has;
+        ar& value;
     }
 
     T value;
@@ -91,5 +96,3 @@ template <typename T> struct Field
 DRISHTI_CORE_NAMESPACE_END
 
 #endif // __drishti_core_Field_h__
-
-

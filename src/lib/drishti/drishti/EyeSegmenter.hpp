@@ -38,15 +38,14 @@ enum ArchiveKind
 class DRISHTI_EXPORT EyeSegmenter
 {
 public:
-
     class Impl;
-    EyeSegmenter(const std::string &filename, ArchiveKind kind = kAuto);
-    EyeSegmenter(std::istream &is, ArchiveKind kind = kAuto);
+    EyeSegmenter(const std::string& filename, ArchiveKind kind = kAuto);
+    EyeSegmenter(std::istream& is, ArchiveKind kind = kAuto);
 
     // EyeSegmenter cannot be moved or copied:
-    EyeSegmenter(const EyeSegmenter &) = delete;
-    EyeSegmenter& operator=(const EyeSegmenter &) = delete;
-    EyeSegmenter(EyeSegmenter &&) = delete;
+    EyeSegmenter(const EyeSegmenter&) = delete;
+    EyeSegmenter& operator=(const EyeSegmenter&) = delete;
+    EyeSegmenter(EyeSegmenter&&) = delete;
 
     ~EyeSegmenter();
 
@@ -54,7 +53,7 @@ public:
 
     explicit operator bool() const;
 
-    int operator()(const Image3b &image, Eye &eye, bool isRight);
+    int operator()(const Image3b& image, Eye& eye, bool isRight);
     Eye getMeanEye(int width) const;
 
     void setEyelidInits(int count);
@@ -71,8 +70,7 @@ public:
     float getRequiredAspectRatio() const;
 
 protected:
-
-    void init(std::istream &is, ArchiveKind kind = kPBA);
+    void init(std::istream& is, ArchiveKind kind = kPBA);
     std::unique_ptr<Impl> m_impl;
 };
 
@@ -85,21 +83,19 @@ _DRISHTI_SDK_END
 DRISHTI_EXTERN_C_BEGIN
 
 DRISHTI_EXPORT drishti::sdk::EyeSegmenter*
-drishti_eye_segmenter_create_from_file(const std::string &filename, drishti::sdk::ArchiveKind kind);
+drishti_eye_segmenter_create_from_file(const std::string& filename, drishti::sdk::ArchiveKind kind);
 
 DRISHTI_EXPORT drishti::sdk::EyeSegmenter*
-drishti_eye_segmenter_create_from_stream(std::istream &is, drishti::sdk::ArchiveKind kind);
+drishti_eye_segmenter_create_from_stream(std::istream& is, drishti::sdk::ArchiveKind kind);
 
 DRISHTI_EXPORT void
-drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter *segmenter);
+drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter* segmenter);
 
 DRISHTI_EXPORT int
-drishti_eye_segmenter_segment
-(
- drishti::sdk::EyeSegmenter *segmenter,
- const drishti::sdk::Image3b &image,
- drishti::sdk::Eye &eye, bool isRight
-);
+drishti_eye_segmenter_segment(
+    drishti::sdk::EyeSegmenter* segmenter,
+    const drishti::sdk::Image3b& image,
+    drishti::sdk::Eye& eye, bool isRight);
 
 DRISHTI_EXTERN_C_END
 

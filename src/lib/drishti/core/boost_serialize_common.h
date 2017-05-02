@@ -15,10 +15,13 @@
 #include <fstream>
 
 // Boost serialization files:
+
+// clang-format off
 #if DRISHTI_USE_TEXT_ARCHIVES
 #  include <boost/archive/text_iarchive.hpp>
 #  include <boost/archive/text_oarchive.hpp>
 #endif
+// clang-format on
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -35,7 +38,7 @@
 #include <boost/serialization/tracking.hpp>
 
 #if !DRISHTI_BUILD_MIN_SIZE
-#  include "boost-pba/portable_binary_oarchive.hpp"
+#include "boost-pba/portable_binary_oarchive.hpp"
 #endif
 #include "boost-pba/portable_binary_iarchive.hpp"
 
@@ -56,15 +59,18 @@ inline bool is_pba_z(std::istream& is)
         portable_binary_iarchive ia(buffer);
         /* unsigned test = */ ia.get_library_version();
         ok = true;
-    } catch (...) { }
-    
+    }
+    catch (...)
+    {
+    }
+
     is.seekg(0, std::ios_base::beg);
     is.clear();
     return ok;
 }
 
 template <typename T>
-void load_pba_z(std::istream &is, T &object)
+void load_pba_z(std::istream& is, T& object)
 {
     //CV_Assert(is);
     boost::iostreams::filtering_stream<boost::iostreams::input> buffer;
@@ -75,7 +81,7 @@ void load_pba_z(std::istream &is, T &object)
 }
 
 template <typename T>
-void load_pba_z(const std::string &filename, T &object)
+void load_pba_z(const std::string& filename, T& object)
 {
     std::ifstream ifs(filename, std::ios::binary);
     CV_Assert(ifs);
@@ -83,7 +89,7 @@ void load_pba_z(const std::string &filename, T &object)
 }
 
 template <typename T>
-void save_pba_z(std::ostream &os, T &object)
+void save_pba_z(std::ostream& os, T& object)
 {
 #if !DRISHTI_BUILD_MIN_SIZE
     boost::iostreams::filtering_stream<boost::iostreams::output> buffer;
@@ -95,9 +101,9 @@ void save_pba_z(std::ostream &os, T &object)
 }
 
 template <typename T>
-void save_pba_z(const std::string &filename, T &object)
+void save_pba_z(const std::string& filename, T& object)
 {
-#if !DRISHTI_BUILD_MIN_SIZE    
+#if !DRISHTI_BUILD_MIN_SIZE
     std::ofstream ofs(filename, std::ios::binary);
     CV_Assert(ofs);
     save_pba_z(ofs, object);
@@ -111,28 +117,28 @@ void save_pba_z(const std::string &filename, T &object)
 #if DRISHTI_USE_TEXT_ARCHIVES
 
 template <typename T>
-void load_txt_z(std::istream &is, T &object)
+void load_txt_z(std::istream& is, T& object)
 {
     boost::archive::text_iarchive ia(is);
     ia >> object;
 }
 
 template <typename T>
-void load_txt_z(const std::string &filename, T &object)
+void load_txt_z(const std::string& filename, T& object)
 {
     std::ifstream ifs(filename, std::ios::binary);
     load_txt_z(ifs, object);
 }
 
 template <typename T>
-void save_txt_z(std::ostream &os, T &object)
+void save_txt_z(std::ostream& os, T& object)
 {
     boost::archive::text_oarchive oa(os);
     oa << object;
 }
 
 template <typename T>
-void save_txt_z(const std::string &filename, T &object)
+void save_txt_z(const std::string& filename, T& object)
 {
     std::ofstream ofs(filename, std::ios::binary);
     save_txt_z(ofs, object);

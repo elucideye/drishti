@@ -17,13 +17,12 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-template <typename T, typename Comp=std::less<T> >
-std::vector<size_t> ordered(const std::vector<T> & values, const Comp &C)
+template <typename T, typename Comp = std::less<T>>
+std::vector<size_t> ordered(const std::vector<T>& values, const Comp& C)
 {
     std::vector<size_t> indices(values.size());
     std::iota(std::begin(indices), std::end(indices), static_cast<size_t>(0));
-    std::sort(std::begin(indices), std::end(indices),[&](size_t a, size_t b)
-    {
+    std::sort(std::begin(indices), std::end(indices), [&](size_t a, size_t b) {
         return C(values[a], values[b]);
     });
     return indices;

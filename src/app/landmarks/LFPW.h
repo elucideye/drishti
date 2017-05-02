@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __landmarks_LFPW_h__
-#define __landmarks_LFPW_h__
+#ifndef __drishti_landmarks_LFPW_h__
+#define __drishti_landmarks_LFPW_h__
 
 #include "landmarks/FACE.h"
 #include <fstream>
@@ -18,7 +18,6 @@
 // sed -E 's|.*/(.*).pts|\1 &|g' /tmp/pts.txt | sort > /tmp/pts1.txt
 // sed -E 's|.*/(.*).png|\1 &|g' /tmp/png.txt | sort > /tmp/png1.txt
 // join /tmp/png1.txt /tmp/pts1.txt | cut -f2- -d' ' > png_pts.txt
-
 
 // Note: This format is similar to the BIOID data so the same
 // back end grammar is used.
@@ -31,6 +30,6 @@
 // ...
 // image_filenamen.png landmark_filenamen.pts
 
-FACE::Table parseLFPW(const std::string &filename);
+FACE::Table parseLFPW(const std::string& filename);
 
-#endif // __landmarks_LFPW_h__
+#endif // __drishti_landmarks_LFPW_h__

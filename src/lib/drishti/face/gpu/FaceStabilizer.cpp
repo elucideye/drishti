@@ -13,15 +13,15 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-FaceStabilizer::FaceStabilizer(const cv::Size &sizeOut) : m_sizeOut(sizeOut)
+FaceStabilizer::FaceStabilizer(const cv::Size& sizeOut)
+    : m_sizeOut(sizeOut)
 {
-
 }
 
-std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel &face, const cv::Size &sizeIn) const
+std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel& face, const cv::Size& sizeIn) const
 {
     using PointPair = std::array<cv::Point2f, 2>;
-    const PointPair eyeCenters {{ face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center }};
+    const PointPair eyeCenters{ { face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center } };
     auto eyes = renderEyes(eyeCenters, sizeIn);
     eyes[0].eye = face.eyeFullR;
     eyes[1].eye = face.eyeFullL;
@@ -29,12 +29,12 @@ std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::Face
     return eyes;
 }
 
-std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2> &eyeCenters, const cv::Size &sizeIn) const
+std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2>& eyeCenters, const cv::Size& sizeIn) const
 {
     using PointPair = std::array<cv::Point2f, 2>;
 
     const cv::Size screenSize(m_sizeOut.width, m_sizeOut.height);
-    const cv::Point screenCenter(screenSize.width/2, screenSize.height/2);
+    const cv::Point screenCenter(screenSize.width / 2, screenSize.height / 2);
 
     // SCREEN: map pixels to normalized texture [-1.0 ... +1.0]
     cv::Matx33f No = transformation::normalize(screenSize);
@@ -45,25 +45,26 @@ std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Poin
     int eyeWidth = screenSize.width / 2;
     std::array<cv::Rect, 2> eyeRois;
 
-    if(m_autoScaling) // auto
+    if (m_autoScaling) // auto
     {
-        const cv::Rect eyeRoi(0,0,screenSize.width/2,screenSize.height);;
-        eyeRois  = {{ eyeRoi, eyeRoi + cv::Point(eyeRoi.width,0) }};
+        const cv::Rect eyeRoi(0, 0, screenSize.width / 2, screenSize.height);
+        ;
+        eyeRois = { { eyeRoi, eyeRoi + cv::Point(eyeRoi.width, 0) } };
     }
     else
     {
         eyeWidth = std::min(screenSize.width / 2, m_maxEyeWidth);
-        const cv::Point eyeOffset(eyeWidth/2, 0);
+        const cv::Point eyeOffset(eyeWidth / 2, 0);
         const cv::Rect eyeRoi(screenCenter.x - eyeOffset.x, 0, eyeWidth, int(m_aspectRatio * eyeWidth + 0.5f));
-        eyeRois = {{ eyeRoi - eyeOffset, eyeRoi + eyeOffset }};
+        eyeRois = { { eyeRoi - eyeOffset, eyeRoi + eyeOffset } };
     }
 
-    const PointPair screenCenters {{ transformation::center(eyeRois[0]), transformation::center(eyeRois[1]) }};
+    const PointPair screenCenters{ { transformation::center(eyeRois[0]), transformation::center(eyeRois[1]) } };
     const float eyeScaleInScreen = cv::norm(screenCenters[0] - screenCenters[1]);
     cv::Matx33f H = transformation::estimateSimilarity(eyeCenters, screenCenters);
 
     std::array<eye::EyeWarp, 2> cropInfo;
-    for(int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         // Adjust scaling
         const float scale = 2.f * float(eyeWidth) / eyeScaleInScreen;
@@ -76,4 +77,3 @@ std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Poin
 }
 
 DRISHTI_FACE_NAMESPACE_END
-

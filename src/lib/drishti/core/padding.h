@@ -16,11 +16,11 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-cv::Point padWithInpainting(const cv::Mat &image, cv::Mat &padded, int top, int bottom, int left, int right, bool inPaint=true);
-cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio, bool inPaint=true);
-cv::Point padToWidthUsingAspectRatio(const cv::Mat &canvas, cv::Mat &padded, int width, double aspectRatio, bool inPaint=true);
-cv::Mat borderMask(const cv::Mat &image);
-void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask);
+cv::Point padWithInpainting(const cv::Mat& image, cv::Mat& padded, int top, int bottom, int left, int right, bool inPaint = true);
+cv::Point padToAspectRatio(const cv::Mat& image, cv::Mat& padded, double aspectRatio, bool inPaint = true);
+cv::Point padToWidthUsingAspectRatio(const cv::Mat& canvas, cv::Mat& padded, int width, double aspectRatio, bool inPaint = true);
+cv::Mat borderMask(const cv::Mat& image);
+void inpaintBorder(const cv::Mat& input, cv::Mat& output, cv::Mat& mask);
 
 DRISHTI_CORE_NAMESPACE_END
 

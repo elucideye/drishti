@@ -16,20 +16,20 @@
 
 using namespace ogles_gpgpu;
 
-void getOptimizedTriangle(int blurRadius, std::vector<GLfloat> &weights, std::vector<GLfloat> &offsets)
+void getOptimizedTriangle(int blurRadius, std::vector<GLfloat>& weights, std::vector<GLfloat>& offsets)
 {
-    int width = 2*blurRadius+1;
+    int width = 2 * blurRadius + 1;
     weights.resize(width);
     offsets.resize(width);
 
-    float norm((blurRadius+1)*(blurRadius+1));
+    float norm((blurRadius + 1) * (blurRadius + 1));
 
     // 5: 1 2 3 4 5 6 5 4 3 2 1
-    for(int i = 0, j = width-1; i <= blurRadius; i++, j--)
+    for (int i = 0, j = width - 1; i <= blurRadius; i++, j--)
     {
-        weights[i] = weights[j] = float(i+1) / norm;
-        offsets[i] = - (blurRadius-i);
-        offsets[j] = + (blurRadius-i);
+        weights[i] = weights[j] = float(i + 1) / norm;
+        offsets[i] = -(blurRadius - i);
+        offsets[j] = +(blurRadius - i);
     }
 }
 
@@ -46,7 +46,7 @@ std::string vertexShaderForTriangle(int blurRadius)
     ss << "attribute vec4 inputTextureCoordinate;\n";
     ss << "uniform float texelWidthOffset;\n";
     ss << "uniform float texelHeightOffset;\n\n";
-    ss << "varying vec2 blurCoordinates[" << (unsigned long)(numberOfOptimizedOffsets) <<  "];\n\n";
+    ss << "varying vec2 blurCoordinates[" << (unsigned long)(numberOfOptimizedOffsets) << "];\n\n";
     ss << "void main()\n";
     ss << "{\n";
     ss << "   gl_Position = position;\n";
@@ -54,7 +54,7 @@ std::string vertexShaderForTriangle(int blurRadius)
     ss << "   blurCoordinates[0] = inputTextureCoordinate.xy;\n";
     for (int currentOptimizedOffset = 0; currentOptimizedOffset < numberOfOptimizedOffsets; currentOptimizedOffset++)
     {
-        const auto &optOffset = optimizedTriangleOffsets[currentOptimizedOffset];
+        const auto& optOffset = optimizedTriangleOffsets[currentOptimizedOffset];
         ss << "   blurCoordinates[" << currentOptimizedOffset << "] = inputTextureCoordinate.xy + singleStepOffset * " << std::fixed << optOffset << ";\n";
     }
     ss << "}\n";
@@ -62,7 +62,7 @@ std::string vertexShaderForTriangle(int blurRadius)
     return ss.str();
 }
 
-std::string fragmentShaderForTriangle(int blurRadius, bool doNorm = false, int pass = 1, float normConst=0.005f)
+std::string fragmentShaderForTriangle(int blurRadius, bool doNorm = false, int pass = 1, float normConst = 0.005f)
 {
     std::vector<GLfloat> standardTriangleWeights;
     std::vector<GLfloat> optimizedTriangleOffsets;
@@ -84,12 +84,12 @@ std::string fragmentShaderForTriangle(int blurRadius, bool doNorm = false, int p
     {
         GLfloat weight = standardTriangleWeights[currentBlurCoordinateIndex];
         int index = (unsigned long)((currentBlurCoordinateIndex));
-        ss << "   sum += texture2D(inputImageTexture, blurCoordinates[" << index << "]) * " << std::fixed << weight <<";\n";
+        ss << "   sum += texture2D(inputImageTexture, blurCoordinates[" << index << "]) * " << std::fixed << weight << ";\n";
     }
 
-    if(doNorm)
+    if (doNorm)
     {
-        if(pass == 1)
+        if (pass == 1)
         {
             ss << "   gl_FragColor = vec4(center.rgb, sum.r);\n";
         }
@@ -126,7 +126,7 @@ void TriangleProcPass::setRadius(int radius)
 }
 
 // TODO: We need to override this if we are using the GPUImage shaders
-void TriangleProcPass::filterShaderSetup(const char *vShaderSrc, const char *fShaderSrc, GLenum target)
+void TriangleProcPass::filterShaderSetup(const char* vShaderSrc, const char* fShaderSrc, GLenum target)
 {
     // create shader object
     ProcBase::createShader(vShaderSrc, fShaderSrc, target);
@@ -158,15 +158,12 @@ void TriangleProcPass::getUniforms()
     shParamUTexelHeightOffset = shader->getParam(UNIF, "texelHeightOffset");
 }
 
-const char *TriangleProcPass::getFragmentShaderSource()
+const char* TriangleProcPass::getFragmentShaderSource()
 {
     return fshaderTriangleSrc.c_str();
 }
 
-const char *TriangleProcPass::getVertexShaderSource()
+const char* TriangleProcPass::getVertexShaderSource()
 {
     return vshaderTriangleSrc.c_str();
 }
-
-
-

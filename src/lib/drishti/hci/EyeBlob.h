@@ -19,14 +19,14 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 struct EyeBlobJob
 {
     using FeaturePoints = std::vector<FeaturePoint>;
-    
-    EyeBlobJob(const cv::Size &size, const std::array<drishti::eye::EyeWarp, 2> &eyeWarps);
-    FeaturePoints getValidEyePoints(const FeaturePoints &points, const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size);
+
+    EyeBlobJob(const cv::Size& size, const std::array<drishti::eye::EyeWarp, 2>& eyeWarps);
+    FeaturePoints getValidEyePoints(const FeaturePoints& points, const drishti::eye::EyeWarp& eyeWarp, const cv::Size& size);
     void run();
-    
+
     cv::Mat4b filtered;
     cv::Mat1b alpha;
-    const std::array<drishti::eye::EyeWarp, 2> &eyeWarps;
+    const std::array<drishti::eye::EyeWarp, 2>& eyeWarps;
     std::array<FeaturePoints, 2> eyePoints;
 };
 

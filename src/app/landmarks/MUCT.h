@@ -8,11 +8,11 @@
 
 */
 
-#ifndef __landmarks_MUCT_h__
-#define __landmarks_MUCT_h__
+#ifndef __drishti_landmarks_MUCT_h__
+#define __drishti_landmarks_MUCT_h__
 
 #include "landmarks/FACE.h"
 
-FACE::Table parseMUCT(const std::string &filename);
+FACE::Table parseMUCT(const std::string& filename);
 
-#endif // __landmarks_MUCT_h__
+#endif // __drishti_landmarks_MUCT_h__

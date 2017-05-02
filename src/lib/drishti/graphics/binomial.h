@@ -21,12 +21,13 @@ class BinomialProc : public ogles_gpgpu::Filter3x3Proc
 {
 public:
     BinomialProc() {}
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "BinomialProc";
     }
+
 private:
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderBinomialSrc;
     }
@@ -36,10 +37,9 @@ private:
         shParamUInputTex = shader->getParam(UNIF, "inputImageTexture");
     }
     virtual void setUniforms() {}
-    static const char *fshaderBinomialSrc;   // fragment shader source
+    static const char* fshaderBinomialSrc; // fragment shader source
 };
 
 END_OGLES_GPGPU
 
 #endif //  __drishti_graphics_binomial_h__
-

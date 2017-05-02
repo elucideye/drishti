@@ -5,20 +5,20 @@
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-template<class Archive>
-void StandardizedPCA::Standardizer::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void StandardizedPCA::Standardizer::serialize(Archive& ar, const unsigned int version)
 {
-    ar & mu;
-    ar & sigma;
+    ar& mu;
+    ar& sigma;
 }
 
-template<class Archive>
-void StandardizedPCA::serialize(Archive & ar, const unsigned int version)
+template <class Archive>
+void StandardizedPCA::serialize(Archive& ar, const unsigned int version)
 {
-    ar & m_transform;
-    ar & m_pca;
+    ar& m_transform;
+    ar& m_pca;
 
-    if(Archive::is_loading::value)
+    if (Archive::is_loading::value)
     {
         init();
     }

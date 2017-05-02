@@ -39,10 +39,9 @@ BEGIN_OGLES_GPGPU
 class EyeFilter : public ogles_gpgpu::MultiPassProc
 {
 public:
-
     using EyewWarpPair = std::array<drishti::eye::EyeWarp, 2>;
     using EyePair = std::array<drishti::eye::EyeModel, 2>;
-    
+
     class Impl;
 
     enum Mode
@@ -52,7 +51,7 @@ public:
         kMean3,
     };
 
-    EyeFilter(const Size2d &sizeOut, Mode mode, float cutoff);
+    EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff);
 
     virtual ~EyeFilter();
 
@@ -61,12 +60,12 @@ public:
         m_doAutoScaling = flag;
     }
 
-    EyewWarpPair &getEyeWarps()
+    EyewWarpPair& getEyeWarps()
     {
         return m_eyes;
     }
-    
-    const EyewWarpPair &getEyeWarps() const
+
+    const EyewWarpPair& getEyeWarps() const
     {
         return m_eyes;
     }
@@ -74,14 +73,14 @@ public:
     /**
      * Return the processors name.
      */
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "EyeFilter";
     }
 
     virtual ProcInterface* getInputFilter() const;
     virtual ProcInterface* getOutputFilter() const;
-    
+
     virtual void setOutputSize(float scaleFactor);
     virtual void setOutputSize(int outW, int outH);
 
@@ -89,17 +88,16 @@ public:
     virtual int reinit(int inW, int inH, bool prepareForExternalInput = false);
     virtual int render(int position);
 
-    void addFace(const drishti::face::FaceModel &face)
+    void addFace(const drishti::face::FaceModel& face)
     {
         m_faces.push_back(face);
     }
 
-    void dump(std::vector<cv::Mat4b> &images, std::vector<EyePair> &eyes);
+    void dump(std::vector<cv::Mat4b>& images, std::vector<EyePair>& eyes);
 
     void renderIris();
 
 protected:
-
     std::vector<drishti::face::FaceModel> m_faces;
 
     EyewWarpPair m_eyes;
@@ -114,9 +112,9 @@ protected:
     std::unique_ptr<FifoProc> fifoProc; // maintain buffer
     std::unique_ptr<LowPassFilterProc> lowPassProc;
     std::unique_ptr<Fir3Proc> mean3Proc;
-    
-    ProcInterface *lastProc = nullptr;
-    ProcInterface *firstProc = nullptr;
+
+    ProcInterface* lastProc = nullptr;
+    ProcInterface* firstProc = nullptr;
 
     std::shared_ptr<Impl> m_impl;
 };

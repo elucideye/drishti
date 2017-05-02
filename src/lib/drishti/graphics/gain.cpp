@@ -10,7 +10,7 @@
 
 #include "drishti/graphics/gain.h"
 
-// *INDENT-OFF*
+// clang-format off
 BEGIN_OGLES_GPGPU
 const char * NoopProc::fshaderNoopSrc = OG_TO_STR
 (
@@ -26,4 +26,4 @@ const char * NoopProc::fshaderNoopSrc = OG_TO_STR
      gl_FragColor = clamp(val * gain, 0.0, 1.0);
  });
 END_OGLES_GPGPU
-// *INDENT-ON*
+// clang-format on

@@ -14,9 +14,11 @@
 #include "drishti/core/drishti_core.h"
 #include "drishti/ml/drishti_ml.h"
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialization_boost.h"// for export
+#  include "drishti/core/drishti_serialization_boost.h" // for export
 #endif
+// clang-format on
 
 #include <opencv2/core/core.hpp>
 
@@ -27,40 +29,38 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class StandardizedPCA
 {
 public:
-
     struct Standardizer
     {
         Standardizer();
         Standardizer(int size, int type);
         void create(int size, int type);
 
-        void compute(const cv::Mat &src);
-        cv::Mat standardize(const cv::Mat &src) const;
-        cv::Mat unstandardize(const cv::Mat &src) const;
+        void compute(const cv::Mat& src);
+        cv::Mat standardize(const cv::Mat& src) const;
+        cv::Mat unstandardize(const cv::Mat& src) const;
 
         cv::Mat mu, sigma;
 
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version);
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version);
     };
 
     StandardizedPCA(); // null constructor for file loading
-    void compute(const cv::Mat &data, cv::Mat &projection, float retainedVariance);
-    void compute(const cv::Mat &data, cv::Mat &projection, int maxComponents);
+    void compute(const cv::Mat& data, cv::Mat& projection, float retainedVariance);
+    void compute(const cv::Mat& data, cv::Mat& projection, int maxComponents);
     void init();
 
     size_t getNumComponents() const;
 
-    cv::Mat project(const cv::Mat &data, int n=0) const;
-    cv::Mat backProject(const cv::Mat &projection) const;
+    cv::Mat project(const cv::Mat& data, int n = 0) const;
+    cv::Mat backProject(const cv::Mat& projection) const;
 
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version);
-    
-    static void gemm_transpose(const cv::Mat &A, const cv::Mat &Bt, cv::Mat &result);
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version);
+
+    static void gemm_transpose(const cv::Mat& A, const cv::Mat& Bt, cv::Mat& result);
 
 protected:
-    
     Standardizer m_transform;
     std::shared_ptr<cv::PCA> m_pca;
 

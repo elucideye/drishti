@@ -10,7 +10,7 @@
 
 #include "drishti/graphics/rgb2hsv.h"
 
-// *INDENT-OFF*
+// clang-format off
 BEGIN_OGLES_GPGPU
 const char * Rgb2HsvProc::fshaderRgb2HsvSrc = OG_TO_STR
 (
@@ -38,6 +38,4 @@ const char * Rgb2HsvProc::fshaderRgb2HsvSrc = OG_TO_STR
      gl_FragColor = vec4(rgb2hsv(val), 1.0);
  });
 END_OGLES_GPGPU
-// *INDENT-ON*
-
-
+// clang-format on

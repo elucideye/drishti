@@ -24,26 +24,25 @@ public:
     GLPrinterShader();
     ~GLPrinterShader();
 
-    static const char * getProcName() { return "GLPrinterShader"; }
-    
+    static const char* getProcName() { return "GLPrinterShader"; }
+
     void begin();
     void end();
-    void printAt(const std::wstring &str, float x, float y, float sx,float sy);
-
+    void printAt(const std::wstring& str, float x, float y, float sx, float sy);
 
     GLuint m_texId;
     GLuint m_vbo, m_vao;
-    
+
     // #### Draw shader ####
     std::shared_ptr<Shader> m_shader;
     GLuint m_shParamAPos;
     GLuint m_shParamATexCoord;
     GLuint m_shParamUInputTex;
-    
-    static const char *vshaderPrinterSrc; // vertex shader source
-    static const char *fshaderPrinterSrc; // fragment shader source
+
+    static const char* vshaderPrinterSrc; // vertex shader source
+    static const char* fshaderPrinterSrc; // fragment shader source
 };
 
 END_OGLES_GPGPU
 
-#endif 
+#endif

@@ -30,7 +30,9 @@
 #include <memory>
 #include <array>
 
+// clang-format off
 namespace spdlog { class logger; }
+// clang-format on
 
 BEGIN_OGLES_GPGPU
 
@@ -39,18 +41,26 @@ class GLPrinterShader;
 class FacePainter : public ogles_gpgpu::TransformProc
 {
 public:
-    
     using FlowField = std::vector<cv::Vec4f>;
     using FeaturePoint = drishti::hci::FeaturePoint;
     using FeaturePoints = std::vector<FeaturePoint>;
     using PointSet = std::vector<cv::Point2f>;
     using Axes3D = std::array<drishti::geometry::Mesh3D<float>, 3>;
-    
+
     struct DisplayTexture
     {
         DisplayTexture() {}
-        DisplayTexture(GLint texId, const Size2d &size) : texId(texId), size(size) {}
-        DisplayTexture(GLint texId, const Size2d &size, const Rect2d &roi) : texId(texId), size(size), roi(roi) {}
+        DisplayTexture(GLint texId, const Size2d& size)
+            : texId(texId)
+            , size(size)
+        {
+        }
+        DisplayTexture(GLint texId, const Size2d& size, const Rect2d& roi)
+            : texId(texId)
+            , size(size)
+            , roi(roi)
+        {
+        }
 
         GLint texId = -1;
         ogles_gpgpu::Size2d size;
@@ -58,7 +68,7 @@ public:
 
         void annotate()
         {
-            if(m_delegate)
+            if (m_delegate)
             {
                 m_delegate();
             }
@@ -70,35 +80,37 @@ public:
     struct EyeAttributes
     {
         EyeAttributes() {}
-        EyeAttributes(const FeaturePoints *points, float scale=1.f, const cv::Vec3f &color={0.f,1.f,0.f})
-        : points(points)
-        , scale(scale)
-        , color(color) {}
-        
-        const FeaturePoints *points = nullptr;
+        EyeAttributes(const FeaturePoints* points, float scale = 1.f, const cv::Vec3f& color = { 0.f, 1.f, 0.f })
+            : points(points)
+            , scale(scale)
+            , color(color)
+        {
+        }
+
+        const FeaturePoints* points = nullptr;
         float scale = 10.f;
         cv::Vec3f color = { 0.f, 1.f, 0.f };
-        const FlowField *flow = nullptr;
+        const FlowField* flow = nullptr;
     };
-    
+
     struct EyePairInfo
     {
         DisplayTexture m_eyesInfo;
         std::array<drishti::eye::EyeWarp, 2> m_eyes;
         cv::Rect m_eyesRoi;
     };
-    
+
     struct Object3D
     {
         cv::Point3f position;
         cv::Vec3f velocity;
     };
-    
+
     /**
      * Constructor
      */
     FacePainter(int orientation);
-    
+
     ~FacePainter();
 
     /**
@@ -109,7 +121,7 @@ public:
     /**
      * Return the processors name.
      */
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "FacePainter";
     }
@@ -122,7 +134,7 @@ public:
     /**
      * Get the fragment shader source.
      */
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderLetterBoxSrc;
     }
@@ -147,7 +159,7 @@ public:
     }
 
     // Add input face model
-    void addFace(const drishti::face::FaceModel &face)
+    void addFace(const drishti::face::FaceModel& face)
     {
         m_faces.push_back(face);
     }
@@ -155,7 +167,7 @@ public:
     //===========================
     //========= LINES ===========
     //===========================
-    
+
     // Get input line drawing list:
     std::vector<LineDrawing>& getPermanentLineDrawings()
     {
@@ -177,23 +189,23 @@ public:
     }
 
     // Add input line drawings:
-    void addLineDrawing(const LineDrawing &drawing)
+    void addLineDrawing(const LineDrawing& drawing)
     {
         m_drawings.push_back(drawing);
     }
-    
-    void setAxes(const cv::Point3f &axes);
 
-    void setObjectState(const Object3D &object)
+    void setAxes(const cv::Point3f& axes);
+
+    void setObjectState(const Object3D& object)
     {
         m_object = object;
     }
-    
+
     //===========================
     //========= FLOW -===========
     //===========================
 
-    void setFlowTexture(GLint texIdx, const ogles_gpgpu::Size2d &size)
+    void setFlowTexture(GLint texIdx, const ogles_gpgpu::Size2d& size)
     {
         Size2d flowSize(outFrameW, outFrameW * size.height / size.width);
         Rect2d flowRoi(0, outFrameH - flowSize.height - 1, flowSize.width, flowSize.height);
@@ -204,11 +216,11 @@ public:
     //========= FLASH ===========
     //===========================
 
-    void setFlashTexture(GLint texIdx, const ogles_gpgpu::Size2d &size)
+    void setFlashTexture(GLint texIdx, const ogles_gpgpu::Size2d& size)
     {
-        const int flashWidth = outFrameW/4;
+        const int flashWidth = outFrameW / 4;
         Size2d flashSize(flashWidth, flashWidth * size.height / size.width);
-        Rect2d flashRoi(0, (outFrameH/2)-(flashSize.height/2), flashSize.width, flashSize.height);
+        Rect2d flashRoi(0, (outFrameH / 2) - (flashSize.height / 2), flashSize.width, flashSize.height);
         m_flashInfo = { texIdx, size, flashRoi };
     }
 
@@ -216,7 +228,7 @@ public:
     //========= IRIS ============
     //===========================
 
-    void setIrisTexture(int index, GLint texIdx, const ogles_gpgpu::Size2d &size)
+    void setIrisTexture(int index, GLint texIdx, const ogles_gpgpu::Size2d& size)
     {
         int shrink = 3; // vertical shrink for small displays
         assert(index >= 0 && index <= 1);
@@ -225,96 +237,94 @@ public:
         m_irisInfo[index] = { texIdx, size, irisRoi };
     }
 
-    //===========================
-    //========= EYES ============
-    //===========================
+//===========================
+//========= EYES ============
+//===========================
 
 #define DRISHTI_HC_FACE_PAINTER 1
- 
-    void setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d &size, const std::array<drishti::eye::EyeWarp, 2> &eyes)
+
+    void setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d& size, const std::array<drishti::eye::EyeWarp, 2>& eyes)
     {
 #if DRISHTI_HC_FACE_PAINTER
         // A) This stretches and preserves the aspect ratio across the top of the frame:
-        Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height/size.width);
+        Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height / size.width);
 #else
         // B) This stretches and centers the roi on top
         const int maxWidth = 512;
         const int width = std::min(maxWidth, outFrameW);
-        Rect2d eyesRoi(0, 0, width, width * size.height/size.width);
+        Rect2d eyesRoi(0, 0, width, width * size.height / size.width);
 #endif
         eyesRoi.x = 0; // (outFrameW / 2);// - (size.width / 2);
         eyesRoi.y = eyesRoi.height / 4;
 
         m_eyes.m_eyes = eyes;
         m_eyes.m_eyesInfo = { texIdx, size, eyesRoi };
-        m_eyes.m_eyesInfo.m_delegate = [&]()
-        {
+        m_eyes.m_eyesInfo.m_delegate = [&]() {
             annotateEyes(m_eyes, m_eyeAttributes);
         };
     }
-    
-    void setEyeMotion(const cv::Point2f &motion)
+
+    void setEyeMotion(const cv::Point2f& motion)
     {
         m_eyeMotion = motion;
     }
 
     // points: normalized points wrt eye textures
-    void setEyePoints(const FeaturePoints &points)
+    void setEyePoints(const FeaturePoints& points)
     {
         m_eyePoints = points;
     }
-    
-    void setEyeFlow(const FlowField &flow)
+
+    void setEyeFlow(const FlowField& flow)
     {
         m_eyeFlow = flow;
     }
-    
+
     void setBrightness(float value)
     {
         m_brightness = value;
     }
-    
-    void setGazePoint(const FeaturePoints &points)
+
+    void setGazePoint(const FeaturePoints& points)
     {
         m_gazePoints = points;
     }
-    
-    void setLogger(std::shared_ptr<spdlog::logger> &logger)
+
+    void setLogger(std::shared_ptr<spdlog::logger>& logger)
     {
         m_logger = logger;
     }
-    
+
     void copyEyeTex();
-    void annotateEyes(const EyePairInfo &eyes, const EyeAttributes &attributes);
+    void annotateEyes(const EyePairInfo& eyes, const EyeAttributes& attributes);
 
     // Implement all utilty texture drawing in terms of these:
-    void renderTex( DisplayTexture &texInfo);
-    void filterRenderPrepareTex( DisplayTexture &texInfo);
-    void filterRenderSetCoordsTex(DisplayTexture &texInfo);
-    
-private:
+    void renderTex(DisplayTexture& texInfo);
+    void filterRenderPrepareTex(DisplayTexture& texInfo);
+    void filterRenderSetCoordsTex(DisplayTexture& texInfo);
 
+private:
     cv::Matx33f uprightImageToTexture();
 
     void renderFaces();
-    std::array<drishti::eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel &face); // return transformations
-    void renderEye(const cv::Rect &roi, const cv::Matx33f &H, const DRISHTI_EYE::EyeModel &eye);
-    void annotateEye(const drishti::eye::EyeWarp &eyeWarp, const cv::Size &size, const EyeAttributes &attributes);
+    std::array<drishti::eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel& face); // return transformations
+    void renderEye(const cv::Rect& roi, const cv::Matx33f& H, const DRISHTI_EYE::EyeModel& eye);
+    void annotateEye(const drishti::eye::EyeWarp& eyeWarp, const cv::Size& size, const EyeAttributes& attributes);
 
     virtual void renderDrawings();
     virtual void renderAxes();
     virtual void renderGaze();
 
     FeaturePoints m_gazePoints;
-    
+
     float m_brightness = 1.f;
-    
+
     cv::Point2f m_eyeMotion;
     cv::Point3f m_motion;
-    
+
     Axes3D m_axes;
     Axes3D m_axesColors;
-    
+
     drishti::core::Field<Object3D> m_object;
 
     // Make sure these aren't called
@@ -323,18 +333,18 @@ private:
 
     //static const char *fshaderTransformSrc;  // fragment shader source
 
-    static const char *fshaderColorSrc; // fragment shader source
-    static const char *vshaderColorSrc;
+    static const char* fshaderColorSrc; // fragment shader source
+    static const char* vshaderColorSrc;
 
-    static const char *fshaderColorVaryingSrc; // fragment shader source
-    static const char *vshaderColorVaryingSrc;
+    static const char* fshaderColorVaryingSrc; // fragment shader source
+    static const char* vshaderColorVaryingSrc;
 
-    static const char *fshaderLetterBoxSrc;
+    static const char* fshaderLetterBoxSrc;
 
     int m_outputOrientation = 0;
 
     uint64_t m_frameIndex = 0;
-    
+
     // Generic line drawings (debugging) and colors:
     std::vector<cv::Vec3f> m_colorBuf;
     std::vector<LineDrawing> m_drawings;
@@ -349,7 +359,7 @@ private:
 
     FlowField m_eyeFlow;
     FeaturePoints m_eyePoints;
-    
+
     std::unique_ptr<GLPrinterShader> m_printer;
 
     // #### Draw shader ####
@@ -373,7 +383,7 @@ private:
 
     // #### Iris textures ####
     DisplayTexture m_irisInfo[2];
-    
+
     // ### Stream logging
     std::shared_ptr<spdlog::logger> m_logger;
 };

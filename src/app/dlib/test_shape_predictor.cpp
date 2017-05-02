@@ -34,49 +34,51 @@ typedef unsigned char boolean;
 
 #include <iostream>
 
-std::vector<std::vector<double> >
-get_interocular_distances (const std::vector<std::vector<dlib::full_object_detection> >& objects);
+std::vector<std::vector<double>>
+get_interocular_distances(const std::vector<std::vector<dlib::full_object_detection>>& objects);
 
-cv::Point cv_point(const dlib::point &p)
+cv::Point cv_point(const dlib::point& p)
 {
     return cv::Point(p.x(), p.y());
 }
 
-cv::Rect cv_rect(const dlib::rectangle &r)
+cv::Rect cv_rect(const dlib::rectangle& r)
 {
     return cv::Rect(cv_point(r.tl_corner()), cv_point(r.br_corner()));
 }
 
-dlib::rectangle dlib_rect(const cv::Rect &r)
+dlib::rectangle dlib_rect(const cv::Rect& r)
 {
     return dlib::rectangle(r.x, r.y, r.br().x, r.br().y);
 }
 
-dlib::point dlib_point(const cv::Point &p)
+dlib::point dlib_point(const cv::Point& p)
 {
     return dlib::point(p.x, p.y);
 }
 
-int mine(int argc, char *argv[])
+int mine(int argc, char* argv[])
 {
     const auto argumentCount = argc;
-    
+
     bool doPreview = false;
     bool doThreads = false;
     bool doVerbose = false;
     bool doHelp = false;
     std::string sInput;
     std::string sModel;
-    
+
     cxxopts::Options options("train_shape_predictor", "Command line interface for dlib shape_predictor training");
+
+    // clang-format off
     options.add_options()
-    ( "input", "Input filename list", cxxopts::value<std::string>(sInput))
-    ( "model", "Model filename", cxxopts::value<std::string>(sModel))
-    ( "preview", "Use preview window", cxxopts::value<bool>(doPreview))
-    ( "threads", "Use worker threads when possible", cxxopts::value<bool>(doThreads))
-    ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose))
-    ( "help", "Print the help message", cxxopts::value<bool>(doHelp));
-    
+        ( "input", "Input filename list", cxxopts::value<std::string>(sInput))
+        ( "model", "Model filename", cxxopts::value<std::string>(sModel))
+        ( "preview", "Use preview window", cxxopts::value<bool>(doPreview))
+        ( "threads", "Use worker threads when possible", cxxopts::value<bool>(doThreads))
+        ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose))
+        ( "help", "Print the help message", cxxopts::value<bool>(doHelp));
+    // clang-format on    
     options.parse(argc, argv);
     
     if((argumentCount <= 1) || options.count("help"))

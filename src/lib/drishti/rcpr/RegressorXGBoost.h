@@ -22,7 +22,6 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 class RegressorXGBoost : public Regressor
 {
 public:
-
     RegressorXGBoost()
     {
         ml::XGBooster::Recipe params;
@@ -34,13 +33,13 @@ public:
     }
 
     // Evaluate:
-    virtual float operator()(const RealVector &features)
+    virtual float operator()(const RealVector& features)
     {
         return (*m_regressor)(features);
     }
 
     // Train:
-    virtual void train(const MatrixType<float> &values, const RealVector &labels, const MatrixType<uint8_t> &mask= {})
+    virtual void train(const MatrixType<float>& values, const RealVector& labels, const MatrixType<uint8_t>& mask = {})
     {
         m_regressor->train(values, labels, mask);
     }

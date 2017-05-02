@@ -88,7 +88,7 @@
 
 using namespace string_hash;
 
-void rgbConvertMex(const MatP &I, MatP &J, int flag, double nrm);
+void rgbConvertMex(const MatP& I, MatP& J, int flag, double nrm);
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
@@ -96,7 +96,7 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 
 #if USE_OPENCV_CVTCOLOR
 // TODO: replace this with mex file code (or rework flow to avoid this)
-static void cvtColor(const MatP &src, MatP &dst, int code)
+static void cvtColor(const MatP& src, MatP& dst, int code)
 {
     cv::Mat src_, dst_;
     cv::merge(src.get(), src_);
@@ -105,34 +105,34 @@ static void cvtColor(const MatP &src, MatP &dst, int code)
 }
 #endif
 
-int Detector::rgbConvert(const MatP &IIn, MatP &J, const std::string &colorSpace, bool useSingle, bool isLuv )
+int Detector::rgbConvert(const MatP& IIn, MatP& J, const std::string& colorSpace, bool useSingle, bool isLuv)
 {
     std::string cs;
     std::transform(colorSpace.begin(), colorSpace.end(), std::back_inserter(cs), ::tolower);
 
     int flag = 2;
-    switch( string_hash::hash(cs) )
+    switch (string_hash::hash(cs))
     {
-        case "gray"_hash :
+        case "gray"_hash:
             flag = 0;
             break;
-        case "rgb"_hash  :
+        case "rgb"_hash:
             flag = 1;
             break;
-        case "luv"_hash  :
+        case "luv"_hash:
             flag = 2;
             break;
-        case "hsv"_hash  :
+        case "hsv"_hash:
             flag = 3;
             break;
-        case "orig"_hash :
+        case "orig"_hash:
             flag = 4;
             break;
-        default :
+        default:
             CV_Assert(false);
     }
 
-    if(isLuv)
+    if (isLuv)
     {
         CV_Assert((cs == "luv") || (cs == "orig"));
         J = IIn;
@@ -140,23 +140,23 @@ int Detector::rgbConvert(const MatP &IIn, MatP &J, const std::string &colorSpace
     }
 
 #if USE_OPENCV_CVTCOLOR
-    if(IIn.empty())
+    if (IIn.empty())
     {
         J = cv::Mat3f();
         return 0;
     }
 
     // Just use opencv calls for now (be sure to compare w/ Piotr's code)
-    switch(flag)
+    switch (flag)
     {
         case 0:
-            cvtColor( IIn, J, cv::COLOR_GRAY2RGB );
+            cvtColor(IIn, J, cv::COLOR_GRAY2RGB);
             break;
         case 2:
-            cvtColor( IIn, J, cv::COLOR_RGB2Luv );
+            cvtColor(IIn, J, cv::COLOR_RGB2Luv);
             break;
         case 3:
-            cvtColor( IIn, J, cv::COLOR_RGB2HSV );
+            cvtColor(IIn, J, cv::COLOR_RGB2HSV);
             break;
         case 1:
             J = IIn;
@@ -169,7 +169,7 @@ int Detector::rgbConvert(const MatP &IIn, MatP &J, const std::string &colorSpace
     }
 #else
     CV_Assert(flag >= 0);
-    if(!IIn.empty() && (flag != 1) && (flag != 4))
+    if (!IIn.empty() && (flag != 1) && (flag != 4))
     {
         rgbConvertMex(IIn, J, flag, useSingle);
     }

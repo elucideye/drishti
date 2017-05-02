@@ -24,11 +24,10 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class ObjectDetector
 {
 public:
-
     // TODO: enforce a public non virtual API that calls a virtual detect method
     // and applies pruning criteria as needed.
-    virtual int operator()(const cv::Mat &image, std::vector<cv::Rect> &objects, std::vector<double> *scores=0) = 0;
-    virtual int operator()(const MatP &image, std::vector<cv::Rect> &objects, std::vector<double> *scores=0) = 0;
+    virtual int operator()(const cv::Mat& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0) = 0;
+    virtual int operator()(const MatP& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0) = 0;
     virtual void setMaxDetectionCount(size_t maxCount)
     {
         m_maxDetectionCount = maxCount;
@@ -37,7 +36,7 @@ public:
     {
         m_detectionScorePruneRatio = ratio;
     }
-    virtual void prune(std::vector<cv::Rect> &objects, std::vector<double> &scores);
+    virtual void prune(std::vector<cv::Rect>& objects, std::vector<double>& scores);
     virtual void setDoNonMaximaSuppression(bool flag)
     {
         m_doNms = flag;
@@ -46,9 +45,9 @@ public:
     {
         return m_doNms;
     }
-    
+
     virtual cv::Size getWindowSize() const = 0;
-    
+
 protected:
     bool m_doNms = false;
     double m_detectionScorePruneRatio = 0.0;

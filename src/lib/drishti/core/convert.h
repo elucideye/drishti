@@ -18,15 +18,20 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 
 struct PlaneInfo
 {
-    PlaneInfo(cv::Mat &plane, int channel, float alpha=1.f) : plane(plane), channel(channel), alpha(alpha) {}
+    PlaneInfo(cv::Mat& plane, int channel, float alpha = 1.f)
+        : plane(plane)
+        , channel(channel)
+        , alpha(alpha)
+    {
+    }
     cv::Mat plane;
     int channel = 0;
     float alpha = 1.f;
 };
 
-void convertU8ToF32(const cv::Mat4b &input, std::vector<PlaneInfo> &planes);
+void convertU8ToF32(const cv::Mat4b& input, std::vector<PlaneInfo>& planes);
 
-void unpack(const cv::Mat4b &input, std::vector<PlaneInfo> &planes);
+void unpack(const cv::Mat4b& input, std::vector<PlaneInfo>& planes);
 
 DRISHTI_CORE_NAMESPACE_END
 

@@ -22,25 +22,25 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 //
 // Note: (-n) % k == k - (n % k)
 
-void NormalizedIris::rotate(const cv::Mat &image, cv::Mat &dest, int x)
+void NormalizedIris::rotate(const cv::Mat& image, cv::Mat& dest, int x)
 {
     dest.create(image.size(), image.type());
-    if(x == 0)
+    if (x == 0)
     {
         image.copyTo(dest);
     }
     else
     {
         int rem = (x < 0) ? (image.cols - (-x % image.cols)) : (x % image.cols);
-        image(cv::Range::all(), {image.cols-rem, image.cols}).copyTo(dest(cv::Range::all(), {0, rem}));
-        image(cv::Range::all(), {0, image.cols-rem}).copyTo(dest(cv::Range::all(), {rem, image.cols}));
+        image(cv::Range::all(), { image.cols - rem, image.cols }).copyTo(dest(cv::Range::all(), { 0, rem }));
+        image(cv::Range::all(), { 0, image.cols - rem }).copyTo(dest(cv::Range::all(), { rem, image.cols }));
     }
 }
 
 NormalizedIris NormalizedIris::rotate(int x) const
 {
     NormalizedIris code;
-    code.roi = {{0,0}, roi.size()};
+    code.roi = { { 0, 0 }, roi.size() };
     rotate(getImage(), code.getPaddedImage(), x);
     rotate(getMask(), code.getPaddedMask(), x);
     return code;

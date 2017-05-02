@@ -36,13 +36,15 @@
 #include "VideoFilterRunnable.hpp"
 #include "FrameHandler.h"
 
-QVideoFilterRunnable *VideoFilter::createFilterRunnable()
+QVideoFilterRunnable* VideoFilter::createFilterRunnable()
 {
     auto runnable = new VideoFilterRunnable(this);
     return runnable;
 }
 
-VideoFilter::VideoFilter() : m_factor(1), m_outputString("Filter output")
+VideoFilter::VideoFilter()
+    : m_factor(1)
+    , m_outputString("Filter output")
 {
     connect(this, SIGNAL(updateOutputString(QString)), this, SLOT(setOutputString(QString)));
     connect(this, SIGNAL(updateRectangle(QPoint, QSize, bool)), this, SLOT(setRectangle(QPoint, QSize, bool)));

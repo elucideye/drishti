@@ -21,17 +21,19 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/testlib/drishti_cli.h"
 
+// clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
 #  include "imshow/imshow.h"
 #endif
+// clang-format on
 
 // Package includes:
 #include "cxxopts.hpp"
 #include <opencv2/highgui.hpp>
 #include <cereal/archives/json.hpp>
 
-static bool writeAsJson(const std::string &filename, const std::vector<drishti::face::FaceModel> &faces);
-static void drawObjects(cv::Mat &canvas, const std::vector<drishti::face::FaceModel> &faces);
+static bool writeAsJson(const std::string& filename, const std::vector<drishti::face::FaceModel>& faces);
+static void drawObjects(cv::Mat& canvas, const std::vector<drishti::face::FaceModel>& faces);
 
 // Resize input image to detection objects of minimum width
 // given an object detection window size. i.e.,
@@ -45,15 +47,14 @@ static void drawObjects(cv::Mat &canvas, const std::vector<drishti::face::FaceMo
 class Resizer
 {
 public:
-
     using PaddedImage = drishti::face::FaceDetector::PaddedImage;
-    
+
     // Create:
     // 1) reduced+RGB+float+transposed low resolution image
     // 2) single channel padded grayscale image (higher resolution)
-    Resizer(cv::Mat &image, const cv::Size &winSize, int width = -1)
+    Resizer(cv::Mat& image, const cv::Size& winSize, int width = -1)
     {
-        if((width >= 0) && !image.empty())
+        if ((width >= 0) && !image.empty())
         {
             Sfd = static_cast<float>(winSize.width) / static_cast<float>(width);
             const int interpolation = (Sfd < 1.f) ? cv::INTER_AREA : cv::INTER_LINEAR;
@@ -67,48 +68,47 @@ public:
         { // Create the high resolution padded image for regression:
             cv::Mat green;
             cv::extractChannel(image, green, 1);
-            padded = PaddedImage(green, {{0,0},green.size()});
+            padded = PaddedImage(green, { { 0, 0 }, green.size() });
         }
 
         { // Create the lower resolution image for detection:
             cv::Mat It = reduced.t(), Itf;
-            It.convertTo(Itf, CV_32FC3, 1.0f/255.f);
+            It.convertTo(Itf, CV_32FC3, 1.0f / 255.f);
             planar = MatP(Itf);
-            Sdr = 1.f/Sfd;
-        }        
-        
+            Sdr = 1.f / Sfd;
+        }
+
         // Store the transformation from the detection to the regression image:
-        Hdr = cv::Matx33f(cv::Matx33f::diag({Sdr,Sdr,1.f}));
+        Hdr = cv::Matx33f(cv::Matx33f::diag({ Sdr, Sdr, 1.f }));
 
         // Compute and store the transformation from the regressor to full resolution:
-        const float Srd = (1.f/Sdr), Sdf = (1.f/Sfd);
+        const float Srd = (1.f / Sdr), Sdf = (1.f / Sfd);
         Srf = Sdf * Srd;
-        Hrf = cv::Matx33f::diag({Srf,Srf,1.f}); // regressor->full
+        Hrf = cv::Matx33f::diag({ Srf, Srf, 1.f }); // regressor->full
     }
 
     // Faces will be avaialble at the regressor resolution:
-    void operator()(std::vector<drishti::face::FaceModel> &faces) const
+    void operator()(std::vector<drishti::face::FaceModel>& faces) const
     {
-        if(Srf != 1.f)
+        if (Srf != 1.f)
         {
-            for(auto &f : faces)
+            for (auto& f : faces)
             {
                 f = Hrf * f;
             }
         }
     }
 
-    const cv::Matx33f &getRegressorToFull() const { return Hrf; }    
-    const cv::Matx33f &getDetectorToRegressor() const { return Hdr; }
-    
-    const MatP &getPlanar() const { return planar; }
-    MatP &getPlanar() { return planar; }
-    
-    const PaddedImage &getPadded() const { return padded; }
-    PaddedImage &getPadded() { return padded; }
+    const cv::Matx33f& getRegressorToFull() const { return Hrf; }
+    const cv::Matx33f& getDetectorToRegressor() const { return Hdr; }
+
+    const MatP& getPlanar() const { return planar; }
+    MatP& getPlanar() { return planar; }
+
+    const PaddedImage& getPadded() const { return padded; }
+    PaddedImage& getPadded() { return padded; }
 
 protected:
-    
     float Sfd = 1.f; // scale: full to detection
     float Sdr = 1.f; // scale: detection to regression
     float Srf = 1.f;
@@ -116,38 +116,38 @@ protected:
     cv::Matx33f Hdr; // scale: detector to regressor
     cv::Matx33f Hrf; // scale: regressor to full
 
-    cv::Mat reduced;    
+    cv::Mat reduced;
     MatP planar;
     PaddedImage padded;
 };
 
 using LoggerPtr = std::shared_ptr<spdlog::logger>;
-static bool checkModel(LoggerPtr &logger, const std::string &sModel, const std::string &description)
+static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description)
 {
-    if(sModel.empty())
+    if (sModel.empty())
     {
         logger->error() << "Must specify valid model " << sModel;
         return 1;
     }
-    if(!drishti::cli::file::exists(sModel))
+    if (!drishti::cli::file::exists(sModel))
     {
         logger->error() << "Specified model file does not exist or is not readable";
         return 1;
     }
     return 0;
 }
-    
-int drishti_main(int argc, char **argv)
+
+int drishti_main(int argc, char** argv)
 {
     const auto argumentCount = argc;
-    
+
     // Instantiate line logger:
     auto logger = drishti::core::Logger::create("drishti-acf");
-    
+
     // ############################
     // ### Command line parsing ###
     // ############################
-    
+
     std::string sInput, sOutput, sModel;
     int threads = -1;
     bool doDisplay = false;
@@ -162,8 +162,10 @@ int drishti_main(int argc, char **argv)
     std::string sFaceDetectorMean;
     std::string sFaceRegressor;
     std::string sEyeRegressor;
-    
+
     cxxopts::Options options("drishti-acf", "Command line interface for ACF object detection (see Piotr's toolbox)");
+
+    // clang-format off
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
@@ -184,28 +186,28 @@ int drishti_main(int argc, char **argv)
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("h,help", "Print help message");
+    // clang-format on
 
-    
     options.parse(argc, argv);
-    
-    if((argumentCount <= 1) || options.count("help"))
+
+    if ((argumentCount <= 1) || options.count("help"))
     {
-        std::cout << options.help({""}) << std::endl;
+        std::cout << options.help({ "" }) << std::endl;
         return 0;
     }
-    
+
     // ############################################
     // ### Command line argument error checking ###
     // ############################################
 
     // ### Directory
-    if(sOutput.empty())
+    if (sOutput.empty())
     {
         logger->error() << "Must specify output directory";
         return 1;
     }
-    
-    if(drishti::cli::directory::exists(sOutput, ".drishti-acf"))
+
+    if (drishti::cli::directory::exists(sOutput, ".drishti-acf"))
     {
         std::string filename = sOutput + "/.drishti-acf";
         remove(filename.c_str());
@@ -215,60 +217,58 @@ int drishti_main(int argc, char **argv)
         logger->error() << "Specified directory " << sOutput << " does not exist or is not writeable";
         return 1;
     }
-    
+
     // ### Input
-    if(sInput.empty())
+    if (sInput.empty())
     {
         logger->error() << "Must specify input image or list of images";
         return 1;
     }
-    if(!drishti::cli::file::exists(sInput))
+    if (!drishti::cli::file::exists(sInput))
     {
         logger->error() << "Specified input file does not exist or is not readable";
         return 1;
     }
 
     // Check for valid models
-    std::vector<std::pair<std::string, std::string>> config
-    {
-        { sFaceDetector, "face-detector"},
-        { sFaceDetectorMean, "face-detector-mean"},
-        { sFaceRegressor, "face-regressor"},
-        { sEyeRegressor, "eye-regressor"}
+    std::vector<std::pair<std::string, std::string>> config{
+        { sFaceDetector, "face-detector" },
+        { sFaceDetectorMean, "face-detector-mean" },
+        { sFaceRegressor, "face-regressor" },
+        { sEyeRegressor, "eye-regressor" }
     };
-    
-    for(const auto &c : config)
+
+    for (const auto& c : config)
     {
-        if(checkModel(logger, c.first, c.second))
+        if (checkModel(logger, c.first, c.second))
         {
             return 1;
         }
     }
-    
+
     const auto filenames = drishti::cli::expand(sInput);
-    
+
     // Allocate resource manager:
     using FaceDetectorPtr = std::unique_ptr<drishti::face::FaceDetector>;
-    drishti::core::LazyParallelResource<std::thread::id, FaceDetectorPtr> manager = [&]()
-    {        
+    drishti::core::LazyParallelResource<std::thread::id, FaceDetectorPtr> manager = [&]() {
         auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
         factory->sFaceDetector = sFaceDetector;
         factory->sFaceRegressors = { sFaceRegressor };
-        factory->sEyeRegressor = sEyeRegressor; 
+        factory->sEyeRegressor = sEyeRegressor;
         factory->sFaceDetectorMean = sFaceDetectorMean;
 
         FaceDetectorPtr detector = drishti::core::make_unique<drishti::face::FaceDetector>(*factory);
 
-        if(detector)
+        if (detector)
         {
             // Cofigure parameters:
             detector->setDoNMS(true);
-            
+
             auto acf = dynamic_cast<drishti::acf::Detector*>(detector->getDetector());
-            if(acf && acf->good())
+            if (acf && acf->good())
             {
                 // Cascade threhsold adjustment:
-                if(cascCal != 0.f)
+                if (cascCal != 0.f)
                 {
                     drishti::acf::Detector::Modify dflt;
                     dflt.cascThr = { "cascThr", -1.0 };
@@ -281,57 +281,56 @@ int drishti_main(int argc, char **argv)
                 detector.release();
             }
         }
-        
+
         return detector;
     };
-    
+
     std::size_t total = 0;
-    
+
     // Parallel loop:
-    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
-    {
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
         // Get thread specific segmenter lazily:
-        auto &detector = manager[std::this_thread::get_id()];
+        auto& detector = manager[std::this_thread::get_id()];
         assert(detector);
 
         // Load current image
         cv::Mat image = cv::imread(filenames[i], cv::IMREAD_COLOR);
-        
-        if(!image.empty())
+
+        if (!image.empty())
         {
             cv::Mat Irgb;
             cv::cvtColor(image, Irgb, cv::COLOR_BGR2RGB);
-        
+
             Resizer resizer(Irgb, detector->getWindowSize(), minWidth);
 
             std::vector<drishti::face::FaceModel> faces;
-            const auto &Hdr = resizer.getDetectorToRegressor();
+            const auto& Hdr = resizer.getDetectorToRegressor();
             (*detector)(resizer.getPlanar(), resizer.getPadded(), faces, Hdr);
-            
+
             resizer(faces);
 
-            if(!doPositiveOnly || (faces.size() > 0))
+            if (!doPositiveOnly || (faces.size() > 0))
             {
                 // Construct valid filename with no extension:
                 std::string base = drishti::core::basename(filenames[i]);
                 std::string filename = sOutput + "/" + base;
-                
+
                 logger->info() << ++total << "/" << filenames.size() << " " << filename << " = " << faces.size();
 
-                // Save detection results in JSON:                
-                if(!writeAsJson(filename + ".json", faces))
+                // Save detection results in JSON:
+                if (!writeAsJson(filename + ".json", faces))
                 {
                     logger->error() << "Failed to write: " << filename << ".json";
                 }
 
-                if(doAnnotation)
+                if (doAnnotation)
                 {
                     cv::Mat canvas = image.clone();
                     drawObjects(canvas, faces);
                     cv::imwrite(filename + "_faces.png", canvas);
 
-#if defined(DRISHTI_USE_IMSHOW)                    
-                    if(doDisplay)
+#if defined(DRISHTI_USE_IMSHOW)
+                    if (doDisplay)
                     {
                         glfw::imshow("face", canvas);
                         glfw::waitKey(0);
@@ -341,49 +340,49 @@ int drishti_main(int argc, char **argv)
             }
         }
     };
-    
-    if(threads == 1 || threads == 0 || doDisplay)
+
+    if (threads == 1 || threads == 0 || doDisplay)
     {
-        harness({0,static_cast<int>(filenames.size())});
+        harness({ 0, static_cast<int>(filenames.size()) });
     }
     else
     {
-        cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness, std::max(threads, -1));
+        cv::parallel_for_({ 0, static_cast<int>(filenames.size()) }, harness, std::max(threads, -1));
     }
 
     return 0;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     try
     {
         return drishti_main(argc, argv);
     }
-    catch(std::exception &e)
+    catch (std::exception& e)
     {
         std::cerr << "Exception: " << e.what() << std::endl;
         return 1;
     }
-    catch(...)
+    catch (...)
     {
         std::cerr << "Unknown exception";
     }
-    
+
     return 0;
 }
 
 // utility
 
 static bool
-writeAsJson(const std::string &filename, const std::vector<drishti::face::FaceModel> &faces)
+writeAsJson(const std::string& filename, const std::vector<drishti::face::FaceModel>& faces)
 {
     std::ofstream ofs(filename);
-    if(ofs)
+    if (ofs)
     {
         cereal::JSONOutputArchive oa(ofs);
         typedef decltype(oa) Archive; // needed by macro
-        
+
 #if 0
         oa << GENERIC_NVP("objects", faces);
 #else
@@ -394,11 +393,10 @@ writeAsJson(const std::string &filename, const std::vector<drishti::face::FaceMo
 }
 
 static void
-drawObjects(cv::Mat &canvas, const std::vector<drishti::face::FaceModel> &faces)
+drawObjects(cv::Mat& canvas, const std::vector<drishti::face::FaceModel>& faces)
 {
-    for(const auto &f : faces)
+    for (const auto& f : faces)
     {
         f.draw(canvas, 2, true);
     }
 }
-

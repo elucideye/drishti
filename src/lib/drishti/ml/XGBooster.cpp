@@ -18,27 +18,27 @@ XGBooster::XGBooster()
     m_impl = std::make_shared<XGBooster::Impl>();
 }
 
-XGBooster::XGBooster(const Recipe &recipe)
+XGBooster::XGBooster(const Recipe& recipe)
 {
     m_impl = std::make_shared<XGBooster::Impl>(recipe);
 }
 
-void XGBooster::setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
+void XGBooster::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 {
     m_streamLogger = logger;
-    if(m_impl)
+    if (m_impl)
     {
         m_impl->setStreamLogger(logger);
     }
 }
 
-float XGBooster::operator()(const std::vector<float> &features)
+float XGBooster::operator()(const std::vector<float>& features)
 {
-    DRISHTI_STREAM_LOG_FUNC(7,3,m_streamLogger);
+    DRISHTI_STREAM_LOG_FUNC(7, 3, m_streamLogger);
     return (*m_impl)(features);
 }
 
-void XGBooster::train(const MatrixType<float> &features, const std::vector<float> &values, const MatrixType<uint8_t> &mask)
+void XGBooster::train(const MatrixType<float>& features, const std::vector<float>& values, const MatrixType<uint8_t>& mask)
 {
 #if DRISHTI_BUILD_MIN_SIZE
     assert(false);
@@ -47,7 +47,7 @@ void XGBooster::train(const MatrixType<float> &features, const std::vector<float
 #endif
 }
 
-void XGBooster::read(const std::string &filename)
+void XGBooster::read(const std::string& filename)
 {
 #if DRISHTI_BUILD_MIN_SIZE
     assert(false);
@@ -55,14 +55,13 @@ void XGBooster::read(const std::string &filename)
     m_impl->read(filename);
 #endif
 }
-void XGBooster::write(const std::string &filename) const
+void XGBooster::write(const std::string& filename) const
 {
 #if DRISHTI_BUILD_MIN_SIZE
     assert(false);
 #else
     m_impl->write(filename);
-#endif 
+#endif
 }
 
 DRISHTI_ML_NAMESPACE_END
-

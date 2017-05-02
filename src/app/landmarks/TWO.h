@@ -8,13 +8,13 @@
 
 */
 
-#ifndef __landmarks_TWO_h__
-#define __landmarks_TWO_h__
+#ifndef __drishti_landmarks_TWO_h__
+#define __drishti_landmarks_TWO_h__
 
 #include "landmarks/FACE.h"
 
 #include <fstream>
 
-FACE::Table parseTWO(const std::string &filename);
+FACE::Table parseTWO(const std::string& filename);
 
-#endif // __landmarks_TWO_h__
+#endif // __drishti_landmarks_TWO_h__

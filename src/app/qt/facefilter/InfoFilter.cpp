@@ -36,7 +36,7 @@
 
 #include "InfoFilterRunnable.hpp"
 
-QVideoFilterRunnable *InfoFilter::createFilterRunnable()
+QVideoFilterRunnable* InfoFilter::createFilterRunnable()
 {
     return new InfoFilterRunnable(this);
 }

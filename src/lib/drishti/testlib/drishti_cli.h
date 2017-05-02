@@ -19,8 +19,10 @@
 #include "drishti/core/Line.h"
 
 #ifndef DRISHTI_BEGIN_NAMESPACE
-#  define DRISHTI_BEGIN_NAMESPACE(X) namespace X {
-#  define DRISHTI_END_NAMESPACE(X) }
+// clang-format off
+#define DRISHTI_BEGIN_NAMESPACE(X) namespace X {
+#define DRISHTI_END_NAMESPACE(X) }
+// clang-format on
 #endif
 
 #include <fstream>
@@ -28,7 +30,7 @@
 #include <string>
 
 DRISHTI_BEGIN_NAMESPACE(drishti) // namespace drishti {
-DRISHTI_BEGIN_NAMESPACE(cli) // namespace cli {
+DRISHTI_BEGIN_NAMESPACE(cli)     // namespace cli {
 
 // For use with istream_iterator to read complete lines (new line delimiter)
 // std::vector<std::string> lines;
@@ -38,8 +40,9 @@ DRISHTI_BEGIN_NAMESPACE(cli) // namespace cli {
 class Line
 {
     std::string data;
+
 public:
-    friend std::istream &operator>>(std::istream &is, Line &l)
+    friend std::istream& operator>>(std::istream& is, Line& l)
     {
         std::getline(is, l.data);
         return is;
@@ -54,13 +57,13 @@ public:
 
 // drishti::cli::
 inline std::vector<std::string>
-expand(const std::string &filename, const std::string &ext = ".txt")
+expand(const std::string& filename, const std::string& ext = ".txt")
 {
     std::vector<std::string> list;
-    if(filename.find(ext) != std::string::npos)
+    if (filename.find(ext) != std::string::npos)
     {
         std::ifstream ifs(filename.c_str());
-        if(ifs)
+        if (ifs)
         {
             auto iter = std::istream_iterator<drishti::core::Line>(ifs);
             std::copy(iter, {}, std::back_inserter(list));
@@ -75,7 +78,7 @@ expand(const std::string &filename, const std::string &ext = ".txt")
 
 // drishti::cli::file::
 DRISHTI_BEGIN_NAMESPACE(file) // namespace file {
-inline bool exists(const std::string &filename)
+inline bool exists(const std::string& filename)
 {
     return std::ifstream(filename).good();
 }
@@ -90,7 +93,7 @@ DRISHTI_BEGIN_NAMESPACE(directory) // namespace directory {
 // * stat()
 // * create a small test file <= ### FOR NOW
 // Check for writeable directory (will create .drishti file as side-effect)
-inline bool exists(const std::string &dir, const std::string &tag=".drishti")
+inline bool exists(const std::string& dir, const std::string& tag = ".drishti")
 {
     return std::ofstream(dir + "/" + tag).good();
 }

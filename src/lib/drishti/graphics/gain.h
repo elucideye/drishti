@@ -20,13 +20,17 @@ BEGIN_OGLES_GPGPU
 class NoopProc : public ogles_gpgpu::FilterProcBase
 {
 public:
-    NoopProc(float gain=1.f) : gain(gain) {}
-    virtual const char *getProcName()
+    NoopProc(float gain = 1.f)
+        : gain(gain)
+    {
+    }
+    virtual const char* getProcName()
     {
         return "NoopProc";
     }
+
 private:
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderNoopSrc;
     }
@@ -38,7 +42,7 @@ private:
     {
         glUniform1f(shParamUGain, gain);
     }
-    static const char *fshaderNoopSrc; // fragment shader source
+    static const char* fshaderNoopSrc; // fragment shader source
     float gain = 1.f;
     GLint shParamUGain;
 };

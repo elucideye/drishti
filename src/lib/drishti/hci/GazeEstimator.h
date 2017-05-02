@@ -26,15 +26,16 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class GazeEstimator
 {
 public:
-
     class Impl;
 
     struct GazeEstimate
     {
         GazeEstimate() {}
-        GazeEstimate(const cv::Point2f &relative, float openness=0.0)
-        : relative(relative)
-        , openness(openness) {}
+        GazeEstimate(const cv::Point2f& relative, float openness = 0.0)
+            : relative(relative)
+            , openness(openness)
+        {
+        }
 
         cv::Point2f relative;
         float openness = 0.f;
@@ -46,10 +47,9 @@ public:
     void begin();
     GazeEstimate end();
 
-    GazeEstimate operator()(const face::FaceModel &face) const;
+    GazeEstimate operator()(const face::FaceModel& face) const;
 
 protected:
-
     std::shared_ptr<Impl> m_pImpl;
 };
 

@@ -24,9 +24,11 @@
 #include "drishti/core/IndentingOStreamBuffer.h"
 #include "drishti/core/Logger.h"
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
-# include "drishti/core/boost_serialize_common.h" // optional
+#  include "drishti/core/boost_serialize_common.h" // optional
 #endif
+// clang-format on
 
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -41,22 +43,22 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 // Forward declarations:
 class DetectionSink;
 class DetectionParams;
-template<class _T> struct ParserNode;
+template <class _T>
+struct ParserNode;
 
 class Detector : public drishti::ml::ObjectDetector
 {
 public:
-
     typedef ParserNode<Detector> ParserNodeDetector;
     typedef std::vector<cv::Size2d> Size2dVec;
     typedef std::vector<double> RealVec;
     typedef std::vector<cv::Rect> RectVec;
-    typedef std::function<int(const cv::Mat&, const std::string &tag)> MatLoggerType;
+    typedef std::function<int(const cv::Mat&, const std::string& tag)> MatLoggerType;
 
     Detector() {}
-    Detector(const Detector &src);
-    Detector(std::istream &is, const std::string &hint={});
-    Detector(const std::string &filename);
+    Detector(const Detector& src);
+    Detector(std::istream& is, const std::string& hint = {});
+    Detector(const std::string& filename);
     virtual ~Detector();
 
     bool good() const { return m_good; }
@@ -84,11 +86,12 @@ public:
             // resize ???
             Field<int> separate;
 
-            void merge(const Nms &src, int mode);
-            friend std::ostream& operator<<(std::ostream &os, const Nms &src);
-            
+            void merge(const Nms& src, int mode);
+            friend std::ostream& operator<<(std::ostream& os, const Nms& src);
+
             // Boost serialization:
-            template<class Archive> void serialize(Archive & ar, const uint32_t version);
+            template <class Archive>
+            void serialize(Archive& ar, const uint32_t version);
         };
 
         struct Pyramid
@@ -113,11 +116,12 @@ public:
                     Field<double> smooth;
                     Field<std::string> colorSpace;
 
-                    void merge(const Color &src, int mode);
-                    friend std::ostream& operator<<(std::ostream &os, const Color &src);
-                    
+                    void merge(const Color& src, int mode);
+                    friend std::ostream& operator<<(std::ostream& os, const Color& src);
+
                     // Boost serialization:
-                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
+                    template <class Archive>
+                    void serialize(Archive& ar, const uint32_t version);
                 };
                 Field<Color> pColor;
 
@@ -129,11 +133,12 @@ public:
                     Field<double> normConst;
                     Field<int> full;
 
-                    void merge(const GradMag &src, int mode);
-                    friend std::ostream& operator<<(std::ostream &os, const GradMag &src);
-                    
+                    void merge(const GradMag& src, int mode);
+                    friend std::ostream& operator<<(std::ostream& os, const GradMag& src);
+
                     // Boost serialization:
-                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
+                    template <class Archive>
+                    void serialize(Archive& ar, const uint32_t version);
                 };
                 Field<GradMag> pGradMag;
 
@@ -146,32 +151,34 @@ public:
                     Field<int> useHog;
                     Field<double> clipHog;
 
-                    void merge(const GradHist &src, int mode);
-                    friend std::ostream& operator<<(std::ostream &os, const GradHist &src);
-                    
-                    // Boost serialization:
-                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
+                    void merge(const GradHist& src, int mode);
+                    friend std::ostream& operator<<(std::ostream& os, const GradHist& src);
 
+                    // Boost serialization:
+                    template <class Archive>
+                    void serialize(Archive& ar, const uint32_t version);
                 };
                 Field<GradHist> pGradHist;
 
                 struct Custom
                 {
                     // TODO:
-                    void merge(const Custom &src, int mode);
-                    friend std::ostream& operator<<(std::ostream &os, const Custom &src);
-                    
+                    void merge(const Custom& src, int mode);
+                    friend std::ostream& operator<<(std::ostream& os, const Custom& src);
+
                     // Boost serialization:
-                    template<class Archive> void serialize(Archive & ar, const uint32_t version);
+                    template <class Archive>
+                    void serialize(Archive& ar, const uint32_t version);
                 };
                 Field<Custom> pCustom;
                 Field<int> complete;
 
-                void merge(const Chns &src, int mode);
-                friend std::ostream& operator<<(std::ostream &os, const Chns &src);
-                
+                void merge(const Chns& src, int mode);
+                friend std::ostream& operator<<(std::ostream& os, const Chns& src);
+
                 // Boost serialization:
-                template<class Archive> void serialize(Archive & ar, const uint32_t version);
+                template <class Archive>
+                void serialize(Archive& ar, const uint32_t version);
             };
 
             Field<Chns> pChns;
@@ -187,11 +194,12 @@ public:
             Field<int> concat;
             Field<int> complete;
 
-            void merge(const Pyramid &src, int mode);
-            friend std::ostream& operator<<(std::ostream &os, const Pyramid &src);
-            
+            void merge(const Pyramid& src, int mode);
+            friend std::ostream& operator<<(std::ostream& os, const Pyramid& src);
+
             // Boost serialization:
-            template<class Archive> void serialize(Archive & ar, const uint32_t version);
+            template <class Archive>
+            void serialize(Archive& ar, const uint32_t version);
         };
 
         Field<Pyramid> pPyramid;
@@ -214,22 +222,24 @@ public:
                 Field<double> fracFtrs;
                 Field<int> nThreads;
 
-                void merge(const Tree &src, int mode);
-                friend std::ostream& operator<<(std::ostream &os, const Tree &src);
-                
+                void merge(const Tree& src, int mode);
+                friend std::ostream& operator<<(std::ostream& os, const Tree& src);
+
                 // Boost serialization:
-                template<class Archive> void serialize(Archive & ar, const uint32_t version);
+                template <class Archive>
+                void serialize(Archive& ar, const uint32_t version);
             };
             Field<Tree> pTree;
             Field<int> nWeak;
             Field<int> discrete;
             Field<int> verbose;
 
-            void merge(const Boost &src, int mode);
-            friend std::ostream& operator<<(std::ostream &os, const Boost &src);
-            
+            void merge(const Boost& src, int mode);
+            friend std::ostream& operator<<(std::ostream& os, const Boost& src);
+
             // Boost serialization:
-            template<class Archive> void serialize(Archive & ar, const uint32_t version);
+            template <class Archive>
+            void serialize(Archive& ar, const uint32_t version);
         };
 
         Field<Boost> pBoost;
@@ -251,20 +261,22 @@ public:
         {
             Field<int> flip;
 
-            void merge(const Jitter &src, int mode);
-            friend std::ostream& operator<<(std::ostream &os, const Jitter &src);
+            void merge(const Jitter& src, int mode);
+            friend std::ostream& operator<<(std::ostream& os, const Jitter& src);
 
             // Boost serialization:
-            template<class Archive> void serialize(Archive & ar, const uint32_t version);
+            template <class Archive>
+            void serialize(Archive& ar, const uint32_t version);
         };
         Field<Jitter> pJitter;
         Field<int> winsSave;
 
-        void merge(const Options &src, int mode);
-        friend std::ostream& operator<<(std::ostream &os, const Options &src);
-        
+        void merge(const Options& src, int mode);
+        friend std::ostream& operator<<(std::ostream& os, const Options& src);
+
         // Boost serialization:
-        template<class Archive> void serialize(Archive & ar, const uint32_t version);
+        template <class Archive>
+        void serialize(Archive& ar, const uint32_t version);
     };
 
     Options opts;
@@ -284,21 +296,22 @@ public:
 
     struct Classifier
     {
-        cv::Mat fids;                // uint32_t
-        cv::Mat thrs;                // float
-        cv::Mat child;               // uint32_t
-        cv::Mat hs;                  // float
-        cv::Mat weights;             // float
-        cv::Mat depth;               // uint32_t
+        cv::Mat fids;    // uint32_t
+        cv::Mat thrs;    // float
+        cv::Mat child;   // uint32_t
+        cv::Mat hs;      // float
+        cv::Mat weights; // float
+        cv::Mat depth;   // uint32_t
 
         std::vector<double> errs;
         std::vector<double> losses;
         int treeDepth;
 
-        cv::Mat thrsU8;  // prescaled threshold (x255) for uint8_t input
-        const cv::Mat & getScaledThresholds(int type) const;
+        cv::Mat thrsU8; // prescaled threshold (x255) for uint8_t input
+        const cv::Mat& getScaledThresholds(int type) const;
 
-        template<class Archive> void serialize(Archive & ar, const uint32_t version);
+        template <class Archive>
+        void serialize(Archive& ar, const uint32_t version);
     };
 
     Classifier clf;
@@ -330,7 +343,7 @@ public:
         std::vector<Info> info;
     };
 
-    static int chnsCompute(const MatP &I, const Options::Pyramid::Chns &pChns, Channels &chns, bool isInit=false, MatLoggerType pLogger={});
+    static int chnsCompute(const MatP& I, const Options::Pyramid::Chns& pChns, Channels& chns, bool isInit = false, MatLoggerType pLogger = {});
 
     // see chnsPyramid()
     // OUTPUTS
@@ -377,36 +390,36 @@ public:
         Field<double> cascCal;
         Field<double> rescale;
 
-        friend std::ostream& operator<<(std::ostream &os, const Modify &src);
-        void merge(const Modify &src, int mode);
+        friend std::ostream& operator<<(std::ostream& os, const Modify& src);
+        void merge(const Modify& src, int mode);
     };
-    
+
     cv::Size getWindowSize() const
     {
         return opts.modelDs.get();
     }
 
     // (((( Compute pyramid ))))
-    void computePyramid(const cv::Mat &I, Pyramid &P);
-    void computePyramid(const MatP &Ip, Pyramid &P);
+    void computePyramid(const cv::Mat& I, Pyramid& P);
+    void computePyramid(const MatP& Ip, Pyramid& P);
 
-    static void computeChannels(const cv::Mat &I, MatP &Ip2, MatLoggerType pLogger={});
-    static void computeChannels(const MatP &Ip, MatP &Ip2, MatLoggerType pLlogger={});
+    static void computeChannels(const cv::Mat& I, MatP& Ip2, MatLoggerType pLogger = {});
+    static void computeChannels(const MatP& Ip, MatP& Ip2, MatLoggerType pLlogger = {});
 
     // (((((((( Detection ))))))))
-    int operator()(const cv::Mat &I, RectVec &objects, RealVec *scores=0);
-    int operator()(const MatP &I, RectVec &objects, RealVec *scores=0);
+    int operator()(const cv::Mat& I, RectVec& objects, RealVec* scores = 0);
+    int operator()(const MatP& I, RectVec& objects, RealVec* scores = 0);
 
     // Multiscale search:
-    int operator()(const Pyramid &P, RectVec &objects, RealVec *scores=0);
+    int operator()(const Pyramid& P, RectVec& objects, RealVec* scores = 0);
 
-    int chnsPyramid(const MatP &I, const Options::Pyramid *pPyramid, Pyramid &pyramid, bool isInit=false, MatLoggerType pLogger={});
+    int chnsPyramid(const MatP& I, const Options::Pyramid* pPyramid, Pyramid& pyramid, bool isInit = false, MatLoggerType pLogger = {});
 
-    static int rgbConvert(const MatP &I, MatP &J, const std::string &cs, bool useSingle, bool isLuv=false);
-    static int getScales(int nPerOct, int nOctUp, const cv::Size &minDs, int shrink, const cv::Size &sz, RealVec &scales, Size2dVec &scaleshw);
-    static int convTri(const MatP &I, MatP &J, double r=1.0, int s=1);
-    static int gradientMag(const cv::Mat &I, cv::Mat &M, cv::Mat &O, int channel=0, int normRad=0, double normConst=0.005, int full=0, MatLoggerType logger={});
-    static int gradientHist(const cv::Mat &M, const cv::Mat &O, MatP &H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full);
+    static int rgbConvert(const MatP& I, MatP& J, const std::string& cs, bool useSingle, bool isLuv = false);
+    static int getScales(int nPerOct, int nOctUp, const cv::Size& minDs, int shrink, const cv::Size& sz, RealVec& scales, Size2dVec& scaleshw);
+    static int convTri(const MatP& I, MatP& J, double r = 1.0, int s = 1);
+    static int gradientMag(const cv::Mat& I, cv::Mat& M, cv::Mat& O, int channel = 0, int normRad = 0, double normConst = 0.005, int full = 0, MatLoggerType logger = {});
+    static int gradientHist(const cv::Mat& M, const cv::Mat& O, MatP& H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full);
 
     virtual void setDetectionScorePruneRatio(double ratio)
     {
@@ -416,7 +429,11 @@ public:
     struct Detection
     {
         Detection() {}
-        Detection(const cv::Rect &r, double s) : roi(r), score(s) {}
+        Detection(const cv::Rect& r, double s)
+            : roi(r)
+            , score(s)
+        {
+        }
         operator cv::Rect()
         {
             return roi;
@@ -426,25 +443,26 @@ public:
     };
     using DetectionVec = std::vector<Detection>;
 
-    void acfDetect1(const MatP &chns, const RectVec &rois, int shrink, cv::Size modelDsPad, int stride, double cascThr, DetectionVec &objects);
-    int bbNms(const DetectionVec &bbsIn, const Options::Nms &pNms, DetectionVec &bbs);
-    int acfModify( const Detector::Modify &params );
-    
-    float evaluate(const cv::Mat &I) const;
-    float evaluate(const MatP &I, int shrink, cv::Size modelDsPad, int stride) const;
-    
+    void acfDetect1(const MatP& chns, const RectVec& rois, int shrink, cv::Size modelDsPad, int stride, double cascThr, DetectionVec& objects);
+    int bbNms(const DetectionVec& bbsIn, const Options::Nms& pNms, DetectionVec& bbs);
+    int acfModify(const Detector::Modify& params);
+
+    float evaluate(const cv::Mat& I) const;
+    float evaluate(const MatP& I, int shrink, cv::Size modelDsPad, int stride) const;
+
     // (((((((( I/O ))))))))
     int initializeOpts();
-    int deserialize(const std::string &filename);
-    int deserialize(const char * filename);
-    int deserialize(std::istream &is);
-    int deserialize(ParserNodeDetector &detector_);
-    
-    int deserializeAny(const std::string &filename);
-    int deserializeAny(std::istream &is, const std::string &hint={});
-    
+    int deserialize(const std::string& filename);
+    int deserialize(const char* filename);
+    int deserialize(std::istream& is);
+    int deserialize(ParserNodeDetector& detector_);
+
+    int deserializeAny(const std::string& filename);
+    int deserializeAny(std::istream& is, const std::string& hint = {});
+
     // Boost serialization:
-    template<class Archive> void serialize(Archive & ar, const uint32_t version);
+    template <class Archive>
+    void serialize(Archive& ar, const uint32_t version);
 
     // Additional configuration parameters:
     void setIsLuv(bool flag)
@@ -470,7 +488,7 @@ public:
         m_logger = logger;
     }
 
-    void setStreamLogger(std::shared_ptr<spdlog::logger> &logger)
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {
         m_streamLogger = logger;
     }
@@ -485,9 +503,8 @@ public:
     }
 
 protected:
-    
     using DetectionParamPtr = std::shared_ptr<DetectionParams>;
-    DetectionParamPtr createDetector(const MatP &chns, const RectVec &rois, int shrink, cv::Size modelDsPad, int stride, DetectionSink *sink) const;
+    DetectionParamPtr createDetector(const MatP& chns, const RectVec& rois, int shrink, cv::Size modelDsPad, int stride, DetectionSink* sink) const;
 
     MatLoggerType m_logger;
 
@@ -503,7 +520,7 @@ protected:
     bool m_good = false; // serialization status
 };
 
-inline cv::Vec3f rgb2luv(const cv::Vec3f &rgb)
+inline cv::Vec3f rgb2luv(const cv::Vec3f& rgb)
 {
     // column major format (glsl)
     cv::Matx33f RGBtoXYZ(0.430574, 0.222015, 0.020183, 0.341550, 0.706655, 0.129553, 0.178325, 0.071330, 0.939180);
@@ -513,28 +530,28 @@ inline cv::Vec3f rgb2luv(const cv::Vec3f &rgb)
     const float a = 903.296296296f;  //pow(29.0/3.0, 3.0);
     const float un = 0.197833f;
     const float vn = 0.468331f;
-    const float maxi = 0.0037037037f;  // 1.0/270.0;
+    const float maxi = 0.0037037037f; // 1.0/270.0;
     const float minu = maxi * -88.0f;
     const float minv = maxi * -134.0f;
     const cv::Vec3f k(1.0f, 15.0f, 3.0f);
 
     cv::Vec3f xyz = (RGBtoXYZ * rgb); // make like glsl col major
-    const float c = ( xyz.dot(k) + 1e-35 );
-    const float z = 1.0f/c;
+    const float c = (xyz.dot(k) + 1e-35);
+    const float z = 1.0f / c;
 
     cv::Vec3f luv;
     luv[0] = ((xyz[1] > y0) ? (116.0f * std::pow(xyz[1], 0.3333333333f) - 16.0f) : (xyz[1] * a)) * maxi;
-    luv[1] = luv[0] * ((52.0f * xyz[0] * z) - (13.0f*un)) - minu;
-    luv[2] = luv[0] * ((117.0f * xyz[1] * z) - (13.0f*vn)) - minv;
+    luv[1] = luv[0] * ((52.0f * xyz[0] * z) - (13.0f * un)) - minu;
+    luv[2] = luv[0] * ((117.0f * xyz[1] * z) - (13.0f * vn)) - minv;
 
     return luv;
 }
 
-template<typename Iterator>
-inline void fuseChannels(Iterator begin, Iterator end, MatP &Ip)
+template <typename Iterator>
+inline void fuseChannels(Iterator begin, Iterator end, MatP& Ip)
 {
     std::vector<cv::Mat> stack;
-    for(Iterator iter = begin; iter != end; iter++)
+    for (Iterator iter = begin; iter != end; iter++)
     {
         // TODO: bug report iter->begin() leads to boost error
         std::copy((*iter).begin(), (*iter).end(), std::back_inserter(stack));
@@ -542,8 +559,8 @@ inline void fuseChannels(Iterator begin, Iterator end, MatP &Ip)
 
     cv::Mat base;
     cv::vconcat(stack, base);
-    cv::Rect roi({0,0}, stack.front().size());
-    for(int j = 0; roi.y < base.rows; j++, roi.y += roi.height)
+    cv::Rect roi({ 0, 0 }, stack.front().size());
+    for (int j = 0; roi.y < base.rows; j++, roi.y += roi.height)
     {
         stack[j] = base(roi);
     }
@@ -553,6 +570,6 @@ inline void fuseChannels(Iterator begin, Iterator end, MatP &Ip)
 
 DRISHTI_ACF_NAMESPACE_END
 
-void imResample(const MatP &A, MatP &B, const cv::Size &size, double nrm);
+void imResample(const MatP& A, MatP& B, const cv::Size& size, double nrm);
 
 #endif /* defined(__drishti_acf_ACF_h__) */

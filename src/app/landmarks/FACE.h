@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __landmarks_FACE_h__
-#define __landmarks_FACE_h__
+#ifndef __drishti_landmarks_FACE_h__
+#define __drishti_landmarks_FACE_h__
 
 #include "drishti/core/Shape.h"
 #include "drishti/face/Face.h"
@@ -39,14 +39,14 @@ struct record
 {
     std::string filename;
     int index;
-    
+
     cv::Point3f pose;
     std::vector<cv::Point2f> points;
     std::vector<cv::Point2f> glasses;
     cv::Rect roi;
 
     cv::Mat image; // allow preloading of image data
-    friend std::ostream & operator<<(const std::ostream &os, const record &r);
+    friend std::ostream& operator<<(const std::ostream& os, const record& r);
 };
 
 struct Table
@@ -54,7 +54,7 @@ struct Table
     std::vector<std::string> header;
     std::vector<record> lines;
 
-    std::function<void(std::vector<cv::Point2f> &points)> flopper; // callback for mirror
+    std::function<void(std::vector<cv::Point2f>& points)> flopper; // callback for mirror
 
     // Populate indices for eyes and nose
     std::vector<int> eyeL;
@@ -62,7 +62,7 @@ struct Table
     std::vector<int> nose;
     std::vector<int> mouthL;
     std::vector<int> mouthR;
-    
+
     std::vector<int> brow;
     std::vector<int> mouth;
     std::vector<int> sideL;
@@ -70,14 +70,14 @@ struct Table
     std::vector<int> browL;
     std::vector<int> browR;
 
-    std::vector<int> getInnerLandmarks(bool withMouth=false, bool withBrows=false, bool withSides=false) const;
+    std::vector<int> getInnerLandmarks(bool withMouth = false, bool withBrows = false, bool withSides = false) const;
 };
 
-inline std::ostream & operator<<(std::ostream &os, const record &r)
+inline std::ostream& operator<<(std::ostream& os, const record& r)
 {
     os << r.filename << ' ';
     os << r.index << ' ';
-    for(auto &i : r.points)
+    for (auto& i : r.points)
     {
         os << i << ' ';
     }
@@ -86,30 +86,33 @@ inline std::ostream & operator<<(std::ostream &os, const record &r)
 
 DRISHTI_END_NAMESPACE(FACE)
 
-BOOST_FUSION_ADAPT_STRUCT
-(
+// clang-format off
+BOOST_FUSION_ADAPT_STRUCT(
     cv::Point2f,
     (float, x)
     (float, y)
 )
+// clang-format on
 
-BOOST_FUSION_ADAPT_STRUCT
-(
+// clang-format off
+BOOST_FUSION_ADAPT_STRUCT(
     FACE::Table,
     (std::vector<std::string>, header)
     (std::vector<FACE::record>, lines)
 )
+// clang-format on
 
-BOOST_FUSION_ADAPT_STRUCT
-(
+// clang-format off
+BOOST_FUSION_ADAPT_STRUCT(
     FACE::record,
     (std::string, filename)
     (int, index)
     (std::vector<cv::Point2f>, points)
 )
+// clang-format on
 
-FACE::Table parseDRISHTI(const std::string &filename);
+FACE::Table parseDRISHTI(const std::string& filename);
 
-std::vector< cv::Vec3b > getRainbow();
+std::vector<cv::Vec3b> getRainbow();
 
-#endif // __landmarks_FACE_h__
+#endif // __drishti_landmarks_FACE_h__

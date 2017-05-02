@@ -26,14 +26,13 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceMonitor
 {
 public:
-    
     using HighResolutionClock = std::chrono::high_resolution_clock;
     using TimePoint = HighResolutionClock::time_point;
-    
+
     struct FaceImage
     {
         TimePoint time;
-        
+
         cv::Mat4b image;
         std::vector<face::FaceModel> faceModels;
 
@@ -42,9 +41,9 @@ public:
 
         cv::Mat4b extra;
     };
-    
-    virtual bool isValid(const cv::Point3f &position, const TimePoint &timeStamp) = 0;
-    virtual void grab(const std::vector<FaceImage> &frames, bool isInitialized) = 0;
+
+    virtual bool isValid(const cv::Point3f& position, const TimePoint& timeStamp) = 0;
+    virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized) = 0;
 };
 
 DRISHTI_HCI_NAMESPACE_END

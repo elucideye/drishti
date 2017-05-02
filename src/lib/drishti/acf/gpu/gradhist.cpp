@@ -22,7 +22,7 @@ BEGIN_OGLES_GPGPU
 //
 // [0][1][2][3]
 
-// *INDENT-OFF*
+// clang-format off
 const char * GradHistProc::fshaderGradHistSrcN = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -49,5 +49,5 @@ const char * GradHistProc::fshaderGradHistSrcN = OG_TO_STR
 
      gl_FragColor = final;
  });
-// *INDENT-ON*
+// clang-format on
 END_OGLES_GPGPU

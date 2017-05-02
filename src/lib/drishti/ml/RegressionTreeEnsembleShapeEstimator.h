@@ -28,24 +28,26 @@ public:
     class Impl;
 
     RegressionTreeEnsembleShapeEstimator() {}
-    RegressionTreeEnsembleShapeEstimator(const std::string &filename);
-    RegressionTreeEnsembleShapeEstimator(std::istream &is, const std::string &hint={});
+    RegressionTreeEnsembleShapeEstimator(const std::string& filename);
+    RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint = {});
 
-    virtual void setStreamLogger(std::shared_ptr<spdlog::logger> &logger);
-    virtual int operator()(const cv::Mat &I, const cv::Mat &M, Point2fVec &points, BoolVec &mask) const;
-    virtual int operator()(const cv::Mat &I, Point2fVec &points, BoolVec &mask) const;
+    virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger);
+    virtual int operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const;
+    virtual int operator()(const cv::Mat& I, Point2fVec& points, BoolVec& mask) const;
     virtual std::vector<cv::Point2f> getMeanShape() const;
     virtual void setDoPreview(bool flag) {}
     virtual bool isPCA() const;
     virtual void setStagesHint(int stages);
     virtual int getStagesHint() const;
 
-    void saveImpl(const std::string &filename);
-    void loadImpl(const std::string &filename);
+    void saveImpl(const std::string& filename);
+    void loadImpl(const std::string& filename);
 
     // Boost serialization:
-    template<class Archive> void serialize(Archive & ar, const unsigned int version);
-    template<class Archive> void serializeModel(Archive &ar, const unsigned int version);
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version);
+    template <class Archive>
+    void serializeModel(Archive& ar, const unsigned int version);
 
     std::shared_ptr<Impl> m_impl;
 };

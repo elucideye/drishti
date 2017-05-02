@@ -12,8 +12,10 @@
 #ifndef __drishti_master_drishti_master_hpp__
 #define __drishti_master_drishti_master_hpp__ 1
 
-#define DRISHTI_MASTER_BEGIN namespace master {
+// clang-format off
+#define DRISHTI_MASTER_BEGIN  namespace master {
 #define DRISHTI_MASTER_END }
+// clang-format on
 
 DRISHTI_MASTER_BEGIN
 

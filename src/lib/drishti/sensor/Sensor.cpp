@@ -14,15 +14,13 @@ DRISHTI_SENSOR_NAMESPACE_BEGIN
 
 SensorModel::Intrinsic::Intrinsic()
 {
-
 }
 
-SensorModel::Intrinsic::Intrinsic(const cv::Point2f &c, float fx, const cv::Size &size)
+SensorModel::Intrinsic::Intrinsic(const cv::Point2f& c, float fx, const cv::Size& size)
     : m_size(size)
     , m_c(c)
     , m_fx(fx)
 {
-
 }
 
 cv::Matx33f SensorModel::Intrinsic::getK() const
@@ -30,7 +28,7 @@ cv::Matx33f SensorModel::Intrinsic::getK() const
     return cv::Matx33f(*m_fx, 0, m_c->x, 0, *m_fx, m_c->y, 0, 0, 1);
 }
 
-cv::Point3f SensorModel::Intrinsic::getDepth(const std::array<cv::Point2f,2> &pixels, float widthMeters) const
+cv::Point3f SensorModel::Intrinsic::getDepth(const std::array<cv::Point2f, 2>& pixels, float widthMeters) const
 {
     // Estimate the 3D position using simple IPD constant:
     const cv::Point2f p = (pixels[0] + pixels[1]) * 0.5f;

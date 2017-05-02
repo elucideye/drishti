@@ -21,17 +21,18 @@ class Rgb2LuvProc : public FilterProcBase
 {
 public:
     Rgb2LuvProc() {}
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "Rgb2LuvProc";
     }
+
 private:
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderRgb2LuvSrc;
     }
     virtual void getUniforms() {}
-    static const char *fshaderRgb2LuvSrc;   // fragment shader source
+    static const char* fshaderRgb2LuvSrc; // fragment shader source
 };
 
 END_OGLES_GPGPU

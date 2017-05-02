@@ -12,11 +12,10 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-ThreadPoolSource::FixedThreadPool * ThreadPoolSource::getInstance()
+ThreadPoolSource::FixedThreadPool* ThreadPoolSource::getInstance()
 {
     static FixedThreadPool instance;
     return &instance;
 }
 
 DRISHTI_CORE_NAMESPACE_END
-

@@ -46,9 +46,11 @@
 
 #include "cxxopts.hpp"
 
+// clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
 #  include "imshow/imshow.h"
 #endif
+// clang-format on
 
 #include <boost/filesystem.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
@@ -73,13 +75,13 @@ struct PoseData
     std::vector<cv::Matx33f> H; // normalization
 };
 
-using drishti::geometry::operator *;
+using drishti::geometry::operator*;
 using StringVec = std::vector<std::string>;
 
 struct EllipseSamples
 {
-    EllipseSamples(std::shared_ptr<spdlog::logger> &logger);
-    void load(const std::string &filename, int width, const std::string &sExt, bool doIris);
+    EllipseSamples(std::shared_ptr<spdlog::logger>& logger);
+    void load(const std::string& filename, int width, const std::string& sExt, bool doIris);
 
     std::shared_ptr<spdlog::logger> logger;
     PoseData samples;
@@ -87,32 +89,32 @@ struct EllipseSamples
     drishti::rcpr::Vector1d sigma;
 };
 
-static cv::Mat previewSample(const cv::Mat &image, drishti::rcpr::CPR::CPRResult &result, drishti::rcpr::Vector1d &mu)
+static cv::Mat previewSample(const cv::Mat& image, drishti::rcpr::CPR::CPRResult& result, drishti::rcpr::Vector1d& mu)
 {
     cv::Mat canvas;
     cv::cvtColor(image, canvas, cv::COLOR_GRAY2BGR);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, DRISHTI_CPR_TRANSPOSE), {0,255,0}, 1, 8);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, 1-DRISHTI_CPR_TRANSPOSE), {255,0,255}, 1, 8);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(mu, DRISHTI_CPR_TRANSPOSE), {255,0,0}, 1, 8);
+    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, DRISHTI_CPR_TRANSPOSE), { 0, 255, 0 }, 1, 8);
+    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, 1 - DRISHTI_CPR_TRANSPOSE), { 255, 0, 255 }, 1, 8);
+    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(mu, DRISHTI_CPR_TRANSPOSE), { 255, 0, 0 }, 1, 8);
     return canvas;
 }
 
 DRISHTI_BEGIN_NAMESPACE(cpr)
-static void load(const std::string &sEye, drishti::eye::EyeModel &eye);
-static int writeDefaultRecipe(const std::string &filename, const std::string &dimensions);
-static std::vector<float> parseVec5f(const std::string &dimensions);
-void ellipse(cv::Mat canvas, const cv::RotatedRect &e, const cv::Scalar &color=cv::Scalar::all(255), int width=1, int type=8);
+static void load(const std::string& sEye, drishti::eye::EyeModel& eye);
+static int writeDefaultRecipe(const std::string& filename, const std::string& dimensions);
+static std::vector<float> parseVec5f(const std::string& dimensions);
+void ellipse(cv::Mat canvas, const cv::RotatedRect& e, const cv::Scalar& color = cv::Scalar::all(255), int width = 1, int type = 8);
 DRISHTI_END_NAMESPACE(cpr)
 
-int drishti_main(int argc, char **argv)
+int drishti_main(int argc, char** argv)
 {
     auto logger = drishti::core::Logger::create("train_cpr");
-    
+
     const auto argumentCount = argc;
-    
+
     std::string sWeights = "{1.0,2.0,8.0,32.0,64.0,1.0}";
     std::string sDimensions = "{{0,1},{3},{0,1},{3},{0,1},{3},{0,1},{3}}";
-    std::string sExtension= ".eye.xml";
+    std::string sExtension = ".eye.xml";
     std::string sTrain;
     std::string sTest;
     std::string sModel;
@@ -131,29 +133,32 @@ int drishti_main(int argc, char **argv)
 
     // TODO: support generic ellipse regression (no iris assumption)
     const bool doIris = true;
-        
+
     bool doVerbose = false;
     bool doHelp = false;
 
     cxxopts::Options options("train_shape_predictor", "Command line interface for dlib shape_predictor training");
-    options.add_options()
-    ( "dimensions", "List of dimensions in cascaded pose regression", cxxopts::value<std::string>(sDimensions) )
-    ( "weights", "Per element weights for loss: {xs,ys,ang,scl,asp}", cxxopts::value<std::string>(sWeights) )
-    ( "extension", "Filename extension", cxxopts::value<std::string>(sExtension) )
-    ( "train", "Train samples", cxxopts::value<std::string>(sTrain) )
-    ( "test", "Test samples", cxxopts::value<std::string>(sTest))
-    ( "model", "Model filename", cxxopts::value<std::string>(sModel) )
-    ( "test-log", "Testing log", cxxopts::value<std::string>(sTestLog) )
-    ( "recipe", "Training recipe", cxxopts::value<std::string>(sRecipe) )
-    ( "template", "Training recipe template", cxxopts::value<std::string>(sTemplate) )
-    ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose) )
 
+    // clang-format off
+    options.add_options()
+        ( "dimensions", "List of dimensions in cascaded pose regression", cxxopts::value<std::string>(sDimensions) )
+        ( "weights", "Per element weights for loss: {xs,ys,ang,scl,asp}", cxxopts::value<std::string>(sWeights) )
+        ( "extension", "Filename extension", cxxopts::value<std::string>(sExtension) )
+        ( "train", "Train samples", cxxopts::value<std::string>(sTrain) )
+        ( "test", "Test samples", cxxopts::value<std::string>(sTest))
+        ( "model", "Model filename", cxxopts::value<std::string>(sModel) )
+        ( "test-log", "Testing log", cxxopts::value<std::string>(sTestLog) )
+        ( "recipe", "Training recipe", cxxopts::value<std::string>(sRecipe) )
+        ( "template", "Training recipe template", cxxopts::value<std::string>(sTemplate) )
+        ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose) )
+        
 #if defined(DRISHTI_USE_IMSHOW)        
-    ( "window", "Do window", cxxopts::value<bool>(doWindow) )
+        ( "window", "Do window", cxxopts::value<bool>(doWindow) )
 #endif
         
-    ( "help", "Print the help message", cxxopts::value<bool>(doHelp) );
-
+        ( "help", "Print the help message", cxxopts::value<bool>(doHelp) );
+    // clang-format on    
+    
     options.parse(argc, argv);
     
     if((argumentCount <= 1) || options.count("help"))

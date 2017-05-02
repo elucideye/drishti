@@ -29,22 +29,21 @@ struct Vec2f
     GLfloat data[2];
 };
 
-
 class CircleProc : public ogles_gpgpu::FilterProcBase
 {
 public:
     CircleProc() {}
-    virtual const char *getProcName()
+    virtual const char* getProcName()
     {
         return "CircleProc";
     }
 
-    void setColor(const Vec3f &value) { color = value; }
+    void setColor(const Vec3f& value) { color = value; }
     void setRadius(float value) { radius = value; }
-    void setCenter(const Vec2f &value) { center = value; }
+    void setCenter(const Vec2f& value) { center = value; }
 
 private:
-    virtual const char *getFragmentShaderSource()
+    virtual const char* getFragmentShaderSource()
     {
         return fshaderCircleSrc;
     }
@@ -63,7 +62,7 @@ private:
         glUniform3fv(shParamUColor, 1, &color.data[0]);
         glUniform1f(shParamURatio, ratio);
     }
-    static const char *fshaderCircleSrc; // fragment shader source
+    static const char* fshaderCircleSrc; // fragment shader source
 
     float ratio = 1.f;
     Vec3f color = { 0.f, 1.f, 0.f };
@@ -78,4 +77,4 @@ private:
 
 END_OGLES_GPGPU
 
-#endif 
+#endif

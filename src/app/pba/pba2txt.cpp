@@ -16,11 +16,11 @@
 
 #include <memory>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     std::string sInput = argv[1];
     std::string sOutput = argv[2];
-    
+
     auto sp = std::make_shared<DRISHTI_EYE::EyeModelEstimator>();
 
     { // Load the model from pba.z

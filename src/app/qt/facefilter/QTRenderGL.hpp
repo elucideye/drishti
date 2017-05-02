@@ -48,14 +48,18 @@ class QTRenderGLRenderer : public QObject, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    QTRenderGLRenderer() : m_t(0), m_program(0) { }
+    QTRenderGLRenderer()
+        : m_t(0)
+        , m_program(0)
+    {
+    }
     ~QTRenderGLRenderer();
 
     void setT(qreal t)
     {
         m_t = t;
     }
-    void setViewportSize(const QSize &size)
+    void setViewportSize(const QSize& size)
     {
         m_viewportSize = size;
     }
@@ -66,7 +70,7 @@ public slots:
 private:
     QSize m_viewportSize;
     qreal m_t;
-    QOpenGLShaderProgram *m_program;
+    QOpenGLShaderProgram* m_program;
 };
 
 class QTRenderGL : public QQuickItem
@@ -91,11 +95,11 @@ public slots:
     void cleanup();
 
 private slots:
-    void handleWindowChanged(QQuickWindow *win);
+    void handleWindowChanged(QQuickWindow* win);
 
 private:
     qreal m_t;
-    QTRenderGLRenderer *m_renderer;
+    QTRenderGLRenderer* m_renderer;
 };
 
 #endif // QTRENDERGL_H

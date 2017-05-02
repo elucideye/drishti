@@ -21,11 +21,10 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-std::vector<float> faceToVector(const FaceModel &face, bool crease=false, bool brow=false, bool nose=false);
-cv::Mat estimateGlobalMotionLeastSquares(const FaceModel &src, const FaceModel &dst, cv::videostab::MotionModel model);
-cv::Point2f estimateGaze(const DRISHTI_FACE::FaceModel &face);
+std::vector<float> faceToVector(const FaceModel& face, bool crease = false, bool brow = false, bool nose = false);
+cv::Mat estimateGlobalMotionLeastSquares(const FaceModel& src, const FaceModel& dst, cv::videostab::MotionModel model);
+cv::Point2f estimateGaze(const DRISHTI_FACE::FaceModel& face);
 
 DRISHTI_FACE_NAMESPACE_END
-
 
 #endif /* defined(__drishti_face_face_util_h__) */

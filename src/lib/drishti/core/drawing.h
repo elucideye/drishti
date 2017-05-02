@@ -17,7 +17,7 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-void quiver(cv::Mat3b &canvas, const cv::Mat1f &dx, const cv::Mat1f &dy, int step, float scale, const cv::Mat1b &mask=cv::Mat1b());
+void quiver(cv::Mat3b& canvas, const cv::Mat1f& dx, const cv::Mat1f& dy, int step, float scale, const cv::Mat1b& mask = cv::Mat1b());
 
 DRISHTI_CORE_NAMESPACE_END
 

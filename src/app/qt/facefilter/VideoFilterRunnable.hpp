@@ -43,41 +43,37 @@
 
 #include <memory> // std::shared_ptr
 
-// *INDENT-OFF*
+// clang-format off
 namespace drishti { namespace acf { class Detector; } };
 namespace ogles_gpgpu { struct ACF; };
-// *INDENT-ON*
+// clang-format on
 
 class OEGLGPGPUTest;
 class VideoFilter;
 
-class VideoFilterRunnable: public QVideoFilterRunnable
+class VideoFilterRunnable : public QVideoFilterRunnable
 {
 public:
-
-    VideoFilterRunnable(VideoFilter *filter);
+    VideoFilterRunnable(VideoFilter* filter);
     ~VideoFilterRunnable();
 
     struct Impl;
 
-    QVideoFrame run
-    (
-        QVideoFrame *input,
-        const QVideoSurfaceFormat &surfaceFormat,
-        RunFlags flags
-    ) Q_DECL_OVERRIDE;
+    QVideoFrame run(
+        QVideoFrame* input,
+        const QVideoSurfaceFormat& surfaceFormat,
+        RunFlags flags) Q_DECL_OVERRIDE;
 
 private:
-
     static bool isFrameValid(const QVideoFrame& frame);
     static bool isFrameFormatYUV(const QVideoFrame& frame);
 
-    GLuint detectFaces(const cv::Size &size, void *pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum textureFormat);
+    GLuint detectFaces(const cv::Size& size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum textureFormat);
 
     GLuint createTextureForFrame(QVideoFrame* input);
 
-    int processFrame(QVideoFrame *input);
-    int detectFaces(QVideoFrame *input);
+    int processFrame(QVideoFrame* input);
+    int detectFaces(QVideoFrame* input);
 
     VideoFilter* m_filter = nullptr;
 

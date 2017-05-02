@@ -17,18 +17,18 @@
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
-cv::Point padWithInpainting(const cv::Mat &image, cv::Mat &padded, int top, int bottom, int left, int right, bool inPaint)
+cv::Point padWithInpainting(const cv::Mat& image, cv::Mat& padded, int top, int bottom, int left, int right, bool inPaint)
 {
-    if(top <= 0 && bottom <= 0 && left <= 0 && right <= 0)
+    if (top <= 0 && bottom <= 0 && left <= 0 && right <= 0)
     {
         padded = image;
-        return cv::Point(0,0);
+        return cv::Point(0, 0);
     }
 
     cv::Mat mask;
-    cv::copyMakeBorder(image, padded, std::max(top,0), std::max(bottom,0), std::max(left,0), std::max(right,0), cv::BORDER_CONSTANT);
+    cv::copyMakeBorder(image, padded, std::max(top, 0), std::max(bottom, 0), std::max(left, 0), std::max(right, 0), cv::BORDER_CONSTANT);
     mask = cv::Mat::zeros(padded.size(), CV_8UC1);
-    mask({{std::max(left,0), std::max(top,0)}, image.size()}).setTo(255);
+    mask({ { std::max(left, 0), std::max(top, 0) }, image.size() }).setTo(255);
 
     cv::videostab::ColorAverageInpainter inpainter;
     //cv::videostab::ColorInpainter inpainter(cv::INPAINT_TELEA, std::min(image.cols, image.rows)/16.0);
@@ -37,12 +37,12 @@ cv::Point padWithInpainting(const cv::Mat &image, cv::Mat &padded, int top, int 
     return cv::Point(left, top);
 }
 
-cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectRatio, bool inPaint)
+cv::Point padToAspectRatio(const cv::Mat& image, cv::Mat& padded, double aspectRatio, bool inPaint)
 {
     CV_Assert(image.channels() == 3);
 
     int top = 0, left = 0, bottom = 0, right = 0;
-    if(double(image.cols)/image.rows > aspectRatio)
+    if (double(image.cols) / image.rows > aspectRatio)
     {
         int padding = int(double(image.cols) / aspectRatio + 0.5) - image.rows;
         top = padding / 2;
@@ -58,7 +58,7 @@ cv::Point padToAspectRatio(const cv::Mat &image, cv::Mat &padded, double aspectR
     return padWithInpainting(image, padded, top, bottom, left, right, inPaint);
 }
 
-cv::Point padToWidthUsingAspectRatio(const cv::Mat &canvas, cv::Mat &padded, int width, double aspectRatio, bool inPaint)
+cv::Point padToWidthUsingAspectRatio(const cv::Mat& canvas, cv::Mat& padded, int width, double aspectRatio, bool inPaint)
 {
     int height = double(width) / aspectRatio;
     int top = 0, left = 0, bottom = 0, right = 0;
@@ -68,7 +68,7 @@ cv::Point padToWidthUsingAspectRatio(const cv::Mat &canvas, cv::Mat &padded, int
     right = hPad - left;
 
     cv::Point tl;
-    if(height > canvas.rows)
+    if (height > canvas.rows)
     {
         int vPad = (height - canvas.rows);
         top = vPad / 2;
@@ -83,31 +83,31 @@ cv::Point padToWidthUsingAspectRatio(const cv::Mat &canvas, cv::Mat &padded, int
         tl = padWithInpainting(canvas, padded, top, bottom, left, right, inPaint);
     }
 
-    if(left < 0 || right < 0 || top < 0 || bottom < 0)
+    if (left < 0 || right < 0 || top < 0 || bottom < 0)
     {
-        padded = padded(cv::Rect(std::max(-left,0), std::max(-top,0), width, height));
+        padded = padded(cv::Rect(std::max(-left, 0), std::max(-top, 0), width, height));
     }
 
     return tl;
 }
 
-cv::Mat borderMask(const cv::Mat &image)
+cv::Mat borderMask(const cv::Mat& image)
 {
     cv::Mat mask = cv::Mat::zeros(image.size(), CV_8UC1);
-    for(int y = 0; y < image.rows; y++)
+    for (int y = 0; y < image.rows; y++)
     {
-        uint8_t *pm = &mask.at<uint8_t>(y,0);
-        const cv::Vec3b *ptr = &image.at<cv::Vec3b>(y,0);
+        uint8_t* pm = &mask.at<uint8_t>(y, 0);
+        const cv::Vec3b* ptr = &image.at<cv::Vec3b>(y, 0);
         cv::Vec3b pix = ptr[0];
-        for(int x = 0; (x < image.cols/2) && (ptr[0] == pix); ++x, ++ptr, ++pm)
+        for (int x = 0; (x < image.cols / 2) && (ptr[0] == pix); ++x, ++ptr, ++pm)
         {
             pm[0] = 255;
         }
 
-        pm = &mask.at<uint8_t>(y, image.cols-1);
-        ptr = &image.at<cv::Vec3b>(y, image.cols-1);
+        pm = &mask.at<uint8_t>(y, image.cols - 1);
+        ptr = &image.at<cv::Vec3b>(y, image.cols - 1);
         pix = ptr[0];
-        for(int x = image.cols-1; (x > image.cols/2) && (pix == ptr[0]); x--, ptr--, pm--)
+        for (int x = image.cols - 1; (x > image.cols / 2) && (pix == ptr[0]); x--, ptr--, pm--)
         {
             pm[0] = 255;
         }
@@ -116,29 +116,29 @@ cv::Mat borderMask(const cv::Mat &image)
     return mask;
 }
 
-void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask)
+void inpaintBorder(const cv::Mat& input, cv::Mat& output, cv::Mat& mask)
 {
     cv::Mat black;
     cv::reduce(input.reshape(1, input.size().area()), black, 1, CV_REDUCE_MAX);
     black = black.reshape(1, input.rows);
 
     mask = cv::Mat1b::zeros(input.size());
-    for(int y = 0; y < black.rows; y++)
+    for (int y = 0; y < black.rows; y++)
     {
-        int xl = 0, xr = black.cols-1;
-        const uint8_t *pli = black.ptr<uint8_t>(y), *pri = pli + (black.cols-1);
-        uint8_t *plo = mask.ptr<uint8_t>(y), *pro = plo + (black.cols-1);
-        for(; xl < black.cols; xl++, pli++, plo++)
+        int xl = 0, xr = black.cols - 1;
+        const uint8_t *pli = black.ptr<uint8_t>(y), *pri = pli + (black.cols - 1);
+        uint8_t *plo = mask.ptr<uint8_t>(y), *pro = plo + (black.cols - 1);
+        for (; xl < black.cols; xl++, pli++, plo++)
         {
-            if(pli[0])
+            if (pli[0])
             {
                 break;
             }
             plo[0] = 255;
         }
-        for(; xr > xl; xr--, pri--, pro--)
+        for (; xr > xl; xr--, pri--, pro--)
         {
-            if(pri[0])
+            if (pri[0])
             {
                 break;
             }
@@ -146,23 +146,23 @@ void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask)
         }
     }
 
-    for(int x = 0; x < black.cols; x++)
+    for (int x = 0; x < black.cols; x++)
     {
         const int step = black.step1();
-        int yt = 0, yb = black.rows-1;
+        int yt = 0, yb = black.rows - 1;
         const uint8_t *pti = black.ptr<uint8_t>(0) + x, *pbi = pti + (black.rows - 1) * step;
         uint8_t *pto = mask.ptr<uint8_t>(0) + x, *pbo = pto + (black.rows - 1) * step;
-        for(; yt < black.rows; yt++, pti+=step, pto+=step)
+        for (; yt < black.rows; yt++, pti += step, pto += step)
         {
-            if(pti[0])
+            if (pti[0])
             {
                 break;
             }
             pto[0] = 255;
         }
-        for(; yb > yt; yb--, pbi-=step, pbo-=step)
+        for (; yb > yt; yb--, pbi -= step, pbo -= step)
         {
-            if(pbi[0])
+            if (pbi[0])
             {
                 break;
             }
@@ -170,7 +170,7 @@ void inpaintBorder(const cv::Mat &input, cv::Mat &output, cv::Mat &mask)
         }
     }
 
-    cv::dilate(mask, mask, {}, {-1,-1}, 3);
+    cv::dilate(mask, mask, {}, { -1, -1 }, 3);
 
     cv::Scalar mu = cv::mean(input, ~mask);
     output = input.clone();

@@ -12,9 +12,11 @@
 #include "drishti/core/Logger.h"
 #include <spdlog/spdlog.h>
 
+// clang-format off
 #if defined(__ANDROID__)
-# include <spdlog/sinks/android_sink.h>
+#  include <spdlog/sinks/android_sink.h>
 #endif
+// clang-format on
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
@@ -40,7 +42,7 @@ std::shared_ptr<spdlog::logger> Logger::create(const char* name)
     {
         // Check for existing logger
         auto logger = get(name);
-        if(logger)
+        if (logger)
         {
             return logger;
         }
@@ -62,7 +64,7 @@ std::shared_ptr<spdlog::logger> Logger::get(const char* name)
     return spdlog::get(name);
 }
 
-void Logger::drop(const char *name)
+void Logger::drop(const char* name)
 {
     spdlog::drop(name);
 }

@@ -139,34 +139,34 @@
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
-template <typename  T>
-cv::Size round(const cv::Size_<T> &size)
+template <typename T>
+cv::Size round(const cv::Size_<T>& size)
 {
     return cv::Size_<T>(core::round(size.width), core::round(size.height));
 }
 
-int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid &pyramid, bool isInit, MatLoggerType pLogger)
+int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid& pyramid, bool isInit, MatLoggerType pLogger)
 {
     // % get default parameters pPyramid
     //if(nargin==2), p=varargin{1}; else p=[]; end
     Options::Pyramid p;
-    if(isInit)
+    if (isInit)
     {
         p = *pIn;
     }
 
-    if( !p.complete.has || (p.complete != 1) || Iin.empty() )
+    if (!p.complete.has || (p.complete != 1) || Iin.empty())
     {
         // 'pChns',{},'nPerOct',8,'nOctUp',0,'nApprox',-1,'lambdas',[],'pad',[0 0],'minDs',[16 16],'smooth',1,'concat',1,'complete',1};
         Options::Pyramid dfs;
-        dfs.nPerOct = {"nPerOct", 8};
-        dfs.nOctUp = {"nOctUp", 0};
-        dfs.nApprox = {"nApprox", -1};
-        dfs.pad = {"pad", cv::Size(0,0)};
-        dfs.minDs = {"minDs", cv::Size(16,16)};
-        dfs.smooth = {"smooth", 1};
-        dfs.concat = {"concat", 1};
-        dfs.complete = {"complete", 1};
+        dfs.nPerOct = { "nPerOct", 8 };
+        dfs.nOctUp = { "nOctUp", 0 };
+        dfs.nApprox = { "nApprox", -1 };
+        dfs.pad = { "pad", cv::Size(0, 0) };
+        dfs.minDs = { "minDs", cv::Size(16, 16) };
+        dfs.smooth = { "smooth", 1 };
+        dfs.concat = { "concat", 1 };
+        dfs.complete = { "complete", 1 };
         p.merge(dfs, 1);
 
         //std::cout << "========================" << std::endl;
@@ -182,17 +182,17 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
         p.pChns.get().complete = 1;
         int shrink = p.pChns->shrink.get();
         cv::Size_<double> pad = p.pad.get(), minDs = p.minDs.get();
-        p.pad.get() = round(pad/double(shrink))*shrink;
-        p.minDs.get() = cv::Size( std::max(minDs.width, double(shrink*4.0)), std::max(minDs.height, double(shrink*4.0)) );
-        if(p.nApprox < 0)
+        p.pad.get() = round(pad / double(shrink)) * shrink;
+        p.minDs.get() = cv::Size(std::max(minDs.width, double(shrink * 4.0)), std::max(minDs.height, double(shrink * 4.0)));
+        if (p.nApprox < 0)
         {
-            p.nApprox = p.nPerOct-1;
+            p.nApprox = p.nPerOct - 1;
         }
     }
 
-    if( Iin.empty() && !pIn && isInit)
+    if (Iin.empty() && !pIn && isInit)
     {
-        CV_Assert( false ); // return pyramid info here
+        CV_Assert(false); // return pyramid info here
         return 0;
     }
 
@@ -212,64 +212,64 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
     auto shrink = pChns.shrink.get();
 
     // Convert I to appropriate color space (or simply normalize):
-    const std::string &cs = pChns.pColor->colorSpace;
+    const std::string& cs = pChns.pColor->colorSpace;
     cv::Size sz = Iin.size();
 
     MatP I, pI, MO;
-    if(sz.area() && Iin.channels()==1 && (cs.compare("gray")==0 || cs.compare("orig")==0))
+    if (sz.area() && Iin.channels() == 1 && (cs.compare("gray") == 0 || cs.compare("orig") == 0))
     {
         I = Iin;
         I.push_back(I[0]);
         I.push_back(I[0]); // i.e., repmat
-        pI = I; // shallow copy
+        pI = I;            // shallow copy
     }
     else
     {
         pI = Iin; // shallow copy
-        if(Iin.channels() > 3)
+        if (Iin.channels() > 3)
         {
-            if(Iin.channels() > 3)
+            if (Iin.channels() > 3)
             {
                 std::copy(pI.begin() + 3, pI.end(), std::back_inserter(MO));
             }
 
-            while(pI.channels() > 3)
+            while (pI.channels() > 3)
             {
                 pI.pop_back();
             }
         }
     }
 
-    if(pI.channels())
+    if (pI.channels())
     {
         rgbConvert(pI, I, cs, true, m_isLuv);
     }
     pChns.pColor->colorSpace = std::string("orig");
 
-    auto & info = pyramid.info;
-    auto & scales = pyramid.scales;
-    auto & scaleshw = pyramid.scaleshw;
+    auto& info = pyramid.info;
+    auto& scales = pyramid.scales;
+    auto& scaleshw = pyramid.scaleshw;
 
     // Get scales at which to compute features and list of real/approx scales:
     getScales(nPerOct, nOctUp, minDs, shrink, sz, scales, scaleshw);
 
     int nScales = static_cast<int>(scales.size());
-    std::vector<int> isR, isA, isN(nScales,0), *isRA[2] = { &isR, &isA };
-    for(int i = 0; i < nScales; i++)
+    std::vector<int> isR, isA, isN(nScales, 0), *isRA[2] = { &isR, &isA };
+    for (int i = 0; i < nScales; i++)
     {
-        isRA[ (i % (nApprox+1))>0 ]->push_back(i+1);
+        isRA[(i % (nApprox + 1)) > 0]->push_back(i + 1);
     }
 
     std::vector<int> isH((isR.size() + 1), 0);
     isH.back() = nScales;
-    for(int i = 0; i < std::max(int(isR.size())-1,0); i++)
+    for (int i = 0; i < std::max(int(isR.size()) - 1, 0); i++)
     {
-        isH[i+1] = (isR[i] + isR[i+1])/2;
+        isH[i + 1] = (isR[i] + isR[i + 1]) / 2;
     }
 
-    for(int i = 0; i < isR.size(); i++)
+    for (int i = 0; i < isR.size(); i++)
     {
-        for(int j = isH[i]; j < isH[i+1]; j++)
+        for (int j = isH[i]; j < isH[i + 1]; j++)
         {
             isN[j] = isR[i];
         }
@@ -282,20 +282,20 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
 
     // Compute image pyramid [real scales]
     int nTypes = 0;
-    auto &data = pyramid.data;
-    for(const auto &i : isR)
+    auto& data = pyramid.data;
+    for (const auto& i : isR)
     {
-        double s = scales[i-1];
-        cv::Size sz1 = round( (cv::Size2d(sz)*s) / double(shrink) ) * shrink;
+        double s = scales[i - 1];
+        cv::Size sz1 = round((cv::Size2d(sz) * s) / double(shrink)) * shrink;
 
         MatP I1;
-        if(sz == sz1)
+        if (sz == sz1)
         {
             I1 = I;
         }
         else
         {
-            // TODO: use imResampleMex to resave remap coefficients
+// TODO: use imResampleMex to resave remap coefficients
 #if 0
             int level = (i-1) / nPerOct;
             if( (!(i-1)%nPerOct) && (m_pyramid.size() > level))
@@ -311,14 +311,14 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
 #endif
         }
 
-        if((s==0.5) && ((nApprox > 0) || (nPerOct==1)))
+        if ((s == 0.5) && ((nApprox > 0) || (nPerOct == 1)))
         {
             I = I1;
         }
 
         //{ cv::Mat c1; cv::normalize(I1[0], c1, 0, 1, cv::NORM_MINMAX, CV_32F); cv::imshow("I1", c1), cv::waitKey(0); }
 
-        if((i==isR.front()) && (MO.channels() == 2))
+        if ((i == isR.front()) && (MO.channels() == 2))
         {
             I1.push_back(MO[0]);
             I1.push_back(MO[1]);
@@ -327,86 +327,85 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
         Detector::Channels chns;
         chnsCompute(I1, pChns, chns, false, pLogger);
         info = chns.info;
-        if(i==isR.front()) // on first iteration allocate data
+        if (i == isR.front()) // on first iteration allocate data
         {
             nTypes = chns.nTypes;
             data.resize(boost::extents[nScales][nTypes]);
         }
-        std::copy(chns.data.begin(), chns.data.end(), data[i-1].begin());
+        std::copy(chns.data.begin(), chns.data.end(), data[i - 1].begin());
     }
 
     // If lambdas not specified compute image specific lambdas:
-    if( nScales > 0 && nApprox > 0 && !lambdas.size() )
+    if (nScales > 0 && nApprox > 0 && !lambdas.size())
     {
         std::vector<int> is;
-        for(int i = (1+nOctUp*nPerOct); i <= nScales; i += (nApprox+1))
+        for (int i = (1 + nOctUp * nPerOct); i <= nScales; i += (nApprox + 1))
         {
             is.push_back(i);
         }
 
         CV_Assert(is.size() >= 2);
 
-        if(is.size() > 2)
+        if (is.size() > 2)
         {
             is = { is[1], is[2] };
         }
 
         std::vector<double> f0(nTypes, 0.0), f1 = f0;
-        for(int j = 0; j < nTypes; j++)
+        for (int j = 0; j < nTypes; j++)
         {
             f0[j] = sum(data[is[0]][j]) / double(numel(data[is[0]][j]));
         }
 
-        for(int j = 0; j < nTypes; j++)
+        for (int j = 0; j < nTypes; j++)
         {
             f1[j] = sum(data[is[1]][j]) / double(numel(data[is[1]][j]));
         }
 
         lambdas.resize(nTypes);
-        for(int j = 0; j < nTypes; j++)
+        for (int j = 0; j < nTypes; j++)
         {
-            lambdas[j] = -core::log2(f0[j]/f1[j]) / core::log2(scales[is[0]] / scales[is[1]]);
+            lambdas[j] = -core::log2(f0[j] / f1[j]) / core::log2(scales[is[0]] / scales[is[1]]);
         }
     }
 
 #if 1
-    core::ParallelHomogeneousLambda harness = [&](int j)
-    {
+    core::ParallelHomogeneousLambda harness = [&](int j) {
         const int i = isA[j];
-        
-        int iR = isN[i-1];
-        cv::Size sz1 = round(cv::Size2d(sz)*scales[i-1]/double(shrink));
+
+        int iR = isN[i - 1];
+        cv::Size sz1 = round(cv::Size2d(sz) * scales[i - 1] / double(shrink));
         for (int j = 0; j < nTypes; j++)
         {
-            double ratio = std::pow(scales[i-1]/scales[iR-1], -lambdas[j]);
-            imResample(data[iR-1][j], data[i-1][j], sz1, ratio);
+            double ratio = std::pow(scales[i - 1] / scales[iR - 1], -lambdas[j]);
+            imResample(data[iR - 1][j], data[i - 1][j], sz1, ratio);
         }
-        for(auto &img : data[i-1])
+        for (auto& img : data[i - 1])
         {
             convTri(img, img, smooth, 1);
         }
     };
-                                            
-    cv::parallel_for_({0, int(isA.size())}, harness);
+
+    cv::parallel_for_({ 0, int(isA.size()) }, harness);
 #else
     // Compute image pyramid [approximated scales]
-    for(auto &i : isA)
+    for (auto& i : isA)
     {
-        int iR = isN[i-1];
-        cv::Size sz1 = round(cv::Size2d(sz)*scales[i-1]/double(shrink));
+        int iR = isN[i - 1];
+        cv::Size sz1 = round(cv::Size2d(sz) * scales[i - 1] / double(shrink));
         for (int j = 0; j < nTypes; j++)
         {
-            double ratio = std::pow(scales[i-1]/scales[iR-1], -lambdas[j]);
-            imResample(data[iR-1][j], data[i-1][j], sz1, ratio);
+            double ratio = std::pow(scales[i - 1] / scales[iR - 1], -lambdas[j]);
+            imResample(data[iR - 1][j], data[i - 1][j], sz1, ratio);
         }
     }
 
     // Smooth channels, optionally pad and concatenate channels:
-    for(auto row : data)
+    for (auto row : data)
     {
-        for(auto &i : row)
+        for (auto& i : row)
         {
-            convTri(i, i, smooth, 1 );
+            convTri(i, i, smooth, 1);
         }
     }
 #endif
@@ -414,24 +413,25 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
     //{ cv::Mat c1; cv::normalize(I1[0], c1, 0, 1, cv::NORM_MINMAX, CV_32F); cv::imshow("I1", c1), cv::waitKey(0); }
 
     // TODO: test imPad
-    if(pad.width || pad.height)
+    if (pad.width || pad.height)
     {
-        for(int i = 0; i < nScales; i++)
+        for (int i = 0; i < nScales; i++)
         {
-            for(int j = 0; j < nTypes; j++)
+            for (int j = 0; j < nTypes; j++)
             {
                 int y = pad.height / shrink;
                 int x = pad.width / shrink;
-                copyMakeBorder(data[i][j],data[i][j],y,y,x,x,cv::BORDER_REFLECT); // TODO: check if rows need to be contiguous
+                // TODO: check if rows need to be contiguous
+                copyMakeBorder(data[i][j], data[i][j], y, y, x, x, cv::BORDER_REFLECT);
             }
         }
     }
 
-    if(concat && nTypes)
+    if (concat && nTypes)
     {
         auto data0 = data;
-        data.resize( boost::extents[nScales][1] );
-        for(int i = 0; i < nScales; i++)
+        data.resize(boost::extents[nScales][1]);
+        for (int i = 0; i < nScales; i++)
         {
             fuseChannels(data0[i].begin(), data0[i].end(), data[i][0]);
         }
@@ -444,9 +444,9 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
 
 #define DO_DEBUG_CONCATENATED_FEATURES 0
 #if DO_DEBUG_CONCATENATED_FEATURES
-    for(int i = 0; i < nScales; i++)
+    for (int i = 0; i < nScales; i++)
     {
-        for(auto &p : data[i][0])
+        for (auto& p : data[i][0])
         {
             cv::Mat tmp;
             cv::normalize(p, tmp, 0, 1, cv::NORM_MINMAX, CV_32FC1);
@@ -461,63 +461,61 @@ int Detector::chnsPyramid(const MatP &Iin, const Options::Pyramid *pIn, Pyramid 
 using DoubleVec = std::vector<double>;
 using Size2dVec = std::vector<cv::Size2d>;
 
-int Detector::getScales(int nPerOct, int nOctUp, const cv::Size &minDs, int shrink, const cv::Size &sz, DoubleVec &scales, Size2dVec &scaleshw)
+int Detector::getScales(int nPerOct, int nOctUp, const cv::Size& minDs, int shrink, const cv::Size& sz, DoubleVec& scales, Size2dVec& scaleshw)
 {
     // set each scale s such that max(abs(round(sz*s/shrink)*shrink-sz*s)) is
     // minimized without changing the smaller dim of sz (tricky algebra)
     scales = {};
     scaleshw = {};
-    if(!sz.area())
+    if (!sz.area())
     {
         return 0;
     }
 
-    cv::Size2d ratio(double(sz.width)/double(minDs.width), double(sz.height)/double(minDs.height));
-    int nScales = std::floor(double(nPerOct)*(double(nOctUp)+core::log2(std::min(ratio.width, ratio.height)))+1.0);
+    cv::Size2d ratio(double(sz.width) / double(minDs.width), double(sz.height) / double(minDs.height));
+    int nScales = std::floor(double(nPerOct) * (double(nOctUp) + core::log2(std::min(ratio.width, ratio.height))) + 1.0);
 
     double d0 = sz.height, d1 = sz.width;
-    if(sz.height < sz.width)
+    if (sz.height < sz.width)
     {
         std::swap(d0, d1);
     }
 
-    for(int i = 0; i < nScales; i++)
+    for (int i = 0; i < nScales; i++)
     {
-        double s = std::pow(2.0, -double(i)/double(nPerOct+nOctUp));
-        double s0 = (core::round(d0*s/shrink)*shrink-0.25*shrink)/d0;
-        double s1 = (core::round(d0*s/shrink)*shrink+0.25*shrink)/d0;
+        double s = std::pow(2.0, -double(i) / double(nPerOct + nOctUp));
+        double s0 = (core::round(d0 * s / shrink) * shrink - 0.25 * shrink) / d0;
+        double s1 = (core::round(d0 * s / shrink) * shrink + 0.25 * shrink) / d0;
         std::pair<double, double> best(0, std::numeric_limits<double>::max());
-        for(double j=0.0; j<1.0-std::numeric_limits<double>::epsilon(); j+=0.01)
+        for (double j = 0.0; j < 1.0 - std::numeric_limits<double>::epsilon(); j += 0.01)
         {
-            double ss = ( j*(s1-s0)+s0 );
-            double es0 = d0*ss;
-            es0 = std::abs(es0-core::round(es0/shrink)*shrink);
-            double es1 = d1*ss;
-            es1 = std::abs(es1-core::round(es1/shrink)*shrink);
+            double ss = (j * (s1 - s0) + s0);
+            double es0 = d0 * ss;
+            es0 = std::abs(es0 - core::round(es0 / shrink) * shrink);
+            double es1 = d1 * ss;
+            es1 = std::abs(es1 - core::round(es1 / shrink) * shrink);
             double es = std::max(es0, es1);
-            if(es < best.second)
+            if (es < best.second)
             {
-                best = {ss,es};
+                best = { ss, es };
             }
         }
-        scales.push_back( best.first );
+        scales.push_back(best.first);
     }
 
     auto tmp = scales;
     tmp.push_back(0);
     scales.clear();
-    for(int i = 1; i < tmp.size(); i++)
+    for (int i = 1; i < tmp.size(); i++)
     {
-        if(tmp[i] != tmp[i-1])
+        if (tmp[i] != tmp[i - 1])
         {
-            double s = tmp[i-1];
+            double s = tmp[i - 1];
             scales.push_back(s);
 
-            cv::Size2d size
-            (
-                core::round(double(sz.width)*s/shrink)*shrink/sz.width,
-                core::round(double(sz.height)*s/shrink)*shrink/sz.height
-            );
+            cv::Size2d size(
+                core::round(double(sz.width) * s / shrink) * shrink / sz.width,
+                core::round(double(sz.height) * s / shrink) * shrink / sz.height);
             scaleshw.emplace_back(size);
         }
     }

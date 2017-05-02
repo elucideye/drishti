@@ -8,13 +8,13 @@
 
 */
 
-#ifndef __landmarks_BIOID_h__
-#define __landmarks_BIOID_h__
+#ifndef __drishti_landmarks_BIOID_h__
+#define __drishti_landmarks_BIOID_h__
 
 #include "landmarks/FACE.h"
 
 #include <fstream>
 
-FACE::Table parseBIOID(const std::string &filename);
+FACE::Table parseBIOID(const std::string& filename);
 
-#endif // __landmarks_BIOID_h__
+#endif // __drishti_landmarks_BIOID_h__
