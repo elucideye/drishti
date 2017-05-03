@@ -71,6 +71,16 @@ if(DRISHTI_SERIALIZE_WITH_BOOST)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${DRISHTI_SDK_BOOST_LIBS})
 endif()
 
+#############
+### Beast ### :: optional ::
+#############
+
+option(DRISHTI_USE_BEAST "Use beast (boost) websocket lib" ON)
+
+# Initial/experimental header only integration:
+# TODO: hunter-package WIP
+# Support minimal Boost asio configuraiton (Boost::system only)
+
 ##############
 ### spdlog ###
 ##############
@@ -309,6 +319,13 @@ set(DRISHTI_SDK_3RDPARTY_LIBS
 
 # Add the sub-libraries
 add_subdirectory(lib)
+
+###############
+### cxxopts ### :: std::regex >= gcc 4.8
+###############
+
+hunter_add_package(cxxopts)
+find_package(cxxopts CONFIG REQUIRED)
 
 # Include *nix style console apps (some will run on iOS and Android)
 add_subdirectory(app)
