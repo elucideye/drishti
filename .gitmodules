@@ -25,3 +25,6 @@
 [submodule "src/3rdparty/sse2neon"]
 	path = src/3rdparty/sse2neon
 	url = https://github.com/hunter-packages/sse2neon.git
+[submodule "src/3rdparty/Beast"]
+	path = src/3rdparty/Beast
+	url = https://github.com/hunter-packages/Beast.git
