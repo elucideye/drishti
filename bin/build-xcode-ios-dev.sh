@@ -13,9 +13,7 @@ if [ -z "${DRISHTISDK_IOS_IDENTITY}" ]; then
 fi
 
 DRISHTI_LOCAL_ARGS=(
-    DRISHTI_BUILD_C_INTERFACE=OFF
     DRISHTI_BUILD_QT=ON
-    DRISHTI_BUILD_OGLES_GPGPU=ON
     DRISHTI_COTIRE=OFF
 )
 
@@ -25,7 +23,7 @@ COMMAND=(
     "--verbose --fwd "
     "${DRISHTI_BUILD_ARGS[*]} "
     "${DRISHTI_BUILD_HIDE[*]} "
-    "${DRISHTI_LOCAL_ARGS[*]} "
+    "${DRISHTI_BUILD_LOCAL[*]} "
     "CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=9.0 "        
     "${DRISHTI_POLLY_ARGS[*]} "
     "--framework-device "

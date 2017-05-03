@@ -1,11 +1,3 @@
-###############
-### cxxopts ###
-###############
-
-# std::regex >= gcc 4.8
-hunter_add_package(cxxopts)
-find_package(cxxopts CONFIG REQUIRED)
-
 #################
 ### Libraries ###
 #################

@@ -24,55 +24,54 @@ namespace std
 namespace detail
 {
 
-// helper to construct a non-array unique_ptr
-template <typename T>
-struct make_unique_helper
-{
-    typedef std::unique_ptr<T> unique_ptr;
-
-    template <typename... Args>
-    static inline unique_ptr make(Args&&... args)
+    // helper to construct a non-array unique_ptr
+    template <typename T>
+    struct make_unique_helper
     {
-        return unique_ptr(new T(std::forward<Args>(args)...));
-    }
-};
+        typedef std::unique_ptr<T> unique_ptr;
 
-// helper to construct an array unique_ptr
-template<typename T>
-struct make_unique_helper<T[]>
-{
-    typedef std::unique_ptr<T[]> unique_ptr;
+        template <typename... Args>
+        static inline unique_ptr make(Args&&... args)
+        {
+            return unique_ptr(new T(std::forward<Args>(args)...));
+        }
+    };
 
-    template <typename... Args>
-    static inline unique_ptr make(Args&&... args)
+    // helper to construct an array unique_ptr
+    template <typename T>
+    struct make_unique_helper<T[]>
     {
-        return unique_ptr(new T[sizeof...(Args)] {std::forward<Args>(args)...});
-    }
-};
+        typedef std::unique_ptr<T[]> unique_ptr;
 
-// helper to construct an array unique_ptr with specified extent
-template<typename T, std::size_t N>
-struct make_unique_helper<T[N]>
-{
-    typedef std::unique_ptr<T[]> unique_ptr;
+        template <typename... Args>
+        static inline unique_ptr make(Args&&... args)
+        {
+            return unique_ptr(new T[sizeof...(Args)]{ std::forward<Args>(args)... });
+        }
+    };
 
-    template <typename... Args>
-    static inline unique_ptr make(Args&&... args)
+    // helper to construct an array unique_ptr with specified extent
+    template <typename T, std::size_t N>
+    struct make_unique_helper<T[N]>
     {
-        static_assert(N >= sizeof...(Args),
-                      "For make_unique<T[N]> N must be as largs as the number of arguments");
-        return unique_ptr(new T[N] {std::forward<Args>(args)...});
-    }
+        typedef std::unique_ptr<T[]> unique_ptr;
+
+        template <typename... Args>
+        static inline unique_ptr make(Args&&... args)
+        {
+            static_assert(N >= sizeof...(Args),
+                "For make_unique<T[N]> N must be as largs as the number of arguments");
+            return unique_ptr(new T[N]{ std::forward<Args>(args)... });
+        }
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ <= 6
-    // G++ 4.6 has an ICE when you have no arguments
-    static inline unique_ptr make()
-    {
-        return unique_ptr(new T[N]);
-    }
+        // G++ 4.6 has an ICE when you have no arguments
+        static inline unique_ptr make()
+        {
+            return unique_ptr(new T[N]);
+        }
 #endif
-};
-
+    };
 
 } // namespace detail
 
@@ -83,6 +82,6 @@ make_unique(Args&&... args)
     return detail::make_unique_helper<T>::make(std::forward<Args>(args)...);
 }
 
-}  // namespace std
+} // namespace std
 
-#endif  // __MAKE_UNIQUE_HH__
+#endif // __MAKE_UNIQUE_HH__

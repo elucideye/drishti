@@ -1,15 +1,15 @@
 [submodule "src/3rdparty/xgboost"]
-  path = src/3rdparty/xgboost
-  url = https://github.com/hunter-packages/xgboost.git
+    path = src/3rdparty/xgboost
+    url = https://github.com/hunter-packages/xgboost.git
 [submodule "src/3rdparty/thread-pool-cpp"]
-  path = src/3rdparty/thread-pool-cpp
-  url = https://github.com/hunter-packages/thread-pool-cpp.git
+    path = src/3rdparty/thread-pool-cpp
+    url = https://github.com/hunter-packages/thread-pool-cpp.git
 [submodule "src/3rdparty/ogles_gpgpu"]
-  path = src/3rdparty/ogles_gpgpu
-  url = https://github.com/hunter-packages/ogles_gpgpu.git
+    path = src/3rdparty/ogles_gpgpu
+    url = https://github.com/hunter-packages/ogles_gpgpu.git
 [submodule "drishti-upload"]
-  path = drishti-upload
-  url = https://github.com/elucideye/drishti-upload
+    path = drishti-upload
+    url = https://github.com/elucideye/drishti-upload
 [submodule "src/3rdparty/polly"]
 	path = src/3rdparty/polly
 	url = https://github.com/elucideye/polly.git
@@ -25,3 +25,6 @@
 [submodule "src/3rdparty/sse2neon"]
 	path = src/3rdparty/sse2neon
 	url = https://github.com/hunter-packages/sse2neon.git
+[submodule "src/3rdparty/Beast"]
+	path = src/3rdparty/Beast
+	url = https://github.com/hunter-packages/Beast.git

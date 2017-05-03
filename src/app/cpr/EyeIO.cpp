@@ -1,5 +1,5 @@
 #include "EyeIO.h"
-
+#include "drishti/core/drishti_stdlib_string.h" // must be first!!!
 #include "drishti/core/drishti_cv_cereal.h"
 
 // JSON archive must be included in "private" scope
