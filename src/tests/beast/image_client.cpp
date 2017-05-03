@@ -5,6 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include "drishti/core/drishti_stdlib_string.h" // must be first!!!
 #include <beast/core/to_string.hpp>
 #include <beast/websocket.hpp>
 #include <boost/asio.hpp>

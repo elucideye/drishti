@@ -1,4 +1,5 @@
 #include "RecipeIO.h"
+#include "drishti/core/drishti_stdlib_string.h" // must be first!!!
 #include "drishti/core/drishti_cv_cereal.h"
 
 #include <cereal/archives/json.hpp>

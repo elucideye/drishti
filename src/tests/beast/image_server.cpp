@@ -4,6 +4,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include "drishti/core/drishti_stdlib_string.h" // must be first!!!
 #include "websocket_async_server.hpp"
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/signal_set.hpp>
@@ -28,13 +29,13 @@ int drishti_main(int argc, char** argv)
 
     std::string sOutput;
     std::string sAddress = "127.0.0.1";
-    int port = 6000;
+    std::uint16_t port = 6000;
 
     // clang-format off
     cxxopts::Options options("test-image-server", "Minimal image logging websocket server (beast)");
     options.add_options()
         ("a,address", "Address", cxxopts::value<std::string>(sAddress))
-        ("p,port", "Port", cxxopts::value<int>(port))
+        ("p,port", "Port", cxxopts::value<std::uint16_t>(port))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
         ("h,help", "Print help message");
     // clang-format on
@@ -88,7 +89,7 @@ int drishti_main(int argc, char** argv)
     };
     s1.add(handler);
 
-    s1.open(endpoint_type{ address_type::from_string(sAddress), port }, ec);
+    s1.open(endpoint_type{address_type::from_string(sAddress), port}, ec);
 
     sig_wait();
 }

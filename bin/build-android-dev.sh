@@ -1,22 +1,11 @@
 #!/bin/bash
 
-. ${DRISHTISDK}/bin/build-common-defs-devel.sh
+. ${DRISHTISDK}/bin/build-common-devel.sh
 
-### customize ###
-HUNTER_CONFIGURATION_TYPES=MinSizeRel
-DRISHTI_BUILD_CONFIG=MinSizeRel
-
-DRISHTI_SERIALIZE_WITH_BOOST=OFF
-DRISHTI_SERIALIZE_WITH_CEREAL=ON
-DRISHTI_SERIALIZE_WITH_CVMATIO=OFF
-
-DRISHTI_BUILD_C_INTERFACE=ON
-DRISHTI_BUILD_QT=ON
-DRISHTI_BUILD_OGLES_GPGPU=ON
-DRISHTI_COTIRE=OFF
-### customize ###
-
-set_polly_args
+DRISHTI_BUILD_LOCAL=(
+    DRISHTI_BUILD_QT=OFF
+    DRISHTI_COTIRE=OFF
+)
 
 TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
 
@@ -30,10 +19,9 @@ COMMAND=(
     "--verbose "
     "--fwd ANDROID=TRUE "
     "${DRISHTI_BUILD_ARGS[*]} "
-    "${DRISHTI_BUILD_HIDE[*]} "    
-    "DRISHTI_BUILD_QT=${DRISHTI_BUILD_QT} "
-    "DRISHTI_COTIRE=${DRISHTI_COTIRE} "
-    "${DRISHTI_POLLY_ARGS[*]} "    
+    "${DRISHTI_BUILD_HIDE[*]} "
+    "${DRISHTI_BUILD_LOCAL[*]} "
+    "${DRISHTI_POLLY_ARGS[*]} "
     "--jobs 8 "
     "--strip "    
 )
