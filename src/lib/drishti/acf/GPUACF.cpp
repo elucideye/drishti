@@ -65,53 +65,276 @@
 
 BEGIN_OGLES_GPGPU
 
+struct ACF::Impl
+{
+    Impl(void* glContext, const Size2d& size, const SizeVec& scales, FeatureKind kind, int grayWidth, int flowWidth, bool debug)
+        : m_featureKind(kind)
+        , m_size(size)
+        , m_debug(debug)
+        , m_doGray(grayWidth > 0)
+        , m_grayscaleScale(float(grayWidth) / float(size.width))
+        , m_doFlow(flowWidth > 0)
+        , m_flowScale(float(flowWidth) / float(size.width)) // TODO: not when using pyramid
+    {
+        initACF(scales, kind, debug);
+        
+        if (m_doGray)
+        {
+            Size2d graySize(grayWidth, int(m_grayscaleScale * size.height + 0.5f));
+            reduceRgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+            reduceRgbSmoothProc->setOutputSize(graySize.width, graySize.height);
+            rgbSmoothProc->add(reduceRgbSmoothProc.get()); // ### OUTPUT ###
+        }
+        
+        if (m_doFlow) // use the same scale as corners:
+        {
+            // Compute scale relative to bottom pyramid level in pyramidProc()
+            float pyramidToFlow = float(flowWidth) / scales[0].width;
+            
+            // ((( Optical flow )))
+            flow = drishti::core::make_unique<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
+            pyramidProc->add(flow.get());
+            flow->setOutputSize(pyramidToFlow);
+            
+#if TEXTURE_FORMAT_IS_RGBA
+            flowBgra = drishti::core::make_unique<ogles_gpgpu::SwizzleProc>();
+            flow->add(flowBgra.get());
+            flowBgraInterface = flowBgra.get();
+#else
+            flowBgraInterface = flow.get();
+#endif
+        }
+        
+        if (m_doLuvTransfer)
+        {
+            // Add transposed Luv output for CPU processing (optional)
+            luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
+            rgb2luvProc->add(luvTransposeOut.get());
+        }
+    }
+    
+    void initACF(const SizeVec& scales, FeatureKind kind, bool debug)
+    {
+        rotationProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+        rgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(2.0f);
+        rgb2luvProc = drishti::core::make_unique<ogles_gpgpu::Rgb2LuvProc>();
+        pyramidProc = drishti::core::make_unique<ogles_gpgpu::PyramidProc>(scales);
+        smoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(1);
+        reduceLuvProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+        gradProc = drishti::core::make_unique<ogles_gpgpu::GradProc>(1.0f);
+        reduceGradProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+        normProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(7, true, 0.005f);
+        gradHistProcA = drishti::core::make_unique<ogles_gpgpu::GradHistProc>(6, 0, 1.f);
+        gradHistProcB = drishti::core::make_unique<ogles_gpgpu::GradHistProc>(6, 4, 1.f);
+        gradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(3.0f);
+        gradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(3.0f);
+        reduceGradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+        reduceGradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+        
+        // Reduce base LUV image to highest resolution used in pyramid:
+        rgb2luvProc->setOutputSize(scales[0].width, scales[0].height);
+        
+        reduceGradProc->setOutputSize(0.25);
+        reduceLuvProc->setOutputSize(0.25);
+        reduceGradHistProcASmooth->setOutputSize(0.25);
+        reduceGradHistProcBSmooth->setOutputSize(0.25);
+        
+#if GPU_ACF_TRANSPOSE
+        reduceGradProc->setOutputRenderOrientation(RenderOrientationDiagonal);
+        reduceLuvProc->setOutputRenderOrientation(RenderOrientationDiagonal);
+        reduceGradHistProcASmooth->setOutputRenderOrientation(RenderOrientationDiagonal);
+        reduceGradHistProcBSmooth->setOutputRenderOrientation(RenderOrientationDiagonal);
+#endif
+        
+        pyramidProc->setInterpolation(ogles_gpgpu::TransformProc::BICUBIC);
+        
+        rotationProc->add(rgbSmoothProc.get());
+        rgbSmoothProc->add(rgb2luvProc.get());
+        
+        // ((( luv -> pyramid(luv) )))
+        rgb2luvProc->add(pyramidProc.get());
+        
+        // ((( pyramid(luv) -> smooth(pyramid(luv)) )))
+        pyramidProc->add(smoothProc.get());
+        
+        // ((( smooth(pyramid(luv)) -> {luv_out, MOXY} )))
+        smoothProc->add(reduceLuvProc.get()); // output 1/4 LUV
+        smoothProc->add(gradProc.get());      // MOXY
+        
+        // ((( MOXY -> norm(M) ))
+        gradProc->add(normProc.get()); // norm(M)OX.
+        
+        // ((( norm(M) -> {histA, histB} )))
+        normProc->add(reduceGradProc.get());
+        normProc->add(gradHistProcA.get());
+        normProc->add(gradHistProcB.get());
+        
+        // ((( histA -> smooth(histA) )))
+        gradHistProcA->add(gradHistProcASmooth.get());
+        gradHistProcASmooth->add(reduceGradHistProcASmooth.get());
+        
+        // ((( histB -> smooth(histB) )))
+        gradHistProcB->add(gradHistProcBSmooth.get());
+        gradHistProcBSmooth->add(reduceGradHistProcBSmooth.get());
+        
+        switch (kind)
+        {
+            case kM012345:
+                
+                // This uses two swizzle steps to creaet LG56 output
+                // Adding a 3 input texture swizzler might be slightly more efficient.
+                
+                // ((( MERGE(luv, grad) )))
+                mergeProcLUVG = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleABC1);
+                reduceLuvProc->add(mergeProcLUVG.get(), 0);
+                reduceGradProc->add(mergeProcLUVG.get(), 1);
+                
+                // ((( MERGE(lg, 56) )))
+                mergeProcLG56 = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleAD12);
+                mergeProcLUVG->add(mergeProcLG56.get(), 0);
+                reduceGradHistProcBSmooth->add(mergeProcLG56.get(), 1);
+                break;
+                
+            case kLUVM012345:
+                // ((( MERGE(luv, grad) )))
+                mergeProcLUVG = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleABC1);
+                reduceLuvProc->add(mergeProcLUVG.get(), 0);
+                reduceGradProc->add(mergeProcLUVG.get(), 1);
+                break;
+            default: CV_Assert(false);
+        }
+        
+        if (debug)
+        {
+            // #### OUTPUT ###
+            normProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(0.33f);
+            gradProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+            gradHistProcAOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+            gradHistProcBOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+            
+            gradProc->add(gradProcOut.get());                       // ### OUTPUT ###
+            normProc->add(normProcOut.get());                       // ### OUTPUT ###
+            reduceGradHistProcBSmooth->add(gradHistProcBOut.get()); // ### OUTPUT ###
+            reduceGradHistProcASmooth->add(gradHistProcAOut.get()); // ### OUTPUT ###
+        }
+    }
+
+    // This provides a map for unpacking/swizzling OpenGL textures (i.e., RGBA or BGRA) to user
+    // memory using NEON optimized instructions.
+    ACF::ChannelSpecification getACFChannelSpecification(MatP& acf) const
+    {
+        // clang-format on
+        const auto& rgba = m_rgba;
+        switch (m_featureKind)
+        {
+            case kLUVM012345:
+                // 10 : { LUVMp; H0123p; H4567p } requires 3 textures
+                return ACF::ChannelSpecification
+            {
+                {{{acf[0],rgba[0]},{acf[1],rgba[1]},{acf[2],rgba[2]},{acf[3],rgba[3]}},mergeProcLUVG.get()},
+                {{{acf[4],rgba[0]},{acf[5],rgba[1]},{acf[6],rgba[2]},{acf[7],rgba[3]}},reduceGradHistProcASmooth.get()},
+                {{{acf[8],rgba[0]},{acf[9],rgba[1]}}, reduceGradHistProcBSmooth.get()}
+            };
+                
+            case kM012345:
+                // 7: { Mp; H0123p; H4567p } requires only 2 textures
+                return ACF::ChannelSpecification
+            {
+                {{{acf[0],rgba[1]},{acf[5],rgba[2]},{acf[6],rgba[3]}}, mergeProcLG56.get()},
+                {{{acf[1],rgba[0]},{acf[2],rgba[1]},{acf[3],rgba[2]},{acf[4],rgba[3]}}, reduceGradHistProcASmooth.get()}
+            };
+            default: CV_Assert(false);        
+        }
+        return ACF::ChannelSpecification();
+        // clang-format on
+    }
+
+    // ::: MEMBER VARIABLES :::
+    FeatureKind m_featureKind = kLUVM012345;
+    
+    std::array<int, 4> m_rgba = { { 0, 1, 2, 3 } };
+    Size2d m_size;
+    
+    bool m_debug = false;
+    
+    // Retriev input image:
+    bool m_doAcfTransfer = true;
+    
+    cv::Mat m_luv;
+    MatP m_luvPlanar;
+    bool m_doLuvTransfer = false;
+    bool m_hasLuvOutput = false;
+    
+    // Grayscale stuff:
+    bool m_doGray = false;
+    float m_grayscaleScale = 1.0f;
+    bool m_hasGrayscaleOutput = false;
+    cv::Mat m_grayscale;
+    
+    std::unique_ptr<ogles_gpgpu::NoopProc> rotationProc; // make sure we have an unmodified upright image
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> rgbSmoothProc;
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceRgbSmoothProc; // reduce
+    std::unique_ptr<ogles_gpgpu::Rgb2LuvProc> rgb2luvProc;
+    std::unique_ptr<ogles_gpgpu::PyramidProc> pyramidProc;
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> smoothProc; // (1);
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceLuvProc;
+    std::unique_ptr<ogles_gpgpu::GradProc> gradProc; // (1.0);
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradProc;
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> normProc;              // (5, true, 0.015);
+    std::unique_ptr<ogles_gpgpu::GradHistProc> gradHistProcA;         // (6, 0, 1.f);
+    std::unique_ptr<ogles_gpgpu::GradHistProc> gradHistProcB;         // (6, 4, 1.f);
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> gradHistProcASmooth;   // (1);
+    std::unique_ptr<ogles_gpgpu::GaussOptProc> gradHistProcBSmooth;   // (1);
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradHistProcASmooth; // (1);
+    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradHistProcBSmooth; // (1);
+    
+    // #### OUTPUT ###
+    std::unique_ptr<ogles_gpgpu::NoopProc> normProcOut;      //(0.33);
+    std::unique_ptr<ogles_gpgpu::NoopProc> gradProcOut;      //(16.0);
+    std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcAOut; //(1.0f);
+    std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcBOut; //(1.0f);
+    std::unique_ptr<ogles_gpgpu::NoopProc> luvTransposeOut;  //  transposed LUV output
+    
+    // Multi-texture swizzle (one or the other for 8 vs 10 channels)
+    std::unique_ptr<ogles_gpgpu::MergeProc> mergeProcLUVG;
+    std::unique_ptr<ogles_gpgpu::MergeProc> mergeProcLG56;
+    
+    uint64_t frameIndex = 0;
+    
+    // These are temporary overrides
+    bool m_runChannels = true;
+    bool m_runFlow = true;
+    
+    // Experimental (flow)
+    std::unique_ptr<Flow2Pipeline> flow;
+    std::unique_ptr<ogles_gpgpu::SwizzleProc> flowBgra; // (optional)
+    ogles_gpgpu::ProcInterface* flowBgraInterface = nullptr;
+    
+    std::vector<Rect2d> m_crops;
+    
+    // Flwo stuff:
+    bool m_hasFlowOutput = false;
+    bool m_doFlow = false;
+    float m_flowScale = 1.0f;
+    cv::Mat m_flow;
+    
+    // Channel stuff:
+    cv::Mat m_channels;
+    bool m_hasChannelOutput = false;
+    
+    std::shared_ptr<spdlog::logger> m_logger;
+};
+
+// ::::::::::: PUBLIC ::::::::::::::
+
 // { 1280 x 960 } x 0.25 => 320x240
 ACF::ACF(void* glContext, const Size2d& size, const SizeVec& scales, FeatureKind kind, int grayWidth, int flowWidth, bool debug)
     : VideoSource(glContext)
-    , m_featureKind(kind)
-    , m_size(size)
-    , m_debug(debug)
-    , m_doGray(grayWidth > 0)
-    , m_grayscaleScale(float(grayWidth) / float(size.width))
-    , m_doFlow(flowWidth > 0)
-    , m_flowScale(float(flowWidth) / float(size.width)) // TODO: not when using pyramid
-
 {
-    initACF(scales, kind, debug);
-
-    if (m_doGray)
-    {
-        Size2d graySize(grayWidth, int(m_grayscaleScale * size.height + 0.5f));
-        reduceRgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
-        reduceRgbSmoothProc->setOutputSize(graySize.width, graySize.height);
-        rgbSmoothProc->add(reduceRgbSmoothProc.get()); // ### OUTPUT ###
-    }
-
-    if (m_doFlow) // use the same scale as corners:
-    {
-        // Compute scale relative to bottom pyramid level in pyramidProc()
-        float pyramidToFlow = float(flowWidth) / scales[0].width;
-
-        // ((( Optical flow )))
-        flow = drishti::core::make_unique<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
-        pyramidProc->add(flow.get());
-        flow->setOutputSize(pyramidToFlow);
-
-#if TEXTURE_FORMAT_IS_RGBA
-        flowBgra = drishti::core::make_unique<ogles_gpgpu::SwizzleProc>();
-        flow->add(flowBgra.get());
-        flowBgraInterface = flowBgra.get();
-#else
-        flowBgraInterface = flow.get();
-#endif
-    }
-
-    if (m_doLuvTransfer)
-    {
-        // Add transposed Luv output for CPU processing (optional)
-        luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
-        rgb2luvProc->add(luvTransposeOut.get());
-    }
+    impl = drishti::core::make_unique<Impl>(glContext, size, scales, kind, grayWidth, flowWidth, debug);
+    
+    // ((( video -> smooth(luv) )))
+    set(impl->rotationProc.get());
 }
 
 ACF::~ACF()
@@ -120,127 +343,65 @@ ACF::~ACF()
     // with forward declares std::unique_ptr<> member variables.
 }
 
-void ACF::initACF(const SizeVec& scales, FeatureKind kind, bool debug)
+void ACF::setLogger(std::shared_ptr<spdlog::logger>& logger)
 {
-    rotationProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
-    rgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(2.0f);
-    rgb2luvProc = drishti::core::make_unique<ogles_gpgpu::Rgb2LuvProc>();
-    pyramidProc = drishti::core::make_unique<ogles_gpgpu::PyramidProc>(scales);
-    smoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(1);
-    reduceLuvProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
-    gradProc = drishti::core::make_unique<ogles_gpgpu::GradProc>(1.0f);
-    reduceGradProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
-    normProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(7, true, 0.005f);
-    gradHistProcA = drishti::core::make_unique<ogles_gpgpu::GradHistProc>(6, 0, 1.f);
-    gradHistProcB = drishti::core::make_unique<ogles_gpgpu::GradHistProc>(6, 4, 1.f);
-    gradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(3.0f);
-    gradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(3.0f);
-    reduceGradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-    reduceGradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+    impl->m_logger = logger;
+}
 
-    // Reduce base LUV image to highest resolution used in pyramid:
-    rgb2luvProc->setOutputSize(scales[0].width, scales[0].height);
+bool ACF::getChannelStatus()
+{
+    return impl->m_runChannels;
+}
 
-    reduceGradProc->setOutputSize(0.25);
-    reduceLuvProc->setOutputSize(0.25);
-    reduceGradHistProcASmooth->setOutputSize(0.25);
-    reduceGradHistProcBSmooth->setOutputSize(0.25);
+bool ACF::getFlowStatus()
+{
+    return impl->m_doFlow && impl->m_runFlow;
+}
 
-#if GPU_ACF_TRANSPOSE
-    reduceGradProc->setOutputRenderOrientation(RenderOrientationDiagonal);
-    reduceLuvProc->setOutputRenderOrientation(RenderOrientationDiagonal);
-    reduceGradHistProcASmooth->setOutputRenderOrientation(RenderOrientationDiagonal);
-    reduceGradHistProcBSmooth->setOutputRenderOrientation(RenderOrientationDiagonal);
-#endif
+void ACF::setDoLuvTransfer(bool flag)
+{
+    impl->m_doLuvTransfer = flag;
+}
 
-    pyramidProc->setInterpolation(ogles_gpgpu::TransformProc::BICUBIC);
+void ACF::setDoAcfTrasfer(bool flag)
+{
+    impl->m_doAcfTransfer = flag;
+}
 
-    // ((( video -> smooth(luv) )))
-    set(rotationProc.get());
+// ACF base resolution to Grayscale image
+float ACF::getGrayscaleScale() const
+{
+    return impl->m_grayscaleScale;
+}
 
-    rotationProc->add(rgbSmoothProc.get());
-    rgbSmoothProc->add(rgb2luvProc.get());
+// Scale of flow wrt inputimage
+float ACF::getFlowScale() const
+{
+    return impl->m_flowScale;
+}
 
-    // ((( luv -> pyramid(luv) )))
-    rgb2luvProc->add(pyramidProc.get());
-
-    // ((( pyramid(luv) -> smooth(pyramid(luv)) )))
-    pyramidProc->add(smoothProc.get());
-
-    // ((( smooth(pyramid(luv)) -> {luv_out, MOXY} )))
-    smoothProc->add(reduceLuvProc.get()); // output 1/4 LUV
-    smoothProc->add(gradProc.get());      // MOXY
-
-    // ((( MOXY -> norm(M) ))
-    gradProc->add(normProc.get()); // norm(M)OX.
-
-    // ((( norm(M) -> {histA, histB} )))
-    normProc->add(reduceGradProc.get());
-    normProc->add(gradHistProcA.get());
-    normProc->add(gradHistProcB.get());
-
-    // ((( histA -> smooth(histA) )))
-    gradHistProcA->add(gradHistProcASmooth.get());
-    gradHistProcASmooth->add(reduceGradHistProcASmooth.get());
-
-    // ((( histB -> smooth(histB) )))
-    gradHistProcB->add(gradHistProcBSmooth.get());
-    gradHistProcBSmooth->add(reduceGradHistProcBSmooth.get());
-
-    switch (kind)
-    {
-        case kM012345:
-
-            // This uses two swizzle steps to creaet LG56 output
-            // Adding a 3 input texture swizzler might be slightly more efficient.
-
-            // ((( MERGE(luv, grad) )))
-            mergeProcLUVG = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleABC1);
-            reduceLuvProc->add(mergeProcLUVG.get(), 0);
-            reduceGradProc->add(mergeProcLUVG.get(), 1);
-
-            // ((( MERGE(lg, 56) )))
-            mergeProcLG56 = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleAD12);
-            mergeProcLUVG->add(mergeProcLG56.get(), 0);
-            reduceGradHistProcBSmooth->add(mergeProcLG56.get(), 1);
-            break;
-
-        case kLUVM012345:
-            // ((( MERGE(luv, grad) )))
-            mergeProcLUVG = drishti::core::make_unique<MergeProc>(MergeProc::kSwizzleABC1);
-            reduceLuvProc->add(mergeProcLUVG.get(), 0);
-            reduceGradProc->add(mergeProcLUVG.get(), 1);
-            break;
-    }
-
-    if (debug)
-    {
-        // #### OUTPUT ###
-        normProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(0.33f);
-        gradProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-        gradHistProcAOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-        gradHistProcBOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-
-        gradProc->add(gradProcOut.get());                       // ### OUTPUT ###
-        normProc->add(normProcOut.get());                       // ### OUTPUT ###
-        reduceGradHistProcBSmooth->add(gradHistProcBOut.get()); // ### OUTPUT ###
-        reduceGradHistProcASmooth->add(gradHistProcAOut.get()); // ### OUTPUT ###
-    }
+Flow2Pipeline* ACF::getFlowProc()
+{
+    return impl->flow.get();
+}
+const std::array<int, 4>& ACF::getChannelOrder()
+{
+    return impl->m_rgba;
 }
 
 ProcInterface* ACF::first()
 {
-    return rotationProc.get();
+    return impl->rotationProc.get();
 }
 
 ProcInterface* ACF::getRgbSmoothProc()
 {
-    return dynamic_cast<ProcInterface*>(rgbSmoothProc.get());
+    return dynamic_cast<ProcInterface*>(impl->rgbSmoothProc.get());
 }
 
 void ACF::connect(std::shared_ptr<spdlog::logger>& logger)
 {
-    m_logger = logger;
+    impl->m_logger = logger;
 }
 
 void ACF::setRotation(int degrees)
@@ -250,23 +411,23 @@ void ACF::setRotation(int degrees)
 
 const cv::Mat& ACF::getGrayscale()
 {
-    assert(m_doGray);
-    return m_grayscale;
+    assert(impl->m_doGray);
+    return impl->m_grayscale;
 }
 
 std::vector<cv::Mat> ACF::getFlowPyramid()
 {
     // Build flow pyramid:
-    const float scale = float(m_flow.rows) / float(m_crops[0].height);
-    const cv::Rect bounds({ 0, 0 }, m_flow.size());
+    const float scale = float(impl->m_flow.rows) / float(impl->m_crops[0].height);
+    const cv::Rect bounds({ 0, 0 }, impl->m_flow.size());
 
-    std::vector<cv::Mat> flow(m_crops.size());
-    for (int i = 0; i < m_crops.size(); i++)
+    std::vector<cv::Mat> flow(impl->m_crops.size());
+    for (int i = 0; i < impl->m_crops.size(); i++)
     {
-        const auto& c = m_crops[i];
+        const auto& c = impl->m_crops[i];
         cv::Rect2f crop(c.x, c.y, c.width, c.height);
         cv::Rect roi(crop.tl() * scale, crop.br() * scale);
-        flow[i] = m_flow(roi & bounds);
+        flow[i] = impl->m_flow(roi & bounds);
     }
 
     return flow;
@@ -278,15 +439,15 @@ std::vector<cv::Mat> ACF::getFlowPyramid()
 
 const cv::Mat& ACF::getFlow()
 {
-    return m_flow;
+    return impl->m_flow;
 }
 
 void ACF::initLuvTransposeOutput()
 {
     // Add transposed Luv output for CPU processing (optional)
-    luvTransposeOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
-    luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
-    rgb2luvProc->add(luvTransposeOut.get());
+    impl->luvTransposeOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+    impl->luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
+    impl->rgb2luvProc->add(impl->luvTransposeOut.get());
 }
 
 void ACF::operator()(const Size2d& size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum inputPixFormat)
@@ -300,58 +461,58 @@ void ACF::operator()(const FrameInput& frame)
 {
     // Inial pipeline filters:
     // this -> rotationProc -> rgbSmoothProc -> rgb2luvProc -> pyramidProc
-    bool needsPyramid = (m_doFlow || m_doAcfTransfer);
-    bool needsLuv = (needsPyramid | m_doLuvTransfer);
+    bool needsPyramid = (impl->m_doFlow || impl->m_doAcfTransfer);
+    bool needsLuv = (needsPyramid | impl->m_doLuvTransfer);
 
     // Initial LUV transpose operation (upright image):
-    if (m_doLuvTransfer & !luvTransposeOut.get())
+    if (impl->m_doLuvTransfer & !impl->luvTransposeOut.get())
     {
         initLuvTransposeOutput();
     }
 
-    if (rgb2luvProc.get())
+    if (impl->rgb2luvProc.get())
     {
-        rgb2luvProc->setActive(needsLuv);
+        impl->rgb2luvProc->setActive(needsLuv);
     }
 
-    if (pyramidProc.get())
+    if (impl->pyramidProc.get())
     {
-        pyramidProc->setActive(needsPyramid);
+        impl->pyramidProc->setActive(needsPyramid);
     }
 
-    if (flow.get())
+    if (impl->flow.get())
     {
-        flow->setActive(m_doFlow);
+        impl->flow->setActive(impl->m_doFlow);
     }
 
     // smoothProc is the highest level unique ACF processing filter:
-    if (smoothProc.get())
+    if (impl->smoothProc.get())
     {
-        smoothProc->setActive(m_doAcfTransfer);
+        impl->smoothProc->setActive(impl->m_doAcfTransfer);
     }
 
-    frameIndex++;
+    impl->frameIndex++;
 
     VideoSource::operator()(frame); // call main method
 }
 
 void ACF::preConfig()
 {
-    m_hasLuvOutput = false;
-    m_hasFlowOutput = false;
-    m_hasChannelOutput = false;
-    m_hasGrayscaleOutput = false;
+    impl->m_hasLuvOutput = false;
+    impl->m_hasFlowOutput = false;
+    impl->m_hasChannelOutput = false;
+    impl->m_hasGrayscaleOutput = false;
 }
 
 void ACF::postConfig()
 {
     // Obtain the scaled image rois:
-    m_crops.clear();
-    const auto& rois = pyramidProc->getLevelCrops();
+    impl->m_crops.clear();
+    const auto& rois = impl->pyramidProc->getLevelCrops();
     for (auto& r : rois)
     {
         // TODO: check rounding error (add clipping)?
-        m_crops.emplace_back(r.x >> 2, r.y >> 2, r.width >> 2, r.height >> 2);
+        impl->m_crops.emplace_back(r.x >> 2, r.y >> 2, r.width >> 2, r.height >> 2);
     }
 }
 
@@ -397,19 +558,21 @@ bool ACF::processImage(ProcInterface& proc, MemTransfer::FrameDelegate& delegate
 
 int ACF::getChannelCount() const
 {
-    switch (m_featureKind)
+    switch (impl->m_featureKind)
     {
         case kM012345:
             return 7;
         case kLUVM012345:
             return 10;
+        default:
+            return 0;
     }
 }
 
 std::vector<std::vector<Rect2d>> ACF::getCropRegions() const
 {
     // CReate array of channel rois for each pyramid level
-    size_t levelCount = m_crops.size();
+    size_t levelCount = impl->m_crops.size();
     std::vector<std::vector<Rect2d>> crops(levelCount);
     for (size_t i = 0; i < levelCount; i++)
     {
@@ -448,11 +611,11 @@ void ACF::fill(drishti::acf::Detector::Pyramid& Pout, const drishti::acf::Detect
 // Channels crops are vertically concatenated in the master image:
 std::vector<Rect2d> ACF::getChannelCropRegions(int level) const
 {
-    assert(level < m_crops.size());
+    assert(level < impl->m_crops.size());
 
 #if GPU_ACF_TRANSPOSE
-    int step = m_crops[0].height;
-    Rect2d roi = m_crops[level];
+    int step = impl->m_crops[0].height;
+    Rect2d roi = impl->m_crops[level];
     std::swap(roi.x, roi.y);
     std::swap(roi.width, roi.height);
     std::vector<Rect2d> crops(getChannelCount(), roi);
@@ -461,10 +624,10 @@ std::vector<Rect2d> ACF::getChannelCropRegions(int level) const
         crops[i].x += (step * i);
     }
 #else
-    std::vector<Rect2d> crops(getChannelCount(), m_crops[level]);
+    std::vector<Rect2d> crops(getChannelCount(), impl->m_crops[level]);
     for (int i = 1; i < getChannelCount(); i++)
     {
-        crops[i].y += (m_crops[0].height * i);
+        crops[i].y += (impl->m_crops[0].height * i);
     }
 #endif
     return crops;
@@ -542,7 +705,7 @@ static void unpackImage(ProcInterface& proc, std::vector<drishti::core::PlaneInf
 // NOTE: GPUACF::getLuvPlanar(), provides a direct/optimized alternative to
 // the following CV_8UC4 access and conversion:
 
-// const auto &LUVA = m_acf->getLuv(); // BGRA
+// const auto &LUVA = impl->m_acf->getLuv(); // BGRA
 // cv::Mat LUV, LUVf;
 // cv::cvtColor(LUVA, LUV, cv::COLOR_BGRA2RGB);
 // LUV.convertTo(LUVf, CV_32FC3, 1.0/255.0);
@@ -550,21 +713,21 @@ static void unpackImage(ProcInterface& proc, std::vector<drishti::core::PlaneInf
 
 const MatP& ACF::getLuvPlanar()
 {
-    CV_Assert(m_hasLuvOutput);
-    return m_luvPlanar;
+    CV_Assert(impl->m_hasLuvOutput);
+    return impl->m_luvPlanar;
 }
 
 const cv::Mat& ACF::getLuv()
 {
-    m_luv = getImage(*rgb2luvProc);
-    return m_luv;
+    impl->m_luv = getImage(*impl->rgb2luvProc);
+    return impl->m_luv;
 }
 
 cv::Mat ACF::getChannels()
 {
     // This needs to be done after full pipeline execution, but before
     // the channels are retrieved.
-    m_rgba = initChannelOrder();
+    impl->m_rgba = initChannelOrder();
 
     cv::Mat result = getChannelsImpl();
 
@@ -575,36 +738,14 @@ cv::Mat ACF::getChannels()
 // memory using NEON optimized instructions.
 ACF::ChannelSpecification ACF::getACFChannelSpecification(MatP& acf) const
 {
-    // clang-format on    
-    const auto& rgba = m_rgba;
-    switch (m_featureKind)
-    {
-    case kLUVM012345:
-        // 10 : { LUVMp; H0123p; H4567p } requires 3 textures        
-        return ACF::ChannelSpecification
-        {
-            {{{acf[0],rgba[0]},{acf[1],rgba[1]},{acf[2],rgba[2]},{acf[3],rgba[3]}},mergeProcLUVG.get()},
-            {{{acf[4],rgba[0]},{acf[5],rgba[1]},{acf[6],rgba[2]},{acf[7],rgba[3]}},reduceGradHistProcASmooth.get()},
-            {{{acf[8],rgba[0]},{acf[9],rgba[1]}}, reduceGradHistProcBSmooth.get()}
-        };
-
-    case kM012345:
-        // 7: { Mp; H0123p; H4567p } requires only 2 textures        
-        return ACF::ChannelSpecification
-        {
-            {{{acf[0],rgba[1]},{acf[5],rgba[2]},{acf[6],rgba[3]}}, mergeProcLG56.get()},
-            {{{acf[1],rgba[0]},{acf[2],rgba[1]},{acf[3],rgba[2]},{acf[4],rgba[3]}}, reduceGradHistProcASmooth.get()}
-        };
-    default: CV_Assert(false);        
-    }
-    // clang-format on
+    return impl->getACFChannelSpecification(acf);
 }
 
 void ACF::release()
 {
-    m_grayscale.release();
-    m_channels.release();
-    m_flow.release();
+    impl->m_grayscale.release();
+    impl->m_channels.release();
+    impl->m_flow.release();
 }
 
 std::array<int, 4> ACF::initChannelOrder()
@@ -627,15 +768,15 @@ cv::Mat ACF::getChannelsImpl()
     const auto tag = DRISHTI_LOCATION_SIMPLE;
     std::stringstream ss;
     drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed) {
-        if (m_logger)
+        if (impl->m_logger)
         {
-            m_logger->info() << "TIMING:" << tag << ":" << ss.str() << ";total=" << elapsed;
+            impl->m_logger->info() << "TIMING:" << tag << ":" << ss.str() << ";total=" << elapsed;
         }
     };
 
     {
         drishti::core::ScopeTimeLogger glFinishTimer = [&](double t) { ss << "glFinish=" << t << ";"; };
-        if (auto pTransfer = dynamic_cast<MemTransferOptimized*>(rgb2luvProc->getMemTransferObj()))
+        if (auto pTransfer = dynamic_cast<MemTransferOptimized*>(impl->rgb2luvProc->getMemTransferObj()))
         {
             pTransfer->flush();
         }
@@ -645,14 +786,14 @@ cv::Mat ACF::getChannelsImpl()
         }
     }
 
-    if (m_doFlow && !m_hasFlowOutput)
+    if (impl->m_doFlow && !impl->m_hasFlowOutput)
     {
         drishti::core::ScopeTimeLogger flowTimer = [&](double t) { ss << "flow=" << t << ";"; };
-        getImage(*flowBgraInterface, m_flow);
-        m_hasFlowOutput = true;
+        getImage(*impl->flowBgraInterface, impl->m_flow);
+        impl->m_hasFlowOutput = true;
     }
 
-    if (!m_hasChannelOutput)
+    if (!impl->m_hasChannelOutput)
     {
         prepare();
 
@@ -661,38 +802,38 @@ cv::Mat ACF::getChannelsImpl()
             m_timer("read begin");
         }
 
-        const auto& rgba = m_rgba; // alias
+        const auto& rgba = impl->m_rgba; // alias
 
         ACF::ChannelSpecification planeIndex;
         MatP acf, gray, luv;
 
-        if (m_doAcfTransfer)
+        if (impl->m_doAcfTransfer)
         {
-            const auto acfSize = reduceGradHistProcASmooth->getOutFrameSize();
+            const auto acfSize = impl->reduceGradHistProcASmooth->getOutFrameSize();
             acf.create({ acfSize.width, acfSize.height }, CV_8UC1, getChannelCount(), GPU_ACF_TRANSPOSE);
             planeIndex = getACFChannelSpecification(acf);
         }
 
-        if (m_doGray)
+        if (impl->m_doGray)
         {
             // Here we use the green channel:
-            const auto graySize = reduceRgbSmoothProc->getOutFrameSize();
+            const auto graySize = impl->reduceRgbSmoothProc->getOutFrameSize();
             gray.create({ graySize.width, graySize.height }, CV_8UC1, 1);
             PlaneInfoVec grayInfo{ { gray[0], rgba[1] } };
-            planeIndex.emplace_back(grayInfo, reduceRgbSmoothProc.get());
+            planeIndex.emplace_back(grayInfo, impl->reduceRgbSmoothProc.get());
         }
 
-        if (m_doLuvTransfer)
+        if (impl->m_doLuvTransfer)
         {
             const float alpha = 1.0f / 255.0f;
-            const auto luvSize = luvTransposeOut->getOutFrameSize();
+            const auto luvSize = impl->luvTransposeOut->getOutFrameSize();
             luv.create({ luvSize.width, luvSize.height }, CV_32FC1, 3);
             PlaneInfoVec luvInfo{ { luv[0], rgba[0], alpha }, { luv[1], rgba[1], alpha }, { luv[2], rgba[2], alpha } };
-            planeIndex.emplace_back(luvInfo, luvTransposeOut.get());
+            planeIndex.emplace_back(luvInfo, impl->luvTransposeOut.get());
         }
 
         // We can use either the direct MemTransferOptimized acces, or glReadPixels()
-        if (dynamic_cast<MemTransferOptimized*>(rgb2luvProc->getMemTransferObj()))
+        if (dynamic_cast<MemTransferOptimized*>(impl->rgb2luvProc->getMemTransferObj()))
         {
             drishti::core::ScopeTimeLogger unpackTimer = [&](double t) { ss << "unpack=" << t << ";"; };
 
@@ -721,22 +862,22 @@ cv::Mat ACF::getChannelsImpl()
             harness({ 0, int(planeIndex.size()) });
         }
 
-        if (m_doAcfTransfer)
+        if (impl->m_doAcfTransfer)
         {
-            m_channels = acf.base();
-            m_hasChannelOutput = true;
+            impl->m_channels = acf.base();
+            impl->m_hasChannelOutput = true;
         }
 
-        if (m_doGray)
+        if (impl->m_doGray)
         {
-            m_grayscale = gray[0];
-            m_hasGrayscaleOutput = true;
+            impl->m_grayscale = gray[0];
+            impl->m_hasGrayscaleOutput = true;
         }
 
-        if (m_doLuvTransfer)
+        if (impl->m_doLuvTransfer)
         {
-            m_luvPlanar = luv;
-            m_hasLuvOutput = true;
+            impl->m_luvPlanar = luv;
+            impl->m_hasLuvOutput = true;
         }
 
         if (m_timer)
@@ -745,7 +886,7 @@ cv::Mat ACF::getChannelsImpl()
         }
     }
 
-    return m_channels;
+    return impl->m_channels;
 }
 
 ACF::FeatureKind getFeatureKind(const drishti::acf::Detector::Options::Pyramid::Chns& chns)

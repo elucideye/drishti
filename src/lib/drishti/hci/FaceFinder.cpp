@@ -1051,7 +1051,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
         // Perform modification
         drishti::acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", -0.002 };
+        dflt.cascCal = { "cascCal", -0.004 };
         m_detector->acfModify(dflt);
     }
 #endif
