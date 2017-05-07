@@ -28,3 +28,6 @@
 [submodule "src/3rdparty/Beast"]
 	path = src/3rdparty/Beast
 	url = https://github.com/hunter-packages/Beast.git
+[submodule "src/3rdparty/pimpl"]
+	path = src/3rdparty/pimpl
+	url = https://github.com/elucideye/pimpl.git
