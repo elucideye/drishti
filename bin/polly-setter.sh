@@ -32,8 +32,9 @@ function add_polly_commands
     # http://stackoverflow.com/a/14203146
     OPTIND=1
 
+    do_launch=0
     extra=()
-    while getopts "crton" opt; do
+    while getopts "crtonl" opt; do
         case "$opt" in
             h|\?) 2>&1 echo "Unknown param"; exit 1 ;;
             t) extra+=("--test") ;;
@@ -41,10 +42,13 @@ function add_polly_commands
             c) extra+=("--clear") ;;
             o) extra+=("--open") ;;
             n) extra+=("--nobuild") ;;
+            l) do_launch=1 ;;
         esac
     done
     shift $((OPTIND-1))
     [ "$1" = "--" ] && shift
+    extra+=("--launch") # add launch last
+    
     echo ${extra[@]}
 }
 
