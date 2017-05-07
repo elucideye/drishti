@@ -117,9 +117,9 @@ void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
         const float hl0 = static_cast<float>(winSize.height * inputSizeUp.height) / size.height;
         drawing.contours = {
             { { 0.f, 0.f },
-                { wl0, 0.f },
-                { wl0, hl0 },
-                { 0.f, hl0 } }
+              { wl0, 0.f },
+              { wl0, hl0 },
+              { 0.f, hl0 } }
         };
         m_painter->getPermanentLineDrawings().push_back(drawing);
     }
@@ -190,9 +190,12 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
             eyeWarps[i].setContours(scene.m_eyeDrawings[i]);
         }
 
-        // Create eye contour models in parallel
-        //auto result0 = m_threads->process([&] { eyeWarps[0].getContours(); });
-        //auto result1 = m_threads->process([&] { eyeWarps[1].getContours(); });
+        { // Set the eye textures:
+            m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), eyeWarps);
+            FeaturePoints eyePoints;
+            cat(m_eyePoints[0], m_eyePoints[1], eyePoints);
+            m_painter->setEyePoints(eyePoints);
+        }
 
         if (m_doIris && m_drawIris)
         {
@@ -201,16 +204,6 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
             {
                 m_painter->setIrisTexture(i, m_ellipsoPolar[i]->getOutputTexId(), m_ellipsoPolar[i]->getOutFrameSize());
             }
-        }
-
-        //result0.get();
-        //result1.get();
-
-        {
-            m_painter->setEyeTexture(m_eyeFilter->getOutputTexId(), m_eyeFilter->getOutFrameSize(), eyeWarps);
-            FeaturePoints eyePoints;
-            cat(m_eyePoints[0], m_eyePoints[1], eyePoints);
-            m_painter->setEyePoints(eyePoints);
         }
     }
     else if (scene.objects().size())
