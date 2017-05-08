@@ -47,7 +47,11 @@ function add_polly_commands
     done
     shift $((OPTIND-1))
     [ "$1" = "--" ] && shift
-    extra+=("--launch") # add launch last
+
+    if [ ${do_launch} -gt 0 ];
+    then
+        extra+=("--launch") # add launch last
+    fi
     
     echo ${extra[@]}
 }
