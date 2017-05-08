@@ -326,7 +326,7 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_MIN_SIZE=${build_min_size})
 
   # -DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES=(0|1)
-  # See discussion in ${CMAKE_SOURCE_DIR}/CMakeLists.txt  
+  # See discussion in ${PROJECT_SOURCE_DIR}/CMakeLists.txt  
   drishti_bool_to_int(DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES build_cereal_output_archives)
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES=${build_cereal_output_archives})
 
@@ -503,7 +503,7 @@ write_basic_package_version_file("${drishti_version_config}"
   )
 
 # Note: variable 'drishti_targets_export_name' used
-configure_file("${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
+configure_file("${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
 
 install(
   TARGETS ${TARGET_SDK} ${DRISHTI_INSTALL_TARGETS}
