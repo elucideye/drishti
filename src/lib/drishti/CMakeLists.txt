@@ -9,10 +9,10 @@ include(sugar_include)
 
 sugar_include(.)
 
-## Customize linker flags 
+## Customize linker flags
 include(CheckCCompilerFlag)
 if(NOT MSVC)
-  check_c_compiler_flag("-Wl,-dead_strip" FLAG_dead_strip)  
+  check_c_compiler_flag("-Wl,-dead_strip" FLAG_dead_strip)
   if(NOT FLAG_dead_strip)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--gc-sections")
   else()
@@ -35,7 +35,7 @@ if(DRISHTI_BUILD_WORLD)
     ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC}
     ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC}
     ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC}
-    ${DRISHTI_GRAPHICS_SRCS} ${DRISHTI_GRAPHICS_HDRS_PUBLIC}    
+    ${DRISHTI_GRAPHICS_SRCS} ${DRISHTI_GRAPHICS_HDRS_PUBLIC}
     )
 
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -44,7 +44,7 @@ if(DRISHTI_BUILD_WORLD)
   # Each source_group() will be a subfolder of the drishti_world target:
 
   ### core
-  source_group("core\\Header Files" FILES ${DRISHTI_CORE_HDRS_PUBLIC})  
+  source_group("core\\Header Files" FILES ${DRISHTI_CORE_HDRS_PUBLIC})
   source_group("core\\Source Files" FILES ${DRISHTI_CORE_SRCS})
 
   ### geometry
@@ -69,12 +69,12 @@ if(DRISHTI_BUILD_WORLD)
 
   ### graphics
   source_group("graphics\\Header Files" FILES ${DRISHTI_GRAPHICS_HDRS_PUBLIC})
-  source_group("graphics\\Source Files" FILES ${DRISHTI_GRAPHICS_SRCS})  
-  
+  source_group("graphics\\Source Files" FILES ${DRISHTI_GRAPHICS_SRCS})
+
   if(DRISHTI_BUILD_ACF)
     ### acf
     source_group("acf\\Header Files" FILES ${DRISHTI_ACF_HDRS_PUBLIC})
-    source_group("acf\\Source Files" FILES ${DRISHTI_ACF_SRCS})    
+    source_group("acf\\Source Files" FILES ${DRISHTI_ACF_SRCS})
     list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
   endif()
 
@@ -91,25 +91,25 @@ if(DRISHTI_BUILD_WORLD)
     ### hci
     # currently only works w/ ogles_gpgpu
     # TODO: needs CPU only path
-    if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)    
+    if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
       source_group("hci\\Header Files" FILES ${DRISHTI_HCI_HDRS_PUBLIC})
       source_group("hci\\Source Files" FILES ${DRISHTI_HCI_SRCS})
       list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_HCI_SRCS} ${DRISHTI_HCI_HDRS_PUBLIC})
     endif()
-    
+
   endif()
-  
+
   add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
   set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
   drishti_hide(drishti_world)
-  
+
   target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen3::Eigen)
 
   if(DRISHTI_USE_THREAD_POOL_CPP)
     target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
   endif()
 
-  if(DRISHTI_COTIRE)  
+  if(DRISHTI_COTIRE)
     cotire(drishti_world)
     set(drishti_libs drishti_world_unity)
     set(drishti_regression_libs drishti_world_unity)
@@ -139,7 +139,7 @@ else()
 
   if(ANDROID)
     target_link_libraries(drishti_core PRIVATE log) # for spdlog from android ndk
-  endif()  
+  endif()
 
   ## drishti_geometry
   add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
@@ -148,11 +148,11 @@ else()
   ## drishti_sensors
   add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
   target_link_libraries(drishti_sensor PUBLIC ${OpenCV_LIBS})
-  
+
   ## drishti_ml
   add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
   target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} xgboost::xgboost)
-  
+
   ## drishti_rcpr
   add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
   target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} xgboost::xgboost)
@@ -193,7 +193,7 @@ else()
 
   # Define a list of individual static libraries
   set(drishti_libs
-    ${DRISHTI_OBJ_HCI}    
+    ${DRISHTI_OBJ_HCI}
     ${DRISHIT_OBJ_ACF}
     ${DRISHTI_OBJ_FACE}
     drishti_eye
@@ -216,13 +216,13 @@ endif(DRISHTI_BUILD_WORLD)
 
 if(ANDROID)
   foreach(library ${drishti_half_libs})
-    # -DHALF_ENABLE_CPP11_CMATH=0    
+    # -DHALF_ENABLE_CPP11_CMATH=0
     target_compile_definitions(${library} PUBLIC HALF_ENABLE_CPP11_CMATH=0)
-  endforeach()    
+  endforeach()
 endif()
 
 foreach(library ${drishti_regression_libs})
-  # -DDRISHTI_BUILD_REGRESSION_SIMD=(0|1)  
+  # -DDRISHTI_BUILD_REGRESSION_SIMD=(0|1)
   drishti_bool_to_int(DRISHTI_BUILD_REGRESSION_SIMD build_regression_simd)
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_REGRESSION_SIMD=${build_regression_simd})
   # -DDRISHTI_BUILD_REGRESSION_FIXED_POINT=(0|1)
@@ -282,7 +282,7 @@ if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
     else()
       list(APPEND DRISHTI_SDK_LIBS
         "-framework ImageIO"
-        "-framework CoreFoundation"        
+        "-framework CoreFoundation"
         "-framework CoreVideo"
         )
     endif()
@@ -316,24 +316,24 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
     "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
     "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
     )
-  
-  # -DDRISHTI_USE_TEXT_ARCHIVES=(0|1)  
+
+  # -DDRISHTI_USE_TEXT_ARCHIVES=(0|1)
   drishti_bool_to_int(DRISHTI_USE_TEXT_ARCHIVES use_text_archives)
-  target_compile_definitions(${library} PUBLIC DRISHTI_USE_TEXT_ARCHIVES=${use_text_archives})  
+  target_compile_definitions(${library} PUBLIC DRISHTI_USE_TEXT_ARCHIVES=${use_text_archives})
 
   # -DDRISHTI_BUILD_MIN_SIZE=(0|1)
   drishti_bool_to_int(DRISHTI_BUILD_MIN_SIZE build_min_size)
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_MIN_SIZE=${build_min_size})
 
   # -DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES=(0|1)
-  # See discussion in ${PROJECT_SOURCE_DIR}/CMakeLists.txt  
+  # See discussion in ${PROJECT_SOURCE_DIR}/CMakeLists.txt
   drishti_bool_to_int(DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES build_cereal_output_archives)
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES=${build_cereal_output_archives})
 
   message("DRISHTI_BUILD_MIN_SIZE=${build_min_size} ${DRISHTI_BUILD_MIN_SIZE}")
-  
+
   # define M_PI_2 for MSVC
-  target_compile_definitions(${library} PUBLIC _USE_MATH_DEFINES) 
+  target_compile_definitions(${library} PUBLIC _USE_MATH_DEFINES)
 
   if(DRISHTI_SERIALIZE_WITH_BOOST)
     target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_BOOST=1)
@@ -356,36 +356,24 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
 
   if(DRISHTI_BUILD_QT)
     target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_QT=1)
-  endif()  
-  
-endforeach()  
+  endif()
+
+endforeach()
 
 ############################
 ###### PUBLIC API ##########
 ############################
 
-string(COMPARE EQUAL "${CMAKE_INSTALL_PREFIX}" "" no_install_prefix)
-if(no_install_prefix)
-  message(FATAL_ERROR "CMAKE_INSTALL_PREFIX expected")
-endif()
-
-set(THIRD_PARTY_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/3rdparty")
-add_custom_command(TARGET drishtisdk POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory "${THIRD_PARTY_INSTALL_DIR}"
-  )
 foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
   get_target_property(_TARGET_TYPE "${library}" TYPE)
   if(NOT _TARGET_TYPE STREQUAL "INTERFACE_LIBRARY")
-    add_custom_command(TARGET drishtisdk POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${library}> "${THIRD_PARTY_INSTALL_DIR}"
-      COMMENT "Copying " $<TARGET_FILE:${library}>
-      )
+    install(FILES $<TARGET_FILE:${library}> DESTINATION 3rdparty)
   endif()
 endforeach()
 
 # Install license files
 include(drishti_copy_3rdparty_licenses)
-drishti_copy_3rdparty_licenses("${THIRD_PARTY_INSTALL_DIR}/licenses")
+drishti_copy_3rdparty_licenses("3rdparty/licenses")
 
 #################################################
 ### Generate the main shared public interface ###
@@ -429,7 +417,7 @@ list(APPEND drishti_interface_libs ${drishti_api_name})
 
 if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
   # (Optional) merge top level library and all dependencies:
-  # Also see: http://stackoverflow.com/a/18949281  
+  # Also see: http://stackoverflow.com/a/18949281
   include(drishti_merge_libraries)
   drishti_merge_libraries(LIBRARIES ${drishti_api_name} FINAL drishti)
   list(APPEND drishti_interface_libs drishti)
@@ -487,13 +475,13 @@ endforeach()
 
 # See: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
 if(DRISHTI_BUILD_SHARED_SDK)
-  set(DRISHTI_INSTALL_TARGETS "")  
+  set(DRISHTI_INSTALL_TARGETS "")
 else()
   set(DRISHTI_INSTALL_TARGETS ${drishti_libs})
 endif()
 
 # Export minimal public SDK or full internal SDK
-set(TARGET_SDK "drishti") 
+set(TARGET_SDK "drishti")
 set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC} "${drishti_export_header}" "${drishti_sdk_hpp}")
 
 include(CMakePackageConfigHelpers)
@@ -516,7 +504,7 @@ install(
   )
 
 install(
-  FILES 
+  FILES
   ${TARGET_PUBLIC_HDRS}
   DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
   )
@@ -554,7 +542,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
 
   if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
     # (Optional) merge top level library and all dependencies:
-    # Also see: http://stackoverflow.com/a/18949281  
+    # Also see: http://stackoverflow.com/a/18949281
     include(drishti_merge_libraries)
     drishti_merge_libraries(LIBRARIES ${drishti_c_api_name} FINAL drishti_c)
     list(APPEND drishti_interface_libs drishti_c)
@@ -585,11 +573,11 @@ endif()
 
 foreach(library ${drishti_interface_libs})
   target_include_directories(${library}
-    PUBLIC  
+    PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
     "$<INSTALL_INTERFACE:include>"  # <prefix>/include
     )
-endforeach()  
+endforeach()
 
 #################
 ## Unit tests ###
@@ -611,24 +599,24 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
   if(IOS)
     # Add a static public SDK library:
     # * support CTest/GTest executables on iOS until CMake dynamic framework embedding is sorted out
-    # * use this library for IDE debugging as an alternative to the stripped public library    
+    # * use this library for IDE debugging as an alternative to the stripped public library
     add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
     target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
     target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
     set_property(TARGET drishti_static PROPERTY FOLDER "libs/drishti")
     target_include_directories(drishti_static
-      PUBLIC  
+      PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
       "$<INSTALL_INTERFACE:include>"  # <prefix>/include
       )
   endif()
-  
+
   add_subdirectory(testlib)
   add_subdirectory(core)
   add_subdirectory(geometry)
   add_subdirectory(ml)
   add_subdirectory(eye)
-  add_subdirectory(drishti)  
+  add_subdirectory(drishti)
   if(DRISHTI_BUILD_ACF)
     add_subdirectory(acf)
   endif()
