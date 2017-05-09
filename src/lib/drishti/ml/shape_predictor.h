@@ -109,7 +109,12 @@ static cv::RotatedRect vectorToEllipse(const std::vector<float>& phi)
     return drishti::geometry::phiToEllipse(phi, false);
 }
 
-inline static void add16sAnd32s(const dlib::matrix<int32_t, 0, 1>& a, const dlib::matrix<int16_t, 0, 1>& b, dlib::matrix<int32_t, 0, 1>& c)
+using DVec32s = dlib::matrix<int32_t, 0, 1>;
+using DVec16s = dlib::matrix<int16_t, 0, 1>;
+
+using StandardizedPCAPtr = std::shared_ptr<StandardizedPCA>;
+
+inline static void add16sAnd32s(const DVec32s& a, const DVec16s& b, DVec32s& c)
 {
     if (!c.size())
     {
@@ -133,7 +138,7 @@ inline static void add16sAnd32s(const dlib::matrix<int32_t, 0, 1>& a, const dlib
     }
 }
 
-inline static void add16sAnd16s(const dlib::matrix<int16_t, 0, 1>& a, const dlib::matrix<int16_t, 0, 1>& b, dlib::matrix<int16_t, 0, 1>& c)
+inline static void add16sAnd16s(const DVec16s& a, const DVec16s& b, DVec16s& c)
 {
     if (!c.size())
     {
@@ -290,9 +295,9 @@ struct regression_tree
 {
     std::vector<split_feature> splits;
     std::vector<fshape> leaf_values;
-    std::vector<dlib::matrix<int16_t, 0, 1>> leaf_values_16;
+    std::vector<DVec16s> leaf_values_16;
 
-    inline const dlib::matrix<int16_t, 0, 1>& operator()(
+    inline const DVec16s& operator()(
         const std::vector<float>& feature_pixel_values,
         const Fixed& fixed,
         bool do_npd = false) const
@@ -698,7 +703,7 @@ public:
         const fshape& initial_shape_,
         const std::vector<std::vector<impl::regression_tree>>& forests_,
         const std::vector<std::vector<InterpolatedFeature>>& interpolated_features,
-        std::shared_ptr<StandardizedPCA>& pca,
+        StandardizedPCAPtr& pca,
         bool npd = false,
         bool do_affine = false,
         int ellipse_count = 0)
@@ -723,6 +728,39 @@ public:
          !*/
     {
     }
+    
+    void getShapeUpdates(std::vector<float> &values, bool pca)
+    {
+        const auto &eT = m_pca->getTransposedEigenvectors();
+        std::cout << eT << std::endl;
+        for(/*const*/ auto &f : forests)
+        {
+            std::cout << f.front().leaf_values.size() << std::endl;
+            for(/*const*/ auto &g : f)
+            {
+                for(/*const*/ auto &s : g.leaf_values)
+                {
+                    if(m_pca && !pca) // if using pca and we want full points:
+                    {
+                        fshape shape_full;
+                        shape_full = fshape(eT.rows);
+                        back_project(*m_pca, s.size(), s, shape_full);
+                        for(const auto &r : shape_full)
+                        {
+                            values.push_back(r);
+                        }
+                    }
+                    else
+                    {
+                        for(const auto &r : s)
+                        {
+                            values.push_back(r);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     void populate_f16()
     {
@@ -746,7 +784,7 @@ public:
         const fshape& initial_shape_,
         const std::vector<std::vector<impl::regression_tree>>& forests_,
         const std::vector<PointVecf>& pixel_coordinates,
-        std::shared_ptr<StandardizedPCA>& pca,
+        StandardizedPCAPtr& pca,
         bool npd = false,
         bool do_affine = false,
         int ellipse_count = 0)
@@ -757,16 +795,16 @@ public:
         , m_npd(npd)
         , m_do_affine(do_affine)
     /*!
-            requires
-                - initial_shape.size()%2 == 0
-                - forests.size() == pixel_coordinates.size() == the number of cascades
-                - for all valid i:
-                    - all the index values in forests[i] are less than pixel_coordinates[i].size()
-                - for all valid i and j:
-                    - forests[i][j].leaf_values.size() is a power of 2.
-                      (i.e. we require a tree with all the levels fully filled out.
-                    - forests[i][j].leaf_values.size() == forests[i][j].splits.size()+1
-                      (i.e. there need to be the right number of leaves given the number of splits in the tree)
+        requires
+            - initial_shape.size()%2 == 0
+            - forests.size() == pixel_coordinates.size() == the number of cascades
+            - for all valid i:
+                - all the index values in forests[i] are less than pixel_coordinates[i].size()
+            - for all valid i and j:
+                - forests[i][j].leaf_values.size() is a power of 2.
+                  (i.e. we require a tree with all the levels fully filled out.
+                - forests[i][j].leaf_values.size() == forests[i][j].splits.size()+1
+                  (i.e. there need to be the right number of leaves given the number of splits in the tree)
         !*/
     {
         anchor_idx.resize(pixel_coordinates.size());
@@ -853,7 +891,7 @@ public:
                 DRISHTI_STREAM_LOG_FUNC(5, 4, m_streamLogger);
 #if DRISHTI_BUILD_REGRESSION_FIXED_POINT
                 // Fixed point is currently only working for PCA in most cases (check numerical overflow)
-                dlib::matrix<int16_t, 0, 1> shape_accumulator;
+                DVec16s shape_accumulator;
                 for (auto& f : forests[iter])
                 {
                     add16sAnd16s(shape_accumulator, f(feature_pixel_values, Fixed(), m_npd), shape_accumulator);
@@ -1267,7 +1305,7 @@ public:
         // PCA for shape space regression:
         const int num_dim = int(initial_shape.size());
         bool do_pca = dimensions.size() > 0;
-        std::shared_ptr<StandardizedPCA> pca;
+        StandardizedPCAPtr pca;
         if (do_pca)
         {
             pca = compute_pca(samples, num_dim, dimensions);
@@ -1457,7 +1495,7 @@ private:
         }
     }
 
-    void initialize_shape_space_models(std::vector<training_sample>& samples, int current_pca_dim, std::shared_ptr<StandardizedPCA>& pca) const
+    void initialize_shape_space_models(std::vector<training_sample>& samples, int current_pca_dim, StandardizedPCAPtr& pca) const
     {
         auto current_range = dlib::range(0, current_pca_dim - 1);
         for (auto& s : samples)
@@ -1505,7 +1543,7 @@ private:
     using IntVec = std::vector<int>;
     using SampleVec = std::vector<training_sample>;
 
-    std::shared_ptr<StandardizedPCA> compute_pca(SampleVec& samples, int num_dim, const IntVec& dimensions) const
+    StandardizedPCAPtr compute_pca(SampleVec& samples, int num_dim, const IntVec& dimensions) const
     {
         using namespace impl;
         CV_Assert(int(dimensions.size()) == get_cascade_depth());
@@ -1700,7 +1738,9 @@ private:
             {
                 for (unsigned long i = 0; i < num_test_splits; ++i)
                 {
-                    if (compute_npd(samples[j].feature_pixel_values[feats[i].idx1], samples[j].feature_pixel_values[feats[i].idx2]) > feats[i].thresh)
+                    const auto &values1 = samples[j].feature_pixel_values[feats[i].idx1];
+                    const auto &values2 = samples[j].feature_pixel_values[feats[i].idx2];
+                    if (compute_npd(values1, values2) > feats[i].thresh)
                     {
                         left_sums[i] += temp;
                         ++left_cnt[i];
@@ -1711,7 +1751,9 @@ private:
             {
                 for (unsigned long i = 0; i < num_test_splits; ++i)
                 {
-                    if (samples[j].feature_pixel_values[feats[i].idx1] - samples[j].feature_pixel_values[feats[i].idx2] > feats[i].thresh)
+                    const auto &values1 = samples[j].feature_pixel_values[feats[i].idx1];
+                    const auto &values2 = samples[j].feature_pixel_values[feats[i].idx2];
+                    if (compute_npd(values1, values2) > feats[i].thresh)
                     {
                         left_sums[i] += temp;
                         ++left_cnt[i];

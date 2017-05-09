@@ -129,6 +129,11 @@ std::vector<cv::Point2f> RTEShapeEstimator::getMeanShape() const
     return m_impl->getMeanShape();
 }
 
+void RTEShapeEstimator::dump(std::vector<float> &values, bool pca)
+{
+    return m_impl->dump(values, pca);
+}
+
 DRISHTI_ML_NAMESPACE_END
 
 // http://www.boost.org/doc/libs/1_46_1/libs/serialization/doc/special.html

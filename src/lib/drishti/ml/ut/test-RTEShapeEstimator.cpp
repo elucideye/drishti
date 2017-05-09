@@ -149,6 +149,19 @@ TEST(RTEShapeEstimator, StreamConstructor)
 #if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 TEST_F(RTEShapeEstimatorTest, CerealSerialization)
 {
+    { // Enable this block to dump regressor leaf nodes (offline analysis):
+        // static const bool pca = true;
+        // std::vector<float> values;
+        // m_shapePredictor->dump(values, pca);
+        //
+        // std::ofstream ofs("/tmp/points_pca.cpb", std::ios_base::binary);
+        // if(ofs)
+        // {
+        //     cereal::PortableBinaryOutputArchive oa(ofs);
+        //     oa << values;
+        // }
+    }
+    
     std::string filename = std::string(outputDirectory) + "/shape.cpb";
     save_cpb(filename, *m_shapePredictor);
     drishti::ml::RegressionTreeEnsembleShapeEstimator shapePredictor2;

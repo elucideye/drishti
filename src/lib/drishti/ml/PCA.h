@@ -54,6 +54,10 @@ public:
 
     cv::Mat project(const cv::Mat& data, int n = 0) const;
     cv::Mat backProject(const cv::Mat& projection) const;
+    const cv::Mat &getTransposedEigenvectors() const
+    {
+        return m_eT;
+    }
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version);

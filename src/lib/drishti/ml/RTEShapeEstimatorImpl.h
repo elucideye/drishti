@@ -103,6 +103,11 @@ public:
         });
         return points;
     }
+    
+    void dump(std::vector<float> &values, bool pca)
+    {
+        return m_predictor->getShapeUpdates(values, pca);
+    }
 
     void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {

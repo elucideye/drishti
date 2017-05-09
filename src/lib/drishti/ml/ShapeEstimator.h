@@ -66,6 +66,8 @@ public:
     {
         return 0; // 0 == not set
     }
+    
+    virtual void dump(std::vector<float> &params, bool pca=false) {}
 
     // Boost serialization:
     template <class Archive>
