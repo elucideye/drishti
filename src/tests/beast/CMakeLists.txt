@@ -12,11 +12,16 @@ add_executable(test-image-server
   "${DRISHTI_3RD_PARTY_DIR}/utilities/websocket_async_server.hpp" # for browsing
   )
 target_link_libraries(test-image-server
-  PUBLIC
   ${OpenCV_LIBS}
   Boost::system
   cxxopts::cxxopts
   )
+
+if(DRISHTI_USE_IMSHOW)
+  target_link_libraries(test-image-server imshow::imshow)
+  target_compile_definitions(test-image-server PUBLIC DRISHTI_USE_IMSHOW)
+endif()
+
 target_include_directories(test-image-server
   PUBLIC
   "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/Beast/include>"

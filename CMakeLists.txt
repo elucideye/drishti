@@ -285,46 +285,18 @@ else()
   add_definitions(-DDRISHTI_OPENGL_ES=0)
 endif()
 
-###############################
-#### Valgrind (prefer asan) ###
-###############################
-
-if(NOT IOS AND NOT ANDROID)
-  find_program(CMAKE_MEMORYCHECK_COMMAND valgrind)
-  set(CMAKE_MEMORYCHECK_COMMAND_OPTIONS
-    "--trace-children=yes"
-    "--leak-check=full"
-    "--tool=memcheck"
-    "--show-leak-kinds=definite,possible"
-    "--track-origins=yes"
-    "--log-file=${CMAKE_SOURCE_DIR}/_logs/valgrind_report.txt"
-    )
-  find_file(HAVE_VALGRIND "valgrind")
-  message("HAVE_VALGRIND: ${HAVE_VALGRIND}")
-endif()
-
 #################
 ### Test data ###
 #################
 
-### Download 'faces'
-include(drishti_download_private_data)
-drishti_download_private_data(
-    URL "https://github.com/elucideye/drishti-faces/archive/v1.0.zip"
-    SHA1 "dc6d1447e16501a684eba8ccd84750b9dbda7ac0"
-    NAME "faces"
-    DIR faces_dir
-    PASSWORDS "${CMAKE_CURRENT_LIST_DIR}/passwords.cmake"
-)
-message("Faces directory: '${faces_dir}'")
+include(drishti_download_data)
 
 ### Download 'assets'
-drishti_download_private_data(
+drishti_download_data(
     URL "https://github.com/elucideye/drishti-assets/archive/v1.5.tar.gz"
     SHA1 "b7beaaca2e5ac4653e6c3fa27826407665e01145"
     NAME "assets"
     DIR assets_dir
-    PASSWORDS "${CMAKE_CURRENT_LIST_DIR}/passwords.cmake"
 )
 message("Assets directory: '${assets_dir}'")
 

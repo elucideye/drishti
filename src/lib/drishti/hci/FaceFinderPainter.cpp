@@ -225,9 +225,9 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
         m_painter->setFlowTexture(flow->getOutputTexId(), flow->getOutFrameSize());
     }
 
-    if (m_doFlash)
+    if (m_doBlobs)
     {
-        m_painter->setFlashTexture(m_flasher->getOutputTexId(), m_flasher->getOutFrameSize());
+        m_painter->setFlashTexture(m_blobFilter->getOutputTexId(), m_blobFilter->getOutFrameSize());
     }
 
     if (m_doEyeFlow)

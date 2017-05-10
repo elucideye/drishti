@@ -108,7 +108,7 @@ protected:
         m_settings.frameDelay = 2;
         m_settings.doLandmarks = true;
         m_settings.doFlow = true;
-        m_settings.doFlash = true;
+        m_settings.doBlobs = true;
 
 #if DRISHTI_HCI_DO_GPU
         m_context = std::make_shared<QGLContext>();

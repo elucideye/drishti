@@ -15,6 +15,12 @@
 #include "drishti/core/Logger.h"
 #include "drishti/core/make_unique.h"
 
+// clang-format off
+#if DRISHTI_USE_BEAST
+#  include "ImageLogger.h"
+#endif
+// clang-format on
+
 // Sample:
 //
 //"sensor": {
@@ -46,6 +52,18 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
     {
         m_logger->error() << "Failure to parse settings for device:" << name;
         return;
+    }
+
+    const auto& address = (*settings)["ipAddress"];
+    if (!address.empty())
+    {
+        bool active = address["active"].get<bool>();
+        if(active)
+        {
+            std::string host = address["host"];
+            std::string port = address["port"];
+            m_imageLogger = std::make_shared<drishti::core::ImageLogger>(host, port);
+        }
     }
 
     // Parse detection parameters (minDepth, maxDepth)
@@ -87,6 +105,26 @@ FrameHandlerManager::~FrameHandlerManager()
 bool FrameHandlerManager::good() const
 {
     return (m_sensor.get() != nullptr && m_threads.get() != nullptr);
+}
+
+auto FrameHandlerManager::createAsynchronousImageLogger() -> FrameHandler
+{
+    if(!m_imageLogger)
+    {
+        return nullptr;
+    }
+    
+    std::function<void(const cv::Mat &)> logger = [&](const cv::Mat &image) {
+        if(m_imageLogger)
+        {
+            m_threads->post([&]() {
+                m_logger->info() << "Logging: " << m_imageLogger->host() << ":" << m_imageLogger->port();
+                (*m_imageLogger)(image);
+            });
+        }
+    };
+
+    return logger;
 }
 
 void FrameHandlerManager::setSize(const cv::Size& size)

@@ -53,7 +53,7 @@ public:
         settings.frameDelay = 1;
         settings.doLandmarks = true;
         settings.doFlow = true;
-        settings.doFlash = false;
+        settings.doBlobs = false;
         settings.minDetectionDistance = manager->getMinDetectionDistance();
         settings.maxDetectionDistance = manager->getMaxDetectionDistance();
 

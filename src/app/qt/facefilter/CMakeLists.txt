@@ -79,6 +79,13 @@ set(
   facefilter.json
   )
 
+if(DRISHTI_USE_BEAST)
+  list(APPEND FACE_FILTER_SOURCES
+    ImageLogger.h
+    ImageLogger.cpp
+    )
+endif()
+
 if(IOS)
   list(APPEND FACE_FILTER_SOURCES
     QIOSViewController+Fix.h
@@ -186,5 +193,15 @@ target_link_libraries(facefilter
   ${OGLES_GPGPU_LIB}
   thread-pool-cpp::thread-pool-cpp
   nlohmann-json::nlohmann-json)
+
+if(DRISHTI_USE_BEAST)
+  target_compile_definitions(facefilter PUBLIC DRISHTI_USE_BEAST=1)
+  target_link_libraries(facefilter Boost::system)  
+  target_include_directories(facefilter
+    PUBLIC
+    "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/Beast/include>"
+    "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/utilities>" # for websocket_async_server.hpp    
+    )
+endif()  
 
 set_property(TARGET facefilter PROPERTY FOLDER "app/gui")

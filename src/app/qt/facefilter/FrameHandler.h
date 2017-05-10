@@ -17,7 +17,6 @@
 
 #include "thread_pool/thread_pool.hpp"
 
-//#include "nlohmann/json.hpp" // nlohman-json
 #include "nlohmann_json.hpp" // nlohman-json
 
 #include <functional>
@@ -27,12 +26,9 @@
 // clang-format off
 namespace drishti
 {
-    namespace sensor
-    {
-        class SensorModel;
-    };
+    namespace core {  class ImageLogger; }
+    namespace sensor { class SensorModel; };
 };
-
 namespace spdlog { class logger; }
 // clang-format on
 
@@ -46,7 +42,7 @@ public:
     };
 
     using Settings = nlohmann::json;
-    typedef std::function<void(const cv::Mat&)> FrameHandler;
+    using FrameHandler = std::function<void(const cv::Mat&)>;
 
     FrameHandlerManager(Settings* settings, const std::string& name, const std::string& description);
 
@@ -100,6 +96,11 @@ public:
     {
         return m_threads;
     }
+    
+    std::shared_ptr<drishti::core::ImageLogger>& getImageLogger()
+    {
+        return m_imageLogger;
+    }
 
     const DetectionParams& getDetectionParameters()
     {
@@ -113,28 +114,26 @@ public:
 
     Settings* getSettings() { return m_settings; }
     const Settings* getSettings() const { return m_settings; }
-
+    
+    FrameHandler createAsynchronousImageLogger();
+    
 protected:
+    
     Settings* m_settings = nullptr;
-
     DetectionParams m_detectionParams;
-
-    std::string m_deviceName;
-
-    std::string m_deviceDescription;
-
     int m_orientation = 0;
-
+    std::string m_deviceName;
+    std::string m_deviceDescription;
     std::shared_ptr<spdlog::logger> m_logger;
-
     std::shared_ptr<tp::ThreadPool<>> m_threads;
-
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
-
     std::vector<FrameHandler> m_handlers;
-
     std::unique_ptr<drishti::hci::FaceMonitor> m_faceMonitor;
-
+    
+#if DRISHTI_USE_BEAST
+    std::shared_ptr<drishti::core::ImageLogger> m_imageLogger;
+#endif
+    
     static FrameHandlerManager* m_instance;
 };
 

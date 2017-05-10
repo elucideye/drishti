@@ -116,11 +116,17 @@ struct VideoFilterRunnable::Impl
             settings.frameDelay = (*pSettings)["frameDelay"].get<int>();
             settings.doLandmarks = (*pSettings)["doLandmarks"].get<bool>();
             settings.doFlow = (*pSettings)["doFlow"].get<bool>();
-            settings.doFlash = (*pSettings)["doFlash"].get<bool>();
+            settings.doBlobs = (*pSettings)["doBlobs"].get<bool>();
         }
 
         m_detector = drishti::hci::FaceFinderPainter::create(resources, settings, glContext);
 
+        // Instantiate an asynchronous network logger:
+        if(manager->getImageLogger())
+        {
+            m_detector->setImageLogger(manager->createAsynchronousImageLogger());
+        }
+        
         // Face filter:
         if (manager->getFaceMonitor())
         {
