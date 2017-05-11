@@ -146,9 +146,9 @@ endif()
 ### RPATH defaults ###
 ######################
 
-# see: http://www.cmake.org/Wiki/CMake_RPATH_handling ("Always full RPATH")
-include(drishti_always_full_rpath)
-drishti_always_full_rpath()
+# see: http://www.cmake.org/Wiki/CMake_RPATH_handling
+include(drishti_set_rpath)
+drishti_set_rpath()
 
 ###########################
 ### XCODE customization ###
