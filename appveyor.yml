@@ -37,8 +37,6 @@ install:
   - cmd: set PATH=%cd%\_ci\cmake\bin;%PATH%
   - cmd: set PATH=%cd%\_ci\ninja;%PATH%
 
-  - ps: (Get-Content .gitmodules).replace('https://github.com/elucideye/drishti-upload', 'https://' + ${Env:CI_USER_TOKEN} + '@github.com/elucideye/drishti-upload') | Set-Content .gitmodules
-
   # Add '--quiet' to avoid leaking the token to logs
   - cmd: git submodule update --init --recursive --quiet
 
@@ -55,8 +53,6 @@ install:
   - cmd: set MSYS_PATH=C:\msys64\usr\bin
 
 build_script:
-  - ps: Add-Content passwords.cmake "set(USERNAME jalandhara)"
-  - ps: Add-Content passwords.cmake "set(PASSWORD ${Env:CI_USER_TOKEN})"
 
   - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%"
 

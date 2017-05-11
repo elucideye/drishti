@@ -85,7 +85,6 @@ git:
 # See https://docs.travis-ci.com/user/private-dependencies/#API-Token
 # CI_USER_TOKEN is added to .travis.yml settings
 before_install:
-  - sed -i -E "s|https://github.com/elucideye/drishti-upload|https://${CI_USER_TOKEN}@github.com/elucideye/drishti-upload|g" .gitmodules
 
   # Add '--quiet' to avoid leaking the token to logs
   - git submodule update --init --recursive --quiet
@@ -118,8 +117,6 @@ install:
   - export ANDROID_NDK_r10e="`pwd`/_ci/android-ndk-r10e"
 
 script:
-    - echo "set(USERNAME jalandhara)" > passwords.cmake
-    - echo "set(PASSWORD ${CI_USER_TOKEN})" >> passwords.cmake
 
     # '--ios-{multiarch,combined}' do nothing for non-iOS builds
     - >
