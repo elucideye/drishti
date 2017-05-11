@@ -9,6 +9,12 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/signal_set.hpp>
 
+#if defined(DRISHTI_USE_IMSHOW)
+#  include <opencv2/highgui.hpp>
+#  include "imshow/imshow.h"
+#  include <iostream>
+#endif // DRISHTI_USE_IMSHOW
+
 #include "cxxopts.hpp"
 
 #include <iostream>
@@ -30,6 +36,7 @@ int drishti_main(int argc, char** argv)
     std::string sOutput;
     std::string sAddress = "127.0.0.1";
     std::uint16_t port = 6000;
+    bool doWindow = false;
 
     // clang-format off
     cxxopts::Options options("test-image-server", "Minimal image logging websocket server (beast)");
@@ -37,6 +44,7 @@ int drishti_main(int argc, char** argv)
         ("a,address", "Address", cxxopts::value<std::string>(sAddress))
         ("p,port", "Port", cxxopts::value<std::uint16_t>(port))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
+        ("w,window", "Display images in window", cxxopts::value<bool>(doWindow))
         ("h,help", "Print help message");
     // clang-format on
 
@@ -69,7 +77,9 @@ int drishti_main(int argc, char** argv)
     s1.set_option(read_message_max{ 64 * 1024 * 1024 });
     s1.set_option(auto_fragment{ false });
     s1.set_option(pmd);
-
+    
+    boost::asio::io_service ios;
+    
     int counter = 0;
     websocket::async_server::streambuf_handler handler = [&](beast::streambuf& db) {
         std::stringstream ss;
@@ -78,20 +88,38 @@ int drishti_main(int argc, char** argv)
         std::ofstream os(ss.str(), std::ios::binary);
         if (os)
         {
+            std::size_t count = 0;
+            std::vector<char> buffer(db.size());
             for (const auto& b : db.data())
             {
                 std::size_t s2 = boost::asio::buffer_size(b);
                 const char* p2 = boost::asio::buffer_cast<const char*>(b);
-                os.write(p2, s2);
+
+                memcpy(buffer.data() + count, p2, s2);
+                count += s2;
             }
+            os.write(buffer.data(), buffer.size()); // write buffer asyncrhonously
+
+            // push buffer to single threaded display queue
+#if defined(DRISHTI_USE_IMSHOW)
+            cv::Mat image = cv::imdecode(buffer, CV_LOAD_IMAGE_COLOR);
+            ios.post([=]() {
+                glfw::imshow("image_server", image);
+                glfw::waitKey(1);
+            });
+#endif
         }
         return 0;
     };
+    
     s1.add(handler);
-
     s1.open(endpoint_type{address_type::from_string(sAddress), port}, ec);
 
-    sig_wait();
+    boost::asio::signal_set signals(ios, SIGINT, SIGTERM);
+    signals.async_wait([&](boost::system::error_code const&, int) {});
+    ios.run();
+    
+    return 0;
 }
 
 int main(int argc, char** argv)

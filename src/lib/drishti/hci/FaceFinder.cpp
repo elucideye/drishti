@@ -53,9 +53,6 @@
 #define DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER 0 // *** display ***
 #define DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT 1 // *** display ***
 
-#define DRISHTI_HCI_FACEFINDER_FLASH_WIDTH 128
-
-#define DRISHTI_HCI_FACEFINDER_DETECTION_WIDTH 512
 #define DRISHTI_HCI_FACEFINDER_DO_TRACKING 1
 #define DRISHTI_HCI_FACEFINDER_DO_ACF_MODIFY 1
 
@@ -107,10 +104,8 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory>& fact
     , m_doFlow(args.doFlow)
     , m_flowWidth(DRISHTI_HCI_FACEFINDER_FLOW_WIDTH)
 
-    // ###### DO FLASH ##########
-    , m_doFlash(args.doFlash)
-    , m_flashWidth(DRISHTI_HCI_FACEFINDER_FLASH_WIDTH)
-
+    // ###### DO BLOBS ##########
+    , m_doBlobs(args.doBlobs)
     , m_doIris(true) //DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
 
     , m_factory(factory)
@@ -121,7 +116,7 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory>& fact
     , m_threads(args.threads)
 {
     m_debugACF = false;
-    m_doFlash = true;
+    m_doBlobs = true;
 }
 
 std::unique_ptr<FaceFinder> FaceFinder::create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext)
@@ -245,7 +240,7 @@ void FaceFinder::initACF(const cv::Size& inputSizeUp)
         std::swap(m_pyramidSizes[i].width, m_pyramidSizes[i].height);
     }
 
-    const int grayWidth = m_doLandmarks ? m_landmarksWidth : 0;
+    const int grayWidth = m_doLandmarks ? std::min(inputSizeUp.width, m_landmarksWidth) : 0;
     const int flowWidth = m_doFlow ? m_flowWidth : 0;
     const auto& pChns = m_detector->opts.pPyramid->pChns;
     const auto featureKind = ogles_gpgpu::getFeatureKind(*pChns);
@@ -266,16 +261,16 @@ void FaceFinder::initFIFO(const cv::Size& inputSize, std::size_t n)
     m_fifo->createFBOTex(false);
 }
 
-void FaceFinder::initFlasher()
+void FaceFinder::initBlobFilter()
 {
     // ### Blobs ###
     assert(m_eyeFilter.get());
-    m_flasher = std::make_shared<ogles_gpgpu::BlobFilter>();
-    m_flasher->init(128, 64, INT_MAX, false);
-    m_flasher->createFBOTex(false);
+    m_blobFilter = std::make_shared<ogles_gpgpu::BlobFilter>();
+    m_blobFilter->init(128, 64, INT_MAX, false);
+    m_blobFilter->createFBOTex(false);
 
     // ### Send eye images into the flash filter ###
-    m_eyeFilter->getOutputFilter()->add(m_flasher->getInputFilter());
+    m_eyeFilter->getOutputFilter()->add(m_blobFilter->getInputFilter());
 }
 
 void FaceFinder::initIris(const cv::Size& size)
@@ -362,13 +357,13 @@ void FaceFinder::init(const cv::Size& inputSize)
         initIris({ 640, 240 });
     }
 
-    // Must initial eye filter before flasher:
+    // Must initial eye filter before blobFilter:
     initEyeEnhancer(inputSizeUp, m_eyesSize);
 
-    if (m_doFlash)
+    if (m_doBlobs)
     {
-        // Must initialize flasher after eye filter:
-        initFlasher();
+        // Must initialize blobFilter after eye filter:
+        initBlobFilter();
     }
 }
 
@@ -751,8 +746,8 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
         scene.m_P = createAcfGpu(frame, doDetection);
     }
 
-// Flow pyramid currently unused:
-// auto flowPyramid = m_acf->getFlowPyramid();
+    // Flow pyramid currently unused:
+    // auto flowPyramid = m_acf->getFlowPyramid();
 
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
     if (m_acf->getFlowStatus())
@@ -769,6 +764,11 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
     {
         core::ScopeTimeLogger scopeTimeLogger = [&](double t) { ss << "gray=" << t << ";"; };
         scene.image() = m_acf->getGrayscale();
+
+        if(m_imageLogger)
+        {
+            (m_imageLogger)(scene.image());
+        }
     }
 }
 
@@ -835,6 +835,8 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             bool isDetection = true;
 
             cv::Mat1b gray = scene.image();
+            
+            //m_imageLogger(gray);
 
             const float Sdr = m_ACFScale /* acf->full */ * m_acf->getGrayscaleScale() /* full->gray */;
             cv::Matx33f Hdr(Sdr, 0, 0, 0, Sdr, 0, 0, 0, 1); //  = cv::Matx33f::eye();
@@ -847,6 +849,8 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             m_faceDetector->setIrisStagesHint(10);
             m_faceDetector->setIrisStagesRepetitionFactor(1);
             m_faceDetector->refine(Ib, faces, Hdr, isDetection);
+            
+            m_logger->info() << "Face image " << Ib.Ib.rows << " x " << Ib.Ib.cols;
 
             //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
 
@@ -894,18 +898,18 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
         m_eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
 
         // Limit to points on iris:
-        const cv::Size filteredEyeSize(m_flasher->getOutFrameW(), m_flasher->getOutFrameH());
+        const cv::Size filteredEyeSize(m_blobFilter->getOutFrameW(), m_blobFilter->getOutFrameH());
         const auto& eyeWarps = m_eyeFilter->getEyeWarps();
 
 // Can use this to retrieve view of internal filters:
-#define DRISHTI_VIEW_FLASH_OUTPUT 0
-#if DRISHTI_VIEW_FLASH_OUTPUT
-        if (m_flasher)
+#define DRISHTI_VIEW_BLOBS_OUTPUT 0
+#if DRISHTI_VIEW_BLOBS_OUTPUT
+        if (m_blobFilter)
         {
-            cv::Mat canvas = m_flasher->paint();
+            cv::Mat canvas = m_blobFilter->paint();
             if (!canvas.empty())
             {
-                cv::imshow("flasher", canvas);
+                cv::imshow("blobFilter", canvas);
                 cv::waitKey(0);
             }
         }
@@ -952,7 +956,7 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
             core::ScopeTimeLogger scopeTimeLogger = [this](double t) { this->m_timerInfo.blobExtractionTimeLogger(t); };
 
             EyeBlobJob single(filteredEyeSize, eyeWarps);
-            m_flasher->getHessianPeaks()->getResultData(single.filtered.ptr());
+            m_blobFilter->getHessianPeaks()->getResultData(single.filtered.ptr());
             single.run();
             m_eyePoints = single.eyePoints;
 

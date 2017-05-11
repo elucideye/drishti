@@ -1,8 +1,14 @@
 {
     "doLandmarks": true,
     "doFlow": true,
-    "doFlash": false,
+    "doBlobs": false,
     "frameDelay": 2,
+
+    "ipAddress": {
+        "host": "192.168.1.5",
+        "port": "6000",
+        "active": false
+    },
 
     "com.apple.avfoundation.avcapturedevice.built-in_video:1": {
         "description": "FaceTime HD Camera (Built-in)[5s]",

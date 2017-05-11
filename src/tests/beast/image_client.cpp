@@ -64,7 +64,9 @@ int drishti_main(int argc, char** argv)
     boost::asio::io_service ios;
     boost::asio::ip::tcp::resolver r{ ios };
     boost::asio::ip::tcp::socket sock{ ios };
-    boost::asio::connect(sock, r.resolve(boost::asio::ip::tcp::resolver::query{ sAddress, sPort }));
+
+    auto result = r.resolve(boost::asio::ip::tcp::resolver::query{ sAddress, sPort });
+    boost::asio::connect(sock, result);
 
     // WebSocket connect and send message using beast
     beast::websocket::stream<boost::asio::ip::tcp::socket&> ws{ sock };
@@ -73,7 +75,6 @@ int drishti_main(int argc, char** argv)
     {
         std::vector<uint8_t> buffer;
         cv::imencode(".png", image, buffer);
-
         ws.set_option(beast::websocket::message_type{ beast::websocket::opcode::binary });
         ws.write(boost::asio::buffer(buffer));
     }
@@ -84,6 +85,8 @@ int drishti_main(int argc, char** argv)
     ws.read(op, sb);
     ws.close(beast::websocket::close_code::normal);
     std::cout << beast::to_string(sb.data()) << "\n";
+    
+    return 0;
 }
 
 int main(int argc, char** argv)

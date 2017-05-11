@@ -70,6 +70,7 @@ public:
     using TimePoint = HighResolutionClock::time_point; // <std::chrono::system_clock>;
     using FrameInput = ogles_gpgpu::FrameInput;
     using FeaturePoints = std::vector<FeaturePoint>;
+    using ImageLogger = std::function<void(const cv::Mat &image)>;
 
     using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
 
@@ -96,11 +97,12 @@ public:
         std::shared_ptr<drishti::sensor::SensorModel> sensor;
         std::shared_ptr<spdlog::logger> logger;
         std::shared_ptr<tp::ThreadPool<>> threads;
+        ImageLogger imageLogger;
         int outputOrientation = 0;
         int frameDelay = 1;
         bool doLandmarks = true;
         bool doFlow = true;
-        bool doFlash = false;
+        bool doBlobs = false;
         float minDetectionDistance = 0.f;
         float maxDetectionDistance = 1.f;
     };
@@ -123,13 +125,25 @@ public:
     void setFaceFinderInterval(double interval);
     double getFaceFinderInterval() const;
 
-    void setBrightness(float value) { m_brightness = value; }
+    void setBrightness(float value)
+    {
+        m_brightness = value;
+    }
 
     void registerFaceMonitorCallback(FaceMonitor* callback);
 
-    virtual bool doAnnotations() const { return m_doAnnotations; }
+    virtual bool doAnnotations() const
+    {
+        return m_doAnnotations;
+    }
+    
+    void setImageLogger(const ImageLogger &logger)
+    {
+        m_imageLogger = logger;
+    }
 
 protected:
+    
     bool needsDetection(const TimePoint& ts) const;
 
     void computeGazePoints();
@@ -143,7 +157,7 @@ protected:
 
     void initACF(const cv::Size& inputSizeUp);
     void initFIFO(const cv::Size& inputSize, std::size_t n);
-    void initFlasher();
+    void initBlobFilter();
     void initColormap(); // [0..359];
     void initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& eyesSize);
     void initIris(const cv::Size& size);
@@ -193,8 +207,7 @@ protected:
     bool m_doFlow = false;
     int m_flowWidth = 256;
 
-    bool m_doFlash = false;
-    int m_flashWidth = 128;
+    bool m_doBlobs = false;
 
     bool m_doIris = false;
 
@@ -220,7 +233,7 @@ protected:
     std::shared_ptr<ogles_gpgpu::FifoProc> m_fifo; // store last N faces
     std::shared_ptr<ogles_gpgpu::FacePainter> m_painter;
     std::shared_ptr<ogles_gpgpu::TransformProc> m_rotater; // For QT
-    std::shared_ptr<ogles_gpgpu::BlobFilter> m_flasher;    // EXPERIMENTAL
+    std::shared_ptr<ogles_gpgpu::BlobFilter> m_blobFilter;
     std::shared_ptr<ogles_gpgpu::EyeFilter> m_eyeFilter;
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> m_ellipsoPolar[2];
 
@@ -245,6 +258,7 @@ protected:
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
     std::shared_ptr<spdlog::logger> m_logger;
     std::shared_ptr<tp::ThreadPool<>> m_threads;
+    ImageLogger m_imageLogger;
 
     TimePoint m_start;
 

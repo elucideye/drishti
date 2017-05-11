@@ -75,7 +75,7 @@ endif()
 ### Beast ### :: optional ::
 #############
 
-option(DRISHTI_USE_BEAST "Use beast (boost) websocket lib" ON)
+option(DRISHTI_USE_BEAST "Use beast (boost) websocket lib" OFF)
 
 # Initial/experimental header only integration:
 # TODO: hunter-package WIP
@@ -286,7 +286,7 @@ endif()
 ############ 
 
 drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" ON IF NOT(ANDROID OR IOS OR MSVC))
-option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" OFF)
+option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" ON)
 
 if(DRISHTI_USE_IMSHOW)
   if(DRISHTI_USE_LOCAL_IMSHOW)
