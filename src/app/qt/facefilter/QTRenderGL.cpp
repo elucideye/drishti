@@ -35,7 +35,6 @@
 // Previously squircle class from QT Squircle example
 
 #include "QTRenderGL.hpp"
-//#include "VideoFilter.h"
 
 #include <QtQuick/qquickwindow.h>
 #include <QtGui/QOpenGLShaderProgram>
@@ -48,7 +47,7 @@
 // clang-format off
 const char *vshaderSrc = STRINGIFY(
 
-#if DRISHTI_OPENGL_ES
+#if defined(OGLES_GPGPU_OPENGLES)
     precision mediump float;
 #endif
 
@@ -66,7 +65,7 @@ const char *vshaderSrc = STRINGIFY(
 // clang-format off
 const char *fshaderSrc = STRINGIFY(
 
-#if DRISHTI_OPENGL_ES
+#if defined(OGLES_GPGPU_OPENGLES)
     precision mediump float;
 #endif
 

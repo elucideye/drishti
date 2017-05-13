@@ -279,12 +279,6 @@ if(DRISHTI_BUILD_TESTS OR DRISHTI_BUILD_INTEGRATION_TESTS)
   find_package(GTest CONFIG REQUIRED)
 endif()
 
-if(IOS OR ANDROID)
-  add_definitions(-DDRISHTI_OPENGL_ES=1)
-else()
-  add_definitions(-DDRISHTI_OPENGL_ES=0)
-endif()
-
 #################
 ### Test data ###
 #################
