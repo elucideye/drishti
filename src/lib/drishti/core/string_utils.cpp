@@ -25,9 +25,19 @@ void tokenize(const std::string& input, std::vector<std::string>& tokens)
 
 std::string basename(const std::string& name, const std::string& ext)
 {
-    size_t pos = name.rfind("/") + 1;
-    std::string base = name.substr((pos < name.size()) * pos);
-    return base.substr(0, std::min(base.size() - 1, base.rfind(ext)));
+    size_t pos = name.rfind("/");
+
+    if(pos != std::string::npos)
+    {
+        pos += 1;
+    }
+    else
+    {
+        pos = 0;
+    }
+    
+    std::string base = name.substr(pos);
+    return base.substr(0, std::min(base.size(), base.rfind(ext)));
 };
 
 bool replace(std::string& str, const std::string& from, const std::string& to)

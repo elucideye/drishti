@@ -35,6 +35,8 @@ public:
     {
         m_autoScaling = flag;
     }
+    
+    static cv::Matx33f stabilize(const drishti::face::FaceModel& face, const cv::Size& sizeOut, float span);
     std::array<eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel& face, const cv::Size& sizeIn) const;
     std::array<eye::EyeWarp, 2> renderEyes(const std::array<cv::Point2f, 2>& eyes, const cv::Size& sizeIn) const;
 

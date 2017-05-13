@@ -11,6 +11,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include <iomanip>
+
 class VideoSourceApple::Impl
 {
 public:
@@ -27,7 +29,7 @@ public:
     void init()
     {
         NSString *path = [NSString stringWithUTF8String:filename.c_str()];
-        NSURL *url = [NSURL fileURLWithPath:path]; // @"/Users/dhirvonen/Downloads/IMG_9345.MOV"];
+        NSURL *url = [NSURL fileURLWithPath:path];
     
         NSError *err;
         if ([url checkResourceIsReachableAndReturnError:&err] == NO)
@@ -88,7 +90,9 @@ VideoSourceApple::~VideoSourceApple()
 
 VideoSourceCV::Frame VideoSourceApple::operator()(int i)
 {
-    return Frame((*m_impl)(i), i);
+    std::stringstream ss;
+    ss << std::setw(4) << std::setfill('0') << i;
+    return Frame((*m_impl)(i), i, ss.str());
 }
 
 bool VideoSourceApple::good() const

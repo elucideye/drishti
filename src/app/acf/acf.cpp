@@ -55,18 +55,18 @@
 #include <type_traits>
 
 using AcfPtr = std::unique_ptr<drishti::acf::Detector>;
-
 using Landmarks5 = std::array<cv::Point2f, 5>;
+using Landmarks5Vec = std::vector<Landmarks5>;
+using FaceLandmarks = std::map<std::string, std::vector<Landmarks5>>;
+using RectVec = std::vector<cv::Rect>;
+
 struct FilenameAndLandmarks
 {
     std::string filename;
     std::vector<Landmarks5> landmarks;
 };
 
-using FaceLandmarks = std::map<std::string, std::vector<Landmarks5>>;
-using Landmarks5Vec = std::vector<Landmarks5>;
-using RectVec = std::vector<cv::Rect>;
-
+static void initWindow(const std::string &name);
 static FaceLandmarks parseFaceData(const std::string& sInput);
 static bool writeAsJson(const std::string& filename, const std::vector<cv::Rect>& objects);
 static void drawObjects(cv::Mat& canvas, const std::vector<cv::Rect>& objects);
@@ -260,9 +260,13 @@ int drishti_main(int argc, char** argv)
     }
 
     // :::::::::::::::::::::::::::::::::::::::::::::::
-    // ::: Pasre images w/ optional face landmarks :::
+    // ::: Parse images w/ optional face landmarks :::
     // :::::::::::::::::::::::::::::::::::::::::::::::
 
+#if defined(DRISHTI_USE_IMSHOW)
+    initWindow("acf");
+#endif
+    
     FaceLandmarks landmarks; // ground truth map
     std::shared_ptr<VideoSourceCV> video;
     if (!sTruth.empty())
@@ -450,15 +454,6 @@ int drishti_main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-
-#if defined(DRISHTI_USE_IMSHOW)
-    // Hack/workaround needed for continuous preview in current imshow lib
-    cv::Mat canvas(480, 640, CV_8UC3, cv::Scalar(0, 255, 0));
-    glfw::imshow("acf", canvas);
-    glfw::waitKey(1);
-    glfw::destroyWindow("acf");
-#endif
-
     try
     {
         return drishti_main(argc, argv);
@@ -588,3 +583,15 @@ static std::vector<cv::Mat> cropNegatives(const cv::Mat& I,
 
     return crops;
 }
+
+#if defined(DRISHTI_USE_IMSHOW)
+static void initWindow(const std::string &name)
+{
+    // Hack/workaround needed for continuous preview in current imshow lib
+    cv::Mat canvas(240, 320, CV_8UC3, cv::Scalar(0, 255, 0));
+    cv::putText(canvas, "GLFW Fix", {canvas.cols/4, canvas.rows/2}, CV_FONT_HERSHEY_PLAIN, 2.0, {0,0,0});
+    glfw::imshow(name.c_str(), canvas);
+    glfw::waitKey(1);
+    glfw::destroyWindow(name.c_str());
+}
+#endif
