@@ -18,7 +18,20 @@ FaceStabilizer::FaceStabilizer(const cv::Size& sizeOut)
 {
 }
 
-std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::FaceModel& face, const cv::Size& sizeIn) const
+cv::Matx33f FaceStabilizer::stabilize(const drishti::face::FaceModel& face, const cv::Size& sizeOut, float span)
+{
+    using PointPair = std::array<cv::Point2f, 2>;
+    const PointPair eyeCenters{ { face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center } };
+    const PointPair screenCenters
+    {{
+        transformation::denormalize(cv::Point2f(0.5-span*0.5, 0.5), sizeOut),
+        transformation::denormalize(cv::Point2f(0.5+span*0.5, 0.5), sizeOut)
+    }};
+    return transformation::estimateSimilarity(eyeCenters, screenCenters);
+}
+
+std::array<eye::EyeWarp, 2>
+FaceStabilizer::renderEyes(const drishti::face::FaceModel& face, const cv::Size& sizeIn) const
 {
     using PointPair = std::array<cv::Point2f, 2>;
     const PointPair eyeCenters{ { face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center } };
@@ -29,7 +42,8 @@ std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const drishti::face::Face
     return eyes;
 }
 
-std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2>& eyeCenters, const cv::Size& sizeIn) const
+std::array<eye::EyeWarp, 2>
+FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2>& eyeCenters, const cv::Size& sizeIn) const
 {
     using PointPair = std::array<cv::Point2f, 2>;
 
@@ -48,7 +62,6 @@ std::array<eye::EyeWarp, 2> FaceStabilizer::renderEyes(const std::array<cv::Poin
     if (m_autoScaling) // auto
     {
         const cv::Rect eyeRoi(0, 0, screenSize.width / 2, screenSize.height);
-        ;
         eyeRois = { { eyeRoi, eyeRoi + cv::Point(eyeRoi.width, 0) } };
     }
     else

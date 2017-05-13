@@ -19,7 +19,10 @@
 #include "drishti/core/make_unique.h"
 #include "drishti/core/string_utils.h"
 #include "drishti/core/drishti_cv_cereal.h"
+#include "drishti/core/scope_guard.h"
 #include "drishti/testlib/drishti_cli.h"
+#include "drishti/face/gpu/FaceStabilizer.h"
+#include "drishti/geometry/motion.h"
 
 // clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
@@ -27,13 +30,21 @@
 #endif
 // clang-format on
 
+#include "videoio/VideoSourceCV.h"
+
 // Package includes:
 #include "cxxopts.hpp"
 #include <opencv2/highgui.hpp>
 #include <cereal/archives/json.hpp>
 
+using LoggerPtr = std::shared_ptr<spdlog::logger>;
+
+static cv::Mat
+cropEyes(const cv::Mat &image, const drishti::face::FaceModel &face, const cv::Size &size, float scale, bool annotate);
+static void initWindow(const std::string &name);
 static bool writeAsJson(const std::string& filename, const std::vector<drishti::face::FaceModel>& faces);
 static void drawObjects(cv::Mat& canvas, const std::vector<drishti::face::FaceModel>& faces);
+static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description);
 
 // Resize input image to detection objects of minimum width
 // given an object detection window size. i.e.,
@@ -121,22 +132,6 @@ protected:
     PaddedImage padded;
 };
 
-using LoggerPtr = std::shared_ptr<spdlog::logger>;
-static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description)
-{
-    if (sModel.empty())
-    {
-        logger->error() << "Must specify valid model " << sModel;
-        return 1;
-    }
-    if (!drishti::cli::file::exists(sModel))
-    {
-        logger->error() << "Specified model file does not exist or is not readable";
-        return 1;
-    }
-    return 0;
-}
-
 int drishti_main(int argc, char** argv)
 {
     const auto argumentCount = argc;
@@ -150,12 +145,14 @@ int drishti_main(int argc, char** argv)
 
     std::string sInput, sOutput, sModel;
     int threads = -1;
+    bool doEyes = false;
+    bool doPause = false;
     bool doDisplay = false;
     bool doAnnotation = false;
     bool doPositiveOnly = false;
+    float scale = 1.0;
     double cascCal = 0.0;
     int minWidth = -1; // minimum object width
-    int maxWidth = -1; // maximum object width TODO
 
     // Full set of models must be specified:
     std::string sFaceDetector;
@@ -173,6 +170,7 @@ int drishti_main(int argc, char** argv)
         // Detection parameters:
         ("l,min", "Minimum object width (lower bound)", cxxopts::value<int>(minWidth))
         ("c,calibration", "Cascade calibration", cxxopts::value<double>(cascCal))
+        ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(scale))
 
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(sFaceDetector))
@@ -181,8 +179,10 @@ int drishti_main(int argc, char** argv)
         ("E,eye", "Eye model", cxxopts::value<std::string>(sEyeRegressor))
     
         // Output parameters:
+        ("e,eyes", "Crop eyes", cxxopts::value<bool>(doEyes))
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
         ("d,display", "Display window (single thread)", cxxopts::value<bool>(doDisplay))
+        ("0,pause", "Pause display window", cxxopts::value<bool>(doPause))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("h,help", "Print help message");
@@ -246,7 +246,14 @@ int drishti_main(int argc, char** argv)
         }
     }
 
-    const auto filenames = drishti::cli::expand(sInput);
+#if defined(DRISHTI_USE_IMSHOW)
+    if(doDisplay)
+    {
+        initWindow("face");
+    }
+#endif
+    
+    auto video = VideoSourceCV::create(sInput);
 
     // Allocate resource manager:
     using FaceDetectorPtr = std::unique_ptr<drishti::face::FaceDetector>;
@@ -258,7 +265,7 @@ int drishti_main(int argc, char** argv)
         factory->sFaceDetectorMean = sFaceDetectorMean;
 
         FaceDetectorPtr detector = drishti::core::make_unique<drishti::face::FaceDetector>(*factory);
-
+        detector->setScaling(scale);
         if (detector)
         {
             // Cofigure parameters:
@@ -293,8 +300,9 @@ int drishti_main(int argc, char** argv)
         auto& detector = manager[std::this_thread::get_id()];
         assert(detector);
 
-        // Load current image
-        cv::Mat image = cv::imread(filenames[i], cv::IMREAD_COLOR);
+        // Load current image:
+        auto frame = (*video)(i);
+        const auto& image = frame.image;
 
         if (!image.empty())
         {
@@ -312,10 +320,10 @@ int drishti_main(int argc, char** argv)
             if (!doPositiveOnly || (faces.size() > 0))
             {
                 // Construct valid filename with no extension:
-                std::string base = drishti::core::basename(filenames[i]);
+                std::string base = drishti::core::basename(frame.name);
                 std::string filename = sOutput + "/" + base;
 
-                logger->info() << ++total << "/" << filenames.size() << " " << filename << " = " << faces.size();
+                logger->info() << ++total << "/" << video->count() << " " << filename << " = " << faces.size();
 
                 // Save detection results in JSON:
                 if (!writeAsJson(filename + ".json", faces))
@@ -323,17 +331,48 @@ int drishti_main(int argc, char** argv)
                     logger->error() << "Failed to write: " << filename << ".json";
                 }
 
+#if defined(DRISHTI_USE_IMSHOW)                
+                int windowCount = 0;
+                drishti::core::scope_guard waiter = [&]()
+                {
+                    if(windowCount > 0)
+                    {
+                        glfw::waitKey(doPause ? 0 : 1);
+                    }
+                };
+#endif
+                
+                if(doEyes)
+                {
+                    for(int i = 0; i < faces.size(); i++)
+                    {
+                        cv::Mat eyes = cropEyes(image, faces[i], {640, 240}, 0.666f, doAnnotation);
+                        
+                        std::stringstream ss;
+                        ss << std::setfill('0') << std::setw(2) << i;
+                        cv::imwrite(filename + ss.str() + "_eyes.png", eyes);
+                        
+#if defined(DRISHTI_USE_IMSHOW)
+                        if(doDisplay)
+                        {
+                            windowCount++;
+                            glfw::imshow("eyes", eyes);
+                        }
+#endif
+                    }
+                }
+
                 if (doAnnotation)
                 {
                     cv::Mat canvas = image.clone();
                     drawObjects(canvas, faces);
                     cv::imwrite(filename + "_faces.png", canvas);
-
+                 
 #if defined(DRISHTI_USE_IMSHOW)
                     if (doDisplay)
                     {
+                        windowCount++;
                         glfw::imshow("face", canvas);
-                        glfw::waitKey(0);
                     }
 #endif
                 }
@@ -341,13 +380,13 @@ int drishti_main(int argc, char** argv)
         }
     };
 
-    if (threads == 1 || threads == 0 || doDisplay)
+    if (threads == 1 || threads == 0 || doDisplay || !video->isRandomAccess())
     {
-        harness({ 0, static_cast<int>(filenames.size()) });
+        harness({0, static_cast<int>(video->count())});
     }
     else
     {
-        cv::parallel_for_({ 0, static_cast<int>(filenames.size()) }, harness, std::max(threads, -1));
+        cv::parallel_for_({0, static_cast<int>(video->count())}, harness, std::max(threads, -1));
     }
 
     return 0;
@@ -372,7 +411,41 @@ int main(int argc, char** argv)
     return 0;
 }
 
-// utility
+// utility:
+
+static bool
+checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description)
+{
+    if (sModel.empty())
+    {
+        logger->error() << "Must specify valid model " << sModel;
+        return 1;
+    }
+    if (!drishti::cli::file::exists(sModel))
+    {
+        logger->error() << "Specified model file does not exist or is not readable";
+        return 1;
+    }
+    return 0;
+}
+
+static cv::Mat
+cropEyes(const cv::Mat &image, const drishti::face::FaceModel &face, const cv::Size &size, float scale, bool annotate)
+{
+    const cv::Matx33f H = drishti::face::FaceStabilizer::stabilize(face, size, scale);
+    
+    cv::Mat eyes;
+    cv::warpAffine(image, eyes, H.get_minor<2,3>(0,0), size);
+    
+    if(annotate)
+    {
+        const auto face2 = H * face;
+        face2.eyeFullL->draw(eyes);
+        face2.eyeFullR->draw(eyes);
+    }
+    
+    return eyes;
+}
 
 static bool
 writeAsJson(const std::string& filename, const std::vector<drishti::face::FaceModel>& faces)
@@ -400,3 +473,15 @@ drawObjects(cv::Mat& canvas, const std::vector<drishti::face::FaceModel>& faces)
         f.draw(canvas, 2, true);
     }
 }
+
+#if defined(DRISHTI_USE_IMSHOW)
+static void initWindow(const std::string &name)
+{
+    // Hack/workaround needed for continuous preview in current imshow lib
+    cv::Mat canvas(240, 320, CV_8UC3, cv::Scalar(0, 255, 0));
+    cv::putText(canvas, "GLFW Fix", {canvas.cols/4, canvas.rows/2}, CV_FONT_HERSHEY_PLAIN, 2.0, {0,0,0});
+    glfw::imshow(name.c_str(), canvas);
+    glfw::waitKey(1);
+    glfw::destroyWindow(name.c_str());
+}
+#endif

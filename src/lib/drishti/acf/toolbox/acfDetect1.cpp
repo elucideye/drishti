@@ -172,6 +172,7 @@ const cv::Mat& Detector::Classifier::getScaledThresholds(int type) const
         default:
             assert(false);
     }
+    return thrs; // unused: for static analyzer
 }
 
 static std::shared_ptr<DetectionParams> allocDetector(const MatP& I, DetectionSink* sink)
@@ -185,6 +186,7 @@ static std::shared_ptr<DetectionParams> allocDetector(const MatP& I, DetectionSi
         default:
             assert(false);
     }
+    return nullptr; // unused: for static analyzer
 }
 
 auto Detector::createDetector(const MatP& I, const RectVec& rois, int shrink, cv::Size modelDsPad, int stride, DetectionSink* sink) const -> DetectionParamPtr
@@ -256,11 +258,6 @@ auto Detector::createDetector(const MatP& I, const RectVec& rois, int shrink, cv
 
 void Detector::acfDetect1(const MatP& I, const RectVec& rois, int shrink, cv::Size modelDsPad, int stride, double cascThr, std::vector<Detection>& objects)
 {
-    //DetectionSinkLock detections;
-    //auto detector = createDetector(I, rois, shrink, modelDsPad, stride, &detections);
-    //detector->cascThr = cascThr;
-    //cv::parallel_for_({0, detector->size1.width}, *detector);
-
     DetectionSink detections;
     auto detector = createDetector(I, rois, shrink, modelDsPad, stride, &detections);
     detector->cascThr = cascThr;
