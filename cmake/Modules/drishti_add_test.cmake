@@ -80,6 +80,7 @@ function(drishti_add_test)
     # * APP_ARGUMENTS
     # * TESTING_DIR
     # * RESOURCE_DIR
+    # * DRISHTI_ANDROID_USE_EMULATOR
     configure_file(
         "${DRISHTI_ADD_TEST_SELF_DIR}/templates/AndroidTest.cmake.in"
         "${script_path}"
