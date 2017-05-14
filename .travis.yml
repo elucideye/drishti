@@ -15,6 +15,8 @@ dist:
 # * https://docs.travis-ci.com/user/migrating-from-legacy/#How-do-I-install-APT-sources-and-packages%3F
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       # For Qt
       - libegl1-mesa-dev
@@ -24,42 +26,43 @@ addons:
       - libstdc++6:i386
       - zlib1g:i386
 
+      # Default GCC 4.8 is buggy:
+      # * https://github.com/elucideye/drishti/issues/273#issuecomment-301297286
+      - g++-5
+      - gcc-5
+
 matrix:
   include:
     # Linux {
+
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=gcc-pic-hid-sections INSTALL=--strip
-    # - os: linux
-    #   env: CONFIG=Debug TOOLCHAIN=gcc-pic-hid-sections INSTALL=--strip
+      env: CONFIG=Release TOOLCHAIN=gcc-5-pic-hid-sections-lto INSTALL=--strip
+
     - os: linux
       env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
-    # - os: linux
-    #   env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
+
     # }
 
     # OSX {
-    # - os: osx
-    #   env: CONFIG=Release TOOLCHAIN=libcxx-hid-sections INSTALL=--strip
-    # - os: osx
-    #  env: CONFIG=Debug TOOLCHAIN=libcxx-hid-sections INSTALL=--strip
+
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=osx-10-11-hid-sections INSTALL=--install
-    # - os: osx
-    #   env: CONFIG=Debug TOOLCHAIN=osx-10-11-hid-sections INSTALL=--install
+      env: CONFIG=Release TOOLCHAIN=osx-10-11-hid-sections-lto INSTALL=--install
+
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3-device-hid-sections INSTALL=--install
-    # - os: osx
-    #   env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3-device-hid-sections INSTALL=--install
+      osx_image: xcode8.1
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-10-1-dep-9-0-device-libcxx-hid-sections-lto INSTALL=--install
+
     - os: osx
       osx_image: xcode8.1
       env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
+
     - os: osx
       osx_image: xcode8.1
       env: CONFIG=Debug TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
+
     - os: osx
       env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
-    # - os: osx
-    #   env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
+
     # }
 
 env:
