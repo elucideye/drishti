@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 include(CMakeParseArguments) # cmake_parse_arguments
 
 include(drishti_get_all_dependencies)
+include(drishti_start_android_emulator)
 
 set(DRISHTI_ADD_TEST_SELF_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -73,6 +74,10 @@ function(drishti_add_test)
     endif()
 
     set(TESTING_DIR "${DRISHTI_ANDROID_DEVICE_TESTING_ROOT}/${PROJECT_NAME}/${toolchain_suffix}")
+
+    if(DRISHTI_ANDROID_USE_EMULATOR)
+      drishti_start_android_emulator()
+    endif()
 
     # Use:
     # * ADB_COMMAND
