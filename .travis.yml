@@ -47,7 +47,7 @@ matrix:
 
     - os: osx
       osx_image: xcode8.1
-      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-10-1-dep-9-0-device-libcxx-hid-sections-lto INSTALL=--install
+      env: CONFIG=MinSizeRel TOOLCHAIN=ios-nocodesign-10-1-dep-9-0-device-libcxx-hid-sections-lto INSTALL=--install
 
     - os: osx
       osx_image: xcode8.1
@@ -58,7 +58,7 @@ matrix:
       env: CONFIG=Debug TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
 
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
+      env: CONFIG=MinSizeRel TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
 
     # }
 
@@ -119,6 +119,7 @@ script:
       DRISHTI_ANDROID_USE_EMULATOR=YES
       HUNTER_USE_CACHE_SERVERS=ONLY
       HUNTER_DISABLE_BUILDS=YES
+      HUNTER_CONFIGURATION_TYPES=${CONFIG}
       --test
       --archive drishti
       --jobs 2
