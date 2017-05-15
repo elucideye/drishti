@@ -1,0 +1,16 @@
+#!/bin/bash -e
+
+# Fix error: "emulator: ERROR: unknown skin name 'WVGA800'"
+# * http://stackoverflow.com/a/12022638/2288008
+# * http://stackoverflow.com/a/22587262/2288008
+#
+# NOTE:
+# Hunter has package "Android-SDK" and will define ANDROID-SDK_ROOT/ANDROID_SDK_ROOT environment variables
+export "ANDROID_SDK_ROOT=@ANDROID-SDK_ROOT@/android-sdk"
+
+"@DRISHTI_ANDROID_EMULATOR@" \
+    -avd "@DRISHTI_DEVICE_NAME@" \
+    -no-window \
+    -port "@DRISHTI_DEVICE_PORT@" \
+    1> "@DRISHTI_START_LOG@" \
+    2> "@DRISHTI_START_ERR@" &

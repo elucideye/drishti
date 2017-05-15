@@ -269,7 +269,7 @@ else()
 endif()
 
 if(DRISHTI_BUILD_TESTS OR DRISHTI_BUILD_INTEGRATION_TESTS)
-  if((ANDROID OR IOS) AND drishti_ci)
+  if(IOS AND drishti_ci)
     # do not run test on CI (TODO: remote device testing)
   else()
     enable_testing()

@@ -38,9 +38,6 @@ matrix:
     - os: linux
       env: CONFIG=Release TOOLCHAIN=gcc-5-pic-hid-sections-lto INSTALL=--strip
 
-    - os: linux
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
-
     # }
 
     # OSX {
@@ -119,6 +116,7 @@ script:
       --fwd
       DRISHTI_BUILD_REGRESSION_SIMD=NO
       DRISHTI_BUILD_REGRESSION_FIXED_POINT=NO
+      DRISHTI_ANDROID_USE_EMULATOR=YES
       HUNTER_USE_CACHE_SERVERS=ONLY
       HUNTER_DISABLE_BUILDS=YES
       --test

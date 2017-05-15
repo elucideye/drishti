@@ -30,8 +30,15 @@ set(data_dir "@TESTING_DIR@/data")
 
 message("Using '@ADB_COMMAND@'")
 
+set(adb_command "@ADB_COMMAND@")
+if("@DRISHTI_ANDROID_USE_EMULATOR@")
+  list(APPEND adb_command "-e")
+else()
+  list(APPEND adb_command "-d")
+endif()
+
 message("Creating directory on Android device: '${exe_dir}'")
-set(cmd "@ADB_COMMAND@" shell mkdir -p "${exe_dir}")
+set(cmd ${adb_command} shell mkdir -p "${exe_dir}")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
 if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed: ${cmd}")
@@ -43,21 +50,21 @@ message("Push executable to Android device:")
 message("  '${APP_SOURCE}'")
 message("  -> '${exe_path}'")
 
-set(cmd "@ADB_COMMAND@" push "${APP_SOURCE}" "${exe_path}")
+set(cmd ${adb_command} push "${APP_SOURCE}" "${exe_path}")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
 if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed: ${cmd}")
 endif()
 
 message("Set executable permissions (777)")
-set(cmd "@ADB_COMMAND@" shell chmod 777 "${exe_path}")
+set(cmd ${adb_command} shell chmod 777 "${exe_path}")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
 if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed: ${cmd}")
 endif()
 
 message("Creating directory on Android device: '${data_dir}'")
-set(cmd "@ADB_COMMAND@" shell mkdir -p "${data_dir}")
+set(cmd ${adb_command} shell mkdir -p "${data_dir}")
 execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
 if(NOT result EQUAL 0)
   message(FATAL_ERROR "Command failed: ${cmd}")
@@ -89,7 +96,7 @@ foreach(arg ${app_arguments})
     message("  '${resource}'")
     message("  -> '${res_path}'")
 
-    set(cmd "@ADB_COMMAND@" push "${resource}" "${res_path}")
+    set(cmd ${adb_command} push "${resource}" "${res_path}")
     execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
     if(NOT result EQUAL 0)
       message(FATAL_ERROR "Command failed: ${cmd}")
@@ -99,7 +106,7 @@ endforeach()
 
 if(NOT "${LINKED_LIBS}" STREQUAL "")
   message("Creating directory on Android device: '${libs_dir}'")
-  set(cmd "@ADB_COMMAND@" shell mkdir -p "${libs_dir}")
+  set(cmd ${adb_command} shell mkdir -p "${libs_dir}")
   execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
   if(NOT result EQUAL 0)
     message(FATAL_ERROR "Command failed: ${cmd}")
@@ -114,7 +121,7 @@ if(NOT "${LINKED_LIBS}" STREQUAL "")
     message("  '${x}'")
     message("  -> '${lib_path}'")
 
-    set(cmd "@ADB_COMMAND@" push "${x}" "${lib_path}")
+    set(cmd ${adb_command} push "${x}" "${lib_path}")
     execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
     if(NOT result EQUAL 0)
       message(FATAL_ERROR "Command failed: ${cmd}")
@@ -127,7 +134,7 @@ message("Run command on Android device:")
 message("[@TESTING_DIR@]> \"${exe_path}\" ${arguments}")
 execute_process(
     COMMAND
-    "@ADB_COMMAND@" shell "cd \"@TESTING_DIR@\"; export LD_LIBRARY_PATH=\"${libs_dir}\"; \"${exe_path}\" ${arguments}; echo $?"
+    ${adb_command} shell "cd \"@TESTING_DIR@\"; export LD_LIBRARY_PATH=\"${libs_dir}\"; \"${exe_path}\" ${arguments}; echo $?"
     RESULT_VARIABLE result
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output

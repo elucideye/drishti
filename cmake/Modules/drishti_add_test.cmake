@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 include(CMakeParseArguments) # cmake_parse_arguments
 
 include(drishti_get_all_dependencies)
+include(drishti_start_android_emulator)
 
 set(DRISHTI_ADD_TEST_SELF_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -74,12 +75,17 @@ function(drishti_add_test)
 
     set(TESTING_DIR "${DRISHTI_ANDROID_DEVICE_TESTING_ROOT}/${PROJECT_NAME}/${toolchain_suffix}")
 
+    if(DRISHTI_ANDROID_USE_EMULATOR)
+      drishti_start_android_emulator()
+    endif()
+
     # Use:
     # * ADB_COMMAND
     # * APP_TARGET
     # * APP_ARGUMENTS
     # * TESTING_DIR
     # * RESOURCE_DIR
+    # * DRISHTI_ANDROID_USE_EMULATOR
     configure_file(
         "${DRISHTI_ADD_TEST_SELF_DIR}/templates/AndroidTest.cmake.in"
         "${script_path}"
