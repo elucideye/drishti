@@ -137,24 +137,10 @@ endif()
 ### boost::pba ###
 ##################
 
-option(DRISHTI_USE_LOCAL_BOOST_PBA "Use boost-pba submodule" OFF)
-
 if(DRISHTI_SERIALIZE_WITH_BOOST)
-  if(DRISHTI_USE_LOCAL_BOOST_PBA)
-    # Options:
-    option(BOOST_PBA_BUILD_EXAMPLES "Build examples" OFF)
-    option(BOOST_PBA_INSTALL "Perform installation" ON)
-    # Add library:
-    add_subdirectory("${DRISHTI_3RD_PARTY_DIR}/boost-pba")
-    target_include_directories(boost-pba PUBLIC "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}>")
-    set_property(TARGET boost-pba PROPERTY FOLDER "libs/3rdparty")
-    add_library(boost-pba::boost-pba ALIAS boost-pba)
-    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS boost-pba::boost-pba)
-  else()
-    hunter_add_package(boost-pba)
-    find_package(boost-pba CONFIG REQUIRED)
-    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS boost-pba::boost-pba) # Add library
-  endif()
+  hunter_add_package(boost-pba)
+  find_package(boost-pba CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS boost-pba::boost-pba) # Add library
 endif()
 
 # Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
@@ -164,42 +150,20 @@ endif()
 #######################
 
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
-option(DRISHTI_USE_LOCAL_THREAD_POOL_CPP "Use thread-pool-cpp submodule" OFF)
 
 if(DRISHTI_USE_THREAD_POOL_CPP)
-  if(DRISHTI_USE_LOCAL_THREAD_POOL_CPP)
-    option(THREAD_POOL_CPP_HAS_CPP14 "Has true C++14 support." OFF) # override option
-    option(THREAD_POOL_CPP_BUILD_TESTS "Build tests." OFF)
-    option(THREAD_POOL_CPP_BUILD_BENCHMARKS "Build benchmarks." OFF)
-    option(THREAD_POOL_CPP_INSTALL "Install library." ON)
-    add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/thread-pool-cpp)
-    add_library(thread-pool-cpp::thread-pool-cpp ALIAS thread-pool-cpp)
-    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS thread-pool-cpp::thread-pool-cpp) # Add library
-  else()
-    hunter_add_package(thread-pool-cpp)
-    find_package(thread-pool-cpp CONFIG REQUIRED)
-    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS thread-pool-cpp::thread-pool-cpp) # Add library
-  endif()
+  hunter_add_package(thread-pool-cpp)
+  find_package(thread-pool-cpp CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS thread-pool-cpp::thread-pool-cpp) # Add library
 endif()
 
 ###############
 ### xgboost ###
 ###############
 
-option(DRISHTI_USE_LOCAL_XGBOOST "Use local xgboost" OFF)
-if(DRISHTI_USE_LOCAL_XGBOOST)
-  option(XGBOOST_DO_LEAN "Build lean library for evaluation only" ON)
-  option(SKIP_INSTALL "Avoid installation of submodule libraries" OFF)
-  add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/xgboost)
-  unset(SKIP_INSTALL CACHE)
-  add_library(xgboost::xgboost ALIAS xgboost)
-  list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS xgboost::xgboost) # Add library
-  set_property(TARGET xgboost PROPERTY FOLDER "libs/3rdparty")
-else()
-  hunter_add_package(xgboost)
-  find_package(xgboost CONFIG REQUIRED)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS xgboost::xgboost) # Add library
-endif()
+hunter_add_package(xgboost)
+find_package(xgboost CONFIG REQUIRED)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS xgboost::xgboost) # Add library
 
 ###################
 ### ogles_gpgpu ###
@@ -208,24 +172,9 @@ endif()
 option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
 
 if(DRISHTI_BUILD_OGLES_GPGPU)
-
-  # Support local submodule use or external package:
-  option(DRISHTI_USE_LOCAL_OGLES_GPGPU "Use local ogles_gpgpu" ON)
-
-  if(DRISHTI_USE_LOCAL_OGLES_GPGPU)
-    option(OGLES_GPGPU_INSTALL "Avoid installation of submodule libraries" ON)
-    option(OGLES_GPGPU_BUILD_EXAMPLES "Don't build examples" OFF)
-    option(OGLES_GPGPU_VERBOSE "Don't be verbose" OFF)
-    add_subdirectory( "${DRISHTI_3RD_PARTY_DIR}/ogles_gpgpu" )
-    set(OGLES_GPGPU_LIB ogles_gpgpu)
-    add_library(ogles_gpgpu::ogles_gpgpu ALIAS ogles_gpgpu)
-    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
-    set_property(TARGET ogles_gpgpu PROPERTY FOLDER "libs/3rdparty")
-  else()
-    hunter_add_package(ogles_gpgpu)
-    find_package(ogles_gpgpu CONFIG REQUIRED)
-    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
-  endif()
+  hunter_add_package(ogles_gpgpu)
+  find_package(ogles_gpgpu CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ogles_gpgpu::ogles_gpgpu) # Add library
   set(OGLES_GPGPU_LIB ogles_gpgpu::ogles_gpgpu)
 endif()
 
@@ -269,28 +218,14 @@ endif()
 
 ############
 ## imshow ## :: experimental ::
-############ 
+############
 
 drishti_option(DRISHTI_USE_IMSHOW "Use imshow library for local packages" ON IF NOT(ANDROID OR IOS OR MSVC))
-option(DRISHTI_USE_LOCAL_IMSHOW "Use local imshow" ON)
 
 if(DRISHTI_USE_IMSHOW)
-  if(DRISHTI_USE_LOCAL_IMSHOW)
-    # Configure options (local use):
-    option(IMSHOW_BUILD_EXAMPLES "Build examples" OFF)
-    option(IMSHOW_INSTALL "Perform installation" ON)
-    option(IMSHOW_WITH_OPENCV "Build with support for OpenCV" ON)
-    # Add library:
-    add_subdirectory(${DRISHTI_3RD_PARTY_DIR}/imshow)
-    target_include_directories(imshow PUBLIC $<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/imshow>)
-    set_property(TARGET imshow PROPERTY FOLDER "libs/3rdparty")
-    add_library(imshow::imshow ALIAS imshow)
-    list(APPEND DRISHTI_SDK_3RDPARTY_SRC_LIBS imshow::imshow)
-  else()
-    hunter_add_package(imshow)
-    find_package(imshow CONFIG REQUIRED)
-    list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS imshow::imshow) # Add library
-  endif()
+  hunter_add_package(imshow)
+  find_package(imshow CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS imshow::imshow) # Add library
 endif()
 
 # opencv + linux JPEG workaround
