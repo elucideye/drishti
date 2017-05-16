@@ -96,11 +96,14 @@ public:
     {
         return m_threads;
     }
-    
+
+    FrameHandler createAsynchronousImageLogger();        
+#if DRISHTI_USE_BEAST
     std::shared_ptr<drishti::core::ImageLogger>& getImageLogger()
     {
         return m_imageLogger;
     }
+#endif
 
     const DetectionParams& getDetectionParameters()
     {
@@ -114,8 +117,6 @@ public:
 
     Settings* getSettings() { return m_settings; }
     const Settings* getSettings() const { return m_settings; }
-    
-    FrameHandler createAsynchronousImageLogger();
     
 protected:
     

@@ -19,22 +19,28 @@
 #define DRISHTI_ACF_TEST_DISPLAY_OUTPUT 0
 #define DRISHTI_ACF_TEST_WARM_UP_GPU 0 // for timing only
 
-#if DRISHTI_ACF_DO_GPU
-#include "drishti/acf/GPUACF.h"
-#include "drishti/qtplus/QGLContext.h"
+// clang-format off
+#if defined(DRISHTI_ACF_DO_GPU)
+#  include "drishti/acf/GPUACF.h"
+#  include "drishti/gltest/GLContext.h"
 #endif
+// clang-format on
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_CEREAL
-#include "drishti/core/drishti_stdlib_string.h"
-#include "drishti/core/drishti_cereal_pba.h"
-// http://uscilab.github.io/cereal/serialization_archives.html
-#include <cereal/archives/portable_binary.hpp>
-#include <cereal/types/vector.hpp>
+#  include "drishti/core/drishti_stdlib_string.h"
+#  include "drishti/core/drishti_cereal_pba.h"
+   // http://uscilab.github.io/cereal/serialization_archives.html
+#  include <cereal/archives/portable_binary.hpp>
+#  include <cereal/types/vector.hpp>
 #endif
+// clang-format on
 
+// clang-format off
 #if DRISHTI_SERIALIZE_WITH_BOOST
-#include "drishti/core/drishti_serialization_boost.h"
+#  include "drishti/core/drishti_serialization_boost.h"
 #endif
+// clang-format on
 
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
@@ -107,7 +113,8 @@ protected:
     ACFTest()
     {
         m_logger = drishti::core::Logger::create("test-drishti-acf");
-
+        m_logger->set_level(spdlog::level::off); // by default...
+        
         // Load the ground truth data:
         image = loadImage(imageFilename);
         if (m_hasTranspose)
@@ -120,12 +127,12 @@ protected:
         // * RGB channel order
         loadACFInput(imageFilename);
 
-// TODO: we need to load ground truth output for each shader
-// (some combinations could be tested, but that is probably excessive!)
-//truth = loadImage(truthFilename);
+        // TODO: we need to load ground truth output for each shader
+        // (some combinations could be tested, but that is probably excessive!)
+        // truth = loadImage(truthFilename);
 
-#if DRISHTI_ACF_DO_GPU
-        m_context = std::make_shared<QGLContext>();
+#if defined(DRISHTI_ACF_DO_GPU)
+        m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
 #endif
     }
 
@@ -177,7 +184,7 @@ protected:
         m_hasTranspose = false;
     }
 
-#if DRISHTI_ACF_DO_GPU
+#if defined(DRISHTI_ACF_DO_GPU)
 
     static std::vector<ogles_gpgpu::Size2d> getPyramidSizes(drishti::acf::Detector::Pyramid& Pcpu)
     {
@@ -248,7 +255,7 @@ protected:
         }
     }
 
-    std::shared_ptr<QGLContext> m_context;
+    std::shared_ptr<drishti::gltest::GLContext> m_context;
     std::shared_ptr<ogles_gpgpu::ACF> m_acf;
 #endif
 
@@ -264,14 +271,14 @@ protected:
     MatP m_IpT;
 };
 
-#if DRISHTI_ACF_DO_GPU
+#if defined(DRISHTI_ACF_DO_GPU)
 static cv::Mat getImage(ogles_gpgpu::ProcInterface& proc)
 {
     cv::Mat result(proc.getOutFrameH(), proc.getOutFrameW(), CV_8UC4);
     proc.getResultData(result.ptr());
     return result;
 }
-#endif // DRISHTI_ACF_DO_GPU
+#endif // defined(DRISHTI_ACF_DO_GPU)
 
 // This is a WIP, currently we test the basic CPU detection functionality
 // with a sample image.  Given the complexity of the GPU implementation,
@@ -424,7 +431,7 @@ TEST_F(ACFTest, ACFPyramidCPU)
     ASSERT_GT(pyramid->data.max_size(), 0);
 }
 
-#if DRISHTI_ACF_DO_GPU
+#if defined(DRISHTI_ACF_DO_GPU)
 TEST_F(ACFTest, ACFPyramidGPU10)
 {
     drishti::acf::Detector::Pyramid Pgpu;
@@ -465,7 +472,7 @@ TEST_F(ACFTest, ACFDetectionGPU10)
 
     ASSERT_GT(objects.size(), 0); // Very weak test!!!
 }
-#endif // DRISHTI_ACF_DO_GPU
+#endif // defined(DRISHTI_ACF_DO_GPU)
 
 // ### utility ###
 
@@ -486,6 +493,7 @@ static bool isEqual(const drishti::acf::Detector& a, const drishti::acf::Detecto
         cv::Mat tmp;
         cv::hconcat(a.clf.fids, b.clf.fids, tmp);
         std::cout << tmp << std::endl;
+        return false;
     }
 
     if (!isEqual(a.clf.child, b.clf.child))
@@ -495,6 +503,7 @@ static bool isEqual(const drishti::acf::Detector& a, const drishti::acf::Detecto
         cv::Mat tmp;
         cv::hconcat(a.clf.fids, b.clf.fids, tmp);
         std::cout << tmp << std::endl;
+        return false;
     }
 
     if (!isEqual(a.clf.depth, b.clf.depth))
@@ -504,10 +513,12 @@ static bool isEqual(const drishti::acf::Detector& a, const drishti::acf::Detecto
         cv::Mat tmp;
         cv::hconcat(a.clf.fids, b.clf.fids, tmp);
         std::cout << tmp << std::endl;
+        return false;
     }
 
-    return // The float -> uint16_t -> float will not be an exact match
-        isEqual(a.clf.fids, b.clf.fids) && isEqual(a.clf.child, b.clf.child) && isEqual(a.clf.depth, b.clf.depth);
+    return true;
+    
+    // The float -> uint16_t -> float will not be an exact match    
     //isEqual(a.clf.thrs, b.clf.thrs) &&
     //isEqual(a.clf.hs, b.clf.hs) &&
     //isEqual(a.clf.weights, b.clf.weights) &&

@@ -75,6 +75,7 @@ int drishti_main(int argc, char* argv[])
     bool do_threads = false;
     bool do_thumbs = false;
     bool do_verbose = false;
+    bool do_silent = false;
     bool do_affine = false;
     bool do_interpolate = false;
     bool npd = false;
@@ -123,11 +124,17 @@ int drishti_main(int argc, char* argv[])
         ( "padding", "Feature pool region padding", cxxopts::value<float>(padding))
         ( "threads", "Use worker threads when possible", cxxopts::value<bool>(do_threads))
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(do_verbose))
+        ( "silent", "Disable logging entirely", cxxopts::value<bool>(do_silent))
         ( "help", "Print the help message", cxxopts::value<bool>(do_help));
     // clang-format on    
 
     options.parse(argc, argv);
-    
+
+    if(do_silent)
+    {
+        logger->set_level(spdlog::level::off);
+    }    
+
     if((argumentCount <= 1) || options.count("help"))
     {
         logger->info() << options.help({""});

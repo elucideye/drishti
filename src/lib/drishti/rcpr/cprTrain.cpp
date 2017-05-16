@@ -385,7 +385,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
                 }
 
                 // Now we compose the models, and find parameter producing lowest error
-                std::cout << "done training stage " << t << " param " << i << std::endl;
+                m_streamLogger->info() << "done training stage " << t << " param " << i;
             };
 
             core::ParallelHomogeneousLambda harness(trainRegressor);
@@ -419,7 +419,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
                         del[dims[k]] = predictions[phiIndexToRegressor[dims[k]]][j];
                     }
 
-                    pTmps[i][j] = compose(model, pCur[j], del); // TODO: One parameter at a time?
+                    pTmps[i][j] = compose(model, pCur[j], del);
                     loss += dist(model, pTmps[i][j], pGt[j]);
                 }
                 losses[i] = (loss / double(N));
@@ -430,8 +430,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
 
         for (int j = 0; j < losses.size(); j++)
         {
-            std::cout << losses[j] << " ";
-            std::cout << std::endl;
+            m_streamLogger->info() << "loss:" << losses[j];
         }
 
         int best = 0;
@@ -449,7 +448,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
             ss << i << " ";
         }
 
-        std::cout << "Best loss " << ss.str() << " losses = " << losses[best] << std::endl;
+        m_streamLogger->info() << "Best loss " << ss.str() << " losses = " << losses[best];
         pCur = pTmps[best]; // update current estimate based on best parmeter
 
         trainingLog.resize(trainingLog.size() + 1);

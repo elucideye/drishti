@@ -60,7 +60,7 @@ dlib::point dlib_point(const cv::Point& p)
 int mine(int argc, char* argv[])
 {
     const auto argumentCount = argc;
-
+    
     bool doPreview = false;
     bool doThreads = false;
     bool doVerbose = false;
@@ -80,7 +80,7 @@ int mine(int argc, char* argv[])
         ( "help", "Print the help message", cxxopts::value<bool>(doHelp));
     // clang-format on    
     options.parse(argc, argv);
-    
+
     if((argumentCount <= 1) || options.count("help"))
     {
         std::cout << options.help({""}) << std::endl;

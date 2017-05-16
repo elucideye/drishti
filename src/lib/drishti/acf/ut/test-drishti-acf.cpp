@@ -11,8 +11,8 @@
 #include "drishti/testlib/drishti_test_utils.h"
 
 // clang-format off
-#if DRISHTI_ACF_DO_GPU
-#  include "drishti/qtplus/QGLContext.h"
+#if defined(DRISHTI_ACF_DO_GPU) && defined(DRISHTI_BUILD_QT)
+#  include <QApplication>
 #endif
 // clang-format on
 
@@ -25,7 +25,7 @@ extern const char* outputDirectory;
 
 int drishti_main(int argc, char** argv)
 {
-#if DRISHTI_BUILD_QT && DRISHTI_ACF_DO_GPU
+#if defined(DRISHTI_BUILD_QT) && defined(DRISHTI_ACF_DO_GPU)
     QApplication app(argc, argv);
 #endif
 

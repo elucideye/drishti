@@ -121,11 +121,8 @@ struct VideoFilterRunnable::Impl
 
         m_detector = drishti::hci::FaceFinderPainter::create(resources, settings, glContext);
 
-        // Instantiate an asynchronous network logger:
-        if(manager->getImageLogger())
-        {
-            m_detector->setImageLogger(manager->createAsynchronousImageLogger());
-        }
+        // Instantiate an asynchronous network logger (if available, else nullptr):
+        m_detector->setImageLogger(manager->createAsynchronousImageLogger());
         
         // Face filter:
         if (manager->getFaceMonitor())
