@@ -28,7 +28,7 @@ target_include_directories(test-image-server
   "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/utilities>" # for websocket_async_server.hpp
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>" # drishti_stdlib_string.h (android)
   )
-set_property(TARGET test-image-server PROPERTY FOLDER "app/tutorial")
+set_target_properties(test-image-server PROPERTIES FOLDER "app/tutorial" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 install(TARGETS test-image-server DESTINATION bin)
 
 ####################
@@ -47,5 +47,5 @@ target_include_directories(test-image-client
   "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/Beast/include>"
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>" # drishti_stdlib_string.h (android)
   )
-set_property(TARGET test-image-client PROPERTY FOLDER "app/tutorial")
+set_target_properties(test-image-client PROPERTIES FOLDER "app/tutorial" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 install(TARGETS test-image-client DESTINATION bin)

@@ -100,7 +100,7 @@ if(DRISHTI_BUILD_WORLD)
   endif()
 
   add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
-  set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
+  set_target_properties(drishti_world PROPERTIES FOLDER "libs/drishti")
   drishti_hide(drishti_world)
 
   target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen3::Eigen)
@@ -466,7 +466,7 @@ if(NOT IOS)
 endif()
 
 foreach(library ${drishti_libs} drishti drishtisdk)
-  set_property(TARGET ${library} PROPERTY FOLDER "libs/drishti")
+  set_target_properties(${library} PROPERTIES FOLDER "libs/drishti")
 endforeach()
 
 ###################
@@ -535,7 +535,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
   endif()
 
   add_library(${drishti_c_api_name} ${api_lib_type} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
-  set_property(TARGET ${drishti_c_api_name} PROPERTY FOLDER "libs/drishti")
+  set_target_properties(${drishti_c_api_name} PROPERTIES FOLDER "libs/drishti")
   target_compile_definitions(${drishti_c_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
   target_link_libraries(${drishti_c_api_name} PRIVATE "${DRISHTI_SDK_LIBS}")
   list(APPEND drishti_interface_libs ${drishti_c_api_name})
@@ -603,7 +603,7 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
     add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
     target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
     target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
-    set_property(TARGET drishti_static PROPERTY FOLDER "libs/drishti")
+    set_target_properties(drishti_static PROPERTIES FOLDER "libs/drishti")
     target_include_directories(drishti_static
       PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"

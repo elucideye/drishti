@@ -11,7 +11,7 @@ find_package(RapidXML REQUIRED CONFIG)
 
 add_executable(eyexml eyexml.cpp)
 target_link_libraries(eyexml drishtisdk cxxopts::cxxopts RapidXML::RapidXML)
-set_property(TARGET eyexml PROPERTY FOLDER "app/console")
+set_target_properties(eyexml PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 install(TARGETS eyexml DESTINATION bin)
 
 ###################################################
@@ -33,7 +33,7 @@ if(JPEG_FOUND AND PNG_FOUND)
   add_executable(test_shape_predictor test_shape_predictor.cpp "${dlib_source_cpp}")
   target_link_libraries(test_shape_predictor drishtisdk cxxopts::cxxopts PNG::png)
   target_compile_definitions(test_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
-  set_property(TARGET test_shape_predictor PROPERTY FOLDER "app/console")
+  set_target_properties(test_shape_predictor PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
   install(TARGETS test_shape_predictor DESTINATION bin)
 
   #############################
@@ -44,7 +44,7 @@ if(JPEG_FOUND AND PNG_FOUND)
     add_executable(train_shape_predictor train_shape_predictor.cpp "${dlib_source_cpp}")
     target_link_libraries(train_shape_predictor drishtisdk cxxopts::cxxopts PNG::png)
     target_compile_definitions(train_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
-    set_property(TARGET train_shape_predictor PROPERTY FOLDER "app/console")
+    set_target_properties(train_shape_predictor PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
     install(TARGETS train_shape_predictor DESTINATION bin)
 
     if(DRISHTI_BUILD_TESTS AND NOT (IOS OR ANDROID))

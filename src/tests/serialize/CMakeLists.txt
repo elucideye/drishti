@@ -18,7 +18,7 @@ set(FLATBUFFER_MONSTER_SRCS
 add_executable(tutorial-flatbuffers-monster ${FLATBUFFER_MONSTER_SRCS})
 target_link_libraries(tutorial-flatbuffers-monster PUBLIC flatbuffers::flatbuffers ${OpenCV_LIBS})
 target_compile_definitions(tutorial-flatbuffers-monster PUBLIC DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
-set_property(TARGET tutorial-flatbuffers-monster PROPERTY FOLDER "app/tutorial")
+set_target_properties(tutorial-flatbuffers-monster PROPERTIES FOLDER "app/tutorial")
 
 #################################
 ### Serialization comparison  ###
@@ -30,7 +30,7 @@ target_link_libraries(test-serialize-flatbuffers PUBLIC flatbuffers::flatbuffers
 target_compile_definitions(test-serialize-flatbuffers PUBLIC DRISHTI_USE_FLAT_BUFFERS_SERIALIZATION)
 target_include_directories(test-serialize-flatbuffers PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 #install(TARGETS test-serialize-flatbuffers DESTINATION bin)
-set_property(TARGET test-serialize-flatbuffers PROPERTY FOLDER "app/tests")
+set_target_properties(test-serialize-flatbuffers PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 
 # Boost serialization code:
 add_executable(test-serialize-boost test-serialize-boost.cpp Monster_c.h)
@@ -38,7 +38,7 @@ target_link_libraries(test-serialize-boost PUBLIC Boost::iostreams Boost::serial
 target_compile_definitions(test-serialize-boost PUBLIC DRISHTI_USE_BOOST_SERIALIZATION)
 target_include_directories(test-serialize-boost PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 #install(TARGETS test-serialize-boost DESTINATION bin)
-set_property(TARGET test-serialize-boost PROPERTY FOLDER "app/tests")
+set_target_properties(test-serialize-boost PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 
 # Cereal serialization code:
 add_executable(test-serialize-cereal test-serialize-cereal.cpp Monster_c.h)
@@ -46,7 +46,7 @@ target_link_libraries(test-serialize-cereal PUBLIC cereal::cereal ${OpenCV_LIBS}
 target_compile_definitions(test-serialize-cereal PUBLIC DRISHTI_USE_CEREAL_SERIALIZATION)
 target_include_directories(test-serialize-cereal PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 #install(TARGETS test-serialize-cereal DESTINATION bin)
-set_property(TARGET test-serialize-cereal PROPERTY FOLDER "app/tests")
+set_target_properties(test-serialize-cereal PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 
 ##
 ## GTest + CTest

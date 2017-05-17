@@ -42,10 +42,10 @@ if(APPLE)
     )
 endif()
 
-set_property(TARGET drishti_videoio PROPERTY FOLDER "libs/drishti")
+set_target_properties(drishti_videoio PROPERTIES FOLDER "libs/drishti")
 
 ### app ###
 
 add_executable(test-videoio videoio.cpp)
 target_link_libraries(test-videoio drishti_videoio cxxopts::cxxopts)
-set_property(TARGET test-videoio PROPERTY FOLDER "app/console")
+set_target_properties(test-videoio PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})

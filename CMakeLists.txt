@@ -259,6 +259,7 @@ option(DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES "Instantiate CEREAL output archives"
 option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." ON)
 option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." ON)
 option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
+option(DRISHTI_EXE_IPO "Local executable target INTERPROCEDURAL_OPTIMIZATION." ON)
 
 string(COMPARE EQUAL "$ENV{TRAVIS}" "true" travis_ci)
 string(COMPARE EQUAL "$ENV{APPVEYOR}" "True" appveyor_ci)

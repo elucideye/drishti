@@ -3,7 +3,7 @@ set(test_app test-drishti-ml)
 
 add_executable(${test_app} test-drishti-ml.cpp test-RTEShapeEstimator.cpp)
 target_link_libraries(${test_app} PUBLIC drishtisdk ${OpenCV_LIBS} GTest::gtest)
-set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
+set_target_properties(${test_app} PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 
 include(drishti_set_unit_test_assets)
 drishti_set_unit_test_assets(

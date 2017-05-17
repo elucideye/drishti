@@ -29,7 +29,7 @@ set(e_test_name DrishtiDrishtiEyeTest)
 set(e_test_app test-drishti-drishti-eye)
 
 add_executable(${e_test_app} test-EyeSegmenter.cpp)
-set_property(TARGET ${e_test_app} PROPERTY FOLDER "app/tests")
+set_target_properties(${e_test_app} PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 target_link_libraries(${e_test_app} PUBLIC ${drishti_sdk_lib}
   ${OpenCV_LIBS}
   GTest::gtest
@@ -85,7 +85,7 @@ endif()
 
 add_executable(${f_test_app} ${f_sources})
 
-set_property(TARGET ${f_test_app} PROPERTY FOLDER "app/tests")
+set_target_properties(${f_test_app} PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 target_link_libraries(${f_test_app} PUBLIC ${drishti_sdk_lib}
   ${OpenCV_LIBS}
   GTest::gtest

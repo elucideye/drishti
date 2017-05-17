@@ -9,5 +9,5 @@ if(DRISHTI_USE_IMSHOW)
   target_compile_definitions(${test_app} PUBLIC DRISHTI_USE_IMSHOW)
 endif()
 
-set_property(TARGET ${test_app} PROPERTY FOLDER "app/console")
+set_target_properties(${test_app} PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 install(TARGETS ${test_app} DESTINATION bin)

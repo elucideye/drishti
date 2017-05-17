@@ -25,5 +25,5 @@ endif()
 target_include_directories(${test_app} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>"
   )
-set_property(TARGET ${test_app} PROPERTY FOLDER "app/console")
+set_target_properties(${test_app} PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 install(TARGETS ${test_app} DESTINATION bin)

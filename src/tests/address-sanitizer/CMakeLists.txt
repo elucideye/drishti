@@ -1,6 +1,6 @@
 add_executable(test-drishti-asan test-drishti-asan.cpp)
 target_link_libraries(test-drishti-asan PUBLIC GTest::main)
-set_property(TARGET test-drishti-asan PROPERTY FOLDER "app/tests")
+set_target_properties(test-drishti-asan PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 
 enable_testing()
 

@@ -3,7 +3,7 @@ set(test_app test-drishti-face)
 
 add_executable(${test_app} test-drishti-face.cpp)
 target_link_libraries(${test_app} PUBLIC drishtisdk ${OpenCV_LIBS} GTest::gtest)
-set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
+set_target_properties(${test_app} PROPERTIES FOLDER "app/tests" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
 if(APPLE AND NOT IOS)

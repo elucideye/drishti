@@ -204,4 +204,4 @@ if(DRISHTI_USE_BEAST)
     )
 endif()  
 
-set_property(TARGET facefilter PROPERTY FOLDER "app/gui")
+set_target_properties(facefilter PROPERTIES FOLDER "app/gui")

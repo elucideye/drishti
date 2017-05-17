@@ -11,5 +11,5 @@ endif()
 #include "videoio/VideoSource.h"
 target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${DRISHTI_APP_DIRECTORIES}>")
 
-set_property(TARGET ${test_app} PROPERTY FOLDER "app/console")
+set_target_properties(${test_app} PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 install(TARGETS ${test_app} DESTINATION bin)

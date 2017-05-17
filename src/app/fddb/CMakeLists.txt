@@ -9,5 +9,5 @@ if(DRISHTI_USE_IMSHOW)
   target_link_libraries(${test_app} imshow::imshow)
 endif()
 
-set_property(TARGET ${test_app} PROPERTY FOLDER "app/console")
+set_target_properties(${test_app} PROPERTIES FOLDER "app/console" INTERPROCEDURAL_OPTIMIZATION ${DRISHTI_EXE_IPO})
 install(TARGETS ${test_app} DESTINATION bin)

@@ -29,4 +29,4 @@ target_include_directories(drishti_landmarks PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>"
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
   )
-set_property(TARGET drishti_landmarks PROPERTY FOLDER "libs/drishti")
+set_target_properties(drishti_landmarks PROPERTIES FOLDER "libs/drishti")
