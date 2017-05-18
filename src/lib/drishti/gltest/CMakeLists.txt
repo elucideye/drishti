@@ -37,9 +37,5 @@ if(${drishti_has_glfw})
   target_compile_definitions(drishti_gltest PUBLIC DRISHTI_HAS_GLFW=1)
 endif()
 
-target_include_directories(drishti_gltest
-  PUBLIC
-  "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
-  "$<INSTALL_INTERFACE:${drishti_include_install_dir}>")
-
+target_include_directories(drishti_gltest PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 set_property(TARGET drishti_gltest PROPERTY FOLDER "libs/drishti")
