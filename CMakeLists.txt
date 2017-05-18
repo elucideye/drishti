@@ -127,6 +127,12 @@ drishti_set_cxx_flags()
 
 string(COMPARE EQUAL "${CMAKE_SYSTEM_NAME}" "Linux" is_linux)
 
+if(IOS OR ANDROID)
+  set(drishti_is_mobile TRUE)
+else()
+  set(drishti_is_mobile FALSE)
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 ##############

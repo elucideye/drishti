@@ -75,6 +75,7 @@ public:
         std::vector<std::istream*> sFaceRegressors;
         std::istream* sEyeRegressor;
         std::istream* sFaceModel;
+        std::string logger; // logger name
     };
 
     class Impl;

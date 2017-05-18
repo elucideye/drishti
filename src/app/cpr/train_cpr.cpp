@@ -134,6 +134,7 @@ int drishti_main(int argc, char** argv)
     // TODO: support generic ellipse regression (no iris assumption)
     const bool doIris = true;
 
+    bool doSilent = false;
     bool doVerbose = false;
     bool doHelp = false;
 
@@ -151,16 +152,22 @@ int drishti_main(int argc, char** argv)
         ( "recipe", "Training recipe", cxxopts::value<std::string>(sRecipe) )
         ( "template", "Training recipe template", cxxopts::value<std::string>(sTemplate) )
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose) )
+        ( "silent", "Disable logging entirely.", cxxopts::value<bool>(doSilent) )
         
 #if defined(DRISHTI_USE_IMSHOW)        
         ( "window", "Do window", cxxopts::value<bool>(doWindow) )
 #endif
         
         ( "help", "Print the help message", cxxopts::value<bool>(doHelp) );
-    // clang-format on    
-    
+    // clang-format on
+
     options.parse(argc, argv);
-    
+
+    if(doSilent)
+    {
+        logger->set_level(spdlog::level::off); // by default...
+    }
+        
     if((argumentCount <= 1) || options.count("help"))
     {
         logger->info() << options.help({""});
@@ -242,6 +249,7 @@ int drishti_main(int argc, char** argv)
     
     { // Train the model:
         drishti::rcpr::CPR cpr;
+        cpr.setStreamLogger(logger);
         
 #if defined(DRISHTI_USE_IMSHOW)
         if(doWindow)
@@ -266,8 +274,9 @@ int drishti_main(int argc, char** argv)
     // Test the model
     if(!sTest.empty())
     {
-        drishti::rcpr::CPR cprTest;
-        load_pba_z(sModel, cprTest);
+        drishti::rcpr::CPR cpr;
+        load_pba_z(sModel, cpr);
+        cpr.setStreamLogger(logger);        
 
         EllipseSamples test(logger);
         test.load(sTest, targetWidth, sExtension, doIris);
@@ -276,7 +285,7 @@ int drishti_main(int argc, char** argv)
         for(int i = 0; i < test.samples.images.size(); i++)
         {
             drishti::rcpr::CPR::CPRResult result;
-            cprTest.cprApplyTree(test.samples.images[i], *cprTest.regModel, *(cprTest.regModel->pStar), result);
+            cpr.cprApplyTree(test.samples.images[i], *cpr.regModel, *(cpr.regModel->pStar), result);
 
             // Measure error at each stage:
             for(int t = 0; t < T; t++)
@@ -286,7 +295,7 @@ int drishti_main(int argc, char** argv)
 
 #if defined(DRISHTI_USE_IMSHOW) && TRAIN_CPR_DEBUG_LOAD
             {
-                cv::Mat canvas = previewSample(test.samples.images[i].getImage(), result, *(cprTest.regModel->pStar));
+                cv::Mat canvas = previewSample(test.samples.images[i].getImage(), result, *(cpr.regModel->pStar));
                 glfw::destroyWindow("I");
                 glfw::imshow("I", canvas);
                 glfw::waitKey(0);

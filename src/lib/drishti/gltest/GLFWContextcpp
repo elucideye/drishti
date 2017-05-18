@@ -12,6 +12,8 @@
 #include <QDebug>
 #include <iostream>
 
+DRISHTI_QTPLUS_BEGIN
+
 // https://forum.qt.io/topic/52688/console-application-with-opengl/2
 
 QGLContext::QGLContext()
@@ -58,3 +60,5 @@ QGLContext::~QGLContext()
     m_context->doneCurrent();
     m_surface->deleteLater();
 }
+
+DRISHTI_QTPLUS_END

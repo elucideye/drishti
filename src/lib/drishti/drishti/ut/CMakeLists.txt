@@ -69,7 +69,7 @@ endif()
 # Note: Currently we will skip the public FACE api if GPU is unavailable
 # but we will leave conditionals in place below in anticipation of supporting
 # a CPU version of the public SDK:
-if(NOT DRISHTI_BUILD_HCI OR NOT DRISHTI_HCI_DO_GPU)
+if(NOT DRISHTI_BUILD_HCI OR NOT (TARGET drishti_gltest))
   return()
 endif()
 
@@ -79,10 +79,6 @@ set(f_test_name DrishtiDrishtiFaceTest)
 set(f_test_app test-drishti-drishti-face)
 
 set(f_sources test-FaceTracker.cpp)
-if(DRISHTI_HCI_DO_GPU)
-  list(APPEND f_sources ${DRISHTI_QTPLUS_HDRS} ${DRISHTI_QTPLUS_SRCS})
-endif()
-
 add_executable(${f_test_app} ${f_sources})
 
 set_property(TARGET ${f_test_app} PROPERTY FOLDER "app/tests")
@@ -92,32 +88,13 @@ target_link_libraries(${f_test_app} PUBLIC ${drishti_sdk_lib}
   drishtisdk # include drishtisdk for drishti::face::FaceModel serialization
   )
 
-drishti_bool_to_int(DRISHTI_BUILD_QT build_qt)
-target_compile_definitions(${f_test_app} PUBLIC DRISHTI_BUILD_QT=${build_qt})
-
-### POST_BUILD GPU ADDITIONS ###
-if(DRISHTI_HCI_DO_GPU)
-  find_package(Qt5PrintSupport REQUIRED)
-  target_link_libraries(${f_test_app} PUBLIC ${OGLES_GPGPU_LIB} Qt5::Widgets Qt5::PrintSupport)
-  target_compile_definitions(${f_test_app} PUBLIC DRISHTI_HCI_DO_GPU=${DRISHTI_HCI_DO_GPU})
-endif()
-
-# OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
-if(APPLE)
-  if(IOS)
-    target_link_libraries(${f_test_app} PUBLIC
-      "-framework CoreFoundation"
-      "-framework Foundation"  # _NSLog
-      )
-  else()
-    target_link_libraries(${f_test_app} PUBLIC
-      "-framework ImageIO"
-      "-framework CoreVideo"
-      )
+if(DRISHTI_BUILD_OGLES_GPGPU)
+  target_link_libraries(${f_test_app} PUBLIC drishti_gltest)
+  target_compile_definitions(${f_test_app} PUBLIC DRISHTI_DRISHTI_DO_GPU=1)
+  if(DRISHTI_BUILD_QT)
+    target_compile_definitions(${f_test_app} PUBLIC DRISHTI_BUILD_QT=1)
   endif()
 endif()
-
-###
 
 if(DRISHTI_BUILD_C_INTERFACE)
   target_link_libraries(${f_test_app} PUBLIC drishti_c)

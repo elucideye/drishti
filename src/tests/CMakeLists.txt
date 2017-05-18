@@ -18,3 +18,7 @@ endif()
 if(DRISHTI_USE_IMSHOW)
   add_subdirectory(glfwimshow)
 endif()
+
+if(TARGET drishti_gltest)
+  add_subdirectory(ogles_gpgpu)
+endif()
