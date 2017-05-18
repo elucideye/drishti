@@ -17,7 +17,7 @@ public:
 
     virtual bool isValid(const cv::Point3f& position, const TimePoint& timeStamp)
     {
-        std::cout << "Received detection at position: " << position << std::endl;
+        //std::cout << "Received detection at position: " << position << std::endl;
         return true;
     }
 

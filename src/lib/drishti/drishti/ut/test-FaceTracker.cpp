@@ -17,8 +17,11 @@
 #include "drishti/core/ThreadPool.h"
 
 // clang-format off
-#if DRISHTI_HCI_DO_GPU
-#  include "drishti/qtplus/QGLContext.h"
+#if defined(DRISHTI_DRISHTI_DO_GPU)
+#  include "drishti/gltest/GLContext.h"
+#  if defined(DRISHTI_BUILD_QT)
+#    include <QApplication>
+#  endif
 #endif
 // clang-format on
 
@@ -44,7 +47,7 @@ const char* sImageFilename;
 
 int drishti_main(int argc, char** argv)
 {
-#if DRISHTI_BUILD_QT && DRISHTI_HCI_DO_GPU
+#if defined(DRISHTI_BUILD_QT) && defined(DRISHTI_DRISHTI_DO_GPU)
     QApplication app(argc, argv);
 #endif
 
@@ -85,12 +88,13 @@ protected:
     FaceTest()
     {
         m_logger = drishti::core::Logger::create("test-drishti-drishti-face");
+        m_logger->set_level(spdlog::level::off); // by default...
 
         // Load the ground truth data:
         image = loadImage(sImageFilename);
 
-#if DRISHTI_HCI_DO_GPU
-        m_context = std::make_shared<QGLContext>();
+#if defined(DRISHTI_DRISHTI_DO_GPU)
+        m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
 #endif
 
         // TODO: we need to load ground truth output for each shader
@@ -142,7 +146,9 @@ protected:
         factory.sEyeRegressor = &iEyeRegressor;
         factory.sFaceModel = &iFaceDetectorMean;
 
-        return std::make_shared<drishti::sdk::FaceTracker>(&context, factory);
+        auto tracker = std::make_shared<drishti::sdk::FaceTracker>(&context, factory);
+                
+        return tracker;
     }
 
     void runTest(bool doCpu, bool doAsync)
@@ -305,8 +311,8 @@ protected:
         return image;
     }
 
-#if DRISHTI_HCI_DO_GPU
-    std::shared_ptr<QGLContext> m_context;
+#if defined(DRISHTI_DRISHTI_DO_GPU)
+    std::shared_ptr<drishti::gltest::GLContext> m_context;
 #endif
 
     void* m_glContext = nullptr;
