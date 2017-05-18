@@ -54,7 +54,6 @@ public:
 #endif
         , saturationProc(1.0)
     {
-        nmsProc1.setThreshold(0.05); // single image nms
         nmsProc1.swizzle(1, 3);      // in(2), out(3)
 
         smoothProc1.add(&saturationProc);
