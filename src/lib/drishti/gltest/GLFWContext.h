@@ -12,6 +12,11 @@
 
 #include "drishti/gltest/GLContext.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#  include <windows.h> // CMakeLists.txt defines NOMINMAX
+#  include <gl/glew.h>
+#endif
+
 #include <GLFW/glfw3.h>
 
 DRISHTI_GLTEST_BEGIN
