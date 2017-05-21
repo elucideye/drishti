@@ -19,9 +19,11 @@ const char* sFaceRegressor;
 const char* sEyeRegressor;
 const char* sImageFilename;
 
-#if DRISHTI_HCI_DO_GPU
-#include "drishti/qtplus/QGLContext.h"
+// clang-format off
+#if defined(DRISHTI_HCI_DO_GPU)
+#  include "drishti/gltest/GLContext.h"
 #endif
+// clang-format on
 
 #if DRISHTI_SERIALIZE_WITH_CEREAL
 #include "drishti/core/drishti_stdlib_string.h"
@@ -87,6 +89,7 @@ protected:
     HCITest()
     {
         m_logger = drishti::core::Logger::create("test-drishti-hci");
+        m_logger->set_level(spdlog::level::off); // by default...
 
         // Load the ground truth data:
         image = loadImage(sImageFilename);
@@ -110,8 +113,8 @@ protected:
         m_settings.doFlow = true;
         m_settings.doBlobs = true;
 
-#if DRISHTI_HCI_DO_GPU
-        m_context = std::make_shared<QGLContext>();
+#if defined(DRISHTI_HCI_DO_GPU)
+        m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
 #endif
     }
 
@@ -253,8 +256,8 @@ protected:
     drishti::hci::FaceFinder::Settings m_settings;
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;
 
-#if DRISHTI_HCI_DO_GPU
-    std::shared_ptr<QGLContext> m_context;
+#if defined(DRISHTI_HCI_DO_GPU)
+    std::shared_ptr<drishti::gltest::GLContext> m_context;
 #endif
 
     void* m_glContext = nullptr;
@@ -265,7 +268,7 @@ protected:
     cv::Mat image, truth;
 };
 
-#if DRISHTI_HCI_DO_GPU
+#if defined(DRISHTI_HCI_DO_GPU)
 TEST_F(HCITest, RunTestCPUAsync)
 {
     static const bool doCpu = true;
@@ -279,6 +282,6 @@ TEST_F(HCITest, RunTestGPUAsync)
     static const bool doAsync = true;
     runTest(doCpu, doAsync);
 }
-#endif // DRISHTI_HCI_DO_GPU
+#endif // defined(DRISHTI_HCI_DO_GPU)
 
 END_EMPTY_NAMESPACE

@@ -54,6 +54,7 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
         return;
     }
 
+#if DRISHTI_USE_BEAST    
     const auto& address = (*settings)["ipAddress"];
     if (!address.empty())
     {
@@ -65,6 +66,7 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
             m_imageLogger = std::make_shared<drishti::core::ImageLogger>(host, port);
         }
     }
+#endif
 
     // Parse detection parameters (minDepth, maxDepth)
     m_detectionParams.m_minDepth = device["detectionRange"]["minDepth"];
@@ -109,6 +111,7 @@ bool FrameHandlerManager::good() const
 
 auto FrameHandlerManager::createAsynchronousImageLogger() -> FrameHandler
 {
+#if DRISHTI_USE_BEAST    
     if(!m_imageLogger)
     {
         return nullptr;
@@ -125,6 +128,9 @@ auto FrameHandlerManager::createAsynchronousImageLogger() -> FrameHandler
     };
 
     return logger;
+#else
+    return nullptr;
+#endif
 }
 
 void FrameHandlerManager::setSize(const cv::Size& size)

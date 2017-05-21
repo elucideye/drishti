@@ -54,6 +54,7 @@ if(NOT DRISHTI_BUILD_MIN_SIZE)
       "--model=${eye_out_model}"
       "--recipe=${eye_recipe_json}"
       "--extension=.json"
+      "--silent"      
       )
 
   endif()

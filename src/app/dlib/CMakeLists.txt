@@ -83,12 +83,12 @@ if(JPEG_FOUND AND PNG_FOUND)
         "eye_model_train"
         COMMAND
         "train_shape_predictor"
-        "--verbose"
         "--depth=2"
         "--cascades=3"
         "--dimensions=2,4,6"
         "--train=${eye_src_train_xml}"
         "--model=${eye_out_model}"
+        "--silent"        
         )
 
       add_test(

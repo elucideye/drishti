@@ -29,13 +29,20 @@ set(LIB_TYPE STATIC)
 if(DRISHTI_BUILD_WORLD)
 
   set(DRISHTI_WORLD_SOURCES
-    ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC}
-    ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC}
-    ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC}
-    ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC}
-    ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC}
-    ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC}
-    ${DRISHTI_GRAPHICS_SRCS} ${DRISHTI_GRAPHICS_HDRS_PUBLIC}
+    ${DRISHTI_CORE_SRCS}
+    ${DRISHTI_CORE_HDRS_PUBLIC}
+    ${DRISHTI_GEOMETRY_SRCS}
+    ${DRISHTI_GEOMETRY_HDRS_PUBLIC}
+    ${DRISHTI_SENSOR_SRCS}
+    ${DRISHTI_SENSOR_HDRS_PUBLIC}
+    ${DRISHTI_ML_SRCS}
+    ${DRISHTI_ML_HDRS_PUBLIC}
+    ${DRISHTI_RCPR_SRCS}
+    ${DRISHTI_RCPR_HDRS_PUBLIC}
+    ${DRISHTI_EYE_SRCS}
+    ${DRISHTI_EYE_HDRS_PUBLIC}
+    ${DRISHTI_GRAPHICS_SRCS}
+    ${DRISHTI_GRAPHICS_HDRS_PUBLIC}
     )
 
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -214,33 +221,49 @@ else()
 
 endif(DRISHTI_BUILD_WORLD)
 
+# We use the internal drishti_gltest for an off screen OpenGL context.  This may be
+# implemented with Qt (portably) or GLFW (NOT (ANDROID OR IOS)).  Qt requires
+# some build overhead and may not be suitable for CI testing.  For Android platforms,
+# Qt will actually build each native "application" as a shared library, which currently
+# doesn't play well with the drishti_test_main module used for cross platform testing,
+# so we skip Android testing for now and can rely on Emulator/QEMU testing.
+# iOS + QT faces a similar issues, which may be more easily resolved. Android emulator
+# may be another option for providing an OpenGL context in native code.
+# The near term intention is to support this: if(DRISHTI_BUILD_QT OR (NOT ${drishti_is_mobile}))
+if(NOT ${drishti_is_mobile} AND NOT ${is_ci})
+  add_subdirectory(gltest)
+endif()
+
+# For Android platforms, we must specify -DHALF_ENABLE_CPP11_CMATH=0 for all modules
+# using the half precision floating point storage (i.e., package half)
 if(ANDROID)
   foreach(library ${drishti_half_libs})
-    # -DHALF_ENABLE_CPP11_CMATH=0
     target_compile_definitions(${library} PUBLIC HALF_ENABLE_CPP11_CMATH=0)
   endforeach()
 endif()
 
+# For all regression modules, we must provide definitions corresponding
+# to options for ensemble of regression tree leaf node accumulation:
+#   -DDRISHTI_BUILD_REGRESSION_SIMD=(0|1)
+#   -DDRISHTI_BUILD_REGRESSION_FIXED_POINT=(0|1)
 foreach(library ${drishti_regression_libs})
-  # -DDRISHTI_BUILD_REGRESSION_SIMD=(0|1)
   drishti_bool_to_int(DRISHTI_BUILD_REGRESSION_SIMD build_regression_simd)
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_REGRESSION_SIMD=${build_regression_simd})
-  # -DDRISHTI_BUILD_REGRESSION_FIXED_POINT=(0|1)
   drishti_bool_to_int(DRISHTI_BUILD_REGRESSION_FIXED_POINT build_regression_fixed_point)
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_REGRESSION_FIXED_POINT=${build_regression_fixed_point})
 endforeach()
 
-##
-## Build and install a single library or framework from our set of object libraries
-##
-
-# https://public.kitware.com/Bug/bug_relationship_graph.php?bug_id=15038&graph=dependency
-# http://www.cmake.org/pipermail/cmake/2014-February/057055.html
-# https://public.kitware.com/Bug/bug_relationship_graph.php?bug_id=14970&graph=relation
-set(DRISHTI_SDK_SRCS master/drishti_master.hpp master/drishti_master.cpp)
+# Build and install a single library or framework from our set of "object" libraries
+# Note: Due to complications with object libraries we are either using per module
+# static libraries or a single drishti_world compilation from all global siources
+# gathered by the Sugar package.
+#   * https://public.kitware.com/Bug/bug_relationship_graph.php?bug_id=15038&graph=dependency
+#   * http://www.cmake.org/pipermail/cmake/2014-February/057055.html
+#   * https://public.kitware.com/Bug/bug_relationship_graph.php?bug_id=14970&graph=relation
+set(drishti_sdk_srcs master/drishti_master.hpp master/drishti_master.cpp)
 
 # Create dependency list
-set(DRISHTI_SDK_LIBS ${drishti_libs} ${DRISHTI_SDK_3RDPARTY_LIBS})
+set(drishti_sdk_libs ${drishti_libs} ${DRISHTI_SDK_3RDPARTY_LIBS})
 
 if(DRISHTI_BUILD_HCI AND MSVC)
   # FaceTracker.cpp -> FaceTracker.hpp -> Context.hpp -> drishti_gl.hpp -> gl/glew.h
@@ -248,50 +271,9 @@ if(DRISHTI_BUILD_HCI AND MSVC)
   find_package(glew CONFIG REQUIRED)
 endif()
 
-######################
-####### OpenGL #######
-######################
-
-set(DRISHTI_OPENGL_LIBS "")
-if(APPLE)
-  if(IOS)
-    set(DRISHTI_OPENGL_LIBS "-framework OpenGLES")
-  else()
-    set(DRISHTI_OPENGL_LIBS "-framework OpenGL")
-  endif()
-elseif(ANDROID)
-  find_package(EGL REQUIRED)
-  find_package(OpenGLES2 REQUIRED)
-  set(DRISHTI_OPENGL_LIBS ${EGL_LIBRARIES} ${OpenGLES2_LIBRARIES})
-else()
-  find_package(OpenGL REQUIRED)
-  set(DRISHTI_OPENGL_LIBS OpenGL::GL)
-endif()
-list(APPEND DRISHTI_SDK_LIBS "${DRISHTI_OPENGL_LIBS}")
-
-if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
-  if(APPLE)
-    # These frameworks are needed for  optimized texture cache in GPGPU build
-    # of the final shared library
-    if(IOS)
-      list(APPEND DRISHTI_SDK_LIBS
-        "-framework ImageIO"
-        "-framework CoreFoundation"
-        "-framework Foundation" # NSLog
-        )
-    else()
-      list(APPEND DRISHTI_SDK_LIBS
-        "-framework ImageIO"
-        "-framework CoreFoundation"
-        "-framework CoreVideo"
-        )
-    endif()
-  endif(APPLE)
-endif()
-
 ### drishtisdk (static)
-add_library(drishtisdk ${DRISHTI_SDK_SRCS})
-target_link_libraries(drishtisdk PUBLIC ${DRISHTI_SDK_LIBS})
+add_library(drishtisdk ${drishti_sdk_srcs})
+target_link_libraries(drishtisdk PUBLIC ${drishti_sdk_libs})
 drishti_strip(drishtisdk)
 drishti_hide(drishtisdk)
 set_target_properties(drishtisdk
@@ -412,7 +394,7 @@ set(drishti_interface_libs "")
 # Create the public shared library
 add_library(${drishti_api_name} ${api_lib_type} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC} ${drishti_sdk_hpp})
 target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-target_link_libraries(${drishti_api_name} PRIVATE "${DRISHTI_SDK_LIBS}")
+target_link_libraries(${drishti_api_name} PRIVATE "${drishti_sdk_libs}")
 list(APPEND drishti_interface_libs ${drishti_api_name})
 
 if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
@@ -537,7 +519,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
   add_library(${drishti_c_api_name} ${api_lib_type} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
   set_property(TARGET ${drishti_c_api_name} PROPERTY FOLDER "libs/drishti")
   target_compile_definitions(${drishti_c_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-  target_link_libraries(${drishti_c_api_name} PRIVATE "${DRISHTI_SDK_LIBS}")
+  target_link_libraries(${drishti_c_api_name} PRIVATE "${drishti_sdk_libs}")
   list(APPEND drishti_interface_libs ${drishti_c_api_name})
 
   if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
@@ -583,16 +565,6 @@ endforeach()
 ## Unit tests ###
 #################
 
-# The GPU tests currently require QT for the off screen GL context
-# and this won't be installed with the simple shared library
-# dependency walker
-# https://github.com/elucideye/drishti/issues/259
-if(DRISHTI_BUILD_QT AND DRISHTI_BUILD_OGLES_GPGPU AND NOT ANDROID)
-  set(DRISHTI_HCI_DO_GPU 1)
-else()
-  set(DRISHTI_HCI_DO_GPU 0)
-endif()
-
 # NOTE: These should come last to ensure all library targets are available
 if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
 
@@ -602,7 +574,7 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
     # * use this library for IDE debugging as an alternative to the stripped public library
     add_library(drishti_static STATIC ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC})
     target_compile_definitions(drishti_static PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-    target_link_libraries(drishti_static PRIVATE "${DRISHTI_SDK_LIBS}")
+    target_link_libraries(drishti_static PRIVATE "${drishti_sdk_libs}")
     set_property(TARGET drishti_static PROPERTY FOLDER "libs/drishti")
     target_include_directories(drishti_static
       PUBLIC

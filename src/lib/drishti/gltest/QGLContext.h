@@ -8,8 +8,10 @@
 
 */
 
-#ifndef __drishti_qtplus_QGLContext_h__
-#define __drishti_qtplus_QGLContext_h__
+#ifndef __drishti_gltest_QGLContext_h__
+#define __drishti_gltest_QGLContext_h__
+
+#include "drishti/gltest/GLContext.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -21,15 +23,22 @@
 
 #include <memory>
 
-class QGLContext
+DRISHTI_GLTEST_BEGIN
+
+class QGLContext : public GLContext
 {
 public:
+
     QGLContext();
     ~QGLContext();
+    operator bool() const;
 
 protected:
+    
     std::shared_ptr<QOffscreenSurface> m_surface;
     std::shared_ptr<QOpenGLContext> m_context;
 };
 
-#endif // __drishti_qtplus_QGLContext_h__
+DRISHTI_GLTEST_END
+
+#endif // __drishti_gltest_QGLContext_h__

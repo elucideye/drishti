@@ -34,8 +34,6 @@ precision OGLES_GPGPU_HIGHP float;
  varying vec2 bottomLeftTextureCoordinate;
  varying vec2 bottomRightTextureCoordinate;
  
- uniform float threshold;
- 
  void main()
  {
      float bottomColor = texture2D(inputImageTexture, bottomTextureCoordinate).r;
@@ -72,14 +70,12 @@ Nms2Proc::Nms2Proc()
 void Nms2Proc::setUniforms()
 {
     Filter3x3Proc::setUniforms();
-    glUniform1f(shParamUThreshold, threshold);
 }
 
 void Nms2Proc::getUniforms()
 {
     Filter3x3Proc::getUniforms();
     shParamUInputTex = shader->getParam(UNIF, "inputImageTexture");
-    shParamUThreshold = shader->getParam(UNIF, "threshold");
 }
 
 void Nms2Proc::swizzle(int channelIn, int channelOut)
