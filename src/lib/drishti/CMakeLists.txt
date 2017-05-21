@@ -230,7 +230,7 @@ endif(DRISHTI_BUILD_WORLD)
 # iOS + QT faces a similar issues, which may be more easily resolved. Android emulator
 # may be another option for providing an OpenGL context in native code.
 # The near term intention is to support this: if(DRISHTI_BUILD_QT OR (NOT ${drishti_is_mobile}))
-if(NOT ${drishti_is_mobile})
+if(NOT ${drishti_is_mobile} AND NOT ${is_ci})
   add_subdirectory(gltest)
 endif()
 
