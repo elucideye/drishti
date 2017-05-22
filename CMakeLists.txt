@@ -33,12 +33,6 @@ HunterGate(
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
 string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
-string(COMPARE EQUAL "$ENV{CI}" "true" is_ci)
-message("CI=${is_ci}")
-
-message("CI : APPVEYOR = ${APPVEYOR}")
-message("CI : CI = ${CI}")
-
 
 if(travis_deploy)
   set(version "$ENV{TRAVIS_TAG}")
