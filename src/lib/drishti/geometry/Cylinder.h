@@ -76,11 +76,17 @@ std::array<Mesh3D<T>, 3> drawAxes(const cv::Point3_<T>& axes, T radius, int n, T
     auto xAxis = drawCylinder(axes.x, radius, n, arrow);
     auto yAxis = drawCylinder(axes.y, radius, n, arrow);
     for (auto& p : xAxis)
+    {
         p = { +p.z, +p.x, +p.y };
+    }
     for (auto& p : yAxis)
+    {
         p = { +p.x, +p.z, +p.y };
+    }
     for (auto& p : zAxis)
+    {
         p = { +p.x, +p.y, -p.z };
+    }
     return std::array<Mesh3D<T>, 3>{ { xAxis, yAxis, zAxis } };
 }
 
