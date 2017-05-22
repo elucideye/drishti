@@ -230,7 +230,7 @@ endif(DRISHTI_BUILD_WORLD)
 # iOS + QT faces a similar issues, which may be more easily resolved. Android emulator
 # may be another option for providing an OpenGL context in native code.
 # The near term intention is to support this: if(DRISHTI_BUILD_QT OR (NOT ${drishti_is_mobile}))
-if(NOT ${drishti_is_mobile} AND NOT ${is_ci})
+if(NOT ${drishti_is_mobile} AND NOT ${drisht_ci})
   add_subdirectory(gltest)
 endif()
 
@@ -265,7 +265,7 @@ set(drishti_sdk_srcs master/drishti_master.hpp master/drishti_master.cpp)
 # Create dependency list
 set(drishti_sdk_libs ${drishti_libs} ${DRISHTI_SDK_3RDPARTY_LIBS})
 
-if(DRISHTI_BUILD_HCI AND MSVC)
+if(TARGET drishti_gltest AND MSVC)
   # FaceTracker.cpp -> FaceTracker.hpp -> Context.hpp -> drishti_gl.hpp -> gl/glew.h
   hunter_add_package(glew)
   find_package(glew CONFIG REQUIRED)
