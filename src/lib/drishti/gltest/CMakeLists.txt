@@ -14,8 +14,8 @@ if(DRISHTI_BUILD_QT)
   list(APPEND drishti_gltest_srcs QGLContext.cpp QGLContext.h)
 endif()
 
-message("drishti_is_mobile:${drishti_is_mobile}")
-if(NOT ${drishti_is_mobile})
+message("DRISHTI_IS_MOBILE: ${DRISHTI_IS_MOBILE}")
+if(NOT ${DRISHTI_IS_MOBILE})
   # Include glfw for lightweight hidden window opengl context:
   # Alternatives: Qt or glfm for iOS and Android
   set(drishti_has_glfw TRUE)   
