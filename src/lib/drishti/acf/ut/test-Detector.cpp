@@ -133,6 +133,7 @@ protected:
 
 #if defined(DRISHTI_ACF_DO_GPU)
         m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
+        CV_Assert(m_context && (*m_context));
 #endif
     }
 

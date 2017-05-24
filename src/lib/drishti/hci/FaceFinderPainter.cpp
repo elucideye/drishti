@@ -72,7 +72,8 @@ FaceFinderPainter::FaceFinderPainter(FaceDetectorFactoryPtr& factory, Settings& 
     m_drawIris = true;
 }
 
-std::unique_ptr<FaceFinderPainter> FaceFinderPainter::create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext)
+std::unique_ptr<FaceFinderPainter>
+FaceFinderPainter::create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext)
 {
     auto finder = drishti::core::make_unique<FaceFinderPainter>(factory, settings, glContext);
     finder->initialize();

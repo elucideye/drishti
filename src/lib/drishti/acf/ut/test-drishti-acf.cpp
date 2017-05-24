@@ -9,13 +9,6 @@
 */
 
 #include "drishti/testlib/drishti_test_utils.h"
-
-// clang-format off
-#if defined(DRISHTI_ACF_DO_GPU) && defined(DRISHTI_BUILD_QT)
-#  include <QApplication>
-#endif
-// clang-format on
-
 #include <gtest/gtest.h>
 
 extern const char* imageFilename;
@@ -25,10 +18,6 @@ extern const char* outputDirectory;
 
 int drishti_main(int argc, char** argv)
 {
-#if defined(DRISHTI_BUILD_QT) && defined(DRISHTI_ACF_DO_GPU)
-    QApplication app(argc, argv);
-#endif
-
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 5);
     drishti::testlib::hasFiles(argv, { 1, 2, 3 });

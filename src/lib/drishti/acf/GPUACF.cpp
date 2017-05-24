@@ -343,6 +343,11 @@ ACF::~ACF()
     // with forward declares std::unique_ptr<> member variables.
 }
 
+void ACF::tryEnablePlatformOptimizations()
+{
+    Core::tryEnablePlatformOptimizations();
+}
+
 void ACF::setLogger(std::shared_ptr<spdlog::logger>& logger)
 {
     impl->m_logger = logger;

@@ -230,7 +230,9 @@ endif(DRISHTI_BUILD_WORLD)
 # iOS + QT faces a similar issues, which may be more easily resolved. Android emulator
 # may be another option for providing an OpenGL context in native code.
 # The near term intention is to support this: if(DRISHTI_BUILD_QT OR (NOT ${DRISHTI_IS_MOBILE}))
-if(NOT ${DRISHTI_IS_MOBILE} AND NOT ${drisht_ci})
+
+#if(NOT ${DRISHTI_IS_MOBILE} AND NOT ${drisht_ci})
+if(NOT ${DRISHTI_CI})
   add_subdirectory(gltest)
 endif()
 
@@ -584,11 +586,11 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
   endif()
 
   add_subdirectory(testlib)
+
   add_subdirectory(core)
   add_subdirectory(geometry)
   add_subdirectory(ml)
   add_subdirectory(eye)
-  add_subdirectory(drishti)
   if(DRISHTI_BUILD_ACF)
     add_subdirectory(acf)
   endif()
@@ -598,4 +600,6 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
   if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
     add_subdirectory(hci)
   endif()
+  add_subdirectory(drishti)
+  
 endif()

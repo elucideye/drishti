@@ -12,12 +12,6 @@
 
 */
 
-// clang-format off
-#if defined(DRISHTI_HCI_DO_GPU) && defined(DRISHTI_BUILD_QT)
-#  include <QApplication>
-#endif
-// clang-format on
-
 #include <gtest/gtest.h>
 
 #include <fstream>
@@ -36,10 +30,6 @@ static bool hasFile(const std::string& filename)
 
 int drishti_main(int argc, char** argv)
 {
-#if defined(DRISHTI_BUILD_QT) && defined(DRISHTI_HCI_DO_GPU)
-    QApplication app(argc, argv);
-#endif
-
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 6);
 

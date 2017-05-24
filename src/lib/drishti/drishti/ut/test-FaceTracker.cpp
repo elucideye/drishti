@@ -19,9 +19,6 @@
 // clang-format off
 #if defined(DRISHTI_DRISHTI_DO_GPU)
 #  include "drishti/gltest/GLContext.h"
-#  if defined(DRISHTI_BUILD_QT)
-#    include <QApplication>
-#  endif
 #endif
 // clang-format on
 
@@ -47,10 +44,6 @@ const char* sImageFilename;
 
 int drishti_main(int argc, char** argv)
 {
-#if defined(DRISHTI_BUILD_QT) && defined(DRISHTI_DRISHTI_DO_GPU)
-    QApplication app(argc, argv);
-#endif
-
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 6);
     sFaceDetector = argv[1];
