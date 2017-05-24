@@ -50,6 +50,8 @@ public:
     ACF(void* glContext, const Size2d& size, const SizeVec& scales, FeatureKind kind, int grayWidth = 0, int flowWidth = 0, bool debug = false);
     ~ACF();
 
+    static void tryEnablePlatformOptimizations();
+
     void setLogger(std::shared_ptr<spdlog::logger>& logger);
     bool getChannelStatus();
     bool getFlowStatus();

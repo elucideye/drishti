@@ -22,9 +22,10 @@ public:
 
     enum ContextKind
     {
-        kAuto, // Select most portable context available:
-        kGLFW, // GLFW based (no mobile support)
-        kQT,   // cross platform (significant overhead)
+        kAuto,     // Select most portable context available:
+        kGLFW,     // GLFW based (no mobile support)
+        kIOS,      // iOS EAGLContext
+        kAndroid,  // Android EGL context
         kCount
     };
     

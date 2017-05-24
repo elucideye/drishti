@@ -110,9 +110,12 @@ public:
     FaceFinder(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
     ~FaceFinder();
 
+    static void tryEnablePlatformOptimizations();
+    
     virtual void initialize(); // must call at startup
 
-    static std::unique_ptr<FaceFinder> create(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
+    static std::unique_ptr<FaceFinder>
+    create(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
 
     virtual GLuint operator()(const FrameInput& frame);
 

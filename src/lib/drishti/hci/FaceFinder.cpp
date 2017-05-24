@@ -119,7 +119,13 @@ FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory>& fact
     m_doBlobs = true;
 }
 
-std::unique_ptr<FaceFinder> FaceFinder::create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext)
+void FaceFinder::tryEnablePlatformOptimizations()
+{
+    ogles_gpgpu::ACF::tryEnablePlatformOptimizations();
+}
+
+std::unique_ptr<FaceFinder>
+FaceFinder::create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext)
 {
     auto finder = drishti::core::make_unique<FaceFinder>(factory, settings, glContext);
     finder->initialize();
@@ -348,8 +354,8 @@ void FaceFinder::init(const cv::Size& inputSize)
     m_faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*m_sensor);
 
     initColormap();
+    initACF(inputSizeUp);     // initialize ACF first (configure opengl platform extensions)
     initFIFO(inputSizeUp, 3); // keep last 3 frames
-    initACF(inputSizeUp);
     initPainter(inputSizeUp); // {inputSizeUp.width/4, inputSizeUp.height/4}
 
     if (m_doIris)

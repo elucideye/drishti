@@ -1,9 +1,3 @@
-// clang-format off
-#if defined(DRISHTI_BUILD_QT)
-#  include <QApplication>
-#endif
-// clang-format on
-
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -20,16 +14,11 @@
 #endif
 
 #include "ogles_gpgpu/common/gl/memtransfer_optimized.h"
-
 #include "ogles_gpgpu/common/proc/video.h"
 #include "ogles_gpgpu/common/proc/grayscale.h"
 
 int main(int argc, char **argv)
 {
-#if defined(DRISHTI_BUILD_QT)
-    QApplication app(argc, argv);
-#endif
-    
     ::testing::InitGoogleTest(&argc, argv);
     auto code = RUN_ALL_TESTS();
 	return code;

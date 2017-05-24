@@ -124,6 +124,11 @@ FaceTracker::operator bool() const
     return good();
 }
 
+void FaceTracker::tryEnablePlatformOptimizations()
+{
+    drishti::hci::FaceFinder::tryEnablePlatformOptimizations();
+}
+
 void FaceTracker::add(drishti_face_tracker_t& table)
 {
     m_impl->add(table);
