@@ -73,73 +73,109 @@ struct FaceFinder::Impl
 {
     Impl(std::shared_ptr<drishti::face::FaceDetectorFactory>& factory, Settings& args, void* glContext)
         : glContext(glContext)
+        , factory(factory)
+        , sensor(args.sensor)
+        , logger(args.logger)
+        , threads(args.threads)
         , hasInit(false)
         , outputOrientation(args.outputOrientation)
-        
-        // ######## DO Landmarks #########
+    
+        // ACF and detection parameters:
+        , debugACF(false)
+        , minDistanceMeters(args.minDetectionDistance)
+        , maxDistanceMeters(args.maxDetectionDistance)
+    
+        // Face landmarks:
         , doLandmarks(args.doLandmarks)
         , landmarksWidth(DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH)
         
-        // ######## DO FLOW #########
+        // Eye parameters:
         , doFlow(args.doFlow)
         , flowWidth(DRISHTI_HCI_FACEFINDER_FLOW_WIDTH)
-        
-        // ###### DO BLOBS ##########
         , doBlobs(args.doBlobs)
-        , doIris(true) //DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
-        
-        , factory(factory)
-        , sensor(args.sensor)
-        , minDistanceMeters(args.minDetectionDistance)
-        , maxDistanceMeters(args.maxDetectionDistance)
-        , logger(args.logger)
-        , threads(args.threads)
+        , doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
     {
-        debugACF = false;
-        doBlobs = true;
+
     }
+
+    using time_point = std::chrono::high_resolution_clock::time_point;
     
-    cv::Mat3f colors32FC3; // map angles to colors
+    // :::::::::::::::::::::::
+    // ::: Core parameters :::
+    // :::::::::::::::::::::::
     void* glContext = nullptr;
+    std::mutex mutex;
+    std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
+    std::shared_ptr<drishti::sensor::SensorModel> sensor;
+    std::shared_ptr<spdlog::logger> logger;
+    std::shared_ptr<tp::ThreadPool<>> threads;
+    std::vector<FaceMonitor*> faceMonitorCallback;
+    ImageLogger imageLogger;
+    TimePoint start;
+    TimerInfo timerInfo;
+    
+    bool doAnnotations = true;
     bool hasInit = false;
-    float ACFScale = 2.0f;
+    int index = 0;
+    uint64_t frameIndex = 0;
+    cv::Mat3f colors32FC3; // map angles to colors
+
+    // :::::::::::::::::::::::::::::::::::::::
+    // ::: Input frame related parameters: :::
+    // :::::::::::::::::::::::::::::::::::::::
+
     int outputOrientation = 0;
     float brightness = 1.f;
-    uint64_t frameIndex = 0;
-    using time_point = std::chrono::high_resolution_clock::time_point;
-    std::pair<time_point, std::vector<cv::Rect>> objects;
-    drishti::acf::Detector::Pyramid P;
-    bool debugACF = false;
-    double faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
+    std::shared_ptr<ogles_gpgpu::FifoProc> fifo; // store last N faces
+    std::shared_ptr<ogles_gpgpu::TransformProc> rotater; // output frame rotation
+    
+    // :::::::::::::::::::::::::::::::::::::::
+    // ::: ACF and detection parameters:   :::
+    // :::::::::::::::::::::::::::::::::::::::
 
+    // ACF:
+    bool debugACF = false;
+    bool doCpuACF = false;
+    float ACFScale = 2.0f;
+    std::vector<cv::Size> pyramidSizes;
+    drishti::acf::Detector::Pyramid P;
+    std::shared_ptr<ogles_gpgpu::ACF> acf;
+
+    // Detection:
+    bool doNMSGlobal = true;
+    double faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
     float minDistanceMeters = 0.f;
     float maxDistanceMeters = 10.0f;
-    
+    std::shared_ptr<drishti::face::FaceDetector> faceDetector;
+    drishti::acf::Detector* detector = nullptr; // weak ref
+    std::pair<time_point, std::vector<cv::Rect>> objects;
+    std::future<ScenePrimitives> scene;
+    std::deque<ScenePrimitives> scenePrimitives; // stash
+
+    // ::::::::::::::::::::::::::::::::::::::::
+    // ::: Face landmark parameters 2d->3d: :::
+    // ::::::::::::::::::::::::::::::::::::::::
     bool doLandmarks = false;
     int landmarksWidth = 256;
+    
+    // Camera model, etc:
+    cv::Point3f faceMotion;
+    std::shared_ptr<drishti::face::FaceModelEstimator> faceEstimator; // pinhole model
+    
+    // :::::::::::::::::::::::
+    // ::: Eye parameters: :::
+    // :::::::::::::::::::::::
     
     bool doFlow = false;
     int flowWidth = 256;
     
     bool doBlobs = false;
     bool doIris = false;
-    bool doCpuACF = false;
+
     bool doEyeFlow = false;
     float regressorCropScale = 0.f;
     cv::Size eyesSize = { 480, 240 };
-    std::vector<cv::Size> pyramidSizes;
-    
-    bool doNMSGlobal = true;
-    drishti::acf::Detector* detector = nullptr; // weak ref
-    
-    std::shared_ptr<drishti::face::FaceDetector> faceDetector;
-    
-    // Model estimator from pinhole camera model:
-    std::shared_ptr<drishti::face::FaceModelEstimator> faceEstimator;
-    
-    std::shared_ptr<ogles_gpgpu::ACF> acf;
-    std::shared_ptr<ogles_gpgpu::FifoProc> fifo; // store last N faces
-    std::shared_ptr<ogles_gpgpu::TransformProc> rotater; // For QT
+
     std::shared_ptr<ogles_gpgpu::BlobFilter> blobFilter;
     std::shared_ptr<ogles_gpgpu::EyeFilter> eyeFilter;
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> ellipsoPolar[2];
@@ -147,31 +183,11 @@ struct FaceFinder::Impl
     std::shared_ptr<ogles_gpgpu::SwizzleProc> eyeFlowBgra; // (optional)
     ogles_gpgpu::ProcInterface* eyeFlowBgraInterface = nullptr;
     
-    int index = 0;
-    std::future<ScenePrimitives> scene;
-    std::deque<ScenePrimitives> scenePrimitives; // stash
-    cv::Point3f faceMotion;
-    
     FeaturePoints gazePoints;
     std::array<FeaturePoints, 2> eyePoints;
     
     cv::Point2f eyeMotion;
     std::vector<cv::Vec4f> eyeFlowField;
-    
-    TimerInfo timerInfo;
-    
-    std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
-    std::shared_ptr<drishti::sensor::SensorModel> sensor;
-    std::shared_ptr<spdlog::logger> logger;
-    std::shared_ptr<tp::ThreadPool<>> threads;
-    ImageLogger imageLogger;
-    
-    TimePoint start;
-    
-    std::vector<FaceMonitor*> faceMonitorCallback;
-    
-    bool doAnnotations = true;
-    std::mutex mutex;
 };
 
 DRISHTI_HCI_NAMESPACE_END
