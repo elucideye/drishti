@@ -853,9 +853,7 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
         impl->eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
 
         // Limit to points on iris:
-        const cv::Size filteredEyeSize(impl->blobFilter->getOutFrameW(), impl->blobFilter->getOutFrameH());
         const auto& eyeWarps = impl->eyeFilter->getEyeWarps();
-
 // Can use this to retrieve view of internal filters:
 #define DRISHTI_VIEW_BLOBS_OUTPUT 0
 #if DRISHTI_VIEW_BLOBS_OUTPUT
@@ -907,9 +905,11 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
             }
         }
 
+        if(impl->blobFilter)
         { // Grab reflection points for eye tracking etc:
             core::ScopeTimeLogger scopeTimeLogger = [this](double t) { this->impl->timerInfo.blobExtractionTimeLogger(t); };
 
+            const cv::Size filteredEyeSize(impl->blobFilter->getOutFrameW(), impl->blobFilter->getOutFrameH());
             EyeBlobJob single(filteredEyeSize, eyeWarps);
             impl->blobFilter->getHessianPeaks()->getResultData(single.filtered.ptr());
             single.run();
