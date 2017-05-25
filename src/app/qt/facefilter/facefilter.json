@@ -1,7 +1,7 @@
 {
     "doLandmarks": true,
     "doFlow": true,
-    "doBlobs": false,
+    "doBlobs": true,
     "frameDelay": 2,
 
     "ipAddress": {
