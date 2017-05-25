@@ -27,6 +27,7 @@ sugar_files(DRISHTI_HCI_SRCS
 sugar_files(DRISHTI_HCI_HDRS_PUBLIC
   EyeBlob.h
   FaceFinder.h
+  FaceFinderImpl.h
   FaceFinderPainter.h
   FaceMonitor.h
   GazeEstimator.h
