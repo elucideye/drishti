@@ -27,10 +27,24 @@ public:
         {
         }
 
+        int rows() const { return image.rows; }
+        int cols() const { return image.cols; }
+        
         cv::Mat image;
         std::size_t index = 0;
         std::string name;
         std::string metadata;
+    };
+    
+    enum PixelFormat
+    {
+        RGBA,
+        BGRA,
+        ARGB,
+        ABGR,
+        RGB,
+        BGR,
+        ANY,
     };
 
     VideoSourceCV() {}
@@ -40,10 +54,12 @@ public:
     virtual bool good() const { return true; }
     virtual std::size_t count() const = 0;
     virtual bool isRandomAccess() const = 0;
+    virtual void setOutputFormat(PixelFormat) {}
 
     static std::shared_ptr<VideoSourceCV> create(const std::string& filename);
 
 protected:
+
 };
 
 #endif // __VideoSourceCV_h__

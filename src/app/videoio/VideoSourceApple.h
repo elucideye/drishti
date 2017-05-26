@@ -17,6 +17,7 @@ public:
     virtual bool good() const;
     virtual std::size_t count() const;
     virtual bool isRandomAccess() const { return false; }
+    virtual void setOutputFormat(PixelFormat format);
 
 protected:
     std::unique_ptr<Impl> m_impl;

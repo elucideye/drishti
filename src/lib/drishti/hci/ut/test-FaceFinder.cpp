@@ -62,10 +62,10 @@ const char* sImageFilename;
 #include <iostream>
 #include <chrono>
 
-#define BEGIN_EMPTY_NAMESPACE \
-    namespace                 \
-    {
+// clang-format off
+#define BEGIN_EMPTY_NAMESPACE  namespace {
 #define END_EMPTY_NAMESPACE }
+// clang-format on
 
 BEGIN_EMPTY_NAMESPACE
 
