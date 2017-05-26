@@ -237,25 +237,24 @@ public:
         m_irisInfo[index] = { texIdx, size, irisRoi };
     }
 
-//===========================
-//========= EYES ============
-//===========================
-
-#define DRISHTI_HC_FACE_PAINTER 1
+    //===========================
+    //========= EYES ============
+    //===========================
 
     void setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d& size, const std::array<drishti::eye::EyeWarp, 2>& eyes)
     {
-#if DRISHTI_HC_FACE_PAINTER
         // A) This stretches and preserves the aspect ratio across the top of the frame:
         Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height / size.width);
-#else
-        // B) This stretches and centers the roi on top
-        const int maxWidth = 512;
-        const int width = std::min(maxWidth, outFrameW);
-        Rect2d eyesRoi(0, 0, width, width * size.height / size.width);
-#endif
-        eyesRoi.x = 0; // (outFrameW / 2);// - (size.width / 2);
-        eyesRoi.y = eyesRoi.height / 4;
+
+        if(outFrameW > outFrameH)
+        {
+            // B) Place the eyes in the upper left corner
+            const int maxWidth = 512;
+            const int width = std::min(maxWidth, outFrameW/3);
+            eyesRoi = { 0, 0, width, width * size.height / size.width };
+            eyesRoi.x = 0;
+            //eyesRoi.x = (outFrameW / 2) - (size.width / 2);
+        }
 
         m_eyes.m_eyes = eyes;
         m_eyes.m_eyesInfo = { texIdx, size, eyesRoi };
@@ -284,6 +283,11 @@ public:
     {
         m_brightness = value;
     }
+    
+    void setLetterboxHeight(float value)
+    {
+        m_colorLetterboxHeight = value;
+    }
 
     void setGazePoint(const FeaturePoints& points)
     {
@@ -307,7 +311,7 @@ private:
     cv::Matx33f uprightImageToTexture();
 
     void renderFaces();
-    std::array<drishti::eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel& face); // return transformations
+    std::array<drishti::eye::EyeWarp, 2> renderEyes(const drishti::face::FaceModel& face);
     void renderEye(const cv::Rect& roi, const cv::Matx33f& H, const DRISHTI_EYE::EyeModel& eye);
     void annotateEye(const drishti::eye::EyeWarp& eyeWarp, const cv::Size& size, const EyeAttributes& attributes);
 
@@ -371,9 +375,10 @@ private:
 
     // #### color stuff ###
     Vec3f m_colorRGB;
-    GLfloat m_colorWeight;
     GLint m_colorShParamRGB;
-    GLint m_colorShParamUWeight;
+    
+    GLfloat m_colorLetterboxHeight;
+    GLint m_colorShLetterboxHeight;
 
     // #### Draw flow texture
     DisplayTexture m_flowInfo;

@@ -36,7 +36,6 @@ public:
     using FrameInput = ogles_gpgpu::FrameInput;
     using FeaturePoints = std::vector<FeaturePoint>;
     using ImageLogger = std::function<void(const cv::Mat &image)>;
-
     using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
 
     struct TimerInfo
@@ -70,6 +69,7 @@ public:
         bool doBlobs = false;
         float minDetectionDistance = 0.f;
         float maxDetectionDistance = 1.f;
+        bool showDetectionScales = true;
     };
 
     FaceFinder(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);

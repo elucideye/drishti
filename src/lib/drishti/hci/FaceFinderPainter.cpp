@@ -85,6 +85,11 @@ FaceFinderPainter::~FaceFinderPainter()
 {
 }
 
+void FaceFinderPainter::setLetterboxHeight(float height)
+{
+    m_painter->setLetterboxHeight(height);
+}
+
 void FaceFinderPainter::init(const cv::Size& inputSize)
 {
     FaceFinder::init(inputSize);
@@ -109,21 +114,24 @@ void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
     }
 
     // Project detection sizes to full resolution image:
-    const auto winSize = impl->detector->getWindowSize();
-    for (const auto& size : impl->pyramidSizes)
+    if(impl->showDetectionScales)
     {
-        ogles_gpgpu::LineDrawing drawing;
-        drawing.color = { 255, 0, 0 };
-
-        const float wl0 = static_cast<float>(winSize.width * inputSizeUp.width) / size.width;
-        const float hl0 = static_cast<float>(winSize.height * inputSizeUp.height) / size.height;
-        drawing.contours = {
-            { { 0.f, 0.f },
-              { wl0, 0.f },
-              { wl0, hl0 },
-              { 0.f, hl0 } }
-        };
-        m_painter->getPermanentLineDrawings().push_back(drawing);
+        const auto winSize = impl->detector->getWindowSize();
+        for (const auto& size : impl->pyramidSizes)
+        {
+            ogles_gpgpu::LineDrawing drawing;
+            drawing.color = { 255, 0, 0 };
+            
+            const float wl0 = static_cast<float>(winSize.width * inputSizeUp.width) / size.width;
+            const float hl0 = static_cast<float>(winSize.height * inputSizeUp.height) / size.height;
+            drawing.contours = {
+                { { 0.f, 0.f },
+                    { wl0, 0.f },
+                    { wl0, hl0 },
+                    { 0.f, hl0 } }
+            };
+            m_painter->getPermanentLineDrawings().push_back(drawing);
+        }
     }
 
 #if DRISHTI_HCI_FACE_FINDER_PAINTER_SHOW_CIRCLE

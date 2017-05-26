@@ -58,9 +58,27 @@ public:
             int cols = CVPixelBufferGetWidth(pixelBuffer);
             int rows = CVPixelBufferGetHeight(pixelBuffer);
             unsigned char *pixels = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
-            cv::Mat argb(rows, cols, CV_8UC4, pixels), bgra(rows, cols, CV_8UC4), bgr;
-            cv::mixChannels(argb, bgra, {0,3, 1,2, 2,1, 3,0 });
-            cv::cvtColor(bgra, image, cv::COLOR_BGRA2BGR);
+            cv::Mat argb(rows, cols, CV_8UC4, pixels);
+            
+            switch(m_format)
+            {
+                case VideoSourceCV::ANY:
+                case VideoSourceCV::ARGB:
+                {
+                    image = argb;
+                    break;
+                }
+                case VideoSourceCV::BGR:
+                {
+                    cv::Mat bgra(rows, cols, CV_8UC4);
+                    cv::mixChannels(argb, bgra, {0,3, 1,2, 2,1, 3,0 });
+                    cv::cvtColor(bgra, image, cv::COLOR_BGRA2BGR);
+                    break;
+                }
+                default:
+                    CV_Assert(false);
+                    break;
+            }
             
             //End processing
             CVPixelBufferUnlockBaseAddress( pixelBuffer, 0 );
@@ -68,11 +86,13 @@ public:
 
         return m_frame = image;
     }
-
+    
+    void setOutputFormat(VideoSourceCV::PixelFormat format) { m_format = format; }
+    
     bool good() const { return !m_frame.empty(); }
     
     cv::Mat m_frame; // assume sequential access
-
+    VideoSourceCV::PixelFormat m_format = VideoSourceCV::ANY;
     MIMovieVideoSampleAccessor *sampleAccessor;
     std::string filename;
 };
@@ -100,9 +120,13 @@ bool VideoSourceApple::good() const
     return m_impl->good();
 }
 
-
 std::size_t VideoSourceApple::count() const
 {
     // TODO?
     return static_cast<std::size_t>(std::numeric_limits<int>::max());
+}
+
+void VideoSourceApple::setOutputFormat(VideoSourceCV::PixelFormat format)
+{
+    m_impl->setOutputFormat(format);
 }

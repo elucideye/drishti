@@ -21,7 +21,7 @@
 
 #include <opencv2/imgproc.hpp>
 
-#define DO_COLOR 1
+#define DRISHIT_HCI_FACEPAINTER_DO_COLOR 1
 #define DRISHTI_HCI_FACEPAINTER_COLOR_TINTING 1
 #define DRISHTI_HCI_FACEPAINTER_SHOW_FLASH_INPUT 0
 
@@ -51,14 +51,13 @@ precision mediump float;
  varying vec2 vTexCoord;
  uniform sampler2D uInputTex;
 
- uniform float colorWeight;
+ uniform float height;
  uniform vec3 color;
 
 void main()
 {
     vec4 pixel = vec4(texture2D(uInputTex, vTexCoord).rgba);
-    //vec3 mixed = mix(pixel.rgb, color, colorWeight * abs(vTexCoord.y-0.5));
-    vec3 mixed = mix(pixel.rgb, color, step(0.25, abs(vTexCoord.y-0.5)));
+    vec3 mixed = mix(pixel.rgb, color, step(height*0.5, abs(vTexCoord.y-0.5)));
     gl_FragColor = vec4(mixed, 1.0);
 }
 );
@@ -131,23 +130,22 @@ void FacePainter::getUniforms()
 
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
 
-#if DO_COLOR
+#if DRISHIT_HCI_FACEPAINTER_DO_COLOR
     m_drawShParamULineColor = 0;
 #else
     m_drawShParamULineColor = m_draw->getParam(UNIF, "lineColor");
 #endif
-
-    // color overlays
-    m_colorRGB = { 0.0, 0.0, 1.0 };
-    m_colorWeight = 1.f;
+    
     m_colorShParamRGB = shader->getParam(UNIF, "color");
-    m_colorShParamUWeight = shader->getParam(UNIF, "colorWeight");
+    m_colorShLetterboxHeight = shader->getParam(UNIF, "height");
 }
 
 // #### Begin ####
 
 FacePainter::FacePainter(int outputOrientation)
     : m_outputOrientation(outputOrientation)
+    , m_colorRGB(0.f, 0.f, 1.f)
+    , m_colorLetterboxHeight(0.5f)
 {
     assert(m_outputOrientation == 0);
 
@@ -157,7 +155,7 @@ FacePainter::FacePainter(int outputOrientation)
     m_printer = drishti::core::make_unique<GLPrinterShader>();
 
     m_draw = std::make_shared<Shader>();
-#if DO_COLOR
+#if DRISHIT_HCI_FACEPAINTER_DO_COLOR
     bool compiled = m_draw->buildFromSrc(vshaderColorVaryingSrc, fshaderColorVaryingSrc);
     m_drawShParamAColor = m_draw->getParam(ATTR, "color");
 #else
@@ -168,7 +166,7 @@ FacePainter::FacePainter(int outputOrientation)
     m_drawShParamAPosition = m_draw->getParam(ATTR, "position");
     m_drawShParamUMVP = m_draw->getParam(UNIF, "modelViewProjMatrix");
 
-    m_eyeAttributes = { &m_eyePoints, 16.f, { 1.0, 0.0, 1.0 } };
+    m_eyeAttributes = { &m_eyePoints, 8.f /*override*/, { 1.0, 0.0, 1.0 } };
     m_eyeAttributes.flow = &m_eyeFlow;
 }
 
@@ -223,7 +221,7 @@ void FacePainter::renderDrawings()
 
     std::copy(m_permanentDrawings.begin(), m_permanentDrawings.end(), std::back_inserter(m_drawings));
 
-    glLineWidth(6.0);
+    glLineWidth(4.0);
     for (const auto& e : m_drawings)
     {
         if (e.strip == true)
@@ -261,20 +259,7 @@ void FacePainter::renderDrawings()
         lines.colors.emplace_back(1.f, 0.f, 1.f);
         lines.colors.emplace_back(1.f, 0.f, 1.f);
     }
-
-    if (m_gazePoints.size())
-    {
-        static const cv::Point2f origin(outFrameW / 2, outFrameH / 2);
-        addCross(lines, origin, { 1.f, 1.f, 0.f }, 1000.f);
-        for (const auto& f : m_gazePoints)
-        { // Project normalized gaze point to screen:
-            const float radius = (outFrameW / 2);
-            const float gain = radius * 2.f;
-            const cv::Point2f gaze = (f.point * gain) + origin;
-            addCross(lines, gaze, { 1.f, 1.f, 0.5f }, 200.f * f.radius);
-        }
-    }
-
+    
     if (m_faces.size())
     { // Show position of nearest face
         const auto& position = (*m_faces.front().eyesCenter);
@@ -286,8 +271,20 @@ void FacePainter::renderDrawings()
         const float sx = scale / static_cast<float>(outFrameW);
         const float sy = scale / static_cast<float>(outFrameH);
         m_printer->printAt(wss.str(), 0.0f, 0.5f, sx, sy);
-
         m_printer->end();
+
+        if (m_gazePoints.size())
+        {
+            const cv::Point2f origin(outFrameW / 2, outFrameH / 2);
+            addCross(lines, origin, { 1.f, 1.f, 0.f }, 1000.f);
+            for (const auto& f : m_gazePoints)
+            { // Project normalized gaze point to screen:
+                const float radius = (outFrameW / 2);
+                const float gain = radius * 2.f;
+                const cv::Point2f gaze = (f.point * gain) + origin;
+                addCross(lines, gaze, { 1.f, 1.f, 0.5f }, 200.f * f.radius);
+            }
+        }
     }
 
     m_draw->use();
@@ -415,7 +412,6 @@ int FacePainter::FacePainter::render(int position)
             m_colorRGB.data[2] = 1.f;
 
             glUniform3fv(m_colorShParamRGB, 1, &m_colorRGB.data[0]);
-            glUniform1f(m_colorShParamUWeight, m_brightness);
         }
 #endif
 
@@ -657,8 +653,8 @@ void FacePainter::renderTex(DisplayTexture& texInfo)
 
     filterRenderPrepareTex(texInfo);
     Tools::checkGLErr(getProcName(), "render prepare");
-
-    glUniform1f(m_colorShParamUWeight, 0.f);
+    
+    glUniform1f(m_colorShLetterboxHeight, m_colorLetterboxHeight);
     Tools::checkGLErr(getProcName(), "setUniforms");
 
     filterRenderSetCoordsTex(texInfo);

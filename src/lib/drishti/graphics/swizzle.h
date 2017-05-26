@@ -23,7 +23,10 @@ public:
     // Relative to input {RGBA}
     enum SwizzleKind
     {
-        kSwizzleBGRA
+        kSwizzleBGRA,
+        kSwizzleARGB,
+        kSwizzleABGR,
+        kSwizzleGRAB
     };
 
     SwizzleProc(SwizzleKind swizzleKind = kSwizzleBGRA)
@@ -44,12 +47,21 @@ public:
         {
             case kSwizzleBGRA:
                 return fshaderBGRASrc;
+            case kSwizzleARGB:
+                return fshaderARGBSrc;
+            case kSwizzleABGR:
+                return fshaderABGRSrc;
+            case kSwizzleGRAB:
+                return fshaderGRABSrc;
             default:
                 assert(false);
         }
     }
 
     static const char* fshaderBGRASrc; // fragment shader source
+    static const char* fshaderARGBSrc;
+    static const char* fshaderABGRSrc;
+    static const char* fshaderGRABSrc;
     SwizzleKind swizzleKind = kSwizzleBGRA;
 };
 

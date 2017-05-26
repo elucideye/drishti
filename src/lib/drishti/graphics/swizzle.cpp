@@ -10,8 +10,10 @@
 
 #include "drishti/graphics/swizzle.h"
 
-// clang-format off
+
 BEGIN_OGLES_GPGPU
+
+// clang-format off
 const char * SwizzleProc::fshaderBGRASrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)
@@ -24,5 +26,51 @@ const char * SwizzleProc::fshaderBGRASrc = OG_TO_STR
      vec4 val = texture2D(uInputTex, vTexCoord);
      gl_FragColor = val.bgra;
  });
-END_OGLES_GPGPU
 // clang-format on
+
+// clang-format off
+const char * SwizzleProc::fshaderARGBSrc = OG_TO_STR
+(
+#if defined(OGLES_GPGPU_OPENGLES)
+ precision mediump float;
+#endif
+ varying vec2 vTexCoord;
+ uniform sampler2D uInputTex;
+ void main()
+ {
+     vec4 val = texture2D(uInputTex, vTexCoord);
+     gl_FragColor = val.argb;
+ });
+// clang-format on
+
+// clang-format off
+const char * SwizzleProc::fshaderABGRSrc = OG_TO_STR
+(
+#if defined(OGLES_GPGPU_OPENGLES)
+ precision mediump float;
+#endif
+ varying vec2 vTexCoord;
+ uniform sampler2D uInputTex;
+ void main()
+ {
+     vec4 val = texture2D(uInputTex, vTexCoord);
+     gl_FragColor = val.abgr;
+ });
+// clang-format on
+
+// clang-format off
+const char * SwizzleProc::fshaderGRABSrc = OG_TO_STR
+(
+#if defined(OGLES_GPGPU_OPENGLES)
+ precision mediump float;
+#endif
+ varying vec2 vTexCoord;
+ uniform sampler2D uInputTex;
+ void main()
+ {
+     vec4 val = texture2D(uInputTex, vTexCoord);
+     gl_FragColor = val.grab;
+ });
+// clang-format on
+
+END_OGLES_GPGPU

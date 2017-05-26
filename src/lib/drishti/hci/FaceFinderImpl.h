@@ -84,6 +84,7 @@ struct FaceFinder::Impl
         , debugACF(false)
         , minDistanceMeters(args.minDetectionDistance)
         , maxDistanceMeters(args.maxDetectionDistance)
+        , showDetectionScales(args.showDetectionScales)
     
         // Face landmarks:
         , doLandmarks(args.doLandmarks)
@@ -146,6 +147,7 @@ struct FaceFinder::Impl
     double faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
     float minDistanceMeters = 0.f;
     float maxDistanceMeters = 10.0f;
+    bool showDetectionScales = true;
     std::shared_ptr<drishti::face::FaceDetector> faceDetector;
     drishti::acf::Detector* detector = nullptr; // weak ref
     std::pair<time_point, std::vector<cv::Rect>> objects;

@@ -48,7 +48,7 @@ static ogles_gpgpu::Size2d convert(const cv::Size& size)
     return ogles_gpgpu::Size2d(size.width, size.height);
 }
 
-FaceFinder::FaceFinder(std::shared_ptr<drishti::face::FaceDetectorFactory>& factory, Settings& args, void* glContext)
+FaceFinder::FaceFinder(FaceDetectorFactoryPtr& factory, Settings& args, void* glContext)
 {
     impl = drishti::core::make_unique<Impl>(factory, args, glContext);
 }
@@ -380,7 +380,8 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
     // ACF output using shaders on the GPU, and may optionally extract other GPU related
     // features.
     ScenePrimitives scene1(impl->frameIndex), scene0, *outputScene = nullptr; // time: n+1 and n
-    {
+
+    { // *timing*
         core::ScopeTimeLogger preprocessTimeLogger = [this](double t) { impl->timerInfo.acfProcessingTime = t; };
         preprocess(frame1, scene1, doDetection);
     }
@@ -415,7 +416,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
             outputScene = &scene0; // empty
         }
 
-        // Eenque the current frame and scene for CPU processing so
+        // Enque the current frame and scene for CPU processing so
         // that results will be available for the next step (see above).
         impl->scene = impl->threads->process([scene1, frame1, doDetection, this]() {
             ScenePrimitives sceneOut = scene1;

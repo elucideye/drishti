@@ -143,7 +143,7 @@ int drishti_main(int argc, char** argv)
     // ### Command line parsing ###
     // ############################
 
-    std::string sInput, sOutput, sModel;
+    std::string sInput, sOutput;
     int threads = -1;
     bool doEyes = false;
     bool doPause = false;
@@ -270,6 +270,7 @@ int drishti_main(int argc, char** argv)
         {
             // Cofigure parameters:
             detector->setDoNMS(true);
+            detector->setDoNMSGlobal(true);
 
             auto acf = dynamic_cast<drishti::acf::Detector*>(detector->getDetector());
             if (acf && acf->good())
