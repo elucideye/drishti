@@ -12,8 +12,8 @@
 
 */
 
-#ifndef __VideoSinkApple_h__
-#define __VideoSinkApple_h__
+#ifndef __videoio_VideoSinkApple_h__
+#define __videoio_VideoSinkApple_h__
 
 #include "videoio/VideoSinkCV.h"
 #include "videoio/drishti_videoio.h"
@@ -42,4 +42,4 @@ protected:
 
 DRISHTI_VIDEOIO_NAMESPACE_END
 
-#endif // __VideoSinkApple_h__
+#endif // __videoio_VideoSinkApple_h__

@@ -8,8 +8,8 @@
 
 */
 
-#ifndef __drishti_videoio_drishti_videoio_h__
-#define __drishti_videoio_drishti_videoio_h__
+#ifndef __videoio_drishti_videoio_h__
+#define __videoio_drishti_videoio_h__
 
 // clang-format off
 #define DRISHTI_VIDEOIO_NAMESPACE_BEGIN namespace drishti { namespace videoio {

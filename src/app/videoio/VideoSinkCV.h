@@ -8,8 +8,8 @@
  
  */
 
-#ifndef __VideoSinkCV_h__
-#define __VideoSinkCV_h__
+#ifndef __videoio_VideoSinkCV_h__
+#define __videoio_VideoSinkCV_h__
 
 #include "videoio/VideoSinkCV.h"
 #include "videoio/drishti_videoio.h"
@@ -44,4 +44,4 @@ public:
 
 DRISHTI_VIDEOIO_NAMESPACE_END
 
-#endif // __VideoSinkCV_h__
+#endif // __videoio_VideoSinkCV_h__

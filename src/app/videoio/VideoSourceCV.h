@@ -8,8 +8,8 @@
  
  */
 
-#ifndef __VideoSourceCV_h__
-#define __VideoSourceCV_h__
+#ifndef __videoio_VideoSourceCV_h__
+#define __videoio_VideoSourceCV_h__
 
 #include "videoio/drishti_videoio.h"
 
@@ -78,4 +78,4 @@ protected:
 
 DRISHTI_VIDEOIO_NAMESPACE_END
 
-#endif // __VideoSourceCV_h__
+#endif // __videoio_VideoSourceCV_h__

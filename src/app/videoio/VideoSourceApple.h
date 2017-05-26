@@ -13,8 +13,8 @@
  
  */
 
-#ifndef __VideoSourceApple_h__
-#define __VideoSourceApple_h__
+#ifndef __videoio_VideoSourceApple_h__
+#define __videoio_VideoSourceApple_h__
 
 #include "videoio/VideoSourceCV.h"
 #include "videoio/drishti_videoio.h"
@@ -44,4 +44,4 @@ protected:
 
 DRISHTI_VIDEOIO_NAMESPACE_END
 
-#endif // __VideoSourceApple_h__
+#endif // __videoio_VideoSourceApple_h__

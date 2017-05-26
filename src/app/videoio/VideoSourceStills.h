@@ -8,8 +8,8 @@
  
  */
 
-#ifndef __VideoSourceStills_h__
-#define __VideoSourceStills_h__
+#ifndef __videoio_VideoSourceStills_h__
+#define __videoio_VideoSourceStills_h__
 
 #include "videoio/VideoSourceCV.h"
 #include "videoio/drishti_videoio.h"
