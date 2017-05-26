@@ -41,15 +41,14 @@ int drishti_main(int argc, char** argv)
         logger->info() << "Must specify a valid input and output file";
     }
 
-    std::shared_ptr<VideoSourceCV> video = VideoSourceCV::create(sInput);
-
+    auto video = drishti::videoio::VideoSourceCV::create(sInput);
     if (video == nullptr)
     {
         logger->error() << "Failed to read video " << sInput;
         return -1;
     }
 
-    VideoSourceCV::Frame frame;
+    drishti::videoio::VideoSourceCV::Frame frame;
     for (int i = 0; i < video->count(); i++)
     {
         frame = (*video)(i);

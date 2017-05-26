@@ -1,9 +1,23 @@
+/*!
+ @file   videoio/VideoSourceCV.h
+ @author David Hirvonen
+ @brief  Simple OpenCV cv::Mat VideoSource interface declaration.
+ 
+ \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
+ \license{This project is released under the 3 Clause BSD License.}
+ 
+ */
+
 #ifndef __VideoSourceCV_h__
 #define __VideoSourceCV_h__
+
+#include "videoio/drishti_videoio.h"
 
 #include <opencv2/core.hpp>
 
 #include <memory>
+
+DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
 class VideoSourceCV
 {
@@ -61,5 +75,7 @@ public:
 protected:
 
 };
+
+DRISHTI_VIDEOIO_NAMESPACE_END
 
 #endif // __VideoSourceCV_h__

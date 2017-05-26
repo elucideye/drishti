@@ -113,16 +113,15 @@ protected:
 
     virtual void init(const cv::Size& inputSize);
     virtual void initPainter(const cv::Size& inputSizeUp);
-
     void initACF(const cv::Size& inputSizeUp);
     void initFIFO(const cv::Size& inputSize, std::size_t n);
     void initBlobFilter();
     void initColormap(); // [0..359];
     void initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& eyesSize);
     void initIris(const cv::Size& size);
-
     void initTimeLoggers();
     void init2(drishti::face::FaceDetectorFactory& resources);
+
     void detect2(const FrameInput& frame, ScenePrimitives& scene);
 
     void dumpEyes(std::vector<cv::Mat4b>& frames, std::vector<std::array<eye::EyeModel, 2>>& eyes);

@@ -1,9 +1,19 @@
-#include "VideoSourceCV.h"
-#include "VideoSourceStills.h"
+/*!
+ @file   videoio/VideoSourceCV.cpp
+ @author David Hirvonen
+ @brief  Simple OpenCV cv::Mat VideoSource interface implementation.
+ 
+ \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
+ \license{This project is released under the 3 Clause BSD License.}
+ 
+ */
+
+#include "videoio/VideoSourceCV.h"
+#include "videoio/VideoSourceStills.h"
 
 // clang-format off
 #if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
-#  include "VideoSourceApple.h"
+#  include "videoio/VideoSourceApple.h"
 #endif
 // clang-format on
 
@@ -17,6 +27,8 @@
 namespace bfs = boost::filesystem;
 
 using string_hash::operator"" _hash;
+
+DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
 std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename)
 {
@@ -55,3 +67,6 @@ std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename
 
     return nullptr;
 }
+
+DRISHTI_VIDEOIO_NAMESPACE_END
+
