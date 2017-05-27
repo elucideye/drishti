@@ -1,11 +1,25 @@
-#include "VideoSourceApple.h"
+/*!
+ @file   videoio/VideoSourceCV.h
+ @author David Hirvonen.
+ @brief  Simple OpenCV cv::Mat VideoSource interface implementation.
+ 
+ \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
+ \license{This project is released under the 3 Clause BSD License.}
+
+ This is a C++ interface for the MIMovieVideoSampleAccessor class.
+ See the following files:
+ * MIMovieVideoSampleAccessor.{h,m}
+ * MICMSampleBuffer.{h,m}
+ 
+ */
+
+#include "videoio/VideoSourceApple.h"
+#include "drishti/core/make_unique.h"
 
 #import "MIMovieVideoSampleAccessor.h"
 #import "MICMSampleBuffer.h"
 
 #import <CoreVideo/CVPixelBuffer.h>
-
-#include "drishti/core/make_unique.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -13,9 +27,10 @@
 
 #include <iomanip>
 
-class VideoSourceApple::Impl
+DRISHTI_VIDEOIO_NAMESPACE_BEGIN
+
+struct VideoSourceApple::Impl
 {
-public:
     Impl(const std::string &filename) : filename(filename)
     {
 
@@ -51,7 +66,7 @@ public:
             CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
             
             // Begin processing:
-            CVPixelBufferLockBaseAddress( pixelBuffer, 0 );
+            CVPixelBufferLockBaseAddress(pixelBuffer, 0);
             
             //int format = CVPixelBufferGetPixelFormatType(pixelBuffer);
             
@@ -130,3 +145,5 @@ void VideoSourceApple::setOutputFormat(VideoSourceCV::PixelFormat format)
 {
     m_impl->setOutputFormat(format);
 }
+
+DRISHTI_VIDEOIO_NAMESPACE_END

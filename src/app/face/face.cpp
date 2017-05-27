@@ -253,7 +253,7 @@ int drishti_main(int argc, char** argv)
     }
 #endif
     
-    auto video = VideoSourceCV::create(sInput);
+    auto video = drishti::videoio::VideoSourceCV::create(sInput);
 
     // Allocate resource manager:
     using FaceDetectorPtr = std::unique_ptr<drishti::face::FaceDetector>;

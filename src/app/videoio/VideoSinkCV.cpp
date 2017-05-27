@@ -1,19 +1,18 @@
 /*!
- @file   videoio/VideoSourceCV.cpp
+ @file   videoio/VideoSinkCV.h
  @author David Hirvonen
- @brief  Simple OpenCV cv::Mat VideoSource interface implementation.
+ @brief  Simple OpenCV cv::Mat VideoSink interface implementation.
  
  \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
  \license{This project is released under the 3 Clause BSD License.}
  
  */
 
-#include "videoio/VideoSourceCV.h"
-#include "videoio/VideoSourceStills.h"
+#include "videoio/VideoSinkCV.h"
 
 // clang-format off
 #if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
-#  include "videoio/VideoSourceApple.h"
+#  include "videoio/VideoSinkApple.h"
 #endif
 // clang-format on
 
@@ -23,6 +22,7 @@
 
 #include <algorithm>
 #include <locale>
+#include <memory>
 
 namespace bfs = boost::filesystem;
 
@@ -30,7 +30,7 @@ using string_hash::operator"" _hash;
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
-std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename)
+std::shared_ptr<VideoSinkCV> VideoSinkCV::create(const std::string& filename, const std::string &hint)
 {
     std::string ext = bfs::path(filename).extension().string();
 
@@ -42,23 +42,11 @@ std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename
 
     switch (string_hash::hash(ext))
     {
-        case ".txt"_hash:
-            return std::make_shared<VideoSourceStills>(filename);
-            break;
-
 #if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
         case ".mov"_hash:
-            return std::make_shared<VideoSourceApple>(filename);
+            return std::make_shared<VideoSinkApple>(filename);
             break;
 #endif
-
-        // Single image video:
-        case ".png"_hash:
-        case ".jpg"_hash:
-        case ".jpeg"_hash:
-            return std::make_shared<VideoSourceStills>(std::vector<std::string>{ filename });
-            break;
-
         // not supported
         default:
             CV_Assert(false);

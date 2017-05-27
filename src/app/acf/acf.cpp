@@ -268,7 +268,7 @@ int drishti_main(int argc, char** argv)
 #endif
     
     FaceLandmarks landmarks; // ground truth map
-    std::shared_ptr<VideoSourceCV> video;
+    std::shared_ptr<drishti::videoio::VideoSourceCV> video;
     if (!sTruth.empty())
     {
         landmarks = parseFaceData(sTruth);
@@ -277,11 +277,11 @@ int drishti_main(int argc, char** argv)
         {
             filenames.push_back(r.first);
         }
-        video = std::make_shared<VideoSourceStills>(filenames);
+        video = std::make_shared<drishti::videoio::VideoSourceStills>(filenames);
     }
     else
     {
-        video = VideoSourceCV::create(sInput);
+        video = drishti::videoio::VideoSourceCV::create(sInput);
     }
 
     // Allocate resource manager:

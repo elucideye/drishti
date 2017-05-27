@@ -15,6 +15,7 @@
 #include "drishti/graphics/swizzle.h" // ogles_gpgpu...
 
 #include "videoio/VideoSourceCV.h"
+#include "videoio/VideoSinkCV.h"
 #include "GLWindow.h"
 
 // Package includes:
@@ -45,12 +46,17 @@
 #endif
 // clang-format on
 
+#include <opencv2/highgui.hpp>
+
 static void * void_ptr(const cv::Mat &image)
 {
     return const_cast<void *>(image.ptr<void>());
 }
 
 using LoggerPtr = std::shared_ptr<spdlog::logger>;
+
+static void
+wait(std::shared_ptr<drishti::videoio::VideoSinkCV> &video);
 
 static void
 initWindow(const std::string &name);
@@ -68,6 +74,8 @@ int drishti_main(int argc, char** argv)
     // ############################
     // ### Command line parsing ###
     // ############################
+    
+    bool doMovie = false;
 
     std::string sInput, sOutput;
 
@@ -83,6 +91,9 @@ int drishti_main(int argc, char** argv)
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
+    
+        // Generate a quicktime movie:
+        ("m,movie", "Output quicktime movie", cxxopts::value<bool>(doMovie))
     
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(sFaceDetector))
@@ -155,8 +166,8 @@ int drishti_main(int argc, char** argv)
     initWindow("face");
 #endif
     
-    auto video = VideoSourceCV::create(sInput);
-    video->setOutputFormat(VideoSourceCV::ARGB); // be explicit, fail on error
+    auto video = drishti::videoio::VideoSourceCV::create(sInput);
+    video->setOutputFormat(drishti::videoio::VideoSourceCV::ARGB); // be explicit, fail on error
 
     // Retrieve first frame to configure sensor parameters:
     std::size_t counter = 0;
@@ -195,7 +206,7 @@ int drishti_main(int argc, char** argv)
     }
 
     // Create an OpenGL context:
-    GLWindow window("player", frame.image.cols, frame.image.rows);
+    GLWindow window("player", frame.cols(), frame.rows());
 
     // Allocate the detector:
     auto detector = drishti::hci::FaceFinderPainter::create(factory, settings, nullptr);
@@ -208,6 +219,24 @@ int drishti_main(int argc, char** argv)
     ogles_gpgpu::Disp disp;
     disp.init(frame.image.cols, frame.image.rows, TEXTURE_FORMAT);
     disp.setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
+    
+    std::string filename = sOutput + "/movie.mov";
+    if (drishti::cli::file::exists(filename))
+    {
+        remove(filename.c_str());
+    }
+
+    std::shared_ptr<drishti::videoio::VideoSinkCV> sink;
+    if (doMovie)
+    {
+        sink = drishti::videoio::VideoSinkCV::create(filename, ".mov");
+        if (sink)
+        {
+            sink->setProperties({frame.cols(), frame.rows()});
+            sink->begin();
+        }
+    }
+    
     std::function<bool(void)> render = [&]()
     {
         disp.setDisplayResolution(GLWindow::impl.sx, GLWindow::impl.sy);
@@ -226,11 +255,23 @@ int drishti_main(int argc, char** argv)
         disp.useTexture(texture1);
         disp.render(0);
         
+        if(sink && sink->good())
+        {
+            drishti::hci::FaceFinderPainter::FrameDelegate delegate = [&](const cv::Mat &image)
+            {
+                (*sink)(image);
+            };
+            detector->getOutputPixels(delegate);
+        }
         return true;
     };
 
     window(render);
-   
+
+    if(sink)
+    {
+        wait(sink);
+    }
     return 0;
 }
 
@@ -254,6 +295,20 @@ int main(int argc, char** argv)
 }
 
 // utility:
+
+static void
+wait(std::shared_ptr<drishti::videoio::VideoSinkCV> &sink)
+{
+    bool isFinished = false;
+    std::mutex mutex;
+    std::unique_lock<std::mutex> lock(mutex);
+    std::condition_variable cv;
+    std::function<void()> wait = [&]{ isFinished = true; };
+    if(sink->end(wait))
+    {
+        cv.wait(lock, [&] { return isFinished; });
+    }
+}
 
 static bool
 checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description)

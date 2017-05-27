@@ -24,6 +24,7 @@
 
 #include "ogles_gpgpu/common/types.h"
 #include "ogles_gpgpu/common/proc/transform.h"
+#include "ogles_gpgpu/common/gl/memtransfer_optimized.h"
 
 #include <memory>
 
@@ -41,6 +42,24 @@ struct MethodLog
 };
 
 DRISHTI_HCI_NAMESPACE_BEGIN
+
+static void getImage(ogles_gpgpu::ProcInterface &proc, FaceFinderPainter::FrameDelegate &callback)
+{
+    if(dynamic_cast<ogles_gpgpu::MemTransferOptimized*>(proc.getMemTransferObj()))
+    {
+        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d &size, const void *pixels, size_t bytesPerRow)
+        {
+            callback(cv::Mat(size.height, size.width, CV_8UC4, (void*)pixels, bytesPerRow));
+        };
+        proc.getResultData(delegate);
+    }
+    else
+    {
+        cv::Mat frame(proc.getOutFrameH(), proc.getOutFrameW(), CV_8UC4);
+        proc.getResultData(frame.ptr());
+        callback(frame);
+    }
+}
 
 // #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
@@ -83,6 +102,12 @@ FaceFinderPainter::create(FaceDetectorFactoryPtr& factory, Settings& settings, v
 
 FaceFinderPainter::~FaceFinderPainter()
 {
+}
+
+// Get output pixels via callback (zero copy where possible):
+void FaceFinderPainter::getOutputPixels(FrameDelegate &callback)
+{
+    getImage(*m_rotater, callback);
 }
 
 void FaceFinderPainter::setLetterboxHeight(float height)

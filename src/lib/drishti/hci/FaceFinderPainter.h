@@ -33,16 +33,17 @@ class FaceFinderPainter : public FaceFinder
 {
 public:
     class Impl;
-    
     using FaceFinderPtr = std::unique_ptr<FaceFinderPainter>;
-
+    using FrameDelegate=std::function<void(const cv::Mat& ref)>;
+    
     FaceFinderPainter(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext = nullptr);
     ~FaceFinderPainter();
+    virtual void getOutputPixels(FrameDelegate &delegate);
     virtual void init(const cv::Size& inputSize);
     void drawIris(bool flag) { m_drawIris = flag; }
     void setLetterboxHeight(float height);
     static FaceFinderPtr create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext);
-
+    
 protected:
     virtual void initPainter(const cv::Size& inputSizeUp);
     virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);

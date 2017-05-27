@@ -3,6 +3,14 @@
 set(test_lib drishti_videoio)
 
 set(videoio_srcs
+
+  drishti_videoio.h
+  
+  # VideoSink:
+  VideoSinkCV.h
+  VideoSinkCV.cpp
+  
+  # VideoSource:
   VideoSourceCV.h
   VideoSourceCV.cpp
   VideoSourceStills.h
@@ -10,8 +18,14 @@ set(videoio_srcs
   )
 
 if(APPLE)
+  # AVFoundation framework video (i.e., quicktime *.MOV)  
   list(APPEND videoio_srcs
-    # AVFoundation framework video (i.e., quicktime *.MOV)
+
+    # VideoSink:
+    VideoSinkApple.h
+    VideoSinkApple.mm
+
+    # VideoSource:
     VideoSourceApple.h
     VideoSourceApple.mm
     MICMSampleBuffer.h
@@ -23,9 +37,9 @@ endif()
 
 add_library(drishti_videoio ${videoio_srcs})
 
-target_include_directories(drishti_videoio
-  PUBLIC
-  "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
+target_include_directories(drishti_videoio PUBLIC 
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>" 
+  "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"  
   )
 
 target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS} drishtisdk)
