@@ -17,6 +17,7 @@
 #include <opencv2/core.hpp>
 
 #include <memory>
+#include <functional>
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
