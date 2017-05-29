@@ -263,6 +263,16 @@ public:
         };
     }
 
+    void setShowDetectionScales(bool value)
+    {
+        m_showDetectionScales = value;
+    }
+    
+    bool getShowDetectionScales()
+    {
+        return m_showDetectionScales;
+    }
+    
     void setEyeMotion(const cv::Point2f& motion)
     {
         m_eyeMotion = motion;
@@ -319,18 +329,6 @@ private:
     virtual void renderAxes();
     virtual void renderGaze();
 
-    FeaturePoints m_gazePoints;
-
-    float m_brightness = 1.f;
-
-    cv::Point2f m_eyeMotion;
-    cv::Point3f m_motion;
-
-    Axes3D m_axes;
-    Axes3D m_axesColors;
-
-    drishti::core::Field<Object3D> m_object;
-
     // Make sure these aren't called
     virtual void setOutputRenderOrientation(RenderOrientation o);
     virtual void setOutputSize(float scaleFactor);
@@ -344,11 +342,25 @@ private:
     static const char* vshaderColorVaryingSrc;
 
     static const char* fshaderLetterBoxSrc;
+    
+    FeaturePoints m_gazePoints;
+    
+    float m_brightness = 1.f;
+    
+    cv::Point2f m_eyeMotion;
+    cv::Point3f m_motion;
+    
+    Axes3D m_axes;
+    Axes3D m_axesColors;
+    
+    drishti::core::Field<Object3D> m_object;
 
     int m_outputOrientation = 0;
 
     uint64_t m_frameIndex = 0;
 
+    bool m_showDetectionScales = false;
+    
     // Generic line drawings (debugging) and colors:
     std::vector<cv::Vec3f> m_colorBuf;
     std::vector<LineDrawing> m_drawings;

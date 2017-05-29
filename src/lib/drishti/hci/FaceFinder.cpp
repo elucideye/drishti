@@ -11,6 +11,17 @@
 #include "drishti/hci/FaceFinder.h"
 #include "drishti/hci/FaceFinderImpl.h"
 
+#include "drishti/core/drishti_operators.h" // cv::Size * float
+#include "drishti/core/make_unique.h" // make_unique<>
+#include "drishti/core/timing.h" // ScopeTimeLogger
+#include "drishti/face/FaceDetectorAndTracker.h" // *
+#include "drishti/geometry/Primitives.h" // operator
+#include "drishti/geometry/motion.h" // transformation::
+#include "drishti/hci/EyeBlob.h" // EyeBlobJob
+
+#include <functional>
+#include <deque>
+
 // clang-format off
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
@@ -424,7 +435,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
             if (doAnnotations())
             {
                 // prepare line drawings for rendering while gpu is busy
-                sceneOut.draw();
+                sceneOut.draw(impl->renderFaces, impl->renderPupils, impl->renderCorners);
 
                 // TODO: Eye contours for current scene can be created
                 // for next frame here on the CPU thread.

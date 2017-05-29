@@ -85,6 +85,9 @@ int drishti_main(int argc, char** argv)
     std::string sFaceRegressor;
     std::string sEyeRegressor;
     
+    float cascCal = 0.f;
+    float scale = 1.f;
+    
     cxxopts::Options options("drishti-hci", "Command line interface for video sequence FaceFinder processing.");
 
     // clang-format off
@@ -94,6 +97,10 @@ int drishti_main(int argc, char** argv)
     
         // Generate a quicktime movie:
         ("m,movie", "Output quicktime movie", cxxopts::value<bool>(doMovie))
+    
+        // Detection and regression parameters:
+        ("c,calibration", "Cascade calibration", cxxopts::value<float>(cascCal))
+        ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(scale))
     
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(sFaceDetector))
@@ -193,10 +200,16 @@ int drishti_main(int argc, char** argv)
     settings.frameDelay = 2;
     settings.doLandmarks = true;
     settings.doFlow = true;
-    settings.doBlobs = true;
+    settings.doBlobs = false;
     settings.threads = std::make_shared<tp::ThreadPool<>>();
     settings.outputOrientation = 0;
-    settings.showDetectionScales = false;
+    settings.faceFinderInterval = 0.f;
+    settings.regressorCropScale = scale;
+    settings.acfCalibration = cascCal;
+    
+    settings.renderFaces = true;
+    settings.renderPupils = true;
+    settings.renderCorners = false;
 
     { // Create a sensor specification
         const float fx = frame.image.cols;
@@ -211,6 +224,8 @@ int drishti_main(int argc, char** argv)
     // Allocate the detector:
     auto detector = drishti::hci::FaceFinderPainter::create(factory, settings, nullptr);
     detector->setLetterboxHeight(1.0); // show full video for offline sequences
+    detector->setShowMotionAxes(false);
+    detector->setShowDetectionScales(false);
     
     ogles_gpgpu::VideoSource source;
     ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB);

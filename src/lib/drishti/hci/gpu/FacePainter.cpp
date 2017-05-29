@@ -219,7 +219,10 @@ void FacePainter::renderDrawings()
 
     DrawingSpec lines(GL_LINES);
 
-    std::copy(m_permanentDrawings.begin(), m_permanentDrawings.end(), std::back_inserter(m_drawings));
+    if(m_showDetectionScales)
+    {
+        std::copy(m_permanentDrawings.begin(), m_permanentDrawings.end(), std::back_inserter(m_drawings));
+    }
 
     glLineWidth(4.0);
     for (const auto& e : m_drawings)
@@ -421,7 +424,11 @@ int FacePainter::FacePainter::render(int position)
         // Draw the frame, line drawings and normalized face/eyes
         filterRenderDraw();
         renderDrawings(); // 2d
-        renderAxes();     // render w/ glPerspective (world coordinates)
+        
+        if(m_motion.dot(m_motion) > 0.f)
+        {
+            renderAxes(); // render w/ glPerspective (world coordinates)
+        }
 
         Tools::checkGLErr(getProcName(), "render draw");
 
@@ -523,7 +530,7 @@ void FacePainter::annotateEye(const drishti::eye::EyeWarp& eyeWarp, const cv::Si
     //const std::string tag = DRISHTI_LOCATION_SIMPLE;
     //drishti::core::ScopeTimeLogger paintLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
 
-    auto contours = eyeWarp.getContours(false);
+    auto contours = eyeWarp.getContours(false);//!m_eyePoints.size());
 
     DrawingSpec lines(0);
     for (auto& c : contours)
@@ -548,7 +555,7 @@ void FacePainter::annotateEye(const drishti::eye::EyeWarp& eyeWarp, const cv::Si
         drawFlow(*attributes.flow, attributes.color, lines, 100.f);
     }
 
-    glLineWidth(4.0);
+    glLineWidth(2.0);
     cv::Matx44f MVPt;
     transformation::R3x3To4x4(eyeWarp.H.t(), MVPt);
 
