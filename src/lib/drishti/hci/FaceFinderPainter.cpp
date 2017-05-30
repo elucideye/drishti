@@ -83,6 +83,8 @@ public:
 
     int m_index;
     std::vector<cv::Point2f> m_positions;
+
+    bool m_showMotionAxes = true;
 };
 
 FaceFinderPainter::FaceFinderPainter(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext)
@@ -102,6 +104,26 @@ FaceFinderPainter::create(FaceDetectorFactoryPtr& factory, Settings& settings, v
 
 FaceFinderPainter::~FaceFinderPainter()
 {
+}
+
+void FaceFinderPainter::setShowMotionAxes(bool value)
+{
+    m_pImpl->m_showMotionAxes = value;
+}
+
+bool FaceFinderPainter::getShowMotionAxes() const
+{
+    return m_pImpl->m_showMotionAxes;
+}
+
+void FaceFinderPainter::setShowDetectionScales(bool value)
+{
+    m_painter->setShowDetectionScales(value);
+}
+
+bool FaceFinderPainter::getShowDetectionScales() const
+{
+    return m_painter->getShowDetectionScales();
 }
 
 // Get output pixels via callback (zero copy where possible):
@@ -138,9 +160,7 @@ void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
         m_painter->setLogger(impl->logger);
     }
 
-    // Project detection sizes to full resolution image:
-    if(impl->showDetectionScales)
-    {
+    {// Project detection sizes to full resolution image:
         const auto winSize = impl->detector->getWindowSize();
         for (const auto& size : impl->pyramidSizes)
         {
@@ -149,12 +169,15 @@ void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
             
             const float wl0 = static_cast<float>(winSize.width * inputSizeUp.width) / size.width;
             const float hl0 = static_cast<float>(winSize.height * inputSizeUp.height) / size.height;
-            drawing.contours = {
-                { { 0.f, 0.f },
-                    { wl0, 0.f },
-                    { wl0, hl0 },
-                    { 0.f, hl0 } }
-            };
+            // clang-format off
+            drawing.contours =
+            {{
+                 { 0.f, 0.f },
+                 { wl0, 0.f },
+                 { wl0, hl0 },
+                 { 0.f, hl0 }
+            }};
+            // clang-format on
             m_painter->getPermanentLineDrawings().push_back(drawing);
         }
     }
@@ -204,7 +227,11 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
     m_painter->getLineDrawings().clear();
 
     // Always set motion axes:
-    m_painter->setAxes(impl->faceMotion * 500.f);
+    if(m_pImpl->m_showMotionAxes)
+    {
+        cv::Point3f motion = (m_pImpl->m_showMotionAxes ? (impl->faceMotion) : cv::Point3f(0.f,0.f,0.f));
+        m_painter->setAxes(motion * 500.f);
+    }
 
     // Note: scene.draw() muust be called prior to this point.  All drawing has been moved to the latency=1 cpu thread
     // for the previous frame to increase throughput.
@@ -228,8 +255,12 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
         { // Set the eye textures:
             m_painter->setEyeTexture(impl->eyeFilter->getOutputTexId(), impl->eyeFilter->getOutFrameSize(), eyeWarps);
             FeaturePoints eyePoints;
-            cat(impl->eyePoints[0], impl->eyePoints[1], eyePoints);
-            m_painter->setEyePoints(eyePoints);
+            
+            if(false)
+            {
+                cat(impl->eyePoints[0], impl->eyePoints[1], eyePoints);
+                m_painter->setEyePoints(eyePoints);
+            }
         }
 
         if (impl->doIris && m_drawIris)

@@ -13,58 +13,41 @@
 
 #include "drishti/hci/drishti_hci.h"
 
-#include "drishti/acf/ACF.h"
-#include "drishti/acf/GPUACF.h"
-#include "drishti/core/Logger.h"
-#include "drishti/core/drishti_operators.h"
-#include "drishti/core/make_unique.h"
-#include "drishti/core/scope_guard.h"
-#include "drishti/core/timing.h"
-#include "drishti/eye/gpu/EllipsoPolarWarp.h"
+#include "drishti/acf/ACF.h" // drishti::acf::Detector+Pyramid
+#include "drishti/acf/GPUACF.h" // ogles_gpgpu::ACF
+#include "drishti/core/Logger.h" // spdlog::logger
+#include "drishti/eye/gpu/EllipsoPolarWarp.h" // ogles_gpgpu::EllipsoPolarWarp
 #include "drishti/eye/gpu/EyeWarp.h"
-#include "drishti/face/Face.h"
-#include "drishti/face/FaceDetector.h"
-#include "drishti/face/FaceDetectorAndTracker.h"
-#include "drishti/face/FaceDetectorFactory.h"
-#include "drishti/face/FaceModelEstimator.h"
-#include "drishti/face/gpu/EyeFilter.h"
-#include "drishti/geometry/Primitives.h"
-#include "drishti/geometry/motion.h"
-#include "drishti/graphics/swizzle.h"
-#include "drishti/hci/EyeBlob.h"
-#include "drishti/hci/FaceFinder.h"
-#include "drishti/hci/FaceMonitor.h"
-#include "drishti/hci/Scene.hpp"
-#include "drishti/hci/gpu/BlobFilter.h"
-#include "drishti/hci/gpu/FacePainter.h"
-#include "drishti/sensor/Sensor.h"
+#include "drishti/face/gpu/EyeFilter.h" // ogles_gpgpu::EyeFilter
+#include "drishti/face/FaceDetector.h" // drishti::face::FaceDetector
+#include "drishti/face/FaceDetectorFactory.h" // drishti::face::FaceDetectorFactory
+#include "drishti/face/FaceModelEstimator.h" // drishti::face::FaceModelEstimator
+#include "drishti/graphics/swizzle.h" // ogles_gpgpu::SwizzleProc
+#include "drishti/hci/FaceMonitor.h" // FaceMonitor*
+#include "drishti/hci/Scene.hpp"  // ScenePrimitives
+#include "drishti/hci/gpu/BlobFilter.h" // ogles_gpgpu::BlobFilter
+#include "drishti/sensor/Sensor.h" // drishti::sensor::SensorModel
 
-#include "ogles_gpgpu/common/proc/fifo.h"
-#include "ogles_gpgpu/common/proc/flow.h"
-#include "thread_pool/thread_pool.hpp"
+#include "ogles_gpgpu/common/proc/flow.h" // ogles_gpgpu::FlowOptPipeline
+#include "ogles_gpgpu/common/proc/fifo.h" // ogles_gpgpu::FifoProc
+#include "ogles_gpgpu/common/proc/transform.h" // ogles_gpgpu::TransformProc
+#include "thread_pool/thread_pool.hpp" // tp::ThreadPool<>
 
-#include <vector>
-#include <chrono>
-#include <memory>
-#include <chrono>
-#include <functional>
-#include <deque>
+#include <chrono> // std::chrono::high_resolution_clock::time_point
+#include <future> // future
+#include <memory> // std::shared_ptr
+#include <vector> // vector
 
 #define DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH 1024
-
 #define DRISHTI_HCI_FACEFINDER_FLOW_WIDTH 256
 #define DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER 0 // *** display ***
 #define DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT 1 // *** display ***
-
 #define DRISHTI_HCI_FACEFINDER_DO_TRACKING 1
 #define DRISHTI_HCI_FACEFINDER_DO_ACF_MODIFY 1
-
 #define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES 1
 #define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES_DISPLAY 1
-
 #define DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS 0
 #define DRISHTI_HCI_FACEFINDER_LOG_DETECTIONS 0
-
 #define DRISHTI_HCI_FACEFINDER_ENABLE_ACF_FILTER_LOGGING 0
 
 DRISHTI_HCI_NAMESPACE_BEGIN
@@ -82,19 +65,26 @@ struct FaceFinder::Impl
     
         // ACF and detection parameters:
         , debugACF(false)
+        , acfCalibration(args.acfCalibration)
+        , faceFinderInterval(args.faceFinderInterval)
         , minDistanceMeters(args.minDetectionDistance)
         , maxDistanceMeters(args.maxDetectionDistance)
-        , showDetectionScales(args.showDetectionScales)
     
         // Face landmarks:
         , doLandmarks(args.doLandmarks)
         , landmarksWidth(DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH)
+        , regressorCropScale(args.regressorCropScale)
         
         // Eye parameters:
         , doFlow(args.doFlow)
         , flowWidth(DRISHTI_HCI_FACEFINDER_FLOW_WIDTH)
         , doBlobs(args.doBlobs)
         , doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
+    
+        // Annotations:
+        , renderFaces(args.renderFaces)
+        , renderPupils(args.renderPupils)
+        , renderCorners(args.renderCorners)
     {
 
     }
@@ -141,13 +131,13 @@ struct FaceFinder::Impl
     std::vector<cv::Size> pyramidSizes;
     drishti::acf::Detector::Pyramid P;
     std::shared_ptr<ogles_gpgpu::ACF> acf;
+    float acfCalibration = 0.f;
 
     // Detection:
     bool doNMSGlobal = true;
     double faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
     float minDistanceMeters = 0.f;
     float maxDistanceMeters = 10.0f;
-    bool showDetectionScales = true;
     std::shared_ptr<drishti::face::FaceDetector> faceDetector;
     drishti::acf::Detector* detector = nullptr; // weak ref
     std::pair<time_point, std::vector<cv::Rect>> objects;
@@ -159,6 +149,7 @@ struct FaceFinder::Impl
     // ::::::::::::::::::::::::::::::::::::::::
     bool doLandmarks = false;
     int landmarksWidth = 256;
+    float regressorCropScale = 0.f;
     
     // Camera model, etc:
     cv::Point3f faceMotion;
@@ -170,12 +161,9 @@ struct FaceFinder::Impl
     
     bool doFlow = false;
     int flowWidth = 256;
-    
     bool doBlobs = false;
     bool doIris = false;
-
     bool doEyeFlow = false;
-    float regressorCropScale = 0.f;
     cv::Size eyesSize = { 480, 240 };
 
     std::shared_ptr<ogles_gpgpu::BlobFilter> blobFilter;
@@ -190,6 +178,13 @@ struct FaceFinder::Impl
     
     cv::Point2f eyeMotion;
     std::vector<cv::Vec4f> eyeFlowField;
+    
+    // ::::::::::::::::::::
+    // ::: Annotations  :::
+    // ::::::::::::::::::::
+    bool renderFaces = true;
+    bool renderPupils = true;
+    bool renderCorners = true;
 };
 
 DRISHTI_HCI_NAMESPACE_END

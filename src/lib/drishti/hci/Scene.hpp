@@ -127,7 +127,7 @@ struct ScenePrimitives
         return m_drawings;
     }
 
-    void draw();
+    void draw(bool doFaces=true, bool doPupils=true, bool doCorners=true);
 
     uint64_t m_frameIndex = 0;
     cv::Mat m_image;

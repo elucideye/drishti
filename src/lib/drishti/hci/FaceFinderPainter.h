@@ -44,6 +44,12 @@ public:
     void setLetterboxHeight(float height);
     static FaceFinderPtr create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext);
     
+    void setShowMotionAxes(bool value);
+    bool getShowMotionAxes() const;
+    
+    void setShowDetectionScales(bool value);
+    bool getShowDetectionScales() const;
+    
 protected:
     virtual void initPainter(const cv::Size& inputSizeUp);
     virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);

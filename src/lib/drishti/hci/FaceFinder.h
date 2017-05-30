@@ -69,7 +69,13 @@ public:
         bool doBlobs = false;
         float minDetectionDistance = 0.f;
         float maxDetectionDistance = 1.f;
-        bool showDetectionScales = true;
+        float faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
+        float acfCalibration = 0.f;
+        float regressorCropScale = 0.f;
+        
+        bool renderFaces = true;
+        bool renderPupils = true;
+        bool renderCorners = true;
     };
 
     FaceFinder(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
