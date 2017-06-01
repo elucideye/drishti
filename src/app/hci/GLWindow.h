@@ -24,6 +24,8 @@ public:
     {
         int width;
         int height;
+        float tx;
+        float ty;
         float sx;
         float sy;
     };
@@ -31,7 +33,8 @@ public:
     static Window impl;
 
     GLWindow(const std::string &name, int width, int height);
-
+    void resize(int width, int height);
+    void operator()();
     void operator()(std::function<bool(void)> &f);
     
 private:

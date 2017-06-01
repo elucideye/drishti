@@ -30,6 +30,7 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   LazyParallelResource.h
   Logger.h
   Parallel.h
+  Semaphore.h
   Shape.h
   arithmetic.h
   boost_serialize_common.h

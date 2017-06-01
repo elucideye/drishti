@@ -27,6 +27,11 @@ GLFWContext::~GLFWContext()
     glfwTerminate();
 }
 
+void GLFWContext::operator()()
+{
+    glfwMakeContextCurrent(context);
+}
+
 GLFWContext::operator bool() const
 {
     return (context != nullptr);

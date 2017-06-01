@@ -15,6 +15,7 @@
 #include "videoio/VideoSinkApple.h"
 
 #include "drishti/core/make_unique.h"
+#include "drishti/core/scope_guard.h"
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
@@ -69,7 +70,7 @@ struct VideoSinkApple::Impl
 
     bool begin();
     bool operator()(const cv::Mat &image);
-    bool end(VideoSinkCV::CompletionHandler &handler);
+    bool end(const VideoSinkCV::CompletionHandler &handler);
     bool isStarted = false;
     
     CGSize videoSize;
@@ -97,7 +98,7 @@ bool VideoSinkApple::Impl::begin()
     
     NSMutableDictionary *outputSettings = defaultSettings();
     assetWriterVideoInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:outputSettings];
-    assetWriterVideoInput.expectsMediaDataInRealTime = FALSE; // Revisit
+    assetWriterVideoInput.expectsMediaDataInRealTime = TRUE; // Revisit
     
     // You need to use BGRA for the video in order to get realtime encoding.
     // Use a color-swizzling shader to line up glReadPixels' normal RGBA output
@@ -118,7 +119,7 @@ bool VideoSinkApple::Impl::begin()
     return (assetWriter.status == AVAssetWriterStatusUnknown);
 }
 
-bool VideoSinkApple::Impl::end(VideoSinkCV::CompletionHandler &handler)
+bool VideoSinkApple::Impl::end(const VideoSinkCV::CompletionHandler &handler)
 {
     if(isStarted)
     {
@@ -148,25 +149,27 @@ bool VideoSinkApple::Impl::operator()(const cv::Mat &image)
             isStarted = true;
         }
     }
-
-    CVPixelBufferRef pixel_buffer = NULL;
+    
     CVPixelBufferPoolRef pixelBufferPool = [assetWriterPixelBufferInput pixelBufferPool];
     if (pixelBufferPool == NULL)
     {
         return false;
     }
     
-    CVReturn status = CVPixelBufferPoolCreatePixelBuffer (NULL, pixelBufferPool, &pixel_buffer);
-    if ((pixel_buffer == NULL) || (status != kCVReturnSuccess))
+    CVPixelBufferRef pixelBuffer = NULL;
+    CVReturn status = CVPixelBufferPoolCreatePixelBuffer (NULL, pixelBufferPool, &pixelBuffer);
+    if ((pixelBuffer == NULL) || (status != kCVReturnSuccess))
     {
         return false;
     }
-
-    CVPixelBufferLockBaseAddress(pixel_buffer, 0);
-    GLubyte *pixelBufferData = (GLubyte *)CVPixelBufferGetBaseAddress(pixel_buffer);
+    drishti::core::scope_guard guard = [&] { CVPixelBufferRelease(pixelBuffer); };
+    
+    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+    GLubyte *pixelBufferData = (GLubyte *)CVPixelBufferGetBaseAddress(pixelBuffer);
     memcpy(pixelBufferData, image.ptr<void*>(), (image.step[0] * image.rows));
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 
-    if(![assetWriterPixelBufferInput appendPixelBuffer:pixel_buffer withPresentationTime:frameTime])
+    if(![assetWriterPixelBufferInput appendPixelBuffer:pixelBuffer withPresentationTime:frameTime])
     {
         return false;
     }
@@ -194,7 +197,7 @@ bool VideoSinkApple::begin()
     return impl && impl->begin();
 }
 
-bool VideoSinkApple::end(CompletionHandler &handler)
+bool VideoSinkApple::end(const CompletionHandler &handler)
 {
     if(impl)
     {
@@ -204,13 +207,9 @@ bool VideoSinkApple::end(CompletionHandler &handler)
         }
         @catch (NSException *exception)
         {
-            NSLog(@"NSException caught" );
+            NSLog(@"NSException caught in VideoSinkApple" );
             NSLog(@"Name: %@", exception.name);
             NSLog(@"Reason: %@", exception.reason);
-        }
-        @finally
-        {
-            
         }
     }
     else
@@ -229,13 +228,9 @@ bool VideoSinkApple::operator()(const cv::Mat &image)
         }
         @catch (NSException *exception)
         {
-            NSLog(@"NSException caught" );
+            NSLog(@"NSException caught in VideoSinkApple");
             NSLog(@"Name: %@", exception.name);
             NSLog(@"Reason: %@", exception.reason);
-        }
-        @finally
-        {
-            
         }
     }
 }

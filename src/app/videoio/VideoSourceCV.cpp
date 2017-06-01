@@ -10,14 +10,15 @@
 
 #include "videoio/VideoSourceCV.h"
 #include "videoio/VideoSourceStills.h"
+#include "videoio/VideoSourceTest.h"
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_string_hash.h"
 
 // clang-format off
 #if defined(__APPLE__) && defined(DRISHTI_USE_AVFOUNDATION)
 #  include "videoio/VideoSourceApple.h"
 #endif
 // clang-format on
-
-#include "drishti/core/drishti_string_hash.h"
 
 #include <boost/filesystem.hpp>
 
@@ -33,15 +34,14 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename)
 {
     std::string ext = bfs::path(filename).extension().string();
-
-    std::locale loc;
-    for (auto& elem : ext)
-    {
-        elem = std::tolower(elem, loc);
-    }
+    std::transform(ext.begin(), ext.end(), ext.begin(), [](const unsigned char i){ return std::tolower(i); });
 
     switch (string_hash::hash(ext))
     {
+        case ".test"_hash:
+            return std::make_shared<VideoSourceTest>(filename);
+            break;
+        
         case ".txt"_hash:
             return std::make_shared<VideoSourceStills>(filename);
             break;
@@ -69,4 +69,3 @@ std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename
 }
 
 DRISHTI_VIDEOIO_NAMESPACE_END
-

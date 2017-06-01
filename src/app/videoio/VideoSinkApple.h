@@ -32,7 +32,7 @@ public:
     virtual bool good();
     virtual bool begin();
     virtual bool operator()(const cv::Mat &image);
-    virtual bool end(CompletionHandler &handler);
+    virtual bool end(const CompletionHandler &handler);
     virtual void setProperties(const Properties &properties);
 
 protected:

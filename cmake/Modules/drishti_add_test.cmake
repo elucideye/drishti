@@ -55,6 +55,12 @@ function(drishti_add_test)
 
   set(RESOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
+  if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")
+    get_filename_component(toolchain_suffix "${CMAKE_TOOLCHAIN_FILE}" NAME_WE)
+  else()
+    set(toolchain_suffix "default")
+  endif()
+
   if(ANDROID)
     hunter_add_package(Android-SDK)
     set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
@@ -66,13 +72,6 @@ function(drishti_add_test)
         STRING
         "Android device testing root directory"
     )
-
-    if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")
-      get_filename_component(toolchain_suffix "${CMAKE_TOOLCHAIN_FILE}" NAME_WE)
-    else()
-      set(toolchain_suffix "default")
-    endif()
-
     set(TESTING_DIR "${DRISHTI_ANDROID_DEVICE_TESTING_ROOT}/${PROJECT_NAME}/${toolchain_suffix}")
 
     if(DRISHTI_ANDROID_USE_EMULATOR)

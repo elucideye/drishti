@@ -48,6 +48,6 @@ add_subdirectory(fddb)
 
 # Currently this has a glfw assumption
 # Can use use glfm, sfml or boost for android and iOS
-if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU AND (NOT ${DRISHTI_IS_MOBILE}))
+if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU AND (TARGET drishti_gltest))
   add_subdirectory(hci)
 endif()

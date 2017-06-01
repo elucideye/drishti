@@ -36,7 +36,7 @@ int main(int argc, char** argv)
         }
 
         std::vector<char*> new_argv(argc);
-        const std::regex r("^\\$<DRISHTI_RESOURCE_FILE:(.*)>$");
+        const std::regex r("\\$<DRISHTI_RESOURCE_FILE:(.*)>$");
 
         std::string fmt(home);
         fmt += "/\\1";
@@ -66,12 +66,12 @@ int main(int argc, char** argv)
     }
     catch (std::exception& exc)
     {
-        std::cerr << "Exception catched: " << exc.what() << std::endl;
+        std::cerr << "Exception caught: " << exc.what() << std::endl;
         return EXIT_FAILURE;
     }
     catch (...)
     {
-        std::cerr << "Unknown exception catched" << std::endl;
+        std::cerr << "Unknown exception caught" << std::endl;
         return EXIT_FAILURE;
     }
 }

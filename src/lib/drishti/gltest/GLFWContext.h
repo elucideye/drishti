@@ -25,7 +25,7 @@ struct GLFWContext : public GLContext
 {   
     GLFWContext();
     ~GLFWContext();
-
+    virtual void operator()();
     operator bool() const;
     
     GLFWwindow *context = nullptr;

@@ -38,4 +38,4 @@ protected:
 
 DRISHTI_VIDEOIO_NAMESPACE_END
 
-#endif // __VideoSourceApple_h__
+#endif // __videoio_VideoSourceStills_h__

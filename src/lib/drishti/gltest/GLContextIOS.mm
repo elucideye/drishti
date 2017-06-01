@@ -12,10 +12,6 @@
 
 #import <UIKit/UIKit.h>
 
-//#include <OpenGLES/EAGL.h>
-//#include <OpenGLES/ES2/gl.h>
-//#include <OpenGLES/ES2/glext.h>
-
 DRISHTI_GLTEST_BEGIN
 
 struct GLContextIOS::Impl

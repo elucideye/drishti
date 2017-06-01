@@ -10,33 +10,23 @@
 
 // Local includes:
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
+#include "drishti/core/Semaphore.h"
 #include "drishti/hci/FaceFinderPainter.h"
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/graphics/swizzle.h" // ogles_gpgpu...
 
 #include "videoio/VideoSourceCV.h"
 #include "videoio/VideoSinkCV.h"
-#include "GLWindow.h"
+
+#include "drishti/gltest/GLContext.h"
+
+#if !defined(DRISHTI_IS_MOBILE)
+#  include "GLWindow.h"
+#endif
 
 // Package includes:
 #include "cxxopts.hpp"
 #include "ogles_gpgpu/common/proc/disp.h"
-
-// AVFoundation can trigger an error in GLFW if it runs first.
-// We make sure to open a temporary windows w/ glfw based
-// imshow as a workaround for the problem
-
-/*
- !!! BUG: The current event queue and the main event queue are not the same.
- Events will not be handled correctly.
- This is probably because _TSGetMainThread was called for the first time off the main thread.
-*/
-
-// clang-format off
-#if defined(DRISHTI_USE_IMSHOW)
-#  include "imshow/imshow.h" // needed for AVFoundation
-#endif
-// clang-format on
 
 // clang-format off
 #ifdef ANDROID
@@ -55,14 +45,68 @@ static void * void_ptr(const cv::Mat &image)
 
 using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
-static void
-wait(std::shared_ptr<drishti::videoio::VideoSinkCV> &video);
+static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description);
 
-static void
-initWindow(const std::string &name);
+struct GLResource
+{
+    using RenderDelegate = std::function<bool(void)>;
+    
+    GLResource(const std::string &name, int width, int height, bool doWindow)
+    {
+#if !defined(DRISHTI_IS_MOBILE)
+        if(doWindow)
+        {
+            window = std::make_shared<GLWindow>(name, width, height);
+        }
+        else
+#endif
+        {
+            context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
+        }
+    }
+    void resize(int width, int height)
+    {
+#if !defined(DRISHTI_IS_MOBILE)
+        if(window)
+        {
+            window->resize(width, height);
+        }
+#endif
+    }
+    void operator()()
+    {
+#if !defined(DRISHTI_IS_MOBILE)
+        if(window)
+        {
+            (*window)();
+            return;
+        }
+#endif
+        {
+            (*context)();
+            return;
+        }
+    }
+    
+    void operator()(RenderDelegate &render)
+    {
+#if !defined(DRISHTI_IS_MOBILE)
+        if(window)
+        {
+            (*window)(render);
+        }
+        else
+#endif
+        {
+            while(render());
+        }
+    }
 
-static bool
-checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description);
+#if !defined(DRISHTI_IS_MOBILE)    
+    std::shared_ptr<GLWindow> window;
+#endif
+    std::shared_ptr<drishti::gltest::GLContext> context;
+};
 
 int drishti_main(int argc, char** argv)
 {
@@ -74,19 +118,19 @@ int drishti_main(int argc, char** argv)
     // ############################
     // ### Command line parsing ###
     // ############################
-    
+
+    bool doWindow = false;
     bool doMovie = false;
-
+    
     std::string sInput, sOutput;
-
-    // Full set of models must be specified:
-    std::string sFaceDetector;
-    std::string sFaceDetectorMean;
-    std::string sFaceRegressor;
-    std::string sEyeRegressor;
     
     float cascCal = 0.f;
     float scale = 1.f;
+    
+    // Create FaceDetectorFactory (default file based):
+    std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
+    factory = std::make_shared<drishti::face::FaceDetectorFactory>();
+    factory->sFaceRegressors.resize(1);
     
     cxxopts::Options options("drishti-hci", "Command line interface for video sequence FaceFinder processing.");
 
@@ -94,6 +138,10 @@ int drishti_main(int argc, char** argv)
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
+
+#if !defined(DRISHTI_IS_MOBILE)
+        ("w,window", "Create a display window", cxxopts::value<bool>(doWindow))
+#endif
     
         // Generate a quicktime movie:
         ("m,movie", "Output quicktime movie", cxxopts::value<bool>(doMovie))
@@ -103,10 +151,10 @@ int drishti_main(int argc, char** argv)
         ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(scale))
     
         // Clasifier and regressor models:
-        ("D,detector", "Face detector model", cxxopts::value<std::string>(sFaceDetector))
-        ("M,mean", "Face detector mean", cxxopts::value<std::string>(sFaceDetectorMean))
-        ("R,regressor", "Face regressor", cxxopts::value<std::string>(sFaceRegressor))
-        ("E,eye", "Eye model", cxxopts::value<std::string>(sEyeRegressor))
+        ("D,detector", "Face detector model", cxxopts::value<std::string>(factory->sFaceDetector))
+        ("M,mean", "Face detector mean", cxxopts::value<std::string>(factory->sFaceDetectorMean))
+        ("R,regressor", "Face regressor", cxxopts::value<std::string>(factory->sFaceRegressors.front()))
+        ("E,eye", "Eye model", cxxopts::value<std::string>(factory->sEyeRegressor))
     
         ("h,help", "Print help message");
     // clang-format on
@@ -147,18 +195,18 @@ int drishti_main(int argc, char** argv)
         logger->error() << "Must specify input image or list of images";
         return 1;
     }
-    if (!drishti::cli::file::exists(sInput))
+    if (!sInput.find(".test") && !drishti::cli::file::exists(sInput))
     {
         logger->error() << "Specified input file does not exist or is not readable";
         return 1;
     }
-
+    
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{
-        { sFaceDetector, "face-detector" },
-        { sFaceDetectorMean, "face-detector-mean" },
-        { sFaceRegressor, "face-regressor" },
-        { sEyeRegressor, "eye-regressor" }
+        { factory->sFaceDetector, "face-detector" },
+        { factory->sFaceDetectorMean, "face-detector-mean" },
+        { factory->sFaceRegressors.front(), "face-regressor" },
+        { factory->sEyeRegressor, "eye-regressor" }
     };
 
     for (const auto& c : config)
@@ -169,10 +217,13 @@ int drishti_main(int argc, char** argv)
         }
     }
 
-#if defined(DRISHTI_USE_IMSHOW)
-    initWindow("face");
-#endif
+    // !!! BUG: The current event queue and the main event queue are not the same.
+    // Events will not be handled correctly. This is probably because _TSGetMainThread
+    // was called for the first time off the main thread.
     
+    // NOTE: We can create the OpenGL context prior to AVFoundation use as a workaround
+    GLResource opengl("hci", 640, 480, doWindow);
+  
     auto video = drishti::videoio::VideoSourceCV::create(sInput);
     video->setOutputFormat(drishti::videoio::VideoSourceCV::ARGB); // be explicit, fail on error
 
@@ -184,14 +235,8 @@ int drishti_main(int argc, char** argv)
         logger->info() << "No frames available in video";
         return -1;
     }
-
-    // Create FaceDetectorFactory (default file based):
-    std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
-    factory = std::make_shared<drishti::face::FaceDetectorFactory>();
-    factory->sFaceDetector = sFaceDetector;
-    factory->sFaceRegressors = { sFaceRegressor };
-    factory->sEyeRegressor = sEyeRegressor;
-    factory->sFaceDetectorMean = sFaceDetectorMean;
+    
+    opengl.resize(frame.cols(), frame.rows());
     
     // Create configuration:
     drishti::hci::FaceFinder::Settings settings;
@@ -218,9 +263,8 @@ int drishti_main(int argc, char** argv)
         settings.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
     }
 
-    // Create an OpenGL context:
-    GLWindow window("player", frame.cols(), frame.rows());
-
+    opengl(); // active context
+    
     // Allocate the detector:
     auto detector = drishti::hci::FaceFinderPainter::create(factory, settings, nullptr);
     detector->setLetterboxHeight(1.0); // show full video for offline sequences
@@ -230,10 +274,6 @@ int drishti_main(int argc, char** argv)
     ogles_gpgpu::VideoSource source;
     ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB);
     source.set(&swizzle);
-    
-    ogles_gpgpu::Disp disp;
-    disp.init(frame.image.cols, frame.image.rows, TEXTURE_FORMAT);
-    disp.setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
     
     std::string filename = sOutput + "/movie.mov";
     if (drishti::cli::file::exists(filename))
@@ -251,24 +291,42 @@ int drishti_main(int argc, char** argv)
             sink->begin();
         }
     }
+     
+#if !defined(DRISHI_IS_MOBILE)
+    std::shared_ptr<ogles_gpgpu::Disp> display;
+    if(doWindow)
+    {
+        display = std::make_shared<ogles_gpgpu::Disp>();
+        display->init(frame.image.cols, frame.image.rows, TEXTURE_FORMAT);
+        display->setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
+    }
+#endif
     
     std::function<bool(void)> render = [&]()
     {
-        disp.setDisplayResolution(GLWindow::impl.sx, GLWindow::impl.sy);
-        frame = (*video)(counter);
+        frame = (*video)(counter++);
         if(frame.image.empty())
         {
             return false;
         }
         
+        logger->info() << cv::mean(frame.image);
+        
         // Perform texture swizzling:
         source({{frame.cols(),frame.rows()}, void_ptr(frame.image), true, 0, TEXTURE_FORMAT});
-        
-        // Convert to texture as one of GL_BGRA or GL_RGBA
         auto texture0 = swizzle.getOutputTexId();
         auto texture1 = (*detector)({{frame.cols(),frame.rows()}, nullptr, false, texture0, TEXTURE_FORMAT});
-        disp.useTexture(texture1);
-        disp.render(0);
+
+#if !defined(DRISHTI_IS_MOBILE)        
+        // Convert to texture as one of GL_BGRA or GL_RGBA
+        if(display)
+        {
+            display->setOffset(GLWindow::impl.tx, GLWindow::impl.ty);
+            display->setDisplayResolution(GLWindow::impl.sx, GLWindow::impl.sy);
+            display->useTexture(texture1);
+            display->render(0);
+        }
+#endif
         
         if(sink && sink->good())
         {
@@ -278,18 +336,25 @@ int drishti_main(int argc, char** argv)
             };
             detector->getOutputPixels(delegate);
         }
+        
         return true;
     };
 
-    window(render);
-
+    opengl(render);
+    
     if(sink)
     {
-        wait(sink);
+        drishti::core::Semaphore s(0);
+        sink->end([&]{s.signal();});
+        s.wait();
     }
     return 0;
 }
 
+/*
+// This has been replaced by drishti_test_lib main()
+// for cross-platform console app, but is left to 
+// support standalone use as needed.
 int main(int argc, char** argv)
 {
     try
@@ -308,22 +373,9 @@ int main(int argc, char** argv)
 
     return 0;
 }
+*/
 
 // utility:
-
-static void
-wait(std::shared_ptr<drishti::videoio::VideoSinkCV> &sink)
-{
-    bool isFinished = false;
-    std::mutex mutex;
-    std::unique_lock<std::mutex> lock(mutex);
-    std::condition_variable cv;
-    std::function<void()> wait = [&]{ isFinished = true; };
-    if(sink->end(wait))
-    {
-        cv.wait(lock, [&] { return isFinished; });
-    }
-}
 
 static bool
 checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description)
@@ -335,20 +387,9 @@ checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& desc
     }
     if (!drishti::cli::file::exists(sModel))
     {
-        logger->error() << "Specified model file does not exist or is not readable";
+        logger->error() << "Specified file " << sModel << " does not exist or is not readable";
         return 1;
     }
     return 0;
 }
 
-#if defined(DRISHTI_USE_IMSHOW)
-static void initWindow(const std::string &name)
-{
-    // Hack/workaround needed for continuous preview in current imshow lib
-    cv::Mat canvas(240, 320, CV_8UC3, cv::Scalar(0, 255, 0));
-    cv::putText(canvas, "GLFW Fix", {canvas.cols/4, canvas.rows/2}, CV_FONT_HERSHEY_PLAIN, 2.0, {0,0,0});
-    glfw::imshow(name.c_str(), canvas);
-    glfw::waitKey(1);
-    glfw::destroyWindow(name.c_str());
-}
-#endif
