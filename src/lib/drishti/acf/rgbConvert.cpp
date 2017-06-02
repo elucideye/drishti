@@ -109,7 +109,7 @@ int Detector::rgbConvert(const MatP& IIn, MatP& J, const std::string& colorSpace
 {
     std::string cs;
     cs += colorSpace;
-    std::transform(cs.begin(), cs.end(), cs.begin(), [](const unsigned char i){ return std::tolower(i); });
+    std::transform(cs.begin(), cs.end(), cs.begin(), [](const unsigned char i) { return std::tolower(i); });
 
     int flag = 2;
     switch (string_hash::hash(cs))

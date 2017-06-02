@@ -24,10 +24,16 @@
 DRISHTI_GLTEST_BEGIN
 
 struct GLContextAndroid : public GLContext
-{   
-    GLContextAndroid(int width=640, int height=480);
+{
+    GLContextAndroid(int width = 640, int height = 480);
     ~GLContextAndroid();
-    operator bool() const;
+
+    virtual operator bool() const;
+    virtual void operator()() {} // make current
+
+    virtual bool hasDisplay() const;
+    virtual void resize(int width, int height);
+    virtual void operator()(std::function<bool(void)>& f);    
 
     EGLConfig eglConf;
     EGLSurface eglSurface = EGL_NO_SURFACE;

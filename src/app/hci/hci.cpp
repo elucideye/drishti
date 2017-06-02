@@ -20,10 +20,6 @@
 
 #include "drishti/gltest/GLContext.h"
 
-#if !defined(DRISHTI_IS_MOBILE)
-#  include "GLWindow.h"
-#endif
-
 // Package includes:
 #include "cxxopts.hpp"
 #include "ogles_gpgpu/common/proc/disp.h"
@@ -38,75 +34,14 @@
 
 #include <opencv2/highgui.hpp>
 
-static void * void_ptr(const cv::Mat &image)
+static void* void_ptr(const cv::Mat& image)
 {
-    return const_cast<void *>(image.ptr<void>());
+    return const_cast<void*>(image.ptr<void>());
 }
 
 using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
 static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description);
-
-struct GLResource
-{
-    using RenderDelegate = std::function<bool(void)>;
-    
-    GLResource(const std::string &name, int width, int height, bool doWindow)
-    {
-#if !defined(DRISHTI_IS_MOBILE)
-        if(doWindow)
-        {
-            window = std::make_shared<GLWindow>(name, width, height);
-        }
-        else
-#endif
-        {
-            context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
-        }
-    }
-    void resize(int width, int height)
-    {
-#if !defined(DRISHTI_IS_MOBILE)
-        if(window)
-        {
-            window->resize(width, height);
-        }
-#endif
-    }
-    void operator()()
-    {
-#if !defined(DRISHTI_IS_MOBILE)
-        if(window)
-        {
-            (*window)();
-            return;
-        }
-#endif
-        {
-            (*context)();
-            return;
-        }
-    }
-    
-    void operator()(RenderDelegate &render)
-    {
-#if !defined(DRISHTI_IS_MOBILE)
-        if(window)
-        {
-            (*window)(render);
-        }
-        else
-#endif
-        {
-            while(render());
-        }
-    }
-
-#if !defined(DRISHTI_IS_MOBILE)    
-    std::shared_ptr<GLWindow> window;
-#endif
-    std::shared_ptr<drishti::gltest::GLContext> context;
-};
 
 int drishti_main(int argc, char** argv)
 {
@@ -121,17 +56,17 @@ int drishti_main(int argc, char** argv)
 
     bool doWindow = false;
     bool doMovie = false;
-    
+
     std::string sInput, sOutput;
-    
+
     float cascCal = 0.f;
     float scale = 1.f;
-    
+
     // Create FaceDetectorFactory (default file based):
     std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
     factory = std::make_shared<drishti::face::FaceDetectorFactory>();
     factory->sFaceRegressors.resize(1);
-    
+
     cxxopts::Options options("drishti-hci", "Command line interface for video sequence FaceFinder processing.");
 
     // clang-format off
@@ -200,7 +135,7 @@ int drishti_main(int argc, char** argv)
         logger->error() << "Specified input file does not exist or is not readable";
         return 1;
     }
-    
+
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{
         { factory->sFaceDetector, "face-detector" },
@@ -220,24 +155,24 @@ int drishti_main(int argc, char** argv)
     // !!! BUG: The current event queue and the main event queue are not the same.
     // Events will not be handled correctly. This is probably because _TSGetMainThread
     // was called for the first time off the main thread.
-    
+
     // NOTE: We can create the OpenGL context prior to AVFoundation use as a workaround
-    GLResource opengl("hci", 640, 480, doWindow);
-  
+    auto opengl = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto, doWindow ? "hci" : "", 640, 480);
+
     auto video = drishti::videoio::VideoSourceCV::create(sInput);
     video->setOutputFormat(drishti::videoio::VideoSourceCV::ARGB); // be explicit, fail on error
 
     // Retrieve first frame to configure sensor parameters:
     std::size_t counter = 0;
     auto frame = (*video)(counter);
-    if(frame.image.empty())
+    if (frame.image.empty())
     {
         logger->info() << "No frames available in video";
         return -1;
     }
-    
-    opengl.resize(frame.cols(), frame.rows());
-    
+
+    opengl->resize(frame.cols(), frame.rows());
+
     // Create configuration:
     drishti::hci::FaceFinder::Settings settings;
     settings.logger = drishti::core::Logger::create("test-drishti-hci");
@@ -251,7 +186,7 @@ int drishti_main(int argc, char** argv)
     settings.faceFinderInterval = 0.f;
     settings.regressorCropScale = scale;
     settings.acfCalibration = cascCal;
-    
+
     settings.renderFaces = true;
     settings.renderPupils = true;
     settings.renderCorners = false;
@@ -263,18 +198,18 @@ int drishti_main(int argc, char** argv)
         settings.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
     }
 
-    opengl(); // active context
-    
+    (*opengl)(); // active context
+
     // Allocate the detector:
     auto detector = drishti::hci::FaceFinderPainter::create(factory, settings, nullptr);
     detector->setLetterboxHeight(1.0); // show full video for offline sequences
     detector->setShowMotionAxes(false);
     detector->setShowDetectionScales(false);
-    
+
     ogles_gpgpu::VideoSource source;
     ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB);
     source.set(&swizzle);
-    
+
     std::string filename = sOutput + "/movie.mov";
     if (drishti::cli::file::exists(filename))
     {
@@ -287,65 +222,60 @@ int drishti_main(int argc, char** argv)
         sink = drishti::videoio::VideoSinkCV::create(filename, ".mov");
         if (sink)
         {
-            sink->setProperties({frame.cols(), frame.rows()});
+            sink->setProperties({ frame.cols(), frame.rows() });
             sink->begin();
         }
     }
-     
-#if !defined(DRISHI_IS_MOBILE)
+
     std::shared_ptr<ogles_gpgpu::Disp> display;
-    if(doWindow)
+    if (doWindow && opengl->hasDisplay())
     {
         display = std::make_shared<ogles_gpgpu::Disp>();
         display->init(frame.image.cols, frame.image.rows, TEXTURE_FORMAT);
         display->setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
     }
-#endif
-    
-    std::function<bool(void)> render = [&]()
-    {
+
+    std::function<bool(void)> render = [&]() {
         frame = (*video)(counter++);
-        if(frame.image.empty())
+        if (frame.image.empty())
         {
             return false;
         }
-        
-        logger->info() << cv::mean(frame.image);
-        
-        // Perform texture swizzling:
-        source({{frame.cols(),frame.rows()}, void_ptr(frame.image), true, 0, TEXTURE_FORMAT});
-        auto texture0 = swizzle.getOutputTexId();
-        auto texture1 = (*detector)({{frame.cols(),frame.rows()}, nullptr, false, texture0, TEXTURE_FORMAT});
 
-#if !defined(DRISHTI_IS_MOBILE)        
+        logger->info() << cv::mean(frame.image);
+
+        // Perform texture swizzling:
+        source({ { frame.cols(), frame.rows() }, void_ptr(frame.image), true, 0, TEXTURE_FORMAT });
+        auto texture0 = swizzle.getOutputTexId();
+        auto texture1 = (*detector)({ { frame.cols(), frame.rows() }, nullptr, false, texture0, TEXTURE_FORMAT });
+
         // Convert to texture as one of GL_BGRA or GL_RGBA
-        if(display)
+        if (display)
         {
-            display->setOffset(GLWindow::impl.tx, GLWindow::impl.ty);
-            display->setDisplayResolution(GLWindow::impl.sx, GLWindow::impl.sy);
+            auto& geometry = opengl->getGeometry();
+            display->setOffset(geometry.tx, geometry.ty);
+            display->setDisplayResolution(geometry.sx, geometry.sy);
             display->useTexture(texture1);
             display->render(0);
         }
-#endif
-        
-        if(sink && sink->good())
+
+        if (sink && sink->good())
         {
-            drishti::hci::FaceFinderPainter::FrameDelegate delegate = [&](const cv::Mat &image)
-            {
+            drishti::hci::FaceFinderPainter::FrameDelegate delegate = [&](const cv::Mat& image) {
                 (*sink)(image);
             };
             detector->getOutputPixels(delegate);
         }
-        
+
         return true;
     };
 
-    opengl(render);
-    
-    if(sink)
+    (*opengl)(render);
+
+    if (sink)
     {
         drishti::core::Semaphore s(0);
-        sink->end([&]{s.signal();});
+        sink->end([&] { s.signal(); });
         s.wait();
     }
     return 0;
@@ -392,4 +322,3 @@ checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& desc
     }
     return 0;
 }
-

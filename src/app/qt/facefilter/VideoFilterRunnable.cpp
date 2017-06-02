@@ -119,12 +119,12 @@ struct VideoFilterRunnable::Impl
             settings.doBlobs = (*pSettings)["doBlobs"].get<bool>();
         }
 
-        drishti::hci::FaceFinder::tryEnablePlatformOptimizations();            
+        drishti::hci::FaceFinder::tryEnablePlatformOptimizations();
         m_detector = drishti::hci::FaceFinderPainter::create(resources, settings, glContext);
 
         // Instantiate an asynchronous network logger (if available, else nullptr):
         m_detector->setImageLogger(manager->createAsynchronousImageLogger());
-        
+
         // Face filter:
         if (manager->getFaceMonitor())
         {

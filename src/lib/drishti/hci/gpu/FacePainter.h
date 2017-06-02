@@ -246,11 +246,11 @@ public:
         // A) This stretches and preserves the aspect ratio across the top of the frame:
         Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height / size.width);
 
-        if(outFrameW > outFrameH)
+        if (outFrameW > outFrameH)
         {
             // B) Place the eyes in the upper left corner
             const int maxWidth = 512;
-            const int width = std::min(maxWidth, outFrameW/3);
+            const int width = std::min(maxWidth, outFrameW / 3);
             eyesRoi = { 0, 0, width, width * size.height / size.width };
             eyesRoi.x = 0;
             //eyesRoi.x = (outFrameW / 2) - (size.width / 2);
@@ -267,12 +267,12 @@ public:
     {
         m_showDetectionScales = value;
     }
-    
+
     bool getShowDetectionScales()
     {
         return m_showDetectionScales;
     }
-    
+
     void setEyeMotion(const cv::Point2f& motion)
     {
         m_eyeMotion = motion;
@@ -293,7 +293,7 @@ public:
     {
         m_brightness = value;
     }
-    
+
     void setLetterboxHeight(float value)
     {
         m_colorLetterboxHeight = value;
@@ -342,17 +342,17 @@ private:
     static const char* vshaderColorVaryingSrc;
 
     static const char* fshaderLetterBoxSrc;
-    
+
     FeaturePoints m_gazePoints;
-    
+
     float m_brightness = 1.f;
-    
+
     cv::Point2f m_eyeMotion;
     cv::Point3f m_motion;
-    
+
     Axes3D m_axes;
     Axes3D m_axesColors;
-    
+
     drishti::core::Field<Object3D> m_object;
 
     int m_outputOrientation = 0;
@@ -360,7 +360,7 @@ private:
     uint64_t m_frameIndex = 0;
 
     bool m_showDetectionScales = false;
-    
+
     // Generic line drawings (debugging) and colors:
     std::vector<cv::Vec3f> m_colorBuf;
     std::vector<LineDrawing> m_drawings;
@@ -388,7 +388,7 @@ private:
     // #### color stuff ###
     Vec3f m_colorRGB;
     GLint m_colorShParamRGB;
-    
+
     GLfloat m_colorLetterboxHeight;
     GLint m_colorShLetterboxHeight;
 

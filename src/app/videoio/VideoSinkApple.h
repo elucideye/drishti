@@ -26,14 +26,14 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 class VideoSinkApple : public VideoSinkCV
 {
 public:
-    VideoSinkApple(const std::string& filename, const std::string &hint={});
+    VideoSinkApple(const std::string& filename, const std::string& hint = {});
     ~VideoSinkApple();
-    
+
     virtual bool good();
     virtual bool begin();
-    virtual bool operator()(const cv::Mat &image);
-    virtual bool end(const CompletionHandler &handler);
-    virtual void setProperties(const Properties &properties);
+    virtual bool operator()(const cv::Mat& image);
+    virtual bool end(const CompletionHandler& handler);
+    virtual void setProperties(const Properties& properties);
 
 protected:
     struct Impl;

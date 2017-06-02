@@ -140,7 +140,7 @@ protected:
         factory.sFaceModel = &iFaceDetectorMean;
 
         auto tracker = std::make_shared<drishti::sdk::FaceTracker>(&context, factory);
-                
+
         return tracker;
     }
 

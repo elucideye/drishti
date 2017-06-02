@@ -42,8 +42,8 @@ public:
 
     void saveImpl(const std::string& filename);
     void loadImpl(const std::string& filename);
-    
-    void dump(std::vector<float> &values, bool pca);
+
+    void dump(std::vector<float>& values, bool pca);
 
     // Boost serialization:
     template <class Archive>

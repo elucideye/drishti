@@ -27,7 +27,6 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 class VideoSourceApple : public VideoSourceCV
 {
 public:
-
     VideoSourceApple(const std::string& filename);
     ~VideoSourceApple();
     virtual Frame operator()(int i = -1);
@@ -37,8 +36,7 @@ public:
     virtual void setOutputFormat(PixelFormat format);
 
 protected:
-    
-    struct Impl;    
+    struct Impl;
     std::unique_ptr<Impl> m_impl;
 };
 

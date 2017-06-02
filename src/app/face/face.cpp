@@ -40,8 +40,8 @@
 using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
 static cv::Mat
-cropEyes(const cv::Mat &image, const drishti::face::FaceModel &face, const cv::Size &size, float scale, bool annotate);
-static void initWindow(const std::string &name);
+cropEyes(const cv::Mat& image, const drishti::face::FaceModel& face, const cv::Size& size, float scale, bool annotate);
+static void initWindow(const std::string& name);
 static bool writeAsJson(const std::string& filename, const std::vector<drishti::face::FaceModel>& faces);
 static void drawObjects(cv::Mat& canvas, const std::vector<drishti::face::FaceModel>& faces);
 static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description);
@@ -247,12 +247,12 @@ int drishti_main(int argc, char** argv)
     }
 
 #if defined(DRISHTI_USE_IMSHOW)
-    if(doDisplay)
+    if (doDisplay)
     {
         initWindow("face");
     }
 #endif
-    
+
     auto video = drishti::videoio::VideoSourceCV::create(sInput);
 
     // Allocate resource manager:
@@ -332,29 +332,28 @@ int drishti_main(int argc, char** argv)
                     logger->error() << "Failed to write: " << filename << ".json";
                 }
 
-#if defined(DRISHTI_USE_IMSHOW)                
+#if defined(DRISHTI_USE_IMSHOW)
                 int windowCount = 0;
-                drishti::core::scope_guard waiter = [&]()
-                {
-                    if(windowCount > 0)
+                drishti::core::scope_guard waiter = [&]() {
+                    if (windowCount > 0)
                     {
                         glfw::waitKey(doPause ? 0 : 1);
                     }
                 };
 #endif
-                
-                if(doEyes)
+
+                if (doEyes)
                 {
-                    for(int i = 0; i < faces.size(); i++)
+                    for (int i = 0; i < faces.size(); i++)
                     {
-                        cv::Mat eyes = cropEyes(image, faces[i], {640, 240}, 0.666f, doAnnotation);
-                        
+                        cv::Mat eyes = cropEyes(image, faces[i], { 640, 240 }, 0.666f, doAnnotation);
+
                         std::stringstream ss;
                         ss << std::setfill('0') << std::setw(2) << i;
                         cv::imwrite(filename + ss.str() + "_eyes.png", eyes);
-                        
+
 #if defined(DRISHTI_USE_IMSHOW)
-                        if(doDisplay)
+                        if (doDisplay)
                         {
                             windowCount++;
                             glfw::imshow("eyes", eyes);
@@ -368,7 +367,7 @@ int drishti_main(int argc, char** argv)
                     cv::Mat canvas = image.clone();
                     drawObjects(canvas, faces);
                     cv::imwrite(filename + "_faces.png", canvas);
-                 
+
 #if defined(DRISHTI_USE_IMSHOW)
                     if (doDisplay)
                     {
@@ -383,11 +382,11 @@ int drishti_main(int argc, char** argv)
 
     if (threads == 1 || threads == 0 || doDisplay || !video->isRandomAccess())
     {
-        harness({0, static_cast<int>(video->count())});
+        harness({ 0, static_cast<int>(video->count()) });
     }
     else
     {
-        cv::parallel_for_({0, static_cast<int>(video->count())}, harness, std::max(threads, -1));
+        cv::parallel_for_({ 0, static_cast<int>(video->count()) }, harness, std::max(threads, -1));
     }
 
     return 0;
@@ -431,20 +430,20 @@ checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& desc
 }
 
 static cv::Mat
-cropEyes(const cv::Mat &image, const drishti::face::FaceModel &face, const cv::Size &size, float scale, bool annotate)
+cropEyes(const cv::Mat& image, const drishti::face::FaceModel& face, const cv::Size& size, float scale, bool annotate)
 {
     const cv::Matx33f H = drishti::face::FaceStabilizer::stabilize(face, size, scale);
-    
+
     cv::Mat eyes;
-    cv::warpAffine(image, eyes, H.get_minor<2,3>(0,0), size);
-    
-    if(annotate)
+    cv::warpAffine(image, eyes, H.get_minor<2, 3>(0, 0), size);
+
+    if (annotate)
     {
         const auto face2 = H * face;
         face2.eyeFullL->draw(eyes);
         face2.eyeFullR->draw(eyes);
     }
-    
+
     return eyes;
 }
 
@@ -476,11 +475,11 @@ drawObjects(cv::Mat& canvas, const std::vector<drishti::face::FaceModel>& faces)
 }
 
 #if defined(DRISHTI_USE_IMSHOW)
-static void initWindow(const std::string &name)
+static void initWindow(const std::string& name)
 {
     // Hack/workaround needed for continuous preview in current imshow lib
     cv::Mat canvas(240, 320, CV_8UC3, cv::Scalar(0, 255, 0));
-    cv::putText(canvas, "GLFW Fix", {canvas.cols/4, canvas.rows/2}, CV_FONT_HERSHEY_PLAIN, 2.0, {0,0,0});
+    cv::putText(canvas, "GLFW Fix", { canvas.cols / 4, canvas.rows / 2 }, CV_FONT_HERSHEY_PLAIN, 2.0, { 0, 0, 0 });
     glfw::imshow(name.c_str(), canvas);
     glfw::waitKey(1);
     glfw::destroyWindow(name.c_str());

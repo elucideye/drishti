@@ -19,13 +19,17 @@ DRISHTI_GLTEST_BEGIN
 class GLContextIOS : public GLContext
 {
 public:
-    
     GLContextIOS();
     ~GLContextIOS();
-    operator bool() const;
+
+    virtual operator bool() const;
+    virtual void operator()() {} // make current
+
+    virtual bool hasDisplay() const;
+    virtual void resize(int width, int height);
+    virtual void operator()(std::function<bool(void)>& f);
 
 private:
-    
     struct Impl;
     std::unique_ptr<Impl> impl;
 };

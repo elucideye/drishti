@@ -97,7 +97,7 @@ public:
         return m_threads;
     }
 
-    FrameHandler createAsynchronousImageLogger();        
+    FrameHandler createAsynchronousImageLogger();
 #if DRISHTI_USE_BEAST
     std::shared_ptr<drishti::core::ImageLogger>& getImageLogger()
     {
@@ -117,9 +117,8 @@ public:
 
     Settings* getSettings() { return m_settings; }
     const Settings* getSettings() const { return m_settings; }
-    
+
 protected:
-    
     Settings* m_settings = nullptr;
     DetectionParams m_detectionParams;
     int m_orientation = 0;
@@ -130,11 +129,11 @@ protected:
     std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
     std::vector<FrameHandler> m_handlers;
     std::unique_ptr<drishti::hci::FaceMonitor> m_faceMonitor;
-    
+
 #if DRISHTI_USE_BEAST
     std::shared_ptr<drishti::core::ImageLogger> m_imageLogger;
 #endif
-    
+
     static FrameHandlerManager* m_instance;
 };
 

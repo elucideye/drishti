@@ -19,11 +19,14 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 class Semaphore
 {
 public:
-    Semaphore(std::size_t n=0) : n(n) {}
+    Semaphore(std::size_t n = 0)
+        : n(n)
+    {
+    }
     void wait()
     {
         std::unique_lock<std::mutex> lock(mutex);
-        condition.wait(lock,[&](){ return n>0; });
+        condition.wait(lock, [&]() { return n > 0; });
         --n;
     }
     void signal()
@@ -32,6 +35,7 @@ public:
         ++n;
         condition.notify_one();
     }
+
 protected:
     std::mutex mutex;
     std::condition_variable condition;

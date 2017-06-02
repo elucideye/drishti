@@ -12,23 +12,42 @@
 
 #include "drishti/gltest/GLContext.h"
 
+// clang-format off
 #if defined(_WIN32) || defined(_WIN64)
 #  include <windows.h> // CMakeLists.txt defines NOMINMAX
 #  include <gl/glew.h>
 #endif
+// clang-format on
 
 #include <GLFW/glfw3.h>
 
 DRISHTI_GLTEST_BEGIN
 
-struct GLFWContext : public GLContext
-{   
-    GLFWContext();
+struct GLFWContextPool;
+
+class GLFWContext : public GLContext
+{
+public:
+    GLFWContext(const std::string& name = {}, int width = 640, int height = 480);
     ~GLFWContext();
+
     virtual void operator()();
-    operator bool() const;
-    
-    GLFWwindow *context = nullptr;
+    virtual operator bool() const;
+
+    // Display related:
+    virtual bool hasDisplay() const;
+    virtual void resize(int width, int height);
+    virtual void operator()(std::function<bool(void)>& f);
+
+    GLFWwindow* getContext() const { return m_context; }
+    void framebufferSizeCallback(int width, int height);
+
+protected:
+    friend GLFWContextPool;
+    void alloc(const std::string& name = {}, int width = 640, int height = 480);
+
+    GLFWwindow* m_context = nullptr;
+    bool m_visible = false;
 };
 
 DRISHTI_GLTEST_END

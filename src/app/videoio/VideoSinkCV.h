@@ -24,23 +24,22 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 class VideoSinkCV
 {
 public:
+    using CompletionHandler = std::function<void()>;
 
-    using CompletionHandler=std::function<void()>;
-    
     struct Properties
     {
         int width;
         int height;
     };
-    
+
     VideoSinkCV() {}
     ~VideoSinkCV() {}
     virtual bool good() = 0;
     virtual bool begin() = 0;
-    virtual bool operator()(const cv::Mat &image) = 0;
-    virtual bool end(const CompletionHandler &handler) = 0;
-    virtual void setProperties(const Properties &properties) {}
-    static std::shared_ptr<VideoSinkCV> create(const std::string& filename, const std::string &hint={});
+    virtual bool operator()(const cv::Mat& image) = 0;
+    virtual bool end(const CompletionHandler& handler) = 0;
+    virtual void setProperties(const Properties& properties) {}
+    static std::shared_ptr<VideoSinkCV> create(const std::string& filename, const std::string& hint = {});
 };
 
 DRISHTI_VIDEOIO_NAMESPACE_END

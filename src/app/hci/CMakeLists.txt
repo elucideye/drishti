@@ -27,14 +27,6 @@ if(DRISHTI_IS_MOBILE)
       MACOSX_BUNDLE_GUI_IDENTIFIER "${BUNDLE_ID}"
       )
   endif()
-else() # !DRISHTI_IS_MOBILE
-  hunter_add_package(glfw)
-  find_package(glfw3 REQUIRED)
-
-  add_library(drishti_glview GLWindow.h GLWindow.cpp)
-  target_link_libraries(drishti_glview PUBLIC glfw ${OpenCV_LIBS})
-  target_link_libraries(${test_app} PUBLIC drishti_glview)
-  set_property(TARGET ${test_app} PROPERTY FOLDER "libs/drishti")
 endif()
 
 target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${DRISHTI_APP_DIRECTORIES}>")

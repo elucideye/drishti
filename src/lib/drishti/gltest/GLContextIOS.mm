@@ -40,5 +40,21 @@ GLContextIOS::operator bool() const
     return (impl && impl->egl);
 }
 
+// Display:
+bool GLContextIOS::hasDisplay() const
+{
+    return false;
+}
+
+void GLContextIOS::resize(int width, int height)
+{
+    // noop
+}
+
+void GLContextIOS::operator()(std::function<bool(void)> &f)
+{
+    while(f()) {}
+}
+
 DRISHTI_GLTEST_END
 

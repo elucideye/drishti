@@ -13,25 +13,25 @@
 
 #include "drishti/hci/drishti_hci.h"
 
-#include "drishti/acf/ACF.h" // drishti::acf::Detector+Pyramid
-#include "drishti/acf/GPUACF.h" // ogles_gpgpu::ACF
-#include "drishti/core/Logger.h" // spdlog::logger
+#include "drishti/acf/ACF.h"                  // drishti::acf::Detector+Pyramid
+#include "drishti/acf/GPUACF.h"               // ogles_gpgpu::ACF
+#include "drishti/core/Logger.h"              // spdlog::logger
 #include "drishti/eye/gpu/EllipsoPolarWarp.h" // ogles_gpgpu::EllipsoPolarWarp
 #include "drishti/eye/gpu/EyeWarp.h"
-#include "drishti/face/gpu/EyeFilter.h" // ogles_gpgpu::EyeFilter
-#include "drishti/face/FaceDetector.h" // drishti::face::FaceDetector
+#include "drishti/face/gpu/EyeFilter.h"       // ogles_gpgpu::EyeFilter
+#include "drishti/face/FaceDetector.h"        // drishti::face::FaceDetector
 #include "drishti/face/FaceDetectorFactory.h" // drishti::face::FaceDetectorFactory
-#include "drishti/face/FaceModelEstimator.h" // drishti::face::FaceModelEstimator
-#include "drishti/graphics/swizzle.h" // ogles_gpgpu::SwizzleProc
-#include "drishti/hci/FaceMonitor.h" // FaceMonitor*
-#include "drishti/hci/Scene.hpp"  // ScenePrimitives
-#include "drishti/hci/gpu/BlobFilter.h" // ogles_gpgpu::BlobFilter
-#include "drishti/sensor/Sensor.h" // drishti::sensor::SensorModel
+#include "drishti/face/FaceModelEstimator.h"  // drishti::face::FaceModelEstimator
+#include "drishti/graphics/swizzle.h"         // ogles_gpgpu::SwizzleProc
+#include "drishti/hci/FaceMonitor.h"          // FaceMonitor*
+#include "drishti/hci/Scene.hpp"              // ScenePrimitives
+#include "drishti/hci/gpu/BlobFilter.h"       // ogles_gpgpu::BlobFilter
+#include "drishti/sensor/Sensor.h"            // drishti::sensor::SensorModel
 
-#include "ogles_gpgpu/common/proc/flow.h" // ogles_gpgpu::FlowOptPipeline
-#include "ogles_gpgpu/common/proc/fifo.h" // ogles_gpgpu::FifoProc
+#include "ogles_gpgpu/common/proc/flow.h"      // ogles_gpgpu::FlowOptPipeline
+#include "ogles_gpgpu/common/proc/fifo.h"      // ogles_gpgpu::FifoProc
 #include "ogles_gpgpu/common/proc/transform.h" // ogles_gpgpu::TransformProc
-#include "thread_pool/thread_pool.hpp" // tp::ThreadPool<>
+#include "thread_pool/thread_pool.hpp"         // tp::ThreadPool<>
 
 #include <chrono> // std::chrono::high_resolution_clock::time_point
 #include <future> // future
@@ -62,35 +62,34 @@ struct FaceFinder::Impl
         , threads(args.threads)
         , hasInit(false)
         , outputOrientation(args.outputOrientation)
-    
+
         // ACF and detection parameters:
         , debugACF(false)
         , acfCalibration(args.acfCalibration)
         , faceFinderInterval(args.faceFinderInterval)
         , minDistanceMeters(args.minDetectionDistance)
         , maxDistanceMeters(args.maxDetectionDistance)
-    
+
         // Face landmarks:
         , doLandmarks(args.doLandmarks)
         , landmarksWidth(DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH)
         , regressorCropScale(args.regressorCropScale)
-        
+
         // Eye parameters:
         , doFlow(args.doFlow)
         , flowWidth(DRISHTI_HCI_FACEFINDER_FLOW_WIDTH)
         , doBlobs(args.doBlobs)
         , doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
-    
+
         // Annotations:
         , renderFaces(args.renderFaces)
         , renderPupils(args.renderPupils)
         , renderCorners(args.renderCorners)
     {
-
     }
 
     using time_point = std::chrono::high_resolution_clock::time_point;
-    
+
     // :::::::::::::::::::::::
     // ::: Core parameters :::
     // :::::::::::::::::::::::
@@ -104,7 +103,7 @@ struct FaceFinder::Impl
     ImageLogger imageLogger;
     TimePoint start;
     TimerInfo timerInfo;
-    
+
     bool doAnnotations = true;
     bool hasInit = false;
     int index = 0;
@@ -117,9 +116,9 @@ struct FaceFinder::Impl
 
     int outputOrientation = 0;
     float brightness = 1.f;
-    std::shared_ptr<ogles_gpgpu::FifoProc> fifo; // store last N faces
+    std::shared_ptr<ogles_gpgpu::FifoProc> fifo;         // store last N faces
     std::shared_ptr<ogles_gpgpu::TransformProc> rotater; // output frame rotation
-    
+
     // :::::::::::::::::::::::::::::::::::::::
     // ::: ACF and detection parameters:   :::
     // :::::::::::::::::::::::::::::::::::::::
@@ -150,15 +149,15 @@ struct FaceFinder::Impl
     bool doLandmarks = false;
     int landmarksWidth = 256;
     float regressorCropScale = 0.f;
-    
+
     // Camera model, etc:
     cv::Point3f faceMotion;
     std::shared_ptr<drishti::face::FaceModelEstimator> faceEstimator; // pinhole model
-    
+
     // :::::::::::::::::::::::
     // ::: Eye parameters: :::
     // :::::::::::::::::::::::
-    
+
     bool doFlow = false;
     int flowWidth = 256;
     bool doBlobs = false;
@@ -172,13 +171,13 @@ struct FaceFinder::Impl
     std::shared_ptr<ogles_gpgpu::FlowOptPipeline> eyeFlow;
     std::shared_ptr<ogles_gpgpu::SwizzleProc> eyeFlowBgra; // (optional)
     ogles_gpgpu::ProcInterface* eyeFlowBgraInterface = nullptr;
-    
+
     FeaturePoints gazePoints;
     std::array<FeaturePoints, 2> eyePoints;
-    
+
     cv::Point2f eyeMotion;
     std::vector<cv::Vec4f> eyeFlowField;
-    
+
     // ::::::::::::::::::::
     // ::: Annotations  :::
     // ::::::::::::::::::::

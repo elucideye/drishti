@@ -135,7 +135,7 @@ void FacePainter::getUniforms()
 #else
     m_drawShParamULineColor = m_draw->getParam(UNIF, "lineColor");
 #endif
-    
+
     m_colorShParamRGB = shader->getParam(UNIF, "color");
     m_colorShLetterboxHeight = shader->getParam(UNIF, "height");
 }
@@ -219,7 +219,7 @@ void FacePainter::renderDrawings()
 
     DrawingSpec lines(GL_LINES);
 
-    if(m_showDetectionScales)
+    if (m_showDetectionScales)
     {
         std::copy(m_permanentDrawings.begin(), m_permanentDrawings.end(), std::back_inserter(m_drawings));
     }
@@ -262,7 +262,7 @@ void FacePainter::renderDrawings()
         lines.colors.emplace_back(1.f, 0.f, 1.f);
         lines.colors.emplace_back(1.f, 0.f, 1.f);
     }
-    
+
     if (m_faces.size())
     { // Show position of nearest face
         const auto& position = (*m_faces.front().eyesCenter);
@@ -424,8 +424,8 @@ int FacePainter::FacePainter::render(int position)
         // Draw the frame, line drawings and normalized face/eyes
         filterRenderDraw();
         renderDrawings(); // 2d
-        
-        if(m_motion.dot(m_motion) > 0.f)
+
+        if (m_motion.dot(m_motion) > 0.f)
         {
             renderAxes(); // render w/ glPerspective (world coordinates)
         }
@@ -530,7 +530,7 @@ void FacePainter::annotateEye(const drishti::eye::EyeWarp& eyeWarp, const cv::Si
     //const std::string tag = DRISHTI_LOCATION_SIMPLE;
     //drishti::core::ScopeTimeLogger paintLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
 
-    auto contours = eyeWarp.getContours(false);//!m_eyePoints.size());
+    auto contours = eyeWarp.getContours(false); //!m_eyePoints.size());
 
     DrawingSpec lines(0);
     for (auto& c : contours)
@@ -660,7 +660,7 @@ void FacePainter::renderTex(DisplayTexture& texInfo)
 
     filterRenderPrepareTex(texInfo);
     Tools::checkGLErr(getProcName(), "render prepare");
-    
+
     glUniform1f(m_colorShLetterboxHeight, m_colorLetterboxHeight);
     Tools::checkGLErr(getProcName(), "setUniforms");
 

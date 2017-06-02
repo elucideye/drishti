@@ -728,31 +728,31 @@ public:
          !*/
     {
     }
-    
-    void getShapeUpdates(std::vector<float> &values, bool pca)
+
+    void getShapeUpdates(std::vector<float>& values, bool pca)
     {
-        const auto &eT = m_pca->getTransposedEigenvectors();
+        const auto& eT = m_pca->getTransposedEigenvectors();
         std::cout << eT << std::endl;
-        for(/*const*/ auto &f : forests)
+        for (/*const*/ auto& f : forests)
         {
             std::cout << f.front().leaf_values.size() << std::endl;
-            for(/*const*/ auto &g : f)
+            for (/*const*/ auto& g : f)
             {
-                for(/*const*/ auto &s : g.leaf_values)
+                for (/*const*/ auto& s : g.leaf_values)
                 {
-                    if(m_pca && !pca) // if using pca and we want full points:
+                    if (m_pca && !pca) // if using pca and we want full points:
                     {
                         fshape shape_full;
                         shape_full = fshape(eT.rows);
                         back_project(*m_pca, s.size(), s, shape_full);
-                        for(const auto &r : shape_full)
+                        for (const auto& r : shape_full)
                         {
                             values.push_back(r);
                         }
                     }
                     else
                     {
-                        for(const auto &r : s)
+                        for (const auto& r : s)
                         {
                             values.push_back(r);
                         }
@@ -1738,8 +1738,8 @@ private:
             {
                 for (unsigned long i = 0; i < num_test_splits; ++i)
                 {
-                    const auto &values1 = samples[j].feature_pixel_values[feats[i].idx1];
-                    const auto &values2 = samples[j].feature_pixel_values[feats[i].idx2];
+                    const auto& values1 = samples[j].feature_pixel_values[feats[i].idx1];
+                    const auto& values2 = samples[j].feature_pixel_values[feats[i].idx2];
                     if (compute_npd(values1, values2) > feats[i].thresh)
                     {
                         left_sums[i] += temp;
@@ -1751,8 +1751,8 @@ private:
             {
                 for (unsigned long i = 0; i < num_test_splits; ++i)
                 {
-                    const auto &values1 = samples[j].feature_pixel_values[feats[i].idx1];
-                    const auto &values2 = samples[j].feature_pixel_values[feats[i].idx2];
+                    const auto& values1 = samples[j].feature_pixel_values[feats[i].idx1];
+                    const auto& values2 = samples[j].feature_pixel_values[feats[i].idx2];
                     if (compute_npd(values1, values2) > feats[i].thresh)
                     {
                         left_sums[i] += temp;

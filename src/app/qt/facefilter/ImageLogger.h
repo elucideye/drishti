@@ -14,12 +14,11 @@ class ImageLogger
 public:
     ImageLogger(const std::string& host, const std::string& port);
     ~ImageLogger();
-    const std::string &port() const;    
-    const std::string &host() const;
+    const std::string& port() const;
+    const std::string& host() const;
     void operator()(const cv::Mat& image);
 
 protected:
-    
     struct Impl;
     std::unique_ptr<Impl> impl;
 };

@@ -27,7 +27,7 @@ std::string basename(const std::string& name, const std::string& ext)
 {
     size_t pos = name.rfind("/");
 
-    if(pos != std::string::npos)
+    if (pos != std::string::npos)
     {
         pos += 1;
     }
@@ -35,7 +35,7 @@ std::string basename(const std::string& name, const std::string& ext)
     {
         pos = 0;
     }
-    
+
     std::string base = name.substr(pos);
     return base.substr(0, std::min(base.size(), base.rfind(ext)));
 };

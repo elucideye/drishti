@@ -43,13 +43,13 @@ public:
 
         int rows() const { return image.rows; }
         int cols() const { return image.cols; }
-        
+
         cv::Mat image;
         std::size_t index = 0;
         std::string name;
         std::string metadata;
     };
-    
+
     enum PixelFormat
     {
         RGBA,
@@ -73,7 +73,6 @@ public:
     static std::shared_ptr<VideoSourceCV> create(const std::string& filename);
 
 protected:
-
 };
 
 DRISHTI_VIDEOIO_NAMESPACE_END

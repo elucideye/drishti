@@ -34,14 +34,14 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename)
 {
     std::string ext = bfs::path(filename).extension().string();
-    std::transform(ext.begin(), ext.end(), ext.begin(), [](const unsigned char i){ return std::tolower(i); });
+    std::transform(ext.begin(), ext.end(), ext.begin(), [](const unsigned char i) { return std::tolower(i); });
 
     switch (string_hash::hash(ext))
     {
         case ".test"_hash:
             return std::make_shared<VideoSourceTest>(filename);
             break;
-        
+
         case ".txt"_hash:
             return std::make_shared<VideoSourceStills>(filename);
             break;

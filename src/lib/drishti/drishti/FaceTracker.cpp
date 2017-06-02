@@ -48,16 +48,16 @@ public:
         Settings settings;
         settings.sensor = manager->get()->getSensor();
 
-        if(resources.logger.empty())
+        if (resources.logger.empty())
         {
             settings.logger = drishti::core::Logger::create("drishti");
-            settings.logger->set_level(spdlog::level::off); // by default...            
+            settings.logger->set_level(spdlog::level::off); // by default...
         }
         else
         {
             settings.logger = drishti::core::Logger::create(resources.logger.c_str());
         }
-        
+
         settings.threads = std::make_shared<tp::ThreadPool<>>();
         settings.outputOrientation = 0;
         settings.frameDelay = 1;

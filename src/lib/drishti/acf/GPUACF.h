@@ -41,7 +41,7 @@ public:
         kLUVM012345, // 10
         kUnknown
     };
-    
+
     using array_type = drishti::acf::Detector::Pyramid::array_type;
     using SizeVec = std::vector<Size2d>;
     using PlaneInfoVec = std::vector<drishti::core::PlaneInfo>;
@@ -57,16 +57,16 @@ public:
     bool getFlowStatus();
     void setDoLuvTransfer(bool flag);
     void setDoAcfTrasfer(bool flag);
-    
+
     // ACF base resolution to Grayscale image
     float getGrayscaleScale() const;
 
     // Scale of flow wrt inputimage
     float getFlowScale() const;
-    
+
     Flow2Pipeline* getFlowProc();
     const std::array<int, 4>& getChannelOrder();
-    
+
     virtual void preConfig();
     virtual void postConfig();
     static cv::Mat getImage(ProcInterface& proc);
@@ -92,7 +92,7 @@ public:
 
     // GPU => CPU for grayscale:
     const cv::Mat& getGrayscale();
-    
+
     // GPU => CPU for optical flow:
     const cv::Mat& getFlow();
 
@@ -100,7 +100,7 @@ public:
 
     ProcInterface* first();
     ProcInterface* getRgbSmoothProc();
-    
+
     // Retrieve Luv image as planar 3 channel CV_32F
     const MatP& getLuvPlanar();
 
@@ -108,14 +108,13 @@ public:
     const cv::Mat& getLuv();
 
 protected:
-
     cv::Mat getChannelsImpl();
-    
+
     std::array<int, 4> initChannelOrder();
     void initACF(const SizeVec& scales, FeatureKind kind, bool debug);
     void initLuvTransposeOutput();
     ChannelSpecification getACFChannelSpecification(MatP& acf) const;
-    
+
     struct Impl;
     std::unique_ptr<Impl> impl;
 };

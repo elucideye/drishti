@@ -43,14 +43,16 @@ struct MethodLog
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
-static void getImage(ogles_gpgpu::ProcInterface &proc, FaceFinderPainter::FrameDelegate &callback)
+static void getImage(ogles_gpgpu::ProcInterface& proc, FaceFinderPainter::FrameDelegate& callback)
 {
-    if(dynamic_cast<ogles_gpgpu::MemTransferOptimized*>(proc.getMemTransferObj()))
+    if (dynamic_cast<ogles_gpgpu::MemTransferOptimized*>(proc.getMemTransferObj()))
     {
-        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d &size, const void *pixels, size_t bytesPerRow)
+        // clag-format off
+        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d& size, const void* pixels, size_t bytesPerRow)
         {
             callback(cv::Mat(size.height, size.width, CV_8UC4, (void*)pixels, bytesPerRow));
         };
+        // clag-format on
         proc.getResultData(delegate);
     }
     else
@@ -127,7 +129,7 @@ bool FaceFinderPainter::getShowDetectionScales() const
 }
 
 // Get output pixels via callback (zero copy where possible):
-void FaceFinderPainter::getOutputPixels(FrameDelegate &callback)
+void FaceFinderPainter::getOutputPixels(FrameDelegate& callback)
 {
     getImage(*m_rotater, callback);
 }
@@ -160,13 +162,13 @@ void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
         m_painter->setLogger(impl->logger);
     }
 
-    {// Project detection sizes to full resolution image:
+    { // Project detection sizes to full resolution image:
         const auto winSize = impl->detector->getWindowSize();
         for (const auto& size : impl->pyramidSizes)
         {
             ogles_gpgpu::LineDrawing drawing;
             drawing.color = { 255, 0, 0 };
-            
+
             const float wl0 = static_cast<float>(winSize.width * inputSizeUp.width) / size.width;
             const float hl0 = static_cast<float>(winSize.height * inputSizeUp.height) / size.height;
             // clang-format off
@@ -227,9 +229,9 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
     m_painter->getLineDrawings().clear();
 
     // Always set motion axes:
-    if(m_pImpl->m_showMotionAxes)
+    if (m_pImpl->m_showMotionAxes)
     {
-        cv::Point3f motion = (m_pImpl->m_showMotionAxes ? (impl->faceMotion) : cv::Point3f(0.f,0.f,0.f));
+        cv::Point3f motion = (m_pImpl->m_showMotionAxes ? (impl->faceMotion) : cv::Point3f(0.f, 0.f, 0.f));
         m_painter->setAxes(motion * 500.f);
     }
 
@@ -255,8 +257,8 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
         { // Set the eye textures:
             m_painter->setEyeTexture(impl->eyeFilter->getOutputTexId(), impl->eyeFilter->getOutFrameSize(), eyeWarps);
             FeaturePoints eyePoints;
-            
-            if(false)
+
+            if (false)
             {
                 cat(impl->eyePoints[0], impl->eyePoints[1], eyePoints);
                 m_painter->setEyePoints(eyePoints);

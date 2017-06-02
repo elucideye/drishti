@@ -10,7 +10,6 @@
 
 #include "drishti/graphics/swizzle.h"
 
-
 BEGIN_OGLES_GPGPU
 
 // clang-format off
