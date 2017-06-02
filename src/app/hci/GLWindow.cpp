@@ -9,18 +9,33 @@
 */
 
 #include "GLWindow.h"
+#include <cmath>
 
 GLWindow::Window GLWindow::impl; // declaration
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    GLWindow::impl.sx = static_cast<float>(width) / GLWindow::impl.width;
-    GLWindow::impl.sy = static_cast<float>(height) / GLWindow::impl.height;
+    const float wScale = static_cast<float>(width) / static_cast<float>(GLWindow::impl.width);
+    const float hScale = static_cast<float>(height) / static_cast<float>(GLWindow::impl.height);
+    const float minScale = (wScale < hScale) ? wScale : hScale;
+    const float winWidth = minScale * GLWindow::impl.width;
+    const float winHeight = minScale * GLWindow::impl.height;
+    const int wShift = static_cast<int>(std::nearbyint((width - winWidth) / 2.0f));
+    const int hShift = static_cast<int>(std::nearbyint((height - winHeight) / 2.0f));
+
+    GLWindow::impl.sx = minScale;
+    GLWindow::impl.sy = minScale;
+    GLWindow::impl.tx = wShift;
+    GLWindow::impl.ty = hShift;
+    
+    glfwMakeContextCurrent(window);
+    glViewport(wShift, hShift, std::nearbyint(winWidth), std::nearbyint(winHeight));
+    //render_callback(window);
 }
 
 GLWindow::GLWindow(const std::string &name, int width, int height)
 {
-    impl = { width, height, 2.f, 2.f };
+    impl = { width, height, 0.f, 0.f, 2.f, 2.f };
         
     if(!glfwInit())
     {
@@ -39,6 +54,19 @@ GLWindow::GLWindow(const std::string &name, int width, int height)
     glfwMakeContextCurrent(window);
     glfwGetFramebufferSize(window, &width, &height);
     framebuffer_size_callback(window, width, height);
+    glfwShowWindow(window);
+}
+
+void GLWindow::operator()()
+{
+    glfwMakeContextCurrent(window);
+}
+
+void GLWindow::resize(int width, int height)
+{
+    impl.width = width;
+    impl.height = height;
+    glfwSetWindowSize(window, width, height);
 }
 
 void GLWindow::operator()(std::function<bool(void)> &f)

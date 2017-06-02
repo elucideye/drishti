@@ -1,5 +1,5 @@
 /*!
- @file   videoio/VideoSourceStills.h
+ @file   videoio/VideoSourceTest.h
  @author David Hirvonen
  @brief  Simple declaration of a list-of-files VideoSource.
  
@@ -8,8 +8,8 @@
  
  */
 
-#ifndef __videoio_VideoSourceStills_h__
-#define __videoio_VideoSourceStills_h__
+#ifndef __videoio_VideoSourceTest_h__
+#define __videoio_VideoSourceTest_h__
 
 #include "videoio/VideoSourceCV.h"
 #include "videoio/drishti_videoio.h"
@@ -19,23 +19,20 @@
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
-// Random access VideoSourceCV
-class VideoSourceStills : public VideoSourceCV
+class VideoSourceTest : public VideoSourceCV
 {
 public:
-    class Impl;
-
-    VideoSourceStills(const std::string& filename);
-    VideoSourceStills(const std::vector<std::string>& filenames);
-    ~VideoSourceStills();
+    VideoSourceTest(const std::string &filename);
     virtual Frame operator()(int i = -1);
+    virtual bool good() const;
     virtual std::size_t count() const;
-    virtual bool isRandomAccess() const { return true; }
-
+    virtual bool isRandomAccess() const;
+    virtual void setOutputFormat(PixelFormat value);
 protected:
-    std::unique_ptr<Impl> m_impl;
+    std::size_t counter = 0;
+    PixelFormat format = RGBA;
 };
 
 DRISHTI_VIDEOIO_NAMESPACE_END
 
-#endif // __videoio_VideoSourceStills_h__
+#endif // __videoio_VideoSourceTest_h__

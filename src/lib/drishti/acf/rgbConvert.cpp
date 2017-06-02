@@ -108,7 +108,8 @@ static void cvtColor(const MatP& src, MatP& dst, int code)
 int Detector::rgbConvert(const MatP& IIn, MatP& J, const std::string& colorSpace, bool useSingle, bool isLuv)
 {
     std::string cs;
-    std::transform(colorSpace.begin(), colorSpace.end(), std::back_inserter(cs), ::tolower);
+    cs += colorSpace;
+    std::transform(cs.begin(), cs.end(), cs.begin(), [](const unsigned char i){ return std::tolower(i); });
 
     int flag = 2;
     switch (string_hash::hash(cs))

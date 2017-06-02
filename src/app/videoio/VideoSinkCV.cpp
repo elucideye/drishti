@@ -33,12 +33,7 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 std::shared_ptr<VideoSinkCV> VideoSinkCV::create(const std::string& filename, const std::string &hint)
 {
     std::string ext = bfs::path(filename).extension().string();
-
-    std::locale loc;
-    for (auto& elem : ext)
-    {
-        elem = std::tolower(elem, loc);
-    }
+    std::transform(ext.begin(), ext.end(), ext.begin(), [](const unsigned char i){ return std::tolower(i); });
 
     switch (string_hash::hash(ext))
     {
@@ -57,4 +52,3 @@ std::shared_ptr<VideoSinkCV> VideoSinkCV::create(const std::string& filename, co
 }
 
 DRISHTI_VIDEOIO_NAMESPACE_END
-

@@ -104,11 +104,12 @@ NSDictionary *DefaultVideoSettings()
     static NSDictionary *videoSettings;
     if (!videoSettings)
     {
-        videoSettings = @{
-          (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),
+        videoSettings =
+        @{
+          (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32ARGB),
           (id)kCVPixelBufferCGImageCompatibilityKey : @YES,
           (id)kCVPixelBufferCGBitmapContextCompatibilityKey : @YES
-                        };
+        };
     }
     return videoSettings;
 }
@@ -118,11 +119,12 @@ NSDictionary *DefaultVideoSettings()
     static NSDictionary *videoSettings;
     if (!videoSettings)
     {
-        videoSettings = @{
-        (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32ARGB),
-        (id)kCVPixelBufferCGImageCompatibilityKey : @YES,
-        (id)kCVPixelBufferCGBitmapContextCompatibilityKey : @YES
-                          };
+        videoSettings =
+        @{
+          (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32ARGB),
+          (id)kCVPixelBufferCGImageCompatibilityKey : @YES,
+          (id)kCVPixelBufferCGBitmapContextCompatibilityKey : @YES
+        };
     }
     return videoSettings;
 }
@@ -163,8 +165,8 @@ NSDictionary *DefaultVideoSettings()
     self._reader = nil;
     self._readerOutput = nil;
     
-    AVAssetReader *reader = [[AVAssetReader alloc] initWithAsset:self._movie
-                                                           error:nil];
+    NSError* error = nil;
+    AVAssetReader *reader = [[AVAssetReader alloc] initWithAsset:self._movie error:&error];
     if (!reader)
     {
         return NO;
@@ -195,8 +197,7 @@ NSDictionary *DefaultVideoSettings()
     CMTimeRange timeRange;
     if (CMTimeCompare(startTime, self._movie.duration) ==0)
     {
-        startTime = CMTimeSubtract(startTime,
-                        CMTimeMakeWithSeconds(self._frameDuration, 9000));
+        startTime = CMTimeSubtract(startTime, CMTimeMakeWithSeconds(self._frameDuration, 9000));
     }
     
     timeRange = CMTimeRangeFromTimeToTime(startTime, self._movie.duration);
@@ -259,8 +260,7 @@ NSDictionary *DefaultVideoSettings()
     
     if (!composition)
     {
-        composition = [AVVideoComposition
-                                videoCompositionWithPropertiesOfAsset:movie];
+        composition = [AVVideoComposition videoCompositionWithPropertiesOfAsset:movie];
     }
 
     self->__movie = movie.copy;

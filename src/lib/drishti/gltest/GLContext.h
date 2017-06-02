@@ -32,6 +32,7 @@ public:
     GLContext() {}
     ~GLContext() {}
 
+    virtual void operator()() {}
     virtual operator bool() const = 0;
     static std::shared_ptr<GLContext> create(ContextKind kind);
 };

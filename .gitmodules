@@ -11,14 +11,17 @@
     path = drishti-upload
     url = https://github.com/elucideye/drishti-upload
 [submodule "src/3rdparty/polly"]
-  path = src/3rdparty/polly
-  url = https://github.com/elucideye/polly.git
+    path = src/3rdparty/polly
+    url = https://github.com/elucideye/polly.git
 [submodule "src/3rdparty/imshow"]
-  path = src/3rdparty/imshow
-  url = https://github.com/hunter-packages/imshow.git
+    path = src/3rdparty/imshow
+    url = https://github.com/hunter-packages/imshow.git
 [submodule "src/3rdparty/boost-pba"]
-  path = src/3rdparty/boost-pba
-  url = https://github.com/hunter-packages/boost-pba
+    path = src/3rdparty/boost-pba
+    url = https://github.com/hunter-packages/boost-pba
 [submodule "src/3rdparty/Beast"]
-  path = src/3rdparty/Beast
-  url = https://github.com/hunter-packages/Beast.git
+    path = src/3rdparty/Beast
+    url = https://github.com/hunter-packages/Beast.git
+[submodule "src/3rdparty/glfm"]
+	path = src/3rdparty/glfm
+	url = https://github.com/hunter-packages/glfm.git

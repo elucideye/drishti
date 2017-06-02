@@ -26,6 +26,7 @@
 #include <opencv2/highgui.hpp>
 
 #include <iomanip>
+#include <iostream>
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
@@ -33,7 +34,7 @@ struct VideoSourceApple::Impl
 {
     Impl(const std::string &filename) : filename(filename)
     {
-
+ 
     }
 
     ~Impl()
@@ -56,49 +57,58 @@ struct VideoSourceApple::Impl
         sampleAccessor = [[MIMovieVideoSampleAccessor alloc] initWithMovie:videoAsset firstSampleTime:kCMTimeZero];
     }
 
+    cv::Mat getFrame(CMSampleBufferRef buffer)
+    {
+        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
+        
+        // Begin processing:
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        
+        //int format = CVPixelBufferGetPixelFormatType(pixelBuffer);
+        
+        int cols = CVPixelBufferGetWidth(pixelBuffer);
+        int rows = CVPixelBufferGetHeight(pixelBuffer);
+        unsigned char *pixels = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
+        cv::Mat argb(rows, cols, CV_8UC4, pixels);
+        
+        cv::Mat image; // BGR
+        switch(m_format)
+        {
+            case VideoSourceCV::ANY:
+            case VideoSourceCV::ARGB:
+            {
+                image = argb;
+                break;
+            }
+            case VideoSourceCV::BGR:
+            {
+                cv::Mat bgra(rows, cols, CV_8UC4);
+                cv::mixChannels(argb, bgra, {0,3, 1,2, 2,1, 3,0 });
+                cv::cvtColor(bgra, image, cv::COLOR_BGRA2BGR);
+                break;
+            }
+            default:
+                CV_Assert(false);
+                break;
+        }
+        
+        //End processing
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+        
+        return image;
+    }
+    
     cv::Mat operator()(int i)
     {
-        cv::Mat image; // BGR
-        
+        cv::Mat image;
         if(MICMSampleBuffer *sample = [sampleAccessor nextSampleBuffer])
         {
             CMSampleBufferRef buffer = [sample CMSampleBuffer];
-            CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
-            
-            // Begin processing:
-            CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-            
-            //int format = CVPixelBufferGetPixelFormatType(pixelBuffer);
-            
-            int cols = CVPixelBufferGetWidth(pixelBuffer);
-            int rows = CVPixelBufferGetHeight(pixelBuffer);
-            unsigned char *pixels = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
-            cv::Mat argb(rows, cols, CV_8UC4, pixels);
-            
-            switch(m_format)
-            {
-                case VideoSourceCV::ANY:
-                case VideoSourceCV::ARGB:
-                {
-                    image = argb;
-                    break;
-                }
-                case VideoSourceCV::BGR:
-                {
-                    cv::Mat bgra(rows, cols, CV_8UC4);
-                    cv::mixChannels(argb, bgra, {0,3, 1,2, 2,1, 3,0 });
-                    cv::cvtColor(bgra, image, cv::COLOR_BGRA2BGR);
-                    break;
-                }
-                default:
-                    CV_Assert(false);
-                    break;
-            }
-            
-            //End processing
-            CVPixelBufferUnlockBaseAddress( pixelBuffer, 0 );
+            image = getFrame(buffer).clone(); // TODO: support void(cv::Mat) delegate
+            CMSampleBufferInvalidate(buffer);
+            CFRelease(buffer);
+            buffer = NULL;
         }
-
         return m_frame = image;
     }
     
