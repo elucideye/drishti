@@ -9,6 +9,7 @@
  */
 
 #include "videoio/VideoSourceTest.h"
+#include "drishti/core/drishti_stdlib_string.h"
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
