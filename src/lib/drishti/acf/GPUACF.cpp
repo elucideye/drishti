@@ -676,8 +676,11 @@ void ACF::fill(drishti::acf::Detector::Pyramid& pyramid)
 
 static void unpackImage(const cv::Mat4b& frame, std::vector<drishti::core::PlaneInfo>& dst)
 {
-    switch (dst.front().plane.depth())
+    switch (dst.front().plane.type())
     {
+        case CV_8UC4:
+            dst.front().plane = frame.clone(); // deep copy
+            break;
         case CV_8UC1:
             drishti::core::unpack(frame, dst);
             break;
@@ -693,8 +696,11 @@ static void unpackImage(ProcInterface& proc, std::vector<drishti::core::PlaneInf
 {
     MemTransfer::FrameDelegate handler = [&](const Size2d& size, const void* pixels, size_t rowStride) {
         cv::Mat4b frame(size.height, size.width, (cv::Vec4b*)pixels, rowStride);
-        switch (dst.front().plane.depth())
+        switch (dst.front().plane.type())
         {
+            case CV_8UC4:
+                dst.front().plane = frame.clone(); // deep copy
+                break;
             case CV_8UC1:
                 drishti::core::unpack(frame, dst);
                 break;
@@ -773,12 +779,15 @@ cv::Mat ACF::getChannelsImpl()
 
     const auto tag = DRISHTI_LOCATION_SIMPLE;
     std::stringstream ss;
-    drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed) {
+    
+    // clang-format off
+    drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed)
+    {
         if (impl->m_logger)
         {
             impl->m_logger->info() << "TIMING:" << tag << ":" << ss.str() << ";total=" << elapsed;
         }
-    };
+    }; // clang-format on
 
     {
         drishti::core::ScopeTimeLogger glFinishTimer = [&](double t) { ss << "glFinish=" << t << ";"; };
@@ -791,14 +800,7 @@ cv::Mat ACF::getChannelsImpl()
             glFlush();
         }
     }
-
-    if (impl->m_doFlow && !impl->m_hasFlowOutput)
-    {
-        drishti::core::ScopeTimeLogger flowTimer = [&](double t) { ss << "flow=" << t << ";"; };
-        getImage(*impl->flowBgraInterface, impl->m_flow);
-        impl->m_hasFlowOutput = true;
-    }
-
+    
     if (!impl->m_hasChannelOutput)
     {
         prepare();
@@ -808,9 +810,10 @@ cv::Mat ACF::getChannelsImpl()
             m_timer("read begin");
         }
 
-        const auto& rgba = impl->m_rgba; // alias
-
         ACF::ChannelSpecification planeIndex;
+        const auto& rgba = impl->m_rgba; // alias
+        
+        cv::Mat flow;
         MatP acf, gray, luv;
 
         if (impl->m_doAcfTransfer)
@@ -837,18 +840,28 @@ cv::Mat ACF::getChannelsImpl()
             PlaneInfoVec luvInfo{ { luv[0], rgba[0], alpha }, { luv[1], rgba[1], alpha }, { luv[2], rgba[2], alpha } };
             planeIndex.emplace_back(luvInfo, impl->luvTransposeOut.get());
         }
+        
+        if (impl->m_doFlow)
+        {
+            const auto flowSize = impl->flowBgraInterface->getOutFrameSize();
+            flow.create(flowSize.height, flowSize.width, CV_8UC4);
+            PlaneInfoVec flowInfo{ { flow } };
+            planeIndex.emplace_back(flowInfo, impl->flowBgraInterface);
+        }
 
-        // We can use either the direct MemTransferOptimized acces, or glReadPixels()
+        // We can use either the direct MemTransferOptimized access, or glReadPixels()
         if (dynamic_cast<MemTransferOptimized*>(impl->rgb2luvProc->getMemTransferObj()))
         {
             drishti::core::ScopeTimeLogger unpackTimer = [&](double t) { ss << "unpack=" << t << ";"; };
 
             // TODO: confirm in documentation that ios texture caches can be queried in parallel
             // Experimentally this seems to be the case.
-            drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
+            // clang-format off
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
+            {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
                 unpackImage(*planeIndex[i].second, planeIndex[i].first);
-            };
+            }; // clang-format on
 
 #if OGLES_GPGPU_IOS
             // iOS texture cache can be queried in parallel:
@@ -860,11 +873,12 @@ cv::Mat ACF::getChannelsImpl()
         else
         {
             drishti::core::ScopeTimeLogger unpackTimer = [&](double t) { ss << "unpack=" << t << ";"; };
-            drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
+            // clang-format off
+            drishti::core::ParallelHomogeneousLambda harness = [&](int i)
+            {
                 planeIndex[i].second->getMemTransferObj()->setOutputPixelFormat(TEXTURE_FORMAT);
                 unpackImage(getImage(*planeIndex[i].second), planeIndex[i].first);
-            };
-
+            }; // clang-format on
             harness({ 0, int(planeIndex.size()) });
         }
 
@@ -884,6 +898,12 @@ cv::Mat ACF::getChannelsImpl()
         {
             impl->m_luvPlanar = luv;
             impl->m_hasLuvOutput = true;
+        }
+        
+        if (impl->m_doFlow)
+        {
+            impl->m_flow = flow;
+            impl->m_hasFlowOutput = true;
         }
 
         if (m_timer)

@@ -18,7 +18,7 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 
 struct PlaneInfo
 {
-    PlaneInfo(cv::Mat& plane, int channel, float alpha = 1.f)
+    PlaneInfo(cv::Mat& plane, int channel = 0, float alpha = 1.f)
         : plane(plane)
         , channel(channel)
         , alpha(alpha)
