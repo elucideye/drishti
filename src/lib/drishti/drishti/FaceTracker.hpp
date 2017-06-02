@@ -88,7 +88,7 @@ public:
     FaceTracker(FaceTracker&&) = delete;
 
     static void tryEnablePlatformOptimizations();
-    
+
     int operator()(const VideoFrame& image);
 
     ~FaceTracker();

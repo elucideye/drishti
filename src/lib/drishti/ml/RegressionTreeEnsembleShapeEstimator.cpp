@@ -129,7 +129,7 @@ std::vector<cv::Point2f> RTEShapeEstimator::getMeanShape() const
     return m_impl->getMeanShape();
 }
 
-void RTEShapeEstimator::dump(std::vector<float> &values, bool pca)
+void RTEShapeEstimator::dump(std::vector<float>& values, bool pca)
 {
     return m_impl->dump(values, pca);
 }

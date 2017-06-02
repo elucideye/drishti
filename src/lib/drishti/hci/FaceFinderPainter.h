@@ -34,22 +34,22 @@ class FaceFinderPainter : public FaceFinder
 public:
     class Impl;
     using FaceFinderPtr = std::unique_ptr<FaceFinderPainter>;
-    using FrameDelegate=std::function<void(const cv::Mat& ref)>;
-    
+    using FrameDelegate = std::function<void(const cv::Mat& ref)>;
+
     FaceFinderPainter(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext = nullptr);
     ~FaceFinderPainter();
-    virtual void getOutputPixels(FrameDelegate &delegate);
+    virtual void getOutputPixels(FrameDelegate& delegate);
     virtual void init(const cv::Size& inputSize);
     void drawIris(bool flag) { m_drawIris = flag; }
     void setLetterboxHeight(float height);
     static FaceFinderPtr create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext);
-    
+
     void setShowMotionAxes(bool value);
     bool getShowMotionAxes() const;
-    
+
     void setShowDetectionScales(bool value);
     bool getShowDetectionScales() const;
-    
+
 protected:
     virtual void initPainter(const cv::Size& inputSizeUp);
     virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);

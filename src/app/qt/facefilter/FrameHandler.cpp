@@ -54,12 +54,12 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
         return;
     }
 
-#if DRISHTI_USE_BEAST    
+#if DRISHTI_USE_BEAST
     const auto& address = (*settings)["ipAddress"];
     if (!address.empty())
     {
         bool active = address["active"].get<bool>();
-        if(active)
+        if (active)
         {
             std::string host = address["host"];
             std::string port = address["port"];
@@ -111,14 +111,14 @@ bool FrameHandlerManager::good() const
 
 auto FrameHandlerManager::createAsynchronousImageLogger() -> FrameHandler
 {
-#if DRISHTI_USE_BEAST    
-    if(!m_imageLogger)
+#if DRISHTI_USE_BEAST
+    if (!m_imageLogger)
     {
         return nullptr;
     }
-    
-    std::function<void(const cv::Mat &)> logger = [&](const cv::Mat &image) {
-        if(m_imageLogger)
+
+    std::function<void(const cv::Mat&)> logger = [&](const cv::Mat& image) {
+        if (m_imageLogger)
         {
             m_threads->post([&]() {
                 m_logger->info() << "Logging: " << m_imageLogger->host() << ":" << m_imageLogger->port();

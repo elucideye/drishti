@@ -22,12 +22,13 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 class VideoSourceTest : public VideoSourceCV
 {
 public:
-    VideoSourceTest(const std::string &filename);
+    VideoSourceTest(const std::string& filename);
     virtual Frame operator()(int i = -1);
     virtual bool good() const;
     virtual std::size_t count() const;
     virtual bool isRandomAccess() const;
     virtual void setOutputFormat(PixelFormat value);
+
 protected:
     std::size_t counter = 0;
     PixelFormat format = RGBA;

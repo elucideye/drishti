@@ -103,8 +103,8 @@ public:
         });
         return points;
     }
-    
-    void dump(std::vector<float> &values, bool pca)
+
+    void dump(std::vector<float>& values, bool pca)
     {
         return m_predictor->getShapeUpdates(values, pca);
     }

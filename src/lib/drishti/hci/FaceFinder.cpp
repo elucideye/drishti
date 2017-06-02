@@ -11,13 +11,13 @@
 #include "drishti/hci/FaceFinder.h"
 #include "drishti/hci/FaceFinderImpl.h"
 
-#include "drishti/core/drishti_operators.h" // cv::Size * float
-#include "drishti/core/make_unique.h" // make_unique<>
-#include "drishti/core/timing.h" // ScopeTimeLogger
+#include "drishti/core/drishti_operators.h"      // cv::Size * float
+#include "drishti/core/make_unique.h"            // make_unique<>
+#include "drishti/core/timing.h"                 // ScopeTimeLogger
 #include "drishti/face/FaceDetectorAndTracker.h" // *
-#include "drishti/geometry/Primitives.h" // operator
-#include "drishti/geometry/motion.h" // transformation::
-#include "drishti/hci/EyeBlob.h" // EyeBlobJob
+#include "drishti/geometry/Primitives.h"         // operator
+#include "drishti/geometry/motion.h"             // transformation::
+#include "drishti/hci/EyeBlob.h"                 // EyeBlobJob
 
 #include <functional>
 #include <deque>
@@ -74,7 +74,7 @@ bool FaceFinder::doAnnotations() const
     return impl->doAnnotations;
 }
 
-void FaceFinder::setImageLogger(const ImageLogger &logger)
+void FaceFinder::setImageLogger(const ImageLogger& logger)
 {
     impl->imageLogger = logger;
 }
@@ -713,8 +713,8 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
         scene.m_P = createAcfGpu(frame, doDetection);
     }
 
-    // Flow pyramid currently unused:
-    // auto flowPyramid = impl->acf->getFlowPyramid();
+// Flow pyramid currently unused:
+// auto flowPyramid = impl->acf->getFlowPyramid();
 
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
     if (impl->acf->getFlowStatus())
@@ -732,7 +732,7 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
         core::ScopeTimeLogger scopeTimeLogger = [&](double t) { ss << "gray=" << t << ";"; };
         scene.image() = impl->acf->getGrayscale();
 
-        if(impl->imageLogger)
+        if (impl->imageLogger)
         {
             (impl->imageLogger)(scene.image());
         }
@@ -802,7 +802,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             bool isDetection = true;
 
             cv::Mat1b gray = scene.image();
-            
+
             //impl->imageLogger(gray);
 
             const float Sdr = impl->ACFScale /* acf->full */ * impl->acf->getGrayscaleScale() /* full->gray */;
@@ -816,7 +816,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             impl->faceDetector->setIrisStagesHint(10);
             impl->faceDetector->setIrisStagesRepetitionFactor(1);
             impl->faceDetector->refine(Ib, faces, Hdr, isDetection);
-            
+
             impl->logger->info() << "Face image " << Ib.Ib.rows << " x " << Ib.Ib.cols;
 
             //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
@@ -917,7 +917,7 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
             }
         }
 
-        if(impl->blobFilter)
+        if (impl->blobFilter)
         { // Grab reflection points for eye tracking etc:
             core::ScopeTimeLogger scopeTimeLogger = [this](double t) { this->impl->timerInfo.blobExtractionTimeLogger(t); };
 

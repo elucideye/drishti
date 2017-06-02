@@ -66,7 +66,7 @@ struct FilenameAndLandmarks
     std::vector<Landmarks5> landmarks;
 };
 
-static void initWindow(const std::string &name);
+static void initWindow(const std::string& name);
 static FaceLandmarks parseFaceData(const std::string& sInput);
 static bool writeAsJson(const std::string& filename, const std::vector<cv::Rect>& objects);
 static void drawObjects(cv::Mat& canvas, const std::vector<cv::Rect>& objects);
@@ -259,14 +259,14 @@ int drishti_main(int argc, char** argv)
         return 1;
     }
 
-    // :::::::::::::::::::::::::::::::::::::::::::::::
-    // ::: Parse images w/ optional face landmarks :::
-    // :::::::::::::::::::::::::::::::::::::::::::::::
+// :::::::::::::::::::::::::::::::::::::::::::::::
+// ::: Parse images w/ optional face landmarks :::
+// :::::::::::::::::::::::::::::::::::::::::::::::
 
 #if defined(DRISHTI_USE_IMSHOW)
     initWindow("acf");
 #endif
-    
+
     FaceLandmarks landmarks; // ground truth map
     std::shared_ptr<drishti::videoio::VideoSourceCV> video;
     if (!sTruth.empty())
@@ -585,11 +585,11 @@ static std::vector<cv::Mat> cropNegatives(const cv::Mat& I,
 }
 
 #if defined(DRISHTI_USE_IMSHOW)
-static void initWindow(const std::string &name)
+static void initWindow(const std::string& name)
 {
     // Hack/workaround needed for continuous preview in current imshow lib
     cv::Mat canvas(240, 320, CV_8UC3, cv::Scalar(0, 255, 0));
-    cv::putText(canvas, "GLFW Fix", {canvas.cols/4, canvas.rows/2}, CV_FONT_HERSHEY_PLAIN, 2.0, {0,0,0});
+    cv::putText(canvas, "GLFW Fix", { canvas.cols / 4, canvas.rows / 2 }, CV_FONT_HERSHEY_PLAIN, 2.0, { 0, 0, 0 });
     glfw::imshow(name.c_str(), canvas);
     glfw::waitKey(1);
     glfw::destroyWindow(name.c_str());

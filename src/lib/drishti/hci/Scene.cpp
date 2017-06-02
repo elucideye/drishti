@@ -14,15 +14,15 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 
 void ScenePrimitives::draw(bool doFaces, bool doPupils, bool doCorners)
 {
-    if(doCorners)
+    if (doCorners)
     {
         pointsToCrosses(m_corners, m_drawings);
     }
-    
+
     // Cache eye models:
     m_eyeDrawings[0].clear();
     m_eyeDrawings[1].clear();
-    if(m_faces.size())
+    if (m_faces.size())
     {
         facesToDrawings(m_faces, m_drawings);
         if (m_faces.size() && m_faces[0].eyeFullL.has && m_faces[0].eyeFullR.has)

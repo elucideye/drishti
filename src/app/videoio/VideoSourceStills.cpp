@@ -75,4 +75,3 @@ VideoSourceCV::Frame VideoSourceStills::operator()(int i)
 }
 
 DRISHTI_VIDEOIO_NAMESPACE_END
-

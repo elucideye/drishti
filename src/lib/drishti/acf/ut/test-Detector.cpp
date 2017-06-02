@@ -114,7 +114,7 @@ protected:
     {
         m_logger = drishti::core::Logger::create("test-drishti-acf");
         m_logger->set_level(spdlog::level::off); // by default...
-        
+
         // Load the ground truth data:
         image = loadImage(imageFilename);
         if (m_hasTranspose)
@@ -127,9 +127,9 @@ protected:
         // * RGB channel order
         loadACFInput(imageFilename);
 
-        // TODO: we need to load ground truth output for each shader
-        // (some combinations could be tested, but that is probably excessive!)
-        // truth = loadImage(truthFilename);
+// TODO: we need to load ground truth output for each shader
+// (some combinations could be tested, but that is probably excessive!)
+// truth = loadImage(truthFilename);
 
 #if defined(DRISHTI_ACF_DO_GPU)
         m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
@@ -518,8 +518,8 @@ static bool isEqual(const drishti::acf::Detector& a, const drishti::acf::Detecto
     }
 
     return true;
-    
-    // The float -> uint16_t -> float will not be an exact match    
+
+    // The float -> uint16_t -> float will not be an exact match
     //isEqual(a.clf.thrs, b.clf.thrs) &&
     //isEqual(a.clf.hs, b.clf.hs) &&
     //isEqual(a.clf.weights, b.clf.weights) &&

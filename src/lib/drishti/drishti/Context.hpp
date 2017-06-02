@@ -40,7 +40,7 @@ public:
 
     void setMaxDetectionDistance(float value);
     float getMaxDetectionDistance() const;
-    
+
 protected:
     std::unique_ptr<Impl> m_impl;
 };

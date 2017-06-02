@@ -35,7 +35,7 @@ public:
     using TimePoint = HighResolutionClock::time_point; // <std::chrono::system_clock>;
     using FrameInput = ogles_gpgpu::FrameInput;
     using FeaturePoints = std::vector<FeaturePoint>;
-    using ImageLogger = std::function<void(const cv::Mat &image)>;
+    using ImageLogger = std::function<void(const cv::Mat& image)>;
     using FaceDetectorFactoryPtr = std::shared_ptr<drishti::face::FaceDetectorFactory>;
 
     struct TimerInfo
@@ -72,7 +72,7 @@ public:
         float faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
         float acfCalibration = 0.f;
         float regressorCropScale = 0.f;
-        
+
         bool renderFaces = true;
         bool renderPupils = true;
         bool renderCorners = true;
@@ -82,7 +82,7 @@ public:
     ~FaceFinder();
 
     static void tryEnablePlatformOptimizations();
-    
+
     virtual void initialize(); // must call at startup
 
     static std::unique_ptr<FaceFinder>
@@ -104,11 +104,10 @@ public:
     void registerFaceMonitorCallback(FaceMonitor* callback);
 
     virtual bool doAnnotations() const;
-    
-    void setImageLogger(const ImageLogger &logger);
+
+    void setImageLogger(const ImageLogger& logger);
 
 protected:
-    
     bool needsDetection(const TimePoint& ts) const;
 
     void computeGazePoints();

@@ -60,7 +60,7 @@ dlib::point dlib_point(const cv::Point& p)
 int mine(int argc, char* argv[])
 {
     const auto argumentCount = argc;
-    
+
     bool doPreview = false;
     bool doThreads = false;
     bool doVerbose = false;

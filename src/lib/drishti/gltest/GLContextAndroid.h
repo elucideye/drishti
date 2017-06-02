@@ -24,8 +24,8 @@
 DRISHTI_GLTEST_BEGIN
 
 struct GLContextAndroid : public GLContext
-{   
-    GLContextAndroid(int width=640, int height=480);
+{
+    GLContextAndroid(int width = 640, int height = 480);
     ~GLContextAndroid();
     operator bool() const;
 

@@ -30,10 +30,10 @@ using string_hash::operator"" _hash;
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
-std::shared_ptr<VideoSinkCV> VideoSinkCV::create(const std::string& filename, const std::string &hint)
+std::shared_ptr<VideoSinkCV> VideoSinkCV::create(const std::string& filename, const std::string& hint)
 {
     std::string ext = bfs::path(filename).extension().string();
-    std::transform(ext.begin(), ext.end(), ext.begin(), [](const unsigned char i){ return std::tolower(i); });
+    std::transform(ext.begin(), ext.end(), ext.begin(), [](const unsigned char i) { return std::tolower(i); });
 
     switch (string_hash::hash(ext))
     {

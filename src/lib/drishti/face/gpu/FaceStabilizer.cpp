@@ -22,11 +22,13 @@ cv::Matx33f FaceStabilizer::stabilize(const drishti::face::FaceModel& face, cons
 {
     using PointPair = std::array<cv::Point2f, 2>;
     const PointPair eyeCenters{ { face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center } };
+    // clang-format off
     const PointPair screenCenters
     {{
         transformation::denormalize(cv::Point2f(0.5-span*0.5, 0.5), sizeOut),
         transformation::denormalize(cv::Point2f(0.5+span*0.5, 0.5), sizeOut)
     }};
+    // clang-format on
     return transformation::estimateSimilarity(eyeCenters, screenCenters);
 }
 
