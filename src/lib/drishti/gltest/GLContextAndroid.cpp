@@ -81,8 +81,7 @@ void GLContextAndroid::resize(int width, int height)
 
 void GLContextAndroid::operator()(std::function<bool(void)>& f)
 {
-    while (f())
-        ;
+    while (f()) {}
 }
 
 DRISHTI_GLTEST_END

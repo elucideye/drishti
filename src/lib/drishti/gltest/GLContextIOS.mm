@@ -53,7 +53,7 @@ void GLContextIOS::resize(int width, int height)
 
 void GLContextIOS::operator()(std::function<bool(void)> &f)
 {
-    while(f());
+    while(f()) {}
 }
 
 DRISHTI_GLTEST_END

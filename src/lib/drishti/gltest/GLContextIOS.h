@@ -21,7 +21,9 @@ class GLContextIOS : public GLContext
 public:
     GLContextIOS();
     ~GLContextIOS();
-    operator bool() const;
+
+    virtual operator bool() const;
+    virtual void operator()() {} // make current
 
     virtual bool hasDisplay() const;
     virtual void resize(int width, int height);
