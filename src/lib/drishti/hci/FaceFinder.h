@@ -127,10 +127,9 @@ protected:
     void initTimeLoggers();
     void init2(drishti::face::FaceDetectorFactory& resources);
 
-    void detect2(const FrameInput& frame, ScenePrimitives& scene);
-
     void dumpEyes(std::vector<cv::Mat4b>& frames, std::vector<std::array<eye::EyeModel, 2>>& eyes);
     void dumpFaces(std::vector<cv::Mat4b>& frames);
+    int detectOnly(ScenePrimitives& scene, bool doDetection);
     virtual int detect(const FrameInput& frame, ScenePrimitives& scene, bool doDetection);
     virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);
     virtual void preprocess(const FrameInput& frame, ScenePrimitives& scene, bool needsDetection); // compute acf

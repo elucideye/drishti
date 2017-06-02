@@ -395,6 +395,8 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
     { // *timing*
         core::ScopeTimeLogger preprocessTimeLogger = [this](double t) { impl->timerInfo.acfProcessingTime = t; };
         preprocess(frame1, scene1, doDetection);
+        
+        //detectOnly(scene1, doDetection); // optionally try detection on current thread
     }
 
     // Initialize input texture with ACF upright texture:
@@ -408,7 +410,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
             {
                 // Retrieve the previous frame (latency == 1)
                 // from our N frame FIFO.
-                //core::ScopeTimeLogger paintTimeLogger = [this](double t) { impl->logger->info() << "WAITING: " << t; };
+                core::ScopeTimeLogger paintTimeLogger = [this](double t) { impl->logger->info() << "WAITING: " << t; };
                 scene0 = impl->scene.get();                     // scene n-1
                 texture0 = (*impl->fifo)[-1]->getOutputTexId(); // texture n-1
             }
@@ -713,9 +715,8 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
         scene.m_P = createAcfGpu(frame, doDetection);
     }
 
-// Flow pyramid currently unused:
-// auto flowPyramid = impl->acf->getFlowPyramid();
-
+    // Flow pyramid currently unused:
+    // auto flowPyramid = impl->acf->getFlowPyramid();
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
     if (impl->acf->getFlowStatus())
     {
@@ -744,8 +745,33 @@ void FaceFinder::fill(drishti::acf::Detector::Pyramid& P)
     impl->acf->fill(P, impl->P);
 }
 
+int FaceFinder::detectOnly(ScenePrimitives& scene, bool doDetection)
+{
+    // Fill in ACF Pyramid structure.
+    // Check to see if detection was already computed
+    if (doDetection)
+    {
+        core::ScopeTimeLogger scopeTimeLogger = [this](double t) { impl->timerInfo.detectionTimeLogger(t); };
+        std::vector<double> scores;
+        (*impl->detector)(*scene.m_P, scene.objects(), &scores);
+        if (impl->doNMSGlobal)
+        {
+            chooseBest(scene.objects(), scores);
+        }
+        impl->objects = std::make_pair(HighResolutionClock::now(), scene.objects());
+    }
+    else
+    {
+        scene.objects() = impl->objects.second;
+    }
+    
+    return scene.objects().size();
+}
+
 int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doDetection)
 {
+    //impl->logger->set_level(spdlog::level::off);
+    
     std::unique_lock<std::mutex> lock(impl->mutex);
 
     core::ScopeTimeLogger scopeTimeLogger = [this](double t) {
@@ -753,31 +779,14 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
     };
 
     //impl->logger->info() << "FaceFinder::detect() " << sBar;
-
-    assert(scene.objects().size() == 0);
+    //assert(scene.objects().size() == 0); /* can be precomputed now */
 
     if (impl->detector && (!doDetection || scene.m_P))
     {
-        // Test GPU ACF detection
-        // Fill in ACF Pyramid structure
-        std::vector<double> scores;
-
-        if (doDetection)
+        if(!scene.objects().size())
         {
-            core::ScopeTimeLogger scopeTimeLogger = [this](double t) { impl->timerInfo.detectionTimeLogger(t); };
-
-            (*impl->detector)(*scene.m_P, scene.objects(), &scores);
-            if (impl->doNMSGlobal)
-            {
-                chooseBest(scene.objects(), scores);
-            }
-            impl->objects = std::make_pair(HighResolutionClock::now(), scene.objects());
+            detectOnly(scene, doDetection);
         }
-        else
-        {
-            scene.objects() = impl->objects.second;
-        }
-
         if (impl->doLandmarks && scene.objects().size())
         {
 #if DRISHTI_HCI_FACEFINDER_LOG_DETECTIONS
