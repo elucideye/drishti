@@ -20,9 +20,6 @@ target_link_libraries(${test_app} PUBLIC
 if((TARGET drishti_gltest) AND DRISHTI_BUILD_OGLES_GPGPU)
   target_link_libraries(${test_app} PUBLIC drishti_gltest)
   target_compile_definitions(${test_app} PUBLIC DRISHTI_HCI_DO_GPU=1)
-  if(DRISHTI_BUILD_QT)
-    target_compile_definitions(${test_app} PUBLIC DRISHTI_BUILD_QT=1)
-  endif()  
 endif()
 
 include(drishti_set_unit_test_assets)
