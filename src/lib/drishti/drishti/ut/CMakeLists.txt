@@ -91,9 +91,6 @@ target_link_libraries(${f_test_app} PUBLIC ${drishti_sdk_lib}
 if(DRISHTI_BUILD_OGLES_GPGPU)
   target_link_libraries(${f_test_app} PUBLIC drishti_gltest)
   target_compile_definitions(${f_test_app} PUBLIC DRISHTI_DRISHTI_DO_GPU=1)
-  if(DRISHTI_BUILD_QT)
-    target_compile_definitions(${f_test_app} PUBLIC DRISHTI_BUILD_QT=1)
-  endif()
 endif()
 
 if(DRISHTI_BUILD_C_INTERFACE)

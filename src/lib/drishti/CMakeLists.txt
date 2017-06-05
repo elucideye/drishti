@@ -221,17 +221,11 @@ else()
 
 endif(DRISHTI_BUILD_WORLD)
 
-# We use the internal drishti_gltest for an off screen OpenGL context.  This may be
-# implemented with Qt (portably) or GLFW (NOT (ANDROID OR IOS)).  Qt requires
-# some build overhead and may not be suitable for CI testing.  For Android platforms,
-# Qt will actually build each native "application" as a shared library, which currently
-# doesn't play well with the drishti_test_main module used for cross platform testing,
-# so we skip Android testing for now and can rely on Emulator/QEMU testing.
-# iOS + QT faces a similar issues, which may be more easily resolved. Android emulator
-# may be another option for providing an OpenGL context in native code.
-# The near term intention is to support this: if(DRISHTI_BUILD_QT OR (NOT ${DRISHTI_IS_MOBILE}))
-
-#if(NOT ${DRISHTI_IS_MOBILE} AND NOT ${drisht_ci})
+# We use the internal drishti_gltest for an "off screen" OpenGL context.
+# This currently provides 3 options:
+#   * GLFWContext (can provide Window)
+#   * GLContextIOS
+#   * GLContextAndroid
 if(NOT ${DRISHTI_CI})
   add_subdirectory(gltest)
 endif()
