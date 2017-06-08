@@ -226,7 +226,8 @@ endif(DRISHTI_BUILD_WORLD)
 #   * GLFWContext (can provide Window)
 #   * GLContextIOS
 #   * GLContextAndroid
-if(NOT ${DRISHTI_CI})
+# Note: Android emulator supports GPU use
+if(ANDROID OR NOT ${DRISHTI_CI})
   add_subdirectory(gltest)
 endif()
 
