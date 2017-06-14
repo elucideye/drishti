@@ -580,8 +580,6 @@ if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WI
       )
   endif()
 
-  add_subdirectory(testlib)
-
   add_subdirectory(core)
   add_subdirectory(geometry)
   add_subdirectory(ml)

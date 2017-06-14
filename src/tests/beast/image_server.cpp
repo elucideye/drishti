@@ -29,7 +29,7 @@ void sig_wait()
     ios.run();
 }
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     const int argumentCount = argc;
 
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        return drishti_main(argc, argv);
+        return gauze_main(argc, argv);
     }
     catch (std::exception& e)
     {

@@ -54,7 +54,7 @@ std::pair<cv::Mat, std::string> create(const cv::Size& size, int type, const std
     return std::make_pair(image, name);
 }
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     const cv::Size size(640, 480);
 
@@ -94,5 +94,5 @@ int drishti_main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    drishti_main(argc, argv);
+    gauze_main(argc, argv);
 }

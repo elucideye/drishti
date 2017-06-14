@@ -85,12 +85,11 @@ set(DRISHTI_TEST_EYE_IMAGE "${assets_dir}/images/2318-eye.png")
 set(DRISHTI_TEST_EYE_JSON "${assets_dir}/images/2318-eye.json")
 message("DRISHTI_TEST_EYE_MODEL_PRIVATE ${DRISHTI_TEST_EYE_MODEL_PRIVATE}")
 
-include(drishti_add_test)
-drishti_add_test(
+gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
-  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
-  "$<DRISHTI_RESOURCE_FILE:${DRISHTI_TEST_EYE_IMAGE}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_TEST_EYE_IMAGE}>"
   "1"  
   "."
   )

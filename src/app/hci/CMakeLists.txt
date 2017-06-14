@@ -1,5 +1,8 @@
 set(test_app drishti-hci)
 
+hunter_add_package(gauze)
+find_package(gauze CONFIG REQUIRED)
+
 add_executable(${test_app} hci.cpp)
 target_link_libraries(${test_app} PUBLIC
   drishtisdk
@@ -7,7 +10,7 @@ target_link_libraries(${test_app} PUBLIC
   ${OpenCV_LIBS}
   drishti_videoio
   drishti_gltest
-  drishti_test_main)
+  gauze::gauze)
 
 # Get toolchain suffix:
 if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")

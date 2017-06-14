@@ -9,8 +9,8 @@ target_link_libraries(${test_app} PUBLIC nlohmann-json::nlohmann-json GTest::gte
 target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 
-drishti_add_test(
+gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
-  "$<DRISHTI_RESOURCE_FILE:${CMAKE_CURRENT_SOURCE_DIR}/sample.json>"
+  "$<GAUZE_RESOURCE_FILE:${CMAKE_CURRENT_SOURCE_DIR}/sample.json>"
   )

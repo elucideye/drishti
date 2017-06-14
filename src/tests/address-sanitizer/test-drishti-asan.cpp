@@ -27,7 +27,7 @@
 // Run with: `export ASAN_OPTIONS=abort_on_error=0` on clang for _exit(1) rather than abort()
 // http://stackoverflow.com/q/33693486
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     // Allocate a new array and delete it.
     int* array = new int[argc];

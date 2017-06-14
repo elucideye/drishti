@@ -35,7 +35,7 @@ using Landmarks = std::vector<cv::Point2f>;
 static Landmarks testTransform(const Landmarks& landmarks);
 static void testMeshAlign(const cv::Mat& input, cv::Mat& output, drishti::face::FaceMesh& mesh, const Landmarks& landmarks);
 
-int drishti_main(int argc, char* argv[])
+int gauze_main(int argc, char* argv[])
 {
     const auto argumentCount = argc;
 
@@ -260,7 +260,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        return drishti_main(argc, argv);
+        return gauze_main(argc, argv);
     }
     catch (const std::exception& e)
     {

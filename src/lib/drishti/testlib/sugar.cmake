@@ -17,9 +17,3 @@ sugar_files(
   drishti_testlib.h
   drishti_test_utils.h
    )
-
-sugar_files(
-  DRISHTI_TESTLIB_SRCS
-  drishti_test_main.cpp
-  )
-

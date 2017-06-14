@@ -10,7 +10,7 @@
 
 #include <gtest/gtest.h>
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

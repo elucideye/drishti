@@ -65,7 +65,7 @@ static void dump_thumbs(DlibImageArray& images_train, DlibObjectSet& faces_train
 static std::vector<int> parse_dimensions(const std::string& str);
 static dlib::rectangle parse_roi(const std::string& str);
 
-int drishti_main(int argc, char* argv[])
+int gauze_main(int argc, char* argv[])
 {
     auto logger = drishti::core::Logger::create("train_shape_predictor");
 
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 {
     try
     {
-        drishti_main(argc, argv);
+        gauze_main(argc, argv);
     }
     catch (std::exception& e)
     {

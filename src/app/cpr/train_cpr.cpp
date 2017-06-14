@@ -106,7 +106,7 @@ static std::vector<float> parseVec5f(const std::string& dimensions);
 void ellipse(cv::Mat canvas, const cv::RotatedRect& e, const cv::Scalar& color = cv::Scalar::all(255), int width = 1, int type = 8);
 DRISHTI_END_NAMESPACE(cpr)
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     auto logger = drishti::core::Logger::create("train_cpr");
 
@@ -326,7 +326,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        return drishti_main(argc, argv);
+        return gauze_main(argc, argv);
     }
     catch (std::exception& e)
     {

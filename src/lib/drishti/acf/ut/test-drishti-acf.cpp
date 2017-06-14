@@ -16,7 +16,7 @@ extern const char* truthFilename;
 extern const char* modelFilename;
 extern const char* outputDirectory;
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     assert(argc == 5);
