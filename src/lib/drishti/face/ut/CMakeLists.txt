@@ -21,7 +21,7 @@ drishti_set_unit_test_assets(
   DRISHTI_MEAN_FACE_LANDMARKS
   )
 
-drishti_add_test(
+gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_ACF_FACE_MODEL}>"

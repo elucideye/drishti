@@ -32,7 +32,7 @@ if(NOT EXISTS "${DRISHTI_TEST_FACE_IMAGE_COLOR}")
   message(FATAL_ERROR "Failed to find test face image: ${DRISHTI_TEST_FACE_IMAGE_COLOR}")
 endif()
 
-drishti_add_test(
+gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_TEST_FACE_IMAGE_COLOR}>"

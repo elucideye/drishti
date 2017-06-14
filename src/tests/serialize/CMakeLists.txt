@@ -54,15 +54,15 @@ set_property(TARGET test-serialize-cereal PROPERTY FOLDER "app/tests")
 
 enable_testing()
 
-drishti_add_test(
+gauze_add_test(
   NAME DrishtiSerializationFlatbuffersTest
   COMMAND test-serialize-flatbuffers "./monster.fb" # output file
   )
-drishti_add_test(
+gauze_add_test(
   NAME DrishtiSerializationCerealTest
   COMMAND test-serialize-cereal "./monster.cereal" # output file
   )
-drishti_add_test(
+gauze_add_test(
   NAME DrishtiSerializationBoostTest
   COMMAND test-serialize-boost "./monster.pba.z" # output file
   )

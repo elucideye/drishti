@@ -16,7 +16,7 @@ drishti_set_unit_test_assets(
 set(DRISHTI_TEST_FACE "${assets_dir}/images/lena512color.png")
 set(DRISHTI_TEST_FACE_MODEL "${assets_dir}/images/lena512color.json") # missing
 
-drishti_add_test(
+gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_FACE_LANDMARKER}>"

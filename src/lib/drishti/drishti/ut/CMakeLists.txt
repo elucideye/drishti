@@ -44,7 +44,7 @@ endif()
 set(DRISHTI_TEST_EYE_IMAGE "${assets_dir}/images/2318-eye.png")
 set(DRISHTI_TEST_EYE_JSON "${assets_dir}/images/2318-eye.json")
 
-drishti_add_test(
+gauze_add_test(
   NAME ${e_test_name}
   COMMAND ${e_test_app}
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
@@ -98,7 +98,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
   target_compile_definitions(${f_test_app} PUBLIC DRISHTI_BUILD_C_INTERFACE)
 endif()
 
-drishti_add_test(
+gauze_add_test(
   NAME ${f_test_name}
   COMMAND ${f_test_app}
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_ACF_FACE_MODEL}>"

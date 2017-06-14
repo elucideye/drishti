@@ -31,7 +31,7 @@ drishti_set_unit_test_assets(
 
 set(DRISHTI_TEST_FACE_IMAGE_COLOR "${assets_dir}/images/lena512color.png")
 
-drishti_add_test(NAME ${test_name} COMMAND ${test_app}
+gauze_add_test(NAME ${test_name} COMMAND ${test_app}
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_ACF_FACE_MODEL}>"
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_MEAN_FACE_LANDMARKS}>"
   "$<DRISHTI_RESOURCE_FILE:${DRISHTI_FACE_LANDMARKER}>"
