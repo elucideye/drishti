@@ -21,7 +21,7 @@ const char* sFaceDetectorMean;
 const char* sFaceRegressor;
 const char* sEyeRegressor;
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
 

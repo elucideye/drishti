@@ -176,7 +176,7 @@ using FacLandmarkeMeshMapperResourceManager = drishti::core::LazyParallelResourc
 static void computePose(FACE::Table& table, const std::string& sModel, const std::string& sMapping, std::shared_ptr<spdlog::logger>& logger);
 #endif // DRISHTI_BUILD_POSE
 
-int drishti_main(int argc, char* argv[])
+int gauze_main(int argc, char* argv[])
 {
     const auto argumentCount = argc;
 
@@ -518,7 +518,7 @@ int main(int argc, char **argv)
 {
     try
     {
-        return drishti_main(argc, argv);
+        return gauze_main(argc, argv);
     }
     catch(cv::Exception &e)
     {

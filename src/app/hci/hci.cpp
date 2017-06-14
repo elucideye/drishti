@@ -43,7 +43,7 @@ using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
 static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description);
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     const auto argumentCount = argc;
 
@@ -289,7 +289,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        return drishti_main(argc, argv);
+        return gauze_main(argc, argv);
     }
     catch (std::exception& e)
     {

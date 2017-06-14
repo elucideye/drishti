@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-int drishti_main(int argc, char** argv)
+int gauze_main(int argc, char** argv)
 {
     if (argc != 2)
     {

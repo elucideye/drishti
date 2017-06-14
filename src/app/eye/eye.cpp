@@ -166,8 +166,8 @@ static void fitEyeModel(eye::EyeModelEstimator& fitter, cv::Mat& image, eye::Eye
 DRISHTI_END_NAMESPACE(eye)
 DRISHTI_END_NAMESPACE(drishti)
 
-// Use drishti_main to support cross platform interface:
-int drishti_main(int argc, char** argv)
+// Use gauze_main to support cross platform interface:
+int gauze_main(int argc, char** argv)
 {
     const auto argumentCount = argc;
 
@@ -376,7 +376,7 @@ int main(int argc, char **argv)
 {
     try
     {
-        return drishti_main(argc, argv);
+        return gauze_main(argc, argv);
     }
     catch(std::exception &e)
     {
