@@ -12,5 +12,5 @@ set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
-  "$<DRISHTI_RESOURCE_FILE:${CMAKE_CURRENT_SOURCE_DIR}/sample.json>"
+  "$<GAUZE_RESOURCE_FILE:${CMAKE_CURRENT_SOURCE_DIR}/sample.json>"
   )
