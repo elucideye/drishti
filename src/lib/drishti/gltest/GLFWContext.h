@@ -35,6 +35,11 @@ public:
     virtual operator bool() const;
 
     // Display related:
+    virtual void setCursorCallback(const CursorDelegate &callback);
+    virtual void setCursorVisibility(bool flag);
+    virtual void setCursor(double x, double y);
+    virtual void getCursor(double &x, double &y);
+    virtual void setWait(bool wait) { m_wait = wait; }
     virtual bool hasDisplay() const;
     virtual void resize(int width, int height);
     virtual void operator()(std::function<bool(void)>& f);
@@ -48,6 +53,8 @@ protected:
 
     GLFWwindow* m_context = nullptr;
     bool m_visible = false;
+    bool m_showCursor = false;
+    bool m_wait = false;
 };
 
 DRISHTI_GLTEST_END

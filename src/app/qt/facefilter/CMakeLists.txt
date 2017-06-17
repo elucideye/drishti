@@ -5,6 +5,8 @@
 hunter_add_package(nlohmann-json)
 find_package(nlohmann-json REQUIRED)
 
+set(app_name facefilter)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -96,13 +98,13 @@ endif()
 
 if(ANDROID)
   
-  add_library(facefilter SHARED ${FACE_FILTER_SOURCES})
+  add_library(${app_name} SHARED ${FACE_FILTER_SOURCES})
 
   include (GenerateExportHeader)
-  generate_export_header(facefilter)  
+  generate_export_header(facefilter)
 
-  target_link_libraries(facefilter Qt5::Quick Qt5::Multimedia)
-  target_link_libraries(facefilter EGL GLESv2)
+  target_link_libraries(${app_name} Qt5::Quick Qt5::Multimedia)
+  target_link_libraries(${app_name} EGL GLESv2)
 
   set_target_properties(
     facefilter
@@ -115,7 +117,7 @@ if(ANDROID)
   include(AddQtAndroidApk)
 
   add_qt_android_apk(
-    TARGET facefilter-apk
+    TARGET ${app_name}-apk
     BASE_TARGET facefilter
     LAUNCH_TARGET facefilter-launch
     PACKAGE_NAME facefilter.qt
@@ -148,56 +150,56 @@ else()
     set(qml_dir "")
   endif()
 
-  add_executable(facefilter MACOSX_BUNDLE ${FACE_FILTER_SOURCES}
+  add_executable(${app_name} MACOSX_BUNDLE ${FACE_FILTER_SOURCES}
     ${qt_conf}
     ${qml_dir}
     )
 
   set_target_properties(
-    facefilter
+    ${app_name}
     PROPERTIES
     RESOURCE "${qt_conf};${qml_dir}"
     )
 
   if(IOS)
     set_target_properties(
-      facefilter
+      ${app_name}
       PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/plist.in"
       XCODE_ATTRIBUTE_PRODUCT_NAME
-      "FacefilterExample"
+      "${app_name}Example"
       XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER
-      "com.github.headupinclouds.drishtisdk.facefilter"
+      "com.github.headupinclouds.drishtisdk.${app_name}"
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       )
   endif()
-  target_link_libraries(facefilter Qt5::Quick)
-  target_link_libraries(facefilter Qt5::Multimedia)
-  target_link_libraries(facefilter Qt5::OpenGL)
-  target_link_libraries(facefilter Qt5::Sensors)
+  target_link_libraries(${app_name} Qt5::Quick)
+  target_link_libraries(${app_name} Qt5::Multimedia)
+  target_link_libraries(${app_name} Qt5::OpenGL)
+  target_link_libraries(${app_name} Qt5::Sensors)
 
   ### Plugins
-  target_link_libraries(facefilter Qt5::QmlQtQuick2Plugin)
-  target_link_libraries(facefilter ${Qt5Multimedia_PLUGINS})
-  target_link_libraries(facefilter Qt5::QMultimediaDeclarativeModule)
+  target_link_libraries(${app_name} Qt5::QmlQtQuick2Plugin)
+  target_link_libraries(${app_name} ${Qt5Multimedia_PLUGINS})
+  target_link_libraries(${app_name} Qt5::QMultimediaDeclarativeModule)
   if(IOS)
-    target_link_libraries(facefilter ${Qt5Gui_PLUGINS})
+    target_link_libraries(${app_name} ${Qt5Gui_PLUGINS})
   else()
     find_package(Qt5PrintSupport REQUIRED)
-    target_link_libraries(facefilter Qt5::PrintSupport)
+    target_link_libraries(${app_name} Qt5::PrintSupport)
   endif()
 endif()
 
-target_link_libraries(facefilter
+target_link_libraries(${app_name} 
   drishtisdk
   ${OGLES_GPGPU_LIB}
   thread-pool-cpp::thread-pool-cpp
   nlohmann-json::nlohmann-json)
 
 if(DRISHTI_USE_BEAST)
-  target_compile_definitions(facefilter PUBLIC DRISHTI_USE_BEAST=1)
-  target_link_libraries(facefilter Boost::system)  
-  target_include_directories(facefilter
+  target_compile_definitions(${app_name} PUBLIC DRISHTI_USE_BEAST=1)
+  target_link_libraries(${app_name} Boost::system)  
+  target_include_directories(${app_name}
     PUBLIC
     "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/Beast/include>"
     "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/utilities>" # for websocket_async_server.hpp    

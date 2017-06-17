@@ -23,6 +23,7 @@ class GLContext
 public:
     using GLContextPtr = std::shared_ptr<GLContext>;
     using RenderDelegate = std::function<bool(void)>;
+    using CursorDelegate = std::function<void(double xpos, double ypos)>;
 
     enum ContextKind
     {
@@ -51,6 +52,11 @@ public:
     virtual operator bool() const = 0;
     virtual void operator()() {} // make current
 
+    virtual void setCursorCallback(const CursorDelegate &callback) {}
+    virtual void setCursorVisibility(bool flag) {}
+    virtual void setCursor(double x, double y) {}
+    virtual void getCursor(double &x, double &y) {}
+    virtual void setWait(bool flag) {}
     virtual bool hasDisplay() const = 0;
     virtual void resize(int width, int height) {}
     virtual void operator()(RenderDelegate& f){}; // render loop
@@ -59,6 +65,8 @@ public:
     const Geometry& getGeometry() const { return m_geometry; }
 
     Geometry m_geometry;
+    
+    CursorDelegate cursorCallback;
 
     // Create context (w/ window if name is specified):
     static GLContextPtr create(ContextKind kind, const std::string& name = {}, int width = 640, int height = 480);

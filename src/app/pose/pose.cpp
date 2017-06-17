@@ -1,23 +1,41 @@
 /*!
  @file   pose.cpp
  @author David Hirvonen
- @brief  OpenCV object detector.
+ @brief  EOS deformable face mesh fitting test w/ rendering.
  
  \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
  \license{This project is released under the 3 Clause BSD License.}
  
  */
 
-#include "drishti/face/FaceLandmarkMeshMapper.h"
+#include "drishti/face/FaceMeshMapperLandmark.h"
+#include "drishti/face/FaceMeshMapperLandmarkContour.h" // exp
 #include "drishti/face/FaceMesh.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimatorDEST.h"
 #include "drishti/ml/ObjectDetectorCV.h"
 #include "drishti/core/Logger.h"
 #include "drishti/core/string_utils.h"
+#include "drishti/core/make_unique.h"
+#include "drishti/geometry/motion.h"
+
+#include "drishti/graphics/mesh.h"
 
 // clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
 #  include "imshow/imshow.h"
+#endif
+
+#if defined(DRISHTI_HAS_GLTEST)
+#  include "drishti/gltest/GLContext.h"
+#  include "drishti/graphics/gain.h"
+#  include "ogles_gpgpu/common/proc/disp.h"
+#  include "ogles_gpgpu/common/proc/video.h"
+#  include "ogles_gpgpu/common/gl/memtransfer_optimized.h"
+#  ifdef ANDROID
+#    define TEXTURE_FORMAT GL_RGBA
+#  else
+#    define TEXTURE_FORMAT GL_BGRA
+#  endif
 #endif
 // clang-format on
 
@@ -32,8 +50,29 @@
 
 using Landmarks = std::vector<cv::Point2f>;
 
-static Landmarks testTransform(const Landmarks& landmarks);
-static void testMeshAlign(const cv::Mat& input, cv::Mat& output, drishti::face::FaceMesh& mesh, const Landmarks& landmarks);
+static void* void_ptr(const cv::Mat& image)
+{
+    return const_cast<void*>(image.ptr<void>());
+}
+
+static std::vector<float> parseVec3f(const std::string& R);
+static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc, cv::Mat &frame);
+
+struct Cursor
+{
+    using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+    
+    Cursor() {}
+    Cursor(const cv::Point2f &position) : position(position)
+    {
+        valid = true;
+        time = std::chrono::high_resolution_clock::now();
+    }
+    
+    bool valid = false;
+    cv::Point2f position;
+    std::chrono::time_point<std::chrono::high_resolution_clock> time;
+};
 
 int gauze_main(int argc, char* argv[])
 {
@@ -45,34 +84,48 @@ int gauze_main(int argc, char* argv[])
     // ### Command line parsing ###
     // ############################
 
-    std::string sModel;
-    std::string sMapping;
+    drishti::face::FaceMeshMapperLandmarkContour::Assets assets;
+
     std::string sRegressor;
     std::string sDetector;
     std::string sTriangles;
     std::string sInput;
     std::string sOutput;
+    std::string sRotation;
     bool verbose = false;
     bool doPreview = false;
+    bool doWire = false;
+    bool doClear = false;
+    bool doCursor = false;
     int threads = -1;
     int width = 256;
-
+    
     cxxopts::Options options("eos-pose", "Command line interface for eos 2d->3d face model fitting");
 
     // clang-format off
-    options.add_options()("i,input", "Input file", cxxopts::value<std::string>(sInput))("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
-
+    options.add_options()
+        ("i,input", "Input file", cxxopts::value<std::string>(sInput))
+        ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
         ("w,width", "Width", cxxopts::value<int>(width))("v,verbose", "verbose", cxxopts::value<bool>(verbose))
 
-#if defined(DRISHTI_USE_IMSHOW)
-            ("p,preview", "preview", cxxopts::value<bool>(doPreview))
-#endif
-
-                ("d,detector", "detector", cxxopts::value<std::string>(sDetector))("r,regressor", "regressor", cxxopts::value<std::string>(sRegressor))("3,triangles", "delaunay triangles", cxxopts::value<std::string>(sTriangles))
-
-                    ("m,model", "3D dephormable model", cxxopts::value<std::string>(sModel))("l,mapping", "Landmark mapping", cxxopts::value<std::string>(sMapping))
-
-                        ("t,threads", "Thread count", cxxopts::value<int>(threads))("h,help", "Print help message");
+        ("p,preview", "preview", cxxopts::value<bool>(doPreview))
+        ("cursor", "Demo rendering mode", cxxopts::value<bool>(doCursor))
+        ("wire", "Do wireframe rendering", cxxopts::value<bool>(doWire))
+        ("clear", "Clear background prior to rendering", cxxopts::value<bool>(doClear))
+        ("rotation", "Rotation: x,y,z", cxxopts::value<std::string>(sRotation))
+    
+        ("d,detector", "detector", cxxopts::value<std::string>(sDetector))
+        ("r,regressor", "regressor", cxxopts::value<std::string>(sRegressor))
+        ("3,triangles", "delaunay triangles", cxxopts::value<std::string>(sTriangles))
+    
+        ("model", "3D dephormable model", cxxopts::value<std::string>(assets.model))
+        ("mapping", "Landmark mapping", cxxopts::value<std::string>(assets.mappings))
+        ("model-contour", "Model contour indices", cxxopts::value<std::string>(assets.contour))
+        ("edge-topology", "Model's precomputed edge topology", cxxopts::value<std::string>(assets.edgetopology))
+        ("blendshapes", "Blendshapes", cxxopts::value<std::string>(assets.blendshapes))
+    
+        ("t,threads", "Thread count", cxxopts::value<int>(threads))
+        ("h,help", "Print help message");
     // clang-format on
 
     options.parse(argc, argv);
@@ -110,19 +163,23 @@ int gauze_main(int argc, char* argv[])
     cv::resize(input, input, { width, input.rows * width / input.cols }, cv::INTER_CUBIC);
 
     // ########## FACE MESH LANDMARKER #########
-    if (sModel.empty())
+    if (assets.model.empty())
     {
         logger->error() << "Must specify 3D model";
         return 1;
     }
 
-    if (sMapping.empty())
+    if (assets.mappings.empty())
     {
         logger->error() << "Must specify landmark mapping";
         return 1;
     }
+    
+    std::unique_ptr<drishti::face::FaceMeshMapper> mapper =
+        drishti::core::make_unique<drishti::face::FaceMeshMapperLandmarkContour>(assets);
 
-    drishti::face::FaceLandmarkMeshMapper mapper(sModel, sMapping);
+    // One can instantiate a simple landmark mapper for faster performance:
+    // drishti::core::make_unique<drishti::face::FaceMeshMapperLandmark>(assets.model, assets.mappings);
 
     // ######### LANDMARK ######################
     if (sDetector.empty())
@@ -148,7 +205,7 @@ int gauze_main(int argc, char* argv[])
         // Load triangles (else they will be computed on the fly)
         faceMesh->readTriangulation(sTriangles);
     }
-
+    
     Landmarks landmarks;
     if (detector && landmarker)
     {
@@ -181,79 +238,136 @@ int gauze_main(int argc, char* argv[])
             }
         }
 
-        if (faceMesh && landmarks.size())
-        {
-            cv::Mat output;
-            testMeshAlign(input, output, *faceMesh, landmarks);
-        }
-
         std::string sBase = drishti::core::basename(sInput);
-        if (!sOutput.empty() || doPreview)
+
+        if (!assets.mappings.empty() && !assets.model.empty() && landmarks.size())
         {
-            cv::Mat canvas = input.clone();
-            faceMesh->draw(canvas, landmarks, faceMesh->delaunay(landmarks, canvas.size()));
-
-            if (sOutput.empty())
-            {
-                cv::imwrite(sOutput + "/" + sBase + "_annotation.png", canvas);
-            }
-
-#if defined(DRISHTI_USE_IMSHOW)
-            if (doPreview)
-            {
-                glfw::imshow("triangles", canvas);
-                glfw::waitKey(0);
-            }
-#endif
-
-            faceMesh->writeTriangulation(sOutput + "/triangles.yaml");
-        }
-
-        if (!sMapping.empty() && !sModel.empty() && landmarks.size())
-        {
-            cv::Mat iso;
-            eos::render::Mesh mesh;
-            cv::Point3f R = mapper(landmarks, input, mesh, iso);
-
-            std::cout << "R = " << R << std::endl;
-
+            auto result = (*mapper)(landmarks, input);
+            cv::Mat iso = drishti::face::extractTexture(result, input);
+            cv::Point3f Reuler = drishti::face::getRotation(result.rendering_params);
+            
+            logger->info() << "rotation: " << Reuler;
+            
             // (((( Draw mesh for visualization ))))
             if (doPreview || !sOutput.empty())
             {
-                mapper.draw(iso, mesh);
+#if defined(DRISHTI_HAS_GLTEST)
+                // Create a texture from teh isomap
+                cv::Mat frame;
+                cv::cvtColor(input, frame, cv::COLOR_BGR2BGRA);
+                
+                // Create a window/context:
+                const auto kType = drishti::gltest::GLContext::kAuto;
+                auto opengl = drishti::gltest::GLContext::create(kType, doPreview ? "eos" : "", input.cols, input.rows);
+                opengl->resize(frame.cols, frame.rows);
+                (*opengl)();
+                
+                // Create triangles from mesh:
+                ogles_gpgpu::Mesh mesh { result.mesh.vertices, result.mesh.texcoords, result.mesh.tvi };
 
-                for (auto& p : mesh.texcoords)
+                // Perform texture swizzling:
+                ogles_gpgpu::VideoSource source;
+                ogles_gpgpu::MeshProc warper(mesh, iso, doWire);
+                source.set(&warper);
+                
+                if(doClear)
                 {
-                    p[0] *= iso.cols;
-                    p[1] *= iso.rows;
+                    warper.setBackground({0.f,0.f,0.f,1.f});
                 }
-
-                for (int i = 0; i < mesh.tvi.size(); i++)
+                
+                // Set shader model view projection:
+                const auto frustum = result.rendering_params.get_frustum();
+                const auto projection = glm::ortho<float>(frustum.l, frustum.r, frustum.t, frustum.b, -100.0, 100.0);
                 {
-                    const auto& t = mesh.tvi[i];
-                    cv::Point2f v0 = mesh.texcoords[t[0]];
-                    cv::Point2f v1 = mesh.texcoords[t[1]];
-                    cv::Point2f v2 = mesh.texcoords[t[2]];
-                    cv::line(iso, v0, v1, { 0, 255, 0 }, 1, 8);
-                    cv::line(iso, v1, v2, { 0, 255, 0 }, 1, 8);
-                    cv::line(iso, v2, v0, { 0, 255, 0 }, 1, 8);
+                    const auto modelViewProj = projection * result.rendering_params.get_modelview();
+                    warper.setModelViewProjection(modelViewProj);
                 }
+                
+                std::shared_ptr<ogles_gpgpu::Disp> display;
+                if (doPreview && opengl->hasDisplay())
+                {
+                    display = std::make_shared<ogles_gpgpu::Disp>();
+                    display->setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
+                    warper.add(display.get());
+                }
+                
+                auto R = result.rendering_params.get_rotation();
+                if (!sRotation.empty())
+                {
+                    auto rotations = parseVec3f(sRotation);
+                    R.x = rotations[0];
+                    R.y = rotations[1];
+                    R.z = rotations[2];
+                }
+                
+                Cursor cursor[2]; // keep cursor in scope
+                if(doCursor)
+                {
+                    std::function<void(double x, double y)> cursorCallback = [&](double x, double y)
+                    {
+                        if(!cursor[0].valid)
+                        {
+                            cursor[0] = Cursor(cv::Point2f(x, y));
+                            return;
+                        }
+                        
+                        cursor[1] = Cursor( cv::Point2f(x, y) );
+                        const auto delta = cursor[1].position - cursor[0].position;
+                        const double elapsed = std::chrono::duration<double>(cursor[1].time - cursor[0].time).count();
+                        static const float sensitivity = elapsed / 10.f;
+                        static const float xRange = static_cast<float>(M_PI)/8.0f;
+                        static const float yRange = static_cast<float>(M_PI)/8.0f;
+                        R.y = std::max(std::min(R.y + delta.x * sensitivity, +yRange), -xRange);
+                        R.x = std::max(std::min(R.x + delta.y * sensitivity, +yRange), -yRange);
+                        std::swap(cursor[1], cursor[0]);
+                        
+                        logger->info() << "X = " << x << " Y = " << y;
+                    };
+                    opengl->setCursorCallback(cursorCallback);
+                }
+                
+                std::function<bool(void)> render = [&]()
+                {
+                    // Alway update transformation:
+                    result.rendering_params.set_rotation(glm::quat(R));
+                    const auto modelViewProj = projection * result.rendering_params.get_modelview();
+                    warper.setModelViewProjection(modelViewProj);
+                    
+                    source({ { frame.cols, frame.rows }, void_ptr(frame), true, 0, TEXTURE_FORMAT });
+                    
+                    if (display)
+                    {
+                        auto& geometry = opengl->getGeometry();
+                        display->setOffset(geometry.tx, geometry.ty);
+                        display->setDisplayResolution(geometry.sx, geometry.sy);
+                    }
+                    return true;
+                };
+                
+                if(display && doPreview)
+                {
+                    opengl->setWait(!doCursor);
+                    (*opengl)(render);
+                }
+                else
+                {
+                    render(); // call it once and quit
+                }
+#endif // defined(DRISHTI_HAS_GLTEST)
 
                 if (!sOutput.empty())
                 {
-                    cv::imwrite(sOutput + "/" + sBase + ".png", iso);
-                }
+                    // Capture last rendered image:
+                    cv::Mat rendered;
+                    getImage(warper, rendered);
 
-#if defined(DRISHTI_USE_IMSHOW)
-                if (doPreview)
-                {
-                    glfw::imshow("iso", iso);
-                    glfw::waitKey(0);
+                    cv::imwrite(sOutput + "/" + sBase + "_iso.png", iso);
+                    cv::imwrite(sOutput + "/" + sBase + "_render.png", rendered);
                 }
-#endif
             }
         }
     }
+    return 0;
 }
 
 int main(int argc, char** argv)
@@ -268,44 +382,55 @@ int main(int argc, char** argv)
     }
 }
 
-static Landmarks testTransform(const Landmarks& landmarks)
+static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc, cv::Mat &frame)
 {
-    Landmarks landmarks2 = landmarks;
-
-    const float theta = 45.0;
-    const float ct = std::cos(theta * M_PI / 180.0);
-    const float st = std::sin(theta * M_PI / 180.0);
-    cv::Point2f center = landmarks[0];
-
-    cv::Matx33f T(1, 0, center.x, 0, 1, center.y, 0, 0, 1);
-    cv::Matx33f R(+ct, -st, 0.0, +st, +ct, 0.0, 0.0, 0.0, 1.0);
-    cv::Matx33f H = T * R * T.inv();
-
-    for (auto& p : landmarks2)
+    if(dynamic_cast<ogles_gpgpu::MemTransferOptimized*>(proc.getMemTransferObj()))
     {
-        cv::Point3f q = H * cv::Point3f(p.x, p.y, 1.f);
-        p = { q.x / q.z, q.y / q.z };
+        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d &size, const void *pixels, size_t bytesPerRow)
+        {
+            frame = cv::Mat(size.height, size.width, CV_8UC4, (void*)pixels, bytesPerRow).clone();
+        };
+        proc.getResultData(delegate);
     }
-
-    return landmarks2;
+    else
+    {
+        frame.create(proc.getOutFrameH(), proc.getOutFrameW(), CV_8UC4); // noop if preallocated
+        proc.getResultData(frame.ptr());
+    }
+    return frame;
 }
 
-static void testMeshAlign(const cv::Mat& input, cv::Mat& output, drishti::face::FaceMesh& mesh, const Landmarks& landmarks)
+// #############################################
+// ### BNF parser:                           ###
+// ### vector<float> = {1.0,2.0,3.0}         ###
+// #############################################
+
+#include <boost/spirit/include/qi.hpp>
+
+namespace qi = boost::spirit::qi;
+
+template <typename Iterator, typename Skipper = qi::blank_type>
+struct vec3f_parser : qi::grammar<Iterator, std::vector<float>(), Skipper>
 {
-    auto landmarks2 = testTransform(landmarks);
-    auto map = mesh.transform(landmarks2, landmarks, input.size());
+    vec3f_parser()
+    : vec3f_parser::base_type(start)
+    {
+        start = qi::repeat(2)[(qi::float_ >> ',')] >> qi::float_;
+    }
+    qi::rule<Iterator, std::vector<float>(), Skipper> start;
+};
 
-    cv::Mat flow, canvas;
-    cv::hconcat(map[0], map[1], flow);
-    cv::normalize(flow, canvas, 0, 255, cv::NORM_MINMAX, CV_8UC1);
-    cv::cvtColor(canvas, canvas, cv::COLOR_GRAY2BGR);
-
-    cv::Mat warped;
-    cv::remap(input, warped, map[0], map[1], cv::INTER_LINEAR);
-    cv::hconcat(warped, canvas, canvas);
-
-#if defined(DRISHTI_USE_IMSHOW)
-    glfw::imshow("remaped", canvas);
-    glfw::waitKey(0);
-#endif
+template <typename Iterator>
+std::vector<float> parseVec3f(Iterator first, Iterator last)
+{
+    std::vector<float> v;
+    vec3f_parser<decltype(first)> parser;
+    bool result = qi::phrase_parse(first, last, parser, qi::blank, v);
+    return v;
 }
+
+static std::vector<float> parseVec3f(const std::string& R)
+{
+    return parseVec3f(R.begin(), R.end());
+}
+

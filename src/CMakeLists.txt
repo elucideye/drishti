@@ -72,7 +72,7 @@ if(DRISHTI_SERIALIZE_WITH_BOOST)
 endif()
 
 #############
-### Beast ### :: optional ::
+### Beast ### :: optional :: (header only)
 #############
 
 option(DRISHTI_USE_BEAST "Use beast (boost) websocket lib" OFF)
@@ -90,7 +90,7 @@ find_package(spdlog CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS spdlog::spdlog)
 
 ##############
-### cereal ###
+### cereal ### (header only)
 ##############
 
 hunter_add_package(cereal)
@@ -98,15 +98,23 @@ find_package(cereal CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cereal::cereal)
 
 ############
-### dlib ###
+### dlib ### (header only)
 ############
 
 hunter_add_package(dlib)
 find_package(dlib CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dlib::dlib)
 
+###########
+### glm ### (header only)
+###########
+
+hunter_add_package(glm)
+find_package(glm CONFIG REQUIRED)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS glm)
+
 ############
-### half ###
+### half ### (header only)
 ############
 
 hunter_add_package(half)
@@ -114,7 +122,7 @@ find_package(half CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS half::half)
 
 ##############
-### Eigen3 ###
+### Eigen3 ### (header only)
 ##############
 
 hunter_add_package(Eigen)
@@ -146,7 +154,7 @@ endif()
 # Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
 
 #######################
-### thread-pool-cpp ###
+### thread-pool-cpp ### (header only)
 #######################
 
 drishti_option(DRISHTI_USE_THREAD_POOL_CPP "Use thread-pool-cpp submodule" ON IF(DRISHTI_HAVE_THREAD_LOCAL_STORAGE))
@@ -179,7 +187,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
 endif()
 
 ##################
-### NEON_2_SSE ###
+### NEON_2_SSE ### (header only)
 ##################
 
 hunter_add_package(ARM_NEON_2_x86_SSE)
@@ -187,7 +195,7 @@ find_package(ARM_NEON_2_x86_SSE CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ARM_NEON_2_x86_SSE::ARM_NEON_2_x86_SSE)
 
 ################
-### sse2neon ###
+### sse2neon ### (header only)
 #################
 
 hunter_add_package(sse2neon)
@@ -195,7 +203,7 @@ find_package(sse2neon CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS sse2neon::sse2neon) # Add library
 
 ###########
-### eos ### :: experimental ::
+### eos ### :: experimental :: (header only)
 ###########
 
 set(EOS_LIB "") # Make EOS_LIB optional
