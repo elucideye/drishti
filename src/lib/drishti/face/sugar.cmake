@@ -64,7 +64,13 @@ endif()
 
 if(DRISHTI_BUILD_EOS)
   sugar_files(DRISHTI_FACE_SRCS
-    FaceLandmarkMeshMapper.cpp)
+    FaceMeshMapper.cpp
+    FaceMeshMapperLandmark.cpp
+    FaceMeshMapperLandmarkContour.cpp
+    )
   sugar_files(DRISHTI_FACE_HDRS_PUBLIC
-    FaceLandmarkMeshMapper.h)
+    FaceMeshMapper.h
+    FaceMeshMapperLandmark.h
+    FaceMeshMapperLandmarkContour.h
+    )
 endif()

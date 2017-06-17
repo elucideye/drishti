@@ -720,7 +720,7 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
                 size = cv::imread(record.filename).size();
             }
             
-            eos::render::Mesh mesh;
+            eos::core::Mesh mesh;
             cv::Mat iso;
             iso.cols = size.width;
             iso.rows = size.height;

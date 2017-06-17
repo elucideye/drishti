@@ -125,6 +125,37 @@ GLFWContext::operator bool() const
     return (m_context != nullptr);
 }
 
+void GLFWContext::getCursor(double &x, double &y)
+{
+    glfwGetCursorPos(m_context, &x, &y);
+}
+
+void GLFWContext::setCursor(double x, double y)
+{
+    glfwSetCursorPos(m_context, x, y);
+}
+
+void GLFWContext::setCursorVisibility(bool flag)
+{
+    glfwSetInputMode(m_context, GLFW_CURSOR, flag ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+}
+
+static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    auto* context = glfwPool[window];
+    assert(context);
+    if(context->cursorCallback)
+    {
+        context->cursorCallback(xpos, ypos);
+    }
+}
+
+void GLFWContext::setCursorCallback(const CursorDelegate &delegate)
+{
+    cursorCallback = delegate;
+    glfwSetCursorPosCallback(m_context, mouse_callback);
+}
+
 // ::: display :::
 
 bool GLFWContext::hasDisplay() const
@@ -144,7 +175,14 @@ void GLFWContext::operator()(std::function<bool(void)>& f)
     bool okay = true;
     while (!glfwWindowShouldClose(m_context) && okay)
     {
-        glfwPollEvents();
+        if(m_wait)
+        {
+            glfwWaitEvents();
+        }
+        else
+        {
+            glfwPollEvents();
+        }
         okay = f(); // <== callback
         glfwSwapBuffers(m_context);
     }

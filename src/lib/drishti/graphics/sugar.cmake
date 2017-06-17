@@ -23,9 +23,12 @@ sugar_files(
 if(DRISHTI_BUILD_OGLES_GPGPU)
   sugar_files(
     DRISHTI_GRAPHICS_SRCS
+    LineShader.cpp         
+    MeshShader.cpp
     binomial.cpp
     fade.cpp
     gain.cpp
+    mesh.cpp    
     nms2.cpp
     rgb2hsv.cpp
     rgb2luv.cpp
@@ -34,9 +37,13 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     )
   sugar_files(
     DRISHTI_GRAPHICS_HDRS_PUBLIC
+    GLTexture.h    
+    LineShader.h    
+    MeshShader.h
     binomial.h
     fade.h
     gain.h
+    mesh.h
     nms2.h
     rgb2hsv.h
     rgb2luv.h
