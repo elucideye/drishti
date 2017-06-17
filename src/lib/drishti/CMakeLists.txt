@@ -172,7 +172,7 @@ else()
   if(DRISHTI_GRAPHICS_SRCS)
     add_library(drishti_graphics ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
     if(DRISHTI_BUILD_OGLES_GPGPU)
-      target_link_libraries(drishti_graphics PUBLIC ${OGLES_GPGPU_LIB})
+      target_link_libraries(drishti_graphics PUBLIC ${OGLES_GPGPU_LIB} glm)
     endif()
   endif()
 
