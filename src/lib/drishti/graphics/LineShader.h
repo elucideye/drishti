@@ -13,7 +13,9 @@
 
 #include "ogles_gpgpu/common/proc/base/filterprocbase.h"
 #include <glm/glm.hpp>
+
 #include <array>
+#include <memory>
 
 BEGIN_OGLES_GPGPU
 
