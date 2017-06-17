@@ -10,6 +10,13 @@
 
 #include "drishti/graphics/MeshShader.h"
 
+
+#ifdef ANDROID
+#  define TEXTURE_FORMAT GL_RGBA
+#else
+#  define TEXTURE_FORMAT GL_BGRA
+#endif
+
 BEGIN_OGLES_GPGPU
 
 // clang-format off
@@ -43,7 +50,7 @@ const char * MeshShader::fshaderMeshSrc =
 // clang-format on
 
 MeshShader::MeshShader(const cv::Mat &iso, const VertexBuffer &vertices, const CoordBuffer &coords)
-    : texture(iso.cols, iso.rows, GL_BGRA, const_cast<void*>(iso.ptr<void>()))
+    : texture(iso.cols, iso.rows, TEXTURE_FORMAT, const_cast<void*>(iso.ptr<void>()))
     , texUnit(1)
     , texTarget(GL_TEXTURE_2D)
     , vertices(vertices)
