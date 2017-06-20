@@ -48,7 +48,7 @@
 
 // clang-format off
 #if defined(DRISHTI_BUILD_EOS)
-#  include "drishti/face/FaceLandmarkMeshMapper.h"
+#  include "drishti/face/FaceMeshMapperLandmark.h"
 #endif
 // clang-format on
 
@@ -171,8 +171,8 @@ static int standardizeFaceData(const FACE::Table& table, const std::string& sOut
 
 #if defined(DRISHTI_BUILD_EOS)
 // Face pose estimation...
-using FaceLandmarkMeshMapperPtr = std::unique_ptr<drishti::face::FaceLandmarkMeshMapper>;
-using FacLandmarkeMeshMapperResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceLandmarkMeshMapperPtr>;
+using FaceMeshMapperPtr = std::unique_ptr<drishti::face::FaceMeshMapperLandmark>;
+using FaceMeshMapperResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceMeshMapperPtr>;
 static void computePose(FACE::Table& table, const std::string& sModel, const std::string& sMapping, std::shared_ptr<spdlog::logger>& logger);
 #endif // DRISHTI_BUILD_POSE
 
@@ -694,9 +694,9 @@ static cv::Size read_png_size(const std::string &filename)
 
 static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger)
 {
-    FacLandmarkeMeshMapperResourceManager manager = [&]()
+    FaceMeshMapperResourceManager manager = [&]()
     {
-        return drishti::core::make_unique<drishti::face::FaceLandmarkMeshMapper>(sModel, sMapping);
+        return drishti::core::make_unique<drishti::face::FaceMeshMapperLandmark>(sModel, sMapping);
     };
     
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
@@ -721,11 +721,12 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
             }
             
             eos::core::Mesh mesh;
-            cv::Mat iso;
-            iso.cols = size.width;
-            iso.rows = size.height;
 
-            record.pose = (*meshMapper)(record.points, iso, mesh, iso);
+            cv::Mat dummy;
+            dummy.cols;
+            dummy.rows;
+            auto result = (*meshMapper)(record.points, dummy);
+            record.pose = drishti::face::getRotation(result.rendering_params);
 
             logger->info() << record.filename << " " << size << " " << record.pose;            
         }
