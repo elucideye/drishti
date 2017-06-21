@@ -19,9 +19,6 @@
 [submodule "src/3rdparty/boost-pba"]
     path = src/3rdparty/boost-pba
     url = https://github.com/hunter-packages/boost-pba
-[submodule "src/3rdparty/Beast"]
-    path = src/3rdparty/Beast
-    url = https://github.com/hunter-packages/Beast.git
 [submodule "src/3rdparty/glfm"]
 	path = src/3rdparty/glfm
 	url = https://github.com/hunter-packages/glfm.git

@@ -13,7 +13,7 @@ add_executable(test-image-server
   )
 target_link_libraries(test-image-server
   ${OpenCV_LIBS}
-  Boost::system
+  Beast::Beast
   cxxopts::cxxopts
   )
 
@@ -24,7 +24,6 @@ endif()
 
 target_include_directories(test-image-server
   PUBLIC
-  "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/Beast/include>"
   "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/utilities>" # for websocket_async_server.hpp
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>" # drishti_stdlib_string.h (android)
   )
@@ -39,12 +38,11 @@ add_executable(test-image-client image_client.cpp)
 target_link_libraries(test-image-client
   PUBLIC
   ${OpenCV_LIBS}
-  Boost::system
+  Beast::Beast
   cxxopts::cxxopts
   )
 target_include_directories(test-image-client
   PUBLIC
-  "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/Beast/include>"
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>" # drishti_stdlib_string.h (android)
   )
 set_property(TARGET test-image-client PROPERTY FOLDER "app/tutorial")
