@@ -76,10 +76,11 @@ endif()
 #############
 
 option(DRISHTI_USE_BEAST "Use beast (boost) websocket lib" OFF)
-
-# Initial/experimental header only integration:
-# TODO: hunter-package WIP
-# Support minimal Boost asio configuraiton (Boost::system only)
+if(DRISHTI_USE_BEAST)
+  hunter_add_package(Beast)
+  find_package(Beast CONFIG REQUIRED)
+  # !!! Limit use to applicaiton layer + callbacks, don't add to core libraries !!!!
+endif()
 
 ##############
 ### spdlog ###

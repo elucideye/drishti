@@ -198,10 +198,9 @@ target_link_libraries(${app_name}
 
 if(DRISHTI_USE_BEAST)
   target_compile_definitions(${app_name} PUBLIC DRISHTI_USE_BEAST=1)
-  target_link_libraries(${app_name} Boost::system)  
+  target_link_libraries(${app_name} Beast::Beast)
   target_include_directories(${app_name}
     PUBLIC
-    "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/Beast/include>"
     "$<BUILD_INTERFACE:${DRISHTI_3RD_PARTY_DIR}/utilities>" # for websocket_async_server.hpp    
     )
 endif()  
