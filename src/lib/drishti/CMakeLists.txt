@@ -343,16 +343,11 @@ endforeach()
 ###### PUBLIC API ##########
 ############################
 
-foreach(library ${DRISHTI_SDK_3RDPARTY_LIBS})
-  get_target_property(_TARGET_TYPE "${library}" TYPE)
-  if(NOT _TARGET_TYPE STREQUAL "INTERFACE_LIBRARY")
-    install(FILES $<TARGET_FILE:${library}> DESTINATION 3rdparty)
-  endif()
-endforeach()
-
-# Install license files
-include(drishti_copy_3rdparty_licenses)
-drishti_copy_3rdparty_licenses("3rdparty/licenses")
+if(DRISHTI_COPY_3RDPARTY_LICENSES)
+  # Install license files
+  include(drishti_copy_3rdparty_licenses)
+  drishti_copy_3rdparty_licenses("3rdparty/licenses")
+endif()
 
 #################################################
 ### Generate the main shared public interface ###
