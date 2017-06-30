@@ -6,13 +6,13 @@ hunter_add_package(RapidXML)
 find_package(RapidXML REQUIRED CONFIG)
 
 ##############
-### eyexml ###
+### drishti-eyexml ###
 ##############
 
-add_executable(eyexml eyexml.cpp)
-target_link_libraries(eyexml drishtisdk cxxopts::cxxopts RapidXML::RapidXML)
-set_property(TARGET eyexml PROPERTY FOLDER "app/console")
-install(TARGETS eyexml DESTINATION bin)
+add_executable(drishti-eyexml eyexml.cpp)
+target_link_libraries(drishti-eyexml drishtisdk cxxopts::cxxopts RapidXML::RapidXML)
+set_property(TARGET drishti-eyexml PROPERTY FOLDER "app/console")
+install(TARGETS drishti-eyexml DESTINATION bin)
 
 ###################################################
 ##################### DLIB apps ###################
@@ -30,11 +30,11 @@ if(JPEG_FOUND AND PNG_FOUND)
   ### test_shape_predictor ###
   ############################
 
-  add_executable(test_shape_predictor test_shape_predictor.cpp "${dlib_source_cpp}")
-  target_link_libraries(test_shape_predictor drishtisdk cxxopts::cxxopts PNG::png)
-  target_compile_definitions(test_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
-  set_property(TARGET test_shape_predictor PROPERTY FOLDER "app/console")
-  install(TARGETS test_shape_predictor DESTINATION bin)
+  add_executable(drishti_test_shape_predictor test_shape_predictor.cpp "${dlib_source_cpp}")
+  target_link_libraries(drishti_test_shape_predictor drishtisdk cxxopts::cxxopts PNG::png)
+  target_compile_definitions(drishti_test_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
+  set_property(TARGET drishti_test_shape_predictor PROPERTY FOLDER "app/console")
+  install(TARGETS drishti_test_shape_predictor DESTINATION bin)
 
   #############################
   ### train_shape_predictor ###
@@ -72,7 +72,7 @@ if(JPEG_FOUND AND PNG_FOUND)
         NAME
         "eye_model_preprocess"
         COMMAND
-        "eyexml"
+        "drishti-eyexml"
         "--input=${eye_src_image}"
         "--output=${eye_src_train_xml}"
         "--extension=.json"
@@ -95,7 +95,7 @@ if(JPEG_FOUND AND PNG_FOUND)
         NAME
         "eye_model_test"
         COMMAND
-        "test_shape_predictor"
+        "drishti_test_shape_predictor"
         "--input=${eye_src_train_xml}"
         "--model=${eye_out_model}"
         )
