@@ -293,16 +293,8 @@ endif()
 ### Test data ###
 #################
 
-include(drishti_download_data)
-
-### Download 'assets'
-drishti_download_data(
-    URL "https://github.com/elucideye/drishti-assets/archive/v1.5.tar.gz"
-    SHA1 "b7beaaca2e5ac4653e6c3fa27826407665e01145"
-    NAME "assets"
-    DIR assets_dir
-)
-message("Assets directory: '${assets_dir}'")
+hunter_add_package(drishti_assets)
+find_package(drishti_assets CONFIG REQUIRED)
 
 #######################
 ### Compiler checks ###
