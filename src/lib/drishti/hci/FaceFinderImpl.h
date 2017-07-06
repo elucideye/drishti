@@ -94,7 +94,6 @@ struct FaceFinder::Impl
     // ::: Core parameters :::
     // :::::::::::::::::::::::
     void* glContext = nullptr;
-    std::mutex mutex;
     std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
     std::shared_ptr<drishti::sensor::SensorModel> sensor;
     std::shared_ptr<spdlog::logger> logger;

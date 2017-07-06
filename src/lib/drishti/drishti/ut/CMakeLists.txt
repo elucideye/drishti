@@ -2,22 +2,12 @@
 ### common ###
 ##############
 
-include(drishti_set_unit_test_assets)
 # Use static lib to avoid dynamic frameworks in internal tests
 if(IOS)
   set(drishti_sdk_lib drishti_static)
 else()
   set(drishti_sdk_lib drishti)
 endif()
-
-drishti_set_unit_test_assets(
-  DRISHTI_ACF_FACE_MODEL
-  DRISHTI_FACE_LANDMARKER
-  DRISHTI_EYE_MODEL
-  DRISHTI_MEAN_FACE_LANDMARKS
-  )
-
-message("DRISHTI_EYE_MODEL : ${DRISHTI_EYE_MODEL}")
 
 enable_testing()
 
@@ -41,15 +31,12 @@ if(DRISHTI_BUILD_C_INTERFACE)
   target_compile_definitions(${e_test_app} PUBLIC DRISHTI_BUILD_C_INTERFACE)
 endif()
 
-set(DRISHTI_TEST_EYE_IMAGE "${assets_dir}/images/2318-eye.png")
-set(DRISHTI_TEST_EYE_JSON "${assets_dir}/images/2318-eye.json")
-
 gauze_add_test(
   NAME ${e_test_name}
   COMMAND ${e_test_app}
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_TEST_EYE_IMAGE}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_TEST_EYE_JSON}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ASSETS_EYE_MODEL_REGRESSOR}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACES_EYE_IMAGE}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACES_EYE_MODEL}>"
   "0"
   )
 
@@ -72,8 +59,6 @@ endif()
 if(NOT DRISHTI_BUILD_HCI OR NOT (TARGET drishti_gltest))
   return()
 endif()
-
-set(DRISHTI_TEST_FACE_IMAGE_COLOR "${assets_dir}/images/lena512color.png")
 
 set(f_test_name DrishtiDrishtiFaceTest)
 set(f_test_app test-drishti-drishti-face)
@@ -101,11 +86,12 @@ endif()
 gauze_add_test(
   NAME ${f_test_name}
   COMMAND ${f_test_app}
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ACF_FACE_MODEL}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_MEAN_FACE_LANDMARKS}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACE_LANDMARKER}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_TEST_FACE_IMAGE_COLOR}>"  
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ASSETS_FACE_DETECTOR}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ASSETS_FACE_DETECTOR_MEAN}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ASSETS_FACE_LANDMARK_REGRESSOR}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ASSETS_EYE_MODEL_REGRESSOR}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACES_FACE_IMAGE}>"
+  "0"
   )
 
 if(WIN32)

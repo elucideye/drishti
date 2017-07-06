@@ -22,3 +22,9 @@
 [submodule "src/3rdparty/glfm"]
 	path = src/3rdparty/glfm
 	url = https://github.com/hunter-packages/glfm.git
+[submodule "src/3rdparty/drishti-faces"]
+	path = src/3rdparty/drishti-faces
+	url = https://github.com/elucideye/drishti-faces.git
+[submodule "src/3rdparty/drishti-assets"]
+	path = src/3rdparty/drishti-assets
+	url = https://github.com/elucideye/drishti-assets.git

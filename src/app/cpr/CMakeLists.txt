@@ -15,8 +15,12 @@ if(NOT DRISHTI_BUILD_MIN_SIZE)
 
     enable_testing()
 
-    set(eye_src_model_private "${assets_dir}/images/2318-eye_private.json")
-    set(eye_src_image_private "${assets_dir}/images/2318-eye.png")    
+    message("DRISHTI_FACES_EYE_MODEL = ${DRISHTI_FACES_EYE_MODEL}")
+    message("DRISHTI_FACES_EYE_IMAGE = ${DRISHTI_FACES_EYE_IMAGE}")
+    
+    set(eye_src_model_private "${DRISHTI_FACES_EYE_MODEL}")
+    set(eye_src_image_private "${DRISHTI_FACES_EYE_IMAGE}")
+    
     set(eye_src_model "${CMAKE_CURRENT_BINARY_DIR}/2318-eye.json")    
     set(eye_src_image "${CMAKE_CURRENT_BINARY_DIR}/2318-eye.png")    
     set(eye_src_train_xml "${CMAKE_CURRENT_BINARY_DIR}/eye_train.xml")
