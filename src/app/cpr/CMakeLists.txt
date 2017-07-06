@@ -15,9 +15,6 @@ if(NOT DRISHTI_BUILD_MIN_SIZE)
 
     enable_testing()
 
-    message("DRISHTI_FACES_EYE_MODEL = ${DRISHTI_FACES_EYE_MODEL}")
-    message("DRISHTI_FACES_EYE_IMAGE = ${DRISHTI_FACES_EYE_IMAGE}")
-    
     set(eye_src_model_private "${DRISHTI_FACES_EYE_MODEL}")
     set(eye_src_image_private "${DRISHTI_FACES_EYE_IMAGE}")
     
