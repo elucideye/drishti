@@ -1,12 +1,9 @@
+@PACKAGE_INIT@
+
 find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams) # to be deprecated
 find_dependency(OpenCV)
 find_dependency(ogles_gpgpu CONFIG) # review OpenGL dependencies
 find_dependency(xgboost CONFIG)
-
-# TODO: Is this still needed?
-if(@is_linux@)
-  find_dependency(JPEG CONFIG)
-endif()
 
 ##
 ## Header (INTERFACE) libraries

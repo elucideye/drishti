@@ -237,11 +237,6 @@ if(DRISHTI_USE_IMSHOW)
   list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS imshow::imshow) # Add library
 endif()
 
-# opencv + linux JPEG workaround
-if(is_linux)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS JPEG::jpeg)
-endif()
-
 set(DRISHTI_SDK_3RDPARTY_LIBS
   ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
   ${DRISHTI_SDK_3RDPARTY_PKG_LIBS}
