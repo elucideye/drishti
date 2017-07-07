@@ -46,10 +46,11 @@ if(JPEG_FOUND AND PNG_FOUND)
     target_compile_definitions(train_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
     set_property(TARGET train_shape_predictor PROPERTY FOLDER "app/console")
     install(TARGETS train_shape_predictor DESTINATION bin)
-
+    
     if(DRISHTI_BUILD_TESTS AND NOT (IOS OR ANDROID))
-      set(eye_src_model_private "${assets_dir}/images/2318-eye_private.json")
-      set(eye_src_image_private "${assets_dir}/images/2318-eye.png")
+      set(eye_src_model_private "${DRISHTI_FACES_EYE_MODEL_PRIVATE}")
+      set(eye_src_image_private "${DRISHTI_FACES_EYE_IMAGE}")
+      
       set(eye_src_model "${CMAKE_CURRENT_BINARY_DIR}/2318-eye.json")
       set(eye_src_image "${CMAKE_CURRENT_BINARY_DIR}/2318-eye.png")
       set(eye_src_train_xml "${CMAKE_CURRENT_BINARY_DIR}/eye_train.xml")

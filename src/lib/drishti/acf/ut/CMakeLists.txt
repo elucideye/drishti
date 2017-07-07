@@ -19,25 +19,12 @@ if ((TARGET drishti_gltest) AND DRISHTI_BUILD_OGLES_GPGPU)
 endif()
 
 # GTest + CTest
-include(drishti_set_unit_test_assets)
-drishti_set_unit_test_assets(
-    DRISHTI_ACF_FACE_MODEL
-    DRISHTI_FACE_LANDMARKER
-    DRISHTI_EYE_MODEL
-    DRISHTI_MEAN_FACE_LANDMARKS)
-
-set(DRISHTI_TEST_FACE_IMAGE_COLOR "${assets_dir}/images/lena512color.png")
-
-if(NOT EXISTS "${DRISHTI_TEST_FACE_IMAGE_COLOR}")
-  message(FATAL_ERROR "Failed to find test face image: ${DRISHTI_TEST_FACE_IMAGE_COLOR}")
-endif()
-
 gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_TEST_FACE_IMAGE_COLOR}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_TEST_FACE_IMAGE_COLOR}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ACF_FACE_MODEL}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACES_FACE_IMAGE}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACES_FACE_IMAGE}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ASSETS_FACE_DETECTOR}>"
   "." # Used working directory as portable temp folder
   )
 

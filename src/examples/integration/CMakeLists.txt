@@ -73,23 +73,11 @@ endif()
 ### TEST ####
 #############
 
-include(drishti_set_unit_test_assets)
-drishti_set_unit_test_assets(
-    DRISHTI_ACF_FACE_MODEL
-    DRISHTI_FACE_LANDMARKER
-    DRISHTI_EYE_MODEL
-    DRISHTI_MEAN_FACE_LANDMARKS
-    )
-
-set(DRISHTI_TEST_EYE_IMAGE "${assets_dir}/images/2318-eye.png")
-set(DRISHTI_TEST_EYE_JSON "${assets_dir}/images/2318-eye.json")
-message("DRISHTI_TEST_EYE_MODEL_PRIVATE ${DRISHTI_TEST_EYE_MODEL_PRIVATE}")
-
 gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_EYE_MODEL}>"
-  "$<GAUZE_RESOURCE_FILE:${DRISHTI_TEST_EYE_IMAGE}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_ASSETS_EYE_MODEL_REGRESSOR}>"
+  "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACES_EYE_IMAGE}>"
   "1"  
   "."
   )

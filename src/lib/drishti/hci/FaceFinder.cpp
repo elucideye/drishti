@@ -102,7 +102,15 @@ void FaceFinder::initialize()
 
 FaceFinder::~FaceFinder()
 {
-    std::unique_lock<std::mutex> lock(impl->mutex);
+    try
+    {
+        // If this has already been retrieved it will throw
+        impl->scene.get(); // block on any abandoned calls
+    }
+    catch(...)
+    {
+        
+    }
 }
 
 bool FaceFinder::needsDetection(const TimePoint& now) const
@@ -772,8 +780,6 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
 {
     //impl->logger->set_level(spdlog::level::off);
     
-    std::unique_lock<std::mutex> lock(impl->mutex);
-
     core::ScopeTimeLogger scopeTimeLogger = [this](double t) {
         impl->logger->info() << "FULL_CPU_PATH: " << t;
     };
