@@ -9,7 +9,7 @@ target_link_libraries(${test_app} PUBLIC
   cxxopts::cxxopts
   ${OpenCV_LIBS}
   drishti_videoio
-  drishti_gltest
+  aglet::aglet
   gauze::gauze)
 
 # Get toolchain suffix:

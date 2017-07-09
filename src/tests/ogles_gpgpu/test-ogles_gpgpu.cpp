@@ -2,7 +2,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "drishti/gltest/GLContext.h"
+#include "aglet/GLContext.h"
 
 #include <gtest/gtest.h>
 
@@ -61,7 +61,7 @@ static cv::Mat getTestImage(int width, int height, int stripe, bool alpha)
 
 TEST(OGLESGPGPUTest, GrayScaleProc)
 {
-    auto context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
+    auto context = aglet::GLContext::create(aglet::GLContext::kAuto);
     if(context)
     {
         cv::Mat test = getTestImage(640, 480, 10, true);

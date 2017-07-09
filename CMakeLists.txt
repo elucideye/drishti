@@ -276,6 +276,12 @@ else()
   set(DRISHTI_CI FALSE)
 endif()
 
+if(ANDROID OR NOT ${DRISHTI_CI})
+  set(DRISHTI_DO_GPU_TESTING TRUE)
+else()
+  set(DRISHTI_DO_GPU_TESTING FALSE)
+endif()
+
 if(DRISHTI_BUILD_TESTS OR DRISHTI_BUILD_INTEGRATION_TESTS)
   if(IOS AND DRISHTI_CI)
     # do not run test on CI (TODO: remote device testing)

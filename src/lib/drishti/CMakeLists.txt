@@ -221,16 +221,6 @@ else()
 
 endif(DRISHTI_BUILD_WORLD)
 
-# We use the internal drishti_gltest for an "off screen" OpenGL context.
-# This currently provides 3 options:
-#   * GLFWContext (can provide Window)
-#   * GLContextIOS
-#   * GLContextAndroid
-# Note: Android emulator supports GPU use
-if(ANDROID OR NOT ${DRISHTI_CI})
-  add_subdirectory(gltest)
-endif()
-
 # For Android platforms, we must specify -DHALF_ENABLE_CPP11_CMATH=0 for all modules
 # using the half precision floating point storage (i.e., package half)
 if(ANDROID)
@@ -262,7 +252,7 @@ set(drishti_sdk_srcs master/drishti_master.hpp master/drishti_master.cpp)
 # Create dependency list
 set(drishti_sdk_libs ${drishti_libs} ${DRISHTI_SDK_3RDPARTY_LIBS})
 
-if(TARGET drishti_gltest AND MSVC)
+if(${DRISHTI_DO_GPU_TESTING} AND MSVC)
   # FaceTracker.cpp -> FaceTracker.hpp -> Context.hpp -> drishti_gl.hpp -> gl/glew.h
   hunter_add_package(glew)
   find_package(glew CONFIG REQUIRED)

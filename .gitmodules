@@ -28,3 +28,6 @@
 [submodule "src/3rdparty/drishti-assets"]
 	path = src/3rdparty/drishti-assets
 	url = https://github.com/elucideye/drishti-assets.git
+[submodule "src/3rdparty/aglet"]
+	path = src/3rdparty/aglet
+	url = https://github.com/elucideye/aglet.git

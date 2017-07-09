@@ -18,7 +18,7 @@
 
 // clang-format off
 #if defined(DRISHTI_DRISHTI_DO_GPU)
-#  include "drishti/gltest/GLContext.h"
+#  include "aglet/GLContext.h"
 #endif
 // clang-format on
 
@@ -87,7 +87,7 @@ protected:
         image = loadImage(sImageFilename);
 
 #if defined(DRISHTI_DRISHTI_DO_GPU)
-        m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
+        m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
 #endif
 
         // TODO: we need to load ground truth output for each shader
@@ -305,7 +305,7 @@ protected:
     }
 
 #if defined(DRISHTI_DRISHTI_DO_GPU)
-    std::shared_ptr<drishti::gltest::GLContext> m_context;
+    std::shared_ptr<aglet::GLContext> m_context;
 #endif
 
     void* m_glContext = nullptr;
