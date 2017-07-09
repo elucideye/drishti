@@ -203,6 +203,17 @@ hunter_add_package(sse2neon)
 find_package(sse2neon CONFIG REQUIRED)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS sse2neon::sse2neon) # Add library
 
+# We use aglet for an "off screen" OpenGL context.
+# This currently provides 3 options:
+#   * GLFWContext for most desktop systems (can provide Window)
+#   * GLContextIOS
+#   * GLContextAndroid
+# Note: Android emulator supports GPU use
+if(DRISHTI_DO_GPU_TESTING)
+  hunter_add_package(aglet)
+  find_package(aglet CONFIG REQUIRED)
+endif()
+
 ###########
 ### eos ### :: experimental :: (header only)
 ###########

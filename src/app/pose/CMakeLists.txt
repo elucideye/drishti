@@ -4,8 +4,9 @@ set(test_sources pose.cpp)
 add_executable(${test_app} ${test_sources})
 target_link_libraries(${test_app} drishtisdk cxxopts::cxxopts ${OpenCV_LIBS})
 
-if(TARGET drishti_gltest)
-  target_link_libraries(${test_app} drishti_gltest)
+message("DRISHTI_DO_GPU_TESTING = ${DRISHTI_DO_GPU_TESTING}")
+if(${DRISHTI_DO_GPU_TESTING})
+  target_link_libraries(${test_app} aglet::aglet)
   target_compile_definitions(${test_app} PUBLIC DRISHTI_HAS_GLTEST)
 endif()
 

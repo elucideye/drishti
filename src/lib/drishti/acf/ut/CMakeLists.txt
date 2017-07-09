@@ -13,8 +13,8 @@ target_link_libraries(${test_app} PUBLIC
   GTest::gtest
   drishtisdk)
 
-if ((TARGET drishti_gltest) AND DRISHTI_BUILD_OGLES_GPGPU)
-  target_link_libraries(${test_app} PUBLIC drishti_gltest)
+if ((${DRISHTI_DO_GPU_TESTING}) AND DRISHTI_BUILD_OGLES_GPGPU)
+  target_link_libraries(${test_app} PUBLIC aglet::aglet)
   target_compile_definitions(${test_app} PUBLIC DRISHTI_ACF_DO_GPU=1)
 endif()
 

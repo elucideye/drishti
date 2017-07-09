@@ -18,7 +18,7 @@
 #include "videoio/VideoSourceCV.h"
 #include "videoio/VideoSinkCV.h"
 
-#include "drishti/gltest/GLContext.h"
+#include "aglet/GLContext.h"
 
 // Package includes:
 #include "cxxopts.hpp"
@@ -157,7 +157,7 @@ int gauze_main(int argc, char** argv)
     // was called for the first time off the main thread.
 
     // NOTE: We can create the OpenGL context prior to AVFoundation use as a workaround
-    auto opengl = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto, doWindow ? "hci" : "", 640, 480);
+    auto opengl = aglet::GLContext::create(aglet::GLContext::kAuto, doWindow ? "hci" : "", 640, 480);
 
     auto video = drishti::videoio::VideoSourceCV::create(sInput);
     video->setOutputFormat(drishti::videoio::VideoSourceCV::ARGB); // be explicit, fail on error

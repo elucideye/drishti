@@ -21,7 +21,7 @@ const char* sImageFilename;
 
 // clang-format off
 #if defined(DRISHTI_HCI_DO_GPU)
-#  include "drishti/gltest/GLContext.h"
+#  include "aglet/GLContext.h"
 #endif
 // clang-format on
 
@@ -114,7 +114,7 @@ protected:
         m_settings.doBlobs = true;
 
 #if defined(DRISHTI_HCI_DO_GPU)
-        m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
+        m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
 #endif
     }
 
@@ -257,7 +257,7 @@ protected:
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;
 
 #if defined(DRISHTI_HCI_DO_GPU)
-    std::shared_ptr<drishti::gltest::GLContext> m_context;
+    std::shared_ptr<aglet::GLContext> m_context;
 #endif
 
     void* m_glContext = nullptr;

@@ -26,7 +26,7 @@
 #endif
 
 #if defined(DRISHTI_HAS_GLTEST)
-#  include "drishti/gltest/GLContext.h"
+#  include "aglet/GLContext.h"
 #  include "drishti/graphics/gain.h"
 #  include "ogles_gpgpu/common/proc/disp.h"
 #  include "ogles_gpgpu/common/proc/video.h"
@@ -257,8 +257,8 @@ int gauze_main(int argc, char* argv[])
                 cv::cvtColor(input, frame, cv::COLOR_BGR2BGRA);
                 
                 // Create a window/context:
-                const auto kType = drishti::gltest::GLContext::kAuto;
-                auto opengl = drishti::gltest::GLContext::create(kType, doPreview ? "eos" : "", input.cols, input.rows);
+                const auto kType = aglet::GLContext::kAuto;
+                auto opengl = aglet::GLContext::create(kType, doPreview ? "eos" : "", input.cols, input.rows);
                 opengl->resize(frame.cols, frame.rows);
                 (*opengl)();
                 
@@ -357,12 +357,13 @@ int gauze_main(int argc, char* argv[])
 
                 if (!sOutput.empty())
                 {
+#if defined(DRISHTI_HAS_GLTEST)                    
                     // Capture last rendered image:
                     cv::Mat rendered;
                     getImage(warper, rendered);
-
-                    cv::imwrite(sOutput + "/" + sBase + "_iso.png", iso);
                     cv::imwrite(sOutput + "/" + sBase + "_render.png", rendered);
+#endif // DRISHTI_HAS_GLTEST
+                    cv::imwrite(sOutput + "/" + sBase + "_iso.png", iso);
                 }
             }
         }

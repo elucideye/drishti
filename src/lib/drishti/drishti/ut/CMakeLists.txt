@@ -56,7 +56,7 @@ endif()
 # Note: Currently we will skip the public FACE api if GPU is unavailable
 # but we will leave conditionals in place below in anticipation of supporting
 # a CPU version of the public SDK:
-if(NOT DRISHTI_BUILD_HCI OR NOT (TARGET drishti_gltest))
+if(NOT DRISHTI_BUILD_HCI OR NOT (${DRISHTI_DO_GPU_TESTING}))
   return()
 endif()
 
@@ -74,7 +74,7 @@ target_link_libraries(${f_test_app} PUBLIC ${drishti_sdk_lib}
   )
 
 if(DRISHTI_BUILD_OGLES_GPGPU)
-  target_link_libraries(${f_test_app} PUBLIC drishti_gltest)
+  target_link_libraries(${f_test_app} PUBLIC aglet::aglet)
   target_compile_definitions(${f_test_app} PUBLIC DRISHTI_DRISHTI_DO_GPU=1)
 endif()
 

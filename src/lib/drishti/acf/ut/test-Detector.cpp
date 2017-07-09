@@ -22,7 +22,7 @@
 // clang-format off
 #if defined(DRISHTI_ACF_DO_GPU)
 #  include "drishti/acf/GPUACF.h"
-#  include "drishti/gltest/GLContext.h"
+#  include "aglet/GLContext.h"
 #endif
 // clang-format on
 
@@ -132,7 +132,7 @@ protected:
 // truth = loadImage(truthFilename);
 
 #if defined(DRISHTI_ACF_DO_GPU)
-        m_context = drishti::gltest::GLContext::create(drishti::gltest::GLContext::kAuto);
+        m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
         CV_Assert(m_context && (*m_context));
 #endif
     }
@@ -256,7 +256,7 @@ protected:
         }
     }
 
-    std::shared_ptr<drishti::gltest::GLContext> m_context;
+    std::shared_ptr<aglet::GLContext> m_context;
     std::shared_ptr<ogles_gpgpu::ACF> m_acf;
 #endif
 
