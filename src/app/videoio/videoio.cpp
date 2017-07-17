@@ -38,13 +38,13 @@ int gauze_main(int argc, char** argv)
     options.parse(argc, argv);
     if (sInput.empty() || sOutput.empty())
     {
-        logger->info() << "Must specify a valid input and output file";
+        logger->info("Must specify a valid input and output file");
     }
 
     auto video = drishti::videoio::VideoSourceCV::create(sInput);
     if (video == nullptr)
     {
-        logger->error() << "Failed to read video " << sInput;
+        logger->error("Failed to read video {}", sInput);
         return -1;
     }
 

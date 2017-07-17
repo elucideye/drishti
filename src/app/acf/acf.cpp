@@ -191,7 +191,7 @@ int gauze_main(int argc, char** argv)
     // ### Directory
     if (sOutput.empty())
     {
-        logger->error() << "Must specify output directory";
+        logger->error("Must specify output directory");
         return 1;
     }
 
@@ -202,19 +202,19 @@ int gauze_main(int argc, char** argv)
     }
     else
     {
-        logger->error() << "Specified directory " << sOutput << " does not exist or is not writeable";
+        logger->error("Specified directory {} does not exist or is not writeable", sOutput);
         return 1;
     }
 
     // ### Model
     if (sModel.empty())
     {
-        logger->error() << "Must specify model file";
+        logger->error("Must specify model file");
         return 1;
     }
     if (!drishti::cli::file::exists(sModel))
     {
-        logger->error() << "Specified model file does not exist or is not readable";
+        logger->error("Specified model file does not exist or is not readable");
         return 1;
     }
 
@@ -224,7 +224,7 @@ int gauze_main(int argc, char** argv)
 
     if (doArchiveTranslation)
     {
-        logger->info() << "Reserializing input archive";
+        logger->info("Reserializing input archive");
         AcfPtr acf = drishti::core::make_unique<drishti::acf::Detector>(sModel);
         if (acf && acf->good())
         {
@@ -245,7 +245,7 @@ int gauze_main(int argc, char** argv)
         }
         else
         {
-            logger->error() << "Failed to deserialize ACF archive: " << sModel;
+            logger->error("Failed to deserialize ACF archive: {}", sModel);
             return 1;
         }
         return 0;
@@ -255,7 +255,7 @@ int gauze_main(int argc, char** argv)
     int tally = int(!sInput.empty()) + int(!sTruth.empty());
     if (tally != 1)
     {
-        logger->error() << "Must specify exactly one input file or ground truth file (JSON) and not both!!!";
+        logger->error("Must specify exactly one input file or ground truth file (JSON) and not both!!!");
         return 1;
     }
 
@@ -378,11 +378,11 @@ int gauze_main(int argc, char** argv)
 
                 if (doScoreLog)
                 {
-                    logger->info() << "SCORE: " << filename << " = " << maxScore;
+                    logger->info("SCORE: {} = {}", filename, maxScore);
                 }
                 else
                 {
-                    logger->info() << ++total << "/" << video->count() << " " << frame.name << " = " << objects.size() << "; score = " << maxScore;
+                    logger->info("{}/{} {} = {}; score = {}", ++total, video->count(), frame.name, objects.size(), maxScore);
                 }
 
                 if (doNegatives)
@@ -405,7 +405,7 @@ int gauze_main(int argc, char** argv)
                 // Save detection results in JSON:
                 if (!writeAsJson(filename + ".json", objects))
                 {
-                    logger->error() << "Failed to write: " << filename << ".json";
+                    logger->error("Failed to write: {}.json", filename);
                 }
 
                 if (doAnnotation || doWindow)

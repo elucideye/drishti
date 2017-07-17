@@ -27,6 +27,8 @@
 #include <opencv2/imgproc.hpp> // warpPerspective
 #include <opencv2/highgui.hpp> // cv::imwrite
 
+#include <spdlog/fmt/ostr.h>
+
 #include <cereal/archives/json.hpp>
 
 // System includes:
@@ -220,7 +222,7 @@ int gauze_main(int argc, char** argv)
     // Be pedantic about input orientation to ensure correct results:
     if((options["right"].count() + options["left"].count()) != 1)
     {
-        logger->error() << "Must specify -right or -left but not both!";
+        logger->error("Must specify -right or -left but not both!");
         return 1;
     }
     
@@ -229,14 +231,14 @@ int gauze_main(int argc, char** argv)
     // ### Output options:
     if(!(doJson || doAnnotation))
     {
-        logger->error() << "Must specify one of: --json or --annotate";
+        logger->error("Must specify one of: --json or --annotate");
         return 1;
     }
     
     // ### Directory
     if(sOutput.empty())
     {
-        logger->error() << "Must specify output directory";
+        logger->error("Must specify output directory");
         return 1;
     }
     
@@ -247,31 +249,31 @@ int gauze_main(int argc, char** argv)
     }
     else
     {
-        logger->error() << "Specified directory " << sOutput << " does not exist or is not writeable";
+        logger->error("Specified directory {} does not exist or is not writeable", sOutput);
         return 1;
     }
     
     // ### Model
     if(sModel.empty())
     {
-        logger->error() << "Must specify model file";
+        logger->error("Must specify model file");
         return 1;
     }
     if(!drishti::cli::file::exists(sModel))
     {
-        logger->error() << "Specified model file does not exist or is not readable";
+        logger->error("Specified model file does not exist or is not readable");
         return 1;
     }
     
     // ### Input
     if(sInput.empty())
     {
-        logger->error() << "Must specify input image or list of images";
+        logger->error("Must specify input image or list of images");
         return 1;
     }
     if(!drishti::cli::file::exists(sInput))
     {
-        logger->error() << "Specified input file does not exist or is not readable";
+        logger->error("Specified input file does not exist or is not readable");
         return 1;
     }
     
@@ -296,7 +298,7 @@ int gauze_main(int argc, char** argv)
     
     if(hasPrewarp)
     {
-        logger->info() << "prewarp: " << prewarp;
+        logger->info("prewarp: {}", prewarp);
     }
 
     const auto filenames = drishti::cli::expand(sInput);
@@ -331,7 +333,7 @@ int gauze_main(int argc, char** argv)
                 std::string base = drishti::core::basename(filenames[i]);
                 std::string filename = sOutput + "/" + base;
                 
-                logger->info() << ++total << "/" << filenames.size() << " " << filename;
+                logger->info("{}/{} {}", ++total, filenames.size(), filename);
 
                 // Write the annotated image
                 if(doAnnotation)
@@ -353,7 +355,7 @@ int gauze_main(int argc, char** argv)
                 {
                     if(!drishti::eye::writeAsJson(filename + ".json", eye))
                     {
-                        logger->error() << "Failed to write: " << filename << ".json";
+                        logger->error("Failed to write: {}.json", filename);
                     }
                 }
             }

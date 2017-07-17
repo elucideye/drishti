@@ -203,7 +203,7 @@ int gauze_main(int argc, char** argv)
     // ### Directory
     if (sOutput.empty())
     {
-        logger->error() << "Must specify output directory";
+        logger->error("Must specify output directory");
         return 1;
     }
 
@@ -214,19 +214,19 @@ int gauze_main(int argc, char** argv)
     }
     else
     {
-        logger->error() << "Specified directory " << sOutput << " does not exist or is not writeable";
+        logger->error("Specified directory {} does not exist or is not writeable", sOutput);
         return 1;
     }
 
     // ### Input
     if (sInput.empty())
     {
-        logger->error() << "Must specify input image or list of images";
+        logger->error("Must specify input image or list of images");
         return 1;
     }
     if (!drishti::cli::file::exists(sInput))
     {
-        logger->error() << "Specified input file does not exist or is not readable";
+        logger->error("Specified input file does not exist or is not readable");
         return 1;
     }
 
@@ -324,12 +324,12 @@ int gauze_main(int argc, char** argv)
                 std::string base = drishti::core::basename(frame.name);
                 std::string filename = sOutput + "/" + base;
 
-                logger->info() << ++total << "/" << video->count() << " " << filename << " = " << faces.size();
+                logger->info("{}/{} {} = {}", ++total, video->count(), filename, faces.size());
 
                 // Save detection results in JSON:
                 if (!writeAsJson(filename + ".json", faces))
                 {
-                    logger->error() << "Failed to write: " << filename << ".json";
+                    logger->error("Failed to write: {}.json", filename);
                 }
 
 #if defined(DRISHTI_USE_IMSHOW)
@@ -418,12 +418,12 @@ checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& desc
 {
     if (sModel.empty())
     {
-        logger->error() << "Must specify valid model " << sModel;
+        logger->error("Must specify valid model {}", sModel);
         return 1;
     }
     if (!drishti::cli::file::exists(sModel))
     {
-        logger->error() << "Specified model file does not exist or is not readable";
+        logger->error("Specified model file does not exist or is not readable");
         return 1;
     }
     return 0;

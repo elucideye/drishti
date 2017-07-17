@@ -22,6 +22,8 @@
 #include <functional>
 #include <deque>
 
+#include <spdlog/fmt/ostr.h>
+
 // clang-format off
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
@@ -302,7 +304,7 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
 
 void FaceFinder::initPainter(const cv::Size& /* inputSizeUp */)
 {
-    impl->logger->info() << "Init painter";
+    impl->logger->info("Init painter");
 }
 
 void FaceFinder::init(const cv::Size& inputSize)
@@ -383,7 +385,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
     core::ScopeTimeLogger faceFinderTimeLogger = [this, methodName](double elapsed) {
         if (impl->logger)
         {
-            impl->logger->info() << "TIMING:" << methodName << " : " << impl->timerInfo << " full=" << elapsed;
+            impl->logger->info("TIMING:{} : {} full={}", methodName, impl->timerInfo, elapsed);
         }
     };
 
@@ -418,7 +420,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
             {
                 // Retrieve the previous frame (latency == 1)
                 // from our N frame FIFO.
-                core::ScopeTimeLogger paintTimeLogger = [this](double t) { impl->logger->info() << "WAITING: " << t; };
+                core::ScopeTimeLogger paintTimeLogger = [this](double t) { impl->logger->info("WAITING: {}", t); };
                 scene0 = impl->scene.get();                     // scene n-1
                 texture0 = (*impl->fifo)[-1]->getOutputTexId(); // texture n-1
             }
@@ -711,7 +713,7 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
 {
     const auto tag = DRISHTI_LOCATION_SIMPLE;
     std::stringstream ss;
-    core::ScopeTimeLogger scopeTimeLogger = [&](double t) { impl->logger->info() << "TIMING:" << tag << ss.str() << "total=" << t; };
+    core::ScopeTimeLogger scopeTimeLogger = [&](double t) { impl->logger->info("TIMING:{}{}total={}", tag, ss.str(), t); };
 
     if (impl->doCpuACF)
     {
@@ -781,7 +783,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
     //impl->logger->set_level(spdlog::level::off);
     
     core::ScopeTimeLogger scopeTimeLogger = [this](double t) {
-        impl->logger->info() << "FULL_CPU_PATH: " << t;
+        impl->logger->info("FULL_CPU_PATH: {}", t);
     };
 
     //impl->logger->info() << "FaceFinder::detect() " << sBar;
@@ -832,7 +834,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             impl->faceDetector->setIrisStagesRepetitionFactor(1);
             impl->faceDetector->refine(Ib, faces, Hdr, isDetection);
 
-            impl->logger->info() << "Face image " << Ib.Ib.rows << " x " << Ib.Ib.cols;
+            impl->logger->info("Face image {} x {}", Ib.Ib.rows, Ib.Ib.cols);
 
             //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
 
@@ -867,7 +869,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
 
 void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
 {
-    core::ScopeTimeLogger updateEyesLoge = [this](double t) { impl->logger->info() << "FaceFinder::updateEyes=" << t; };
+    core::ScopeTimeLogger updateEyesLoge = [this](double t) { impl->logger->info("FaceFinder::updateEyes={}", t); };
 
     if (scene.faces().size())
     {
@@ -981,7 +983,7 @@ void FaceFinder::computeGazePoints()
     if (total > 0.f)
     {
         mu *= (1.0 / total);
-        impl->logger->info() << "GAZE: " << mu;
+        impl->logger->info("GAZE: {:f}", mu);
     }
 }
 
@@ -1011,8 +1013,8 @@ void FaceFinder::initTimeLoggers()
 
 void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 {
-    impl->logger->info() << "FaceFinder::init2() " << sBar;
-    impl->logger->info() << resources;
+    impl->logger->info("FaceFinder::init2() {}", sBar);
+    impl->logger->info("{}", resources);
 
     initTimeLoggers();
 
