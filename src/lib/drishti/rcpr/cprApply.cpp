@@ -218,7 +218,7 @@ std::ostream& operator<<(std::ostream& os, const cv::RotatedRect& e)
 int CPR::cprApplyTree(const cv::Mat& I, const RegModel& regModel, const Vector1d& pIn, CPRResult& result, bool doPreview) const
 {
     cv::Mat1b mask = cv::Mat1b::ones(I.size());
-    return cprApplyTree({ I, mask }, regModel, pIn, result, doPreview);
+    return cprApplyTree(ImageMaskPair(I, mask), regModel, pIn, result, doPreview);
 }
 
 #define STAGE_REPETITION_FACTOR 1
