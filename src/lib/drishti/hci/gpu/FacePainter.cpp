@@ -397,7 +397,7 @@ void FacePainter::FacePainter::setUniforms()
 int FacePainter::FacePainter::render(int position)
 {
     const std::string tag = DRISHTI_LOCATION_SIMPLE;
-    drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
+    drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info("TIMING:{}={}", tag, ts); };
 
     OG_LOGINF(getProcName(), "input tex %d, target %d, framebuffer of size %dx%d", texId, texTarget, outFrameW, outFrameH);
 

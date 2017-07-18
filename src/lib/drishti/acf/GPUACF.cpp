@@ -785,7 +785,7 @@ cv::Mat ACF::getChannelsImpl()
     {
         if (impl->m_logger)
         {
-            impl->m_logger->info() << "TIMING:" << tag << ":" << ss.str() << ";total=" << elapsed;
+            impl->m_logger->info("TIMING:{}:{};total={}", tag, ss.str(), elapsed);
         }
     }; // clang-format on
 

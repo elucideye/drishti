@@ -220,7 +220,7 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
 
     MethodLog timeSummary(DRISHTI_LOCATION_SIMPLE);
     core::ScopeTimeLogger paintLogger = [&](double ts) {
-        impl->logger->info() << "TIMING:" << timeSummary.name << "=" << ts << ";" << timeSummary.ss.str();
+        impl->logger->info("TIMING:{}={};{}", timeSummary.name, ts, timeSummary.ss.str());
     };
 
     m_painter->setBrightness(impl->brightness);

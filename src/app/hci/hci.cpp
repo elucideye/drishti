@@ -24,6 +24,8 @@
 #include "cxxopts.hpp"
 #include "ogles_gpgpu/common/proc/disp.h"
 
+#include <spdlog/fmt/ostr.h>
+
 // clang-format off
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
@@ -109,7 +111,7 @@ int gauze_main(int argc, char** argv)
     // ### Directory
     if (sOutput.empty())
     {
-        logger->error() << "Must specify output directory";
+        logger->error("Must specify output directory");
         return 1;
     }
 
@@ -120,19 +122,19 @@ int gauze_main(int argc, char** argv)
     }
     else
     {
-        logger->error() << "Specified directory " << sOutput << " does not exist or is not writeable";
+        logger->error("Specified directory {} does not exist or is not writeable", sOutput);
         return 1;
     }
 
     // ### Input
     if (sInput.empty())
     {
-        logger->error() << "Must specify input image or list of images";
+        logger->error("Must specify input image or list of images");
         return 1;
     }
     if (!sInput.find(".test") && !drishti::cli::file::exists(sInput))
     {
-        logger->error() << "Specified input file does not exist or is not readable";
+        logger->error("Specified input file does not exist or is not readable");
         return 1;
     }
 
@@ -167,7 +169,7 @@ int gauze_main(int argc, char** argv)
     auto frame = (*video)(counter);
     if (frame.image.empty())
     {
-        logger->info() << "No frames available in video";
+        logger->info("No frames available in video");
         return -1;
     }
 
@@ -242,7 +244,7 @@ int gauze_main(int argc, char** argv)
             return false;
         }
 
-        logger->info() << cv::mean(frame.image);
+        logger->info("{}", cv::mean(frame.image));
 
         // Perform texture swizzling:
         source({ { frame.cols(), frame.rows() }, void_ptr(frame.image), true, 0, TEXTURE_FORMAT });
@@ -312,12 +314,12 @@ checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& desc
 {
     if (sModel.empty())
     {
-        logger->error() << "Must specify valid model " << sModel;
+        logger->error("Must specify valid model {}", sModel);
         return 1;
     }
     if (!drishti::cli::file::exists(sModel))
     {
-        logger->error() << "Specified file " << sModel << " does not exist or is not readable";
+        logger->error("Specified file {} does not exist or is not readable", sModel);
         return 1;
     }
     return 0;

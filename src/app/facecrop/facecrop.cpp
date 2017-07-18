@@ -260,7 +260,7 @@ int gauze_main(int argc, char* argv[])
     // ### Directory
     if(sPositives.empty() && sNegatives.empty())
     {
-        logger->error() << "Must specify output directory (positives or negatives)";
+        logger->error("Must specify output directory (positives or negatives)");
         return 1;
     }
     
@@ -274,7 +274,7 @@ int gauze_main(int argc, char* argv[])
         }
         else
         {
-            logger->error() << "Specified directory " << sPositives << " does not exist or is not writeable";
+            logger->error("Specified directory {} does not exist or is not writeable", sPositives);
             return 1;
         }
     }
@@ -289,7 +289,7 @@ int gauze_main(int argc, char* argv[])
         }
         else
         {
-            logger->error() << "Specified directory " << sNegatives << " does not exist or is not writeable";
+            logger->error("Specified directory {} does not exist or is not writeable", sNegatives);
             return 1;
         }
     }
@@ -297,12 +297,12 @@ int gauze_main(int argc, char* argv[])
     // ### Input
     if(sInput.empty())
     {
-        logger->error() << "Must specify input image or list of images";
+        logger->error("Must specify input image or list of images");
         return 1;
     }
     if(!drishti::cli::file::exists(sInput))
     {
-        logger->error() << "Specified input file does not exist or is not readable";
+        logger->error("Specified input file does not exist or is not readable");
         return 1;
     }
     
@@ -314,7 +314,7 @@ int gauze_main(int argc, char* argv[])
     
     if(table.lines.empty())
     {
-        logger->error() << "Error: no images were found, please check input file and (optionally) base directory";
+        logger->error("Error: no images were found, please check input file and (optionally) base directory");
         return -1;
     }
     else
@@ -322,7 +322,7 @@ int gauze_main(int argc, char* argv[])
         // Try simple image read sanity test for user feedback:
         if(cv::imread(table.lines.front().filename).empty())
         {
-            logger->error() << "Error: unable to read input image, please check input file and (optionally) base directory";
+            logger->error("Error: unable to read input image, please check input file and (optionally) base directory");
             return -1;
         }
     }
@@ -373,7 +373,7 @@ int gauze_main(int argc, char* argv[])
         }
         else
         {
-            logger->error() << "Error: unable to read input jitter parameters";
+            logger->error("Error: unable to read input jitter parameters");
             return -1;
         }
     }
@@ -384,7 +384,7 @@ int gauze_main(int argc, char* argv[])
     FaceSpecification faceSpec;
     if(sFaceSpec.empty())
     {
-        logger->error() << "Error: must provide valid face specification";
+        logger->error("Error: must provide valid face specification");
         return -1;
     }
     else
@@ -398,7 +398,7 @@ int gauze_main(int argc, char* argv[])
         }
         else
         {
-            logger->error() << "Error: unable to read face specification file: " << sFaceSpec;
+            logger->error("Error: unable to read face specification file: {}", sFaceSpec);
             return -1;
         }
     }
@@ -438,7 +438,7 @@ int gauze_main(int argc, char* argv[])
 
     FaceResourceManager manager = [&]()
     {
-        logger->info() << "Create resource...";
+        logger->info("Create resource...");
         return drishti::core::make_unique<FaceJittererMean>(table, jitterParams, faceSpec);
     };
 
@@ -454,7 +454,7 @@ int gauze_main(int argc, char* argv[])
         assert(jitterer.get());
         
         // Load current image
-        logger->info() << table.lines[i].filename << " = " << repeat[i];
+        logger->info("{} = {}", table.lines[i].filename, repeat[i]);
         
         if(repeat[i] > 0)
         {
@@ -748,7 +748,7 @@ static int saveLandmarksJson(const std::string &sOutput, const std::array<cv::Po
     }
     else
     {
-        logger.error() << "Error: unable to write mean landmarks";
+        logger.error("Error: unable to write mean landmarks");
         return -1;
     }
     return 0;
@@ -766,7 +766,7 @@ static int saveLandmarksXml(const std::string &sOutput, const drishti::face::Fac
     }
     else
     {
-        logger.error() << "Error: unable to write mean landmarks";
+        logger.error("Error: unable to write mean landmarks");
         return -1;
     }
     return 0;
@@ -814,7 +814,7 @@ static int saveDefaultJitter(const std::string &sOutput, spdlog::logger &logger)
     }
     else
     {
-        logger.error() << "Error: unable to write default jitter parameters";
+        logger.error("Error: unable to write default jitter parameters");
         return -1;
     }
     return 0;
@@ -832,7 +832,7 @@ static int saveDefaultFaceSpec(const std::string &sOutput, spdlog::logger &logge
     }
     else
     {
-        logger.error() << "Error: unable to write default face specification parameters";
+        logger.error("Error: unable to write default face specification parameters");
         return -1;
     }
     return 0;
@@ -961,7 +961,7 @@ static int saveNegatives(const FACE::Table &table, const std::string &sOutput, i
                 const int x = rng.uniform(0, negative.cols-width);
                 const int y = rng.uniform(0, negative.rows-width);
                 
-                logger.info() << "roi:" << x << "," << y << "," << width << "," << width << "(" << winSize << ")";
+                logger.info("roi:{},{},{},{}({})", x, y, width, width, winSize);
                 cv::Mat crop = negative(cv::Rect(x, y, width, width));
                 
                 cv::resize(crop, crop, {winSize, winSize}, 0, 0, cv::INTER_AREA);
@@ -1006,7 +1006,7 @@ static int saveInpaintedSamples(const FACE::Table &table, const std::string sBac
         cv::Mat image = cv::imread(r.filename, cv::IMREAD_COLOR);
         if(!image.empty())
         {
-            logger.info() << "faceless:" << r.filename;
+            logger.info("faceless:{}", r.filename);
             
             cv::Mat blended;
             auto iter = landmarks.find(r.filename);
