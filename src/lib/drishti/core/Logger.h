@@ -47,7 +47,7 @@ protected:
 {                                                                \
     if(ptr)                                                      \
     {                                                            \
-        ptr->info() << __PRETTY_FUNCTION__ << "::" << __func__;  \
+        ptr->info("{} :: {}", __PRETTY_FUNCTION__, __func__);    \
     }                                                            \
 } while (0)
 // clang-format on
@@ -62,7 +62,7 @@ protected:
    {                                                         \
        if(drishti::core::Logger::count() < 999999)           \
        {                                                     \
-           ptr->info() << FILE_ID << ":" << CHECKPOINT;      \
+           ptr->info("{} : {}", FILE_ID, CHECKPOINT);        \
        }                                                     \
    }                                                         \
 } while (0)

@@ -115,23 +115,23 @@ cv::Size QMLCameraManagerApple::configureCamera()
     auto pExposure = m_camera->exposure();
     if (pExposure)
     {
-        m_logger->info() << "Exposure avaialble: " << int(pExposure->isAvailable());
+        m_logger->info("Exposure avaialble: {}", int(pExposure->isAvailable()));
     }
 
-    m_logger->info() << "# of settings: " << viewfinderSettings.size();
+    m_logger->info("# of settings: {}", viewfinderSettings.size());
 
-    m_logger->warn() << "Limiting video resolution to <= 2048";
+    m_logger->warn("Limiting video resolution to <= 2048");
 
     std::pair<int, QCameraViewfinderSettings> best;
     for (auto i : viewfinderSettings)
     {
-        m_logger->info() << "settings: " << i.resolution().width() << "x" << i.resolution().height() << " : " << int(i.pixelFormat());
+        m_logger->info("settings: {} x {} : {}", i.resolution().width(), i.resolution().height(), int(i.pixelFormat()));
         if (std::find(desiredFormats.begin(), desiredFormats.end(), i.pixelFormat()) != desiredFormats.end())
         {
             int area = (i.resolution().height() * i.resolution().width());
             if ((area > best.first) && (i.resolution().width() <= 2048))
             {
-                m_logger->info() << "Best camera resolution" << best.first;
+                m_logger->info("Best camera resolution {}", best.first);
                 best = { area, i };
             }
         }
@@ -178,10 +178,10 @@ cv::Size QMLCameraManagerAndroid::configureCamera()
             {
                 best = { i, area };
             }
-            m_logger->info() << "video: " << i.width() << " " << i.height();
+            m_logger->info("video: {} {}", i.width(), i.height());
         }
 
-        m_logger->info() << "best: " << best.first.width() << " " << best.first.height();
+        m_logger->info("best: {} {}", best.first.width(), best.first.height());
 
         bestSize = { best.first.width(), best.first.height() };
 

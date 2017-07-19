@@ -170,7 +170,7 @@ int gauze_main(int argc, char** argv)
 
     if ((argumentCount <= 1) || options.count("help"))
     {
-        logger->info() << options.help({ "" });
+        logger->info(options.help({ "" }));
         return 0;
     }
 

@@ -45,12 +45,12 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
     : m_settings(settings)
 {
     m_logger = drishti::core::Logger::create("drishti");
-    m_logger->info() << "FaceFinder #################################################################";
+    m_logger->info("FaceFinder #################################################################");
 
     const auto& device = (*settings)[name];
     if (device.empty())
     {
-        m_logger->error() << "Failure to parse settings for device:" << name;
+        m_logger->error("Failure to parse settings for device: {}", name);
         return;
     }
 
@@ -121,7 +121,7 @@ auto FrameHandlerManager::createAsynchronousImageLogger() -> FrameHandler
         if (m_imageLogger)
         {
             m_threads->post([&]() {
-                m_logger->info() << "Logging: " << m_imageLogger->host() << ":" << m_imageLogger->port();
+                m_logger->info("Logging: {} : {}", m_imageLogger->host(), m_imageLogger->port());
                 (*m_imageLogger)(image);
             });
         }

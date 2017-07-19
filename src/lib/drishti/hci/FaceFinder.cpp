@@ -309,7 +309,6 @@ void FaceFinder::initPainter(const cv::Size& /* inputSizeUp */)
 
 void FaceFinder::init(const cv::Size& inputSize)
 {
-    //impl->logger->info() << "FaceFinder::init()";
     //impl->logger->set_level(spdlog::level::err);
 
     impl->start = HighResolutionClock::now();
@@ -786,7 +785,6 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
         impl->logger->info("FULL_CPU_PATH: {}", t);
     };
 
-    //impl->logger->info() << "FaceFinder::detect() " << sBar;
     //assert(scene.objects().size() == 0); /* can be precomputed now */
 
     if (impl->detector && (!doDetection || scene.m_P))

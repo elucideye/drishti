@@ -215,7 +215,7 @@ static void addCross(DrawingSpec& lines, const cv::Point2f& point, const cv::Vec
 void FacePainter::renderDrawings()
 {
     //const std::string tag = DRISHTI_LOCATION_SIMPLE;
-    //drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
+    //drishti::core::ScopeTimeLogger renderLogger = [&](double ts) { m_logger->info("TIMING: {} = {}", tag, ts) };
 
     DrawingSpec lines(GL_LINES);
 
@@ -528,7 +528,7 @@ drawFlow(const FacePainter::FlowField& flow, const cv::Vec3f& color, DrawingSpec
 void FacePainter::annotateEye(const drishti::eye::EyeWarp& eyeWarp, const cv::Size& size, const EyeAttributes& attributes)
 {
     //const std::string tag = DRISHTI_LOCATION_SIMPLE;
-    //drishti::core::ScopeTimeLogger paintLogger = [&](double ts) { m_logger->info() << "TIMING:" << tag << "=" << ts; };
+    //drishti::core::ScopeTimeLogger paintLogger = [&](double ts) { m_logger->info("TIMING: {} = {}", tag, ts); }
 
     auto contours = eyeWarp.getContours(false); //!m_eyePoints.size());
 

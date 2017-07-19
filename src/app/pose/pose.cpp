@@ -224,7 +224,7 @@ int gauze_main(int argc, char* argv[])
             }
             else
             {
-                logger->info() << "No faces found";
+                logger->info("No faces found");
                 return 0;
             }
         }
@@ -246,7 +246,7 @@ int gauze_main(int argc, char* argv[])
             cv::Mat iso = drishti::face::extractTexture(result, input);
             cv::Point3f Reuler = drishti::face::getRotation(result.rendering_params);
             
-            logger->info() << "rotation: " << Reuler;
+            logger->info("rotation: {}", Reuler);
             
             // (((( Draw mesh for visualization ))))
             if (doPreview || !sOutput.empty())
@@ -321,7 +321,7 @@ int gauze_main(int argc, char* argv[])
                         R.x = std::max(std::min(R.x + delta.y * sensitivity, +yRange), -yRange);
                         std::swap(cursor[1], cursor[0]);
                         
-                        logger->info() << "X = " << x << " Y = " << y;
+                        logger->info("X = {} Y = {}", x, y);
                     };
                     opengl->setCursorCallback(cursorCallback);
                 }

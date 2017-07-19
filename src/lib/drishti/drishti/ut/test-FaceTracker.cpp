@@ -199,14 +199,14 @@ protected:
         }
         else
         {
-            m_logger->error() << "Unable to instantiate face tracker";
+            m_logger->error("Unable to instantiate face tracker");
             return nullptr;
         }
     }
 
     int callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
     {
-        m_logger->info() << "callback: Received results";
+        m_logger->info("callback: Received results");
 
         int count = 0;
         for (const auto& r : results)
@@ -221,13 +221,13 @@ protected:
 
     int trigger(const drishti::sdk::Vec3f& point, double timestamp)
     {
-        m_logger->info() << "trigger: Received results: " << point[0] << "," << point[1] << "," << point[2] << " " << timestamp;
+        m_logger->info("trigger: Received results: {}, {}, {} {}", point[0], point[1], point[2], timestamp);
         return 1; // force trigger
     }
 
     int allocator(const drishti_image_t& spec, drishti::sdk::Image4b& image)
     {
-        m_logger->info() << "allocator: " << spec.width << " " << spec.height;
+        m_logger->info("allocator: {} {}", spec.width, spec.height);
         return 0;
     }
 

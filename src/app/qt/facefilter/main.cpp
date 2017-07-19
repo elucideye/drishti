@@ -77,7 +77,7 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
 #endif
 
     // ###### Instantiate logger ########
-    logger->info() << "Start";
+    logger->info("Start");
 
     printResources();
 
@@ -112,7 +112,7 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
     format.setStencilBufferSize(8);
     view.setFormat(format);
 
-    logger->info() << "OpenGL Versions Supported: " << QGLFormat::openGLVersionFlags();
+    logger->info("OpenGL Versions Supported: {}", QGLFormat::openGLVersionFlags());
 #endif
 
     // Default camera on iOS is not setting good parameters by default
@@ -125,14 +125,14 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
     (void)qmlCameraManager->configure();
 
     // ### Display the device/camera name:
-    logger->info() << "device: " << qmlCameraManager->getDeviceName();
-    logger->info() << "description: " << qmlCameraManager->getDescription();
-    logger->info() << "resolution: " << qmlCameraManager->getSize();
+    logger->info("device: {}", qmlCameraManager->getDeviceName());
+    logger->info("description: {}", qmlCameraManager->getDescription());
+    logger->info("resolution: {} {}", qmlCameraManager->getSize().width, qmlCameraManager->getSize().height);
 
     auto frameHandlers = FrameHandlerManager::get(&json, qmlCameraManager->getDeviceName(), qmlCameraManager->getDescription());
     if (!frameHandlers || !frameHandlers->good())
     {
-        logger->error() << "Failed to instantiate FrameHandlerManager";
+        logger->error("Failed to instantiate FrameHandlerManager");
         return EXIT_FAILURE;
     }
 
@@ -170,12 +170,12 @@ extern "C" FACEFILTER_QT_EXPORT int main(int argc, char** argv)
     }
     catch (std::exception& exc)
     {
-        logger->error() << "Exception catched: " << exc.what();
+        logger->error("Exception caught: {}", exc.what());
         return EXIT_FAILURE;
     }
     catch (...)
     {
-        logger->error() << "Unknown exception catched";
+        logger->error("Unknown exception caught");
         return EXIT_FAILURE;
     }
     return 0;
@@ -200,7 +200,7 @@ static nlohmann::json loadJSON(spdlog::logger& logger)
         QFile inputFile(inputFilename);
         if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            logger.error() << "Can't open file";
+            logger.error("Can't open file");
             return EXIT_FAILURE;
         }
 
