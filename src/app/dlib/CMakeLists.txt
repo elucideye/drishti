@@ -10,7 +10,10 @@ find_package(RapidXML REQUIRED CONFIG)
 ##############
 
 add_executable(drishti-eyexml eyexml.cpp)
-target_link_libraries(drishti-eyexml drishtisdk cxxopts::cxxopts RapidXML::RapidXML)
+target_link_libraries(drishti-eyexml drishtisdk cxxopts::cxxopts RapidXML::RapidXML
+  Boost::system
+  Boost::filesystem    
+  )
 set_property(TARGET drishti-eyexml PROPERTY FOLDER "app/console")
 install(TARGETS drishti-eyexml DESTINATION bin)
 
@@ -41,11 +44,11 @@ if(JPEG_FOUND AND PNG_FOUND)
   #############################
 
   if(NOT DRISHTI_BUILD_MIN_SIZE)
-    add_executable(train_shape_predictor train_shape_predictor.cpp "${dlib_source_cpp}")
-    target_link_libraries(train_shape_predictor drishtisdk cxxopts::cxxopts PNG::png)
-    target_compile_definitions(train_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
-    set_property(TARGET train_shape_predictor PROPERTY FOLDER "app/console")
-    install(TARGETS train_shape_predictor DESTINATION bin)
+    add_executable(drishti_train_shape_predictor train_shape_predictor.cpp "${dlib_source_cpp}")
+    target_link_libraries(drishti_train_shape_predictor drishtisdk cxxopts::cxxopts PNG::png)
+    target_compile_definitions(drishti_train_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
+    set_property(TARGET drishti_train_shape_predictor PROPERTY FOLDER "app/console")
+    install(TARGETS drishti_train_shape_predictor DESTINATION bin)
     
     if(DRISHTI_BUILD_TESTS AND NOT (IOS OR ANDROID))
       set(eye_src_model_private "${DRISHTI_FACES_EYE_MODEL_PRIVATE}")
@@ -55,7 +58,7 @@ if(JPEG_FOUND AND PNG_FOUND)
       set(eye_src_image "${CMAKE_CURRENT_BINARY_DIR}/2318-eye.png")
       set(eye_src_train_xml "${CMAKE_CURRENT_BINARY_DIR}/eye_train.xml")
 
-      set(eye_out_model "${CMAKE_CURRENT_BINARY_DIR}/eye.pba.z")
+      set(eye_out_model "${CMAKE_CURRENT_BINARY_DIR}/eye.cpb")
 
       # Rename + copy image + model file side-by-side to meet eyexml requirements:
       #
@@ -83,7 +86,7 @@ if(JPEG_FOUND AND PNG_FOUND)
         NAME
         "eye_model_train"
         COMMAND
-        "train_shape_predictor"
+        "drishti_train_shape_predictor"
         "--depth=2"
         "--cascades=3"
         "--dimensions=2,4,6"

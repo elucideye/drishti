@@ -30,11 +30,14 @@ typedef unsigned char boolean;
 #include <dlib/serialize.h>
 #include <dlib/data_io/load_image_dataset.h>
 
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/string_utils.h"
 #include "drishti/core/Line.h"
 #include "drishti/ml/shape_predictor.h"
 #include "drishti/geometry/Ellipse.h"
+
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cv_cereal.h"
 
 #include "cxxopts.hpp"
 
@@ -137,36 +140,36 @@ int gauze_main(int argc, char* argv[])
 
     if((argumentCount <= 1) || options.count("help"))
     {
-        logger->info() << options.help({""});
+        logger->info(options.help({""}));
         return 0;
     }
     
     if(sTrain.empty())
     {
-        logger->error() << "Must specify valid XML training file.";
+        logger->error("Must specify valid XML training file.");
         return 1;
     }
 
     if(sModel.empty())
     {
-        logger->error() << "Must specify output *.dat model file.";
+        logger->error("Must specify output *.dat model file.");
         return 1;
     }
 
     if(do_verbose)
     {
-        logger->info() << "cascade_depth: " << cascades;
-        logger->info() << "tree_depth: " << depth;
-        logger->info() << "num_trees_per_cascade_level: " << trees_per_level;
-        logger->info() << "nu: " << nu;
-        logger->info() << "oversampling_amount: " << oversampling;
-        logger->info() << "feature_pool_size: " << features;
-        logger->info() << "lambda; " << lambda;
-        logger->info() << "num_test_splits: " << splits;
-        logger->info() << "feature_pool_region_padding: " << padding;
-        logger->info() << "use npd: " << npd;
-        logger->info() << "affine:" << do_affine;
-        logger->info() << "interpolated: " << do_interpolate;
+        logger->info("cascade_depth: {}", cascades);
+        logger->info("tree_depth: {}", depth);
+        logger->info("num_trees_per_cascade_level: {}", trees_per_level);
+        logger->info("nu: {}", nu);
+        logger->info("oversampling_amount: {}", oversampling);
+        logger->info("feature_pool_size: {}", features);
+        logger->info("lambda: {}", lambda);
+        logger->info("num_test_splits: {}", splits);
+        logger->info("feature_pool_region_padding: {}", padding);
+        logger->info("use npd: {}", npd);
+        logger->info("affine: {}", do_affine);
+        logger->info("interpolated: {}", do_interpolate);
     }
 
     std::vector<int> dimensions = parse_dimensions(sDimensions);
@@ -221,7 +224,7 @@ int gauze_main(int argc, char* argv[])
 
     if(do_verbose)
     {
-        logger->info() << "Begin training...";
+        logger->info("Begin training...");
     }
 
     //_SP::shape_predictor sp;
@@ -229,7 +232,7 @@ int gauze_main(int argc, char* argv[])
 
     if(do_verbose)
     {
-        logger->info() << "Done training...";
+        logger->info("Done training...");
     }
 
     // Finally, we save the model to disk so we can use it later.
@@ -237,15 +240,15 @@ int gauze_main(int argc, char* argv[])
 
     if(do_verbose)
     {
-        logger->info() << "Saving to ..." << sModel;
+        logger->info("Saving to ...{}", sModel);
     }
     
-    save_pba_z(sModel, sp);
+    save_cpb(sModel, sp);
     sp.populate_f16(); // populate half precision leaf nodes
 
     if(do_verbose)
     {
-        logger->info() << "Done saving ..." << sModel;
+        logger->info("Done saving ...{}", sModel);
     }
 
     auto train_iod = get_interocular_distances(faces_train);
@@ -253,7 +256,7 @@ int gauze_main(int argc, char* argv[])
     
     if(do_verbose)
     {
-        logger->info() << "Mean training error: " << training_error;
+        logger->info("Mean training error: {}", training_error);
     }
 
     if(!sTest.empty())
@@ -265,7 +268,7 @@ int gauze_main(int argc, char* argv[])
         
         if(do_verbose)
         {
-            logger->info() << "Mean testing error:  " << test_error;
+            logger->info("Mean testing error: {}", test_error);
         }
     }
 

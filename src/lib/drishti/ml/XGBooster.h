@@ -64,9 +64,4 @@ protected:
 
 DRISHTI_ML_NAMESPACE_END
 
-#if DRISHTI_SERIALIZE_WITH_BOOST
-BOOST_CLASS_EXPORT_KEY(drishti::ml::XGBooster);
-BOOST_CLASS_EXPORT_KEY(drishti::ml::XGBooster::Impl);
-#endif
-
 #endif // __drishti_ml_XGBooster_h__

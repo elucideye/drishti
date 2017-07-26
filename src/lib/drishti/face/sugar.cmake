@@ -23,15 +23,8 @@ sugar_files(DRISHTI_FACE_SRCS
   FaceMesh.cpp
   FaceModelEstimator.cpp
   face_util.cpp
+  FaceArchiveCereal.cpp  
   )
-
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  sugar_files(DRISHTI_FACE_SRCS FaceArchiveBoost.cpp)
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CEREAL OR DRISHTI_SERIALIZE_MODELS_WITH_CEREAL)
-  sugar_files(DRISHTI_FACE_SRCS FaceArchiveCereal.cpp)
-endif()
 
 sugar_files(DRISHTI_FACE_HDRS_PUBLIC
   drishti_face.h

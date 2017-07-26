@@ -28,8 +28,8 @@
 #include "drishti/core/Line.h"
 #include "drishti/core/string_utils.h"
 #include "drishti/core/drishti_string_hash.h"
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/drishti_cv_cereal.h"
+#include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_serialize.h"
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/geometry/Primitives.h"
@@ -59,7 +59,6 @@
 #include <boost/spirit/repository/include/qi_seek.hpp>
 
 #define DO_SANITY_CHECK 0
-#define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
 #define TRAIN_CPR_DEBUG_LOAD 0
 #define TRAIN_CPR_MIN_IRIS_DIAMETER 10.0
 
@@ -267,14 +266,14 @@ int gauze_main(int argc, char** argv)
         //cpr.compress();
 
         // Dump the model:
-        save_pba_z(sModel, cpr);
+        save_cpb(sModel, cpr);
     }
 
     // Test the model
     if (!sTest.empty())
     {
         drishti::rcpr::CPR cpr;
-        load_pba_z(sModel, cpr);
+        load_cpb(sModel, cpr);
         cpr.setStreamLogger(logger);
 
         EllipseSamples test(logger);
@@ -554,11 +553,9 @@ static void load(const std::string& sEye, drishti::eye::EyeModel& eye)
             eye.read(sEye);
             break;
 
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
         case ".json"_hash:
             loadJSON(sEye, eye);
             break;
-#endif
     }
 }
 

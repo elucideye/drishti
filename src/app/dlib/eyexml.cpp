@@ -14,15 +14,10 @@
 #include "drishti/core/drishti_string_hash.h"
 #include "drishti/testlib/drishti_cli.h"
 
-// clang-format off
-#define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
-#if DRISHTI_SERIALIZE_WITH_CEREAL || DRISHTI_SERIALIZE_EYE_WITH_CEREAL
-#  include "drishti/core/drishti_stdlib_string.h"
-#  include "drishti/core/drishti_cereal_pba.h"
-#  include "drishti/core/drishti_cv_cereal.h"
-#  include <cereal/archives/json.hpp>
-#endif
-// clang-format on
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cv_cereal.h"
+#include <cereal/archives/json.hpp>
 
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_print.hpp"
@@ -125,11 +120,9 @@ static void load(const std::string& sEye, drishti::eye::EyeModel& eye)
             eye.read(sEye);
             break;
 
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
         case ".json"_hash:
             loadJSON(sEye, eye);
             break;
-#endif
     }
 }
 

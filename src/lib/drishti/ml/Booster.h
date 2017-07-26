@@ -37,12 +37,6 @@ using namespace std;
 
 #include "drishti/core/Logger.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h"
-#endif
-// clang-format on
-
 #include <random>
 #include <iostream>
 
@@ -53,7 +47,7 @@ using namespace xgboost::io;
 // else simply wrap standard XGBoost serialization with a boost API.
 // Note: Setting this to 1 (if possible) will significantly reduce
 // model size requirements
-#define USE_XGBOOST_WITH_BOOST 1
+#define USE_XGBOOST_WITH_CEREAL 1
 
 DRISHTI_BEGIN_NAMESPACE(xgboost)
 
@@ -245,12 +239,12 @@ public:
 #endif
     }
 
-    friend class boost::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-#if USE_XGBOOST_WITH_BOOST
-        ar& boost::serialization::base_object<learner::BoostLearner>(*this);
+#if USE_XGBOOST_WITH_CEREAL
+        auto& parent = dynamic_cast<xgboost::learner::BoostLearner&>(*this);
+        ar & parent;
 #else
         if (Archive::is_loading::value)
         {

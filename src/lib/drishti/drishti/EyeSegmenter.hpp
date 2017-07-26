@@ -29,8 +29,6 @@ _DRISHTI_SDK_BEGIN
 
 enum ArchiveKind
 {
-    kPBA,
-    kTXT,
     kCPB,
     kAuto // automatic
 };

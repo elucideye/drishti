@@ -14,12 +14,6 @@
 #include "drishti/core/drishti_core.h"
 #include "drishti/ml/drishti_ml.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialization_boost.h" // for export
-#endif
-// clang-format on
-
 #include <opencv2/core/core.hpp>
 
 #include <memory>
@@ -72,9 +66,5 @@ protected:
 };
 
 DRISHTI_ML_NAMESPACE_END
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-BOOST_CLASS_EXPORT_KEY(drishti::ml::StandardizedPCA); // (optional)
-#endif
 
 #endif // __drishti_ml_PCA_h__

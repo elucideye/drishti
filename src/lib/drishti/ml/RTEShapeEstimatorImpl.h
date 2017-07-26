@@ -10,20 +10,11 @@
 // A half precision (16 bit) floating point representation is used to store
 // the regression trees.
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_cereal_pba.h"
-#endif
-// clang-format on
-
+#include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/shape_predictor.h"
 
 #define _SHAPE_PREDICTOR drishti::ml::shape_predictor
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);
-#endif
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
@@ -146,16 +137,13 @@ public:
 template <class Archive>
 void RTEShapeEstimator::serialize(Archive& ar, const unsigned int version)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    boost::serialization::void_cast_register<RTEShapeEstimator, ShapeEstimator>();
-#endif
     ar& m_impl;
 }
 
 template <class Archive>
 void RTEShapeEstimator::serializeModel(Archive& ar, const unsigned int version)
 {
-    ar&(*m_impl->m_predictor);
+    ar& (*m_impl->m_predictor);
 }
 
 DRISHTI_ML_NAMESPACE_END

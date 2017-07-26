@@ -53,23 +53,6 @@ message("OpenCV_LIB_COMPONENTS = ${OpenCV_LIB_COMPONENTS}")
 message("OpenCV_LIBS = ${OpenCV_LIBS}")
 message("${CMAKE_MODULE_PATH}")
 
-#############
-### Boost ###
-#############
-
-hunter_add_package(Boost COMPONENTS filesystem system serialization iostreams)
-find_package(Boost CONFIG REQUIRED filesystem system serialization iostreams)
-message("Boost_INCLUDE_DIRS =  ${Boost_INCLUDE_DIRS}; Boost_LIBRARIES =  ${Boost_LIBRARIES}")
-set(DRISHTI_SDK_BOOST_LIBS
-  Boost::filesystem
-  Boost::system
-  Boost::serialization
-  Boost::iostreams
-  )
-
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${DRISHTI_SDK_BOOST_LIBS})
-endif()
 
 #############
 ### Beast ### :: optional :: (header only)
@@ -141,18 +124,6 @@ if(DRISHTI_BUILD_ACF)
     list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS cvmatio::cvmatio)
   endif()
 endif()
-
-##################
-### boost::pba ###
-##################
-
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  hunter_add_package(boost-pba)
-  find_package(boost-pba CONFIG REQUIRED)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS boost-pba::boost-pba) # Add library
-endif()
-
-# Note: Some CMake commands, such as set_property() can't be called on ALIAS targets.
 
 #######################
 ### thread-pool-cpp ### (header only)

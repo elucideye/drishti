@@ -1,7 +1,10 @@
 if(NOT DRISHTI_BUILD_MIN_SIZE)
 
   add_executable(train_cpr train_cpr.cpp RecipeIO.h RecipeIO.cpp EyeIO.h EyeIO.cpp)
-  target_link_libraries(train_cpr drishtisdk cxxopts::cxxopts)
+  target_link_libraries(train_cpr drishtisdk cxxopts::cxxopts
+    Boost::system
+    Boost::filesystem      
+    )
 
   if(DRISHTI_USE_IMSHOW)
     target_link_libraries(train_cpr imshow::imshow)
@@ -23,7 +26,7 @@ if(NOT DRISHTI_BUILD_MIN_SIZE)
     set(eye_src_train_xml "${CMAKE_CURRENT_BINARY_DIR}/eye_train.xml")
 
     set(eye_recipe_json "${CMAKE_CURRENT_BINARY_DIR}/eye_recipe.json")
-    set(eye_out_model "${CMAKE_CURRENT_BINARY_DIR}/eye.pba.z")
+    set(eye_out_model "${CMAKE_CURRENT_BINARY_DIR}/eye.cpb")
 
     # Rename + copy image + model file side-by-side to meet eyexml requirements:
     #

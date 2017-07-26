@@ -17,23 +17,10 @@ sugar_files(DRISHTI_ML_SRCS
   RegressionTreeEnsembleShapeEstimator.cpp
   ShapeEstimator.cpp
   XGBooster.cpp
+  PCAArchiveCereal.cpp
+  XGBoosterIOArchiveCereal.cpp
+  RTEShapeEstimatorArchiveCereal.cpp  
   )
-
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  sugar_files(DRISHTI_ML_SRCS
-    PCAArchiveBoost.cpp
-    XGBoosterIOArchiveBoost.cpp    
-    RTEShapeEstimatorArchiveBoost.cpp
-    )
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CEREAL)
-  sugar_files(DRISHTI_ML_SRCS
-    PCAArchiveCereal.cpp
-    XGBoosterIOArchiveCereal.cpp
-    RTEShapeEstimatorArchiveCereal.cpp
-  )
-endif()
 
 sugar_files(DRISHTI_ML_HDRS_PUBLIC
   ObjectDetector.h

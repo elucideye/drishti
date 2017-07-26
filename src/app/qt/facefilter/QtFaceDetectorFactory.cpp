@@ -13,17 +13,7 @@
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/eye/EyeModelEstimator.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_cereal_pba.h"
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h"
-#endif
-// clang-format on
+#include "drishti/core/drishti_cereal_pba.h"
 
 #include <iostream>
 
@@ -31,17 +21,7 @@ using namespace string_hash;
 
 // TODO: Move these regressor names to a config file
 
-// { "cpb", "pba.z", "mat" }
-#if DRISHTI_SERIALIZE_WITH_CEREAL
 #define DRISHTI_ARCHIVE "cpb"
-#elif DRISHTI_SERIALIZE_WITH_BOOST && !MSVC
-#define DRISHTI_ARCHIVE "pba.z"
-#elif DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES
-#define DRISHTI_ARCHIVE "txt"
-#endif
-
-//#define DRISHTI_FACE_MEAN_5_POINT "drishti_face_5_point_mean_48x48.xml"
-//#define DRISHTI_FACE_INNER_DETECT "drishti_face_inner_48x48." DRISHTI_ARCHIVE
 
 #define DRISHTI_FACE_MEAN_5_POINT "drishti_face_tight_64x64_gray_V5_mean.xml"
 #define DRISHTI_FACE_INNER_DETECT "drishti_face_tight_64x64_gray_V5." DRISHTI_ARCHIVE

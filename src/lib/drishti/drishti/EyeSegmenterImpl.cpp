@@ -175,8 +175,6 @@ static std::string kindToHint(ArchiveKind kind)
     {
         case kTXT:
             return "hint.txt";
-        case kPBA:
-            return "hint.pba.z";
         case kCPB:
             return "hint.cpb";
         default:

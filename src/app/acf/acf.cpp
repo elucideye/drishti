@@ -21,17 +21,7 @@
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/geometry/motion.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-# include "drishti/core/boost_serialize_common.h" // optional
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-# include "drishti/core/drishti_cereal_pba.h" // optional
-#endif
-// clang-format on
+#include "drishti/core/drishti_cereal_pba.h" // optional
 
 // clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
@@ -231,17 +221,7 @@ int gauze_main(int argc, char** argv)
             std::string base = drishti::core::basename(sModel);
             std::string filename = sOutput + "/" + base;
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL // "cpb"
             save_cpb(filename + ".cpb", *acf);
-#endif
-
-#if DRISHTI_SERIALIZE_WITH_BOOST // "pba.z"
-            save_pba_z(filename + ".pba.z", *acf);
-#endif
-
-#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES // "txt"
-            save_txt_z(filename + ".txt", *acf);
-#endif
         }
         else
         {

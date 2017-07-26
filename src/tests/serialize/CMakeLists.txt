@@ -32,14 +32,6 @@ target_include_directories(test-serialize-flatbuffers PUBLIC "$<BUILD_INTERFACE:
 #install(TARGETS test-serialize-flatbuffers DESTINATION bin)
 set_property(TARGET test-serialize-flatbuffers PROPERTY FOLDER "app/tests")
 
-# Boost serialization code:
-add_executable(test-serialize-boost test-serialize-boost.cpp Monster_c.h)
-target_link_libraries(test-serialize-boost PUBLIC Boost::iostreams Boost::serialization ${OpenCV_LIBS})
-target_compile_definitions(test-serialize-boost PUBLIC DRISHTI_USE_BOOST_SERIALIZATION)
-target_include_directories(test-serialize-boost PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
-#install(TARGETS test-serialize-boost DESTINATION bin)
-set_property(TARGET test-serialize-boost PROPERTY FOLDER "app/tests")
-
 # Cereal serialization code:
 add_executable(test-serialize-cereal test-serialize-cereal.cpp Monster_c.h)
 target_link_libraries(test-serialize-cereal PUBLIC cereal::cereal ${OpenCV_LIBS})
@@ -61,8 +53,4 @@ gauze_add_test(
 gauze_add_test(
   NAME DrishtiSerializationCerealTest
   COMMAND test-serialize-cereal "./monster.cereal" # output file
-  )
-gauze_add_test(
-  NAME DrishtiSerializationBoostTest
-  COMMAND test-serialize-boost "./monster.pba.z" # output file
   )

@@ -20,26 +20,9 @@ sugar_files(DRISHTI_EYE_SRCS
   EyeModelPupil.cpp
   NormalizedIris.cpp
   IrisNormalizer.cpp
+  EyeModelEstimatorArchiveCereal.cpp
+  EyeArchiveCereal.cpp      
   )
-
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  sugar_files(DRISHTI_EYE_SRCS
-    EyeModelEstimatorArchiveBoost.cpp
-    EyeArchiveBoost.cpp
-    )
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CEREAL)
-  sugar_files(DRISHTI_EYE_SRCS
-    EyeModelEstimatorArchiveCereal.cpp
-    )
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CEREAL OR DRISHTI_SERIALIZE_MODELS_WITH_CEREAL)
-  sugar_files(DRISHTI_EYE_SRCS
-    EyeArchiveCereal.cpp    
-    )
-endif()
 
 sugar_files(DRISHTI_EYE_HDRS_PUBLIC
   Eye.h

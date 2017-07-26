@@ -15,17 +15,7 @@
 
 #include "drishti/core/drishti_stdlib_string.h" // FIRST
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h" // (optional)
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_cereal_pba.h"
-#endif
-// clang-format on
+#include "drishti/core/drishti_cereal_pba.h"
 
 #include <fstream>
 
@@ -43,25 +33,20 @@ EyeModelEstimator::Impl::Impl(const std::string& eyeRegressor, const std::string
 {
     DRISHTI_STREAM_LOG_FUNC(2, 1, m_streamLogger);
 
-#if DRISHTI_SERIALIZE_WITH_BOOST
     m_eyeEstimator = std::make_shared<ml::RegressionTreeEnsembleShapeEstimator>(eyeRegressor);
     if (!irisRegressor.empty())
     {
         std::shared_ptr<drishti::rcpr::CPR> irisEstimator = std::make_shared<drishti::rcpr::CPR>();
-        load_pba_z(irisRegressor, *irisEstimator);
+        load_cpb(irisRegressor, *irisEstimator);
         m_irisEstimator = irisEstimator;
 
         if (m_irisEstimator && !pupilRegressor.empty())
         {
             std::shared_ptr<drishti::rcpr::CPR> pupilEstimator = std::make_shared<drishti::rcpr::CPR>();
-            load_pba_z(pupilRegressor, pupilEstimator);
+            load_cpb(pupilRegressor, pupilEstimator);
             m_pupilEstimator = pupilEstimator;
         }
     }
-#else
-    assert(false);
-    std::cerr << "Warning: WIP build without boost" << std::endl;
-#endif
 
     init();
 }
@@ -184,55 +169,23 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat& crop, EyeModel& eye) cons
 
 EyeModelEstimator::EyeModelEstimator(std::istream& is, const std::string& hint)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    if ((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
-    {
-        load_pba_z(is, *this);
-        return;
-    }
-#endif
-#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST
-    if (!hint.empty() && (hint.find(".txt") != std::string::npos))
-    {
-        load_txt_z(is, *this);
-        return;
-    }
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
     if (hint.empty() || (hint.find(".cpb") != std::string::npos))
     {
         load_cpb(is, *this);
         return;
     }
-#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
     throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
 }
 
 EyeModelEstimator::EyeModelEstimator(const std::string& filename)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    if (filename.find(".pba.z") != std::string::npos)
-    {
-        load_pba_z(filename, *this);
-        return;
-    }
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
-#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST
-    if (filename.find(".txt") != std::string::npos)
-    {
-        load_txt_z(filename, *this);
-        return;
-    }
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
     if (filename.find(".cpb") != std::string::npos)
     {
         load_cpb(filename, *this);
         return;
     }
-#endif
-
+    
     throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
 }
 

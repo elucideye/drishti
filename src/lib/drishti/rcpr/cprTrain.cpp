@@ -20,12 +20,6 @@
 #include "drishti/core/Parallel.h"
 #include "drishti/core/timing.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialization_boost.h"
-#endif
-// clang-format on
-
 typedef std::vector<float> T_VECTOR;
 typedef std::vector<T_VECTOR> T_MATRIX;
 

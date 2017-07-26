@@ -70,19 +70,7 @@ static float detectionScore(const drishti::sdk::Eye& eyeA, const drishti::sdk::E
 
 static drishti::sdk::ArchiveKind getArchiveKind(const std::string& filename)
 {
-    if (filename.find(".txt") != std::string::npos)
-    {
-        return drishti::sdk::kTXT;
-    }
-    if (filename.find(".pba.z") != std::string::npos)
-    {
-        return drishti::sdk::kPBA;
-    }
-    if (filename.find(".cpb") != std::string::npos)
-    {
-        return drishti::sdk::kCPB;
-    }
-    return drishti::sdk::kPBA;
+    return drishti::sdk::kCPB;
 }
 
 class EyeSegmenterTest : public ::testing::Test

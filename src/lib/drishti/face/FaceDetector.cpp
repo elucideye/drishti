@@ -21,12 +21,6 @@
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/geometry/Rectangle.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h" // (optional)
-#endif
-// clang-format on
-
 #include <stdio.h>
 
 #define DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS 0
