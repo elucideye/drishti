@@ -57,6 +57,6 @@ void saveJSON(const std::string& filename, const drishti::dlib::Recipe& recipe)
         json["width"] = recipe.width;
         json["dimensions"] = recipe.dimensions;
 
-        os << json;
+        os << json.dump(4);
     }
 }

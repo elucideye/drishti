@@ -81,23 +81,9 @@ int gauze_main(int argc, char* argv[])
     bool do_thumbs = false;
     bool do_verbose = false;
     bool do_silent = false;
-    
-    bool do_affine = false;
-    bool do_interpolate = false;
-    bool npd = false;
-    float lambda = 0.1;
-    float nu = 0.1;
-    float padding = 0;
-    int cascades = 10;
-    int depth = 5;
-    int ellipse_count = 0;
-    int features = 400;
-    int oversampling = 20;
-    int splits = 20;
-    int trees_per_level = 500;
-    int width = 0;
-    std::string sDimensions;
-    
+
+    drishti::dlib::Recipe recipe;
+
     std::string sModel;
     std::string sRoi;
     std::string sTest;
@@ -117,25 +103,9 @@ int gauze_main(int argc, char* argv[])
         ( "thumbs", "dump thumbnails of width n", cxxopts::value<bool>(do_thumbs))        
         ( "roi", "exclusion roi (x,y,w,h) normalized cs", cxxopts::value<std::string>(sRoi))
 
-        ( "recipe", "Cascaded pose regression training recipe", cxxopts::value<std::string>(sRecipe))
-        ( "boilerplate", "Output boilerplate recipe file", cxxopts::value<std::string>(sRecipeOut))
-        
         // Regression parameters:
-        ( "interpolate", "do interpolated features", cxxopts::value<bool>(do_interpolate))
-        ( "affine", "do affine normalization", cxxopts::value<bool>(do_affine))
-        ( "npd", "use normalized pixel differences" ,cxxopts::value<bool>(npd))
-        ( "ellipse", "last 5*N points are ellipse coords", cxxopts::value<int>(ellipse_count))
-        ( "dimensions", "e.g. 2,2,4,4,4,4,6,6,8,8,8,8", cxxopts::value<std::string>(sDimensions))
-        ( "width", "processing resolution", cxxopts::value<int>(width))
-        ( "cascades", "Cascade depth", cxxopts::value<int>(cascades))
-        ( "depth", "Depth", cxxopts::value<int>(depth))
-        ( "trees-per-level", "Number of trees per cascade level", cxxopts::value<int>(trees_per_level))
-        ( "nu", "Regularization (lower == more)", cxxopts::value<float>(nu))
-        ( "oversampling", "Oversampling amount", cxxopts::value<int>(oversampling))
-        ( "features", "Feature pool size ", cxxopts::value<int>(features))
-        ( "lambda", "Lambda for feature separation", cxxopts::value<float>(lambda))
-        ( "splits", "Number of test splits", cxxopts::value<int>(splits))
-        ( "padding", "Feature pool region padding", cxxopts::value<float>(padding))
+        ( "recipe", "Cascaded pose regression training recipe", cxxopts::value<std::string>(sRecipe))
+        ( "boilerplate", "Output boilerplate recipe file", cxxopts::value<std::string>(sRecipeOut))        
         
         ( "threads", "Use worker threads when possible", cxxopts::value<bool>(do_threads))
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(do_verbose))
@@ -156,11 +126,20 @@ int gauze_main(int argc, char* argv[])
         return 0;
     }
 
-    drishti::dlib::Recipe recipe;
     if(!sRecipeOut.empty())
     {
+        recipe.dimensions = { 4, 8, 12, 16, 20, 24 };
         saveJSON(sRecipeOut, recipe);
+        return 0;
     }
+    
+    if(sRecipe.empty())
+    {
+        logger->error("Must specify valid training recipe.");
+        return 1;
+    }
+    
+    loadJSON(sRecipe, recipe);
     
     if(sTrain.empty())
     {
@@ -176,21 +155,19 @@ int gauze_main(int argc, char* argv[])
 
     if(do_verbose)
     {
-        logger->info("cascade_depth: {}", cascades);
-        logger->info("tree_depth: {}", depth);
-        logger->info("num_trees_per_cascade_level: {}", trees_per_level);
-        logger->info("nu: {}", nu);
-        logger->info("oversampling_amount: {}", oversampling);
-        logger->info("feature_pool_size: {}", features);
-        logger->info("lambda: {}", lambda);
-        logger->info("num_test_splits: {}", splits);
-        logger->info("feature_pool_region_padding: {}", padding);
-        logger->info("use npd: {}", npd);
-        logger->info("affine: {}", do_affine);
-        logger->info("interpolated: {}", do_interpolate);
+        logger->info("cascade_depth: {}", recipe.cascades);
+        logger->info("tree_depth: {}", recipe.depth);
+        logger->info("num_trees_per_cascade_level: {}", recipe.trees_per_level);
+        logger->info("nu: {}", recipe.nu);
+        logger->info("oversampling_amount: {}", recipe.oversampling);
+        logger->info("feature_pool_size: {}", recipe.features);
+        logger->info("lambda: {}", recipe.lambda);
+        logger->info("num_test_splits: {}", recipe.splits);
+        logger->info("feature_pool_region_padding: {}", recipe.padding);
+        logger->info("use npd: {}", recipe.npd);
+        logger->info("affine: {}", recipe.do_affine);
+        logger->info("interpolated: {}", recipe.do_interpolate);
     }
-
-    std::vector<int> dimensions = parse_dimensions(sDimensions);
 
     dlib::array<dlib::array2d<uint8_t>> images_train, images_test;
     std::vector<std::vector<dlib::full_object_detection> > faces_train, faces_test;
@@ -201,14 +178,14 @@ int gauze_main(int argc, char* argv[])
 
     if(do_thumbs)
     {
-        dump_thumbs(images_train, faces_train, sOutput, ellipse_count);
+        dump_thumbs(images_train, faces_train, sOutput, recipe.ellipse_count);
         return 0;
     }
 
     // Here we optionally downsample:
-    if(width > 0)
+    if(recipe.width > 0)
     {
-        reduce_images(images_train, faces_train, ellipse_count, width);
+        reduce_images(images_train, faces_train, recipe.ellipse_count, recipe.width);
     }
 
     dlib::drectangle roi;
@@ -219,15 +196,15 @@ int gauze_main(int argc, char* argv[])
 
     // Now make the object responsible for training the model.
     _SP::shape_predictor_trainer trainer;
-    trainer.set_cascade_depth(cascades);
-    trainer.set_tree_depth(depth);
-    trainer.set_num_trees_per_cascade_level(trees_per_level);
-    trainer.set_nu(nu);                            // regularization (smaller nu == more regularization)
-    trainer.set_oversampling_amount(oversampling); // amount of oversampling for training data
-    trainer.set_feature_pool_size(features);
-    trainer.set_lambda(lambda);                    // feature separation (not learning rate)
-    trainer.set_num_test_splits(splits);
-    trainer.set_feature_pool_region_padding(padding);
+    trainer.set_cascade_depth(recipe.cascades);
+    trainer.set_tree_depth(recipe.depth);
+    trainer.set_num_trees_per_cascade_level(recipe.trees_per_level);
+    trainer.set_nu(recipe.nu);                            // regularization (smaller nu == more regularization)
+    trainer.set_oversampling_amount(recipe.oversampling); // amount of oversampling for training data
+    trainer.set_feature_pool_size(recipe.features);
+    trainer.set_lambda(recipe.lambda);                    // feature separation (not learning rate)
+    trainer.set_num_test_splits(recipe.splits);
+    trainer.set_feature_pool_region_padding(recipe.padding);
 
     if(do_verbose)
     {
@@ -235,7 +212,7 @@ int gauze_main(int argc, char* argv[])
     }
 
     int max_dim = faces_train[0][0].num_parts() * 2;
-    for(const auto &dim : dimensions)
+    for(const auto &dim : recipe.dimensions)
     {
         CV_Assert(0 < dim && dim <= max_dim);
     }
@@ -246,7 +223,13 @@ int gauze_main(int argc, char* argv[])
     }
 
     //_SP::shape_predictor sp;
-    _SP::shape_predictor sp = trainer.train(images_train, faces_train, dimensions, ellipse_count, npd, do_affine, roi, do_interpolate);
+    _SP::shape_predictor sp = trainer.train(images_train, faces_train,
+                                            recipe.dimensions,
+                                            recipe.ellipse_count,
+                                            recipe.npd,
+                                            recipe.do_affine,
+                                            roi,
+                                            recipe.do_interpolate);
 
     if(do_verbose)
     {
@@ -442,23 +425,6 @@ static void reduce_images(DlibImageArray &images_train, DlibObjectSet &faces_tra
             }
         }
     }
-}
-
-static std::vector<int> parse_dimensions(const std::string &str)
-{
-    std::vector<int> dimensions;
-    
-    if(!str.empty())
-    {
-        std::vector<std::string> tokens;
-        drishti::core::tokenize(str, tokens);
-        for(auto &token : tokens)
-        {
-            dimensions.push_back(std::stoi(token));
-        }
-    }
-    
-    return dimensions;
 }
 
 static dlib::rectangle parse_roi(const std::string &str)
