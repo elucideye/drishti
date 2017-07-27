@@ -292,8 +292,13 @@ int gauze_main(int argc, char** argv)
     cxxopts::Options options("eyexml", "Convert eye files to xml");
 
     // clang-format off
-    options.add_options()("i,input", "Input file", cxxopts::value<std::string>(sInput))("o,output", "Output directory", cxxopts::value<std::string>(sOutput))("e,extension", "Extension", cxxopts::value<std::string>(sExtension))("h,help", "Print help message");
+    options.add_options()
+        ("i,input", "Input file", cxxopts::value<std::string>(sInput))
+        ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
+        ("e,extension", "Extension", cxxopts::value<std::string>(sExtension))
+        ("h,help", "Print help message");
     // clang-format on
+    
     options.parse(argc, argv);
 
     if ((argumentCount <= 1) || options.count("help"))
