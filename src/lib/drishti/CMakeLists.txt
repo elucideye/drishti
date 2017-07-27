@@ -128,8 +128,8 @@ if(DRISHTI_BUILD_WORLD)
   endif()
 
   if(ANDROID)
-    find_package(Log REQUIRED)
-    target_link_libraries(drishti_world PRIVATE ${LOG_LIBRARIES}) # for spdlog from android ndk
+    find_package(android_log REQUIRED)
+    target_link_libraries(drishti_world PRIVATE android_log::android_log) # for spdlog from android ndk
   endif()
 
 else()
