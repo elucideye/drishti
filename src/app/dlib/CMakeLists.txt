@@ -1,3 +1,6 @@
+hunter_add_package(nlohmann-json)
+find_package(nlohmann-json REQUIRED)
+
 ################
 ### RapidXML ###
 ################
@@ -5,9 +8,9 @@
 hunter_add_package(RapidXML)
 find_package(RapidXML REQUIRED CONFIG)
 
-##############
+######################
 ### drishti-eyexml ###
-##############
+######################
 
 add_executable(drishti-eyexml eyexml.cpp)
 target_link_libraries(drishti-eyexml drishtisdk cxxopts::cxxopts RapidXML::RapidXML
@@ -44,8 +47,16 @@ if(JPEG_FOUND AND PNG_FOUND)
   #############################
 
   if(NOT DRISHTI_BUILD_MIN_SIZE)
-    add_executable(drishti_train_shape_predictor train_shape_predictor.cpp "${dlib_source_cpp}")
-    target_link_libraries(drishti_train_shape_predictor drishtisdk cxxopts::cxxopts PNG::png)
+
+    set(train_srcs
+      train_shape_predictor.cpp
+      "${dlib_source_cpp}"
+      RecipeIO.h
+      RecipeIO.cpp
+      )
+    
+    add_executable(drishti_train_shape_predictor ${train_srcs})
+    target_link_libraries(drishti_train_shape_predictor drishtisdk cxxopts::cxxopts PNG::png nlohmann-json::nlohmann-json)
     target_compile_definitions(drishti_train_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
     set_property(TARGET drishti_train_shape_predictor PROPERTY FOLDER "app/console")
     install(TARGETS drishti_train_shape_predictor DESTINATION bin)

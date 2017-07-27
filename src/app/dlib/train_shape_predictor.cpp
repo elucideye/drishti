@@ -39,6 +39,8 @@ typedef unsigned char boolean;
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
 
+#include "RecipeIO.h"
+
 #include "cxxopts.hpp"
 
 #include <iostream>
@@ -79,6 +81,7 @@ int gauze_main(int argc, char* argv[])
     bool do_thumbs = false;
     bool do_verbose = false;
     bool do_silent = false;
+    
     bool do_affine = false;
     bool do_interpolate = false;
     bool npd = false;
@@ -94,10 +97,13 @@ int gauze_main(int argc, char* argv[])
     int trees_per_level = 500;
     int width = 0;
     std::string sDimensions;
+    
     std::string sModel;
     std::string sRoi;
     std::string sTest;
     std::string sTrain;
+    std::string sRecipe;
+    std::string sRecipeOut;
     std::string sOutput;
 
     cxxopts::Options options("train_shape_predictor", "Command line interface for dlib shape_predictor training");
@@ -105,17 +111,22 @@ int gauze_main(int argc, char* argv[])
     // clang-format off
     options.add_options()
         ( "output", "Output directory for intermediate results", cxxopts::value<std::string>(sOutput))
-        ( "interpolate", "do interpolated features", cxxopts::value<bool>(do_interpolate))
+        ( "train", "training file", cxxopts::value<std::string>(sTrain))
+        ( "test", "testing file", cxxopts::value<std::string>(sTest))
+        ( "model", "Model file", cxxopts::value<std::string>(sModel))
+        ( "thumbs", "dump thumbnails of width n", cxxopts::value<bool>(do_thumbs))        
         ( "roi", "exclusion roi (x,y,w,h) normalized cs", cxxopts::value<std::string>(sRoi))
-        ( "thumbs", "dump thumbnails of width n", cxxopts::value<bool>(do_thumbs))
+
+        ( "recipe", "Cascaded pose regression training recipe", cxxopts::value<std::string>(sRecipe))
+        ( "boilerplate", "Output boilerplate recipe file", cxxopts::value<std::string>(sRecipeOut))
+        
+        // Regression parameters:
+        ( "interpolate", "do interpolated features", cxxopts::value<bool>(do_interpolate))
         ( "affine", "do affine normalization", cxxopts::value<bool>(do_affine))
         ( "npd", "use normalized pixel differences" ,cxxopts::value<bool>(npd))
         ( "ellipse", "last 5*N points are ellipse coords", cxxopts::value<int>(ellipse_count))
         ( "dimensions", "e.g. 2,2,4,4,4,4,6,6,8,8,8,8", cxxopts::value<std::string>(sDimensions))
         ( "width", "processing resolution", cxxopts::value<int>(width))
-        ( "train", "training file", cxxopts::value<std::string>(sTrain))
-        ( "test", "testing file", cxxopts::value<std::string>(sTest))
-        ( "model", "Model file", cxxopts::value<std::string>(sModel))
         ( "cascades", "Cascade depth", cxxopts::value<int>(cascades))
         ( "depth", "Depth", cxxopts::value<int>(depth))
         ( "trees-per-level", "Number of trees per cascade level", cxxopts::value<int>(trees_per_level))
@@ -125,6 +136,7 @@ int gauze_main(int argc, char* argv[])
         ( "lambda", "Lambda for feature separation", cxxopts::value<float>(lambda))
         ( "splits", "Number of test splits", cxxopts::value<int>(splits))
         ( "padding", "Feature pool region padding", cxxopts::value<float>(padding))
+        
         ( "threads", "Use worker threads when possible", cxxopts::value<bool>(do_threads))
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(do_verbose))
         ( "silent", "Disable logging entirely", cxxopts::value<bool>(do_silent))
@@ -142,6 +154,12 @@ int gauze_main(int argc, char* argv[])
     {
         logger->info(options.help({""}));
         return 0;
+    }
+
+    drishti::dlib::Recipe recipe;
+    if(!sRecipeOut.empty())
+    {
+        saveJSON(sRecipeOut, recipe);
     }
     
     if(sTrain.empty())
