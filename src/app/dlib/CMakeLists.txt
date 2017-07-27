@@ -29,8 +29,9 @@ if(JPEG_FOUND AND PNG_FOUND)
 
   # dlib >= 19.2 forbids: #include <dlib/all/source.cpp>
   # Here we find the installed source.cpp file and add it explicitly.
-  get_target_property(dlib_dir dlib::dlib INTERFACE_INCLUDE_DIRECTORIES)
-  find_file(dlib_source_cpp "dlib/all/source.cpp" "${dlib_dir}")
+
+  #get_target_property(dlib_dir dlib::dlib INTERFACE_INCLUDE_DIRECTORIES)
+  #find_file(dlib_source_cpp "dlib/all/source.cpp" "${dlib_dir}")
 
   ############################
   ### test_shape_predictor ###
