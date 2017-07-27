@@ -173,8 +173,6 @@ static std::string kindToHint(ArchiveKind kind)
 {
     switch (kind)
     {
-        case kTXT:
-            return "hint.txt";
         case kCPB:
             return "hint.cpb";
         default:

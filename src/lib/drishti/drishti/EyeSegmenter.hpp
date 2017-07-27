@@ -68,7 +68,7 @@ public:
     float getRequiredAspectRatio() const;
 
 protected:
-    void init(std::istream& is, ArchiveKind kind = kPBA);
+    void init(std::istream& is, ArchiveKind kind = kAuto);
     std::unique_ptr<Impl> m_impl;
 };
 
