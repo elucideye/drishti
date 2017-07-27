@@ -206,6 +206,16 @@ int gauze_main(int argc, char* argv[])
     trainer.set_num_test_splits(recipe.splits);
     trainer.set_feature_pool_region_padding(recipe.padding);
 
+    // new parameters
+    trainer.set_dimensions(recipe.dimensions);
+    trainer.set_ellipse_count(recipe.ellipse_count);
+    trainer.set_do_npd(recipe.npd);
+    trainer.set_do_affine(recipe.do_affine);
+    trainer.set_roi(roi);
+    trainer.set_do_line_indexed(recipe.do_interpolate);
+    
+    trainer.set_num_threads(8);
+    
     if(do_verbose)
     {
         trainer.be_verbose();
@@ -223,14 +233,7 @@ int gauze_main(int argc, char* argv[])
     }
 
     //_SP::shape_predictor sp;
-    _SP::shape_predictor sp = trainer.train(images_train, faces_train,
-                                            recipe.dimensions,
-                                            recipe.ellipse_count,
-                                            recipe.npd,
-                                            recipe.do_affine,
-                                            roi,
-                                            recipe.do_interpolate);
-
+    _SP::shape_predictor sp = trainer.train(images_train, faces_train);
     if(do_verbose)
     {
         logger->info("Done training...");
