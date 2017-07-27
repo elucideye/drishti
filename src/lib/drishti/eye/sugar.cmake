@@ -13,25 +13,25 @@ include(sugar_files)
 
 sugar_files(DRISHTI_EYE_SRCS
   Eye.cpp
+  EyeArchiveCereal.cpp      
   EyeIO.cpp
   EyeModelEstimator.cpp
-  EyeModelIris.cpp
-  EyeModelEyelids.cpp
-  EyeModelPupil.cpp
-  NormalizedIris.cpp
-  IrisNormalizer.cpp
   EyeModelEstimatorArchiveCereal.cpp
-  EyeArchiveCereal.cpp      
+  EyeModelEyelids.cpp
+  EyeModelIris.cpp
+  EyeModelPupil.cpp
+  IrisNormalizer.cpp
+  NormalizedIris.cpp
   )
 
 sugar_files(DRISHTI_EYE_HDRS_PUBLIC
   Eye.h
-  EyeImpl.h
   EyeIO.h
+  EyeImpl.h
   EyeModelEstimator.h
   EyeModelEstimatorImpl.h
-  NormalizedIris.h
   IrisNormalizer.h
+  NormalizedIris.h
   drishti_eye.h
   )
 

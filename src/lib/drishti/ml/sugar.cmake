@@ -14,27 +14,27 @@ include(sugar_files)
 sugar_files(DRISHTI_ML_SRCS
   ObjectDetector.cpp
   PCA.cpp
+  PCAArchiveCereal.cpp
+  RTEShapeEstimatorArchiveCereal.cpp  
   RegressionTreeEnsembleShapeEstimator.cpp
   ShapeEstimator.cpp
   XGBooster.cpp
-  PCAArchiveCereal.cpp
   XGBoosterIOArchiveCereal.cpp
-  RTEShapeEstimatorArchiveCereal.cpp  
   )
 
 sugar_files(DRISHTI_ML_HDRS_PUBLIC
+  Booster.h
   ObjectDetector.h
   PCA.h
   PCAImpl.h
-  RegressionTreeEnsembleShapeEstimator.h
   RTEShapeEstimatorImpl.h
+  RegressionTreeEnsembleShapeEstimator.h
   ShapeEstimator.h
+  XGBooster.h
+  XGBoosterImpl.h  
   drishti_ml.h
   shape_predictor.h
   shape_predictor_archive.h
-  XGBooster.h
-  XGBoosterImpl.h  
-  Booster.h
   )
 
 if(DRISHTI_BUILD_DEST)

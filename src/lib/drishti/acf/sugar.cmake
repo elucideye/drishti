@@ -36,8 +36,6 @@ sugar_files(DRISHTI_ACF_SRCS
   toolbox/wrappers.cpp
   )
 
-sugar_files(DRISHTI_ACF_SRCS )
-
 sugar_files(DRISHTI_ACF_HDRS_PUBLIC
   ACF.h
   ACFField.h
@@ -57,15 +55,15 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   sugar_files(DRISHTI_ACF_HDRS_PUBLIC  
     GPUACF.h
     gpu/gradhist.h
+    gpu/multipass/triangle_pass.h
     gpu/swizzle2.h
     gpu/triangle.h
-    gpu/multipass/triangle_pass.h
     )
   sugar_files(DRISHTI_ACF_SRCS
     GPUACF.cpp
     gpu/gradhist.cpp
+    gpu/multipass/triangle_pass.cpp
     gpu/swizzle2.cpp
     gpu/triangle.cpp
-    gpu/multipass/triangle_pass.cpp
     )
 endif()

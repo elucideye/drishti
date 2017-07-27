@@ -26,8 +26,8 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   Field.h
   FixedField.h
   IndentingOStreamBuffer.h
-  Line.h
   LazyParallelResource.h
+  Line.h
   Logger.h
   Parallel.h
   Semaphore.h
