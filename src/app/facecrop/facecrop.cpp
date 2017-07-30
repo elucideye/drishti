@@ -176,14 +176,6 @@ using FaceMeshMapperResourceManager = drishti::core::LazyParallelResource<std::t
 static void computePose(FACE::Table& table, const std::string& sModel, const std::string& sMapping, std::shared_ptr<spdlog::logger>& logger);
 #endif // DRISHTI_BUILD_POSE
 
-template <typename T>
-std::string to_string(const T &thing)
-{
-    std::stringstream ss;
-    ss << thing;
-    return ss.str();
-}
-
 int gauze_main(int argc, char* argv[])
 {
     const auto argumentCount = argc;
@@ -419,10 +411,6 @@ int gauze_main(int argc, char* argv[])
         auto posePruner = [&](FACE::record &record)
         {
             const bool doPrune = (std::abs(record.pose.y) > 40.f) || (std::abs(record.pose.z) > 40.f);
-            if(doPrune)
-            {
-                logger->info("prune: {}", to_string(record.pose));
-            }
             return doPrune;
         };
         
@@ -733,8 +721,6 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
             cv::Mat dummy;
             auto result = (*meshMapper)(record.points, dummy);
             record.pose = drishti::face::getRotation(result.rendering_params);
-
-            logger->info("{} {} {}", record.filename, to_string(size), to_string(record.pose));
         }
     };
     
