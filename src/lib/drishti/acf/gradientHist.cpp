@@ -9,14 +9,6 @@
 
 */
 
-//
-//  gradientHist.cpp
-//  DRISHTI
-//
-//  Created by David Hirvonen on 3/17/15.
-//
-//
-
 // function H = gradientHist( M, O, varargin )
 //
 // Compute oriented gradient histograms.
@@ -107,27 +99,6 @@ void gradHist(const cv::Mat& M, const cv::Mat& O, MatP& H, int bin, int nOrients
     std::swap(w, h);
 
     gradHist(m, o, H.ptr<float>(), h, w, bin, nOrients, softBin, full);
-
-#if 0
-    {
-        cv::Mat canvas;
-
-        cv::normalize(M, canvas, 0, 1, cv::NORM_MINMAX);
-        cv::imshow("M", canvas);
-
-        cv::normalize(O, canvas, 0, 1, cv::NORM_MINMAX);
-        cv::imshow("O", canvas);
-
-        for(auto &p : H)
-        {
-            cv::normalize(p, canvas, 0, 1, cv::NORM_MINMAX, CV_32F);
-            cv::imshow("canvas", canvas), cv::waitKey(0);
-        }
-        cv::hconcat(H.get(), canvas);
-        cv::normalize(canvas, canvas, 0, 1, cv::NORM_MINMAX, CV_32F);
-        cv::imshow("H", canvas), cv::waitKey(0);
-    }
-#endif
 }
 
 DRISHTI_ACF_NAMESPACE_BEGIN
@@ -135,9 +106,7 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 int Detector::gradientHist(const cv::Mat& M, const cv::Mat& O, MatP& H, int binSize, int nOrients, int softBin, int useHog, double clipHog, int full)
 {
     gradHist(M, O, H, binSize, nOrients, softBin, full);
-
     // TODO: useHog, clipHog, etc
-
     return 1;
 }
 
