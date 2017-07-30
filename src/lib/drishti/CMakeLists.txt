@@ -280,6 +280,10 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
     "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
     )
 
+  if(DRISHTI_OPENGL_ES3)
+    target_compile_definitions(${library} PUBLIC DRISHTI_OPENGL_ES3=1)
+  endif()
+
   # -DDRISHTI_USE_TEXT_ARCHIVES=(0|1)
   drishti_bool_to_int(DRISHTI_USE_TEXT_ARCHIVES use_text_archives)
   target_compile_definitions(${library} PUBLIC DRISHTI_USE_TEXT_ARCHIVES=${use_text_archives})

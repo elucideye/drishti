@@ -1,6 +1,6 @@
 {
     "doLandmarks": true,
-    "doFlow": true,
+    "doFlow": false,
     "doBlobs": true,
     "frameDelay": 2,
 

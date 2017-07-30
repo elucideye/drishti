@@ -182,13 +182,13 @@ int gauze_main(int argc, char** argv)
 
     if (sTrain.empty())
     {
-        logger->error() << "Must specify valid images.";
+        logger->error("Must specify valid images.");
         return 1;
     }
 
     if (sRecipe.empty())
     {
-        logger->error() << "Must specify valid training recipe.";
+        logger->error("Must specify valid training recipe.");
         return 1;
     }
 
@@ -386,7 +386,7 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             const float angularError = std::abs(e1.angle - 90.0);
             if (angularError > 45.0)
             {
-                logger->error() << "Unexpected orientation" << e1.angle << " for image " << sImage;
+                logger->error("Unexpected orientation {} for image {}", e1.angle, sImage);
             }
 
             // Need to transpose the model

@@ -19,7 +19,7 @@ if(DRISHTI_BUILD_FACE)
   add_subdirectory(facecrop)
 endif()
 
-if(DRISHTI_USE_TEXT_ARCHIVES)
+if(DRISHTI_USE_TEXT_ARCHIVES AND DRISHTI_SERIALIZE_WITH_BOOST)
   if(NOT ANDROID AND NOT IOS)
     add_subdirectory(pba)
   endif()
