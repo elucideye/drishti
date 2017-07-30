@@ -9,14 +9,6 @@
 
 */
 
-//
-//  chnsPyramid.cpp
-//  DRISHTI
-//
-//  Created by David Hirvonen on 3/16/15.
-//
-//
-
 // Compute channel feature pyramid given an input image.
 //
 // While chnsCompute() computes channel features at a single scale,
@@ -169,14 +161,8 @@ int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid&
         dfs.complete = { "complete", 1 };
         p.merge(dfs, 1);
 
-        //std::cout << "========================" << std::endl;
-        //std::cout << "p:\n" << p << std::endl;
-
         Detector::Channels chns;
         chnsCompute({}, p.pChns, chns, false, pLogger);
-
-        //std::cout << "========================" << std::endl;
-        //std::cout << "chns.pChns: \n" << chns.pChns << std::endl;
 
         p.pChns = chns.pChns;
         p.pChns.get().complete = 1;
@@ -275,11 +261,6 @@ int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid&
         }
     }
 
-    //std::cout << "isR: "; for(const auto &i : isR) std::cout << i << ","; std::cout << std::endl;
-    //std::cout << "isA: "; for(const auto &i : isA) std::cout << i << ","; std::cout << std::endl;
-    //std::cout << "isN: "; for(const auto &i : isN) std::cout << i << ","; std::cout << std::endl;
-    //std::cout << "isH: "; for(const auto &i : isH) std::cout << i << ","; std::cout << std::endl;
-
     // Compute image pyramid [real scales]
     int nTypes = 0;
     auto& data = pyramid.data;
@@ -295,28 +276,14 @@ int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid&
         }
         else
         {
-// TODO: use imResampleMex to resave remap coefficients
-#if 0
-            int level = (i-1) / nPerOct;
-            if( (!(i-1)%nPerOct) && (m_pyramid.size() > level))
-            {
-                I1 = MatP(m_pyramid[level]);
-            }
-            else
-            {
-                imResample(I, I1, sz1, 1.0);
-            }
-#else
+            // TODO: use imResampleMex to resave remap coefficients
             imResample(I, I1, sz1, 1.0);
-#endif
         }
 
         if ((s == 0.5) && ((nApprox > 0) || (nPerOct == 1)))
         {
             I = I1;
         }
-
-        //{ cv::Mat c1; cv::normalize(I1[0], c1, 0, 1, cv::NORM_MINMAX, CV_32F); cv::imshow("I1", c1), cv::waitKey(0); }
 
         if ((i == isR.front()) && (MO.channels() == 2))
         {
@@ -369,7 +336,6 @@ int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid&
         }
     }
 
-#if 1
     core::ParallelHomogeneousLambda harness = [&](int j) {
         const int i = isA[j];
 
@@ -387,30 +353,6 @@ int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid&
     };
 
     cv::parallel_for_({ 0, int(isA.size()) }, harness);
-#else
-    // Compute image pyramid [approximated scales]
-    for (auto& i : isA)
-    {
-        int iR = isN[i - 1];
-        cv::Size sz1 = round(cv::Size2d(sz) * scales[i - 1] / double(shrink));
-        for (int j = 0; j < nTypes; j++)
-        {
-            double ratio = std::pow(scales[i - 1] / scales[iR - 1], -lambdas[j]);
-            imResample(data[iR - 1][j], data[i - 1][j], sz1, ratio);
-        }
-    }
-
-    // Smooth channels, optionally pad and concatenate channels:
-    for (auto row : data)
-    {
-        for (auto& i : row)
-        {
-            convTri(i, i, smooth, 1);
-        }
-    }
-#endif
-
-    //{ cv::Mat c1; cv::normalize(I1[0], c1, 0, 1, cv::NORM_MINMAX, CV_32F); cv::imshow("I1", c1), cv::waitKey(0); }
 
     // TODO: test imPad
     if (pad.width || pad.height)
@@ -513,15 +455,11 @@ int Detector::getScales(int nPerOct, int nOctUp, const cv::Size& minDs, int shri
             double s = tmp[i - 1];
             scales.push_back(s);
 
-            cv::Size2d size(
-                core::round(double(sz.width) * s / shrink) * shrink / sz.width,
-                core::round(double(sz.height) * s / shrink) * shrink / sz.height);
-            scaleshw.emplace_back(size);
+            double x = core::round(double(sz.width) * s / shrink) * shrink / sz.width;
+            double y = core::round(double(sz.height) * s / shrink) * shrink / sz.height;
+            scaleshw.emplace_back(x, y);
         }
     }
-
-    //for(const auto &s : scales) std::cout << s << ","; std::cout << std::endl;
-    //for(const auto &s : scaleshw) std::cout << s << ","; std::cout << std::endl;
 
     return 0;
 }

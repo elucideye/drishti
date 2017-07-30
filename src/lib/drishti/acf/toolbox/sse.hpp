@@ -178,6 +178,10 @@ inline RETf MIN_sse(const RETf x, const RETf y)
 {
     return _mm_min_ps(x, y);
 }
+inline RETf MAX_sse(const RETf x, const RETf y)
+{
+    return _mm_max_ps(x, y);
+}
 inline RETf RCP(const RETf x)
 {
     return _mm_rcp_ps(x);

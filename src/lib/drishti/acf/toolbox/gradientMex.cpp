@@ -219,12 +219,8 @@ void gradMag(float* I, float* M, float* O, int h, int w, int d, bool full)
             if (O)
             {
                 _Gx[y] = MUL(MUL(_Gx[y], _m), SET(acMult));
-
-                //float32x4_t x1 { 1.0, 1.0, -1.0, -1.0 };
-                //float32x4_t y1 { 1.0, -1.0, 1.0, -1.0 };
-                //auto x2 = XOR(x1, AND(y1, SET(-0.f)));
-
                 _Gx[y] = XOR(_Gx[y], AND(_Gy[y], SET(-0.f)));
+                _Gx[y] = MAX_sse(MIN_sse(XOR(_Gx[y], AND(_Gy[y], SET(-0.f))), SET(acMult)), SET(-acMult));
             }
         };
         memcpy(M + x * h, M2, h * sizeof(float));

@@ -7,10 +7,9 @@ set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 
 # OS X Fix: "_CVPixelBufferLockBaseAddress", referenced from: (etc)
 if(APPLE AND NOT IOS)
-  target_link_libraries(${test_app} PUBLIC
-    "-framework ImageIO"
-    "-framework CoreVideo"
-    )
+  find_package(imageio REQUIRED)
+  find_package(corevideo REQUIRED)
+  target_link_libraries(${test_app} PUBLIC imageio::imageio corevideo::corevideo)
 endif()
 
 gauze_add_test(
