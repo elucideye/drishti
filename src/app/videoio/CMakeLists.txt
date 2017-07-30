@@ -5,11 +5,11 @@ set(test_lib drishti_videoio)
 set(videoio_srcs
 
   drishti_videoio.h
-  
+
   # VideoSink:
   VideoSinkCV.h
   VideoSinkCV.cpp
-  
+
   # VideoSource:
   VideoSourceCV.h
   VideoSourceCV.cpp
@@ -20,7 +20,7 @@ set(videoio_srcs
   )
 
 if(APPLE)
-  # AVFoundation framework video (i.e., quicktime *.MOV)  
+  # AVFoundation framework video (i.e., quicktime *.MOV)
   list(APPEND videoio_srcs
 
     # VideoSink:
@@ -33,28 +33,35 @@ if(APPLE)
     MICMSampleBuffer.h
     MICMSampleBuffer.m
     MIMovieVideoSampleAccessor.h
-    MIMovieVideoSampleAccessor.m    
+    MIMovieVideoSampleAccessor.m
     )
 endif()
 
 add_library(drishti_videoio ${videoio_srcs})
 
-target_include_directories(drishti_videoio PUBLIC 
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>" 
-  "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"  
+target_include_directories(drishti_videoio PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>"
+  "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
   )
 
 target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS} drishtisdk)
 
 if(APPLE)
-  target_compile_options(drishti_videoio PUBLIC "-fobjc-arc")  
+  target_compile_options(drishti_videoio PUBLIC "-fobjc-arc")
   target_compile_definitions(drishti_videoio PUBLIC DRISHTI_USE_AVFOUNDATION=1)
+
+  find_package(avfoundation REQUIRED)
+  find_package(corefoundation REQUIRED)
+  find_package(foundation REQUIRED)
+  find_package(corevideo REQUIRED)
+  find_package(coremedia REQUIRED)
+
   target_link_libraries(drishti_videoio PUBLIC
-    "-framework AVFoundation"
-    "-framework CoreFoundation"
-    "-framework Foundation"
-    "-framework CoreVideo"
-    "-framework CoreMedia"
+    avfoundation::avfoundation
+    corefoundation::corefoundation
+    foundation::foundation
+    corevideo::corevideo
+    coremedia::coremedia
     )
 endif()
 
