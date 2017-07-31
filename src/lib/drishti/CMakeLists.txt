@@ -126,12 +126,6 @@ if(DRISHTI_BUILD_WORLD)
     set(drishti_regression_libs drishti_world)
     set(drishti_half_libs drishti_world)
   endif()
-
-  if(ANDROID)
-    find_package(Log REQUIRED)
-    target_link_libraries(drishti_world PRIVATE ${LOG_LIBRARIES}) # for spdlog from android ndk
-  endif()
-
 else()
 
   ## drishti_core

@@ -16,8 +16,6 @@
 
 #include <opencv2/core.hpp>
 
-#include <boost/serialization/export.hpp>
-
 #include <memory>
 
 template <typename T>

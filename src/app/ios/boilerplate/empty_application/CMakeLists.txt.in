@@ -76,14 +76,22 @@ set_target_properties(
     "com.elucideye.@DRISHTI_SDK_APP_NAME@.debug"
 )
 
+find_package(coredata REQUIRED)
+find_package(coregraphics REQUIRED)
+find_package(foundation REQUIRED)
+find_package(uikit REQUIRED)
+find_package(corevideo REQUIRED)
+find_package(assetslibrary REQUIRED)
+find_package(coremedia REQUIRED)
+
 target_link_libraries(
-    @DRISHTI_SDK_APP_NAME@ 
+    @DRISHTI_SDK_APP_NAME@
     @DRISHTI_SDK_LIBS@
-    "-framework CoreData"
-    "-framework CoreGraphics"
-    "-framework Foundation"
-    "-framework UIKit"
-    "-framework CoreVideo"
-    "-framework AssetsLibrary"
-    "-framework CoreMedia"
+    coredata::coredata
+    coregraphics::coregraphics
+    foundation::foundation
+    uikit::uikit
+    corevideo::corevideo
+    assetslibrary::assetslibrary
+    coremedia::coremedia
 )

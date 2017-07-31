@@ -8,6 +8,7 @@
  
  */
 
+#include "drishti/core/drishti_stdlib_string.h" // std::to_string() for android
 #include "drishti/face/FaceMeshMapperLandmark.h"
 #include "drishti/face/FaceMeshMapperLandmarkContour.h" // exp
 #include "drishti/face/FaceMesh.h"
@@ -143,13 +144,13 @@ int gauze_main(int argc, char* argv[])
     // ### Directory
     if (sOutput.empty())
     {
-        logger->error() << "Must specify output directory";
+        logger->error("Must specify output directory");
         return 1;
     }
 
     if (sInput.empty())
     {
-        logger->error() << "Must specify input filename";
+        logger->error("Must specify input filename");
         return 1;
     }
 
@@ -165,13 +166,13 @@ int gauze_main(int argc, char* argv[])
     // ########## FACE MESH LANDMARKER #########
     if (assets.model.empty())
     {
-        logger->error() << "Must specify 3D model";
+        logger->error("Must specify 3D model");
         return 1;
     }
 
     if (assets.mappings.empty())
     {
-        logger->error() << "Must specify landmark mapping";
+        logger->error("Must specify landmark mapping");
         return 1;
     }
     
@@ -184,7 +185,7 @@ int gauze_main(int argc, char* argv[])
     // ######### LANDMARK ######################
     if (sDetector.empty())
     {
-        logger->error() << "Must specify detector file";
+        logger->error("Must specify detector file");
         return 1;
     }
 
@@ -193,7 +194,7 @@ int gauze_main(int argc, char* argv[])
 
     if (sRegressor.empty())
     {
-        logger->error() << "Must specify regressor file";
+        logger->error("Must specify regressor file");
         return 1;
     }
 
@@ -246,7 +247,7 @@ int gauze_main(int argc, char* argv[])
             cv::Mat iso = drishti::face::extractTexture(result, input);
             cv::Point3f Reuler = drishti::face::getRotation(result.rendering_params);
             
-            logger->info("rotation: {}", Reuler);
+            logger->info("rotation: {} {} {}", Reuler.x, Reuler.y, Reuler.z);
             
             // (((( Draw mesh for visualization ))))
             if (doPreview || !sOutput.empty())

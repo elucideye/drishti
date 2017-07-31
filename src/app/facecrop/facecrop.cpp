@@ -411,10 +411,6 @@ int gauze_main(int argc, char* argv[])
         auto posePruner = [&](FACE::record &record)
         {
             const bool doPrune = (std::abs(record.pose.y) > 40.f) || (std::abs(record.pose.z) > 40.f);
-            if(doPrune)
-            {
-                logger->info("prune: {}", record.pose);
-            }
             return doPrune;
         };
         
@@ -723,12 +719,8 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
             eos::core::Mesh mesh;
 
             cv::Mat dummy;
-            dummy.cols;
-            dummy.rows;
             auto result = (*meshMapper)(record.points, dummy);
             record.pose = drishti::face::getRotation(result.rendering_params);
-
-            logger->info("{} {} {}", record.filename, size, record.pose);
         }
     };
     

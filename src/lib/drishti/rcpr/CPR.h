@@ -40,9 +40,6 @@
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/ml/XGBooster.h"
 
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/version.hpp>
-
 #include <memory>
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
@@ -135,14 +132,12 @@ public:
             acf::Field<Vector1d> wts;
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
         acf::Field<Parts> parts;
 
         // Boost serialization:
-        friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
@@ -163,7 +158,6 @@ public:
             void merge(const FtrPrm& opts, int checkExtra);
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
@@ -179,7 +173,6 @@ public:
             acf::Field<RealType> eta;
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
@@ -192,7 +185,6 @@ public:
         std::vector<Recipe> cascadeRecipes;
 
         // Boost serialization:
-        friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
@@ -215,7 +207,6 @@ public:
                 acf::Field<Vector1d> thrs;
                 acf::Field<Vector1d> ysFern;
 
-                friend class boost::serialization::access;
                 template <class Archive>
                 void serialize(Archive& ar, const unsigned int version)
                 {
@@ -235,7 +226,6 @@ public:
                 acf::Field<PointVec> xs;   // feature locations relative to unit circle (Fx2)
                 acf::Field<Vector1d> pids; // part ids for each x (just one part implemented)
 
-                friend class boost::serialization::access;
                 template <class Archive>
                 void serialize(Archive& ar, const unsigned int version);
             };
@@ -246,14 +236,12 @@ public:
             std::vector<std::pair<int, std::shared_ptr<ml::XGBooster>>> xgbdt;
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
         acf::Field<std::vector<acf::Field<Regs>>> regs;
 
         // Boost serialization:
-        friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };

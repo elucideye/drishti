@@ -215,3 +215,16 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
     }
 }
+
+// clang-format off
+// #ifdef DLIB_PNG_SUPPORT
+// #  include "dlib/image_loader/png_loader.cpp"
+// #  include "dlib/image_saver/save_png.cpp"
+// #endif
+
+// #ifdef DLIB_JPEG_SUPPORT
+// #  include "dlib/image_loader/jpeg_loader.cpp"
+// #  include "dlib/image_saver/save_jpeg.cpp"
+// #endif
+// clang-format on
+
