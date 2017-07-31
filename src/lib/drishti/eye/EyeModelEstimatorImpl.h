@@ -197,7 +197,6 @@ public:
         m_optimizationLevel = level;
     }
 
-    // Boost serialization:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
