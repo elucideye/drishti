@@ -441,4 +441,14 @@ static dlib::rectangle parse_roi(const std::string &str)
     return dlib::drectangle(l, t, r-l, b-t);
 }
 
+// clang-format off
+// #ifdef DLIB_PNG_SUPPORT
+// #  include "dlib/image_loader/png_loader.cpp"
+// #  include "dlib/image_saver/save_png.cpp"
+// #endif
 
+// #ifdef DLIB_JPEG_SUPPORT
+// #  include "dlib/image_loader/jpeg_loader.cpp"
+// #  include "dlib/image_saver/save_jpeg.cpp"
+// #endif
+// clang-format on
