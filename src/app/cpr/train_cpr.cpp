@@ -481,7 +481,7 @@ struct list_list_int_parser : qi::grammar<Iterator, std::vector<std::vector<int>
         : list_list_int_parser::base_type(start)
     {
         // http://stackoverflow.com/a/40876962
-        integer = qi::int_[qi::_pass = (qi::_1 >= 0 && qi::_1 <= 4)];
+        integer %= qi::int_[qi::_pass = (qi::_1 >= 0 && qi::_1 < 5)];
         list = '{' >> +(integer % ',') >> '}';
         start = '{' >> +(list % ',') >> '}';
 
