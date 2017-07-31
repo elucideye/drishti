@@ -484,8 +484,9 @@ struct list_list_int_parser : qi::grammar<Iterator, std::vector<std::vector<int>
         integer = qi::int_[qi::_pass = (boost::spirit::_1 >= 0 && boost::spirit::_1 < 5)];
         list = '{' >> +(integer % ',') >> '}';
         start = '{' >> +(list % ',') >> '}';
+
     }
-    qi::rule<Iterator, int, Skipper> integer;
+    qi::rule<Iterator, int(), Skipper> integer;
     qi::rule<Iterator, std::vector<int>(), Skipper> list;
     qi::rule<Iterator, std::vector<std::vector<int>>(), Skipper> start;
 };
@@ -495,7 +496,10 @@ std::vector<std::vector<int>> parseListOfLists(Iterator first, Iterator last)
 {
     std::vector<std::vector<int>> v;
     list_list_int_parser<decltype(first)> parser;
-    bool result = qi::phrase_parse(first, last, parser, qi::blank, v);
+    if(!qi::phrase_parse(first, last, parser, qi::blank, v))
+    {
+        v.clear();
+    }
     return v;
 }
 
@@ -520,7 +524,10 @@ std::vector<float> parseVec5f(Iterator first, Iterator last)
 {
     std::vector<float> v;
     vec5f_parser<decltype(first)> parser;
-    bool result = qi::phrase_parse(first, last, parser, qi::blank, v);
+    if(!qi::phrase_parse(first, last, parser, qi::blank, v))
+    {
+        v.clear();
+    }
     return v;
 }
 
@@ -574,13 +581,10 @@ static std::vector<drishti::rcpr::Recipe> createDefaultCascadeRecipes(const IntV
 static int writeDefaultRecipe(const std::string& filename, const std::string& dimensions)
 {
     auto phi = parseListOfLists(dimensions.begin(), dimensions.end());
-
+    CV_Assert(phi.size() > 0);
     for (auto& i : phi)
     {
-        for (auto& j : i)
-        {
-            j = std::min(std::max(j, 0), 4);
-        }
+        CV_Assert(i.size() > 0);
     }
 
     const auto recipes = createDefaultCascadeRecipes(phi);
