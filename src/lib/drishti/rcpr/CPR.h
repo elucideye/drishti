@@ -40,9 +40,6 @@
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/ml/XGBooster.h"
 
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/version.hpp>
-
 #include <memory>
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
