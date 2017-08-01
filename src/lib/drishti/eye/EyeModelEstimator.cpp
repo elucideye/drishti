@@ -172,24 +172,12 @@ EyeModelEstimator::EyeModelEstimator()
 
 EyeModelEstimator::EyeModelEstimator(std::istream& is, const std::string& hint)
 {
-    if (hint.empty() || (hint.find(".cpb") != std::string::npos))
-    {
-        load_cpb(is, *this);
-        return;
-    }
-
-    throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
+    load_cpb(is, *this);
 }
 
 EyeModelEstimator::EyeModelEstimator(const std::string& filename)
 {
-    if (filename.find(".cpb") != std::string::npos)
-    {
-        load_cpb(filename, *this);
-        return;
-    }
-    
-    throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
+    load_cpb(filename, *this);
 }
 
 EyeModelEstimator::EyeModelEstimator(const RegressorConfig& config)

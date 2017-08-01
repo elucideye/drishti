@@ -114,7 +114,7 @@ public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        ar&(*m_predictor);
+        ar & m_predictor;
     }
 
     bool isPCA() const
@@ -135,7 +135,7 @@ public:
 template <class Archive>
 void RTEShapeEstimator::serialize(Archive& ar, const unsigned int version)
 {
-    ar& *m_impl;
+    ar& m_impl;
 }
 
 template <class Archive>

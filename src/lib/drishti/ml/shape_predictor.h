@@ -690,9 +690,8 @@ std::vector<dlib::vector<T, 2>> convert_shape_to_points(const fshape& shape, int
 class shape_predictor
 {
 public:
-    shape_predictor()
-    {
-    }
+    shape_predictor() = default;
+    ~shape_predictor() = default;
 
     shape_predictor(
         const fshape& initial_shape_,
