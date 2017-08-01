@@ -1,18 +1,18 @@
 if(NOT DRISHTI_BUILD_MIN_SIZE)
 
-  add_executable(train_cpr train_cpr.cpp RecipeIO.h RecipeIO.cpp EyeIO.h EyeIO.cpp)
-  target_link_libraries(train_cpr drishtisdk cxxopts::cxxopts
+  add_executable(drishti_train_cpr train_cpr.cpp RecipeIO.h RecipeIO.cpp EyeIO.h EyeIO.cpp)
+  target_link_libraries(drishti_train_cpr drishtisdk cxxopts::cxxopts
     Boost::system
     Boost::filesystem      
     )
 
   if(DRISHTI_USE_IMSHOW)
-    target_link_libraries(train_cpr imshow::imshow)
-    target_compile_definitions(train_cpr PUBLIC DRISHTI_USE_IMSHOW)
+    target_link_libraries(drishti_train_cpr imshow::imshow)
+    target_compile_definitions(drishti_train_cpr PUBLIC DRISHTI_USE_IMSHOW)
   endif()
   
-  set_property(TARGET train_cpr PROPERTY FOLDER "app/console")
-  install(TARGETS train_cpr DESTINATION bin)
+  set_property(TARGET drishti_train_cpr PROPERTY FOLDER "app/console")
+  install(TARGETS drishti_train_cpr DESTINATION bin)
 
   if(DRISHTI_BUILD_TESTS AND NOT (IOS OR ANDROID))
 
@@ -43,7 +43,7 @@ if(NOT DRISHTI_BUILD_MIN_SIZE)
       NAME
       "TrainRcprGenerate"
       COMMAND
-      "train_cpr"
+      "drishti_train_cpr"
       "--dimensions={{0,1},{3},{0,1},{2}}"
       "--template=${eye_recipe_json}"
       )
@@ -52,7 +52,7 @@ if(NOT DRISHTI_BUILD_MIN_SIZE)
       NAME
       "TrainRcpr"
       COMMAND
-      "train_cpr"
+      "drishti_train_cpr"
       "--train=${eye_src_image}"
       "--test=${eye_src_image}"
       "--model=${eye_out_model}"
