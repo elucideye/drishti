@@ -66,8 +66,10 @@ int gauze_main(int argc, char* argv[])
     }    
 
     drishti::eye::EyeModelEstimator model({sEye, sIris, sPupil});
-
     save_cpb(sOutput, model);
+    
+    drishti::eye::EyeModelEstimator dummy;
+    load_cpb(sOutput, dummy);
 
     return 0;
 }
