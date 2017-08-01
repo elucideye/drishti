@@ -35,6 +35,7 @@ struct Recipe
     int splits = 20;
     int trees_per_level = 500;
     int width = 0;
+    bool do_pca = true;
     std::vector<int> dimensions;
 
     void print(std::ostream &os)
