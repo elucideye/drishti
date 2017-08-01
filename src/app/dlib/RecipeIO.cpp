@@ -16,6 +16,7 @@ void loadJSON(const std::string& filename, drishti::dlib::Recipe& recipe)
         nlohmann::json json;        
         is >> json;
 
+        recipe.do_pca = json["do_pca"].get<bool>();
         recipe.do_affine = json["do_affine"].get<bool>();
         recipe.do_interpolate = json["do_interpolate"].get<bool>();
         recipe.npd = json["npd"].get<bool>();
@@ -31,6 +32,11 @@ void loadJSON(const std::string& filename, drishti::dlib::Recipe& recipe)
         recipe.trees_per_level = json["trees_per_level"].get<int>();
         recipe.width = json["width"].get<int>();
         recipe.dimensions = json["dimensions"].get<std::vector<int>>();
+
+    }
+    else
+    {
+        throw std::runtime_error("failed to upon JSON file");
     }
 }
 
@@ -41,6 +47,7 @@ void saveJSON(const std::string& filename, const drishti::dlib::Recipe& recipe)
     {
         nlohmann::json json;
 
+        json["do_pca"] = recipe.do_pca;
         json["do_affine"] = recipe.do_affine;
         json["do_interpolate"] = recipe.do_interpolate;
         json["npd"] = recipe.npd;
@@ -58,5 +65,9 @@ void saveJSON(const std::string& filename, const drishti::dlib::Recipe& recipe)
         json["dimensions"] = recipe.dimensions;
 
         os << json.dump(4);
+    }
+    else
+    {
+        throw std::runtime_error("failed to save JSON file");
     }
 }
