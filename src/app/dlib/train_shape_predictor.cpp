@@ -207,7 +207,11 @@ int gauze_main(int argc, char* argv[])
     trainer.set_feature_pool_region_padding(recipe.padding);
 
     // new parameters
-    trainer.set_dimensions(recipe.dimensions);
+    if(recipe.dimensions.size())
+    {
+        trainer.set_dimensions(recipe.dimensions);
+        trainer.set_cascade_depth(recipe.dimensions.size());
+    }
     trainer.set_ellipse_count(recipe.ellipse_count);
     trainer.set_do_npd(recipe.npd);
     trainer.set_do_affine(recipe.do_affine);
