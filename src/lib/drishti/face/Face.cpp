@@ -24,6 +24,8 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 
 FaceModel::FaceModel() {}
 
+FaceModel::~FaceModel() = default;
+
 float FaceModel::getInterPupillaryDistance() const
 {
     float ipd = 0.f;

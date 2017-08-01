@@ -33,7 +33,7 @@ public:
     typedef std::vector<bool> BoolVec;
     typedef std::vector<cv::Point2f> Point2fVec;
 
-    virtual ~ShapeEstimator() {}
+    virtual ~ShapeEstimator();
 
     virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {

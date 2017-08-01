@@ -14,8 +14,6 @@
 #ifndef __drishti_eye_EyeModelEstimator_h__
 #define __drishti_eye_EyeModelEstimator_h__
 
-#include <stdio.h>
-
 #include "drishti/core/drishti_defs.hpp"
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/eye/Eye.h"
@@ -24,12 +22,13 @@
 
 #include <memory>
 
+#include <stdio.h>
+
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 class EyeModelEstimator
 {
 public:
-    class Impl;
 
     struct RegressorConfig
     {
@@ -38,11 +37,11 @@ public:
         std::string pupilRegressor;
     };
 
-    EyeModelEstimator() {}
+    EyeModelEstimator();
     EyeModelEstimator(const std::string& filename);
     EyeModelEstimator(std::istream& is, const std::string& hint = {});
     EyeModelEstimator(const RegressorConfig& config);
-    virtual ~EyeModelEstimator();
+    ~EyeModelEstimator();
 
     bool good() const;
     operator bool() const;
@@ -97,10 +96,12 @@ public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version);
 
+    class Impl; // keep public for implementatino file serialization versioning
+    
 protected:
     std::shared_ptr<spdlog::logger> m_streamLogger;
 
-    std::shared_ptr<Impl> m_impl;
+    std::unique_ptr<Impl> m_impl;
 };
 
 DRISHTI_EYE_NAMESPACE_END

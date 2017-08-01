@@ -73,6 +73,16 @@ class CPR : public drishti::ml::ShapeEstimator
 public:
     using ViewFunc = std::function<void(const std::string& name, const cv::Mat& image)>;
 
+    CPR();
+    CPR(const CPR& src);
+    
+#if !DRISHTI_CPR_DO_LEAN
+    CPR(const std::string& filename);
+    CPR(const char* filename);
+#endif
+    
+    ~CPR();
+    
     void setViewer(ViewFunc& viewer)
     {
         m_viewer = viewer;
@@ -245,14 +255,6 @@ public:
         void serialize(Archive& ar, const unsigned int version);
     };
     acf::Field<RegModel> regModel;
-
-    CPR();
-    CPR(const CPR& src);
-
-#if !DRISHTI_CPR_DO_LEAN
-    CPR(const std::string& filename);
-    CPR(const char* filename);
-#endif
 
     bool usesMask() const;
 

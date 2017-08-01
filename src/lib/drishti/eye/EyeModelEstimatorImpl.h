@@ -15,8 +15,6 @@
 #include "drishti/eye/IrisNormalizer.h"
 #include "drishti/eye/EyeIO.h"
 #include "drishti/ml/ShapeEstimator.h"
-#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
-#include "drishti/rcpr/CPR.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/core/Shape.h"
 #include "drishti/core/timing.h"
@@ -33,14 +31,6 @@ using EllipseVec = std::vector<cv::RotatedRect>;
 
 #define EYE_OPENNESS_IRIS_THRESHOLD 0.10
 
-template <typename T>
-T median(std::vector<T>& params)
-{
-    std::vector<float>::iterator nth = params.begin() + params.size() / 2;
-    std::nth_element(params.begin(), nth, params.end());
-    return *nth;
-}
-
 using DRISHTI_EYE::operator*;
 
 class EyeModelEstimator::Impl
@@ -51,6 +41,8 @@ public:
     Impl();
 
     Impl(const std::string& eyeRegressor, const std::string& irisRegressor = {}, const std::string& pupilRegressor = {});
+    
+    ~Impl();
 
     void init();
 
@@ -233,18 +225,26 @@ protected:
     bool m_useHierarchy = true;
     bool m_doPupil = true;
     bool m_doIndependentIrisAndPupil = true;
-    std::shared_ptr<ml::ShapeEstimator> m_eyeEstimator;
-    std::shared_ptr<ml::ShapeEstimator> m_irisEstimator;
-    std::shared_ptr<ml::ShapeEstimator> m_pupilEstimator;
+    
+    std::unique_ptr<ml::ShapeEstimator> m_eyeEstimator;
+    std::unique_ptr<ml::ShapeEstimator> m_irisEstimator;
+    std::unique_ptr<ml::ShapeEstimator> m_pupilEstimator;
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
 
-// Boost serialization:
 template <class Archive>
 void EyeModelEstimator::serialize(Archive& ar, const unsigned int version)
 {
     ar& m_impl;
+}
+
+template <typename T>
+T median(std::vector<T>& params)
+{
+    std::vector<float>::iterator nth = params.begin() + params.size() / 2;
+    std::nth_element(params.begin(), nth, params.end());
+    return *nth;
 }
 
 DRISHTI_EYE_NAMESPACE_END

@@ -38,6 +38,9 @@ DRISHTI_END_NAMESPACE(circle)
 
 struct EyeModel
 {
+    EyeModel();
+    ~EyeModel();
+    
     const cv::Point2f& getOuterCorner() const
     {
         return eyelids[cornerIndices[0]];

@@ -121,10 +121,9 @@ int gauze_main(int argc, char** argv)
     std::string sRecipe;
     std::string sTemplate;
     std::string sTestLog;
-
-#if defined(DRISHTI_USE_IMSHOW)
+    std::string sLoggingDir;
+    
     bool doWindow = false;
-#endif
 
     int targetWidth = 128;
     int T = 0; // # of stages
@@ -137,6 +136,7 @@ int gauze_main(int argc, char** argv)
     bool doSilent = false;
     bool doVerbose = false;
     bool doHelp = false;
+    bool doPupil = false;
 
     cxxopts::Options options("train_shape_predictor", "Command line interface for dlib shape_predictor training");
 
@@ -153,10 +153,12 @@ int gauze_main(int argc, char** argv)
         ( "template", "Training recipe template", cxxopts::value<std::string>(sTemplate) )
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose) )
         ( "silent", "Disable logging entirely.", cxxopts::value<bool>(doSilent) )
-        
+        ( "pupil", "Train on pupil (else iris)", cxxopts::value<bool>(doPupil))
+    
 #if defined(DRISHTI_USE_IMSHOW)        
         ( "window", "Do window", cxxopts::value<bool>(doWindow) )
 #endif
+        ( "log", "Image logging directory", cxxopts::value<std::string>(sLoggingDir) )
         
         ( "help", "Print the help message", cxxopts::value<bool>(doHelp) );
     // clang-format on
@@ -190,6 +192,21 @@ int gauze_main(int argc, char** argv)
     {
         logger->error("Must specify valid training recipe.");
         return 1;
+    }
+
+    // ### Directory
+    if (!sLoggingDir.empty())
+    {
+        if (drishti::cli::directory::exists(sLoggingDir, ".drishti-cpr"))
+        {
+            std::string filename = sLoggingDir + "/.drishti-cpr";
+            remove(filename.c_str());
+        }
+        else
+        {
+            logger->error("Specified directory {} is not writeable", sLoggingDir);
+            return 1;
+        }
     }
     
     { // Test that we can write to the specified output model before starting training
@@ -262,20 +279,40 @@ int gauze_main(int argc, char** argv)
         drishti::rcpr::CPR cpr;
         cpr.setStreamLogger(logger);
 
-#if defined(DRISHTI_USE_IMSHOW)
-        if (doWindow)
+        if (doWindow || !sLoggingDir.empty())
         {
+            std::map<std::string, int> counter;
+            
             // clang-off
-            drishti::rcpr::CPR::ViewFunc viewer = [](const std::string& name, const cv::Mat& image)
+            drishti::rcpr::CPR::ViewFunc viewer = [&](const std::string& name, const cv::Mat& image)
             {
-                glfw::imshow(name.c_str(), image);
-                glfw::waitKey(1);
+                if(counter.find(name) == counter.end())
+                {
+                    counter[name] = 0;
+                }
+                else
+                {
+                    counter[name]++;
+                }
+
+#if defined(DRISHTI_USE_IMSHOW)                
+                if(doWindow)
+                {
+                    glfw::imshow(name.c_str(), image);
+                    glfw::waitKey(1);
+                }
+#endif
+                if(!sLoggingDir.empty())
+                {
+                    std::stringstream ss;
+                    ss << sLoggingDir << "/" << name << "_" << std::setfill('0') << std::setw(4) << counter[name] << ".png";
+                    cv::imwrite(ss.str(), image);
+                }
             };
             // clang-on
             cpr.setViewer(viewer);
         }
-#endif
-        cpr.cprTrain(train.samples.images, train.samples.ellipses[0], train.samples.H, cprPrm, true);
+        cpr.cprTrain(train.samples.images, train.samples.ellipses[int(doPupil)], train.samples.H, cprPrm, true);
 
         // Dump the model:
         save_cpb(sModel, cpr);
@@ -431,7 +468,7 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             cv::resize(M, M, { targetWidth, M.rows * targetWidth / M.cols }, 0.0, 0.0, cv::INTER_NEAREST);
 
             samples.H[i] = samples.H[i] * S.inv();
-            samples.images[i] = { I, M }; // for now keep thing tranposed
+            samples.images[i] = { I, M };
             samples.ellipses[0][i] = ellipse1;
             samples.ellipses[1][i] = ellipse2;
         }
@@ -439,15 +476,11 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
     
     cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness);
 
-
     sigma = mu = { 0.f, 0.f, 0.f, 0.f, 0.f };
 
     for (int i = 0; i < 5; i++)
     {
-        struct
-        {
-            cv::Scalar mu, sigma;
-        } stats;
+        struct { cv::Scalar mu, sigma; } stats;
         cv::meanStdDev(features.col(i), stats.mu, stats.sigma);
         mu[i] = stats.mu[0];
         sigma[i] = stats.sigma[0];
@@ -586,6 +619,5 @@ static int writeDefaultRecipe(const std::string& filename, const std::string& di
     cpr::saveJSON(filename, recipes);
     return 0;
 }
-
 
 DRISHTI_END_NAMESPACE(cpr)

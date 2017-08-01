@@ -26,6 +26,23 @@
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
+CPR::CPR() {}
+CPR::CPR(const CPR& src) {}
+
+#if !DRISHTI_CPR_DO_LEAN
+CPR::CPR(const std::string& filename)
+{
+    deserialize(filename);
+}
+
+CPR::CPR(const char* filename)
+{
+    deserialize(filename);
+}
+#endif
+
+CPR::~CPR() = default;
+
 bool CPR::usesMask() const
 {
     bool flag = false;
@@ -65,21 +82,6 @@ void CPR::CprPrm::FtrPrm::merge(const CPR::CprPrm::FtrPrm& opts, int checkExtra)
     radius.merge(opts.radius, checkExtra);
     nChn.merge(opts.nChn, checkExtra);
 }
-
-CPR::CPR() {}
-CPR::CPR(const CPR& src) {}
-
-#if !DRISHTI_CPR_DO_LEAN
-CPR::CPR(const std::string& filename)
-{
-    deserialize(filename);
-}
-
-CPR::CPR(const char* filename)
-{
-    deserialize(filename);
-}
-#endif
 
 // TODO: rethink shape estimator API to better support parametric models
 // For now we'll just store each parameter in the x coordinate of a 2D point

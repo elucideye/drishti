@@ -50,6 +50,11 @@ public:
     {
         create(resources);
     }
+    
+    ~Impl()
+    {
+        
+    }
 
     void create(FaceDetectorFactory& resources)
     {

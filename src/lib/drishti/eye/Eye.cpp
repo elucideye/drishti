@@ -42,6 +42,9 @@ typedef std::vector<cv::Point2f> PointVec;
 static std::vector<PointVec> ellipseToContours(const cv::RotatedRect& ellipse, const PointVec& eyelids = {});
 static void fillPolly(cv::Mat& image, const PointVec& polly, const cv::Scalar& value);
 
+EyeModel::EyeModel() {}
+EyeModel::~EyeModel() = default;
+
 std::vector<cv::Point2f> EyeModel::getUpperEyelid() const
 {
     return std::vector<cv::Point2f>(eyelids.begin(), eyelids.begin() + cornerIndices[1]);

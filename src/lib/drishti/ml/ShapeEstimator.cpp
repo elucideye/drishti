@@ -23,6 +23,8 @@
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
+ShapeEstimator::~ShapeEstimator() = default;
+
 void ShapeEstimator::setDoPreview(bool flag)
 {
 }
