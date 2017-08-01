@@ -224,7 +224,12 @@ public:
                     // <part name='0000' x='49' y='82'/>
                     const int x = static_cast<int>(points[j].x + 0.5f);
                     const int y = static_cast<int>(points[j].y + 0.5f);
-                    const auto sName = doc.allocate_string(std::to_string(j).c_str());
+                    
+                    // Important: dlib requires fixed width part names
+                    std::stringstream ss;
+                    ss << std::setfill('0') << std::setw(4) << j;
+                    
+                    const auto sName = doc.allocate_string(ss.str().c_str());
                     const auto sX = doc.allocate_string(std::to_string(x).c_str());
                     const auto sY = doc.allocate_string(std::to_string(y).c_str());
 
