@@ -23,34 +23,25 @@ DRISHTI_ML_NAMESPACE_BEGIN
 // ### Impl ###
 // ############
 
-RTEShapeEstimator::Impl::Impl()
-{
-    
-}
+RTEShapeEstimator::Impl::Impl() = default;
+RTEShapeEstimator::Impl::~Impl() = default;
 
 RTEShapeEstimator::Impl::Impl(const std::string& filename)
 {
-    m_predictor = drishti::core::make_unique<_SHAPE_PREDICTOR>();
-    load_cpb(filename, *m_predictor);
+    m_predictor = make_unique_cpb<_SHAPE_PREDICTOR>(filename);
 }
 
-RTEShapeEstimator::Impl::Impl(std::istream& is, const std::string &hint)
+RTEShapeEstimator::Impl::Impl(std::istream& is, const std::string &/*hint*/)
 {
-    m_predictor = drishti::core::make_unique<_SHAPE_PREDICTOR>();
-    load_cpb(is, *m_predictor);
+    m_predictor = make_unique_cpb<_SHAPE_PREDICTOR>(is);
 }
 
-RTEShapeEstimator::Impl::~Impl() = default;
+// ############################################
+// ### RegressionTreeEnsembleShapeEstimator ###
+// ############################################
 
-
-// ############
-// ### Impl ###
-// ############
-
-RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator()
-{
-    
-}
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator() = default;
+RTEShapeEstimator::~RegressionTreeEnsembleShapeEstimator() = default;
 
 RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string& filename)
 {
@@ -61,8 +52,6 @@ RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream& is, const 
 {
     m_impl = drishti::core::make_unique<Impl>(is, hint);
 }
-
-RTEShapeEstimator::~RegressionTreeEnsembleShapeEstimator() = default;
 
 void RTEShapeEstimator::setStagesHint(int stages)
 {
@@ -116,11 +105,15 @@ void RTEShapeEstimator::dump(std::vector<float>& values, bool pca)
 
 DRISHTI_ML_NAMESPACE_END
 
+// clang-format off
+#if !DRISHTI_BUILD_MIN_SIZE
 // Partial include of dlib source.cpp contents
-#include "dlib/threads/multithreaded_object_extension.cpp"
-#include "dlib/threads/threaded_object_extension.cpp"
-#include "dlib/threads/threads_kernel_1.cpp"
-#include "dlib/threads/threads_kernel_2.cpp"
-#include "dlib/threads/threads_kernel_shared.cpp"
-#include "dlib/threads/thread_pool_extension.cpp"
-#include "dlib/threads/async.cpp"
+#  include "dlib/threads/multithreaded_object_extension.cpp"
+#  include "dlib/threads/threaded_object_extension.cpp"
+#  include "dlib/threads/threads_kernel_1.cpp"
+#  include "dlib/threads/threads_kernel_2.cpp"
+#  include "dlib/threads/threads_kernel_shared.cpp"
+#  include "dlib/threads/thread_pool_extension.cpp"
+#  include "dlib/threads/async.cpp"
+#endif
+// clang-format on

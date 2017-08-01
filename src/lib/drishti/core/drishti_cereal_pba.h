@@ -9,6 +9,7 @@
 #define __drishti_core_drishti_cereal_pba_h__
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/make_unique.h"
 
 // http://uscilab.github.io/cereal/serialization_archives.html
 #include <cereal/cereal.hpp>
@@ -51,6 +52,22 @@ void load_cpb(const std::string& filename, T& object)
     std::ifstream ifs(filename, std::ios::binary);
     assert(ifs);
     load_cpb(ifs, object);
+}
+
+template <typename T>
+std::unique_ptr<T> make_unique_cpb(std::istream& is)
+{
+    auto ptr = drishti::core::make_unique<T>();
+    load_cpb(is, *ptr);
+    return ptr;
+}
+
+template <typename T>
+std::unique_ptr<T> make_unique_cpb(const std::string& filename)
+{
+    auto ptr = drishti::core::make_unique<T>();
+    load_cpb(filename, *ptr);
+    return ptr;
 }
 
 template <typename T>
