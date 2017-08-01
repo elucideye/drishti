@@ -115,6 +115,11 @@ public:
     void serialize(Archive& ar, const unsigned int version)
     {
         ar & m_predictor;
+        
+        if (Archive::is_loading::value)
+        {
+            m_predictor->populate_f16();
+        }
     }
 
     bool isPCA() const
