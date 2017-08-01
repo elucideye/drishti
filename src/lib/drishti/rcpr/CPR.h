@@ -15,7 +15,6 @@
 #define DRISHTI_CPR_DO_LEAN 1
 #define DRISHTI_CPR_DO_HALF_FLOAT 1
 #define DRISHTI_CPR_ANGLE_RANGE (2.0 * M_PI)
-#define DRISHTI_CPR_TRANSPOSE 0
 
 // clang-format off
 #if defined(ANDROID)
@@ -338,12 +337,12 @@ Vector1d inverse(const CPR::Model& model, const Vector1d& phis0);
 Vector1d phisFrHs(const Matx33Real& Hs);
 Vector1d compPhiStar(const CPR::Model& mnodel, const EllipseVec& phis);
 Vector1d ellipseToPhi(const cv::RotatedRect& e);
-cv::RotatedRect phiToEllipse(const Vector1d& phi, bool transpose = DRISHTI_CPR_TRANSPOSE);
+cv::RotatedRect phiToEllipse(const Vector1d& phi);
 Matx33Real phisToHs(const Vector1d& phis);
 double normAng(double ang, double rng);
 double dist(const CPR::Model& model, const Vector1d& phis0, const Vector1d& phis1);
 void print(const Vector1d& p, bool eol = false);
-void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, const IntVec& features, float scale = 1.f, bool doTranspose = DRISHTI_CPR_TRANSPOSE);
+void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, const IntVec& features, float scale = 1.f);
 
 template <typename T1, typename T2>
 void copy(std::vector<T1>& src, std::vector<T2>& dst)

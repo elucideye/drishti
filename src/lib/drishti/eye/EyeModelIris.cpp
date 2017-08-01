@@ -74,10 +74,6 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
         eye.iris = 0;
         eye.irisEllipse = geometry::pointsToEllipse(points);
     }
-
-#if DRISHTI_CPR_TRANSPOSE
-    eye.irisEllipse = tranpose(eye.irisEllipse);
-#endif
 }
 
 cv::RotatedRect

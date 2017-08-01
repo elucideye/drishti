@@ -31,6 +31,7 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_serialize.h"
+#include "drishti/core/Parallel.h"
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/geometry/Primitives.h"
 #include "drishti/testlib/drishti_cli.h"
@@ -69,8 +70,7 @@ using drishti::rcpr::Vector1d;
 struct PoseData
 {
     drishti::rcpr::ImageMaskPairVec images;
-    drishti::rcpr::EllipseVec ellipses1;
-    drishti::rcpr::EllipseVec ellipses2;
+    drishti::rcpr::EllipseVec ellipses[2];
     std::vector<cv::Matx33f> H; // normalization
 };
 
@@ -88,15 +88,16 @@ struct EllipseSamples
     drishti::rcpr::Vector1d sigma;
 };
 
+#if defined(DRISHTI_USE_IMSHOW) && TRAIN_CPR_DEBUG_LOAD
 static cv::Mat previewSample(const cv::Mat& image, drishti::rcpr::CPR::CPRResult& result, drishti::rcpr::Vector1d& mu)
 {
     cv::Mat canvas;
     cv::cvtColor(image, canvas, cv::COLOR_GRAY2BGR);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, DRISHTI_CPR_TRANSPOSE), { 0, 255, 0 }, 1, 8);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, 1 - DRISHTI_CPR_TRANSPOSE), { 255, 0, 255 }, 1, 8);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(mu, DRISHTI_CPR_TRANSPOSE), { 255, 0, 0 }, 1, 8);
+    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p), { 0, 255, 0 }, 1, 8);
+    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(mu), { 255, 0, 0 }, 1, 8);
     return canvas;
 }
+#endif
 
 DRISHTI_BEGIN_NAMESPACE(cpr)
 static void load(const std::string& sEye, drishti::eye::EyeModel& eye);
@@ -190,6 +191,19 @@ int gauze_main(int argc, char** argv)
         logger->error("Must specify valid training recipe.");
         return 1;
     }
+    
+    { // Test that we can write to the specified output model before starting training
+        std::ofstream check(sModel);
+        if(check)
+        {
+            remove(sModel.c_str());
+        }
+        else
+        {
+            logger->error("Cannot create specified output model {}", sModel);
+            return 1;
+        }
+    }
 
     EllipseSamples train(logger);
     train.load(sTrain, targetWidth, sExtension, doIris);
@@ -244,8 +258,6 @@ int gauze_main(int argc, char** argv)
 
     cprPrm.model->parts->wts = { "wts", wts };
 
-    // ###### Experimental ######
-
     { // Train the model:
         drishti::rcpr::CPR cpr;
         cpr.setStreamLogger(logger);
@@ -253,17 +265,17 @@ int gauze_main(int argc, char** argv)
 #if defined(DRISHTI_USE_IMSHOW)
         if (doWindow)
         {
-            drishti::rcpr::CPR::ViewFunc viewer = [](const std::string& name, const cv::Mat& image) {
-                glfw::destroyWindow(name.c_str()); // TODO: workaround, fix imshow()
+            // clang-off
+            drishti::rcpr::CPR::ViewFunc viewer = [](const std::string& name, const cv::Mat& image)
+            {
                 glfw::imshow(name.c_str(), image);
                 glfw::waitKey(1);
             };
+            // clang-on
             cpr.setViewer(viewer);
         }
 #endif
-        cpr.cprTrain(train.samples.images, train.samples.ellipses1, train.samples.H, cprPrm, true);
-
-        //cpr.compress();
+        cpr.cprTrain(train.samples.images, train.samples.ellipses[0], train.samples.H, cprPrm, true);
 
         // Dump the model:
         save_cpb(sModel, cpr);
@@ -288,7 +300,7 @@ int gauze_main(int argc, char** argv)
             // Measure error at each stage:
             for (int t = 0; t < T; t++)
             {
-                errors[t] += drishti::rcpr::dist(*cprPrm.model, result.pAll[t], test.samples.ellipses1[i]);
+                errors[t] += drishti::rcpr::dist(*cprPrm.model, result.pAll[t], test.samples.ellipses[0][i]);
             }
 
 #if defined(DRISHTI_USE_IMSHOW) && TRAIN_CPR_DEBUG_LOAD
@@ -345,11 +357,11 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
     cv::Mat features(filenames.size(), 5, CV_64F);
 
     samples.images.resize(filenames.size());
-    samples.ellipses1.resize(filenames.size());
-    samples.ellipses2.resize(filenames.size());
+    samples.ellipses[0].resize(filenames.size());
+    samples.ellipses[1].resize(filenames.size());
     samples.H.resize(filenames.size());
-
-    for (int i = 0; i < filenames.size(); i++)
+    
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         // Image filename:
         const auto& sImage = filenames[i];
@@ -368,7 +380,6 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             // Eye filename:
             bfs::path sEye(sImage);
             sEye.replace_extension(sExt);
-
             cpr::load(sEye.string(), eye);
 
             // Capture iris before correction:
@@ -391,27 +402,17 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             // Need to transpose the model
             // Note: use eye corners instead of eyelids
             std::vector<cv::Point2f> eyelids{ eye.getInnerCorner(), eye.getOuterCorner() };
-
-#if DRISHTI_CPR_TRANSPOSE
-            cv::Matx33f T(0, 1, 0, 1, 0, 0, 0, 0, 1); // transpose
-            samples.H[i] = drishti::geometry::procrustes(eyelids) * T;
-#else
             samples.H[i] = drishti::geometry::procrustes(eyelids);
-#endif
 
             // Ignore samples that are too small (or accidentally empty):
             if (doIris && (std::max(e1.size.width, e1.size.height) < TRAIN_CPR_MIN_IRIS_DIAMETER))
             {
-                continue;
+                return;
             }
 
             CV_Assert(e1.angle >= 0.f);
             CV_Assert(e1.size.width > 0.f);
             CV_Assert(e2.size.width > 0.f);
-
-#if defined(DRISHTI_USE_IMSHOW) && DO_SANITY_CHECK
-            sanityTest(initialIris, e1);
-#endif
 
             cv::Mat M = eye.mask(I.size(), false);
 
@@ -429,21 +430,15 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             cv::resize(I, I, { targetWidth, I.rows * targetWidth / I.cols }, 0.0, 0.0, cv::INTER_CUBIC);
             cv::resize(M, M, { targetWidth, M.rows * targetWidth / M.cols }, 0.0, 0.0, cv::INTER_NEAREST);
 
-            //glfw::imshow("I", I);
-            //glfw::imshow("M", M);
-            //glfw::waitKey(0);
-
             samples.H[i] = samples.H[i] * S.inv();
-
-#if DRISHTI_CPR_TRANSPOSE
-            samples.images[i] = { I.t(), M.t() }; // for now keep thing tranposed
-#else
             samples.images[i] = { I, M }; // for now keep thing tranposed
-#endif
-            samples.ellipses1[i] = ellipse1;
-            samples.ellipses2[i] = ellipse2;
+            samples.ellipses[0][i] = ellipse1;
+            samples.ellipses[1][i] = ellipse2;
         }
-    }
+    };
+    
+    cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness);
+
 
     sigma = mu = { 0.f, 0.f, 0.f, 0.f, 0.f };
 
@@ -592,33 +587,5 @@ static int writeDefaultRecipe(const std::string& filename, const std::string& di
     return 0;
 }
 
-#if defined(DRISHTI_USE_IMSHOW)
-static void sanityTest(const cv::RotatedRect& initial, const cv::RotatedRect& corrected)
-{
-    auto sanity1 = drishti::rcpr::phiToEllipse(drishti::rcpr::ellipseToPhi(corrected), false);
-    auto sanity2 = drishti::rcpr::phiToEllipse(drishti::rcpr::ellipseToPhi(corrected), true);
-
-    drishti::geometry::Ellipse e1(initial), e2(corrected), e3(sanity1), e4(sanity2);
-
-    cv::Mat canvas(400, 400, CV_8UC3, cv::Scalar::all(0));
-    cv::ellipse(canvas, initial, { 0, 255, 0 }, 1, 8);
-    cv::line(canvas, e1.center, e1.getMajorAxisPos(), { 0, 255, 0 }, 2, 8);
-
-    cv::ellipse(canvas, corrected, { 0, 0, 255 }, 1, 8);
-    cv::line(canvas, e2.center, e2.getMajorAxisPos(), { 0, 0, 255 }, 2, 8);
-
-    glfw::imshow("canvas", canvas);
-    glfw::waitKey(0);
-
-    cv::ellipse(canvas, sanity1, { 255, 255, 255 }, 1, 8);
-    cv::line(canvas, e3.center, e3.getMajorAxisPos(), { 255, 255, 255 }, 2, 8);
-
-    cv::ellipse(canvas, sanity2, { 255, 0, 0 }, 1, 8);
-    cv::line(canvas, e4.center, e4.getMajorAxisPos(), { 255, 255, 255 }, 2, 8);
-
-    glfw::imshow("canvas", canvas);
-    glfw::waitKey(0);
-}
-#endif
 
 DRISHTI_END_NAMESPACE(cpr)

@@ -133,13 +133,6 @@ int CPR::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, Bool
             { ellipse.size.height, 0.f },
             { ellipse.angle, 0.f }
         };
-
-        if (DRISHTI_CPR_TRANSPOSE)
-        {
-            float theta = ellipse.angle * M_PI / 180.0;
-            std::swap(points[0].x, points[1].x);
-            points[4].x = atan2(std::cos(theta), std::sin(theta)) * 180.0 / M_PI;
-        }
     }
 
     return 0;

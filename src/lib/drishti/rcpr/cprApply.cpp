@@ -90,12 +90,6 @@ int CPR::cprApply(const cv::Mat& I, const RegModel& regModel, CPRResult& result,
         cprApply1(I, regModel, p, result);
     }
 
-    //cv::Mat canvas;
-    //cv::cvtColor(I.t(), canvas, cv::COLOR_GRAY2BGR);
-    //cv::ellipse(canvas, phiToEllipse(result.p), {0,255,0}, 1, 8);
-    //cv::imshow("canvas", canvas.t()); // opt
-    //cv::waitKey(0);
-
     return 0;
 }
 
@@ -228,12 +222,6 @@ int CPR::cprApplyTree(const ImageMaskPair& IsIn, const RegModel& regModel, const
     DRISHTI_STREAM_LOG_FUNC(9, 2, m_streamLogger);
 
     ImageMaskPair Is = IsIn;
-    if (DRISHTI_CPR_TRANSPOSE)
-    {
-        Is.getImage() = Is.getImage().t();
-        Is.getMask() = Is.getMask().t();
-    }
-
     auto& p = result.p;
     p = pIn;
 
@@ -254,7 +242,6 @@ int CPR::cprApplyTree(const ImageMaskPair& IsIn, const RegModel& regModel, const
         }
     }
 
-    //for(int t = 0; t < T; t++)
     for (const auto& t : stage)
     {
         auto& reg = *(*(regModel.regs))[t];

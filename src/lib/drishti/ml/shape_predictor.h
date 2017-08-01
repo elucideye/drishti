@@ -101,7 +101,7 @@ typedef std::vector<PointVecf> PointVecVecf;
 
 static cv::RotatedRect vectorToEllipse(const std::vector<float>& phi)
 {
-    return drishti::geometry::phiToEllipse(phi, false);
+    return drishti::geometry::phiToEllipse(phi);
 }
 
 using DVec32s = dlib::matrix<int32_t, 0, 1>;
