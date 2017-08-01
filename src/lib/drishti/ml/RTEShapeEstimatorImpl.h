@@ -11,6 +11,7 @@
 // the regression trees.
 
 #include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/make_unique.h"
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/shape_predictor.h"
 
@@ -21,9 +22,10 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class RegressionTreeEnsembleShapeEstimator::Impl
 {
 public:
-    Impl() {}
+    Impl();
     Impl(const std::string& filename);
-    Impl(std::istream& is);
+    Impl(std::istream& is, const std::string &hint={});
+    ~Impl();
 
     void packPointsInShape(const std::vector<cv::Point2f>& points, int ellipseCount, float* shape) const
     {
@@ -112,10 +114,6 @@ public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        if (Archive::is_loading::value)
-        {
-            m_predictor = std::make_shared<_SHAPE_PREDICTOR>();
-        }
         ar&(*m_predictor);
     }
 
@@ -128,7 +126,7 @@ public:
     int m_inits = 1;
     int m_stagesHint = std::numeric_limits<int>::max();
 
-    std::shared_ptr<_SHAPE_PREDICTOR> m_predictor; // TODO: Create virtual interface
+    std::unique_ptr<_SHAPE_PREDICTOR> m_predictor; // TODO: Create virtual interface
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
@@ -137,7 +135,7 @@ public:
 template <class Archive>
 void RTEShapeEstimator::serialize(Archive& ar, const unsigned int version)
 {
-    ar& m_impl;
+    ar& *m_impl;
 }
 
 template <class Archive>

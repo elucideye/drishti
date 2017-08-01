@@ -27,9 +27,10 @@ class RegressionTreeEnsembleShapeEstimator : public ShapeEstimator
 public:
     class Impl;
 
-    RegressionTreeEnsembleShapeEstimator() {}
+    RegressionTreeEnsembleShapeEstimator();
     RegressionTreeEnsembleShapeEstimator(const std::string& filename);
     RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint = {});
+    ~RegressionTreeEnsembleShapeEstimator();
 
     virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger);
     virtual int operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const;
@@ -48,7 +49,9 @@ public:
     template <class Archive>
     void serializeModel(Archive& ar, const unsigned int version);
 
-    std::shared_ptr<Impl> m_impl;
+protected:
+    
+    std::unique_ptr<Impl> m_impl;
 };
 
 typedef RegressionTreeEnsembleShapeEstimator RTEShapeEstimator;

@@ -19,6 +19,57 @@
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
+// ############
+// ### Impl ###
+// ############
+
+RTEShapeEstimator::Impl::Impl()
+{
+    
+}
+
+RTEShapeEstimator::Impl::Impl(const std::string& filename)
+{
+    m_predictor = drishti::core::make_unique<_SHAPE_PREDICTOR>();
+    load_cpb(filename, *m_predictor);
+}
+
+RTEShapeEstimator::Impl::Impl(std::istream& is, const std::string &hint)
+{
+    m_predictor = drishti::core::make_unique<_SHAPE_PREDICTOR>();
+    load_cpb(is, *m_predictor);
+}
+
+RTEShapeEstimator::Impl::~Impl() = default;
+
+
+// ############
+// ### Impl ###
+// ############
+
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator()
+{
+    
+}
+
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string& filename)
+{
+    m_impl = drishti::core::make_unique<Impl>(filename);
+}
+
+RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint)
+{
+    m_impl = drishti::core::make_unique<Impl>(is, hint);
+}
+
+RTEShapeEstimator::~RegressionTreeEnsembleShapeEstimator() = default;
+
+void RTEShapeEstimator::setStagesHint(int stages)
+{
+    DRISHTI_STREAM_LOG_FUNC(6, 7, m_streamLogger);
+    m_impl->setStagesHint(stages);
+}
+
 void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 {
     m_streamLogger = logger;
@@ -26,29 +77,6 @@ void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {
         m_impl->setStreamLogger(logger);
     }
-}
-
-RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(const std::string& filename)
-{
-    if ((filename.find(".cpb") != std::string::npos))
-    {
-        load_cpb(filename, *this);
-        return;
-    }
-}
-
-RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint)
-{
-    {
-        load_cpb(is, *this);
-        return;
-    }
-}
-
-void RTEShapeEstimator::setStagesHint(int stages)
-{
-    DRISHTI_STREAM_LOG_FUNC(6, 7, m_streamLogger);
-    m_impl->setStagesHint(stages);
 }
 
 int RTEShapeEstimator::getStagesHint() const

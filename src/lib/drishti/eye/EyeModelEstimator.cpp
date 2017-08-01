@@ -41,16 +41,16 @@ EyeModelEstimator::Impl::Impl(const std::string& eyeRegressor, const std::string
 {
     DRISHTI_STREAM_LOG_FUNC(2, 1, m_streamLogger);
 
-    m_eyeEstimator = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(eyeRegressor);
+    m_eyeEstimator = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(eyeRegressor);    
     if (!irisRegressor.empty())
     {
         m_irisEstimator = drishti::core::make_unique<drishti::rcpr::CPR>();
-        load_cpb(irisRegressor, *static_cast<drishti::ml::ShapeEstimator*>(m_irisEstimator.get()));
+        load_cpb(irisRegressor, *static_cast<drishti::rcpr::CPR*>(m_irisEstimator.get()));
 
         if (m_irisEstimator && !pupilRegressor.empty())
         {
             m_pupilEstimator = drishti::core::make_unique<drishti::rcpr::CPR>();
-            load_cpb(pupilRegressor, *static_cast<drishti::ml::ShapeEstimator*>(m_pupilEstimator.get()));
+            load_cpb(pupilRegressor, *static_cast<drishti::rcpr::CPR*>(m_pupilEstimator.get()));
         }
     }
 
