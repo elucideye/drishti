@@ -359,5 +359,6 @@ DRISHTI_RCPR_NAMESPACE_END
 #include <cereal/types/polymorphic.hpp>
 CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
+//CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::rcpr::CPR, cereal::specialization::member_serialize);
 
 #endif /* DRISHTI_RCPR_CRP_H */
