@@ -126,7 +126,7 @@ public:
     int m_inits = 1;
     int m_stagesHint = std::numeric_limits<int>::max();
 
-    std::unique_ptr<_SHAPE_PREDICTOR> m_predictor; // TODO: Create virtual interface
+    std::unique_ptr<_SHAPE_PREDICTOR> m_predictor;
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
