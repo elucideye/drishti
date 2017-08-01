@@ -120,6 +120,7 @@ public:
     // Red channel is closest to NIR for iris
     // TODO: Need a lazy image conversion type
     int operator()(const cv::Mat& crop, EyeModel& eye) const;
+    
     void normalize(const cv::Mat& crop, const EyeModel& eye, const cv::Size& size, NormalizedIris& code, int padding = 0) const
     {
         IrisNormalizer()(crop, eye, size, code, padding);
