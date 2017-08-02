@@ -139,6 +139,8 @@ EyeModel shapeToEye(const std::vector<cv::Point2f>& points, const EyeModelSpecif
     fill(points, spec.irisInner, eye.irisInner);
     fill(points, spec.irisEllipse, eye.irisEllipse);
     fill(points, spec.pupilEllipse, eye.pupilEllipse);
+    
+    CV_Assert(spec.pupilEllipse.end == points.size());
 
     eye.cornerIndices[0] = 0;
     eye.cornerIndices[1] = spec.eyelids.end / 2;
