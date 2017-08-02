@@ -463,13 +463,6 @@ public:
             regressor->setIrisStagesHint(stages);
         }
     }
-    void setIrisStagesRepetitionFactor(int x)
-    {
-        for (auto& regressor : m_eyeRegressor)
-        {
-            regressor->setIrisStagesRepetitionFactor(x);
-        }
-    }
 
     //private:
 
@@ -652,14 +645,6 @@ void FaceDetector::setFace2StagesHint(int stages)
 void FaceDetector::setEyelidStagesHint(int stages)
 {
     m_impl->setEyelidStagesHint(stages);
-}
-void FaceDetector::setIrisStagesHint(int stages)
-{
-    m_impl->setIrisStagesRepetitionFactor(stages);
-}
-void FaceDetector::setIrisStagesRepetitionFactor(int x)
-{
-    m_impl->setIrisStagesRepetitionFactor(x);
 }
 
 #if DRISHTI_FACE_DETECTOR_PREVIEW_DETECTIONS

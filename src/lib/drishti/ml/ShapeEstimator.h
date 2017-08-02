@@ -58,12 +58,6 @@ public:
         return 0;
     }
 
-    virtual void setStagesRepetitionFactor(int x){};
-    virtual int getStagesRepetitionFactor() const
-    {
-        return 0; // 0 == not set
-    }
-
     virtual void dump(std::vector<float>& params, bool pca = false) {}
 
     // Boost serialization:

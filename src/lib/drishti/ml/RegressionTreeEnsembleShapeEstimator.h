@@ -38,6 +38,7 @@ public:
     virtual std::vector<cv::Point2f> getMeanShape() const;
     virtual void setDoPreview(bool flag) {}
     virtual bool isPCA() const;
+    
     virtual void setStagesHint(int stages);
     virtual int getStagesHint() const;
 

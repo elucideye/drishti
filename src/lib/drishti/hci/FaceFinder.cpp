@@ -825,11 +825,6 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             drishti::face::FaceDetector::PaddedImage Ib(gray, { { 0, 0 }, gray.size() });
 
             impl->faceDetector->setDoIrisRefinement(true);
-            impl->faceDetector->setFaceStagesHint(8);
-            impl->faceDetector->setFace2StagesHint(4);
-            impl->faceDetector->setEyelidStagesHint(6);
-            impl->faceDetector->setIrisStagesHint(10);
-            impl->faceDetector->setIrisStagesRepetitionFactor(1);
             impl->faceDetector->refine(Ib, faces, Hdr, isDetection);
 
             impl->logger->info("Face image {} x {}", Ib.Ib.rows, Ib.Ib.cols);

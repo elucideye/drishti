@@ -161,8 +161,6 @@ public:
     }
     inline const float* Pred(const DataMatrix& dmat, int option_mask, unsigned ntree_limit, bst_ulong* len)
     {
-        DRISHTI_STREAM_LOG_FUNC(7, 1, m_streamLogger);
-
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
         return nullptr;
@@ -178,8 +176,6 @@ public:
 #if DRISHTI_BUILD_MIN_SIZE
         assert(false);
 #else
-        DRISHTI_STREAM_LOG_FUNC(7, 2, m_streamLogger);
-
         this->gpair_.resize(len);
         const bst_omp_uint ndata = static_cast<bst_omp_uint>(len);
 #pragma omp parallel for schedule(static)

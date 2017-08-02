@@ -53,11 +53,6 @@ RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream& is, const 
     m_impl = drishti::core::make_unique<Impl>(is, hint);
 }
 
-void RTEShapeEstimator::setStagesHint(int stages)
-{
-    DRISHTI_STREAM_LOG_FUNC(6, 7, m_streamLogger);
-    m_impl->setStagesHint(stages);
-}
 
 void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 {
@@ -68,28 +63,29 @@ void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     }
 }
 
+void RTEShapeEstimator::setStagesHint(int stages)
+{
+    m_impl->setStagesHint(stages);
+}
+
 int RTEShapeEstimator::getStagesHint() const
 {
-    DRISHTI_STREAM_LOG_FUNC(6, 8, m_streamLogger);
     return m_impl->getStagesHint();
 }
 
 int RTEShapeEstimator::operator()(const cv::Mat& gray, std::vector<cv::Point2f>& points, std::vector<bool>& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(6, 9, m_streamLogger);
     return (*m_impl)(gray, points, mask);
 }
 
 int RTEShapeEstimator::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(6, 10, m_streamLogger);
     CV_Assert(false);
     return 0;
 }
 
 bool RTEShapeEstimator::isPCA() const
 {
-    DRISHTI_STREAM_LOG_FUNC(6, 11, m_streamLogger);
     return m_impl->isPCA();
 }
 

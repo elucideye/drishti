@@ -834,10 +834,8 @@ public:
         const image_type& img,
         const dlib::rectangle& rect,
         fshape starter_shape,
-        int iters = 2,
-        int stages = std::numeric_limits<int>::max()) const
+        int stages = std::numeric_limits<int>::max()) const // early temrination
     {
-        DRISHTI_STREAM_LOG_FUNC(5, 1, m_streamLogger);
         using namespace impl;
 
         bool do_pca = m_pca ? true : false;
@@ -856,65 +854,56 @@ public:
         {
             auto& cs_ = current_shape;
             auto& is_ = initial_shape; // this is used to map pose indexed features to current shape
-
-            for (int k = 0; k < iters; k++)
+            
+            // Previously had for loop
+            if (do_pca)
             {
-                // Previously had for loop
-                DRISHTI_STREAM_LOG_FUNC(5, 2, m_streamLogger);
-
-                if (do_pca)
-                {
-                    // Get euclidean model for current shape space estimate:
-                    int current_pca_dim = int(forests[iter][0].leaf_values[0].size());
-                    back_project(*m_pca, current_pca_dim, current_shape_full_, current_shape);
-                }
-
-                DRISHTI_STREAM_LOG_FUNC(5, 3, m_streamLogger);
-                if (interpolated_features.size())
-                {
-                    extract_feature_pixel_values(img, rect, cs_, interpolated_features[iter], feature_pixel_values);
-                }
-                else
-                {
-                    extract_feature_pixel_values(img, rect, cs_, is_, anchor_idx[iter], deltas[iter], feature_pixel_values, m_ellipse_count, m_do_affine);
-                }
-
-                fshape current_shape_;
-                auto& active_shape = do_pca ? current_shape_ : current_shape;
-
-                DRISHTI_STREAM_LOG_FUNC(5, 4, m_streamLogger);
+                // Get euclidean model for current shape space estimate:
+                int current_pca_dim = int(forests[iter][0].leaf_values[0].size());
+                back_project(*m_pca, current_pca_dim, current_shape_full_, cs_);
+            }
+            
+            if (interpolated_features.size())
+            {
+                extract_feature_pixel_values(img, rect, cs_, interpolated_features[iter], feature_pixel_values);
+            }
+            else
+            {
+                extract_feature_pixel_values(img, rect, cs_, is_, anchor_idx[iter], deltas[iter], feature_pixel_values, m_ellipse_count, m_do_affine);
+            }
+            
+            fshape current_shape_;
+            auto& active_shape = do_pca ? current_shape_ : current_shape;
+            
 #if DRISHTI_BUILD_REGRESSION_FIXED_POINT
-                // Fixed point is currently only working for PCA in most cases (check numerical overflow)
-                DVec16s shape_accumulator;
-                for (auto& f : forests[iter])
-                {
-                    add16sAnd16s(shape_accumulator, f(feature_pixel_values, Fixed(), m_npd), shape_accumulator);
-                }
-                active_shape.set_size(shape_accumulator.size());
-                for (int i = 0; i < shape_accumulator.size(); i++)
-                {
-                    active_shape(i) = float(shape_accumulator(i)) / float(1 << FIXED_PRECISION);
-                }
-
+            // Fixed point is currently only working for PCA in most cases (check numerical overflow)
+            DVec16s shape_accumulator;
+            for (auto& f : forests[iter])
+            {
+                add16sAnd16s(shape_accumulator, f(feature_pixel_values, Fixed(), m_npd), shape_accumulator);
+            }
+            active_shape.set_size(shape_accumulator.size());
+            for (int i = 0; i < shape_accumulator.size(); i++)
+            {
+                active_shape(i) = float(shape_accumulator(i)) / float(1 << FIXED_PRECISION);
+            }
+            
 #else  /* else don't DRISHTI_BUILD_REGRESSION_FIXED_POINT */
-                for (auto& f : forests[iter])
-                {
-                    add32F(active_shape, f(feature_pixel_values, m_npd), active_shape);
-                }
+            for (auto& f : forests[iter])
+            {
+                add32F(active_shape, f(feature_pixel_values, m_npd), active_shape);
+            }
 #endif /* DRISHTI_BUILD_REGRESSION_FIXED_POINT */
-
-                if (do_pca)
-                {
-                    DRISHTI_STREAM_LOG_FUNC(5, 5, m_streamLogger);
-                    dlib::set_rowm(current_shape_full_, dlib::range(0, current_shape_.size() - 1)) += current_shape_;
-                }
+            
+            if (do_pca)
+            {
+                dlib::set_rowm(current_shape_full_, dlib::range(0, current_shape_.size() - 1)) += current_shape_;
             }
         }
 
         if (do_pca)
         {
             // Convert the final model back to euclidean
-            DRISHTI_STREAM_LOG_FUNC(5, 6, m_streamLogger);
             int current_pca_dim = int(forests.back()[0].leaf_values[0].size());
             back_project(*m_pca, current_pca_dim, current_shape_full_, current_shape);
         }
@@ -930,7 +919,6 @@ public:
         }
 
         // Convert trailing ellipse back to standard form:
-        DRISHTI_STREAM_LOG_FUNC(5, 7, m_streamLogger);
         for (int i = 0; i < m_ellipse_count; i++)
         {
             std::vector<float> phi(5, 0.f);

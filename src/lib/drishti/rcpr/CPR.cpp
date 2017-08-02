@@ -98,8 +98,6 @@ static Vector1d pointsToPhi(const std::vector<cv::Point2f>& points)
 
 int CPR::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(8, 2, m_streamLogger);
-
     CPRResult result;
 
     if (m_isMat)
@@ -142,7 +140,6 @@ int CPR::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, Bool
 
 int CPR::operator()(const cv::Mat& I, std::vector<cv::Point2f>& points, std::vector<bool>& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(8, 3, m_streamLogger);
     return (*this)(I, {}, points, mask);
 }
 

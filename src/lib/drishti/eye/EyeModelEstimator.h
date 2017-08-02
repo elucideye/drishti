@@ -65,12 +65,9 @@ public:
 
     void setEyelidStagesHint(int stages);
     int getEyelidStagesHint() const;
-
+    
     void setIrisStagesHint(int stages);
     int getIrisStagesHint() const;
-
-    void setIrisStagesRepetitionFactor(int x);
-    int getIrisStagesRepetitionFactor() const;
 
     void setEyelidInits(int n);
     int getEyelidInits() const;

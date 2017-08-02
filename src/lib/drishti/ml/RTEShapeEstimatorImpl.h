@@ -29,7 +29,6 @@ public:
 
     void packPointsInShape(const std::vector<cv::Point2f>& points, int ellipseCount, float* shape) const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 2, m_streamLogger);
         // Copy initial chunk of 2d points
         int pointLength = points.size() - (ellipseCount * 5);
         memcpy(shape, &points[0].x, sizeof(float) * pointLength);
@@ -44,7 +43,6 @@ public:
 
     int operator()(const cv::Mat& crop, std::vector<cv::Point2f>& points, std::vector<bool>& mask) const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 3, m_streamLogger);
         CV_Assert(crop.type() == CV_8UC1);
 
         auto& sp = *m_predictor;
@@ -60,7 +58,7 @@ public:
         // Zero copy cv::Mat wrapper:
         auto img = dlib::cv_image<uint8_t>(crop);
         dlib::rectangle roi(0, 0, crop.cols, crop.rows);
-        dlib::full_object_detection shape = (*m_predictor)(img, roi, initial_shape, m_iters, m_stagesHint);
+        dlib::full_object_detection shape = (*m_predictor)(img, roi, initial_shape, m_stagesHint);
 
         points.clear();
         points.reserve(initial_shape.size() / 2);
@@ -75,20 +73,17 @@ public:
 
     void setStagesHint(int stages)
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 4, m_streamLogger);
         m_stagesHint = stages;
     }
 
     int getStagesHint() const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 5, m_streamLogger);
         return m_stagesHint;
     }
-
+    
     // {{p[0].x, p[0].y}, ..., {p[n].x,p[n.y}, {phi0[0],0}, {phi0[1],0} {phi0[2],0}, {phi0[3],0}, {phi0[4],0}}...
     std::vector<cv::Point2f> getMeanShape() const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 6, m_streamLogger);
         std::vector<fpoint> data = convert_shape_to_points<float>(m_predictor->initial_shape, m_predictor->m_ellipse_count);
         std::vector<cv::Point2f> points(data.size());
         std::transform(data.begin(), data.end(), points.begin(), [](const fpoint& p) {
@@ -127,7 +122,6 @@ public:
         return bool(m_predictor->m_pca.get());
     }
 
-    int m_iters = 1;
     int m_inits = 1;
     int m_stagesHint = std::numeric_limits<int>::max();
 

@@ -70,8 +70,6 @@ EyeSegmenter::Impl::~Impl() {}
 
 int EyeSegmenter::Impl::operator()(const Image3b& image, Eye& eye, bool isRight)
 {
-    DRISHTI_STREAM_LOG_FUNC(1, 1, m_streamLogger);
-
     int status = 0;
 
     const int minWidth = getMinWidth();

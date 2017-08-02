@@ -59,8 +59,6 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 
 int CPR::cprApply(const cv::Mat& I, const RegModel& regModel, CPRResult& result, const CPROpts& pOpts) const
 {
-    DRISHTI_STREAM_LOG_FUNC(9, 1, m_streamLogger);
-
     CPROpts opts = pOpts;
     {
         // Provide defaults if missing:
@@ -215,12 +213,8 @@ int CPR::cprApplyTree(const cv::Mat& I, const RegModel& regModel, const Vector1d
     return cprApplyTree(ImageMaskPair(I, mask), regModel, pIn, result, doPreview);
 }
 
-#define STAGE_REPETITION_FACTOR 1
-
 int CPR::cprApplyTree(const ImageMaskPair& IsIn, const RegModel& regModel, const Vector1d& pIn, CPRResult& result, bool doPreview) const
 {
-    DRISHTI_STREAM_LOG_FUNC(9, 2, m_streamLogger);
-
     ImageMaskPair Is = IsIn;
     auto& p = result.p;
     p = pIn;
@@ -236,20 +230,15 @@ int CPR::cprApplyTree(const ImageMaskPair& IsIn, const RegModel& regModel, const
     // Create a recipe for executing the stages:
     for (int i = 0; i < std::min(stagesHint, int(T)); i++)
     {
-        for (int j = 0; j < std::max(1, stagesRepetitionFactor); j++)
-        {
-            stage.push_back(i);
-        }
+        stage.push_back(i);
     }
 
     for (const auto& t : stage)
     {
         auto& reg = *(*(regModel.regs))[t];
 
-        DRISHTI_STREAM_LOG_FUNC(9, 3, m_streamLogger);
         FeaturesResult ftrResult;
         featuresComp(model, p, Is, *(reg.ftrData), ftrResult);
-        DRISHTI_STREAM_LOG_FUNC(9, 4, m_streamLogger);
 
         auto pDel = identity(model);
 
@@ -267,9 +256,7 @@ int CPR::cprApplyTree(const ImageMaskPair& IsIn, const RegModel& regModel, const
 
             for (auto& t : reg.xgbdt)
             {
-                DRISHTI_STREAM_LOG_FUNC(9, 5, m_streamLogger);
                 pDel[t.first] = (*t.second)(data[0]);
-                DRISHTI_STREAM_LOG_FUNC(9, 6, m_streamLogger);
             }
         }
 

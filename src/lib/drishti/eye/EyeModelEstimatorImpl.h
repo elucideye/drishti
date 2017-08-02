@@ -56,7 +56,6 @@ public:
     {
         return m_eyeEstimator->getStagesHint();
     }
-
     void setIrisStagesHint(int stages)
     {
         m_irisEstimator->setStagesHint(stages);
@@ -65,16 +64,6 @@ public:
     {
         return m_irisEstimator->getStagesHint();
     }
-
-    void setIrisStagesRepetitionFactor(int x)
-    {
-        m_irisEstimator->setStagesRepetitionFactor(x);
-    }
-    int getIrisStagesRepetitionFactor() const
-    {
-        return m_irisEstimator->getStagesRepetitionFactor();
-    }
-
     void setEyelidInits(int n)
     {
         m_eyelidInits = n;

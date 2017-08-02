@@ -119,16 +119,6 @@ public:
         return stagesHint;
     };
 
-    virtual void setStagesRepetitionFactor(int x)
-    {
-        stagesRepetitionFactor = x;
-    }
-
-    virtual int getStagesRepetitionFactor() const
-    {
-        return stagesRepetitionFactor;
-    }
-
     struct Model // Currently used in both CprPrm and RegModel ???
     {
         struct Parts
@@ -322,7 +312,6 @@ protected:
 #endif
 
     int stagesHint = std::numeric_limits<int>::max();
-    int stagesRepetitionFactor = 1;
 
     ViewFunc m_viewer;
 };

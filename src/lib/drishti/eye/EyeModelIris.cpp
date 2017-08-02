@@ -36,8 +36,6 @@ static void createIrisEstimates(const EyeModel& eye, const cv::RotatedRect& pSta
 
 void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
 {
-    DRISHTI_STREAM_LOG_FUNC(4, 1, m_streamLogger);
-
     // Find transformation mapping mean iris to our image:
     auto cpr = dynamic_cast<drishti::rcpr::CPR*>(m_irisEstimator.get());
     CV_Assert(cpr != 0);
