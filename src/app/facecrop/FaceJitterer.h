@@ -20,12 +20,12 @@
 
 #include <array>
 
-using Landmark5 = std::array<cv::Point2f, 5>;
+using Landmarks = std::vector<cv::Point2f>;
 
 // Overload some operators for the landmark points for readable arithmetic (not performance critical):
-inline Landmark5 operator*(const Landmark5& src, double w)
+inline Landmarks operator*(const Landmarks& src, double w)
 {
-    std::array<cv::Point2f, 5> dst;
+    Landmarks dst(src.size());
     for (int i = 0; i < src.size(); i++)
     {
         dst[i] = src[i] * w;
@@ -33,9 +33,9 @@ inline Landmark5 operator*(const Landmark5& src, double w)
     return dst;
 }
 
-inline Landmark5 operator-(const Landmark5& a, const Landmark5& b)
+inline Landmarks operator-(const Landmarks& a, const Landmarks& b)
 {
-    Landmark5 dst;
+    Landmarks dst(a.size());
     for (int i = 0; i < a.size(); i++)
     {
         dst[i] = a[i] - b[i];
@@ -43,9 +43,9 @@ inline Landmark5 operator-(const Landmark5& a, const Landmark5& b)
     return dst;
 }
 
-inline Landmark5 operator+(const Landmark5& a, const Landmark5& b)
+inline Landmarks operator+(const Landmarks& a, const Landmarks& b)
 {
-    Landmark5 dst;
+    Landmarks dst(a.size());
     for (int i = 0; i < a.size(); i++)
     {
         dst[i] = a[i] + b[i];
@@ -56,8 +56,10 @@ inline Landmark5 operator+(const Landmark5& a, const Landmark5& b)
 struct FaceWithLandmarks
 {
     cv::Mat image;
-    Landmark5 landmarks; // {eyeR, eyeL, nose, mouthR, mouthL}
-
+    Landmarks landmarks;
+    Landmarks eyesNoseMouth; // {eyeR, eyeL, nose, mouthR, mouthL}
+    std::string filename;
+    
     FaceWithLandmarks& operator=(const FaceWithLandmarks& src)
     {
         image = src.image;
@@ -77,8 +79,62 @@ struct FaceWithLandmarks
 
     void flop()
     {
-        std::swap(landmarks[0], landmarks[1]); // swap eyes
-        std::swap(landmarks[3], landmarks[4]); // swap mouth corners
+        switch(landmarks.size())
+        {
+            case 5:
+            {
+                // swap eyes
+                std::swap(landmarks[0], landmarks[1]);
+                // swap mouth corners
+                std::swap(landmarks[3], landmarks[4]);
+            } break;
+                
+            case 68:
+            {
+                // Contour
+                std::swap(landmarks[0], landmarks[12]);
+                std::swap(landmarks[1], landmarks[11]);
+                std::swap(landmarks[2], landmarks[10]);
+                std::swap(landmarks[3], landmarks[9]);
+                std::swap(landmarks[4], landmarks[8]);
+                std::swap(landmarks[5], landmarks[7]);
+                std::swap(landmarks[6], landmarks[6]);
+                
+                // Eye
+                std::swap(landmarks[13], landmarks[21]);
+                std::swap(landmarks[14], landmarks[22]);
+                std::swap(landmarks[15], landmarks[23]);
+                std::swap(landmarks[16], landmarks[24]);
+                std::swap(landmarks[17], landmarks[25]);
+                std::swap(landmarks[18], landmarks[26]);
+                std::swap(landmarks[19], landmarks[27]);
+                std::swap(landmarks[20], landmarks[28]);
+                
+                // Eyebrow
+                std::swap(landmarks[29], landmarks[34]);
+                std::swap(landmarks[30], landmarks[35]);
+                std::swap(landmarks[31], landmarks[36]);
+                std::swap(landmarks[32], landmarks[37]);
+                std::swap(landmarks[33], landmarks[38]);
+                
+                // Mouth
+                std::swap(landmarks[39], landmarks[43]);
+                std::swap(landmarks[46], landmarks[44]);
+                std::swap(landmarks[41], landmarks[41]);
+                std::swap(landmarks[40], landmarks[42]);
+                std::swap(landmarks[45], landmarks[45]);
+                
+                // Nose
+                std::swap(landmarks[47], landmarks[57]);
+                std::swap(landmarks[48], landmarks[56]);
+                std::swap(landmarks[49], landmarks[55]);
+                std::swap(landmarks[50], landmarks[54]);
+                std::swap(landmarks[51], landmarks[53]);
+                std::swap(landmarks[52], landmarks[52]);
+            } break;
+                
+            default: CV_Assert(landmarks.size() == 5 || landmarks.size() == 68);
+        }
     }
 };
 
@@ -103,7 +159,7 @@ struct FaceWithLandmarksMean : public FaceWithLandmarks
     int count = 0;
 
 protected:
-    void updateMeanFloat(const cv::Mat& image1, const std::array<cv::Point2f, 5>& landmarks1)
+    void updateMeanFloat(const cv::Mat& image1, const std::vector<cv::Point2f>& landmarks1)
     {
         count++;
         if (image.empty())

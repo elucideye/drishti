@@ -60,6 +60,7 @@
 #include "landmarks/LFPW.h"
 #include "landmarks/DRISHTI.h"
 #include "landmarks/TWO.h"
+#include "landmarks/DlibXML.h"
 
 #include "FaceSpecification.h"
 #include "FaceJitterer.h"
@@ -149,11 +150,17 @@ struct FaceJittererMean : public FaceJitterer
         for (const auto& f : faces)
         {
             mu.updateMean(f);
+            jitteredFaces.push_back(f);
         }
     }
+    
+    // Maintain a list of jittered faces
+    std::vector<FaceWithLandmarks> jitteredFaces;
 
     FaceWithLandmarksMean mu;
 };
+
+// -----------------------------------------------
 
 using ImageVec = std::vector<cv::Mat>;
 using FaceJittererMeanPtr = std::unique_ptr<FaceJittererMean>;
@@ -163,7 +170,7 @@ static int saveInpaintedSamples(const FACE::Table& table, const std::string sBac
 static FaceWithLandmarks computeMeanFace(FaceResourceManager& manager);
 static void saveMeanFace(FaceResourceManager& manager, const FaceSpecification& faceSpec, const std::string& sImage, const std::string& sPoints, spdlog::logger& logger);
 static int saveDefaultConfigs(const std::string& sOutput, spdlog::logger& logger);
-static void save(const std::vector<FaceWithLandmarks>& faces, const cv::Rect& roi, const std::string& dir, const std::string& filename, int index);
+static void save(std::vector<FaceWithLandmarks>& faces, const cv::Rect& roi, const std::string& dir, const std::string& filename, int index);
 static void previewFaceWithLandmarks(cv::Mat& image, const std::vector<cv::Point2f>& landmarks);
 static GroundTruth parseInput(const std::string& sInput, const std::string& sFormat, const std::string& sDirectoryIn, const std::string& sExtension);
 static FACE::Table parseRAW(const std::string& sInput);
@@ -210,7 +217,8 @@ int gauze_main(int argc, char* argv[])
     bool doPreview = false;
     bool doBoilerplate = false;
     bool doPhotometricJitterOnly = false;
-
+    bool doLandmarks = false;
+    
     cxxopts::Options options("drishti-facecrop", "Command line interface for facecrop object detection.");
 
     // clang-format off
@@ -226,12 +234,12 @@ int gauze_main(int argc, char* argv[])
         ("e,extension", "Image filename extensions", cxxopts::value<std::string>(sExtension))
         ("w,window", "Do preview window", cxxopts::value<bool>(doPreview))
         ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitterOnly))
+        ("l,landmarks", "Master landmark file (xml format)", cxxopts::value<bool>(doLandmarks))
 
 #if defined(DRISHTI_BUILD_EOS)
         ("eos-model", "EOS 3D dephormable model", cxxopts::value<std::string>(sEosModel))
         ("eos-mapping", "EOS Landmark mapping", cxxopts::value<std::string>(sEosMapping))
 #endif
-    
         ("standardize", "Standardize input files to filename + bounding boxes", cxxopts::value<std::string>(sStandardize))
     
         // ### Negative options ###
@@ -403,7 +411,6 @@ int gauze_main(int argc, char* argv[])
         }
     }
     
-    
 #if defined(DRISHTI_BUILD_EOS)
     if(!(sEosModel.empty() || sEosMapping.empty()))
     {
@@ -463,14 +470,14 @@ int gauze_main(int argc, char* argv[])
                 {
                     faces.push_back((*jitterer)(image, table.lines[i].points, !doPhotometricJitterOnly, true));
                 }
-                
-                jitterer->updateMean(faces);
-
+ 
                 if(!sPositives.empty())
                 {
                     cv::Rect roi(cv::Point(faceSpec.border, faceSpec.border), faceSpec.size);
                     save(faces, roi, sPositives, table.lines[i].filename, i);
                 }
+                
+                jitterer->updateMean(faces);
                 
 #if defined(DRISHTI_USE_IMSHOW)
                 if(doPreview)
@@ -482,7 +489,9 @@ int gauze_main(int argc, char* argv[])
                     std::vector<cv::Mat> images;
                     for(const auto &f : faces)
                     {
-                        images.push_back(f.image);
+                        cv::Mat chip = f.image.clone();
+                        previewFaceWithLandmarks(chip, f.landmarks); 
+                        images.push_back(chip);
                     }
                     
                     cv::hconcat(images, canvas);
@@ -496,6 +505,10 @@ int gauze_main(int argc, char* argv[])
         }
     };
     
+    
+#if 1
+    harness({0,10});
+#else
     if(threads == 1 || threads == 0 || doPreview)
     {
         harness({0,static_cast<int>(table.lines.size())});
@@ -503,6 +516,30 @@ int gauze_main(int argc, char* argv[])
     else
     {
         cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, std::max(threads, -1));
+    }
+#endif
+    
+    // Write a master landmark file (suitable for dlib)
+    if(doLandmarks)
+    {
+        std::string filename = sPositives + "/landmarks.xml";
+        std::ofstream os(filename);
+        if (os)
+        {
+            logger->info("Writing landmarks file: {}", filename);
+            DlibDocument landmarkXml;
+            landmarkXml.start();
+            for (const auto& j : manager.getMap())
+            {
+                for (const auto& f : j.second->jitteredFaces)
+                {
+                    std::cout << "f.filename = " << f.filename << std::endl;
+                    landmarkXml.addPoints(f.landmarks, f.filename);
+                }
+            }
+            landmarkXml.finish();
+            landmarkXml.write(os);
+        }
     }
 
     saveMeanFace(manager, faceSpec, sPositives + "/mean.png", sPositives + "/mean", *logger);
@@ -603,7 +640,6 @@ static GroundTruth parseInput(const std::string &sInput, const std::string &sFor
     return gt;
 }
 
-
 static FACE::Table parseRAW(const std::string &sInput)
 {
     const auto filenames = drishti::cli::expand(sInput);
@@ -659,35 +695,6 @@ static int standardizeFaceData(const FACE::Table &table, const std::string &sOut
 #include <fstream>
 #include <iostream>
 
-// http://stackoverflow.com/a/22926477
-template <typename T>
-inline T ntoh_any(T t)
-{
-    static const unsigned char int_bytes[sizeof(int)] = {0xFF};
-    static const int msb_0xFF = 0xFF << (sizeof(int) - 1) * CHAR_BIT;
-    static bool host_is_big_endian = (*(reinterpret_cast<const int *>(int_bytes)) & msb_0xFF ) != 0;
-    if (host_is_big_endian) { return t; }
-
-    unsigned char * ptr = reinterpret_cast<unsigned char *>(&t);
-    std::reverse(ptr, ptr + sizeof(t) );
-    return t;
-}
-
-static cv::Size read_png_size(const std::string &filename)
-{
-    cv::Size size; // 0
-    std::ifstream in(filename);
-    if(in)
-    {
-        unsigned int width, height;
-        in.seekg(16);
-        in.read((char *)&width, 4);
-        in.read((char *)&height, 4);
-        size = { static_cast<int>(ntoh_any(width)), static_cast<int>(ntoh_any(height)) };        
-    }
-    return size;
-}
-
 static void computePose(FACE::Table &table, const std::string &sModel, const std::string &sMapping, std::shared_ptr<spdlog::logger> &logger)
 {
     FaceMeshMapperResourceManager manager = [&]()
@@ -728,7 +735,7 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
 }
 #endif 
 
-static int saveLandmarksJson(const std::string &sOutput, const std::array<cv::Point2f, 5> &landmarks, spdlog::logger &logger)
+static int saveLandmarksJson(const std::string &sOutput, const std::vector<cv::Point2f> &landmarks, spdlog::logger &logger)
 {
     // Write default jitter parameters:
     std::ofstream os(sOutput);
@@ -893,7 +900,7 @@ static void save_bbGtv3(const std::string &sOutput, const std::vector<cv::Rect> 
     }
 }
 
-static void save(const std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, const std::string &dir, const std::string &filename, int index)
+static void save(std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, const std::string &dir, const std::string &filename, int index)
 {
     for(int i = 0; i < faces.size(); i++)
     {
@@ -905,6 +912,7 @@ static void save(const std::vector<FaceWithLandmarks> &faces, const cv::Rect &ro
         { // save the image file
             std::string sOutput = dir + "/" + ss.str() + "_" + base + ".png";
             cv::imwrite(sOutput, faces[i].image);
+            faces[i].filename = sOutput;
         }
         
         {  // Save bbox file for each face (compatible w/ Piotr's toolbox):
@@ -968,7 +976,6 @@ static int saveNegatives(const FACE::Table &table, const std::string &sOutput, i
     
     return 0;
 }
-
 
 static int saveInpaintedSamples(const FACE::Table &table, const std::string sBackground, const std::string &sOutput, spdlog::logger &logger)
 {
