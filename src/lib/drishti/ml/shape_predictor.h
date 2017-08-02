@@ -1453,9 +1453,7 @@ private:
             const auto& b = tform_from_img.get_b();
             cv::Matx33f H(m(0, 0), m(0, 1), b(0), m(1, 0), m(1, 1), b(1), 0, 0, 1);
 
-            e2 = H * e; // this will preserve the orientation
-
-            std::vector<float> phi = geometry::ellipseToVector(e2);
+            std::vector<float> phi = geometry::ellipseToPhi(H * e);
             for (int k = 0; k < phi.size(); k++, j++)
             {
                 shape(j) = phi[k];
