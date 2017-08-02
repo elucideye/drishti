@@ -175,6 +175,12 @@ int gauze_main(int argc, char* argv[])
     dlib::image_dataset_file source(sTrain);
     source.skip_empty_images();
     load_image_dataset(images_train, faces_train, source);
+    
+    if(faces_train.empty())
+    {
+        logger->error("No shapes specified for training");
+        return 1;
+    }
 
     if(do_thumbs)
     {
