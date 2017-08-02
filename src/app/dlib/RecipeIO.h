@@ -28,12 +28,12 @@ struct Recipe
     float nu = 0.1;
     float padding = 0;
     int cascades = 10;
-    int depth = 5;
-    int ellipse_count = 0;
-    int features = 400;
-    int oversampling = 20;
-    int splits = 20;
-    int trees_per_level = 500;
+    int depth = 2;
+    int ellipse_count = 2;
+    int features = 2048;
+    int oversampling = 8;
+    int splits = 512;
+    int trees_per_level = 512;
     int width = 0;
     bool do_pca = true;
     std::vector<int> dimensions;
