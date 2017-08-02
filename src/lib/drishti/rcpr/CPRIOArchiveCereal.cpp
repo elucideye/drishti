@@ -31,7 +31,7 @@ CEREAL_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
 // cereal found more than one compatible output serialization function for the provided type and archive combination.
 CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::acf::Field<cv::Mat>, cereal::specialization::member_serialize);
 CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::rcpr::CPR, cereal::specialization::member_serialize);
-CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(std::shared_ptr<drishti::rcpr::CPR>, cereal::specialization::non_member_load_save);
+//CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(std::shared_ptr<drishti::rcpr::CPR>, cereal::specialization::non_member_load_save);
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
