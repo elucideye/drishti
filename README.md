@@ -1,5 +1,6 @@
 # drishti
 
+![drishti_text_big](https://user-images.githubusercontent.com/554720/28922218-3a005f9c-7827-11e7-839c-ef3e9a282f70.png)
 
 ### Real time eye tracking for embedded and mobile devices in C++11.
 
@@ -23,8 +24,6 @@ Goal: SDK size <= 1 MB and combined resources (object detection + regression mod
 
 [appveyor_status]: https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true
 [appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti
-
-
 
 * [Hunter](https://github.com/ruslo/hunter) package management and CMake build system by Ruslan Baratov, as well as much of the cross platform Qt work: "Organized Freedom!" :)
 * A C++ and OpenGL ES 2.0 implementation of [Fast Feature Pyramids for Object Detection](https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf) (see [Piotr's Matlab Toolbox](https://pdollar.github.io/toolbox)) for face and eye detection
