@@ -25,8 +25,8 @@ using namespace string_hash;
 
 #define DRISHTI_FACE_MEAN_5_POINT "drishti_face_tight_64x64_gray_V5_mean.xml"
 #define DRISHTI_FACE_INNER_DETECT "drishti_face_tight_64x64_gray_V5." DRISHTI_ARCHIVE
-#define DRISHTI_FACE_INNER "drishti_face_inner." DRISHTI_ARCHIVE
-#define DRISHTI_EYE_FULL "drishti_eye_full_npd_eix." DRISHTI_ARCHIVE
+#define DRISHTI_FACE_INNER "drishti_face_model." DRISHTI_ARCHIVE
+#define DRISHTI_EYE_FULL "drishti_full_eye_model." DRISHTI_ARCHIVE
 
 bool QtFaceDetectorFactory::load(const std::string& filename, LoaderFunction& loader)
 {
