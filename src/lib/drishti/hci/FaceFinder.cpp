@@ -660,9 +660,12 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInpu
             fill(*P);
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
+            std::string home = getenv("HOME");
+            home += "/Documents/";
+            
             cv::Mat channels = impl->acf->getChannels();
-            cv::imwrite("/tmp/acf_gpu.png", channels);
-            logPyramid("/tmp/Pgpu.png", *P);
+            cv::imwrite(home + "/acf_gpu.png", channels);
+            logPyramid(home + "/Pgpu.png", *P);
 #endif
         }
     }
@@ -694,7 +697,9 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfCpu(const FrameInpu
         impl->detector->computePyramid(LUVp, *P);
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
-        logPyramid("/tmp/Pcpu.png", *P);
+        std::string home = getenv("HOME");
+        home += "/Documents/";
+        logPyramid(home + "/Pcpu.png", *P);
 #endif
     }
 
