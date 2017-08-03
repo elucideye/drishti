@@ -1,10 +1,16 @@
 # drishti
-Real time eye tracking for embedded and mobile devices in C++ (>= C++11).
+
+
+### Real time eye tracking for embedded and mobile devices in C++11.
+
+![eye models 1](https://user-images.githubusercontent.com/554720/28920911-d836e56a-7821-11e7-8b41-bc338f100cc1.png)
 
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square)](http://opensource.org/licenses/BSD-3-Clause)
 [![HUNTER](https://img.shields.io/badge/hunter-v0.18.28-blue.svg)](http://github.com/ruslo/hunter)
 
 Goal: SDK size <= 1 MB and combined resources (object detection + regression models) <= 4 MB.
+
+![eye models 2](https://user-images.githubusercontent.com/554720/28920912-da9f3820-7821-11e7-848c-f526922e24ec.png)
 
 | Linux/OSX/Android/iOS                           | Windows                                             |
 |-------------------------------------------------|-----------------------------------------------------|
@@ -16,6 +22,8 @@ Goal: SDK size <= 1 MB and combined resources (object detection + regression mod
 
 [appveyor_status]: https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true
 [appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti
+
+![eye models 3](https://user-images.githubusercontent.com/554720/28920920-dcd8e708-7821-11e7-8fc2-b9f375a9a550.png)
 
 * [Hunter](https://github.com/ruslo/hunter) package management and CMake build system by Ruslan Baratov, as well as much of the cross platform Qt work: "Organized Freedom!" :)
 * A C++ and OpenGL ES 2.0 implementation of [Fast Feature Pyramids for Object Detection](https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf) (see [Piotr's Matlab Toolbox](https://pdollar.github.io/toolbox)) for face and eye detection
