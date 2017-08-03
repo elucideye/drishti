@@ -30,7 +30,7 @@ FaceJitterer::FaceJitterer(const FACE::Table& table, const JitterParams& params,
 {
 }
 
-FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks& landmarks, bool doJitter, bool doNoise)
+FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks& landmarks, bool doMirror, bool doNoise)
 {
     Landmarks eyesNoseMouth{
         mean(landmarks, m_table.eyeR),
@@ -43,7 +43,7 @@ FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks
     const cv::Matx33f S = m_face();                                  // scale to target image dimensions
     cv::Matx33f H = S * P;
 
-    auto jitter = doJitter ? m_params(m_rng, m_face.size, m_face.tl()) : m_params.mirror(m_rng, m_face.size, m_face.tl());
+    auto jitter = doMirror ? m_params.mirror(m_rng, m_face.size, m_face.tl()) : m_params(m_rng, m_face.size, m_face.tl());
     jitter.first = jitter.first * H;
 
     cv::Mat face(m_face.paddedSize(), CV_8UC3, cv::Scalar::all(0));

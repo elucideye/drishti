@@ -204,6 +204,7 @@ int gauze_main(int argc, char* argv[])
     std::string sStandardize;
     std::string sFaceSpec;
     std::string sJitterIn;
+    std::string sLandmarks;
 
 #if defined(DRISHTI_BUILD_EOS)
     std::string sEosModel;
@@ -213,11 +214,12 @@ int gauze_main(int argc, char* argv[])
     int sampleCount = 0;
     int winSize = 48; // min crop width
     int threads = -1;
+    
     bool doInpaint = false;
     bool doPreview = false;
     bool doBoilerplate = false;
     bool doPhotometricJitterOnly = false;
-    bool doLandmarks = false;
+    bool doMirrorOnly = false;
     
     cxxopts::Options options("drishti-facecrop", "Command line interface for facecrop object detection.");
 
@@ -234,7 +236,8 @@ int gauze_main(int argc, char* argv[])
         ("e,extension", "Image filename extensions", cxxopts::value<std::string>(sExtension))
         ("w,window", "Do preview window", cxxopts::value<bool>(doPreview))
         ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitterOnly))
-        ("l,landmarks", "Master landmark file (xml format)", cxxopts::value<bool>(doLandmarks))
+        ("l,landmarks", "Master landmark file (xml format)", cxxopts::value<std::string>(sLandmarks))
+        ("m,mirror", "Perform jittering", cxxopts::value<bool>(doMirrorOnly)) // mirror (but no jitter)
 
 #if defined(DRISHTI_BUILD_EOS)
         ("eos-model", "EOS 3D dephormable model", cxxopts::value<std::string>(sEosModel))
@@ -286,7 +289,21 @@ int gauze_main(int argc, char* argv[])
             return 1;
         }
     }
-
+    
+    if (!sLandmarks.empty())
+    {
+        std::ofstream check(sLandmarks);
+        if(check)
+        {
+            remove(sLandmarks.c_str());
+        }
+        else
+        {
+            logger->error("Specified landmark file {} does not exist", sLandmarks);
+            return 1;
+        }
+    }
+    
     // ... negatives ...
     if(!sNegatives.empty())
     {
@@ -465,7 +482,7 @@ int gauze_main(int argc, char* argv[])
             
             if(!image.empty())
             {
-                std::vector<FaceWithLandmarks> faces { (*jitterer)(image, table.lines[i].points, false, true) };
+                std::vector<FaceWithLandmarks> faces { (*jitterer)(image, table.lines[i].points, doMirrorOnly, true) };
                 for(int j = 1; j < repeat[i]; j++)
                 {
                     faces.push_back((*jitterer)(image, table.lines[i].points, !doPhotometricJitterOnly, true));
@@ -504,11 +521,8 @@ int gauze_main(int argc, char* argv[])
             }
         }
     };
+    harness({0,static_cast<int>(table.lines.size())});
     
-    
-#if 1
-    harness({0,10});
-#else
     if(threads == 1 || threads == 0 || doPreview)
     {
         harness({0,static_cast<int>(table.lines.size())});
@@ -517,23 +531,20 @@ int gauze_main(int argc, char* argv[])
     {
         cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, std::max(threads, -1));
     }
-#endif
     
     // Write a master landmark file (suitable for dlib)
-    if(doLandmarks)
+    if (!sLandmarks.empty())
     {
-        std::string filename = sPositives + "/landmarks.xml";
-        std::ofstream os(filename);
+        std::ofstream os(sLandmarks);
         if (os)
         {
-            logger->info("Writing landmarks file: {}", filename);
+            logger->info("Writing landmarks file: {}", sLandmarks);
             DlibDocument landmarkXml;
             landmarkXml.start();
             for (const auto& j : manager.getMap())
             {
                 for (const auto& f : j.second->jitteredFaces)
                 {
-                    std::cout << "f.filename = " << f.filename << std::endl;
                     landmarkXml.addPoints(f.landmarks, f.filename);
                 }
             }
@@ -929,7 +940,6 @@ static void previewFaceWithLandmarks(cv::Mat &image, const std::vector<cv::Point
         cv::circle(image, p, 2, {0,255,0}, -1, 8);
     }
 }
-
 
 static int saveNegatives(const FACE::Table &table, const std::string &sOutput, int sampleCount, int winSize, int threads, spdlog::logger &logger)
 {
