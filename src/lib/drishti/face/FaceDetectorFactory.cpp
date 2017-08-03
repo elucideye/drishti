@@ -71,6 +71,8 @@ std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getOuterFaceEstim
 
 std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
 {
+    iEyeRegressor->clear();
+    iEyeRegressor->seekg(0, std::ios::beg);
     return core::make_unique<eye::EyeModelEstimator>(*iEyeRegressor, sEyeRegressor);
 }
 
