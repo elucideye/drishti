@@ -92,45 +92,58 @@ struct FaceWithLandmarks
             case 68:
             {
                 // Contour
-                std::swap(landmarks[0], landmarks[12]);
-                std::swap(landmarks[1], landmarks[11]);
-                std::swap(landmarks[2], landmarks[10]);
-                std::swap(landmarks[3], landmarks[9]);
-                std::swap(landmarks[4], landmarks[8]);
-                std::swap(landmarks[5], landmarks[7]);
-                std::swap(landmarks[6], landmarks[6]);
-                
-                // Eye
-                std::swap(landmarks[13], landmarks[21]);
-                std::swap(landmarks[14], landmarks[22]);
-                std::swap(landmarks[15], landmarks[23]);
-                std::swap(landmarks[16], landmarks[24]);
-                std::swap(landmarks[17], landmarks[25]);
-                std::swap(landmarks[18], landmarks[26]);
-                std::swap(landmarks[19], landmarks[27]);
-                std::swap(landmarks[20], landmarks[28]);
+                std::swap(landmarks[0], landmarks[16]);
+                std::swap(landmarks[1], landmarks[15]);
+                std::swap(landmarks[2], landmarks[14]);
+                std::swap(landmarks[3], landmarks[13]);
+                std::swap(landmarks[4], landmarks[12]);
+                std::swap(landmarks[5], landmarks[11]);
+                std::swap(landmarks[6], landmarks[10]);
+                std::swap(landmarks[7], landmarks[9]);
+                std::swap(landmarks[8], landmarks[8]);
                 
                 // Eyebrow
-                std::swap(landmarks[29], landmarks[34]);
-                std::swap(landmarks[30], landmarks[35]);
-                std::swap(landmarks[31], landmarks[36]);
-                std::swap(landmarks[32], landmarks[37]);
-                std::swap(landmarks[33], landmarks[38]);
-                
-                // Mouth
-                std::swap(landmarks[39], landmarks[43]);
-                std::swap(landmarks[46], landmarks[44]);
-                std::swap(landmarks[41], landmarks[41]);
-                std::swap(landmarks[40], landmarks[42]);
-                std::swap(landmarks[45], landmarks[45]);
+                std::swap(landmarks[17], landmarks[26]);
+                std::swap(landmarks[18], landmarks[25]);
+                std::swap(landmarks[19], landmarks[24]);
+                std::swap(landmarks[20], landmarks[23]);
+                std::swap(landmarks[21], landmarks[22]);
                 
                 // Nose
-                std::swap(landmarks[47], landmarks[57]);
-                std::swap(landmarks[48], landmarks[56]);
-                std::swap(landmarks[49], landmarks[55]);
-                std::swap(landmarks[50], landmarks[54]);
-                std::swap(landmarks[51], landmarks[53]);
-                std::swap(landmarks[52], landmarks[52]);
+                std::swap(landmarks[27], landmarks[27]);
+                std::swap(landmarks[28], landmarks[28]);
+                std::swap(landmarks[29], landmarks[29]);
+                std::swap(landmarks[30], landmarks[30]);
+                
+                std::swap(landmarks[31], landmarks[35]);
+                std::swap(landmarks[32], landmarks[34]);
+                std::swap(landmarks[33], landmarks[33]);
+                
+                // Eye
+                std::swap(landmarks[39], landmarks[42]);
+                std::swap(landmarks[38], landmarks[43]);
+                std::swap(landmarks[37], landmarks[44]);
+                std::swap(landmarks[36], landmarks[45]);
+                std::swap(landmarks[40], landmarks[47]);
+                std::swap(landmarks[41], landmarks[46]);
+                
+                // Mouth
+                std::swap(landmarks[48], landmarks[54]);
+                std::swap(landmarks[49], landmarks[53]);
+                std::swap(landmarks[50], landmarks[52]);
+                std::swap(landmarks[51], landmarks[51]);
+                
+                std::swap(landmarks[59], landmarks[55]);
+                std::swap(landmarks[58], landmarks[56]);
+                std::swap(landmarks[57], landmarks[57]);
+                
+                std::swap(landmarks[60], landmarks[64]);
+                std::swap(landmarks[61], landmarks[63]);
+                std::swap(landmarks[62], landmarks[62]);
+                
+                std::swap(landmarks[67], landmarks[65]);
+                std::swap(landmarks[66], landmarks[66]);
+                
             } break;
                 
             default: CV_Assert(landmarks.size() == 5 || landmarks.size() == 68);
@@ -181,7 +194,7 @@ public:
     using Landmarks = std::vector<cv::Point2f>;
 
     FaceJitterer(const FACE::Table& table, const JitterParams& params, const FaceSpecification& face);
-    FaceWithLandmarks operator()(const cv::Mat& image, const Landmarks& landmarks, bool doJitter, bool doNoise);
+    FaceWithLandmarks operator()(const cv::Mat& image, const Landmarks& landmarks, bool doMirror, bool doNoise);
     void setDoPreview(bool value) { m_doPreview = value; }
     bool getDoPreview() const { return m_doPreview; }
 
