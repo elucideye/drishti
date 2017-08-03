@@ -23,11 +23,11 @@ struct FaceSpecification
 {
     enum Format
     {
-        HELEN,
-        LFPW
+        kHELEN,
+        kibug68
     };
 
-    Format format = HELEN;
+    Format format = kibug68;
 
     using IntVec = std::vector<int>;
 
@@ -49,7 +49,7 @@ struct FaceSpecification
     static FaceSpecification create(Format format);
 };
 
-FaceModel shapeToFace(drishti::core::Shape& shape, FaceSpecification::Format kind = FaceSpecification::HELEN);
+FaceModel shapeToFace(drishti::core::Shape& shape, FaceSpecification::Format kind = FaceSpecification::kibug68);
 
 DRISHTI_FACE_NAMESPACE_END
 

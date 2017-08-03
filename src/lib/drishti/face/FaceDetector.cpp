@@ -463,10 +463,15 @@ public:
             regressor->setIrisStagesHint(stages);
         }
     }
+    
+    drishti::ml::ObjectDetector* getDetector()
+    {
+        return m_detector.get();
+    }
 
-    //private:
+protected:
 
-    FaceSpecification::Format m_landmarkFormat = FaceSpecification::HELEN;
+    FaceSpecification::Format m_landmarkFormat = FaceSpecification::kibug68;
 
     cv::Mat m_Ib; // TODO: review.  needed for clean virtual api
 
@@ -531,7 +536,7 @@ void FaceDetector::setLogger(MatLoggerType logger)
 }
 drishti::ml::ObjectDetector* FaceDetector::getDetector()
 {
-    return m_impl->m_detector.get();
+    return m_impl->getDetector();
 }
 
 FaceDetector::FaceDetector(FaceDetectorFactory& resources)
@@ -597,7 +602,7 @@ void FaceDetector::operator()(const MatP& I, const PaddedImage& Ib, std::vector<
 
 cv::Size FaceDetector::getWindowSize() const
 {
-    return m_impl->m_detector->getWindowSize();
+    return m_impl->getDetector()->getWindowSize();
 }
 void FaceDetector::setDetectionTimeLogger(TimeLoggerType logger)
 {
