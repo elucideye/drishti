@@ -163,7 +163,7 @@ protected:
     std::shared_ptr<drishti::eye::EyeModel> m_eye;
 
     // Score tolerance:
-    float m_scoreThreshold = 0.75;
+    float m_scoreThreshold = 0.70;
 };
 
 static void checkValid(const drishti::eye::EyeModel& eye, const cv::Size& size)
