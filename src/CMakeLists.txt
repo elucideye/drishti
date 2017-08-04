@@ -191,10 +191,15 @@ endif()
 
 set(EOS_LIB "") # Make EOS_LIB optional
 if(DRISHTI_BUILD_EOS)
+
+  hunter_add_package(Boost)
+  find_package(Boost CONFIG REQUIRED filesystem) # TODO: add upstream to eos/cmake/Config.cmake.in
+  
   hunter_add_package(eos)
   find_package(eos CONFIG REQUIRED)
-  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS eos::eos) # Add library
-  set(EOS_LIB eos::eos)
+  set(EOS_LIB eos::eos Boost::filesystem)  
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS ${EOS_LIB}) # Add library
+
 endif()
 
 ############

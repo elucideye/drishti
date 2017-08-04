@@ -23,14 +23,14 @@ void denormalize(Iter first, Iter last, const cv::Size& size)
     }
 }
 
-FaceJitterer::FaceJitterer(const FACE::Table& table, const JitterParams& params, const FaceSpecification& face)
+FaceJitterer::FaceJitterer(const FACE::Table& table, const FaceSpecification& face, const JitterParams& params)
     : m_table(table)
     , m_params(params)
     , m_face(face)
 {
 }
 
-FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks& landmarks, bool doMirror, bool doNoise)
+FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks& landmarks, CropMode mode, bool doNoise)
 {
     Landmarks eyesNoseMouth{
         mean(landmarks, m_table.eyeR),
@@ -43,7 +43,20 @@ FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks
     const cv::Matx33f S = m_face();                                  // scale to target image dimensions
     cv::Matx33f H = S * P;
 
-    auto jitter = doMirror ? m_params.mirror(m_rng, m_face.size, m_face.tl()) : m_params(m_rng, m_face.size, m_face.tl());
+    std::pair<cv::Matx33f, bool> jitter;
+    switch (mode)
+    {
+        case kCrop:
+            jitter = std::make_pair(cv::Matx33f::eye(), false);
+            break;
+        case kMirror:
+            jitter = std::make_pair(m_params.scale(m_face.size, m_face.tl(), -1.f, 1.f), true);
+            break;
+        case kJitter:
+            jitter = m_params(m_rng, m_face.size, m_face.tl());
+            break;
+    }
+    
     jitter.first = jitter.first * H;
 
     cv::Mat face(m_face.paddedSize(), CV_8UC3, cv::Scalar::all(0));

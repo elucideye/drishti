@@ -44,21 +44,25 @@ std::pair<cv::Matx33f, bool> JitterParams::operator()(cv::RNG& rng, const cv::Si
 
 std::pair<cv::Matx33f, bool> JitterParams::mirror(cv::RNG& rng, const cv::Size& size, const cv::Point& tl) const
 {
-    float signum = 1.f;
-    bool doMirror = false;
     if ((flop > 0.f) && (rng.uniform(0.f, 1.f) < flop))
     {
-        signum = -1.f;
-        doMirror = true;
+        return std::make_pair(scale(size, tl, -1.f, +1.f), true);
     }
+    else
+    {
+        return std::make_pair(scale(size, tl, +1.f, +1.f), false);
+    }
+}
 
+cv::Matx33f JitterParams::scale(const cv::Size& size, const cv::Point& tl, float sx, float sy) const
+{
     const cv::Point2f center(tl.x + (size.width / 2), tl.y + (size.height / 2));
-    const cv::Matx33f S = transformation::scale(signum, 1.f);
+    const cv::Matx33f S = transformation::scale(sx, sy);
     const cv::Matx33f T1 = transformation::translate(-center);
     const cv::Matx33f T2 = transformation::translate(center);
     const cv::Matx33f H = T2 * S * T1;
-
-    return std::make_pair(H, doMirror);
+    
+    return H;
 }
 
 float JitterParams::getGain(cv::RNG& rng) const

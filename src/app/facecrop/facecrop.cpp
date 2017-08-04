@@ -81,6 +81,8 @@
 #include <cereal/types/array.hpp>
 #include <cereal/types/map.hpp>
 
+#include <Eigen/Geometry> 
+
 #include "cxxopts.hpp"
 
 #include <fstream>
@@ -140,8 +142,8 @@ std::string get_sha1(void const* buffer, std::size_t byte_count)
 
 struct FaceJittererMean : public FaceJitterer
 {
-    FaceJittererMean(const FACE::Table& table, const JitterParams& params, const FaceSpecification& face)
-        : FaceJitterer(table, params, face)
+    FaceJittererMean(const FACE::Table& table, const FaceSpecification& face, const JitterParams& params)
+        : FaceJitterer(table, face, params)
     {
     }
 
@@ -205,7 +207,7 @@ int gauze_main(int argc, char* argv[])
     std::string sFaceSpec;
     std::string sJitterIn;
     std::string sLandmarks;
-
+    
 #if defined(DRISHTI_BUILD_EOS)
     std::string sEosModel;
     std::string sEosMapping;
@@ -218,8 +220,15 @@ int gauze_main(int argc, char* argv[])
     bool doInpaint = false;
     bool doPreview = false;
     bool doBoilerplate = false;
-    bool doPhotometricJitterOnly = false;
-    bool doMirrorOnly = false;
+
+    
+    /*
+     * These two parameters work in combination with the "--jitter" option
+     * to control the cropping mode.
+     */
+    
+    bool doPhotometricJitter = false;
+    bool doMirror = false;
     
     cxxopts::Options options("drishti-facecrop", "Command line interface for facecrop object detection.");
 
@@ -235,10 +244,10 @@ int gauze_main(int argc, char* argv[])
         ("b,boilerplate", "Write boilerplate config to output dir", cxxopts::value<bool>(doBoilerplate))
         ("e,extension", "Image filename extensions", cxxopts::value<std::string>(sExtension))
         ("w,window", "Do preview window", cxxopts::value<bool>(doPreview))
-        ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitterOnly))
+        ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitter))
         ("l,landmarks", "Master landmark file (xml format)", cxxopts::value<std::string>(sLandmarks))
-        ("m,mirror", "Perform jittering", cxxopts::value<bool>(doMirrorOnly)) // mirror (but no jitter)
-
+        ("m,mirror", "Perform jittering", cxxopts::value<bool>(doMirror))
+    
 #if defined(DRISHTI_BUILD_EOS)
         ("eos-model", "EOS 3D dephormable model", cxxopts::value<std::string>(sEosModel))
         ("eos-mapping", "EOS Landmark mapping", cxxopts::value<std::string>(sEosMapping))
@@ -331,6 +340,46 @@ int gauze_main(int argc, char* argv[])
         return 1;
     }
     
+    //::::::::::::::::::::::::::
+    //::: Face jitter params :::
+    //::::::::::::::::::::::::::
+    JitterParams jitterParams;
+    if(!sJitterIn.empty())
+    {
+        std::ifstream is(sJitterIn);
+        if(is)
+        {
+            cereal::JSONInputArchive ia(is);
+            typedef decltype(ia) Archive;
+            ia(GENERIC_NVP("jitter", jitterParams));
+        }
+    } // else we will be performing straight cropping or mirroring
+    
+    //:::::::::::::::::::::::::::::::::
+    //::: Face normalization params :::
+    //:::::::::::::::::::::::::::::::::
+    FaceSpecification faceSpec;
+    if(sFaceSpec.empty())
+    {
+        logger->error("Error: must provide valid face specification");
+        return -1;
+    }
+    else
+    {
+        std::ifstream is(sFaceSpec);
+        if(is)
+        {
+            cereal::JSONInputArchive ia(is);
+            typedef decltype(ia) Archive;
+            ia(GENERIC_NVP("face", faceSpec));
+        }
+        else
+        {
+            logger->error("Error: unable to read face specification file: {}", sFaceSpec);
+            return -1;
+        }
+    }
+    
     //:::::::::::::::::::::::::::::::
     //::: Parse input + landmarks :::
     //:::::::::::::::::::::::::::::::
@@ -382,64 +431,32 @@ int gauze_main(int argc, char* argv[])
     }
     
     // ... ELSE STANDARD POSITIVES AND/OR NEGATIVES ...
-    
-    //::::::::::::::::::::::::::
-    //::: Face jitter params :::
-    //::::::::::::::::::::::::::
-    JitterParams jitterParams;
-    if(!sJitterIn.empty())
-    {
-        std::ifstream is(sJitterIn);
-        if(is)
-        {
-            cereal::JSONInputArchive ia(is);
-            typedef decltype(ia) Archive;
-            ia(GENERIC_NVP("jitter", jitterParams));
-        }
-        else
-        {
-            logger->error("Error: unable to read input jitter parameters");
-            return -1;
-        }
-    }
-    
-    //:::::::::::::::::::::::::::::::::
-    //::: Face normalization params :::
-    //:::::::::::::::::::::::::::::::::
-    FaceSpecification faceSpec;
-    if(sFaceSpec.empty())
-    {
-        logger->error("Error: must provide valid face specification");
-        return -1;
-    }
-    else
-    {
-        std::ifstream is(sFaceSpec);
-        if(is)
-        {
-            cereal::JSONInputArchive ia(is);
-            typedef decltype(ia) Archive;
-            ia(GENERIC_NVP("face", faceSpec));
-        }
-        else
-        {
-            logger->error("Error: unable to read face specification file: {}", sFaceSpec);
-            return -1;
-        }
-    }
-    
+   
 #if defined(DRISHTI_BUILD_EOS)
     if(!(sEosModel.empty() || sEosMapping.empty()))
     {
         computePose(table, sEosModel, sEosMapping, logger);
-        auto posePruner = [&](FACE::record &record)
-        {
-            const bool doPrune = (std::abs(record.pose.y) > 40.f) || (std::abs(record.pose.z) > 40.f);
-            return doPrune;
-        };
         
-        auto &lines = table.lines;
-        lines.erase(std::remove_if(lines.begin(), lines.end(), posePruner), lines.end());
+        { // Write name + angle:
+            std::string filename;
+            filename += sPositives;
+            filename += "/angles.txt";
+            std::ofstream os(filename);
+            if (os)
+            {
+                logger->info("Writing pose file: {}", filename);
+                for(const auto &r : table.lines)
+                {
+                    os << r.filename << " ";
+                    for(const auto &p : r.points)
+                    {
+                        os << p.x << " " << p.y << " ";
+                    }
+                    os << r.angle << std::endl;
+                }
+            }
+        }
+        return 0;
     }
 #endif
 
@@ -459,7 +476,7 @@ int gauze_main(int argc, char* argv[])
     FaceResourceManager manager = [&]()
     {
         logger->info("Create resource...");
-        return drishti::core::make_unique<FaceJittererMean>(table, jitterParams, faceSpec);
+        return drishti::core::make_unique<FaceJittererMean>(table, faceSpec, jitterParams);
     };
 
     // ####################
@@ -482,10 +499,24 @@ int gauze_main(int argc, char* argv[])
             
             if(!image.empty())
             {
-                std::vector<FaceWithLandmarks> faces { (*jitterer)(image, table.lines[i].points, doMirrorOnly, true) };
-                for(int j = 1; j < repeat[i]; j++)
+
+                std::vector<FaceWithLandmarks> faces;
+
+                // Always crop the original
+                faces.push_back((*jitterer)(image, table.lines[i].points, FaceJitterer::kCrop, doPhotometricJitter)); // no mirror
+                if (!sJitterIn.empty())
                 {
-                    faces.push_back((*jitterer)(image, table.lines[i].points, !doPhotometricJitterOnly, true));
+                    if (doMirror)
+                    {
+                        faces.push_back((*jitterer)(image, table.lines[i].points, FaceJitterer::kMirror, doPhotometricJitter)); // mirror
+                    }
+                }
+                else
+                {
+                    for(int i = 1; i < repeat[i]; i++)
+                    {
+                        faces.push_back((*jitterer)(image, table.lines[i].points, FaceJitterer::kJitter, doPhotometricJitter)); // no mirror
+                    }
                 }
  
                 if(!sPositives.empty())
@@ -703,6 +734,10 @@ static int standardizeFaceData(const FACE::Table &table, const std::string &sOut
 
 #if defined(DRISHTI_BUILD_EOS)
 
+
+//Quaternion q;
+//q.setFromTwoVectors( v0, v1 );
+
 #include <fstream>
 #include <iostream>
 
@@ -720,7 +755,6 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
         auto &meshMapper = manager[tid];
         
         auto &record = table.lines[i];
-        record.pose = {180.f, 180.f, 180.f };
         if(record.points.size() == 68)
         {
             cv::Size size;
@@ -737,8 +771,14 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
             eos::core::Mesh mesh;
 
             cv::Mat dummy;
+            dummy.cols = size.width;
+            dummy.rows = size.height;
             auto result = (*meshMapper)(record.points, dummy);
-            record.pose = drishti::face::getRotation(result.rendering_params);
+            
+            const auto &q = result.rendering_params.get_rotation();
+            record.quaternion = { q[0], q[1], q[2], q[3] };  // Note: q1 == frontal for now
+            Eigen::Quaternion<float> q0(q[0], q[1], q[2], q[3]), q1(0.f, 0.f, 0.f, 1.f), arc = q0 * q1.inverse();
+            record.angle = std::acosf(arc.w()) * 2.f;
         }
     };
     

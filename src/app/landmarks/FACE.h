@@ -40,7 +40,9 @@ struct record
     std::string filename;
     int index;
 
-    cv::Point3f pose;
+    float angle = 0.f; // angle from frontal
+    cv::Vec4f quaternion = {0.f,0.f,0.f,1.f}; // quaternion
+    
     std::vector<cv::Point2f> points;
     std::vector<cv::Point2f> glasses;
     cv::Rect roi;

@@ -192,9 +192,16 @@ class FaceJitterer
 {
 public:
     using Landmarks = std::vector<cv::Point2f>;
+    
+    enum CropMode
+    {
+        kCrop,
+        kMirror,
+        kJitter
+    };
 
-    FaceJitterer(const FACE::Table& table, const JitterParams& params, const FaceSpecification& face);
-    FaceWithLandmarks operator()(const cv::Mat& image, const Landmarks& landmarks, bool doMirror, bool doNoise);
+    FaceJitterer(const FACE::Table& table, const FaceSpecification& face, const JitterParams& params);
+    FaceWithLandmarks operator()(const cv::Mat& image, const Landmarks& landmarks, CropMode mode, bool doNoise);
     void setDoPreview(bool value) { m_doPreview = value; }
     bool getDoPreview() const { return m_doPreview; }
 
