@@ -59,6 +59,7 @@ struct FilenameAndLandmarks
 static void initWindow(const std::string& name);
 static FaceLandmarks parseFaceData(const std::string& sInput);
 static bool writeAsJson(const std::string& filename, const std::vector<cv::Rect>& objects);
+static bool writeAsText(const std::string& filename, const std::vector<cv::Rect>& objects);
 static void drawObjects(cv::Mat& canvas, const std::vector<cv::Rect>& objects);
 static cv::Rect2f operator*(const cv::Rect2f& roi, float scale);
 static void chooseBest(std::vector<cv::Rect>& objects, std::vector<double>& scores);
@@ -129,6 +130,7 @@ int gauze_main(int argc, char** argv)
     bool doArchiveTranslation = false;
     bool doSingleDetection = false;
     bool doWindow = false;
+    bool doBox = false;
     bool doNms = false;
     double cascCal = 0.0;
     int cropPad = 0;
@@ -146,6 +148,7 @@ int gauze_main(int argc, char** argv)
         ("l,min", "Minimum object width (lower bound)", cxxopts::value<int>(minWidth))
         ("c,calibration", "Cascade calibration", cxxopts::value<double>(cascCal))
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
+        ("b,box", "Box output files", cxxopts::value<bool>(doBox))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("s,scores", "Log the filenames + max score", cxxopts::value<bool>(doScoreLog))
@@ -388,6 +391,11 @@ int gauze_main(int argc, char** argv)
                     logger->error("Failed to write: {}.json", filename);
                 }
 
+                if (doBox && !writeAsText(filename + ".roi", objects))
+                {
+                    logger->error("Failed to write: {}.box", filename);                    
+                }
+
                 if (doAnnotation || doWindow)
                 {
                     cv::Mat canvas = image.clone();
@@ -494,6 +502,20 @@ static bool writeAsJson(const std::string& filename, const std::vector<cv::Rect>
         cereal::JSONOutputArchive oa(ofs);
         typedef decltype(oa) Archive; // needed by macro
         oa << GENERIC_NVP("objects", objects);
+    }
+    return ofs.good();
+}
+
+static bool writeAsText(const std::string& filename, const std::vector<cv::Rect>& objects)
+{
+    std::ofstream ofs(filename);
+    if (ofs)
+    {
+        ofs << objects.size() << " ";
+        for(auto &o : objects)
+        {
+            ofs << o.x << " " << o.y << " " << o.width << " " << o.height << " ";
+        }
     }
     return ofs.good();
 }

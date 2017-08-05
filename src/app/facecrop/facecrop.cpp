@@ -504,7 +504,7 @@ int gauze_main(int argc, char* argv[])
 
                 // Always crop the original
                 faces.push_back((*jitterer)(image, table.lines[i].points, FaceJitterer::kCrop, doPhotometricJitter)); // no mirror
-                if (!sJitterIn.empty())
+                if (sJitterIn.empty())
                 {
                     if (doMirror)
                     {
@@ -552,7 +552,8 @@ int gauze_main(int argc, char* argv[])
             }
         }
     };
-    harness({0,static_cast<int>(table.lines.size())});
+
+    //harness({0,static_cast<int>(table.lines.size())});
     
     if(threads == 1 || threads == 0 || doPreview)
     {
@@ -955,7 +956,6 @@ static void save(std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, con
 {
     for(int i = 0; i < faces.size(); i++)
     {
-        
         std::stringstream ss;
         ss << std::setfill('0') << std::setw(6) << index << "_" << std::setw(2) << i;
         std::string base = drishti::core::basename(filename);
@@ -969,6 +969,19 @@ static void save(std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, con
         {  // Save bbox file for each face (compatible w/ Piotr's toolbox):
             std::string sOutput = dir + "/" + ss.str() + "_" + base + ".txt";
             save_bbGtv3(sOutput, {roi});
+        }
+
+        { // Save the landmarks in a flat file:
+            std::string sOutput = dir + "/" + ss.str() + "_" + base + ".pts";
+            std::ofstream ofs(sOutput);
+            if(ofs)
+            {
+                for (const auto &p : faces[i].landmarks)
+                {
+                    ofs << p.x << " " << p.y << " ";
+                }
+                ofs << std::endl;
+            }
         }
     }
 }
