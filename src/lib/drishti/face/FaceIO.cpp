@@ -80,7 +80,7 @@ static void makeHELEN(FaceSpecification& spec)
 //table.nose = { 27,28,29,30,31,32,33,34,35 };
 //table.mouth = { 48,49,50,51,52,53,54,55,56,57,58,59 };
 
-static void makeLFPW(FaceSpecification& spec)
+static void makeibug68(FaceSpecification& spec)
 {
     spec.eyeR = iota({ 36, 41 });
     spec.eyeL = iota({ 42, 47 });
@@ -96,11 +96,11 @@ FaceSpecification FaceSpecification::create(Format format)
     FaceSpecification spec;
     switch (format)
     {
-        case HELEN:
+        case kHELEN:
             makeHELEN(spec);
             break;
-        case LFPW:
-            makeLFPW(spec);
+        case kibug68:
+            makeibug68(spec);
             break;
     }
     return spec;
@@ -165,7 +165,7 @@ FaceModel shapeToFace(drishti::core::Shape& shape, FaceSpecification::Format kin
 
     // TODO: review relative
     FaceSpecification spec = FaceSpecification::create(kind);
-    return shapeToFace(shape, spec, (kind == FaceSpecification::HELEN));
+    return shapeToFace(shape, spec, false); //(kind == FaceSpecification::kHELEN));
 }
 
 DRISHTI_FACE_NAMESPACE_END

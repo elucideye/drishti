@@ -23,6 +23,7 @@ public:
     // Relative to input {RGBA}
     enum SwizzleKind
     {
+        kSwizzleRGBA,
         kSwizzleBGRA,
         kSwizzleARGB,
         kSwizzleABGR,
@@ -45,6 +46,8 @@ public:
     {
         switch (swizzleKind)
         {
+            case kSwizzleRGBA:
+                return fshaderRGBASrc;
             case kSwizzleBGRA:
                 return fshaderBGRASrc;
             case kSwizzleARGB:
@@ -58,6 +61,7 @@ public:
         }
     }
 
+    static const char* fshaderRGBASrc;
     static const char* fshaderBGRASrc; // fragment shader source
     static const char* fshaderARGBSrc;
     static const char* fshaderABGRSrc;

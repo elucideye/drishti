@@ -9,25 +9,12 @@
 */
 
 #include "drishti/eye/EyeModelEstimator.h"
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#include "drishti/core/boost_serialize_common.h"
-#endif
-
-// DRISHTI_SERIALIZE_EYE_WITH_CEREAL: provides local json serialization of the eye type
-// and this setting may be used independently from DRISHTI_SERIALIZE_WITH_CEREAL
-#define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
-
-#if DRISHTI_SERIALIZE_WITH_CEREAL || DRISHTI_SERIALIZE_EYE_WITH_CEREAL
 #include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
-#endif
 
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/xml.hpp>
-#endif
 
 #include "drishti/core/drishti_serialize.h"
 
@@ -141,16 +128,12 @@ protected:
         std::ifstream is(truthFilename);
         if (is.good())
         {
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
             auto eye = std::make_shared<drishti::eye::EyeModel>();
             cereal::JSONInputArchive ia(is);
             typedef decltype(ia) Archive;
             ia(GENERIC_NVP("eye", *eye));
             m_eye = eye;
             m_eye->refine();
-#else
-            std::cerr << "Skipping JSON archive" << std::endl;
-#endif
         }
         else
         {
@@ -180,7 +163,7 @@ protected:
     std::shared_ptr<drishti::eye::EyeModel> m_eye;
 
     // Score tolerance:
-    float m_scoreThreshold = 0.75;
+    float m_scoreThreshold = 0.70;
 };
 
 static void checkValid(const drishti::eye::EyeModel& eye, const cv::Size& size)
@@ -223,7 +206,6 @@ TEST(EyeModelEstimator, StreamConstructor)
     }
 }
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 TEST_F(EyeModelEstimatorTest, CerealSerialization)
 {
     if (m_eyeSegmenter)
@@ -235,7 +217,6 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
         load_cpb(filename, segmenter2);
     }
 }
-#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 /*
  * Fixture tests
@@ -250,7 +231,6 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
         assert(m_images[m_targetWidth].isRight);
         /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
 
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
         std::string filename(outputDirectory);
         filename += "/right_eye_2.json";
 
@@ -258,9 +238,6 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
         cereal::JSONOutputArchive oa(os);
         typedef decltype(oa) Archive;
         oa << GENERIC_NVP("eye", eye);
-#else
-        std::cerr << "Skipping JSON archive" << std::endl;
-#endif
     }
 }
 

@@ -14,15 +14,10 @@
 #include "drishti/core/drishti_string_hash.h"
 #include "drishti/testlib/drishti_cli.h"
 
-// clang-format off
-#define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
-#if DRISHTI_SERIALIZE_WITH_CEREAL || DRISHTI_SERIALIZE_EYE_WITH_CEREAL
-#  include "drishti/core/drishti_stdlib_string.h"
-#  include "drishti/core/drishti_cereal_pba.h"
-#  include "drishti/core/drishti_cv_cereal.h"
-#  include <cereal/archives/json.hpp>
-#endif
-// clang-format on
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cv_cereal.h"
+#include <cereal/archives/json.hpp>
 
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_print.hpp"
@@ -125,11 +120,9 @@ static void load(const std::string& sEye, drishti::eye::EyeModel& eye)
             eye.read(sEye);
             break;
 
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
         case ".json"_hash:
             loadJSON(sEye, eye);
             break;
-#endif
     }
 }
 
@@ -231,7 +224,12 @@ public:
                     // <part name='0000' x='49' y='82'/>
                     const int x = static_cast<int>(points[j].x + 0.5f);
                     const int y = static_cast<int>(points[j].y + 0.5f);
-                    const auto sName = doc.allocate_string(std::to_string(j).c_str());
+                    
+                    // Important: dlib requires fixed width part names
+                    std::stringstream ss;
+                    ss << std::setfill('0') << std::setw(4) << j;
+                    
+                    const auto sName = doc.allocate_string(ss.str().c_str());
                     const auto sX = doc.allocate_string(std::to_string(x).c_str());
                     const auto sY = doc.allocate_string(std::to_string(y).c_str());
 
@@ -299,8 +297,13 @@ int gauze_main(int argc, char** argv)
     cxxopts::Options options("eyexml", "Convert eye files to xml");
 
     // clang-format off
-    options.add_options()("i,input", "Input file", cxxopts::value<std::string>(sInput))("o,output", "Output directory", cxxopts::value<std::string>(sOutput))("e,extension", "Extension", cxxopts::value<std::string>(sExtension))("h,help", "Print help message");
+    options.add_options()
+        ("i,input", "Input file", cxxopts::value<std::string>(sInput))
+        ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
+        ("e,extension", "Extension", cxxopts::value<std::string>(sExtension))
+        ("h,help", "Print help message");
     // clang-format on
+    
     options.parse(argc, argv);
 
     if ((argumentCount <= 1) || options.count("help"))

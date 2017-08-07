@@ -127,18 +127,8 @@ static bool isArchiveSupported(ArchiveKind kind)
 {
     switch (kind)
     {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-        case kPBA:
-            return true;
-#endif
-#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES
-        case kTXT:
-            return true;
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
         case kCPB:
             return true;
-#endif
         case kAuto:
             return true;
         default:

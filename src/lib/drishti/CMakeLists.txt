@@ -284,34 +284,14 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
     target_compile_definitions(${library} PUBLIC DRISHTI_OPENGL_ES3=1)
   endif()
 
-  # -DDRISHTI_USE_TEXT_ARCHIVES=(0|1)
-  drishti_bool_to_int(DRISHTI_USE_TEXT_ARCHIVES use_text_archives)
-  target_compile_definitions(${library} PUBLIC DRISHTI_USE_TEXT_ARCHIVES=${use_text_archives})
-
   # -DDRISHTI_BUILD_MIN_SIZE=(0|1)
   drishti_bool_to_int(DRISHTI_BUILD_MIN_SIZE build_min_size)
   target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_MIN_SIZE=${build_min_size})
-
-  # -DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES=(0|1)
-  # See discussion in ${PROJECT_SOURCE_DIR}/CMakeLists.txt
-  drishti_bool_to_int(DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES build_cereal_output_archives)
-  target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES=${build_cereal_output_archives})
 
   message("DRISHTI_BUILD_MIN_SIZE=${build_min_size} ${DRISHTI_BUILD_MIN_SIZE}")
 
   # define M_PI_2 for MSVC
   target_compile_definitions(${library} PUBLIC _USE_MATH_DEFINES)
-
-  if(DRISHTI_SERIALIZE_WITH_BOOST)
-    target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_BOOST=1)
-    if(DRISHTI_USE_TEXT_ARCHIVES)
-      target_compile_definitions(${library} PUBLIC DRISHTI_USE_TEXT_ARCHIVES=1)
-    endif()
-  endif()
-
-  if(DRISHTI_SERIALIZE_WITH_CEREAL)
-    target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_CEREAL=1)
-  endif()
 
   if(DRISHTI_SERIALIZE_WITH_CVMATIO)
     target_compile_definitions(${library} PUBLIC DRISHTI_SERIALIZE_WITH_CVMATIO=1)
@@ -546,7 +526,7 @@ endforeach()
 #################
 
 # NOTE: These should come last to ensure all library targets are available
-if(DRISHTI_BUILD_TESTS AND (DRISHTI_SERIALIZE_WITH_BOOST OR DRISHTI_SERIALIZE_WITH_CEREAL))
+if(DRISHTI_BUILD_TESTS)
 
   if(IOS)
     # Add a static public SDK library:

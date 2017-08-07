@@ -1,3 +1,9 @@
+#############
+### Boost ###
+#############
+hunter_add_package(Boost COMPONENTS filesystem system)
+find_package(Boost CONFIG REQUIRED filesystem system)  
+
 #################
 ### Libraries ###
 #################
@@ -19,12 +25,6 @@ if(DRISHTI_BUILD_FACE)
   add_subdirectory(facecrop)
 endif()
 
-if(DRISHTI_USE_TEXT_ARCHIVES AND DRISHTI_SERIALIZE_WITH_BOOST)
-  if(NOT ANDROID AND NOT IOS)
-    add_subdirectory(pba)
-  endif()
-endif()
-
 add_subdirectory(eye)
 if(DRISHTI_BUILD_ACF)
   add_subdirectory(acf)
@@ -37,12 +37,8 @@ if(DRISHTI_BUILD_FACE)
   endif()
 endif()
 
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  # TODO: generalize training model serialization
-  # Regressors currently use boost .pba.z  
-  add_subdirectory(cpr)
-  add_subdirectory(dlib)
-endif()
+add_subdirectory(cpr) # cpb
+add_subdirectory(dlib) # cpb
 
 add_subdirectory(fddb)
 

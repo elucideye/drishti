@@ -238,22 +238,7 @@ endif()
 # Serialization options pertain to both library builds and integration testing.
 # In the case of integration testing, the user must specify serialization options
 # that are compatible with the compiled libraries.
-option(DRISHTI_SERIALIZE_WITH_BOOST "Perform major serialization with boost" ON)
-option(DRISHTI_SERIALIZE_WITH_CEREAL "Perform major serialization with cereal" ON)
 option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
-option(DRISHTI_SERIALIZE_MODELS_WITH_CEREAL "Perform minor model serialization with cereal" ON)
-option(DRISHTI_USE_TEXT_ARCHIVES "Support TEXT archives for serialization (extra size)" OFF)
-
-# Currently we must always instantiate Output archives for any
-# Input archive we instantiate.  For boost the output archives
-# are excluded in DRISHTI_BUILD_MIN_SIZE=ON.  We can't do that
-# with cereal currently, so DRISHTI_SERIALIZE_WITH_CEREAL_OUTPUT
-# is introduced (default ON) for future use when this functionality
-# becomes possible in cereal.
-# see: https://github.com/USCiLab/cereal/issues/406
-# If this is resolved, the cereal output archives can be disabled (OFF) when
-# DRISHTI_BUILD_MIN_SIZE=ON.
-option(DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES "Instantiate CEREAL output archives" ON)
 
 ################
 #### Testing ###

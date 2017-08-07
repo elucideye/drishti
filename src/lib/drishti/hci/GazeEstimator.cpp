@@ -15,12 +15,6 @@
 #include "drishti/geometry/Primitives.h"
 #include "drishti/geometry/motion.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h"
-#endif
-// clang-format on
-
 #include <opencv2/core/core.hpp>
 #include <opencv2/video/video.hpp>
 #include <opencv2/highgui/highgui.hpp>

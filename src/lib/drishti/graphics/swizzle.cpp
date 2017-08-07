@@ -13,6 +13,21 @@
 BEGIN_OGLES_GPGPU
 
 // clang-format off
+const char * SwizzleProc::fshaderRGBASrc = OG_TO_STR
+(
+#if defined(OGLES_GPGPU_OPENGLES)
+ precision mediump float;
+#endif
+ varying vec2 vTexCoord;
+ uniform sampler2D uInputTex;
+ void main()
+ {
+     vec4 val = texture2D(uInputTex, vTexCoord);
+     gl_FragColor = val.rgba;
+ });
+// clang-format on
+
+// clang-format off
 const char * SwizzleProc::fshaderBGRASrc = OG_TO_STR
 (
 #if defined(OGLES_GPGPU_OPENGLES)

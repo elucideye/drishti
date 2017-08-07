@@ -70,8 +70,6 @@ EyeSegmenter::Impl::~Impl() {}
 
 int EyeSegmenter::Impl::operator()(const Image3b& image, Eye& eye, bool isRight)
 {
-    DRISHTI_STREAM_LOG_FUNC(1, 1, m_streamLogger);
-
     int status = 0;
 
     const int minWidth = getMinWidth();
@@ -173,10 +171,6 @@ static std::string kindToHint(ArchiveKind kind)
 {
     switch (kind)
     {
-        case kTXT:
-            return "hint.txt";
-        case kPBA:
-            return "hint.pba.z";
         case kCPB:
             return "hint.cpb";
         default:

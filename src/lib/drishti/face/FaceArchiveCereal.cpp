@@ -13,10 +13,8 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void FaceModel::serialize<OArchive>(OArchive& ar, const unsigned int);
-#endif
 
 typedef cereal::PortableBinaryInputArchive IArchive;
 template void FaceModel::serialize<IArchive>(IArchive& ar, const unsigned int);
