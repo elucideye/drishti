@@ -210,7 +210,9 @@ int gauze_main(int argc, char** argv)
 
     ogles_gpgpu::VideoSource source;
     
-    ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleRGBA);// kSwizzleGRAB);
+    //ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleRGBA);// kSwizzleGRAB);
+    
+    ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB);
     source.set(&swizzle);
 
     std::string filename = sOutput + "/movie.mov";

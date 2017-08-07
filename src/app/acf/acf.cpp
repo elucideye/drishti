@@ -403,7 +403,7 @@ int gauze_main(int argc, char** argv)
 
                     if (doAnnotation)
                     {
-                        cv::imwrite(filename + "_objects.png", canvas);
+                        cv::imwrite(filename + "_objects.jpg", canvas);
                     }
 
 #if defined(DRISHTI_USE_IMSHOW)

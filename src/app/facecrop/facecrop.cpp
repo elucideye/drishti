@@ -564,27 +564,6 @@ int gauze_main(int argc, char* argv[])
         cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, std::max(threads, -1));
     }
     
-    // Write a master landmark file (suitable for dlib)
-    if (!sLandmarks.empty())
-    {
-        std::ofstream os(sLandmarks);
-        if (os)
-        {
-            logger->info("Writing landmarks file: {}", sLandmarks);
-            DlibDocument landmarkXml;
-            landmarkXml.start();
-            for (const auto& j : manager.getMap())
-            {
-                for (const auto& f : j.second->jitteredFaces)
-                {
-                    landmarkXml.addPoints(f.landmarks, f.filename);
-                }
-            }
-            landmarkXml.finish();
-            landmarkXml.write(os);
-        }
-    }
-
     saveMeanFace(manager, faceSpec, sPositives + "/mean.png", sPositives + "/mean", *logger);
     
     return 0;
