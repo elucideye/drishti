@@ -20,6 +20,7 @@ set(drishti_landmark_hdrs
   LFPW.h
   MUCT.h
   TWO.h
+  DlibXML.h
   )
 
 add_library(drishti_landmarks STATIC ${drishti_landmark_srcs} ${drishti_landmark_hdrs})

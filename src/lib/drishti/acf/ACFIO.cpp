@@ -182,29 +182,19 @@ int Detector::deserialize(ParserNodeDetector& detector_) { return -1; }
 
 DRISHTI_ACF_NAMESPACE_END
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL
 #include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
-#endif
 
 DRISHTI_ACF_NAMESPACE_BEGIN
 
 int Detector::deserializeAny(const std::string& filename)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    if (filename.find(".pba.z") != std::string::npos)
-    {
-        load_pba_z(filename, *this);
-        return 0;
-    }
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
     if (filename.find(".cpb") != std::string::npos)
     {
         load_cpb(filename, *this);
         return 0;
     }
-#endif
+
 #if DRISHTI_SERIALIZE_WITH_CVMATIO
     if (filename.find(".mat") != std::string::npos)
     {
@@ -215,20 +205,11 @@ int Detector::deserializeAny(const std::string& filename)
 }
 int Detector::deserializeAny(std::istream& is, const std::string& hint)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    if ((!hint.empty() && hint.find(".pba.z") != std::string::npos) || (hint.empty() && is_pba_z(is)))
-    {
-        load_pba_z(is, *this);
-        return 0;
-    }
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
     if (hint.empty() || (hint.find(".cpb") != std::string::npos))
     {
         load_cpb(is, *this);
         return 0;
     }
-#endif
 #if DRISHTI_SERIALIZE_WITH_CVMATIO
     if (hint.empty() || (hint.find(".mat") != std::string::npos))
     {

@@ -34,7 +34,6 @@ void XGBooster::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 
 float XGBooster::operator()(const std::vector<float>& features)
 {
-    DRISHTI_STREAM_LOG_FUNC(7, 3, m_streamLogger);
     return (*m_impl)(features);
 }
 

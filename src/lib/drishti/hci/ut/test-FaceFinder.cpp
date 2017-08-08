@@ -25,15 +25,9 @@ const char* sImageFilename;
 #endif
 // clang-format on
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL
 #include "drishti/core/drishti_stdlib_string.h"
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
-#endif
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#include "drishti/core/drishti_serialization_boost.h"
-#endif
 
 #include "drishti/hci/FaceFinder.h"
 #include "drishti/sensor/Sensor.h"

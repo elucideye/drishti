@@ -9,7 +9,6 @@
 #define DRISHTI_DLIB_DO_PCA_INTERNAL 1
 #define DRISHTI_DLIB_DO_HALF 1
 #define DRISHTI_DLIB_DO_NUMERIC_DEBUG 0
-#define DRISHTI_DLIB_DO_SQUARE_PIXELS 1
 
 #include <opencv2/core/core.hpp>
 
@@ -35,6 +34,7 @@
 #if !DRISHTI_BUILD_MIN_SIZE
 #  include <dlib/serialize.h>
 #  include <dlib/console_progress_indicator.h>
+#  include <dlib/threads.h>
 #endif
 // clang-format on
 
@@ -64,12 +64,6 @@
 #endif
 
 #include "drishti/core/arithmetic.h"
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h"
-#endif
-// clang-format on
 
 // OpenCV
 #include <opencv2/core/core.hpp>
@@ -106,7 +100,7 @@ typedef std::vector<PointVecf> PointVecVecf;
 
 static cv::RotatedRect vectorToEllipse(const std::vector<float>& phi)
 {
-    return drishti::geometry::phiToEllipse(phi, false);
+    return drishti::geometry::phiToEllipse(phi);
 }
 
 using DVec32s = dlib::matrix<int32_t, 0, 1>;
@@ -519,17 +513,9 @@ inline dlib::point_transform_affine normalizing_tform(
           to (1,1).
 !*/
 {
-#if DRISHTI_DLIB_DO_SQUARE_PIXELS
-    const float scale = (1.0 / float(rect.right()));
-    dlib::matrix<double, 2, 2> m;
-    m = scale, 0, 0, scale;
-    const dlib::vector<double, 2> b(0, 0);
-    return dlib::point_transform_affine(m, b);
-#else
     PointVecf from_points{ rect.tl_corner(), rect.tr_corner(), rect.br_corner() };
     PointVecf to_points{ { 0, 0 }, { 1, 0 }, { 1, 1 } };
     return find_affine_transform(from_points, to_points);
-#endif
 }
 
 // ------------------------------------------------------------------------------------
@@ -542,17 +528,9 @@ inline dlib::point_transform_affine unnormalizing_tform(
           rect.br_corner().
 !*/
 {
-#if DRISHTI_DLIB_DO_SQUARE_PIXELS
-    const float scale = float(rect.right());
-    dlib::matrix<double, 2, 2> m;
-    m = scale, 0, 0, scale;
-    const dlib::vector<double, 2> b(0, 0);
-    return dlib::point_transform_affine(m, b);
-#else
     PointVecf to_points{ rect.tl_corner(), rect.tr_corner(), rect.br_corner() };
     PointVecf from_points{ { 0, 0 }, { 1, 0 }, { 1, 1 } };
     return find_affine_transform(from_points, to_points);
-#endif
 }
 
 // ------------------------------------------------------------------------------------
@@ -695,9 +673,8 @@ std::vector<dlib::vector<T, 2>> convert_shape_to_points(const fshape& shape, int
 class shape_predictor
 {
 public:
-    shape_predictor()
-    {
-    }
+    shape_predictor() = default;
+    ~shape_predictor() = default;
 
     shape_predictor(
         const fshape& initial_shape_,
@@ -840,10 +817,8 @@ public:
         const image_type& img,
         const dlib::rectangle& rect,
         fshape starter_shape,
-        int iters = 2,
-        int stages = std::numeric_limits<int>::max()) const
+        int stages = std::numeric_limits<int>::max()) const // early temrination
     {
-        DRISHTI_STREAM_LOG_FUNC(5, 1, m_streamLogger);
         using namespace impl;
 
         bool do_pca = m_pca ? true : false;
@@ -862,65 +837,56 @@ public:
         {
             auto& cs_ = current_shape;
             auto& is_ = initial_shape; // this is used to map pose indexed features to current shape
-
-            for (int k = 0; k < iters; k++)
+            
+            // Previously had for loop
+            if (do_pca)
             {
-                // Previously had for loop
-                DRISHTI_STREAM_LOG_FUNC(5, 2, m_streamLogger);
-
-                if (do_pca)
-                {
-                    // Get euclidean model for current shape space estimate:
-                    int current_pca_dim = int(forests[iter][0].leaf_values[0].size());
-                    back_project(*m_pca, current_pca_dim, current_shape_full_, current_shape);
-                }
-
-                DRISHTI_STREAM_LOG_FUNC(5, 3, m_streamLogger);
-                if (interpolated_features.size())
-                {
-                    extract_feature_pixel_values(img, rect, cs_, interpolated_features[iter], feature_pixel_values);
-                }
-                else
-                {
-                    extract_feature_pixel_values(img, rect, cs_, is_, anchor_idx[iter], deltas[iter], feature_pixel_values, m_ellipse_count, m_do_affine);
-                }
-
-                fshape current_shape_;
-                auto& active_shape = do_pca ? current_shape_ : current_shape;
-
-                DRISHTI_STREAM_LOG_FUNC(5, 4, m_streamLogger);
+                // Get euclidean model for current shape space estimate:
+                int current_pca_dim = int(forests[iter][0].leaf_values[0].size());
+                back_project(*m_pca, current_pca_dim, current_shape_full_, cs_);
+            }
+            
+            if (interpolated_features.size())
+            {
+                extract_feature_pixel_values(img, rect, cs_, interpolated_features[iter], feature_pixel_values);
+            }
+            else
+            {
+                extract_feature_pixel_values(img, rect, cs_, is_, anchor_idx[iter], deltas[iter], feature_pixel_values, m_ellipse_count, m_do_affine);
+            }
+            
+            fshape current_shape_;
+            auto& active_shape = do_pca ? current_shape_ : current_shape;
+            
 #if DRISHTI_BUILD_REGRESSION_FIXED_POINT
-                // Fixed point is currently only working for PCA in most cases (check numerical overflow)
-                DVec16s shape_accumulator;
-                for (auto& f : forests[iter])
-                {
-                    add16sAnd16s(shape_accumulator, f(feature_pixel_values, Fixed(), m_npd), shape_accumulator);
-                }
-                active_shape.set_size(shape_accumulator.size());
-                for (int i = 0; i < shape_accumulator.size(); i++)
-                {
-                    active_shape(i) = float(shape_accumulator(i)) / float(1 << FIXED_PRECISION);
-                }
-
+            // Fixed point is currently only working for PCA in most cases (check numerical overflow)
+            DVec16s shape_accumulator;
+            for (auto& f : forests[iter])
+            {
+                add16sAnd16s(shape_accumulator, f(feature_pixel_values, Fixed(), m_npd), shape_accumulator);
+            }
+            active_shape.set_size(shape_accumulator.size());
+            for (int i = 0; i < shape_accumulator.size(); i++)
+            {
+                active_shape(i) = float(shape_accumulator(i)) / float(1 << FIXED_PRECISION);
+            }
+            
 #else  /* else don't DRISHTI_BUILD_REGRESSION_FIXED_POINT */
-                for (auto& f : forests[iter])
-                {
-                    add32F(active_shape, f(feature_pixel_values, m_npd), active_shape);
-                }
+            for (auto& f : forests[iter])
+            {
+                add32F(active_shape, f(feature_pixel_values, m_npd), active_shape);
+            }
 #endif /* DRISHTI_BUILD_REGRESSION_FIXED_POINT */
-
-                if (do_pca)
-                {
-                    DRISHTI_STREAM_LOG_FUNC(5, 5, m_streamLogger);
-                    dlib::set_rowm(current_shape_full_, dlib::range(0, current_shape_.size() - 1)) += current_shape_;
-                }
+            
+            if (do_pca)
+            {
+                dlib::set_rowm(current_shape_full_, dlib::range(0, current_shape_.size() - 1)) += current_shape_;
             }
         }
 
         if (do_pca)
         {
             // Convert the final model back to euclidean
-            DRISHTI_STREAM_LOG_FUNC(5, 6, m_streamLogger);
             int current_pca_dim = int(forests.back()[0].leaf_values[0].size());
             back_project(*m_pca, current_pca_dim, current_shape_full_, current_shape);
         }
@@ -936,7 +902,6 @@ public:
         }
 
         // Convert trailing ellipse back to standard form:
-        DRISHTI_STREAM_LOG_FUNC(5, 7, m_streamLogger);
         for (int i = 0; i < m_ellipse_count; i++)
         {
             std::vector<float> phi(5, 0.f);
@@ -1068,6 +1033,7 @@ public:
         _num_test_splits = 20;
         _feature_pool_region_padding = 0;
         _verbose = false;
+        _num_threads = 0;
     }
 
     unsigned long get_cascade_depth() const
@@ -1221,7 +1187,35 @@ public:
     {
         _verbose = false;
     }
+    
+    unsigned long get_num_threads () const
+    {
+        return _num_threads;
+    }
+    
+    void set_num_threads(unsigned long num)
+    {
+        _num_threads = num;
+    }
 
+    void set_dimensions(const std::vector<int> &dimensions)  { _dimensions = dimensions; }
+    const std::vector<int> & get_dimensions() const { return _dimensions; }
+
+    void set_ellipse_count(int ellipse_count) { _ellipse_count = ellipse_count; }
+    int get_ellipse_count() const { return _ellipse_count; }
+
+    void set_do_npd(bool do_npd) { _do_npd = do_npd; }
+    bool get_do_npd() const { return _do_npd; }
+
+    void set_do_affine(bool do_affine) { _do_affine = do_affine; }
+    bool get_do_affine() const { return _do_affine; }
+
+    void set_do_line_indexed(bool do_line_indexed) { _do_line_indexed = do_line_indexed; }
+    bool get_do_line_indexed() const { return _do_line_indexed; }
+
+    void set_roi(const dlib::drectangle &roi) { _roi = roi; }
+    const dlib::drectangle& get_roi() const { return _roi; }
+    
     static void copyShape(const float* ptr, int n, fshape& shape, fshape& shape_full)
     {
         shape_full.set_size(n, 1);
@@ -1232,13 +1226,8 @@ public:
     template <typename image_array>
     shape_predictor train(
         const image_array& images,
-        const std::vector<std::vector<dlib::full_object_detection>>& objects,
-        const std::vector<int>& dimensions,
-        const int ellipse_count = 0, /* trailing N * 5 params represent ellipses and need different normalization */
-        bool do_npd = false,
-        bool do_affine = false,
-        const dlib::drectangle& roi = { 0.f, 0.f, 0.f, 0.f },
-        bool do_line_indexed = false) const
+        const std::vector<std::vector<dlib::full_object_detection>>& objects
+    ) const
     {
         using namespace impl;
         DLIB_CASSERT(images.size() == objects.size() && images.size() > 0,
@@ -1275,14 +1264,16 @@ public:
                 << "\n\t You must give at least one full_object_detection if you want to train a shape model and it must have parts.");
 
         rnd.set_seed(get_random_seed());
+        
+        dlib::thread_pool tp(_num_threads > 1 ? _num_threads : 0);
 
-        DLIB_CASSERT(!(ellipse_count % 2), "\t currently limited to ellipse pairs"); // point representation limitations
+        DLIB_CASSERT(!(_ellipse_count % 2), "\t currently limited to ellipse pairs"); // point representation limitations
 
         // For ellipse only, pose indexing is performed via homography:
-        bool is_ellipse_only = (ellipse_count * 5) == (num_parts * 2); // really only works for ellipse pairs
+        bool is_ellipse_only = (_ellipse_count * 5) == (num_parts * 2); // really only works for ellipse pairs
 
         std::vector<training_sample> samples;
-        const fshape initial_shape = populate_training_sample_shapes(objects, samples, ellipse_count);
+        const fshape initial_shape = populate_training_sample_shapes(objects, samples, _ellipse_count);
 
         std::vector<PointVecf> pixel_coordinates;
         std::vector<std::vector<InterpolatedFeature>> interpolated_features;
@@ -1293,22 +1284,22 @@ public:
             // radomly sample pixels on unit sphere here:
             // TODO
         }
-        else if (do_line_indexed)
+        else if (_do_line_indexed)
         {
-            randomly_sample_pixel_coordinates_between_features(interpolated_features, pixel_coordinates, initial_shape, ellipse_count, roi);
+            randomly_sample_pixel_coordinates_between_features(interpolated_features, pixel_coordinates, initial_shape, _ellipse_count, _roi);
         }
         else
         {
-            pixel_coordinates = randomly_sample_pixel_coordinates(initial_shape, ellipse_count, roi);
+            pixel_coordinates = randomly_sample_pixel_coordinates(initial_shape, _ellipse_count, _roi);
         }
 
         // PCA for shape space regression:
         const int num_dim = int(initial_shape.size());
-        bool do_pca = dimensions.size() > 0;
+        bool do_pca = _dimensions.size() > 0;
         StandardizedPCAPtr pca;
         if (do_pca)
         {
-            pca = compute_pca(samples, num_dim, dimensions);
+            pca = compute_pca(samples, num_dim, _dimensions);
         }
 
         unsigned long trees_fit_so_far = 0;
@@ -1322,7 +1313,7 @@ public:
         // Now start doing the actual training by filling in the forests
         for (unsigned long cascade = 0; cascade < get_cascade_depth(); ++cascade)
         {
-            int current_pca_dim = do_pca ? dimensions[cascade] : num_dim;
+            int current_pca_dim = do_pca ? _dimensions[cascade] : num_dim;
 
             // We proceed to fit models coarse-to-fine in shape space, increasing dimensionality at each cascade:
             if (do_pca)
@@ -1341,15 +1332,17 @@ public:
                 // TODO: Just use homography corresopnding to first ellipse
                 assert(false);
             }
-            else if (!do_line_indexed)
+            else if (!_do_line_indexed)
             {
-                create_shape_relative_encoding(initial_shape, pixel_coordinates[cascade], anchor_idx, deltas, ellipse_count);
+                create_shape_relative_encoding(initial_shape, pixel_coordinates[cascade], anchor_idx, deltas, _ellipse_count);
             }
 
             // First compute the feature_pixel_values for each training sample at this
             // level of the cascade.
-            for (auto& s : samples)
+            
+            parallel_for(tp, 0, samples.size(), [&](unsigned long i)
             {
+                auto& s = samples[i];
                 auto& is = initial_shape;
                 const auto& cs = s.current_shape;
                 const auto& image = images[s.image_idx];
@@ -1359,20 +1352,20 @@ public:
                     // TODO: Just use homography corresponding to first ellipse:
                     assert(false);
                 }
-                else if (do_line_indexed)
+                else if (_do_line_indexed)
                 {
                     extract_feature_pixel_values(image, s.rect, cs, interpolated_features[cascade], s.feature_pixel_values);
                 }
                 else
                 {
-                    extract_feature_pixel_values(image, s.rect, cs, is, anchor_idx, deltas, s.feature_pixel_values, ellipse_count, do_affine);
+                    extract_feature_pixel_values(image, s.rect, cs, is, anchor_idx, deltas, s.feature_pixel_values, _ellipse_count, _do_affine);
                 }
-            }
+            }, 1);
 
             // Now start building the trees at this cascade level.
             for (unsigned long i = 0; i < get_num_trees_per_cascade_level(); ++i)
             {
-                forests[cascade].push_back(make_regression_tree(samples, pixel_coordinates[cascade], do_npd, do_pca));
+                forests[cascade].push_back(make_regression_tree(tp, samples, pixel_coordinates[cascade], _do_npd, do_pca));
                 if (_verbose)
                 {
                     ++trees_fit_so_far;
@@ -1393,11 +1386,11 @@ public:
 
         if (interpolated_features.size())
         {
-            return shape_predictor(initial_shape, forests, interpolated_features, pca, do_npd, do_affine, ellipse_count);
+            return shape_predictor(initial_shape, forests, interpolated_features, pca, _do_npd, _do_affine, _ellipse_count);
         }
         else
         {
-            return shape_predictor(initial_shape, forests, pixel_coordinates, pca, do_npd, do_affine, ellipse_count);
+            return shape_predictor(initial_shape, forests, pixel_coordinates, pca, _do_npd, _do_affine, _ellipse_count);
         }
     }
 
@@ -1431,9 +1424,7 @@ private:
             const auto& b = tform_from_img.get_b();
             cv::Matx33f H(m(0, 0), m(0, 1), b(0), m(1, 0), m(1, 1), b(1), 0, 0, 1);
 
-            e2 = H * e; // this will preserve the orientation
-
-            std::vector<float> phi = geometry::ellipseToVector(e2);
+            std::vector<float> phi = geometry::ellipseToPhi(H * e);
             for (int k = 0; k < phi.size(); k++, j++)
             {
                 shape(j) = phi[k];
@@ -1457,6 +1448,9 @@ private:
             - rect == the position of the object in the image_idx-th image.  All shape
               coordinates are coded relative to this rectangle.
 
+            - diff_shape == temporary value for holding difference between current
+              shape and target shape
+         
             - trailing _ indicates shape space projection:
         !*/
 
@@ -1464,8 +1458,8 @@ private:
         dlib::rectangle rect;
 
         fshape target_shape, target_shape_, target_shape_full_;
-
         fshape current_shape, current_shape_, current_shape_full_;
+        fshape diff_shape;
         std::vector<float> feature_pixel_values;
 
         void swap(training_sample& item)
@@ -1481,6 +1475,8 @@ private:
 
             target_shape_full_.swap(item.target_shape_full_);
             current_shape_full_.swap(item.current_shape_full_);
+            
+            diff_shape.swap(item.diff_shape);
         }
     };
 
@@ -1586,6 +1582,7 @@ private:
     }
 
     impl::regression_tree make_regression_tree(
+        dlib::thread_pool& tp,
         std::vector<training_sample>& samples,
         const PointVecf& pixel_coordinates,
         bool do_npd = false,
@@ -1600,16 +1597,58 @@ private:
         // walk the tree in breadth first order
         const unsigned long num_split_nodes = static_cast<unsigned long>(std::pow(2.0, (double)get_tree_depth()) - 1);
         std::vector<fshape> sums(num_split_nodes * 2 + 1);
-        for (unsigned long i = 0; i < samples.size(); ++i)
+        
+        
+        if (tp.num_threads_in_pool() > 1)
         {
-            if (do_pca) // #if DO_PCA_INTERNAL
+            // Here we need to calculate shape differences and store sum of differences into sums[0]
+            // to make it. I am splitting samples into blocks, each block will be processed by
+            // separate thread, and the sum of differences of each block is stored into separate
+            // place in block_sums
+            
+            const unsigned long num_workers = std::max(1UL, tp.num_threads_in_pool());
+            const unsigned long num =  samples.size();
+            const unsigned long block_size = std::max(1UL, (num + num_workers - 1) / num_workers);
+            std::vector<dlib::matrix<float,0,1> > block_sums(num_workers);
+            
+            parallel_for(tp, 0, num_workers, [&](unsigned long block)
             {
-                sums[0] += samples[i].target_shape_ - samples[i].current_shape_;
-                //CV_Assert(sums[0].size() == 2);
+                const unsigned long block_begin = block * block_size;
+                const unsigned long block_end =  std::min(num, block_begin + block_size);
+                for (unsigned long i = block_begin; i < block_end; ++i)
+                {
+                    if (do_pca) // #if DO_PCA_INTERNAL
+                    {
+                        samples[i].diff_shape = samples[i].target_shape_ - samples[i].current_shape_;
+                    }
+                    else
+                    {
+                        samples[i].diff_shape = samples[i].target_shape - samples[i].current_shape;
+                    }
+                    block_sums[block] += samples[i].diff_shape;
+                }
+            }, 1);
+            
+            // now calculate the total result from separate blocks
+            for (unsigned long i = 0; i < block_sums.size(); ++i)
+            {
+                sums[0] += block_sums[i];
             }
-            else
+        }
+        else
+        {
+            // synchronous:
+            for (unsigned long i = 0; i < samples.size(); ++i)
             {
-                sums[0] += samples[i].target_shape - samples[i].current_shape;
+                if (do_pca) // #if DO_PCA_INTERNAL
+                {
+                    samples[i].diff_shape = samples[i].target_shape_ - samples[i].current_shape_;
+                }
+                else
+                {
+                    samples[i].diff_shape = samples[i].target_shape - samples[i].current_shape;
+                }
+                sums[0] += samples[i].diff_shape;
             }
         }
 
@@ -1620,7 +1659,7 @@ private:
 
             auto& sumsL = sums[left_child(i)];
             auto& sumsR = sums[right_child(i)];
-            impl::split_feature split = generate_split(samples, range.first, range.second, pixel_coordinates, sums[i], sumsL, sumsR, do_npd, do_pca);
+            impl::split_feature split = generate_split(tp, samples, range.first, range.second, pixel_coordinates, sums[i], sumsL, sumsR, do_npd, do_pca);
             tree.splits.push_back(split);
             const unsigned long mid = partition_samples(split, samples, range.first, range.second, do_npd);
 
@@ -1650,7 +1689,7 @@ private:
             }
 
             // now adjust the current shape based on these predictions
-            for (unsigned long j = parts[i].first; j < parts[i].second; ++j)
+            parallel_for(tp, parts[i].first, parts[i].second, [&](unsigned long j)
             {
                 if (do_pca)
                 {
@@ -1660,7 +1699,7 @@ private:
                 {
                     samples[j].current_shape += tree.leaf_values[i];
                 }
-            }
+            }, 1);
         }
 
         return tree;
@@ -1694,6 +1733,7 @@ private:
     }
 
     impl::split_feature generate_split(
+        dlib::thread_pool& tp,
         const std::vector<training_sample>& samples,
         unsigned long begin,
         unsigned long end,
@@ -1720,51 +1760,46 @@ private:
 
         std::vector<fshape> left_sums(num_test_splits);
         std::vector<unsigned long> left_cnt(num_test_splits);
+        
+        const unsigned long num_workers = std::max(1UL, tp.num_threads_in_pool());
+        const unsigned long block_size = std::max(1UL, (num_test_splits + num_workers - 1) / num_workers);
 
         // now compute the sums of vectors that go left for each feature
-        fshape temp;
-        for (unsigned long j = begin; j < end; ++j)
+        parallel_for(tp, 0, num_workers, [&](unsigned long block)
         {
-            if (do_pca) // #if DO_PCA_INTERNAL
+            const unsigned long block_begin = block * block_size;
+            const unsigned long block_end   = std::min(block_begin + block_size, num_test_splits);
+            
+            for (unsigned long j = begin; j < end; ++j)
             {
-                temp = samples[j].target_shape_ - samples[j].current_shape_;
-            } // #else
-            else
-            {
-                temp = samples[j].target_shape - samples[j].current_shape;
-            } // #endif
-
-            if (do_npd)
-            {
-                for (unsigned long i = 0; i < num_test_splits; ++i)
+                for (unsigned long i = block_begin; i < block_end; ++i)
                 {
                     const auto& values1 = samples[j].feature_pixel_values[feats[i].idx1];
                     const auto& values2 = samples[j].feature_pixel_values[feats[i].idx2];
-                    if (compute_npd(values1, values2) > feats[i].thresh)
+                    if (do_npd)
                     {
-                        left_sums[i] += temp;
-                        ++left_cnt[i];
+                        if (compute_npd(values1, values2) > feats[i].thresh)
+                        {
+                            left_sums[i] += samples[j].diff_shape;
+                            ++left_cnt[i];
+                        }
+                    }
+                    else
+                    {
+                        if((static_cast<float>(values1) - static_cast<float>(values2)) > feats[i].thresh)
+                        {
+                            left_sums[i] += samples[j].diff_shape;
+                            ++left_cnt[i];
+                        }
                     }
                 }
             }
-            else
-            {
-                for (unsigned long i = 0; i < num_test_splits; ++i)
-                {
-                    const auto& values1 = samples[j].feature_pixel_values[feats[i].idx1];
-                    const auto& values2 = samples[j].feature_pixel_values[feats[i].idx2];
-                    if (compute_npd(values1, values2) > feats[i].thresh)
-                    {
-                        left_sums[i] += temp;
-                        ++left_cnt[i];
-                    }
-                }
-            }
-        }
+        }, 1);
 
         // now figure out which feature is the best
         double best_score = -1;
         unsigned long best_feat = 0;
+        dlib::matrix<float,0,1> temp;
         for (unsigned long i = 0; i < num_test_splits; ++i)
         {
             // check how well the feature splits the space.
@@ -2006,7 +2041,16 @@ private:
     unsigned long _num_test_splits;
     double _feature_pool_region_padding;
     bool _verbose;
-
+    unsigned long _num_threads;
+    
+    // new parameters
+    std::vector<int> _dimensions;
+    int _ellipse_count = 0; /* trailing N * 5 params represent ellipses and need different normalization */
+    bool _do_npd = false;
+    bool _do_affine = false;
+    bool _do_line_indexed = false;
+    dlib::drectangle _roi = { 0.f, 0.f, 0.f, 0.f };
+    
     // experimental
     std::map<int, impl::recipe> _recipe_for_cascade_level;
 };
@@ -2132,35 +2176,14 @@ struct PointHalf
 
 #define _SHAPE_PREDICTOR drishti::ml::shape_predictor
 
-// #############
-// ### BOOST ###
-// #############
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-
-DRISHTI_BEGIN_NAMESPACE(boost)
-DRISHTI_BEGIN_NAMESPACE(serialization)
-#include "drishti/ml/shape_predictor_archive.h"
-DRISHTI_END_NAMESPACE(serialization) // namespace serialization
-DRISHTI_END_NAMESPACE(boost)         // namespace boost
-
-BOOST_CLASS_IMPLEMENTATION(_SHAPE_PREDICTOR, boost::serialization::object_class_info);
-BOOST_CLASS_TRACKING(_SHAPE_PREDICTOR, boost::serialization::track_always);
-BOOST_CLASS_VERSION(_SHAPE_PREDICTOR, 4);
-
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
-
 // ##############
 // ### CEREAL ###
 // ##############
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL
 #include <cereal/cereal.hpp>
 DRISHTI_BEGIN_NAMESPACE(cereal)
 #include "drishti/ml/shape_predictor_archive.h"
 DRISHTI_END_NAMESPACE(cereal)
-
 CEREAL_CLASS_VERSION(_SHAPE_PREDICTOR, 4);
-#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 #endif // __drishti_ml_shape_predictor_h__

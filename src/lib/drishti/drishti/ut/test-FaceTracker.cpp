@@ -124,9 +124,28 @@ protected:
          */
 
         std::ifstream iFaceDetector(sFaceDetector, std::ios_base::binary);
+        if(!iFaceDetector)
+        {
+            throw std::runtime_error("FaceTest::create() failed to open face detector");
+        }
+
         std::ifstream iFaceRegressor(sFaceRegressor, std::ios_base::binary);
+        if(!iFaceRegressor)
+        {
+            throw std::runtime_error("FaceTest::create() failed to open face regressor");
+        }
+        
         std::ifstream iEyeRegressor(sEyeRegressor, std::ios_base::binary);
+        if(!iEyeRegressor)
+        {
+            throw std::runtime_error("FaceTest::create() failed to open eye regressor");
+        }
+        
         std::ifstream iFaceDetectorMean(sFaceDetectorMean, std::ios_base::binary);
+        if (!iFaceDetectorMean)
+        {
+            throw std::runtime_error("FaceTest::create() failed to open face mean");
+        }
 
         assert(iFaceDetector.good());
         assert(iFaceRegressor.good());

@@ -20,19 +20,9 @@ extern bool isTextArchive;
 #include "drishti/ml/XGBooster.h"
 #include "drishti/ml/PCA.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h"
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_stdlib_string.h"
-#  include "drishti/core/drishti_cereal_pba.h"
-#  include "drishti/core/drishti_cv_cereal.h"
-#endif
-// clang-format on
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cv_cereal.h"
 
 int gauze_main(int argc, char** argv)
 {

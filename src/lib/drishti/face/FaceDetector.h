@@ -99,7 +99,6 @@ public:
     void setFace2StagesHint(int stages);
     void setEyelidStagesHint(int stages);
     void setIrisStagesHint(int stages);
-    void setIrisStagesRepetitionFactor(int x);
 
     void setDoIrisRefinement(bool flag);
     void setDoEyeRefinement(bool flag);

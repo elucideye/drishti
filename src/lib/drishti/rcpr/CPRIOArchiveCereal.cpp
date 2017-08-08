@@ -26,12 +26,8 @@
 #include <opencv2/core.hpp>
 
 CEREAL_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
-
-// Workaround:
-// cereal found more than one compatible output serialization function for the provided type and archive combination.
 CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::acf::Field<cv::Mat>, cereal::specialization::member_serialize);
 CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::rcpr::CPR, cereal::specialization::member_serialize);
-CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(std::shared_ptr<drishti::rcpr::CPR>, cereal::specialization::non_member_load_save);
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
@@ -39,7 +35,6 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void CPR::Model::Parts::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::Model::serialize<OArchive>(OArchive& ar, const unsigned int);
@@ -51,7 +46,6 @@ template void CPR::RegModel::Regs::serialize<OArchive>(OArchive& ar, const unsig
 template void CPR::RegModel::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void Recipe::serialize<OArchive>(OArchive& ar, const unsigned int);
-#endif
 
 typedef cereal::PortableBinaryInputArchive IArchive;
 template void CPR::Model::Parts::serialize<IArchive>(IArchive& ar, const unsigned int);

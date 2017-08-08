@@ -660,9 +660,12 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInpu
             fill(*P);
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
+            std::string home = getenv("HOME");
+            home += "/Documents/";
+            
             cv::Mat channels = impl->acf->getChannels();
-            cv::imwrite("/tmp/acf_gpu.png", channels);
-            logPyramid("/tmp/Pgpu.png", *P);
+            cv::imwrite(home + "/acf_gpu.png", channels);
+            logPyramid(home + "/Pgpu.png", *P);
 #endif
         }
     }
@@ -694,7 +697,9 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfCpu(const FrameInpu
         impl->detector->computePyramid(LUVp, *P);
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
-        logPyramid("/tmp/Pcpu.png", *P);
+        std::string home = getenv("HOME");
+        home += "/Documents/";
+        logPyramid(home + "/Pcpu.png", *P);
 #endif
     }
 
@@ -825,11 +830,6 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             drishti::face::FaceDetector::PaddedImage Ib(gray, { { 0, 0 }, gray.size() });
 
             impl->faceDetector->setDoIrisRefinement(true);
-            impl->faceDetector->setFaceStagesHint(8);
-            impl->faceDetector->setFace2StagesHint(4);
-            impl->faceDetector->setEyelidStagesHint(6);
-            impl->faceDetector->setIrisStagesHint(10);
-            impl->faceDetector->setIrisStagesRepetitionFactor(1);
             impl->faceDetector->refine(Ib, faces, Hdr, isDetection);
 
             impl->logger->info("Face image {} x {}", Ib.Ib.rows, Ib.Ib.cols);
@@ -987,24 +987,14 @@ void FaceFinder::computeGazePoints()
 
 void FaceFinder::initTimeLoggers()
 {
-    impl->timerInfo.detectionTimeLogger = [this](double seconds) {
-        this->impl->timerInfo.detectionTime = seconds;
-    };
-    impl->timerInfo.regressionTimeLogger = [this](double seconds) {
-        this->impl->timerInfo.regressionTime = seconds;
-    };
-    impl->timerInfo.eyeRegressionTimeLogger = [this](double seconds) {
-        this->impl->timerInfo.eyeRegressionTime = seconds;
-    };
-    impl->timerInfo.acfProcessingTimeLogger = [this](double seconds) {
-        this->impl->timerInfo.acfProcessingTime = seconds;
-    };
-    impl->timerInfo.blobExtractionTimeLogger = [this](double seconds) {
-        this->impl->timerInfo.blobExtractionTime = seconds;
-    };
-    impl->timerInfo.renderSceneTimeLogger = [this](double seconds) {
-        this->impl->timerInfo.renderSceneTime = seconds;
-    };
+    // clang-format off
+    impl->timerInfo.detectionTimeLogger = [this](double seconds) { this->impl->timerInfo.detectionTime = seconds; };
+    impl->timerInfo.regressionTimeLogger = [this](double seconds) { this->impl->timerInfo.regressionTime = seconds; };
+    impl->timerInfo.eyeRegressionTimeLogger = [this](double seconds) { this->impl->timerInfo.eyeRegressionTime = seconds; };
+    impl->timerInfo.acfProcessingTimeLogger = [this](double seconds) { this->impl->timerInfo.acfProcessingTime = seconds; };
+    impl->timerInfo.blobExtractionTimeLogger = [this](double seconds) { this->impl->timerInfo.blobExtractionTime = seconds; };
+    impl->timerInfo.renderSceneTimeLogger = [this](double seconds) { this->impl->timerInfo.renderSceneTime = seconds; };
+    // clang-format on
 }
 
 // #### init2 ####
@@ -1053,16 +1043,19 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
         // We can change the regressor crop padding by doing a centered scaling of face features:
         if (impl->regressorCropScale > 0.f)
         {
-            std::vector<cv::Point2f> centers{
-                faceDetectorMean.getEyeLeftCenter(),
+            // clang-format off
+            std::vector<cv::Point2f> centers
+            {
                 faceDetectorMean.getEyeRightCenter(),
-                *faceDetectorMean.noseTip
+                faceDetectorMean.getEyeLeftCenter(),
+                *faceDetectorMean.noseTip,
+                *faceDetectorMean.mouthCornerRight,
+                *faceDetectorMean.mouthCornerLeft
             };
-            cv::Point2f center = core::centroid(centers);
-            cv::Matx33f S(cv::Matx33f::diag({ impl->regressorCropScale, impl->regressorCropScale, 1.0 }));
-            cv::Matx33f T1(1, 0, +center.x, 0, 1, +center.y, 0, 0, 1);
-            cv::Matx33f T2(1, 0, -center.x, 0, 1, -center.y, 0, 0, 1);
-            cv::Matx33f H = T1 * S * T2;
+            // clang-format on
+            
+            const cv::Point2f center = core::centroid(centers);
+            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale, center);
             faceDetectorMean = H * faceDetectorMean;
         }
 

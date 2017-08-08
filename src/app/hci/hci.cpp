@@ -186,7 +186,7 @@ int gauze_main(int argc, char** argv)
     settings.threads = std::make_shared<tp::ThreadPool<>>();
     settings.outputOrientation = 0;
     settings.faceFinderInterval = 0.f;
-    settings.regressorCropScale = scale;
+    settings.regressorCropScale = 0.f;
     settings.acfCalibration = cascCal;
 
     settings.renderFaces = true;
@@ -209,6 +209,9 @@ int gauze_main(int argc, char** argv)
     detector->setShowDetectionScales(false);
 
     ogles_gpgpu::VideoSource source;
+    
+    //ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleRGBA);// kSwizzleGRAB);
+    
     ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB);
     source.set(&swizzle);
 
@@ -237,12 +240,19 @@ int gauze_main(int argc, char** argv)
         display->setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
     }
 
-    std::function<bool(void)> render = [&]() {
+    std::function<bool(void)> render = [&]()
+    {
         frame = (*video)(counter++);
         if (frame.image.empty())
         {
             return false;
         }
+        if(frame.image.channels() == 3)
+        {
+            cv::cvtColor(frame.image, frame.image, cv::COLOR_BGR2BGRA);
+        }
+
+        CV_Assert(frame.image.channels() == 4);
 
         logger->info("{}", cv::mean(frame.image));
 
@@ -253,7 +263,7 @@ int gauze_main(int argc, char** argv)
 
         // Convert to texture as one of GL_BGRA or GL_RGBA
         if (display)
-        {
+        {            
             auto& geometry = opengl->getGeometry();
             display->setOffset(geometry.tx, geometry.ty);
             display->setDisplayResolution(geometry.sx, geometry.sy);
@@ -263,11 +273,15 @@ int gauze_main(int argc, char** argv)
 
         if (sink && sink->good())
         {
-            drishti::hci::FaceFinderPainter::FrameDelegate delegate = [&](const cv::Mat& image) {
+            // clang-format off
+            drishti::hci::FaceFinderPainter::FrameDelegate delegate = [&](const cv::Mat& image)
+            {
                 (*sink)(image);
             };
+            // clang-format on
             detector->getOutputPixels(delegate);
         }
+
 
         return true;
     };

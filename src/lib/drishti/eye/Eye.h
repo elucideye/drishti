@@ -38,6 +38,9 @@ DRISHTI_END_NAMESPACE(circle)
 
 struct EyeModel
 {
+    EyeModel();
+    ~EyeModel();
+    
     const cv::Point2f& getOuterCorner() const
     {
         return eyelids[cornerIndices[0]];
@@ -209,10 +212,16 @@ inline bool operator==(const core::Field<cv::Point2f>& a, const core::Field<cv::
 
 inline bool operator==(const EyeModel& a, const EyeModel& b)
 {
-    return (a.eyelids == b.eyelids) &&                                                                                                                                            // contours
-        (a.eyelidsSpline == b.eyelidsSpline) && (a.crease == b.crease) && (a.creaseSpline == b.creaseSpline) && (a.irisCenter == b.irisCenter) && (a.irisInner == b.irisInner) && // landmarks
-        (a.irisOuter == b.irisOuter) && (a.irisEllipse == b.irisEllipse) &&                                                                                                       // ellipse models
-        (a.pupilEllipse == b.pupilEllipse) && (a.iris == b.iris) &&                                                                                                               // circle models
+    return (a.eyelids == b.eyelids) &&                        // contours
+        (a.eyelidsSpline == b.eyelidsSpline) &&
+        (a.crease == b.crease) &&
+        (a.creaseSpline == b.creaseSpline) &&
+        (a.irisCenter == b.irisCenter) &&
+        (a.irisInner == b.irisInner) &&                       // landmarks
+        (a.irisOuter == b.irisOuter) &&
+        (a.irisEllipse == b.irisEllipse) &&                   // ellipse models
+        (a.pupilEllipse == b.pupilEllipse) &&
+        (a.iris == b.iris) &&                                 // circle models
         (a.pupil == b.pupil);
 }
 
