@@ -16,7 +16,8 @@ DRISHTI_ML_NAMESPACE_BEGIN
 
 // ########## Scaling params ############
 
-StandardizedPCA::Standardizer::Standardizer() {}
+StandardizedPCA::Standardizer::Standardizer() = default;
+StandardizedPCA::Standardizer::~Standardizer() = default;
 StandardizedPCA::Standardizer::Standardizer(int size, int type)
 {
     create(size, type);
@@ -82,7 +83,8 @@ cv::Mat StandardizedPCA::Standardizer::unstandardize(const cv::Mat& data) const
 
 // ########### ScalePCA #############
 
-StandardizedPCA::StandardizedPCA() {} // null constructor for file loading
+StandardizedPCA::StandardizedPCA() = default;
+StandardizedPCA::~StandardizedPCA() = default;
 
 size_t StandardizedPCA::getNumComponents() const
 {

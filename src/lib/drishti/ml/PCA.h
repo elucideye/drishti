@@ -27,8 +27,8 @@ public:
     {
         Standardizer();
         Standardizer(int size, int type);
+        ~Standardizer();
         void create(int size, int type);
-
         void compute(const cv::Mat& src);
         cv::Mat standardize(const cv::Mat& src) const;
         cv::Mat unstandardize(const cv::Mat& src) const;
@@ -40,6 +40,7 @@ public:
     };
 
     StandardizedPCA(); // null constructor for file loading
+    ~StandardizedPCA();
     void compute(const cv::Mat& data, cv::Mat& projection, float retainedVariance);
     void compute(const cv::Mat& data, cv::Mat& projection, int maxComponents);
     void init();

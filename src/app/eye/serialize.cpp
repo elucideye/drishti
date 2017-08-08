@@ -9,6 +9,7 @@
 */
 
 #include "drishti/eye/EyeModelEstimator.h"
+#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
 
 #include "cxxopts.hpp"
