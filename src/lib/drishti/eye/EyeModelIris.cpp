@@ -12,7 +12,7 @@
 */
 
 #include "drishti/eye/EyeModelEstimatorImpl.h"
-
+#include "drishti/rcpr/CPR.h"
 #include "drishti/core/drishti_stdlib_string.h" // FIRST
 
 DRISHTI_EYE_NAMESPACE_BEGIN
@@ -36,8 +36,6 @@ static void createIrisEstimates(const EyeModel& eye, const cv::RotatedRect& pSta
 
 void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
 {
-    DRISHTI_STREAM_LOG_FUNC(4, 1, m_streamLogger);
-
     // Find transformation mapping mean iris to our image:
     auto cpr = dynamic_cast<drishti::rcpr::CPR*>(m_irisEstimator.get());
     CV_Assert(cpr != 0);
@@ -74,10 +72,6 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
         eye.iris = 0;
         eye.irisEllipse = geometry::pointsToEllipse(points);
     }
-
-#if DRISHTI_CPR_TRANSPOSE
-    eye.irisEllipse = tranpose(eye.irisEllipse);
-#endif
 }
 
 cv::RotatedRect

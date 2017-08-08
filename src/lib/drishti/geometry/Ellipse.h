@@ -62,7 +62,7 @@ void ellipse(cv::Mat& image, const Ellipse& e, const cv::Scalar& color, int widt
 
 std::vector<float> pointsToPhi(const std::vector<cv::Point2f>& points);
 std::vector<float> ellipseToPhi(const cv::RotatedRect& e);
-cv::RotatedRect phiToEllipse(const std::vector<float>& phi, bool transpose = false);
+cv::RotatedRect phiToEllipse(const std::vector<float>& phi);
 
 typedef std::vector<cv::Point2f> PointVec;
 void ellipse2Poly(const cv::RotatedRect& ellipse, float delta, std::vector<cv::Point2f>& points);

@@ -63,9 +63,6 @@ ARGS=(
     "drishti_DIR=${drishti_DIR}"
     "OpenCV_DIR=${OpenCV_DIR}"
     "DRISHTI_BUILD_INTEGRATION_TESTS=ON"
-    "DRISHTI_SERIALIZE_WITH_BOOST=ON"
-    "DRISHTI_SERIALIZE_WITH_CEREAL=OFF"
-    "DRISHTI_SERIALIZE_MODELS_WITH_CEREAL=ON"
 )
 
 # IO libs required by opencv except in opencv.framework

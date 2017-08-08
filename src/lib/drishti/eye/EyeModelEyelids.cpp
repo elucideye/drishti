@@ -40,8 +40,6 @@ static std::vector<EyeModel> shapesToEyes(const std::vector<PointVec>& shapes, c
 
 void EyeModelEstimator::Impl::segmentEyelids(const cv::Mat& I, EyeModel& eye) const
 {
-    DRISHTI_STREAM_LOG_FUNC(3, 1, m_streamLogger);
-
     PointVec mu = m_eyeEstimator->getMeanShape();
 
     cv::Rect roi({ 0, 0 }, I.size());
@@ -76,8 +74,6 @@ void EyeModelEstimator::Impl::segmentEyelids(const cv::Mat& I, EyeModel& eye) co
 
 void EyeModelEstimator::Impl::segmentEyelids_(const cv::Mat& I, EyeModel& eye) const
 {
-    DRISHTI_STREAM_LOG_FUNC(3, 2, m_streamLogger);
-
     std::vector<PointVec> poses{ m_eyeEstimator->getMeanShape() };
 
     // Only try multiple inits for non-pca:

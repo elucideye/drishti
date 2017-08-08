@@ -23,27 +23,40 @@ void denormalize(Iter first, Iter last, const cv::Size& size)
     }
 }
 
-FaceJitterer::FaceJitterer(const FACE::Table& table, const JitterParams& params, const FaceSpecification& face)
+FaceJitterer::FaceJitterer(const FACE::Table& table, const FaceSpecification& face, const JitterParams& params)
     : m_table(table)
     , m_params(params)
     , m_face(face)
 {
 }
 
-FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks& landmarks, bool doJitter, bool doNoise)
+FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks& landmarks, CropMode mode, bool doNoise)
 {
-    Landmarks facePoints{
+    Landmarks eyesNoseMouth{
         mean(landmarks, m_table.eyeR),
         mean(landmarks, m_table.eyeL),
         mean(landmarks, m_table.nose),
         mean(landmarks, m_table.mouthR),
         mean(landmarks, m_table.mouthL)
     };
-    const cv::Matx33f P = drishti::geometry::procrustes(facePoints); // normalization transformation
+    const cv::Matx33f P = drishti::geometry::procrustes(eyesNoseMouth); // normalization transformation
     const cv::Matx33f S = m_face();                                  // scale to target image dimensions
     cv::Matx33f H = S * P;
 
-    auto jitter = doJitter ? m_params(m_rng, m_face.size, m_face.tl()) : m_params.mirror(m_rng, m_face.size, m_face.tl());
+    std::pair<cv::Matx33f, bool> jitter;
+    switch (mode)
+    {
+        case kCrop:
+            jitter = std::make_pair(cv::Matx33f::eye(), false);
+            break;
+        case kMirror:
+            jitter = std::make_pair(m_params.scale(m_face.size, m_face.tl(), -1.f, 1.f), true);
+            break;
+        case kJitter:
+            jitter = m_params(m_rng, m_face.size, m_face.tl());
+            break;
+    }
+    
     jitter.first = jitter.first * H;
 
     cv::Mat face(m_face.paddedSize(), CV_8UC3, cv::Scalar::all(0));
@@ -58,10 +71,22 @@ FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks
 
     FaceWithLandmarks result;
     result.image = face;
-    std::transform(facePoints.begin(), facePoints.end(), result.landmarks.begin(), [&](const cv::Point2f& p) {
+    result.landmarks.resize(landmarks.size());
+    result.eyesNoseMouth.resize(eyesNoseMouth.size());
+    
+    // clang-format off
+    std::transform(eyesNoseMouth.begin(), eyesNoseMouth.end(), result.eyesNoseMouth.begin(), [&](const cv::Point2f& p)
+    {
         cv::Point3f q = jitter.first * cv::Point3f(p.x, p.y, 1.f);
         return cv::Point2f(q.x / q.z, q.y / q.z);
     });
+    
+    std::transform(landmarks.begin(), landmarks.end(), result.landmarks.begin(), [&](const cv::Point2f& p)
+    {
+        cv::Point3f q = jitter.first * cv::Point3f(p.x, p.y, 1.f);
+        return cv::Point2f(q.x / q.z, q.y / q.z);
+    });
+    // clang-format on
 
     if (jitter.second)
     {

@@ -18,10 +18,8 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 // ############ PortableBinary{Input,Output}Archive ################
 // ##################################################################
 
-#if DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 typedef cereal::PortableBinaryOutputArchive OArchive;
 template void EyeModel::serialize<OArchive>(OArchive& ar, const unsigned int);
-#endif
 
 typedef cereal::PortableBinaryInputArchive IArchive;
 template void EyeModel::serialize<IArchive>(IArchive& ar, const unsigned int);

@@ -15,18 +15,18 @@
 extern const char* modelFilename;
 extern const char* imageFilename;
 extern const char* truthFilename;
-extern bool isTextArchive;
+const char* outputDirectory;
 
 int gauze_main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
-    assert(argc >= 4);
+    assert(argc == 4);
     drishti::testlib::hasFiles(argv, { 1, 2, 3 });
 
     modelFilename = argv[1];
     imageFilename = argv[2];
     truthFilename = argv[3];
-    isTextArchive = (argc > 4) ? (std::atoi(argv[4]) > 0) : false;
+    outputDirectory = argv[4];
 
     return RUN_ALL_TESTS();
 }

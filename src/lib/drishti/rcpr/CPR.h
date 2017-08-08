@@ -15,7 +15,6 @@
 #define DRISHTI_CPR_DO_LEAN 1
 #define DRISHTI_CPR_DO_HALF_FLOAT 1
 #define DRISHTI_CPR_ANGLE_RANGE (2.0 * M_PI)
-#define DRISHTI_CPR_TRANSPOSE 0
 
 // clang-format off
 #if defined(ANDROID)
@@ -39,9 +38,6 @@
 #include "drishti/rcpr/Recipe.h"
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/ml/XGBooster.h"
-
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/version.hpp>
 
 #include <memory>
 
@@ -77,6 +73,16 @@ class CPR : public drishti::ml::ShapeEstimator
 public:
     using ViewFunc = std::function<void(const std::string& name, const cv::Mat& image)>;
 
+    CPR();
+    CPR(const CPR& src);
+    
+#if !DRISHTI_CPR_DO_LEAN
+    CPR(const std::string& filename);
+    CPR(const char* filename);
+#endif
+    
+    ~CPR();
+    
     void setViewer(ViewFunc& viewer)
     {
         m_viewer = viewer;
@@ -113,16 +119,6 @@ public:
         return stagesHint;
     };
 
-    virtual void setStagesRepetitionFactor(int x)
-    {
-        stagesRepetitionFactor = x;
-    }
-
-    virtual int getStagesRepetitionFactor() const
-    {
-        return stagesRepetitionFactor;
-    }
-
     struct Model // Currently used in both CprPrm and RegModel ???
     {
         struct Parts
@@ -135,14 +131,12 @@ public:
             acf::Field<Vector1d> wts;
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
         acf::Field<Parts> parts;
 
         // Boost serialization:
-        friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
@@ -163,7 +157,6 @@ public:
             void merge(const FtrPrm& opts, int checkExtra);
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
@@ -179,7 +172,6 @@ public:
             acf::Field<RealType> eta;
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
@@ -192,7 +184,6 @@ public:
         std::vector<Recipe> cascadeRecipes;
 
         // Boost serialization:
-        friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
@@ -215,7 +206,6 @@ public:
                 acf::Field<Vector1d> thrs;
                 acf::Field<Vector1d> ysFern;
 
-                friend class boost::serialization::access;
                 template <class Archive>
                 void serialize(Archive& ar, const unsigned int version)
                 {
@@ -235,7 +225,6 @@ public:
                 acf::Field<PointVec> xs;   // feature locations relative to unit circle (Fx2)
                 acf::Field<Vector1d> pids; // part ids for each x (just one part implemented)
 
-                friend class boost::serialization::access;
                 template <class Archive>
                 void serialize(Archive& ar, const unsigned int version);
             };
@@ -246,26 +235,16 @@ public:
             std::vector<std::pair<int, std::shared_ptr<ml::XGBooster>>> xgbdt;
 
             // Boost serialization:
-            friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
         acf::Field<std::vector<acf::Field<Regs>>> regs;
 
         // Boost serialization:
-        friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
     acf::Field<RegModel> regModel;
-
-    CPR();
-    CPR(const CPR& src);
-
-#if !DRISHTI_CPR_DO_LEAN
-    CPR(const std::string& filename);
-    CPR(const char* filename);
-#endif
 
     bool usesMask() const;
 
@@ -333,7 +312,6 @@ protected:
 #endif
 
     int stagesHint = std::numeric_limits<int>::max();
-    int stagesRepetitionFactor = 1;
 
     ViewFunc m_viewer;
 };
@@ -350,12 +328,12 @@ Vector1d inverse(const CPR::Model& model, const Vector1d& phis0);
 Vector1d phisFrHs(const Matx33Real& Hs);
 Vector1d compPhiStar(const CPR::Model& mnodel, const EllipseVec& phis);
 Vector1d ellipseToPhi(const cv::RotatedRect& e);
-cv::RotatedRect phiToEllipse(const Vector1d& phi, bool transpose = DRISHTI_CPR_TRANSPOSE);
+cv::RotatedRect phiToEllipse(const Vector1d& phi);
 Matx33Real phisToHs(const Vector1d& phis);
 double normAng(double ang, double rng);
 double dist(const CPR::Model& model, const Vector1d& phis0, const Vector1d& phis1);
 void print(const Vector1d& p, bool eol = false);
-void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, const IntVec& features, float scale = 1.f, bool doTranspose = DRISHTI_CPR_TRANSPOSE);
+void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, const IntVec& features, float scale = 1.f);
 
 template <typename T1, typename T2>
 void copy(std::vector<T1>& src, std::vector<T2>& dst)
@@ -366,16 +344,10 @@ void copy(std::vector<T1>& src, std::vector<T2>& dst)
 
 DRISHTI_RCPR_NAMESPACE_END
 
-// ### BOOST ###
-#if DRISHTI_SERIALIZE_WITH_BOOST
-BOOST_CLASS_EXPORT_KEY(drishti::rcpr::CPR);
-#endif
-
-#if DRISHTI_SERIALIZE_WITH_CEREAL
 #include "drishti/core/drishti_stdlib_string.h" // FIRST
 #include <cereal/types/polymorphic.hpp>
 CEREAL_REGISTER_TYPE(drishti::rcpr::CPR);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(drishti::ml::ShapeEstimator, drishti::rcpr::CPR);
-#endif
+//CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::rcpr::CPR, cereal::specialization::member_serialize);
 
 #endif /* DRISHTI_RCPR_CRP_H */

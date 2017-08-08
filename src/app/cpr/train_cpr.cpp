@@ -28,9 +28,10 @@
 #include "drishti/core/Line.h"
 #include "drishti/core/string_utils.h"
 #include "drishti/core/drishti_string_hash.h"
-#include "drishti/core/boost_serialize_common.h"
 #include "drishti/core/drishti_cv_cereal.h"
+#include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_serialize.h"
+#include "drishti/core/Parallel.h"
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/geometry/Primitives.h"
 #include "drishti/testlib/drishti_cli.h"
@@ -59,7 +60,6 @@
 #include <boost/spirit/repository/include/qi_seek.hpp>
 
 #define DO_SANITY_CHECK 0
-#define DRISHTI_SERIALIZE_EYE_WITH_CEREAL 1
 #define TRAIN_CPR_DEBUG_LOAD 0
 #define TRAIN_CPR_MIN_IRIS_DIAMETER 10.0
 
@@ -70,8 +70,7 @@ using drishti::rcpr::Vector1d;
 struct PoseData
 {
     drishti::rcpr::ImageMaskPairVec images;
-    drishti::rcpr::EllipseVec ellipses1;
-    drishti::rcpr::EllipseVec ellipses2;
+    drishti::rcpr::EllipseVec ellipses[2];
     std::vector<cv::Matx33f> H; // normalization
 };
 
@@ -89,15 +88,16 @@ struct EllipseSamples
     drishti::rcpr::Vector1d sigma;
 };
 
+#if defined(DRISHTI_USE_IMSHOW) && TRAIN_CPR_DEBUG_LOAD
 static cv::Mat previewSample(const cv::Mat& image, drishti::rcpr::CPR::CPRResult& result, drishti::rcpr::Vector1d& mu)
 {
     cv::Mat canvas;
     cv::cvtColor(image, canvas, cv::COLOR_GRAY2BGR);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, DRISHTI_CPR_TRANSPOSE), { 0, 255, 0 }, 1, 8);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p, 1 - DRISHTI_CPR_TRANSPOSE), { 255, 0, 255 }, 1, 8);
-    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(mu, DRISHTI_CPR_TRANSPOSE), { 255, 0, 0 }, 1, 8);
+    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(result.p), { 0, 255, 0 }, 1, 8);
+    cv::ellipse(canvas, drishti::rcpr::phiToEllipse(mu), { 255, 0, 0 }, 1, 8);
     return canvas;
 }
+#endif
 
 DRISHTI_BEGIN_NAMESPACE(cpr)
 static void load(const std::string& sEye, drishti::eye::EyeModel& eye);
@@ -121,10 +121,9 @@ int gauze_main(int argc, char** argv)
     std::string sRecipe;
     std::string sTemplate;
     std::string sTestLog;
-
-#if defined(DRISHTI_USE_IMSHOW)
+    std::string sLoggingDir;
+    
     bool doWindow = false;
-#endif
 
     int targetWidth = 128;
     int T = 0; // # of stages
@@ -137,6 +136,7 @@ int gauze_main(int argc, char** argv)
     bool doSilent = false;
     bool doVerbose = false;
     bool doHelp = false;
+    bool doPupil = false;
 
     cxxopts::Options options("train_shape_predictor", "Command line interface for dlib shape_predictor training");
 
@@ -153,10 +153,12 @@ int gauze_main(int argc, char** argv)
         ( "template", "Training recipe template", cxxopts::value<std::string>(sTemplate) )
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose) )
         ( "silent", "Disable logging entirely.", cxxopts::value<bool>(doSilent) )
-        
+        ( "pupil", "Train on pupil (else iris)", cxxopts::value<bool>(doPupil))
+    
 #if defined(DRISHTI_USE_IMSHOW)        
         ( "window", "Do window", cxxopts::value<bool>(doWindow) )
 #endif
+        ( "log", "Image logging directory", cxxopts::value<std::string>(sLoggingDir) )
         
         ( "help", "Print the help message", cxxopts::value<bool>(doHelp) );
     // clang-format on
@@ -190,6 +192,34 @@ int gauze_main(int argc, char** argv)
     {
         logger->error("Must specify valid training recipe.");
         return 1;
+    }
+
+    // ### Directory
+    if (!sLoggingDir.empty())
+    {
+        if (drishti::cli::directory::exists(sLoggingDir, ".drishti-cpr"))
+        {
+            std::string filename = sLoggingDir + "/.drishti-cpr";
+            remove(filename.c_str());
+        }
+        else
+        {
+            logger->error("Specified directory {} is not writeable", sLoggingDir);
+            return 1;
+        }
+    }
+    
+    { // Test that we can write to the specified output model before starting training
+        std::ofstream check(sModel);
+        if(check)
+        {
+            remove(sModel.c_str());
+        }
+        else
+        {
+            logger->error("Cannot create specified output model {}", sModel);
+            return 1;
+        }
     }
 
     EllipseSamples train(logger);
@@ -245,36 +275,54 @@ int gauze_main(int argc, char** argv)
 
     cprPrm.model->parts->wts = { "wts", wts };
 
-    // ###### Experimental ######
-
     { // Train the model:
         drishti::rcpr::CPR cpr;
         cpr.setStreamLogger(logger);
 
-#if defined(DRISHTI_USE_IMSHOW)
-        if (doWindow)
+        if (doWindow || !sLoggingDir.empty())
         {
-            drishti::rcpr::CPR::ViewFunc viewer = [](const std::string& name, const cv::Mat& image) {
-                glfw::destroyWindow(name.c_str()); // TODO: workaround, fix imshow()
-                glfw::imshow(name.c_str(), image);
-                glfw::waitKey(1);
+            std::map<std::string, int> counter;
+            
+            // clang-off
+            drishti::rcpr::CPR::ViewFunc viewer = [&](const std::string& name, const cv::Mat& image)
+            {
+                if(counter.find(name) == counter.end())
+                {
+                    counter[name] = 0;
+                }
+                else
+                {
+                    counter[name]++;
+                }
+
+#if defined(DRISHTI_USE_IMSHOW)                
+                if(doWindow)
+                {
+                    glfw::imshow(name.c_str(), image);
+                    glfw::waitKey(1);
+                }
+#endif
+                if(!sLoggingDir.empty())
+                {
+                    std::stringstream ss;
+                    ss << sLoggingDir << "/" << name << "_" << std::setfill('0') << std::setw(4) << counter[name] << ".png";
+                    cv::imwrite(ss.str(), image);
+                }
             };
+            // clang-on
             cpr.setViewer(viewer);
         }
-#endif
-        cpr.cprTrain(train.samples.images, train.samples.ellipses1, train.samples.H, cprPrm, true);
-
-        //cpr.compress();
+        cpr.cprTrain(train.samples.images, train.samples.ellipses[int(doPupil)], train.samples.H, cprPrm, true);
 
         // Dump the model:
-        save_pba_z(sModel, cpr);
+        save_cpb(sModel, cpr);
     }
 
     // Test the model
     if (!sTest.empty())
     {
         drishti::rcpr::CPR cpr;
-        load_pba_z(sModel, cpr);
+        load_cpb(sModel, cpr);
         cpr.setStreamLogger(logger);
 
         EllipseSamples test(logger);
@@ -289,7 +337,7 @@ int gauze_main(int argc, char** argv)
             // Measure error at each stage:
             for (int t = 0; t < T; t++)
             {
-                errors[t] += drishti::rcpr::dist(*cprPrm.model, result.pAll[t], test.samples.ellipses1[i]);
+                errors[t] += drishti::rcpr::dist(*cprPrm.model, result.pAll[t], test.samples.ellipses[0][i]);
             }
 
 #if defined(DRISHTI_USE_IMSHOW) && TRAIN_CPR_DEBUG_LOAD
@@ -346,11 +394,11 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
     cv::Mat features(filenames.size(), 5, CV_64F);
 
     samples.images.resize(filenames.size());
-    samples.ellipses1.resize(filenames.size());
-    samples.ellipses2.resize(filenames.size());
+    samples.ellipses[0].resize(filenames.size());
+    samples.ellipses[1].resize(filenames.size());
     samples.H.resize(filenames.size());
-
-    for (int i = 0; i < filenames.size(); i++)
+    
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         // Image filename:
         const auto& sImage = filenames[i];
@@ -369,7 +417,6 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             // Eye filename:
             bfs::path sEye(sImage);
             sEye.replace_extension(sExt);
-
             cpr::load(sEye.string(), eye);
 
             // Capture iris before correction:
@@ -392,27 +439,17 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             // Need to transpose the model
             // Note: use eye corners instead of eyelids
             std::vector<cv::Point2f> eyelids{ eye.getInnerCorner(), eye.getOuterCorner() };
-
-#if DRISHTI_CPR_TRANSPOSE
-            cv::Matx33f T(0, 1, 0, 1, 0, 0, 0, 0, 1); // transpose
-            samples.H[i] = drishti::geometry::procrustes(eyelids) * T;
-#else
             samples.H[i] = drishti::geometry::procrustes(eyelids);
-#endif
 
             // Ignore samples that are too small (or accidentally empty):
             if (doIris && (std::max(e1.size.width, e1.size.height) < TRAIN_CPR_MIN_IRIS_DIAMETER))
             {
-                continue;
+                return;
             }
 
             CV_Assert(e1.angle >= 0.f);
             CV_Assert(e1.size.width > 0.f);
             CV_Assert(e2.size.width > 0.f);
-
-#if defined(DRISHTI_USE_IMSHOW) && DO_SANITY_CHECK
-            sanityTest(initialIris, e1);
-#endif
 
             cv::Mat M = eye.mask(I.size(), false);
 
@@ -430,30 +467,20 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             cv::resize(I, I, { targetWidth, I.rows * targetWidth / I.cols }, 0.0, 0.0, cv::INTER_CUBIC);
             cv::resize(M, M, { targetWidth, M.rows * targetWidth / M.cols }, 0.0, 0.0, cv::INTER_NEAREST);
 
-            //glfw::imshow("I", I);
-            //glfw::imshow("M", M);
-            //glfw::waitKey(0);
-
             samples.H[i] = samples.H[i] * S.inv();
-
-#if DRISHTI_CPR_TRANSPOSE
-            samples.images[i] = { I.t(), M.t() }; // for now keep thing tranposed
-#else
-            samples.images[i] = { I, M }; // for now keep thing tranposed
-#endif
-            samples.ellipses1[i] = ellipse1;
-            samples.ellipses2[i] = ellipse2;
+            samples.images[i] = { I, M };
+            samples.ellipses[0][i] = ellipse1;
+            samples.ellipses[1][i] = ellipse2;
         }
-    }
+    };
+    
+    cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness);
 
     sigma = mu = { 0.f, 0.f, 0.f, 0.f, 0.f };
 
     for (int i = 0; i < 5; i++)
     {
-        struct
-        {
-            cv::Scalar mu, sigma;
-        } stats;
+        struct { cv::Scalar mu, sigma; } stats;
         cv::meanStdDev(features.col(i), stats.mu, stats.sigma);
         mu[i] = stats.mu[0];
         sigma[i] = stats.sigma[0];
@@ -482,11 +509,12 @@ struct list_list_int_parser : qi::grammar<Iterator, std::vector<std::vector<int>
         : list_list_int_parser::base_type(start)
     {
         // http://stackoverflow.com/a/40876962
-        integer = qi::int_[qi::_pass = (boost::spirit::_1 >= 0 && boost::spirit::_1 < 5)];
+        integer %= qi::int_[qi::_pass = (qi::_1 >= 0 && qi::_1 < 5)];
         list = '{' >> +(integer % ',') >> '}';
         start = '{' >> +(list % ',') >> '}';
+
     }
-    qi::rule<Iterator, int, Skipper> integer;
+    qi::rule<Iterator, int(), Skipper> integer;
     qi::rule<Iterator, std::vector<int>(), Skipper> list;
     qi::rule<Iterator, std::vector<std::vector<int>>(), Skipper> start;
 };
@@ -496,7 +524,10 @@ std::vector<std::vector<int>> parseListOfLists(Iterator first, Iterator last)
 {
     std::vector<std::vector<int>> v;
     list_list_int_parser<decltype(first)> parser;
-    bool result = qi::phrase_parse(first, last, parser, qi::blank, v);
+    if(!qi::phrase_parse(first, last, parser, qi::blank, v))
+    {
+        v.clear();
+    }
     return v;
 }
 
@@ -521,7 +552,10 @@ std::vector<float> parseVec5f(Iterator first, Iterator last)
 {
     std::vector<float> v;
     vec5f_parser<decltype(first)> parser;
-    bool result = qi::phrase_parse(first, last, parser, qi::blank, v);
+    if(!qi::phrase_parse(first, last, parser, qi::blank, v))
+    {
+        v.clear();
+    }
     return v;
 }
 
@@ -554,11 +588,9 @@ static void load(const std::string& sEye, drishti::eye::EyeModel& eye)
             eye.read(sEye);
             break;
 
-#if DRISHTI_SERIALIZE_EYE_WITH_CEREAL
         case ".json"_hash:
             loadJSON(sEye, eye);
             break;
-#endif
     }
 }
 
@@ -577,47 +609,15 @@ static std::vector<drishti::rcpr::Recipe> createDefaultCascadeRecipes(const IntV
 static int writeDefaultRecipe(const std::string& filename, const std::string& dimensions)
 {
     auto phi = parseListOfLists(dimensions.begin(), dimensions.end());
-
+    CV_Assert(phi.size() > 0);
     for (auto& i : phi)
     {
-        for (auto& j : i)
-        {
-            j = std::min(std::max(j, 0), 4);
-        }
+        CV_Assert(i.size() > 0);
     }
 
     const auto recipes = createDefaultCascadeRecipes(phi);
     cpr::saveJSON(filename, recipes);
     return 0;
 }
-
-#if defined(DRISHTI_USE_IMSHOW)
-static void sanityTest(const cv::RotatedRect& initial, const cv::RotatedRect& corrected)
-{
-    auto sanity1 = drishti::rcpr::phiToEllipse(drishti::rcpr::ellipseToPhi(corrected), false);
-    auto sanity2 = drishti::rcpr::phiToEllipse(drishti::rcpr::ellipseToPhi(corrected), true);
-
-    drishti::geometry::Ellipse e1(initial), e2(corrected), e3(sanity1), e4(sanity2);
-
-    cv::Mat canvas(400, 400, CV_8UC3, cv::Scalar::all(0));
-    cv::ellipse(canvas, initial, { 0, 255, 0 }, 1, 8);
-    cv::line(canvas, e1.center, e1.getMajorAxisPos(), { 0, 255, 0 }, 2, 8);
-
-    cv::ellipse(canvas, corrected, { 0, 0, 255 }, 1, 8);
-    cv::line(canvas, e2.center, e2.getMajorAxisPos(), { 0, 0, 255 }, 2, 8);
-
-    glfw::imshow("canvas", canvas);
-    glfw::waitKey(0);
-
-    cv::ellipse(canvas, sanity1, { 255, 255, 255 }, 1, 8);
-    cv::line(canvas, e3.center, e3.getMajorAxisPos(), { 255, 255, 255 }, 2, 8);
-
-    cv::ellipse(canvas, sanity2, { 255, 0, 0 }, 1, 8);
-    cv::line(canvas, e4.center, e4.getMajorAxisPos(), { 255, 255, 255 }, 2, 8);
-
-    glfw::imshow("canvas", canvas);
-    glfw::waitKey(0);
-}
-#endif
 
 DRISHTI_END_NAMESPACE(cpr)

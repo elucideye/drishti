@@ -21,17 +21,7 @@
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/geometry/motion.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-# include "drishti/core/boost_serialize_common.h" // optional
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-# include "drishti/core/drishti_cereal_pba.h" // optional
-#endif
-// clang-format on
+#include "drishti/core/drishti_cereal_pba.h" // optional
 
 // clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
@@ -69,6 +59,7 @@ struct FilenameAndLandmarks
 static void initWindow(const std::string& name);
 static FaceLandmarks parseFaceData(const std::string& sInput);
 static bool writeAsJson(const std::string& filename, const std::vector<cv::Rect>& objects);
+static bool writeAsText(const std::string& filename, const std::vector<cv::Rect>& objects);
 static void drawObjects(cv::Mat& canvas, const std::vector<cv::Rect>& objects);
 static cv::Rect2f operator*(const cv::Rect2f& roi, float scale);
 static void chooseBest(std::vector<cv::Rect>& objects, std::vector<double>& scores);
@@ -139,6 +130,7 @@ int gauze_main(int argc, char** argv)
     bool doArchiveTranslation = false;
     bool doSingleDetection = false;
     bool doWindow = false;
+    bool doBox = false;
     bool doNms = false;
     double cascCal = 0.0;
     int cropPad = 0;
@@ -156,6 +148,7 @@ int gauze_main(int argc, char** argv)
         ("l,min", "Minimum object width (lower bound)", cxxopts::value<int>(minWidth))
         ("c,calibration", "Cascade calibration", cxxopts::value<double>(cascCal))
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
+        ("b,box", "Box output files", cxxopts::value<bool>(doBox))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("s,scores", "Log the filenames + max score", cxxopts::value<bool>(doScoreLog))
@@ -231,17 +224,7 @@ int gauze_main(int argc, char** argv)
             std::string base = drishti::core::basename(sModel);
             std::string filename = sOutput + "/" + base;
 
-#if DRISHTI_SERIALIZE_WITH_CEREAL // "cpb"
             save_cpb(filename + ".cpb", *acf);
-#endif
-
-#if DRISHTI_SERIALIZE_WITH_BOOST // "pba.z"
-            save_pba_z(filename + ".pba.z", *acf);
-#endif
-
-#if DRISHTI_SERIALIZE_WITH_BOOST && DRISHTI_USE_TEXT_ARCHIVES // "txt"
-            save_txt_z(filename + ".txt", *acf);
-#endif
         }
         else
         {
@@ -408,6 +391,11 @@ int gauze_main(int argc, char** argv)
                     logger->error("Failed to write: {}.json", filename);
                 }
 
+                if (doBox && !writeAsText(filename + ".roi", objects))
+                {
+                    logger->error("Failed to write: {}.box", filename);                    
+                }
+
                 if (doAnnotation || doWindow)
                 {
                     cv::Mat canvas = image.clone();
@@ -415,7 +403,7 @@ int gauze_main(int argc, char** argv)
 
                     if (doAnnotation)
                     {
-                        cv::imwrite(filename + "_objects.png", canvas);
+                        cv::imwrite(filename + "_objects.jpg", canvas);
                     }
 
 #if defined(DRISHTI_USE_IMSHOW)
@@ -514,6 +502,20 @@ static bool writeAsJson(const std::string& filename, const std::vector<cv::Rect>
         cereal::JSONOutputArchive oa(ofs);
         typedef decltype(oa) Archive; // needed by macro
         oa << GENERIC_NVP("objects", objects);
+    }
+    return ofs.good();
+}
+
+static bool writeAsText(const std::string& filename, const std::vector<cv::Rect>& objects)
+{
+    std::ofstream ofs(filename);
+    if (ofs)
+    {
+        ofs << objects.size() << " ";
+        for(auto &o : objects)
+        {
+            ofs << o.x << " " << o.y << " " << o.width << " " << o.height << " ";
+        }
     }
     return ofs.good();
 }

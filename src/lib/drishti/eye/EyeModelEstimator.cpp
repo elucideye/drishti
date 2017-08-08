@@ -1,3 +1,4 @@
+
 /*!
   @file   EyeModelEstimator.cpp
   @author David Hirvonen
@@ -14,18 +15,10 @@
 #include "drishti/eye/EyeModelEstimatorImpl.h"
 
 #include "drishti/core/drishti_stdlib_string.h" // FIRST
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h" // (optional)
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_cereal_pba.h"
-#endif
-// clang-format on
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/make_unique.h"
+#include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
+#include "drishti/rcpr/CPR.h"
 
 #include <fstream>
 
@@ -38,45 +31,30 @@ static cv::Mat getDarkChannel(const cv::Mat& I);
 #endif
 static float resizeEye(const cv::Mat& src, cv::Mat& dst, float width);
 
-// TODO: support for stream input
-EyeModelEstimator::Impl::Impl(const std::string& eyeRegressor, const std::string& irisRegressor, const std::string& pupilRegressor)
-{
-    DRISHTI_STREAM_LOG_FUNC(2, 1, m_streamLogger);
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    m_eyeEstimator = std::make_shared<ml::RegressionTreeEnsembleShapeEstimator>(eyeRegressor);
-    if (!irisRegressor.empty())
-    {
-        std::shared_ptr<drishti::rcpr::CPR> irisEstimator = std::make_shared<drishti::rcpr::CPR>();
-        load_pba_z(irisRegressor, *irisEstimator);
-        m_irisEstimator = irisEstimator;
-
-        if (m_irisEstimator && !pupilRegressor.empty())
-        {
-            std::shared_ptr<drishti::rcpr::CPR> pupilEstimator = std::make_shared<drishti::rcpr::CPR>();
-            load_pba_z(pupilRegressor, pupilEstimator);
-            m_pupilEstimator = pupilEstimator;
-        }
-    }
-#else
-    assert(false);
-    std::cerr << "Warning: WIP build without boost" << std::endl;
-#endif
-
-    init();
-}
-
 EyeModelEstimator::Impl::Impl()
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 2, m_streamLogger);
+    init();
+}
+
+EyeModelEstimator::Impl::Impl(const std::string& eyeRegressor, const std::string& irisRegressor, const std::string& pupilRegressor)
+{
+    m_eyeEstimator = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(eyeRegressor);
+    if (!irisRegressor.empty())
+    {
+        m_irisEstimator = make_unique_cpb<drishti::rcpr::CPR>(irisRegressor);
+        if (m_irisEstimator && !pupilRegressor.empty())
+        {
+            m_pupilEstimator = make_unique_cpb<drishti::rcpr::CPR>(pupilRegressor);
+        }
+    }
 
     init();
 }
+
+EyeModelEstimator::Impl::~Impl() = default;
 
 void EyeModelEstimator::Impl::init()
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 3, m_streamLogger);
-
     // Jitter iris defaults (normalized by eyelid extents):
     m_jitterIrisParams.theta = { static_cast<float>(-M_PI / 64.f), static_cast<float>(+M_PI / 64.f) };
     m_jitterIrisParams.scale = { 7.f / 8.f, 8.f / 7.f };
@@ -108,8 +86,6 @@ void EyeModelEstimator::Impl::setStreamLogger(std::shared_ptr<spdlog::logger>& l
 
 int EyeModelEstimator::Impl::operator()(const cv::Mat& crop, EyeModel& eye) const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 4, m_streamLogger);
-
     cv::Mat I;
     float scale = resizeEye(crop, I, m_targetWidth), scaleInv = (1.0 / scale);
 
@@ -182,71 +158,30 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat& crop, EyeModel& eye) cons
 
 //====
 
+EyeModelEstimator::EyeModelEstimator()
+{
+    
+}
+
 EyeModelEstimator::EyeModelEstimator(std::istream& is, const std::string& hint)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    if ((!hint.empty() && (hint.find(".pba.z") != std::string::npos)) || (hint.empty() && is_pba_z(is)))
-    {
-        load_pba_z(is, *this);
-        return;
-    }
-#endif
-#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST
-    if (!hint.empty() && (hint.find(".txt") != std::string::npos))
-    {
-        load_txt_z(is, *this);
-        return;
-    }
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-    if (hint.empty() || (hint.find(".cpb") != std::string::npos))
-    {
-        load_cpb(is, *this);
-        return;
-    }
-#endif // DRISHTI_SERIALIZE_WITH_CEREAL
-
-    throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
+    load_cpb(is, *this);
 }
 
 EyeModelEstimator::EyeModelEstimator(const std::string& filename)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    if (filename.find(".pba.z") != std::string::npos)
-    {
-        load_pba_z(filename, *this);
-        return;
-    }
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
-#if DRISHTI_USE_TEXT_ARCHIVES && DRISHTI_SERIALIZE_WITH_BOOST
-    if (filename.find(".txt") != std::string::npos)
-    {
-        load_txt_z(filename, *this);
-        return;
-    }
-#endif
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-    if (filename.find(".cpb") != std::string::npos)
-    {
-        load_cpb(filename, *this);
-        return;
-    }
-#endif
-
-    throw std::runtime_error("Unable to load EyeModelEstimator::EyeModelEstimator resource file");
+    load_cpb(filename, *this);
 }
 
 EyeModelEstimator::EyeModelEstimator(const RegressorConfig& config)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 5, m_streamLogger);
-    m_impl = std::make_shared<EyeModelEstimator::Impl>(config.eyeRegressor, config.irisRegressor, config.pupilRegressor);
+    m_impl = drishti::core::make_unique<EyeModelEstimator::Impl>(config.eyeRegressor, config.irisRegressor, config.pupilRegressor);
 }
 
 EyeModelEstimator::~EyeModelEstimator() {}
 
 void EyeModelEstimator::setDoIndependentIrisAndPupil(bool flag)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 7, m_streamLogger);
     m_impl->setDoIndependentIrisAndPupil(flag);
 }
 
@@ -262,7 +197,6 @@ EyeModelEstimator::operator bool() const
 
 void EyeModelEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 8, m_streamLogger);
     m_streamLogger = logger;
     if (m_impl)
     {
@@ -272,151 +206,115 @@ void EyeModelEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 
 int EyeModelEstimator::operator()(const cv::Mat& crop, EyeModel& eye) const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 9, m_streamLogger);
     return (*m_impl)(crop, eye);
 }
 
 void EyeModelEstimator::normalize(const cv::Mat& crop, const EyeModel& eye, const cv::Size& size, NormalizedIris& code, int padding) const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 10, m_streamLogger);
     return m_impl->normalize(crop, eye, size, code, padding);
 }
 
 void EyeModelEstimator::setEyelidInits(int n)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 12, m_streamLogger);
     m_impl->setEyelidInits(n);
 }
 
 int EyeModelEstimator::getEyelidInits() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 13, m_streamLogger);
     return m_impl->getEyelidInits();
 }
 
 void EyeModelEstimator::setIrisInits(int n)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 14, m_streamLogger);
     m_impl->setIrisInits(n);
 }
 
 int EyeModelEstimator::getIrisInits() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 15, m_streamLogger);
     return m_impl->getIrisInits();
 }
 
 void EyeModelEstimator::setOptimizationLevel(int level)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 16, m_streamLogger);
     m_impl->setOptimizationLevel(level);
 }
 
 void EyeModelEstimator::setTargetWidth(int width)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 17, m_streamLogger);
     m_impl->setTargetWidth(width);
 }
 
 void EyeModelEstimator::setOpennessThreshold(float threshold)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 18, m_streamLogger);
     m_impl->setOpennessThreshold(threshold);
 }
 float EyeModelEstimator::getOpennessThreshold() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 19, m_streamLogger);
     return m_impl->getOpennessThreshold();
 }
 
 void EyeModelEstimator::setDoPupil(bool flag)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 20, m_streamLogger);
     m_impl->setDoPupil(flag);
 }
 bool EyeModelEstimator::getDoPupil() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 21, m_streamLogger);
     return m_impl->getDoPupil();
 }
 
 void EyeModelEstimator::setDoVerbose(bool flag)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 22, m_streamLogger);
     m_impl->setDoVerbose(flag);
 }
 bool EyeModelEstimator::getDoVerbose() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 23, m_streamLogger);
     return m_impl->getDoVerbose();
 }
 
 cv::Mat EyeModelEstimator::drawMeanShape(const cv::Size& size) const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 24, m_streamLogger);
     return m_impl->drawMeanShape(size);
 }
 
 DRISHTI_EYE::EyeModel EyeModelEstimator::getMeanShape(const cv::Size& size) const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 25, m_streamLogger);
     return m_impl->getMeanShape(size);
 }
 
 bool EyeModelEstimator::getDoMask() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 26, m_streamLogger);
     return m_impl->getDoMask();
 }
 
 void EyeModelEstimator::setDoMask(bool flag)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 27, m_streamLogger);
     m_impl->setDoMask(flag);
 }
 
 bool EyeModelEstimator::getUseHierarchy() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 28, m_streamLogger);
     return m_impl->getUseHierarchy();
 }
 void EyeModelEstimator::setUseHierarchy(bool flag)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 29, m_streamLogger);
     m_impl->setUseHierarchy(flag);
 }
-
 void EyeModelEstimator::setEyelidStagesHint(int stages)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 30, m_streamLogger);
     m_impl->setEyelidStagesHint(stages);
 }
 int EyeModelEstimator::getEyelidStagesHint() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 31, m_streamLogger);
     return m_impl->getEyelidStagesHint();
 }
 
 void EyeModelEstimator::setIrisStagesHint(int stages)
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 32, m_streamLogger);
     m_impl->setIrisStagesHint(stages);
 }
 int EyeModelEstimator::getIrisStagesHint() const
 {
-    DRISHTI_STREAM_LOG_FUNC(2, 33, m_streamLogger);
     return m_impl->getIrisStagesHint();
-}
-
-void EyeModelEstimator::setIrisStagesRepetitionFactor(int x)
-{
-    DRISHTI_STREAM_LOG_FUNC(2, 34, m_streamLogger);
-    m_impl->setIrisStagesRepetitionFactor(x);
-}
-int EyeModelEstimator::getIrisStagesRepetitionFactor() const
-{
-    DRISHTI_STREAM_LOG_FUNC(2, 35, m_streamLogger);
-    return m_impl->getIrisStagesRepetitionFactor();
 }
 
 static float resizeEye(const cv::Mat& src, cv::Mat& dst, float width)

@@ -32,6 +32,8 @@ struct FaceModel
         : roi(roi)
     {
     }
+    
+    ~FaceModel();
 
     float getInterPupillaryDistance() const;
     cv::Point2f getEyeLeftCenter() const;

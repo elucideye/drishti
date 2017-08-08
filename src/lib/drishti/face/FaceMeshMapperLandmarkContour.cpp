@@ -24,7 +24,6 @@
 #include "eos/render/utils.hpp"
 
 #include "opencv2/core.hpp"
-#include "opencv2/highgui.hpp"
 
 #include <vector>
 #include <iostream>

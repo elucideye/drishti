@@ -24,12 +24,6 @@
 #include "drishti/core/IndentingOStreamBuffer.h"
 #include "drishti/core/Logger.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h" // optional
-#endif
-// clang-format on
-
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include <boost/multi_array.hpp>

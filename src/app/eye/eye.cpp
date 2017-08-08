@@ -182,6 +182,7 @@ int gauze_main(int argc, char** argv)
 
     std::string sInput, sOutput, sModel, sPrewarp;
     int threads = -1;
+    int stages = std::numeric_limits<int>::max();
     bool doJson = true;
     bool doAnnotation = false;
     bool isRight = false;
@@ -196,7 +197,8 @@ int gauze_main(int argc, char** argv)
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
-        ("m,model", "Input file", cxxopts::value<std::string>(sModel))
+        ("m,model", "Eye model file", cxxopts::value<std::string>(sModel))
+        ("s,stages", "Restrict cascade to <s> stages", cxxopts::value<int>(stages))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("j,json", "JSON model output", cxxopts::value<bool>(doJson))
         ("a,annotate", "Create annotated images", cxxopts::value<bool>(doAnnotation))
@@ -317,6 +319,7 @@ int gauze_main(int argc, char** argv)
     {
         // Get thread specific segmenter lazily:
         auto &segmenter = manager[std::this_thread::get_id()];
+        segmenter->setEyelidStagesHint(stages);
         assert(segmenter);
         
         // Load current image

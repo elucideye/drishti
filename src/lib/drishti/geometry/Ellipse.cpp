@@ -99,18 +99,11 @@ std::vector<float> ellipseToPhi(const cv::RotatedRect& e)
 }
 
 // Note: This is for ellipse drawn in transposed image
-cv::RotatedRect phiToEllipse(const std::vector<float>& phi, bool transpose)
+cv::RotatedRect phiToEllipse(const std::vector<float>& phi)
 {
     double width = std::pow(2.0, phi[3]);
     cv::Size2f size(width, std::pow(2.0, phi[4]) * width);
     cv::RotatedRect ellipse(cv::Point2f(phi[0], phi[1]), size, phi[2] * 180.0 / M_PI);
-
-    if (transpose)
-    {
-        // Be explicit and apply transpose here:
-        std::swap(ellipse.center.x, ellipse.center.y);
-        ellipse.angle = atan2(std::cos(phi[2]), std::sin(phi[2])) * 180.0 / M_PI;
-    }
 
     return ellipse;
 }

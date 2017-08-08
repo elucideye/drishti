@@ -13,42 +13,25 @@ include(sugar_files)
 
 sugar_files(DRISHTI_EYE_SRCS
   Eye.cpp
+  EyeArchiveCereal.cpp      
   EyeIO.cpp
   EyeModelEstimator.cpp
-  EyeModelIris.cpp
+  EyeModelEstimatorArchiveCereal.cpp
   EyeModelEyelids.cpp
+  EyeModelIris.cpp
   EyeModelPupil.cpp
-  NormalizedIris.cpp
   IrisNormalizer.cpp
+  NormalizedIris.cpp
   )
-
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  sugar_files(DRISHTI_EYE_SRCS
-    EyeModelEstimatorArchiveBoost.cpp
-    EyeArchiveBoost.cpp
-    )
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CEREAL)
-  sugar_files(DRISHTI_EYE_SRCS
-    EyeModelEstimatorArchiveCereal.cpp
-    )
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CEREAL OR DRISHTI_SERIALIZE_MODELS_WITH_CEREAL)
-  sugar_files(DRISHTI_EYE_SRCS
-    EyeArchiveCereal.cpp    
-    )
-endif()
 
 sugar_files(DRISHTI_EYE_HDRS_PUBLIC
   Eye.h
-  EyeImpl.h
   EyeIO.h
+  EyeImpl.h
   EyeModelEstimator.h
   EyeModelEstimatorImpl.h
-  NormalizedIris.h
   IrisNormalizer.h
+  NormalizedIris.h
   drishti_eye.h
   )
 

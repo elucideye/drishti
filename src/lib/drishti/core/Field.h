@@ -16,7 +16,7 @@
 
 #include "drishti/core/drishti_core.h"
 
-#include <opencv2/core.hpp>
+#include <assert.h>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
@@ -50,7 +50,7 @@ struct Field
 
     operator T() const
     {
-        CV_Assert(has);
+        assert(has);
         return value;
     }
     const T& get() const

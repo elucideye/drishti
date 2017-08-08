@@ -11,6 +11,7 @@
 #ifndef __drishti_ml_XGBoosterImpl_h__
 #define __drishti_ml_XGBoosterImpl_h__
 
+#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/ml/Booster.h"
 
 DRISHTI_ML_NAMESPACE_BEGIN

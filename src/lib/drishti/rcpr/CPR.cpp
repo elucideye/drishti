@@ -26,6 +26,23 @@
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
+CPR::CPR() {}
+CPR::CPR(const CPR& src) {}
+
+#if !DRISHTI_CPR_DO_LEAN
+CPR::CPR(const std::string& filename)
+{
+    deserialize(filename);
+}
+
+CPR::CPR(const char* filename)
+{
+    deserialize(filename);
+}
+#endif
+
+CPR::~CPR() = default;
+
 bool CPR::usesMask() const
 {
     bool flag = false;
@@ -66,21 +83,6 @@ void CPR::CprPrm::FtrPrm::merge(const CPR::CprPrm::FtrPrm& opts, int checkExtra)
     nChn.merge(opts.nChn, checkExtra);
 }
 
-CPR::CPR() {}
-CPR::CPR(const CPR& src) {}
-
-#if !DRISHTI_CPR_DO_LEAN
-CPR::CPR(const std::string& filename)
-{
-    deserialize(filename);
-}
-
-CPR::CPR(const char* filename)
-{
-    deserialize(filename);
-}
-#endif
-
 // TODO: rethink shape estimator API to better support parametric models
 // For now we'll just store each parameter in the x coordinate of a 2D point
 
@@ -96,8 +98,6 @@ static Vector1d pointsToPhi(const std::vector<cv::Point2f>& points)
 
 int CPR::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(8, 2, m_streamLogger);
-
     CPRResult result;
 
     if (m_isMat)
@@ -133,13 +133,6 @@ int CPR::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, Bool
             { ellipse.size.height, 0.f },
             { ellipse.angle, 0.f }
         };
-
-        if (DRISHTI_CPR_TRANSPOSE)
-        {
-            float theta = ellipse.angle * M_PI / 180.0;
-            std::swap(points[0].x, points[1].x);
-            points[4].x = atan2(std::cos(theta), std::sin(theta)) * 180.0 / M_PI;
-        }
     }
 
     return 0;
@@ -147,7 +140,6 @@ int CPR::operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, Bool
 
 int CPR::operator()(const cv::Mat& I, std::vector<cv::Point2f>& points, std::vector<bool>& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(8, 3, m_streamLogger);
     return (*this)(I, {}, points, mask);
 }
 

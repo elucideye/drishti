@@ -44,7 +44,10 @@ target_include_directories(drishti_videoio PUBLIC
   "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
   )
 
-target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS} drishtisdk)
+target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS} drishtisdk
+  Boost::system
+  Boost::filesystem  
+  )
 
 if(APPLE)
   target_compile_options(drishti_videoio PUBLIC "-fobjc-arc")

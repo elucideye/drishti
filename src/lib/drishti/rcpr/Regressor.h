@@ -38,7 +38,6 @@ public:
         double numTestSplits = 20;   // not used
         double featureRadius = 1.66; // feature_pool_region_padding
 
-        friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {

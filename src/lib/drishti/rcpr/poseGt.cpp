@@ -22,7 +22,7 @@
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
 static Matx33Real getPose(const Vector1d& phi);
-static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, bool doTranspose, int stride);
+static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, int stride);
 
 // function part = createPart( parent, wts )
 // % Create single part for model (parent==0 implies root).
@@ -123,7 +123,7 @@ int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPa
     const auto& xs = *(ftrData.xs);
 
     std::vector<cv::Point> pts;
-    auto&& inds = xsToInds(HS, xs, w, h, nChn, DRISHTI_CPR_TRANSPOSE, stride); // TODO: rowStride != cols
+    auto&& inds = xsToInds(HS, xs, w, h, nChn, stride); // TODO: rowStride != cols
 
 #if DRISHTI_CPR_DO_FEATURE_MASK
     const auto& M = Im.getMask();
@@ -366,16 +366,10 @@ static Matx33Real getPose(const Vector1d& phi)
 // Note: Base 0 with transposed image (column major)
 static int index(RealType x, RealType y, int w, int h, int stride)
 {
-#if DRISHTI_CPR_TRANSPOSE
-    RealType cs = std::max(RealType(1.0), std::min(RealType(h), RealType(x))); // note: tranpose
-    RealType rs = std::max(RealType(1.0), std::min(RealType(w), RealType(y)));
-    return (int(cs - 1.0 + 0.5) * w + int(rs + 0.5)) - 1; // base zero
-#else
     return std::min(int(y + 0.5f), h - 1) * stride + std::min(int(x + 0.5f), w - 1);
-#endif
 }
 
-static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, bool doTranspose, int stride)
+static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, int stride)
 {
     CV_Assert(nChn == 1);
 
@@ -624,24 +618,16 @@ Vector1d ellipseToPhi(const cv::RotatedRect& e)
 }
 
 // Note: This is for ellipse drawn in transposed image
-cv::RotatedRect phiToEllipse(const Vector1d& phi, bool transpose)
+cv::RotatedRect phiToEllipse(const Vector1d& phi)
 {
     double width = std::pow(2.0, phi[3]);
     cv::Size2f size(width, std::pow(2.0, phi[4]) * width);
     cv::RotatedRect ellipse(cv::Point2f(phi[0], phi[1]), size, phi[2] * 180.0 / M_PI);
-
-    if (transpose)
-    {
-        // Be explicit and apply transpose here:
-        std::swap(ellipse.center.x, ellipse.center.y);
-        ellipse.angle = atan2(std::cos(phi[2]), std::sin(phi[2])) * 180.0 / M_PI;
-    }
-
     return ellipse;
 }
 
 #if !DRISHTI_BUILD_MIN_SIZE
-void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, const std::vector<int>& features, float scale, bool doTranspose)
+void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, const std::vector<int>& features, float scale)
 {
     // Draw the feature pairs
     if (scale != 1.f)
@@ -670,13 +656,6 @@ void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, cons
         cv::Point3_<RealType> q1 = (Hs * cv::Point3_<RealType>(p1[0], p1[1], 1.0)) * RealType(scale);
         cv::Point f0(q0.x, q0.y);
         cv::Point f1(q1.x, q1.y);
-
-        if (doTranspose)
-        {
-            std::swap(f0.x, f0.y);
-            std::swap(f1.x, f1.y);
-        }
-
         cv::circle(canvas, f0, 1, color, -1, 8);
         cv::circle(canvas, f1, 1, color, -1, 8);
         cv::line(canvas, f0, f1, color, 1, 8);

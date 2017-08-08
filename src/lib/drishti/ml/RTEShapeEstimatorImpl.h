@@ -10,33 +10,25 @@
 // A half precision (16 bit) floating point representation is used to store
 // the regression trees.
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_cereal_pba.h"
-#endif
-// clang-format on
-
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/make_unique.h"
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/shape_predictor.h"
 
 #define _SHAPE_PREDICTOR drishti::ml::shape_predictor
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-BOOST_CLASS_EXPORT_KEY(drishti::ml::RegressionTreeEnsembleShapeEstimator::Impl);
-#endif
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
 class RegressionTreeEnsembleShapeEstimator::Impl
 {
 public:
-    Impl() {}
+    Impl();
     Impl(const std::string& filename);
-    Impl(std::istream& is);
+    Impl(std::istream& is, const std::string &hint={});
+    ~Impl();
 
     void packPointsInShape(const std::vector<cv::Point2f>& points, int ellipseCount, float* shape) const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 2, m_streamLogger);
         // Copy initial chunk of 2d points
         int pointLength = points.size() - (ellipseCount * 5);
         memcpy(shape, &points[0].x, sizeof(float) * pointLength);
@@ -51,7 +43,6 @@ public:
 
     int operator()(const cv::Mat& crop, std::vector<cv::Point2f>& points, std::vector<bool>& mask) const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 3, m_streamLogger);
         CV_Assert(crop.type() == CV_8UC1);
 
         auto& sp = *m_predictor;
@@ -67,7 +58,7 @@ public:
         // Zero copy cv::Mat wrapper:
         auto img = dlib::cv_image<uint8_t>(crop);
         dlib::rectangle roi(0, 0, crop.cols, crop.rows);
-        dlib::full_object_detection shape = (*m_predictor)(img, roi, initial_shape, m_iters, m_stagesHint);
+        dlib::full_object_detection shape = (*m_predictor)(img, roi, initial_shape, m_stagesHint);
 
         points.clear();
         points.reserve(initial_shape.size() / 2);
@@ -82,20 +73,17 @@ public:
 
     void setStagesHint(int stages)
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 4, m_streamLogger);
         m_stagesHint = stages;
     }
 
     int getStagesHint() const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 5, m_streamLogger);
         return m_stagesHint;
     }
-
+    
     // {{p[0].x, p[0].y}, ..., {p[n].x,p[n.y}, {phi0[0],0}, {phi0[1],0} {phi0[2],0}, {phi0[3],0}, {phi0[4],0}}...
     std::vector<cv::Point2f> getMeanShape() const
     {
-        DRISHTI_STREAM_LOG_FUNC(6, 6, m_streamLogger);
         std::vector<fpoint> data = convert_shape_to_points<float>(m_predictor->initial_shape, m_predictor->m_ellipse_count);
         std::vector<cv::Point2f> points(data.size());
         std::transform(data.begin(), data.end(), points.begin(), [](const fpoint& p) {
@@ -121,11 +109,12 @@ public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
+        ar & m_predictor;
+        
         if (Archive::is_loading::value)
         {
-            m_predictor = std::make_shared<_SHAPE_PREDICTOR>();
+            m_predictor->populate_f16();
         }
-        ar&(*m_predictor);
     }
 
     bool isPCA() const
@@ -133,11 +122,10 @@ public:
         return bool(m_predictor->m_pca.get());
     }
 
-    int m_iters = 1;
     int m_inits = 1;
     int m_stagesHint = std::numeric_limits<int>::max();
 
-    std::shared_ptr<_SHAPE_PREDICTOR> m_predictor; // TODO: Create virtual interface
+    std::unique_ptr<_SHAPE_PREDICTOR> m_predictor;
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
@@ -146,16 +134,13 @@ public:
 template <class Archive>
 void RTEShapeEstimator::serialize(Archive& ar, const unsigned int version)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-    boost::serialization::void_cast_register<RTEShapeEstimator, ShapeEstimator>();
-#endif
     ar& m_impl;
 }
 
 template <class Archive>
 void RTEShapeEstimator::serializeModel(Archive& ar, const unsigned int version)
 {
-    ar&(*m_impl->m_predictor);
+    ar& (*m_impl->m_predictor);
 }
 
 DRISHTI_ML_NAMESPACE_END

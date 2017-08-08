@@ -16,6 +16,7 @@
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
+#include "drishti/core/drishti_stdlib_string.h" // first!
 
 // Note: This class currently exposes EOS types
 #include "eos/core/Landmark.hpp" // LandmarkCollection<>

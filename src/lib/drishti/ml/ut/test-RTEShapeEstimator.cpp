@@ -15,20 +15,9 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h"
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_stdlib_string.h"
-#  include "drishti/core/drishti_cereal_pba.h"
-#  include "drishti/core/drishti_cv_cereal.h"
-#endif
-// clang-format on
-
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 
 #include <fstream>
@@ -121,32 +110,7 @@ protected:
  * Basic class construction
  */
 
-#if DRISHTI_SERIALIZE_WITH_BOOST
-TEST(RTEShapeEstimator, StringConstructor)
-{
-    // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char*)NULL);
-    auto predictor = RTEShapeEstimatorTest::create(modelFilename);
-    ASSERT_NE(predictor, nullptr);
-}
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
 
-#if DRISHTI_SERIALIZE_WITH_BOOST
-TEST(RTEShapeEstimator, StreamConstructor)
-{
-    // Make sure modelFilename is not null:
-    ASSERT_NE(modelFilename, (const char*)NULL);
-    if (std::string(modelFilename).find(".pba.z") != std::string::npos)
-    {
-        std::ifstream is(modelFilename, std::ios::binary);
-        ASSERT_TRUE((bool)is);
-        auto predictor = std::make_shared<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is);
-        ASSERT_NE(predictor, nullptr);
-    }
-}
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
-
-#if DRISHTI_SERIALIZE_WITH_CEREAL && DRISHTI_BUILD_CEREAL_OUTPUT_ARCHIVES
 TEST_F(RTEShapeEstimatorTest, CerealSerialization)
 {
     { // Enable this block to dump regressor leaf nodes (offline analysis):
@@ -167,7 +131,6 @@ TEST_F(RTEShapeEstimatorTest, CerealSerialization)
     drishti::ml::RegressionTreeEnsembleShapeEstimator shapePredictor2;
     load_cpb(filename, shapePredictor2);
 }
-#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 /*
  * Fixture tests

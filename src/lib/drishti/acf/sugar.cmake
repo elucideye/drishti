@@ -14,6 +14,7 @@ include(sugar_files)
 sugar_files(DRISHTI_ACF_SRCS
   ACF.cpp
   ACFIO.cpp # optional
+  ACFIOArchiveCereal.cpp
   MatP.cpp
   acfModify.cpp
   bbNms.cpp
@@ -35,14 +36,6 @@ sugar_files(DRISHTI_ACF_SRCS
   toolbox/wrappers.cpp
   )
 
-if(DRISHTI_SERIALIZE_WITH_BOOST)
-  sugar_files(DRISHTI_ACF_SRCS ACFIOArchiveBoost.cpp)
-endif()
-
-if(DRISHTI_SERIALIZE_WITH_CEREAL)
-  sugar_files(DRISHTI_ACF_SRCS ACFIOArchiveCereal.cpp)
-endif()
-
 sugar_files(DRISHTI_ACF_HDRS_PUBLIC
   ACF.h
   ACFField.h
@@ -62,15 +55,15 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   sugar_files(DRISHTI_ACF_HDRS_PUBLIC  
     GPUACF.h
     gpu/gradhist.h
+    gpu/multipass/triangle_pass.h
     gpu/swizzle2.h
     gpu/triangle.h
-    gpu/multipass/triangle_pass.h
     )
   sugar_files(DRISHTI_ACF_SRCS
     GPUACF.cpp
     gpu/gradhist.cpp
+    gpu/multipass/triangle_pass.cpp
     gpu/swizzle2.cpp
     gpu/triangle.cpp
-    gpu/multipass/triangle_pass.cpp
     )
 endif()

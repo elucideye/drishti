@@ -19,9 +19,6 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-
 #include <memory>
 #include <vector>
 
@@ -36,7 +33,7 @@ public:
     typedef std::vector<bool> BoolVec;
     typedef std::vector<cv::Point2f> Point2fVec;
 
-    virtual ~ShapeEstimator() {}
+    virtual ~ShapeEstimator();
 
     virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
     {
@@ -61,12 +58,6 @@ public:
         return 0;
     }
 
-    virtual void setStagesRepetitionFactor(int x){};
-    virtual int getStagesRepetitionFactor() const
-    {
-        return 0; // 0 == not set
-    }
-
     virtual void dump(std::vector<float>& params, bool pca = false) {}
 
     // Boost serialization:
@@ -77,10 +68,5 @@ public:
 };
 
 DRISHTI_ML_NAMESPACE_END
-
-#if DRISHTI_SERIALIZE_WITH_BOOST
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(drishti::ml::ShapeEstimator);
-BOOST_CLASS_EXPORT_KEY(drishti::ml::ShapeEstimator);
-#endif
 
 #endif

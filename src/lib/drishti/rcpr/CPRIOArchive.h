@@ -145,11 +145,6 @@ void CPR::RegModel::serialize(Archive& ar, const unsigned int version)
 template <class Archive>
 void CPR::serialize(Archive& ar, const unsigned int version)
 {
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#ifndef __clang_analyzer__ // expected undefined
-    boost::serialization::void_cast_register<drishti::rcpr::CPR, drishti::ml::ShapeEstimator>();
-#endif
-#endif
     ar& cprPrm;
     ar& regModel;
 }

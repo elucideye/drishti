@@ -1,11 +1,11 @@
 #include "drishti/face/FaceDetectorFactory.h"
-#include "drishti/core/drishti_core.h"
-#include "drishti/core/make_unique.h"
 #include "drishti/acf/ACF.h" // ACF detection
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
+#include "drishti/core/drishti_core.h"
+#include "drishti/core/make_unique.h"
 
 #include "drishti/core/infix_iterator.h"
 #include <iterator>
@@ -71,6 +71,8 @@ std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getOuterFaceEstim
 
 std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
 {
+    iEyeRegressor->clear();
+    iEyeRegressor->seekg(0, std::ios::beg);
     return core::make_unique<eye::EyeModelEstimator>(*iEyeRegressor, sEyeRegressor);
 }
 

@@ -470,7 +470,7 @@ drawObjects(cv::Mat& canvas, const std::vector<drishti::face::FaceModel>& faces)
 {
     for (const auto& f : faces)
     {
-        f.draw(canvas, 2, true);
+        f.draw(canvas, 2, true, true);
     }
 }
 

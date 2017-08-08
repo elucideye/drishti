@@ -26,24 +26,14 @@
 #include "drishti/core/drishti_serialize.h"
 
 // clang-format off
-#ifdef DRISHTI_CEREAL_XML_JSON
-#  undef DRISHTI_CEREAL_XML_JSON
-#  define DRISHTI_CEREAL_XML_JSON 1
-#endif
-// clang-format on
-
-// clang-format off
-#if DRISHTI_CEREAL_XML_JSON
-#  include <cereal/archives/json.hpp>
-#  include <cereal/archives/xml.hpp>
-#endif
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/xml.hpp>
 // clang-format on
 
 // https://code.google.com/p/googletest/wiki/Primer
 const char* modelFilename;
 const char* imageFilename;
 const char* truthFilename;
-bool isTextArchive;
 const char* outputDirectory;
 
 int gauze_main(int argc, char** argv)
@@ -53,8 +43,7 @@ int gauze_main(int argc, char** argv)
     modelFilename = argv[1];
     imageFilename = argv[2];
     truthFilename = argv[3];
-    isTextArchive = (argc > 4) ? (std::atoi(argv[4]) > 0) : false;
-    outputDirectory = (argc > 5) ? argv[5] : 0;
+    outputDirectory = argv[4];
     return RUN_ALL_TESTS();
 }
 
@@ -70,19 +59,7 @@ static float detectionScore(const drishti::sdk::Eye& eyeA, const drishti::sdk::E
 
 static drishti::sdk::ArchiveKind getArchiveKind(const std::string& filename)
 {
-    if (filename.find(".txt") != std::string::npos)
-    {
-        return drishti::sdk::kTXT;
-    }
-    if (filename.find(".pba.z") != std::string::npos)
-    {
-        return drishti::sdk::kPBA;
-    }
-    if (filename.find(".cpb") != std::string::npos)
-    {
-        return drishti::sdk::kCPB;
-    }
-    return drishti::sdk::kPBA;
+    return drishti::sdk::kCPB;
 }
 
 class EyeSegmenterTest : public ::testing::Test
@@ -150,7 +127,7 @@ protected:
         m_eyeSegmenter = create(modelFilename);
 
         // Load the ground truth data:
-        loadTruth();
+        //loadTruth();
 
         // Load sample for each image width:
         loadImages();
@@ -210,31 +187,6 @@ protected:
             {
                 is >> adapter;
                 m_eye = std::make_shared<drishti::sdk::Eye>(eye);
-            }
-        }
-
-        if (m_eye)
-        {
-            // Convert this for use by private API
-            auto eye = drishti::sdk::convert(*m_eye);
-            eye.eyelids = eye.eyelidsSpline;
-
-            std::string sTruthFilename(truthFilename);
-            auto pos = sTruthFilename.find(".json");
-            if (pos != std::string::npos)
-            {
-                std::string base = sTruthFilename.substr(0, pos);
-                std::ofstream os(base + "_private.json");
-                if (os)
-                {
-#if DRISHTI_CEREAL_XML_JSON
-                    cereal::JSONOutputArchive oa(os);
-                    typedef decltype(oa) Archive;
-                    oa << GENERIC_NVP("eye", eye);
-#else
-                    std::cerr << "SKIP JSONOutputArchive" << std::endl;
-#endif
-                }
             }
         }
     }
@@ -316,18 +268,32 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
         drishti::sdk::Eye eye;
         /* int code = */ (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
 
-#if DRISHTI_CEREAL_XML_JSON
-        drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
-        std::string filename = outputDirectory;
-        filename += "/right_eye.json";
-        std::ofstream os(filename);
-        if (os)
         {
-            os << adapter;
+            drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
+            std::string filename = outputDirectory;
+            filename += "/right_eye.json";
+            std::ofstream os(filename);
+            if (os)
+            {
+                os << adapter;
+            }
         }
-#else
-        std::cerr << "Skip JSON archive" << std::endl;
-#endif
+        
+        {  // Convert this for use by private API
+            auto privateEye = drishti::sdk::convert(eye);
+            privateEye.eyelids = privateEye.eyelidsSpline;
+            
+            std::string filename = outputDirectory;
+            filename += "/right_eye_private.json";
+
+            std::ofstream os(filename);
+            if (os)
+            {
+                cereal::JSONOutputArchive oa(os);
+                typedef decltype(oa) Archive;
+                oa << GENERIC_NVP("eye", privateEye);
+            }
+        }
     }
 }
 
@@ -391,7 +357,7 @@ TEST_F(EyeSegmenterTest, ImageValid)
             checkValid(eye, m_images[i].storage.size());
 
             // Ground truth comparison for reasonable resolutions
-            if (i > 128)
+            if (i > 128 && m_eye)
             {
                 const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
                 ASSERT_GT(detectionScore(eye, *m_eye), threshold);

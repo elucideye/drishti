@@ -26,21 +26,13 @@
 #endif
 // clang-format on
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_CEREAL
-#  include "drishti/core/drishti_stdlib_string.h"
-#  include "drishti/core/drishti_cereal_pba.h"
-   // http://uscilab.github.io/cereal/serialization_archives.html
-#  include <cereal/archives/portable_binary.hpp>
-#  include <cereal/types/vector.hpp>
-#endif
-// clang-format on
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cereal_pba.h"
 
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/drishti_serialization_boost.h"
-#endif
-// clang-format on
+// http://uscilab.github.io/cereal/serialization_archives.html
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/types/vector.hpp>
+
 
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 // #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
@@ -288,24 +280,6 @@ static cv::Mat getImage(ogles_gpgpu::ProcInterface& proc)
 // test and a simple placeholder assert(true) test wil be added at the
 // end of the test.
 
-#if DRISHTI_SERIALIZE_WITH_BOOST && !DRISHTI_BUILD_MIN_SIZE
-TEST_F(ACFTest, ACFSerializeBoost)
-{
-    // Load from operative format:
-    auto detector = create(modelFilename);
-    ASSERT_NE(detector, nullptr);
-
-    // Test *.pba.z serialization (write and load)
-    drishti::acf::Detector detector2;
-    std::string filename = outputDirectory;
-    filename += "/acf.pba.z";
-    save_pba_z(filename, *detector);
-    load_pba_z(filename, detector2);
-    ASSERT_TRUE(isEqual(*detector, detector2));
-}
-#endif // DRISHTI_SERIALIZE_WITH_BOOST
-
-#if DRISHTI_SERIALIZE_WITH_CEREAL
 TEST_F(ACFTest, ACFSerializeCereal)
 {
     // Load from operative format:
@@ -320,7 +294,6 @@ TEST_F(ACFTest, ACFSerializeCereal)
     load_cpb(filename, detector2);
     ASSERT_TRUE(isEqual(*detector, detector2));
 }
-#endif // DRISHTI_SERIALIZE_WITH_CEREAL
 
 static void draw(cv::Mat& canvas, const std::vector<cv::Rect>& objects)
 {

@@ -30,6 +30,10 @@ typedef unsigned char boolean;
 #include "drishti/ml/shape_predictor.h"
 #include "drishti/testlib/drishti_cli.h"
 
+#include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/drishti_cereal_pba.h"
+#include "drishti/core/drishti_cv_cereal.h"
+
 #include "cxxopts.hpp"
 
 #include <iostream>
@@ -106,7 +110,7 @@ int mine(int argc, char* argv[])
     //dlib::deserialize( model.c_str() ) >> sp;
 
     drishti::ml::shape_predictor sp;
-    load_pba_z(sModel, sp);
+    load_cpb(sModel, sp);
     int ellipse_count = sp.m_ellipse_count;
     
 #if 0
@@ -211,3 +215,4 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
     }
 }
+

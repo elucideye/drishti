@@ -23,14 +23,14 @@
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
+ShapeEstimator::~ShapeEstimator() = default;
+
 void ShapeEstimator::setDoPreview(bool flag)
 {
 }
 
 int ShapeEstimator::operator()(const cv::Mat& image, const cv::Rect& roi, Point2fVec& points, BoolVec& mask) const
 {
-    DRISHTI_STREAM_LOG_FUNC(6, 1, m_streamLogger);
-
     cv::Rect validRoi = roi & cv::Rect({ 0, 0 }, image.size());
     cv::Mat crop = image(validRoi);
     if (validRoi != roi)
@@ -50,10 +50,3 @@ int ShapeEstimator::operator()(const cv::Mat& image, const cv::Rect& roi, Point2
 }
 
 DRISHTI_ML_NAMESPACE_END
-
-// clang-format off
-#if DRISHTI_SERIALIZE_WITH_BOOST
-#  include "drishti/core/boost_serialize_common.h"
-BOOST_CLASS_EXPORT_IMPLEMENT(drishti::ml::ShapeEstimator);
-#endif
-// clang-format on
