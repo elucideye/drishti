@@ -3,7 +3,7 @@
 # All rights reserved.
 
 hunter_add_package(nlohmann_json)
-find_package(nlohmann_json REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 set(app_name facefilter)
 
