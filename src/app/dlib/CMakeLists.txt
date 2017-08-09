@@ -13,24 +13,27 @@ find_package(RapidXML REQUIRED CONFIG)
 ######################
 
 add_executable(drishti-eyexml eyexml.cpp)
-target_link_libraries(drishti-eyexml drishtisdk drishti_landmarks cxxopts::cxxopts RapidXML::RapidXML
+target_include_directories(drishti-eyexml PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../>")
+target_link_libraries(drishti-eyexml drishtisdk cxxopts::cxxopts RapidXML::RapidXML
   Boost::system
   Boost::filesystem    
   )
 set_property(TARGET drishti-eyexml PROPERTY FOLDER "app/console")
 install(TARGETS drishti-eyexml DESTINATION bin)
 
-######################
+#######################
 ### drishti-facexml ###
-######################
+#######################
 
-add_executable(drishti-facexml facexml.cpp)
-target_link_libraries(drishti-facexml drishtisdk drishti_landmarks cxxopts::cxxopts RapidXML::RapidXML
-  Boost::system
-  Boost::filesystem    
-  )
-set_property(TARGET drishti-facexml PROPERTY FOLDER "app/console")
-install(TARGETS drishti-facexml DESTINATION bin)
+if(BUILD_FACE)
+  add_executable(drishti-facexml facexml.cpp)
+  target_link_libraries(drishti-facexml drishtisdk drishti_landmarks cxxopts::cxxopts RapidXML::RapidXML
+    Boost::system
+    Boost::filesystem    
+    )
+  set_property(TARGET drishti-facexml PROPERTY FOLDER "app/console")
+  install(TARGETS drishti-facexml DESTINATION bin)
+endif()
 
 ###################################################
 ##################### DLIB apps ###################
