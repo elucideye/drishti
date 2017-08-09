@@ -17,12 +17,9 @@ sugar_files(DRISHTI_GEOMETRY_SRCS
   EllipseSerializer.cpp
   Primitives.cpp
   Rectangle.cpp
-  motion.cpp
-
-  # http://research.microsoft.com/en-us/um/people/awf/ellipse/fitellipse.html
-  fitEllipse.cpp
   conicCen2Par.cpp
   conicPar2Cen.cpp
+  motion.cpp
   )
 
 sugar_files(DRISHTI_GEOMETRY_HDRS_PUBLIC
@@ -37,9 +34,7 @@ sugar_files(DRISHTI_GEOMETRY_HDRS_PUBLIC
   StaticObject.h
   drishti_geometry.h
   fitEllipse.h
-  motion.h
-
-  # https://www.mathworks.com/matlabcentral/fileexchange/28318-conics-intersection/content/intersectConicLine.m  
   getPointsOnLine.h
   intersectConicLine.h  
+  motion.h
   )
