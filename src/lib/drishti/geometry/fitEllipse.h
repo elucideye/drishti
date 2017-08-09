@@ -34,11 +34,6 @@ T pow2(const T& x)
 cv::RotatedRect conicPar2Cen(const cv::Vec6d& par);
 cv::Vec6d conicCen2Par(const cv::RotatedRect& cen);
 
-#if !DRISHTI_BUILD_MIN_SIZE
-cv::RotatedRect fitEllipse(const std::vector<cv::Point2d>& pts);
-cv::RotatedRect fitEllipse(const std::vector<cv::Point2d>& points, const cv::Point2d& center);
-#endif // !DRISHTI_BUILD_MIN_SIZE
-
 DRISHTI_GEOMETRY_END
 
-#endif // d__drishti_geometry_fitEllipse_h__ 1
+#endif // __drishti_geometry_fitEllipse_h__ 1
