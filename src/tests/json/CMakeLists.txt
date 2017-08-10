@@ -1,11 +1,11 @@
 set(test_name NlohmannJsonTest)
 set(test_app test-nlohmann-json)
 
-hunter_add_package(nlohmann-json)
-find_package(nlohmann-json REQUIRED)
+hunter_add_package(nlohmann_json)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 add_executable(${test_app} test-json.cpp)
-target_link_libraries(${test_app} PUBLIC nlohmann-json::nlohmann-json GTest::gtest)
+target_link_libraries(${test_app} PUBLIC nlohmann_json GTest::gtest)
 target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 

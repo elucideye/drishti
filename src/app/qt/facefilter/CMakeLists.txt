@@ -2,8 +2,8 @@
 # Copyright (c) 2015-2016, David Hirvonen
 # All rights reserved.
 
-hunter_add_package(nlohmann-json)
-find_package(nlohmann-json REQUIRED)
+hunter_add_package(nlohmann_json)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 set(app_name facefilter)
 
@@ -187,7 +187,7 @@ target_link_libraries(${app_name}
   drishtisdk
   ${OGLES_GPGPU_LIB}
   thread-pool-cpp::thread-pool-cpp
-  nlohmann-json::nlohmann-json)
+  nlohmann_json)
 
 if(DRISHTI_USE_BEAST)
   target_compile_definitions(${app_name} PUBLIC DRISHTI_USE_BEAST=1)

@@ -1,5 +1,5 @@
-hunter_add_package(nlohmann-json)
-find_package(nlohmann-json REQUIRED)
+hunter_add_package(nlohmann_json)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 ################
 ### RapidXML ###
@@ -72,7 +72,7 @@ if(JPEG_FOUND AND PNG_FOUND)
       )
     
     add_executable(drishti_train_shape_predictor ${train_srcs})
-    target_link_libraries(drishti_train_shape_predictor drishtisdk cxxopts::cxxopts PNG::png nlohmann-json::nlohmann-json)
+    target_link_libraries(drishti_train_shape_predictor drishtisdk cxxopts::cxxopts PNG::png nlohmann_json)
     target_compile_definitions(drishti_train_shape_predictor PUBLIC DLIB_PNG_SUPPORT DLIB_NO_GUI_SUPPORT=1)
     set_property(TARGET drishti_train_shape_predictor PROPERTY FOLDER "app/console")
     install(TARGETS drishti_train_shape_predictor DESTINATION bin)
