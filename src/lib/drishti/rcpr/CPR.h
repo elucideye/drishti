@@ -75,14 +75,14 @@ public:
 
     CPR();
     CPR(const CPR& src);
-    
+
 #if !DRISHTI_CPR_DO_LEAN
     CPR(const std::string& filename);
     CPR(const char* filename);
 #endif
-    
+
     ~CPR();
-    
+
     void setViewer(ViewFunc& viewer)
     {
         m_viewer = viewer;

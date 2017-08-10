@@ -57,19 +57,20 @@ static void* void_ptr(const cv::Mat& image)
 }
 
 static std::vector<float> parseVec3f(const std::string& R);
-static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc, cv::Mat &frame);
+static cv::Mat getImage(ogles_gpgpu::ProcInterface& proc, cv::Mat& frame);
 
 struct Cursor
 {
     using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
-    
+
     Cursor() {}
-    Cursor(const cv::Point2f &position) : position(position)
+    Cursor(const cv::Point2f& position)
+        : position(position)
     {
         valid = true;
         time = std::chrono::high_resolution_clock::now();
     }
-    
+
     bool valid = false;
     cv::Point2f position;
     std::chrono::time_point<std::chrono::high_resolution_clock> time;
@@ -100,7 +101,7 @@ int gauze_main(int argc, char* argv[])
     bool doCursor = false;
     int threads = -1;
     int width = 256;
-    
+
     cxxopts::Options options("eos-pose", "Command line interface for eos 2d->3d face model fitting");
 
     // clang-format off
@@ -175,9 +176,8 @@ int gauze_main(int argc, char* argv[])
         logger->error("Must specify landmark mapping");
         return 1;
     }
-    
-    std::unique_ptr<drishti::face::FaceMeshMapper> mapper =
-        drishti::core::make_unique<drishti::face::FaceMeshMapperLandmarkContour>(assets);
+
+    std::unique_ptr<drishti::face::FaceMeshMapper> mapper = drishti::core::make_unique<drishti::face::FaceMeshMapperLandmarkContour>(assets);
 
     // One can instantiate a simple landmark mapper for faster performance:
     // drishti::core::make_unique<drishti::face::FaceMeshMapperLandmark>(assets.model, assets.mappings);
@@ -206,7 +206,7 @@ int gauze_main(int argc, char* argv[])
         // Load triangles (else they will be computed on the fly)
         faceMesh->readTriangulation(sTriangles);
     }
-    
+
     Landmarks landmarks;
     if (detector && landmarker)
     {
@@ -246,9 +246,9 @@ int gauze_main(int argc, char* argv[])
             auto result = (*mapper)(landmarks, input);
             cv::Mat iso = drishti::face::extractTexture(result, input);
             cv::Point3f Reuler = drishti::face::getRotation(result.rendering_params);
-            
+
             logger->info("rotation: {} {} {}", Reuler.x, Reuler.y, Reuler.z);
-            
+
             // (((( Draw mesh for visualization ))))
             if (doPreview || !sOutput.empty())
             {
@@ -256,26 +256,26 @@ int gauze_main(int argc, char* argv[])
                 // Create a texture from teh isomap
                 cv::Mat frame;
                 cv::cvtColor(input, frame, cv::COLOR_BGR2BGRA);
-                
+
                 // Create a window/context:
                 const auto kType = aglet::GLContext::kAuto;
                 auto opengl = aglet::GLContext::create(kType, doPreview ? "eos" : "", input.cols, input.rows);
                 opengl->resize(frame.cols, frame.rows);
                 (*opengl)();
-                
+
                 // Create triangles from mesh:
-                ogles_gpgpu::Mesh mesh { result.mesh.vertices, result.mesh.texcoords, result.mesh.tvi };
+                ogles_gpgpu::Mesh mesh{ result.mesh.vertices, result.mesh.texcoords, result.mesh.tvi };
 
                 // Perform texture swizzling:
                 ogles_gpgpu::VideoSource source;
                 ogles_gpgpu::MeshProc warper(mesh, iso, doWire);
                 source.set(&warper);
-                
-                if(doClear)
+
+                if (doClear)
                 {
-                    warper.setBackground({0.f,0.f,0.f,1.f});
+                    warper.setBackground({ 0.f, 0.f, 0.f, 1.f });
                 }
-                
+
                 // Set shader model view projection:
                 const auto frustum = result.rendering_params.get_frustum();
                 const auto projection = glm::ortho<float>(frustum.l, frustum.r, frustum.t, frustum.b, -100.0, 100.0);
@@ -283,7 +283,7 @@ int gauze_main(int argc, char* argv[])
                     const auto modelViewProj = projection * result.rendering_params.get_modelview();
                     warper.setModelViewProjection(modelViewProj);
                 }
-                
+
                 std::shared_ptr<ogles_gpgpu::Disp> display;
                 if (doPreview && opengl->hasDisplay())
                 {
@@ -291,7 +291,7 @@ int gauze_main(int argc, char* argv[])
                     display->setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
                     warper.add(display.get());
                 }
-                
+
                 auto R = result.rendering_params.get_rotation();
                 if (!sRotation.empty())
                 {
@@ -300,42 +300,40 @@ int gauze_main(int argc, char* argv[])
                     R.y = rotations[1];
                     R.z = rotations[2];
                 }
-                
+
                 Cursor cursor[2]; // keep cursor in scope
-                if(doCursor)
+                if (doCursor)
                 {
-                    std::function<void(double x, double y)> cursorCallback = [&](double x, double y)
-                    {
-                        if(!cursor[0].valid)
+                    std::function<void(double x, double y)> cursorCallback = [&](double x, double y) {
+                        if (!cursor[0].valid)
                         {
                             cursor[0] = Cursor(cv::Point2f(x, y));
                             return;
                         }
-                        
-                        cursor[1] = Cursor( cv::Point2f(x, y) );
+
+                        cursor[1] = Cursor(cv::Point2f(x, y));
                         const auto delta = cursor[1].position - cursor[0].position;
                         const double elapsed = std::chrono::duration<double>(cursor[1].time - cursor[0].time).count();
                         static const float sensitivity = elapsed / 10.f;
-                        static const float xRange = static_cast<float>(M_PI)/8.0f;
-                        static const float yRange = static_cast<float>(M_PI)/8.0f;
+                        static const float xRange = static_cast<float>(M_PI) / 8.0f;
+                        static const float yRange = static_cast<float>(M_PI) / 8.0f;
                         R.y = std::max(std::min(R.y + delta.x * sensitivity, +yRange), -xRange);
                         R.x = std::max(std::min(R.x + delta.y * sensitivity, +yRange), -yRange);
                         std::swap(cursor[1], cursor[0]);
-                        
+
                         logger->info("X = {} Y = {}", x, y);
                     };
                     opengl->setCursorCallback(cursorCallback);
                 }
-                
-                std::function<bool(void)> render = [&]()
-                {
+
+                std::function<bool(void)> render = [&]() {
                     // Alway update transformation:
                     result.rendering_params.set_rotation(glm::quat(R));
                     const auto modelViewProj = projection * result.rendering_params.get_modelview();
                     warper.setModelViewProjection(modelViewProj);
-                    
+
                     source({ { frame.cols, frame.rows }, void_ptr(frame), true, 0, TEXTURE_FORMAT });
-                    
+
                     if (display)
                     {
                         auto& geometry = opengl->getGeometry();
@@ -344,8 +342,8 @@ int gauze_main(int argc, char* argv[])
                     }
                     return true;
                 };
-                
-                if(display && doPreview)
+
+                if (display && doPreview)
                 {
                     opengl->setWait(!doCursor);
                     (*opengl)(render);
@@ -358,7 +356,7 @@ int gauze_main(int argc, char* argv[])
 
                 if (!sOutput.empty())
                 {
-#if defined(DRISHTI_HAS_GLTEST)                    
+#if defined(DRISHTI_HAS_GLTEST)
                     // Capture last rendered image:
                     cv::Mat rendered;
                     getImage(warper, rendered);
@@ -384,12 +382,11 @@ int main(int argc, char** argv)
     }
 }
 
-static cv::Mat getImage(ogles_gpgpu::ProcInterface &proc, cv::Mat &frame)
+static cv::Mat getImage(ogles_gpgpu::ProcInterface& proc, cv::Mat& frame)
 {
-    if(dynamic_cast<ogles_gpgpu::MemTransferOptimized*>(proc.getMemTransferObj()))
+    if (dynamic_cast<ogles_gpgpu::MemTransferOptimized*>(proc.getMemTransferObj()))
     {
-        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d &size, const void *pixels, size_t bytesPerRow)
-        {
+        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d& size, const void* pixels, size_t bytesPerRow) {
             frame = cv::Mat(size.height, size.width, CV_8UC4, (void*)pixels, bytesPerRow).clone();
         };
         proc.getResultData(delegate);
@@ -415,7 +412,7 @@ template <typename Iterator, typename Skipper = qi::blank_type>
 struct vec3f_parser : qi::grammar<Iterator, std::vector<float>(), Skipper>
 {
     vec3f_parser()
-    : vec3f_parser::base_type(start)
+        : vec3f_parser::base_type(start)
     {
         start = qi::repeat(2)[(qi::float_ >> ',')] >> qi::float_;
     }
@@ -435,4 +432,3 @@ static std::vector<float> parseVec3f(const std::string& R)
 {
     return parseVec3f(R.begin(), R.end());
 }
-

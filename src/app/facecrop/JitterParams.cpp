@@ -61,7 +61,7 @@ cv::Matx33f JitterParams::scale(const cv::Size& size, const cv::Point& tl, float
     const cv::Matx33f T1 = transformation::translate(-center);
     const cv::Matx33f T2 = transformation::translate(center);
     const cv::Matx33f H = T2 * S * T1;
-    
+
     return H;
 }
 

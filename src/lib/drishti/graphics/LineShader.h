@@ -27,30 +27,28 @@ BEGIN_OGLES_GPGPU
 class LineShader
 {
 public:
-    
     using VertexBuffer = std::vector<glm::vec4>;
-    
-    LineShader(const VertexBuffer &vertices);
-    
-    static const char * getProcName();
-    
+
+    LineShader(const VertexBuffer& vertices);
+
+    static const char* getProcName();
+
     void draw(int outFrameW, int outFrameH);
-    
-    void setModelViewProjection(const glm::mat4 &mvp);
-    
+
+    void setModelViewProjection(const glm::mat4& mvp);
+
 protected:
-    
     std::shared_ptr<Shader> shader;
-    
+
     static const char* vshaderColorSrc;
     static const char* fshaderColorSrc;
-    
+
     GLint shParamUColor;
     GLint shParamUMVP;
     GLint shParamAPosition;
 
     std::vector<glm::vec4> points;
-    std::array<float, 3> color = {{ 1.f, 1.f, 1.f }};
+    std::array<float, 3> color = { { 1.f, 1.f, 1.f } };
     glm::mat4 MVP;
 };
 

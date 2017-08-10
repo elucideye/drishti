@@ -41,7 +41,7 @@ public:
     Impl();
 
     Impl(const std::string& eyeRegressor, const std::string& irisRegressor = {}, const std::string& pupilRegressor = {});
-    
+
     ~Impl();
 
     void init();
@@ -109,7 +109,7 @@ public:
     // Red channel is closest to NIR for iris
     // TODO: Need a lazy image conversion type
     int operator()(const cv::Mat& crop, EyeModel& eye) const;
-    
+
     void normalize(const cv::Mat& crop, const EyeModel& eye, const cv::Size& size, NormalizedIris& code, int padding = 0) const
     {
         IrisNormalizer()(crop, eye, size, code, padding);
@@ -215,7 +215,7 @@ protected:
     bool m_useHierarchy = true;
     bool m_doPupil = true;
     bool m_doIndependentIrisAndPupil = true;
-    
+
     std::unique_ptr<ml::ShapeEstimator> m_eyeEstimator;
     std::unique_ptr<ml::ShapeEstimator> m_irisEstimator;
     std::unique_ptr<ml::ShapeEstimator> m_pupilEstimator;

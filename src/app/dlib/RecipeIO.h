@@ -38,20 +38,20 @@ struct Recipe
     bool do_pca = true;
     std::vector<int> dimensions;
 
-    void print(std::ostream &os)
+    void print(std::ostream& os)
     {
-        os << "cascade_depth: " <<  cascades << std::endl;
-        os << "tree_depth: " <<  depth << std::endl;
-        os << "num_trees_per_cascade_level: " <<  trees_per_level << std::endl;
-        os << "nu: " <<  nu << std::endl;
-        os << "oversampling_amount: " <<  oversampling << std::endl;
-        os << "feature_pool_size: " <<  features << std::endl;
-        os << "lambda: " <<  lambda << std::endl;
-        os << "num_test_splits: " <<  splits << std::endl;
-        os << "feature_pool_region_padding: " <<  padding << std::endl;
-        os << "use npd: " <<  npd << std::endl;
-        os << "affine: " <<  do_affine << std::endl;
-        os << "interpolated: " <<  do_interpolate << std::endl;
+        os << "cascade_depth: " << cascades << std::endl;
+        os << "tree_depth: " << depth << std::endl;
+        os << "num_trees_per_cascade_level: " << trees_per_level << std::endl;
+        os << "nu: " << nu << std::endl;
+        os << "oversampling_amount: " << oversampling << std::endl;
+        os << "feature_pool_size: " << features << std::endl;
+        os << "lambda: " << lambda << std::endl;
+        os << "num_test_splits: " << splits << std::endl;
+        os << "feature_pool_region_padding: " << padding << std::endl;
+        os << "use npd: " << npd << std::endl;
+        os << "affine: " << do_affine << std::endl;
+        os << "interpolated: " << do_interpolate << std::endl;
     }
 };
 

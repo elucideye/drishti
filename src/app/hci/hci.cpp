@@ -209,9 +209,9 @@ int gauze_main(int argc, char** argv)
     detector->setShowDetectionScales(false);
 
     ogles_gpgpu::VideoSource source;
-    
+
     //ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleRGBA);// kSwizzleGRAB);
-    
+
     ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB);
     source.set(&swizzle);
 
@@ -240,14 +240,13 @@ int gauze_main(int argc, char** argv)
         display->setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
     }
 
-    std::function<bool(void)> render = [&]()
-    {
+    std::function<bool(void)> render = [&]() {
         frame = (*video)(counter++);
         if (frame.image.empty())
         {
             return false;
         }
-        if(frame.image.channels() == 3)
+        if (frame.image.channels() == 3)
         {
             cv::cvtColor(frame.image, frame.image, cv::COLOR_BGR2BGRA);
         }
@@ -263,7 +262,7 @@ int gauze_main(int argc, char** argv)
 
         // Convert to texture as one of GL_BGRA or GL_RGBA
         if (display)
-        {            
+        {
             auto& geometry = opengl->getGeometry();
             display->setOffset(geometry.tx, geometry.ty);
             display->setDisplayResolution(geometry.sx, geometry.sy);
@@ -281,7 +280,6 @@ int gauze_main(int argc, char** argv)
             // clang-format on
             detector->getOutputPixels(delegate);
         }
-
 
         return true;
     };

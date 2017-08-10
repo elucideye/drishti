@@ -40,7 +40,7 @@ FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks
         mean(landmarks, m_table.mouthL)
     };
     const cv::Matx33f P = drishti::geometry::procrustes(eyesNoseMouth); // normalization transformation
-    const cv::Matx33f S = m_face();                                  // scale to target image dimensions
+    const cv::Matx33f S = m_face();                                     // scale to target image dimensions
     cv::Matx33f H = S * P;
 
     std::pair<cv::Matx33f, bool> jitter;
@@ -56,7 +56,7 @@ FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks
             jitter = m_params(m_rng, m_face.size, m_face.tl());
             break;
     }
-    
+
     jitter.first = jitter.first * H;
 
     cv::Mat face(m_face.paddedSize(), CV_8UC3, cv::Scalar::all(0));
@@ -73,7 +73,7 @@ FaceWithLandmarks FaceJitterer::operator()(const cv::Mat& image, const Landmarks
     result.image = face;
     result.landmarks.resize(landmarks.size());
     result.eyesNoseMouth.resize(eyesNoseMouth.size());
-    
+
     // clang-format off
     std::transform(eyesNoseMouth.begin(), eyesNoseMouth.end(), result.eyesNoseMouth.begin(), [&](const cv::Point2f& p)
     {

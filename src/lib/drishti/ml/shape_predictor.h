@@ -837,7 +837,7 @@ public:
         {
             auto& cs_ = current_shape;
             auto& is_ = initial_shape; // this is used to map pose indexed features to current shape
-            
+
             // Previously had for loop
             if (do_pca)
             {
@@ -845,7 +845,7 @@ public:
                 int current_pca_dim = int(forests[iter][0].leaf_values[0].size());
                 back_project(*m_pca, current_pca_dim, current_shape_full_, cs_);
             }
-            
+
             if (interpolated_features.size())
             {
                 extract_feature_pixel_values(img, rect, cs_, interpolated_features[iter], feature_pixel_values);
@@ -854,10 +854,10 @@ public:
             {
                 extract_feature_pixel_values(img, rect, cs_, is_, anchor_idx[iter], deltas[iter], feature_pixel_values, m_ellipse_count, m_do_affine);
             }
-            
+
             fshape current_shape_;
             auto& active_shape = do_pca ? current_shape_ : current_shape;
-            
+
 #if DRISHTI_BUILD_REGRESSION_FIXED_POINT
             // Fixed point is currently only working for PCA in most cases (check numerical overflow)
             DVec16s shape_accumulator;
@@ -870,14 +870,14 @@ public:
             {
                 active_shape(i) = float(shape_accumulator(i)) / float(1 << FIXED_PRECISION);
             }
-            
+
 #else  /* else don't DRISHTI_BUILD_REGRESSION_FIXED_POINT */
             for (auto& f : forests[iter])
             {
                 add32F(active_shape, f(feature_pixel_values, m_npd), active_shape);
             }
 #endif /* DRISHTI_BUILD_REGRESSION_FIXED_POINT */
-            
+
             if (do_pca)
             {
                 dlib::set_rowm(current_shape_full_, dlib::range(0, current_shape_.size() - 1)) += current_shape_;
@@ -1187,19 +1187,19 @@ public:
     {
         _verbose = false;
     }
-    
-    unsigned long get_num_threads () const
+
+    unsigned long get_num_threads() const
     {
         return _num_threads;
     }
-    
+
     void set_num_threads(unsigned long num)
     {
         _num_threads = num;
     }
 
-    void set_dimensions(const std::vector<int> &dimensions)  { _dimensions = dimensions; }
-    const std::vector<int> & get_dimensions() const { return _dimensions; }
+    void set_dimensions(const std::vector<int>& dimensions) { _dimensions = dimensions; }
+    const std::vector<int>& get_dimensions() const { return _dimensions; }
 
     void set_ellipse_count(int ellipse_count) { _ellipse_count = ellipse_count; }
     int get_ellipse_count() const { return _ellipse_count; }
@@ -1213,9 +1213,9 @@ public:
     void set_do_line_indexed(bool do_line_indexed) { _do_line_indexed = do_line_indexed; }
     bool get_do_line_indexed() const { return _do_line_indexed; }
 
-    void set_roi(const dlib::drectangle &roi) { _roi = roi; }
+    void set_roi(const dlib::drectangle& roi) { _roi = roi; }
     const dlib::drectangle& get_roi() const { return _roi; }
-    
+
     static void copyShape(const float* ptr, int n, fshape& shape, fshape& shape_full)
     {
         shape_full.set_size(n, 1);
@@ -1226,8 +1226,7 @@ public:
     template <typename image_array>
     shape_predictor train(
         const image_array& images,
-        const std::vector<std::vector<dlib::full_object_detection>>& objects
-    ) const
+        const std::vector<std::vector<dlib::full_object_detection>>& objects) const
     {
         using namespace impl;
         DLIB_CASSERT(images.size() == objects.size() && images.size() > 0,
@@ -1264,7 +1263,7 @@ public:
                 << "\n\t You must give at least one full_object_detection if you want to train a shape model and it must have parts.");
 
         rnd.set_seed(get_random_seed());
-        
+
         dlib::thread_pool tp(_num_threads > 1 ? _num_threads : 0);
 
         DLIB_CASSERT(!(_ellipse_count % 2), "\t currently limited to ellipse pairs"); // point representation limitations
@@ -1339,9 +1338,8 @@ public:
 
             // First compute the feature_pixel_values for each training sample at this
             // level of the cascade.
-            
-            parallel_for(tp, 0, samples.size(), [&](unsigned long i)
-            {
+
+            parallel_for(tp, 0, samples.size(), [&](unsigned long i) {
                 auto& s = samples[i];
                 auto& is = initial_shape;
                 const auto& cs = s.current_shape;
@@ -1360,7 +1358,8 @@ public:
                 {
                     extract_feature_pixel_values(image, s.rect, cs, is, anchor_idx, deltas, s.feature_pixel_values, _ellipse_count, _do_affine);
                 }
-            }, 1);
+            },
+                1);
 
             // Now start building the trees at this cascade level.
             for (unsigned long i = 0; i < get_num_trees_per_cascade_level(); ++i)
@@ -1475,7 +1474,7 @@ private:
 
             target_shape_full_.swap(item.target_shape_full_);
             current_shape_full_.swap(item.current_shape_full_);
-            
+
             diff_shape.swap(item.diff_shape);
         }
     };
@@ -1597,24 +1596,22 @@ private:
         // walk the tree in breadth first order
         const unsigned long num_split_nodes = static_cast<unsigned long>(std::pow(2.0, (double)get_tree_depth()) - 1);
         std::vector<fshape> sums(num_split_nodes * 2 + 1);
-        
-        
+
         if (tp.num_threads_in_pool() > 1)
         {
             // Here we need to calculate shape differences and store sum of differences into sums[0]
             // to make it. I am splitting samples into blocks, each block will be processed by
             // separate thread, and the sum of differences of each block is stored into separate
             // place in block_sums
-            
+
             const unsigned long num_workers = std::max(1UL, tp.num_threads_in_pool());
-            const unsigned long num =  samples.size();
+            const unsigned long num = samples.size();
             const unsigned long block_size = std::max(1UL, (num + num_workers - 1) / num_workers);
-            std::vector<dlib::matrix<float,0,1> > block_sums(num_workers);
-            
-            parallel_for(tp, 0, num_workers, [&](unsigned long block)
-            {
+            std::vector<dlib::matrix<float, 0, 1>> block_sums(num_workers);
+
+            parallel_for(tp, 0, num_workers, [&](unsigned long block) {
                 const unsigned long block_begin = block * block_size;
-                const unsigned long block_end =  std::min(num, block_begin + block_size);
+                const unsigned long block_end = std::min(num, block_begin + block_size);
                 for (unsigned long i = block_begin; i < block_end; ++i)
                 {
                     if (do_pca) // #if DO_PCA_INTERNAL
@@ -1627,8 +1624,9 @@ private:
                     }
                     block_sums[block] += samples[i].diff_shape;
                 }
-            }, 1);
-            
+            },
+                1);
+
             // now calculate the total result from separate blocks
             for (unsigned long i = 0; i < block_sums.size(); ++i)
             {
@@ -1689,8 +1687,7 @@ private:
             }
 
             // now adjust the current shape based on these predictions
-            parallel_for(tp, parts[i].first, parts[i].second, [&](unsigned long j)
-            {
+            parallel_for(tp, parts[i].first, parts[i].second, [&](unsigned long j) {
                 if (do_pca)
                 {
                     samples[j].current_shape_ += tree.leaf_values[i];
@@ -1699,7 +1696,8 @@ private:
                 {
                     samples[j].current_shape += tree.leaf_values[i];
                 }
-            }, 1);
+            },
+                1);
         }
 
         return tree;
@@ -1760,16 +1758,15 @@ private:
 
         std::vector<fshape> left_sums(num_test_splits);
         std::vector<unsigned long> left_cnt(num_test_splits);
-        
+
         const unsigned long num_workers = std::max(1UL, tp.num_threads_in_pool());
         const unsigned long block_size = std::max(1UL, (num_test_splits + num_workers - 1) / num_workers);
 
         // now compute the sums of vectors that go left for each feature
-        parallel_for(tp, 0, num_workers, [&](unsigned long block)
-        {
+        parallel_for(tp, 0, num_workers, [&](unsigned long block) {
             const unsigned long block_begin = block * block_size;
-            const unsigned long block_end   = std::min(block_begin + block_size, num_test_splits);
-            
+            const unsigned long block_end = std::min(block_begin + block_size, num_test_splits);
+
             for (unsigned long j = begin; j < end; ++j)
             {
                 for (unsigned long i = block_begin; i < block_end; ++i)
@@ -1786,7 +1783,7 @@ private:
                     }
                     else
                     {
-                        if((static_cast<float>(values1) - static_cast<float>(values2)) > feats[i].thresh)
+                        if ((static_cast<float>(values1) - static_cast<float>(values2)) > feats[i].thresh)
                         {
                             left_sums[i] += samples[j].diff_shape;
                             ++left_cnt[i];
@@ -1794,12 +1791,13 @@ private:
                     }
                 }
             }
-        }, 1);
+        },
+            1);
 
         // now figure out which feature is the best
         double best_score = -1;
         unsigned long best_feat = 0;
-        dlib::matrix<float,0,1> temp;
+        dlib::matrix<float, 0, 1> temp;
         for (unsigned long i = 0; i < num_test_splits; ++i)
         {
             // check how well the feature splits the space.
@@ -2042,7 +2040,7 @@ private:
     double _feature_pool_region_padding;
     bool _verbose;
     unsigned long _num_threads;
-    
+
     // new parameters
     std::vector<int> _dimensions;
     int _ellipse_count = 0; /* trailing N * 5 params represent ellipses and need different normalization */
@@ -2050,7 +2048,7 @@ private:
     bool _do_affine = false;
     bool _do_line_indexed = false;
     dlib::drectangle _roi = { 0.f, 0.f, 0.f, 0.f };
-    
+
     // experimental
     std::map<int, impl::recipe> _recipe_for_cascade_level;
 };

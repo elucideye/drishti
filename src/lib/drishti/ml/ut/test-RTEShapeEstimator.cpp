@@ -110,7 +110,6 @@ protected:
  * Basic class construction
  */
 
-
 TEST_F(RTEShapeEstimatorTest, CerealSerialization)
 {
     { // Enable this block to dump regressor leaf nodes (offline analysis):

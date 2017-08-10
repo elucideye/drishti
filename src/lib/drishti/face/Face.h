@@ -32,7 +32,7 @@ struct FaceModel
         : roi(roi)
     {
     }
-    
+
     ~FaceModel();
 
     float getInterPupillaryDistance() const;

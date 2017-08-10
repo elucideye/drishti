@@ -29,7 +29,6 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 class EyeModelEstimator
 {
 public:
-
     struct RegressorConfig
     {
         std::string eyeRegressor;
@@ -65,7 +64,7 @@ public:
 
     void setEyelidStagesHint(int stages);
     int getEyelidStagesHint() const;
-    
+
     void setIrisStagesHint(int stages);
     int getIrisStagesHint() const;
 
@@ -94,7 +93,7 @@ public:
     void serialize(Archive& ar, const unsigned int version);
 
     class Impl; // keep public for implementatino file serialization versioning
-    
+
 protected:
     std::shared_ptr<spdlog::logger> m_streamLogger;
 

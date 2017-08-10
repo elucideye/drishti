@@ -48,8 +48,7 @@ static void getImage(ogles_gpgpu::ProcInterface& proc, FaceFinderPainter::FrameD
     if (dynamic_cast<ogles_gpgpu::MemTransferOptimized*>(proc.getMemTransferObj()))
     {
         // clag-format off
-        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d& size, const void* pixels, size_t bytesPerRow)
-        {
+        ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d& size, const void* pixels, size_t bytesPerRow) {
             callback(cv::Mat(size.height, size.width, CV_8UC4, (void*)pixels, bytesPerRow));
         };
         // clag-format on

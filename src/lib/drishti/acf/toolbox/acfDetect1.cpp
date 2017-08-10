@@ -12,7 +12,6 @@
 #include <cmath>
 #include <thread>
 #include <mutex>
-#include <boost/multi_array.hpp>
 
 using namespace std;
 

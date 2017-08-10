@@ -109,9 +109,8 @@ FaceFinder::~FaceFinder()
         // If this has already been retrieved it will throw
         impl->scene.get(); // block on any abandoned calls
     }
-    catch(...)
+    catch (...)
     {
-        
     }
 }
 
@@ -404,7 +403,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
     { // *timing*
         core::ScopeTimeLogger preprocessTimeLogger = [this](double t) { impl->timerInfo.acfProcessingTime = t; };
         preprocess(frame1, scene1, doDetection);
-        
+
         //detectOnly(scene1, doDetection); // optionally try detection on current thread
     }
 
@@ -662,7 +661,7 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInpu
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
             std::string home = getenv("HOME");
             home += "/Documents/";
-            
+
             cv::Mat channels = impl->acf->getChannels();
             cv::imwrite(home + "/acf_gpu.png", channels);
             logPyramid(home + "/Pgpu.png", *P);
@@ -729,8 +728,8 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
         scene.m_P = createAcfGpu(frame, doDetection);
     }
 
-    // Flow pyramid currently unused:
-    // auto flowPyramid = impl->acf->getFlowPyramid();
+// Flow pyramid currently unused:
+// auto flowPyramid = impl->acf->getFlowPyramid();
 #if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
     if (impl->acf->getFlowStatus())
     {
@@ -778,14 +777,14 @@ int FaceFinder::detectOnly(ScenePrimitives& scene, bool doDetection)
     {
         scene.objects() = impl->objects.second;
     }
-    
+
     return scene.objects().size();
 }
 
 int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doDetection)
 {
     //impl->logger->set_level(spdlog::level::off);
-    
+
     core::ScopeTimeLogger scopeTimeLogger = [this](double t) {
         impl->logger->info("FULL_CPU_PATH: {}", t);
     };
@@ -794,7 +793,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
 
     if (impl->detector && (!doDetection || scene.m_P))
     {
-        if(!scene.objects().size())
+        if (!scene.objects().size())
         {
             detectOnly(scene, doDetection);
         }
@@ -1053,7 +1052,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
                 *faceDetectorMean.mouthCornerLeft
             };
             // clang-format on
-            
+
             const cv::Point2f center = core::centroid(centers);
             const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale, center);
             faceDetectorMean = H * faceDetectorMean;

@@ -57,13 +57,13 @@ struct FaceMeshMapperLandmark::Impl
         auto rendering_params = eos::fitting::estimate_orthographic_camera(image_points, model_points, image.cols, image.rows);
 
         auto affine_from_ortho = get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-        
+
         // Estimate the shape coefficients by fitting the shape to the landmarks:
         auto fitted_coeffs = eos::fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices);
 
         // Obtain the full mesh with the estimated coefficients:
         auto mesh = morphable_model.draw_sample(fitted_coeffs, std::vector<float>());
-        
+
         return Result{ mesh, rendering_params, affine_from_ortho };
     }
 

@@ -81,7 +81,7 @@
 #include <cereal/types/array.hpp>
 #include <cereal/types/map.hpp>
 
-#include <Eigen/Geometry> 
+#include <Eigen/Geometry>
 
 #include "cxxopts.hpp"
 
@@ -155,7 +155,7 @@ struct FaceJittererMean : public FaceJitterer
             jitteredFaces.push_back(f);
         }
     }
-    
+
     // Maintain a list of jittered faces
     std::vector<FaceWithLandmarks> jitteredFaces;
 
@@ -207,7 +207,7 @@ int gauze_main(int argc, char* argv[])
     std::string sFaceSpec;
     std::string sJitterIn;
     std::string sLandmarks;
-    
+
 #if defined(DRISHTI_BUILD_EOS)
     std::string sEosModel;
     std::string sEosMapping;
@@ -216,20 +216,19 @@ int gauze_main(int argc, char* argv[])
     int sampleCount = 0;
     int winSize = 48; // min crop width
     int threads = -1;
-    
+
     bool doInpaint = false;
     bool doPreview = false;
     bool doBoilerplate = false;
 
-    
     /*
      * These two parameters work in combination with the "--jitter" option
      * to control the cropping mode.
      */
-    
+
     bool doPhotometricJitter = false;
     bool doMirror = false;
-    
+
     cxxopts::Options options("drishti-facecrop", "Command line interface for facecrop object detection.");
 
     // clang-format off

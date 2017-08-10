@@ -240,7 +240,7 @@ public:
     {
 #if USE_XGBOOST_WITH_CEREAL
         auto& parent = dynamic_cast<xgboost::learner::BoostLearner&>(*this);
-        ar & parent;
+        ar& parent;
 #else
         if (Archive::is_loading::value)
         {

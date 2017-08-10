@@ -34,34 +34,32 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceMeshMapperLandmarkContour : public FaceMeshMapper
 {
 public:
-
     using LandmarkCollection2d = eos::core::LandmarkCollection<cv::Vec2f>;
-    
+
     struct Assets
     {
         std::string model;
-        
+
         // The landmark mapper is used to map ibug landmark identifiers to vertex ids:
         std::string mappings;
-        
+
         // The expression blendshapes:
         std::string blendshapes;
-        
+
         // These two are used to fit the front-facing contour to the ibug contour landmarks:
         std::string contour;
-        
+
         // The edge topology is used to speed up computation of the occluding face contour fitting:
         std::string edgetopology;
     };
-    
-    FaceMeshMapperLandmarkContour(const Assets &assets);
-        
+
+    FaceMeshMapperLandmarkContour(const Assets& assets);
+
     virtual Result operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image);
-    
+
     virtual Result operator()(const FaceModel& face, const cv::Mat& image);
-    
+
 protected:
-    
     struct Impl;
     std::shared_ptr<Impl> m_pImpl;
 };

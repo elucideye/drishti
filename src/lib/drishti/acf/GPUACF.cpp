@@ -659,10 +659,11 @@ void ACF::fill(drishti::acf::Detector::Pyramid& pyramid)
 
     // Create multiresolution representation:
     auto& data = pyramid.data;
-    data.resize(boost::extents[levelCount][1]);
+    data.resize(levelCount);
 
     for (int i = 0; i < levelCount; i++)
     {
+        data[i].resize(1);
         auto& channels = data[i][0];
         channels.base() = acf;
         channels.resize(int(channelCount));

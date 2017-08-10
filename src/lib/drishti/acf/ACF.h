@@ -16,7 +16,6 @@
 
 #include "drishti/core/drishti_defs.hpp"
 #include "drishti/core/drishti_string_hash.h"
-
 #include "drishti/ml/ObjectDetector.h"
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
@@ -25,8 +24,6 @@
 #include "drishti/core/Logger.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
-
-#include <boost/multi_array.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -83,7 +80,6 @@ public:
             void merge(const Nms& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Nms& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -113,7 +109,6 @@ public:
                     void merge(const Color& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const Color& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -130,7 +125,6 @@ public:
                     void merge(const GradMag& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const GradMag& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -148,7 +142,6 @@ public:
                     void merge(const GradHist& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const GradHist& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -160,7 +153,6 @@ public:
                     void merge(const Custom& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const Custom& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -170,7 +162,6 @@ public:
                 void merge(const Chns& src, int mode);
                 friend std::ostream& operator<<(std::ostream& os, const Chns& src);
 
-                // Boost serialization:
                 template <class Archive>
                 void serialize(Archive& ar, const uint32_t version);
             };
@@ -191,7 +182,6 @@ public:
             void merge(const Pyramid& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Pyramid& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -219,7 +209,6 @@ public:
                 void merge(const Tree& src, int mode);
                 friend std::ostream& operator<<(std::ostream& os, const Tree& src);
 
-                // Boost serialization:
                 template <class Archive>
                 void serialize(Archive& ar, const uint32_t version);
             };
@@ -231,7 +220,6 @@ public:
             void merge(const Boost& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Boost& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -258,7 +246,6 @@ public:
             void merge(const Jitter& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Jitter& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -268,7 +255,6 @@ public:
         void merge(const Options& src, int mode);
         friend std::ostream& operator<<(std::ostream& os, const Options& src);
 
-        // Boost serialization:
         template <class Archive>
         void serialize(Archive& ar, const uint32_t version);
     };
@@ -353,8 +339,7 @@ public:
 
     struct Pyramid
     {
-        typedef boost::multi_array<MatP, 2> array_type;
-        typedef array_type::index index;
+        using array_type = std::vector<std::vector<MatP>>;
 
         Detector::Options::Pyramid pPyramid; // < exact input parameters
         int nTypes = 0;
@@ -454,7 +439,6 @@ public:
     int deserializeAny(const std::string& filename);
     int deserializeAny(std::istream& is, const std::string& hint = {});
 
-    // Boost serialization:
     template <class Archive>
     void serialize(Archive& ar, const uint32_t version);
 

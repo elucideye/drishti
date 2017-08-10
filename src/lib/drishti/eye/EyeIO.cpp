@@ -96,7 +96,7 @@ EyeModelSpecification EyeModelSpecification::create(
     spec.irisEllipse = add(int(irisEllipse) * 5, spec.irisInner);     // *
     spec.pupilEllipse = add(int(pupilEllipse) * 5, spec.irisEllipse); // *
     // (*) : Note, ellipse models must come at the end for current regression code
-    
+
     return spec;
 }
 
@@ -142,7 +142,7 @@ EyeModel shapeToEye(const std::vector<cv::Point2f>& points, const EyeModelSpecif
     fill(points, spec.irisEllipse, eye.irisEllipse);   // *
     fill(points, spec.pupilEllipse, eye.pupilEllipse); // *
     // (*) : Note, ellipse models must come at the end for current regression code
-    
+
     CV_Assert(spec.pupilEllipse.end == points.size());
 
     eye.cornerIndices[0] = 0;
@@ -189,7 +189,7 @@ std::vector<cv::Point2f> eyeToShape(const EyeModel& eye, const EyeModelSpecifica
     copy(points, spec.irisEllipse, eye.irisEllipse);   // *
     copy(points, spec.pupilEllipse, eye.pupilEllipse); // *
     // (*) : Note, ellipse models must come at the end for current regression code
-    
+
     return points;
 }
 

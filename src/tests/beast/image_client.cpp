@@ -85,7 +85,7 @@ int gauze_main(int argc, char** argv)
     ws.read(op, sb);
     ws.close(beast::websocket::close_code::normal);
     std::cout << beast::to_string(sb.data()) << "\n";
-    
+
     return 0;
 }
 
