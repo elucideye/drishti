@@ -39,7 +39,7 @@ TEST(FaceDetectorAndTracker, Instantiation)
 {
     auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
     factory->sFaceDetector = sFaceDetector;
-    factory->sFaceRegressors = { sFaceRegressor };
+    factory->sFaceRegressor = sFaceRegressor;
     factory->sEyeRegressor = sEyeRegressor;
     factory->sFaceDetectorMean = sFaceDetectorMean;
 

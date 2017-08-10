@@ -33,24 +33,23 @@ public:
 
     FaceDetectorFactory(
         const std::string& sFaceDetector,
-        const std::vector<std::string>& sFaceRegressors,
+        const std::string& sFaceRegressor,
         const std::string& sEyeRegressor,
         const std::string& sFaceDetectorMean)
         : sFaceDetector(sFaceDetector)
-        , sFaceRegressors(sFaceRegressors)
+        , sFaceRegressor(sFaceRegressor)
         , sEyeRegressor(sEyeRegressor)
         , sFaceDetectorMean(sFaceDetectorMean)
     {
     }
 
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
-    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getInnerFaceEstimator();
-    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getOuterFaceEstimator();
+    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getFaceEstimator();
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
     virtual drishti::face::FaceModel getMeanFace();
 
     std::string sFaceDetector;
-    std::vector<std::string> sFaceRegressors;
+    std::string sFaceRegressor;
     std::string sEyeRegressor;
     std::string sFaceDetectorMean;
 };
@@ -62,24 +61,23 @@ public:
 
     FaceDetectorFactoryStream(
         std::istream* iFaceDetector,
-        std::vector<std::istream*>& iFaceRegressors,
+        std::istream* iFaceRegressor,
         std::istream* iEyeRegressor,
         std::istream* iFaceDetectorMean)
         : iFaceDetector(iFaceDetector)
-        , iFaceRegressors(iFaceRegressors)
+        , iFaceRegressor(iFaceRegressor)
         , iEyeRegressor(iEyeRegressor)
         , iFaceDetectorMean(iFaceDetectorMean)
     {
     }
 
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
-    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getInnerFaceEstimator();
-    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getOuterFaceEstimator();
+    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getFaceEstimator();
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
     virtual drishti::face::FaceModel getMeanFace();
 
     std::istream* iFaceDetector = nullptr;
-    std::vector<std::istream*> iFaceRegressors;
+    std::istream* iFaceRegressor = nullptr;
     std::istream* iEyeRegressor = nullptr;
     std::istream* iFaceDetectorMean = nullptr;
 };

@@ -25,14 +25,9 @@ std::unique_ptr<ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
     return core::make_unique<acf::Detector>(sFaceDetector);
 }
 
-std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getInnerFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getFaceEstimator()
 {
-    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[0]);
-}
-
-std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getOuterFaceEstimator()
-{
-    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressors[1]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressor);
 }
 
 std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
@@ -59,14 +54,9 @@ std::unique_ptr<ml::ObjectDetector> FaceDetectorFactoryStream::getFaceDetector()
     return core::make_unique<acf::Detector>(*iFaceDetector);
 }
 
-std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getInnerFaceEstimator()
+std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getFaceEstimator()
 {
-    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[0]);
-}
-
-std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getOuterFaceEstimator()
-{
-    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressors[1]);
+    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressor);
 }
 
 std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()
@@ -90,27 +80,12 @@ face::FaceModel FaceDetectorFactoryStream::getMeanFace()
  * Utility
  */
 
-struct OptionalList
-{
-    OptionalList(const std::vector<std::string>& list)
-        : list(list)
-    {
-    }
-    const std::vector<std::string>& list;
-};
-
-std::ostream& operator<<(std::ostream& os, const OptionalList& opt)
-{
-    std::copy(opt.list.begin(), opt.list.end(), infix_ostream_iterator<std::string>(os, ","));
-    return os;
-}
-
 std::ostream& operator<<(std::ostream& os, const FaceDetectorFactory& factory)
 {
     os // standardized output for active face and eye models
         << "{\n"
         << "  faceDetector " << factory.sFaceDetector << "\n"
-        << "  faceRegressor " << OptionalList(factory.sFaceRegressors) << "\n"
+        << "  faceRegressor " << factory.sFaceRegressor << "\n"
         << "  eyeRegressor " << factory.sEyeRegressor << "\n"
         << "  faceDetectorMean " << factory.sFaceDetectorMean << "\n"
         << "}";

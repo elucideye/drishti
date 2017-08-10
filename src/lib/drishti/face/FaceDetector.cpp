@@ -58,11 +58,7 @@ public:
     void create(FaceDetectorFactory& resources)
     {
         m_detector = resources.getFaceDetector();
-        m_regressor = resources.getInnerFaceEstimator();
-        if (resources.sFaceRegressors.size() > 1)
-        {
-            m_regressor2 = resources.getOuterFaceEstimator();
-        }
+        m_regressor = resources.getFaceEstimator();
         m_eyeRegressor.resize(2);
         for (int i = 0; i < 2; i++)
         {

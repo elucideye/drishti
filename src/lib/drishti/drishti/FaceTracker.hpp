@@ -72,7 +72,7 @@ public:
     struct Resources
     {
         std::istream* sFaceDetector;
-        std::vector<std::istream*> sFaceRegressors;
+        std::istream* sFaceRegressor;
         std::istream* sEyeRegressor;
         std::istream* sFaceModel;
         std::string logger; // logger name
