@@ -26,8 +26,6 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <boost/multi_array.hpp>
-
 #include <cassert>
 #include <iostream>
 #include <functional>
@@ -353,8 +351,7 @@ public:
 
     struct Pyramid
     {
-        typedef boost::multi_array<MatP, 2> array_type;
-        typedef array_type::index index;
+        using array_type = std::vector<std::vector<MatP>>;
 
         Detector::Options::Pyramid pPyramid; // < exact input parameters
         int nTypes = 0;

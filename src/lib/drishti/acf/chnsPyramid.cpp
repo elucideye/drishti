@@ -297,7 +297,11 @@ int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid&
         if (i == isR.front()) // on first iteration allocate data
         {
             nTypes = chns.nTypes;
-            data.resize(boost::extents[nScales][nTypes]);
+            data.resize(nScales);
+            for (auto& s : data)
+            {
+                s.resize(nTypes);
+            }
         }
         std::copy(chns.data.begin(), chns.data.end(), data[i - 1].begin());
     }
@@ -372,9 +376,10 @@ int Detector::chnsPyramid(const MatP& Iin, const Options::Pyramid* pIn, Pyramid&
     if (concat && nTypes)
     {
         auto data0 = data;
-        data.resize(boost::extents[nScales][1]);
+        data.resize(nScales);
         for (int i = 0; i < nScales; i++)
         {
+            data[i].resize(1);
             fuseChannels(data0[i].begin(), data0[i].end(), data[i][0]);
         }
     }
