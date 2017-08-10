@@ -63,11 +63,11 @@ int gauze_main(int argc, char** argv)
 
     float cascCal = 0.f;
     float scale = 1.f;
+    float fx = 0.f;
 
     // Create FaceDetectorFactory (default file based):
     std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
     factory = std::make_shared<drishti::face::FaceDetectorFactory>();
-    factory->sFaceRegressors.resize(1);
 
     cxxopts::Options options("drishti-hci", "Command line interface for video sequence FaceFinder processing.");
 
@@ -86,11 +86,12 @@ int gauze_main(int argc, char** argv)
         // Detection and regression parameters:
         ("c,calibration", "Cascade calibration", cxxopts::value<float>(cascCal))
         ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(scale))
+        ("f,focal-length", "Focal length in pixels",cxxopts::value<float>(fx))
     
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(factory->sFaceDetector))
         ("M,mean", "Face detector mean", cxxopts::value<std::string>(factory->sFaceDetectorMean))
-        ("R,regressor", "Face regressor", cxxopts::value<std::string>(factory->sFaceRegressors.front()))
+        ("R,regressor", "Face regressor", cxxopts::value<std::string>(factory->sFaceRegressor))
         ("E,eye", "Eye model", cxxopts::value<std::string>(factory->sEyeRegressor))
     
         ("h,help", "Print help message");
@@ -142,7 +143,7 @@ int gauze_main(int argc, char** argv)
     std::vector<std::pair<std::string, std::string>> config{
         { factory->sFaceDetector, "face-detector" },
         { factory->sFaceDetectorMean, "face-detector-mean" },
-        { factory->sFaceRegressors.front(), "face-regressor" },
+        { factory->sFaceRegressor, "face-regressor" },
         { factory->sEyeRegressor, "eye-regressor" }
     };
 
@@ -186,15 +187,17 @@ int gauze_main(int argc, char** argv)
     settings.threads = std::make_shared<tp::ThreadPool<>>();
     settings.outputOrientation = 0;
     settings.faceFinderInterval = 0.f;
-    settings.regressorCropScale = 0.f;
+    settings.regressorCropScale = scale;
     settings.acfCalibration = cascCal;
-
-    settings.renderFaces = true;
-    settings.renderPupils = true;
-    settings.renderCorners = false;
+    settings.renderFaces = true;      // *** rendering ***
+    settings.renderPupils = true;     // *** rendering ***
+    settings.renderCorners = false;   // *** rendering ***
 
     { // Create a sensor specification
-        const float fx = frame.image.cols;
+        if(fx == 0.f)
+        {
+            fx = frame.image.cols; // use a sensible default guess
+        }
         const cv::Point2f p(frame.image.cols / 2, frame.image.rows / 2);
         drishti::sensor::SensorModel::Intrinsic params(p, fx, frame.image.size());
         settings.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
@@ -204,15 +207,12 @@ int gauze_main(int argc, char** argv)
 
     // Allocate the detector:
     auto detector = drishti::hci::FaceFinderPainter::create(factory, settings, nullptr);
-    detector->setLetterboxHeight(1.0); // show full video for offline sequences
-    detector->setShowMotionAxes(false);
-    detector->setShowDetectionScales(false);
+    detector->setLetterboxHeight(1.0);         // *** rendering ***
+    detector->setShowMotionAxes(false);        // *** rendering ***
+    detector->setShowDetectionScales(false);   // *** rendering ***
 
     ogles_gpgpu::VideoSource source;
-
-    //ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleRGBA);// kSwizzleGRAB);
-
-    ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB);
+    ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB); // kSwizzleRGBA
     source.set(&swizzle);
 
     std::string filename = sOutput + "/movie.mov";

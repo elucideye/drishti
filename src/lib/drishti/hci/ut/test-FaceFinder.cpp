@@ -95,7 +95,7 @@ protected:
         // Create FaceDetectorFactory (default file based):
         m_factory = std::make_shared<drishti::face::FaceDetectorFactory>();
         m_factory->sFaceDetector = sFaceDetector;
-        m_factory->sFaceRegressors = { sFaceRegressor };
+        m_factory->sFaceRegressor = sFaceRegressor;
         m_factory->sEyeRegressor = sEyeRegressor;
         m_factory->sFaceDetectorMean = sFaceDetectorMean;
 

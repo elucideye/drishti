@@ -68,8 +68,9 @@ struct VideoSourceApple::Impl
         
         int cols = CVPixelBufferGetWidth(pixelBuffer);
         int rows = CVPixelBufferGetHeight(pixelBuffer);
+        int stride = CVPixelBufferGetBytesPerRow(pixelBuffer);
         unsigned char *pixels = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
-        cv::Mat argb(rows, cols, CV_8UC4, pixels);
+        cv::Mat argb(rows, cols, CV_8UC4, pixels, stride);
         
         cv::Mat image; // BGR
         switch(m_format)

@@ -22,10 +22,8 @@ public:
     QtFaceDetectorFactory();
 
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
-    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getInnerFaceEstimator();
-    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getOuterFaceEstimator();
+    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getFaceEstimator();
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
-
     virtual drishti::face::FaceModel getMeanFace();
 
     static bool load(const std::string& filename, LoaderFunction& loader);

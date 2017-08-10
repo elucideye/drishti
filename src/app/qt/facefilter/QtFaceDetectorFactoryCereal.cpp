@@ -12,7 +12,10 @@
 drishti::face::FaceModel QtFaceDetectorFactory::getMeanFace()
 {
     drishti::face::FaceModel face;
-    LoaderFunction loader = [&](std::istream& is, const std::string& hint) {
+    
+    // clang-format off
+    LoaderFunction loader = [&](std::istream& is, const std::string& hint)
+    {
         if (is)
         {
             try
@@ -39,6 +42,7 @@ drishti::face::FaceModel QtFaceDetectorFactory::getMeanFace()
         }
         return false;
     };
+    // clang-format on
     load(sFaceDetectorMean, loader);
     return face;
 }

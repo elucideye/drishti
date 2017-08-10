@@ -43,13 +43,20 @@
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/PCA.h"
 #include "drishti/geometry/Ellipse.h"
-#include "drishti/core/Parallel.h"
 #include "drishti/core/Logger.h"
 
 // Check input preprocessor definitions for SIMD and FIXED_POINT behavior:
 //
 // DRISHTI_BUILD_REGRESSION_SIMD
 // DRISHTI_BUILD_REGRESSION_FIXED_POINT
+
+#define DRISHTI_BUILD_PARALLEL_BOOSTING 0
+
+// clang-format off
+#if DRISHTI_BUILD_PARALLEL_BOOSTING
+#  include "drishti/core/Parallel.h"
+#endif
+// clang-format on
 
 #define FIXED_PRECISION 10
 
@@ -59,9 +66,11 @@
 #endif
 // clang-format on
 
+// clang-format off
 #if DRISHTI_DLIB_DO_HALF
-#include "half/half.hpp"
+#  include "half/half.hpp"
 #endif
+// clang-format on
 
 #include "drishti/core/arithmetic.h"
 
@@ -167,8 +176,9 @@ inline static void add32F(const drishti::ml::fshape& a, const fshape& b, fshape&
 template <typename T>
 T compute_npd(const T& a, const T& b)
 {
+    return (a-b)/(a+b+T(1e-6));
     //return (a - b)/(a + b);
-    return ((a + b) == T(0.0)) ? std::numeric_limits<float>::lowest() : (a - b) / (a + b);
+    //return ((a + b) == T(0.0)) ? std::numeric_limits<float>::lowest() : (a - b) / (a + b);
 }
 
 // struct Ellipse { double xs, ys, ang, scl, asp; };
@@ -792,6 +802,8 @@ public:
         {
             impl::create_shape_relative_encoding(initial_shape, pixel_coordinates[i], anchor_idx[i], deltas[i]);
         }
+        
+        m_num_workers = 4; //cv::getNumberOfCPUs();
     }
 
     unsigned long num_parts() const
@@ -861,10 +873,39 @@ public:
 #if DRISHTI_BUILD_REGRESSION_FIXED_POINT
             // Fixed point is currently only working for PCA in most cases (check numerical overflow)
             DVec16s shape_accumulator;
+#if DRISHTI_BUILD_PARALLEL_BOOSTING
+            {
+                const unsigned long num = forests[iter].size();
+                const unsigned long block_size = std::max(1UL, (num + m_num_workers - 1) / m_num_workers);
+                std::vector<fshape> block_sums(m_num_workers);
+                std::vector<DVec16s> shape_accumulators(m_num_workers);
+                drishti::core::ParallelHomogeneousLambda harness = [&](int block)
+                {
+                    const unsigned long block_begin = block * block_size;
+                    const unsigned long block_end =  std::min(num, block_begin + block_size);
+                    for (unsigned long i = block_begin; i < block_end; ++i)
+                    {
+                        auto &f = forests[iter][i];
+                        add16sAnd16s(shape_accumulators[block], f(feature_pixel_values, Fixed(), m_npd), shape_accumulators[block]);
+                    }
+                };
+
+                //harness({0,static_cast<int>(num_workers)});
+                cv::parallel_for_({0,static_cast<int>(m_num_workers)}, harness);
+
+                for(auto &s : shape_accumulators)
+                {
+                    add16sAnd16s(shape_accumulator, s, shape_accumulator);
+                }
+            }
+#else
             for (auto& f : forests[iter])
             {
                 add16sAnd16s(shape_accumulator, f(feature_pixel_values, Fixed(), m_npd), shape_accumulator);
             }
+#endif
+            
+            // fixed -> float
             active_shape.set_size(shape_accumulator.size());
             for (int i = 0; i < shape_accumulator.size(); i++)
             {
@@ -1004,6 +1045,7 @@ public:
     int m_ellipse_count = 0;
     bool m_npd = false;
     bool m_do_affine = false;
+    unsigned long m_num_workers = 1;
 
     // Use interpolated "line indexed" features (stead of the relative encoding above):
     std::vector<std::vector<InterpolatedFeature>> interpolated_features;

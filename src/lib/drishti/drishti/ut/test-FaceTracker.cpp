@@ -154,7 +154,7 @@ protected:
 
         drishti::sdk::FaceTracker::Resources factory;
         factory.sFaceDetector = &iFaceDetector;
-        factory.sFaceRegressors = { &iFaceRegressor };
+        factory.sFaceRegressor = &iFaceRegressor;
         factory.sEyeRegressor = &iEyeRegressor;
         factory.sFaceModel = &iFaceDetectorMean;
 

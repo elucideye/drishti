@@ -260,7 +260,7 @@ int gauze_main(int argc, char** argv)
     drishti::core::LazyParallelResource<std::thread::id, FaceDetectorPtr> manager = [&]() {
         auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
         factory->sFaceDetector = sFaceDetector;
-        factory->sFaceRegressors = { sFaceRegressor };
+        factory->sFaceRegressor = sFaceRegressor;
         factory->sEyeRegressor = sEyeRegressor;
         factory->sFaceDetectorMean = sFaceDetectorMean;
 

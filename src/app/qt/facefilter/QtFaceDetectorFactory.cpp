@@ -25,7 +25,7 @@ using namespace string_hash;
 
 #define DRISHTI_FACE_MEAN_5_POINT "drishti_face_tight_64x64_gray_V5_mean.json"
 #define DRISHTI_FACE_INNER_DETECT "drishti_face_tight_64x64_gray_V5." DRISHTI_ARCHIVE
-#define DRISHTI_FACE_INNER "drishti_full_face_model." DRISHTI_ARCHIVE
+#define DRISHTI_FACE_FULL "drishti_full_face_model." DRISHTI_ARCHIVE
 #define DRISHTI_EYE_FULL "drishti_full_eye_model." DRISHTI_ARCHIVE
 
 bool QtFaceDetectorFactory::load(const std::string& filename, LoaderFunction& loader)
@@ -66,7 +66,7 @@ bool QtFaceDetectorFactory::load(const std::string& filename, LoaderFunction& lo
 QtFaceDetectorFactory::QtFaceDetectorFactory()
 {
     sFaceDetector = DRISHTI_FACE_INNER_DETECT;
-    sFaceRegressors = { { DRISHTI_FACE_INNER } };
+    sFaceRegressor = DRISHTI_FACE_FULL;
     sEyeRegressor = DRISHTI_EYE_FULL;
     sFaceDetectorMean = DRISHTI_FACE_MEAN_5_POINT;
 }
@@ -88,7 +88,7 @@ std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetec
     return ptr;
 }
 
-std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getInnerFaceEstimator()
+std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getFaceEstimator()
 {
     std::unique_ptr<drishti::ml::ShapeEstimator> ptr;
 
@@ -99,23 +99,9 @@ std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getInnerFace
         return true;
     };
     // clang-format on
-    if (sFaceRegressors.size())
+    if (!sFaceRegressor.empty())
     {
-        load(sFaceRegressors[0], loader);
-    }
-    return ptr;
-}
-
-std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getOuterFaceEstimator()
-{
-    std::unique_ptr<drishti::ml::ShapeEstimator> ptr;
-    LoaderFunction loader = [&](std::istream& is, const std::string& hint) {
-        ptr = drishti::core::make_unique<drishti::ml::RegressionTreeEnsembleShapeEstimator>(is);
-        return true;
-    };
-    if (sFaceRegressors.size() > 1)
-    {
-        load(sFaceRegressors[1], loader);
+        load(sFaceRegressor, loader);
     }
     return ptr;
 }
