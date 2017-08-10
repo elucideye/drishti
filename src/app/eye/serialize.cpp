@@ -27,7 +27,7 @@ int gauze_main(int argc, char* argv[])
     const auto argumentCount = argc;
 
     // Instantiate line logger:
-    auto logger = drishti::core::Logger::create("drishti-eye");    
+    auto logger = drishti::core::Logger::create("drishti-eye-serialize");
 
     std::string sEye;
     std::string sIris;

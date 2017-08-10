@@ -278,11 +278,11 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
                 os << adapter;
             }
         }
-        
-        {  // Convert this for use by private API
+
+        { // Convert this for use by private API
             auto privateEye = drishti::sdk::convert(eye);
             privateEye.eyelids = privateEye.eyelidsSpline;
-            
+
             std::string filename = outputDirectory;
             filename += "/right_eye_private.json";
 

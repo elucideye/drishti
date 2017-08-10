@@ -43,6 +43,6 @@ template void XGBooster::Recipe::serialize<IArchive>(IArchive& ar, const unsigne
 template void XGBooster::Impl::serialize<IArchive>(IArchive& ar, const unsigned int);
 DRISHTI_ML_NAMESPACE_END
 
-template void xgboost::gbm::IGradBooster::serialize(OArchive & ar, const unsigned int version);
-template void xgboost::gbm::GBTree::serialize(OArchive & ar, const unsigned int version);
-template void xgboost::gbm::GBLinear::serialize(OArchive & ar, const unsigned int version);
+template void xgboost::gbm::IGradBooster::serialize(OArchive& ar, const unsigned int version);
+template void xgboost::gbm::GBTree::serialize(OArchive& ar, const unsigned int version);
+template void xgboost::gbm::GBLinear::serialize(OArchive& ar, const unsigned int version);

@@ -70,23 +70,22 @@ static void dump_thumbs(DlibImageArray& images_train, DlibObjectSet& faces_train
 static std::vector<int> parse_dimensions(const std::string& str);
 static dlib::rectangle parse_roi(const std::string& str);
 
-
-static void view_images(DlibImageArray &images_train, DlibObjectSet &faces_train)
+static void view_images(DlibImageArray& images_train, DlibObjectSet& faces_train)
 {
-    for(int i = 0; i < images_train.size(); i++)
+    for (int i = 0; i < images_train.size(); i++)
     {
-        auto &src = images_train[i];
-        cv::Mat image(src.nr(), src.nc(), CV_8UC1, (void *)&src[0][0], src.width_step());
+        auto& src = images_train[i];
+        cv::Mat image(src.nr(), src.nc(), CV_8UC1, (void*)&src[0][0], src.width_step());
         cv::Mat canvas = image.clone();
-        
-        for(int j = 0; j < faces_train[i].size(); j++)
+
+        for (int j = 0; j < faces_train[i].size(); j++)
         {
             // reduce roi:
-            for(int k = 0; k < faces_train[i][j].num_parts(); k++)
+            for (int k = 0; k < faces_train[i][j].num_parts(); k++)
             {
-                auto &part = faces_train[i][j].part(k);
+                auto& part = faces_train[i][j].part(k);
                 cv::Point2f p(part.x(), part.y());
-                cv::circle(canvas, p, 4, {255,255,255  }, -1, 8);
+                cv::circle(canvas, p, 4, { 255, 255, 255 }, -1, 8);
                 cv::imwrite("/tmp/foo.png", canvas);
                 int pause = 1;
             }

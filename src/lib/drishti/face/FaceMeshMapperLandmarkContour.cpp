@@ -34,8 +34,8 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 struct FaceMeshMapperLandmarkContour::Impl
 {
     using LandmarkSet = eos::core::LandmarkCollection<cv::Vec2f>;
-    
-    Impl(const FaceMeshMapperLandmarkContour::Assets &assets)
+
+    Impl(const FaceMeshMapperLandmarkContour::Assets& assets)
     {
         morphable_model = eos::morphablemodel::load_model(assets.model);
         landmark_mapper = assets.mappings.empty() ? eos::core::LandmarkMapper() : eos::core::LandmarkMapper(assets.mappings);
@@ -44,7 +44,7 @@ struct FaceMeshMapperLandmarkContour::Impl
         ibug_contour = eos::fitting::ContourLandmarks::load(assets.mappings);
         edge_topology = eos::morphablemodel::load_edge_topology(assets.edgetopology);
     }
-    
+
     FaceMeshMapperLandmarkContour::Result operator()(const LandmarkSet& landmarks, const cv::Mat& image)
     {
         // Fit the model, get back a mesh and the pose:
@@ -62,14 +62,14 @@ struct FaceMeshMapperLandmarkContour::Impl
             model_contour,
             50, boost::none, 30.0f);
         cv::Mat affine_from_ortho = eos::fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-        return Result{mesh, rendering_params, affine_from_ortho};
+        return Result{ mesh, rendering_params, affine_from_ortho };
     }
-    
+
     FaceMeshMapperLandmarkContour::Result operator()(const FaceModel& face, const cv::Mat& image)
     {
         return (*this)(extractLandmarks(face), image);
     }
-    
+
     eos::morphablemodel::MorphableModel morphable_model;
     eos::core::LandmarkMapper landmark_mapper;
     std::vector<eos::morphablemodel::Blendshape> blendshapes;
@@ -78,7 +78,7 @@ struct FaceMeshMapperLandmarkContour::Impl
     eos::morphablemodel::EdgeTopology edge_topology;
 };
 
-FaceMeshMapperLandmarkContour::FaceMeshMapperLandmarkContour(const Assets &assets)
+FaceMeshMapperLandmarkContour::FaceMeshMapperLandmarkContour(const Assets& assets)
 {
     m_pImpl = std::make_shared<Impl>(assets);
 }

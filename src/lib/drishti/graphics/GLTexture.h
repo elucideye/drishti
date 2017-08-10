@@ -29,17 +29,17 @@ struct GLTexture
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, texType, GL_UNSIGNED_BYTE, data);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-    
+
     ~GLTexture()
     {
         glDeleteTextures(1, &texId);
     }
-    
+
     operator GLuint() const
     {
         return texId;
     }
-    
+
     GLuint texId;
 };
 

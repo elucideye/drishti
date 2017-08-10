@@ -50,10 +50,9 @@ public:
     {
         create(resources);
     }
-    
+
     ~Impl()
     {
-        
     }
 
     void create(FaceDetectorFactory& resources)
@@ -473,14 +472,13 @@ public:
             regressor->setIrisStagesHint(stages);
         }
     }
-    
+
     drishti::ml::ObjectDetector* getDetector()
     {
         return m_detector.get();
     }
 
 protected:
-
     FaceSpecification::Format m_landmarkFormat = FaceSpecification::kibug68;
 
     cv::Mat m_Ib; // TODO: review.  needed for clean virtual api

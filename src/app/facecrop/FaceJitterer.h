@@ -59,7 +59,7 @@ struct FaceWithLandmarks
     Landmarks landmarks;
     Landmarks eyesNoseMouth; // {eyeR, eyeL, nose, mouthR, mouthL}
     std::string filename;
-    
+
     FaceWithLandmarks& operator=(const FaceWithLandmarks& src)
     {
         image = src.image;
@@ -79,7 +79,7 @@ struct FaceWithLandmarks
 
     void flop()
     {
-        switch(landmarks.size())
+        switch (landmarks.size())
         {
             case 5:
             {
@@ -87,8 +87,9 @@ struct FaceWithLandmarks
                 std::swap(landmarks[0], landmarks[1]);
                 // swap mouth corners
                 std::swap(landmarks[3], landmarks[4]);
-            } break;
-                
+            }
+            break;
+
             case 68:
             {
                 // Contour
@@ -101,24 +102,24 @@ struct FaceWithLandmarks
                 std::swap(landmarks[6], landmarks[10]);
                 std::swap(landmarks[7], landmarks[9]);
                 std::swap(landmarks[8], landmarks[8]);
-                
+
                 // Eyebrow
                 std::swap(landmarks[17], landmarks[26]);
                 std::swap(landmarks[18], landmarks[25]);
                 std::swap(landmarks[19], landmarks[24]);
                 std::swap(landmarks[20], landmarks[23]);
                 std::swap(landmarks[21], landmarks[22]);
-                
+
                 // Nose
                 std::swap(landmarks[27], landmarks[27]);
                 std::swap(landmarks[28], landmarks[28]);
                 std::swap(landmarks[29], landmarks[29]);
                 std::swap(landmarks[30], landmarks[30]);
-                
+
                 std::swap(landmarks[31], landmarks[35]);
                 std::swap(landmarks[32], landmarks[34]);
                 std::swap(landmarks[33], landmarks[33]);
-                
+
                 // Eye
                 std::swap(landmarks[39], landmarks[42]);
                 std::swap(landmarks[38], landmarks[43]);
@@ -126,27 +127,28 @@ struct FaceWithLandmarks
                 std::swap(landmarks[36], landmarks[45]);
                 std::swap(landmarks[40], landmarks[47]);
                 std::swap(landmarks[41], landmarks[46]);
-                
+
                 // Mouth
                 std::swap(landmarks[48], landmarks[54]);
                 std::swap(landmarks[49], landmarks[53]);
                 std::swap(landmarks[50], landmarks[52]);
                 std::swap(landmarks[51], landmarks[51]);
-                
+
                 std::swap(landmarks[59], landmarks[55]);
                 std::swap(landmarks[58], landmarks[56]);
                 std::swap(landmarks[57], landmarks[57]);
-                
+
                 std::swap(landmarks[60], landmarks[64]);
                 std::swap(landmarks[61], landmarks[63]);
                 std::swap(landmarks[62], landmarks[62]);
-                
+
                 std::swap(landmarks[67], landmarks[65]);
                 std::swap(landmarks[66], landmarks[66]);
-                
-            } break;
-                
-            default: CV_Assert(landmarks.size() == 5 || landmarks.size() == 68);
+            }
+            break;
+
+            default:
+                CV_Assert(landmarks.size() == 5 || landmarks.size() == 68);
         }
     }
 };
@@ -192,7 +194,7 @@ class FaceJitterer
 {
 public:
     using Landmarks = std::vector<cv::Point2f>;
-    
+
     enum CropMode
     {
         kCrop,

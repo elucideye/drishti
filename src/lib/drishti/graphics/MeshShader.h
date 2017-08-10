@@ -24,25 +24,23 @@ BEGIN_OGLES_GPGPU
 class MeshShader
 {
 public:
-
     using VertexBuffer = std::vector<glm::vec4>;
     using CoordBuffer = std::vector<glm::vec2>;
-    
-    MeshShader(const cv::Mat &iso, const VertexBuffer &vertices, const CoordBuffer &coords);
-    
-    static const char * getProcName();
-    
-    void setModelViewProjection(const glm::mat4 &mvp);
-    
+
+    MeshShader(const cv::Mat& iso, const VertexBuffer& vertices, const CoordBuffer& coords);
+
+    static const char* getProcName();
+
+    void setModelViewProjection(const glm::mat4& mvp);
+
     void draw(int outFrameW, int outFrameH);
 
 protected:
-    
     std::shared_ptr<Shader> shader;
-    
+
     static const char* vshaderMeshSrc;
     static const char* fshaderMeshSrc;
-    
+
     GLTexture texture;
     GLuint texUnit;
     GLuint texTarget;
@@ -51,10 +49,10 @@ protected:
     GLint shParamATexCoord;
     GLint shParamUInputTex;
     GLint shParamUMVP;
-    
+
     VertexBuffer vertices;
     CoordBuffer coords;
-    
+
     glm::mat4 MVP;
 };
 

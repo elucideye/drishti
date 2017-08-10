@@ -13,7 +13,7 @@ void loadJSON(const std::string& filename, drishti::dlib::Recipe& recipe)
     std::ifstream is(filename);
     if (is)
     {
-        nlohmann::json json;        
+        nlohmann::json json;
         is >> json;
 
         recipe.do_pca = json["do_pca"].get<bool>();
@@ -32,7 +32,6 @@ void loadJSON(const std::string& filename, drishti::dlib::Recipe& recipe)
         recipe.trees_per_level = json["trees_per_level"].get<int>();
         recipe.width = json["width"].get<int>();
         recipe.dimensions = json["dimensions"].get<std::vector<int>>();
-
     }
     else
     {
@@ -57,7 +56,7 @@ void saveJSON(const std::string& filename, const drishti::dlib::Recipe& recipe)
         json["cascades"] = recipe.cascades;
         json["depth"] = recipe.depth;
         json["ellipse_count"] = recipe.ellipse_count;
-        json["features" ] = recipe.features;
+        json["features"] = recipe.features;
         json["oversampling"] = recipe.oversampling;
         json["splits"] = recipe.splits;
         json["trees_per_level"] = recipe.trees_per_level;

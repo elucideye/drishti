@@ -12,28 +12,27 @@
 drishti::face::FaceModel QtFaceDetectorFactory::getMeanFace()
 {
     drishti::face::FaceModel face;
-    LoaderFunction loader = [&](std::istream& is, const std::string& hint)
-    {
-        if(is)
+    LoaderFunction loader = [&](std::istream& is, const std::string& hint) {
+        if (is)
         {
             try
             {
                 cereal::JSONInputArchive ia(is);
                 typedef decltype(ia) Archive;
-                
+
                 std::vector<cv::Point2f> landmarks;
                 ia(GENERIC_NVP("landmarks", landmarks));
                 CV_Assert(landmarks.size() == 5);
-                
+
                 face.eyeRightCenter = landmarks[0];
                 face.eyeLeftCenter = landmarks[1];
                 face.noseTip = landmarks[2];
                 face.mouthCornerRight = landmarks[3];
                 face.mouthCornerLeft = landmarks[4];
-                
+
                 return true;
             }
-            catch(std::exception &e)
+            catch (std::exception& e)
             {
                 return false;
             }

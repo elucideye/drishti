@@ -144,7 +144,7 @@ void EyeModel::refine(int eyelidPoints, int creasePoints)
             crease = creaseSpline;
         }
     }
-    
+
     cv::Point2f irisCenter_, irisInner_, irisOuter_;
     estimateIrisLandmarks(irisCenter_, irisInner_, irisOuter_);
     irisCenter = irisCenter_;

@@ -28,11 +28,11 @@ struct GLMTransform
 };
 
 static void
-draw_wireframe(cv::Mat &image, const eos::core::Mesh& mesh, GLMTransform &transform, const cv::Scalar &colour={0,255,0,255});
+draw_wireframe(cv::Mat& image, const eos::core::Mesh& mesh, GLMTransform& transform, const cv::Scalar& colour = { 0, 255, 0, 255 });
 
 /// ===== UTILITY  ====
 
-cv::Point3f getRotation(const eos::fitting::RenderingParameters &rendering_parameters)
+cv::Point3f getRotation(const eos::fitting::RenderingParameters& rendering_parameters)
 {
     const auto euler = glm::eulerAngles(rendering_parameters.get_rotation());
     const float pitch = glm::degrees(euler[0]);
@@ -41,13 +41,13 @@ cv::Point3f getRotation(const eos::fitting::RenderingParameters &rendering_param
     return cv::Point3f(pitch, yaw, roll);
 }
 
-cv::Mat extractTexture(const FaceMeshMapper::Result &result, const cv::Mat &image)
+cv::Mat extractTexture(const FaceMeshMapper::Result& result, const cv::Mat& image)
 {
     //bool compute_view_angle = false;
     //TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour;
     //int isomap_resolution = 512;
     const auto interpolation = eos::render::TextureInterpolation::Bilinear;
-    
+
     // Extract the texture from the image using given mesh and camera parameters:
     return eos::render::extract_texture(result.mesh, result.affine_from_ortho, image, false, interpolation);
 }
@@ -109,18 +109,18 @@ eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const DRISHTI_FACE::Fa
     return landmarks;
 }
 
-void draw_wireframe(cv::Mat &image, const eos::core::Mesh& mesh, GLMTransform &transform, const cv::Scalar &colour)
+void draw_wireframe(cv::Mat& image, const eos::core::Mesh& mesh, GLMTransform& transform, const cv::Scalar& colour)
 {
-    const auto &modelview = transform.modelview;
-    const auto &projection = transform.projection;
-    const auto &viewport = transform.viewport;
+    const auto& modelview = transform.modelview;
+    const auto& projection = transform.projection;
+    const auto& viewport = transform.viewport;
 
     for (const auto& triangle : mesh.tvi)
     {
-        const auto &v0 = mesh.vertices[triangle[0]];
-        const auto &v1 = mesh.vertices[triangle[1]];
-        const auto &v2 = mesh.vertices[triangle[2]];
-        
+        const auto& v0 = mesh.vertices[triangle[0]];
+        const auto& v1 = mesh.vertices[triangle[1]];
+        const auto& v2 = mesh.vertices[triangle[2]];
+
         const auto p1 = glm::project({ v0[0], v0[1], v0[2] }, modelview, projection, viewport);
         const auto p2 = glm::project({ v1[0], v1[1], v1[2] }, modelview, projection, viewport);
         const auto p3 = glm::project({ v2[0], v2[1], v2[2] }, modelview, projection, viewport);
@@ -147,31 +147,31 @@ void drawWireFrameOnIso(cv::Mat& iso, const eos::core::Mesh& meshIn)
         p[0] *= iso.cols;
         p[1] *= iso.rows;
     }
-    
+
     for (int i = 0; i < mesh.tvi.size(); i++)
     {
         const auto& t = mesh.tvi[i];
-        
-        const auto &p0 = mesh.texcoords[t[0]];
-        const auto &p1 = mesh.texcoords[t[1]];
-        const auto &p2 = mesh.texcoords[t[2]];
-        
+
+        const auto& p0 = mesh.texcoords[t[0]];
+        const auto& p1 = mesh.texcoords[t[1]];
+        const auto& p2 = mesh.texcoords[t[2]];
+
         cv::Point2f v0(p0[0], p0[1]);
         cv::Point2f v1(p1[0], p1[1]);
         cv::Point2f v2(p2[0], p2[1]);
-        
+
         cv::line(iso, v0, v1, { 0, 255, 0 }, 1, 8);
         cv::line(iso, v1, v2, { 0, 255, 0 }, 1, 8);
         cv::line(iso, v2, v0, { 0, 255, 0 }, 1, 8);
     }
 }
 
-void drawWireFrame(cv::Mat& iso, const FaceMeshMapper::Result &result)
+void drawWireFrame(cv::Mat& iso, const FaceMeshMapper::Result& result)
 {
-    const auto &mesh = result.mesh;
-    const auto &rendering_params = result.rendering_params;
+    const auto& mesh = result.mesh;
+    const auto& rendering_params = result.rendering_params;
     auto viewport = eos::fitting::get_opencv_viewport(iso.cols, iso.rows);
-    GLMTransform transform { rendering_params.get_modelview(), rendering_params.get_projection(), viewport };
+    GLMTransform transform{ rendering_params.get_modelview(), rendering_params.get_projection(), viewport };
     draw_wireframe(iso, mesh, transform);
 }
 

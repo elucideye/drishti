@@ -31,7 +31,7 @@ RTEShapeEstimator::Impl::Impl(const std::string& filename)
     m_predictor = make_unique_cpb<_SHAPE_PREDICTOR>(filename);
 }
 
-RTEShapeEstimator::Impl::Impl(std::istream& is, const std::string &/*hint*/)
+RTEShapeEstimator::Impl::Impl(std::istream& is, const std::string& /*hint*/)
 {
     m_predictor = make_unique_cpb<_SHAPE_PREDICTOR>(is);
 }
@@ -52,7 +52,6 @@ RTEShapeEstimator::RegressionTreeEnsembleShapeEstimator(std::istream& is, const 
 {
     m_impl = drishti::core::make_unique<Impl>(is, hint);
 }
-
 
 void RTEShapeEstimator::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 {

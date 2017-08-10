@@ -37,13 +37,13 @@ const char * LineShader::fshaderColorSrc = OG_TO_STR
  });
 // clang-format on
 
-LineShader::LineShader(const VertexBuffer &vertices)
+LineShader::LineShader(const VertexBuffer& vertices)
     : points(vertices)
     , MVP(glm::mat4())
 {
     // Compile utility line shader:
     shader = std::make_shared<Shader>();
-    if(!shader->buildFromSrc(vshaderColorSrc, fshaderColorSrc))
+    if (!shader->buildFromSrc(vshaderColorSrc, fshaderColorSrc))
     {
         throw std::runtime_error("LineShader: shader error");
     }
@@ -51,17 +51,17 @@ LineShader::LineShader(const VertexBuffer &vertices)
     shParamUMVP = shader->getParam(UNIF, "modelViewProjMatrix");
     shParamAPosition = shader->getParam(ATTR, "position");
 }
-    
-const char * LineShader::getProcName()
+
+const char* LineShader::getProcName()
 {
     return "LineShader";
 }
 
-void LineShader::setModelViewProjection(const glm::mat4 &mvp)
+void LineShader::setModelViewProjection(const glm::mat4& mvp)
 {
     MVP = mvp;
 }
-    
+
 void LineShader::draw(int outFrameW, int outFrameH)
 {
     shader->use();
@@ -69,7 +69,7 @@ void LineShader::draw(int outFrameW, int outFrameH)
     glUniformMatrix4fv(shParamUMVP, 1, 0, (GLfloat*)&MVP[0][0]);
     glViewport(0, 0, outFrameW, outFrameH);
     glVertexAttribPointer(shParamAPosition, 4, GL_FLOAT, 0, 0, &points.data()[0]);
-    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(points.size() /2));
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(points.size() / 2));
 
     Tools::checkGLErr(getProcName(), "draw()");
 };

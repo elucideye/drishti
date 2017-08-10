@@ -34,7 +34,6 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceMeshMapperLandmark : public FaceMeshMapper
 {
 public:
-
     using LandmarkCollection2d = eos::core::LandmarkCollection<cv::Vec2f>;
 
     FaceMeshMapperLandmark(const std::string& modelfile, const std::string& mappingsfile);
@@ -42,9 +41,8 @@ public:
     virtual Result operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image);
 
     virtual Result operator()(const FaceModel& face, const cv::Mat& image);
-    
+
 protected:
-    
     struct Impl;
     std::shared_ptr<Impl> m_pImpl;
 };

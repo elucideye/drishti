@@ -19,9 +19,9 @@
 #include "drishti/core/drishti_stdlib_string.h" // first!
 
 // Note: This class currently exposes EOS types
-#include "eos/core/Landmark.hpp" // LandmarkCollection<>
+#include "eos/core/Landmark.hpp"   // LandmarkCollection<>
 #include "eos/fitting/fitting.hpp" // RenderingParameters
-#include "eos/core/Mesh.hpp" // Mesh
+#include "eos/core/Mesh.hpp"       // Mesh
 
 #include "opencv2/core/core.hpp"
 
@@ -33,9 +33,8 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceMeshMapper
 {
 public:
-
     using LandmarkCollection2d = eos::core::LandmarkCollection<cv::Vec2f>;
-    
+
     struct Result
     {
         // TODO: Use generic (non-eos types) or pimpl
@@ -50,11 +49,11 @@ public:
 };
 
 // Euler: pitch, yaw, roll
-cv::Point3f getRotation(const eos::fitting::RenderingParameters &rendering_parameters);
-cv::Mat extractTexture(const FaceMeshMapper::Result &result, const cv::Mat &image);
+cv::Point3f getRotation(const eos::fitting::RenderingParameters& rendering_parameters);
+cv::Mat extractTexture(const FaceMeshMapper::Result& result, const cv::Mat& image);
 void serialize(const eos::core::Mesh& mesh, const std::string& filename);
 void drawWireFrameOnIso(cv::Mat& iso, const eos::core::Mesh& meshIn);
-void drawWireFrame(cv::Mat& iso, const FaceMeshMapper::Result &result);
+void drawWireFrame(cv::Mat& iso, const FaceMeshMapper::Result& result);
 eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f>& points);
 eos::core::LandmarkCollection<cv::Vec2f> extractLandmarks(const FaceModel& face);
 

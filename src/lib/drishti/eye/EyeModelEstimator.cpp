@@ -160,7 +160,6 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat& crop, EyeModel& eye) cons
 
 EyeModelEstimator::EyeModelEstimator()
 {
-    
 }
 
 EyeModelEstimator::EyeModelEstimator(std::istream& is, const std::string& hint)

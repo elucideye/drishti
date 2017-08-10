@@ -13,7 +13,7 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 struct Landmarks
 {
     template <class Archive>
-    void serialize(Archive &archive)
+    void serialize(Archive& archive)
     {
         archive(GENERIC_NVP("landmarks", landmarks));
     }
@@ -23,24 +23,24 @@ struct Landmarks
 drishti::face::FaceModel loadFaceModel(std::istream& is)
 {
     drishti::face::FaceModel face;
- 
-    if(is)
+
+    if (is)
     {
         cereal::JSONInputArchive ia(is);
         typedef decltype(ia) Archive;
-        
+
         std::vector<cv::Point2f> landmarks;
         ia(GENERIC_NVP("landmarks", landmarks));
-        
+
         CV_Assert(landmarks.size() == 5);
-        
+
         face.eyeRightCenter = landmarks[0];
         face.eyeLeftCenter = landmarks[1];
         face.noseTip = landmarks[2];
         face.mouthCornerRight = landmarks[3];
         face.mouthCornerLeft = landmarks[4];
     }
- 
+
     return face;
 }
 

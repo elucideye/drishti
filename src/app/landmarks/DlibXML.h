@@ -140,48 +140,48 @@ public:
         dataset->append_node(images);
         doc.append_node(dataset);
     }
-    
-    void addPoints(const cv::Rect &roi, const std::vector<cv::Point2f> &points, const std::string& filename)
+
+    void addPoints(const cv::Rect& roi, const std::vector<cv::Point2f>& points, const std::string& filename)
     {
         m_count++;
-        
+
         // TODO: deserialize spec from command line
-        
+
         // ###########
         // ### XML ###
         // ###########
-        
+
         // <image file='/Some/long/path/file0.png'>
         auto* image = doc.allocate_node(rapidxml::node_element, "image");
         image->append_attribute(doc.allocate_attribute("file", filename.c_str()));
-        
+
         {
             // <box top='0' left='0' width='200' height='150'>
             const auto sTop = doc.allocate_string(std::to_string(roi.y).c_str());
             const auto sLeft = doc.allocate_string(std::to_string(roi.x).c_str());
             const auto sWidth = doc.allocate_string(std::to_string(roi.width).c_str());
             const auto sHeight = doc.allocate_string(std::to_string(roi.height).c_str());
-            
+
             auto* box = doc.allocate_node(rapidxml::node_element, "box");
             box->append_attribute(doc.allocate_attribute("top", sTop));
             box->append_attribute(doc.allocate_attribute("left", sLeft));
             box->append_attribute(doc.allocate_attribute("width", sWidth));
             box->append_attribute(doc.allocate_attribute("height", sHeight));
-            
+
             for (int j = 0; j < points.size(); j++)
             {
                 // <part name='0000' x='49' y='82'/>
                 const int x = static_cast<int>(points[j].x + 0.5f);
                 const int y = static_cast<int>(points[j].y + 0.5f);
-                
+
                 // Important: dlib requires fixed width part names
                 std::stringstream ss;
                 ss << std::setfill('0') << std::setw(4) << j;
-                
+
                 const auto sName = doc.allocate_string(ss.str().c_str());
                 const auto sX = doc.allocate_string(std::to_string(x).c_str());
                 const auto sY = doc.allocate_string(std::to_string(y).c_str());
-                
+
                 auto* part = doc.allocate_node(rapidxml::node_element, "part");
                 part->append_attribute(doc.allocate_attribute("name", sName));
                 part->append_attribute(doc.allocate_attribute("x", sX));

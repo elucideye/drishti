@@ -36,7 +36,7 @@ std::array<eye::EyeWarp, 2>
 FaceStabilizer::renderEyes(const drishti::face::FaceModel& face, const cv::Size& sizeIn) const
 {
     using PointPair = std::array<cv::Point2f, 2>;
-    
+
     std::array<eye::EyeWarp, 2> eyes;
     if (face.eyeFullR.has && face.eyeFullL.has)
     {

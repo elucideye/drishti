@@ -74,7 +74,7 @@ QtFaceDetectorFactory::QtFaceDetectorFactory()
 std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetector()
 {
     std::unique_ptr<drishti::ml::ObjectDetector> ptr;
-    
+
     // clang-format off
     LoaderFunction loader = [&](std::istream& is, const std::string& hint)
     {
@@ -91,7 +91,7 @@ std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetec
 std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getInnerFaceEstimator()
 {
     std::unique_ptr<drishti::ml::ShapeEstimator> ptr;
-    
+
     // clang-format off
     LoaderFunction loader = [&](std::istream& is, const std::string& hint)
     {

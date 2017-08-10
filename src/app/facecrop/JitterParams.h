@@ -36,7 +36,7 @@ struct JitterParams
     std::pair<cv::Matx33f, bool> mirror(cv::RNG& rng, const cv::Size& size, const cv::Point& tl = {}) const;
     void mirror(const cv::Size& size, const cv::Point& tl = {}) const;
     cv::Matx33f scale(const cv::Size& size, const cv::Point& tl, float sx, float sy) const;
-    
+
     float getGain(cv::RNG& rng) const;
 
     template <class Archive>

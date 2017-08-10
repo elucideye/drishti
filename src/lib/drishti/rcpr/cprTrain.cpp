@@ -130,7 +130,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
             pCur[i] = Hs[j].inv() * pCur[i];
 
 #if DRISHTI_CPR_DO_PREVIEW_GT
-            if(m_viewer)
+            if (m_viewer)
             {
                 cv::Mat canvas = debug_current_and_ground_truth(Is[j].getImage(), pCur[i], pGtIn[j], "gt");
                 m_viewer("input_vs_truth", canvas);
@@ -386,18 +386,18 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
 static cv::Mat draw(BoostVec& gbdt, const EllipseVec& pCur, const ImageMaskPairVec& Is, const IntVec& imgIds, const PointVec& xs)
 {
     std::vector<int> features;
-    
+
     std::sort(features.begin(), features.end());
     std::unique(features.begin(), features.end());
-    
+
     std::vector<cv::Mat> canvases;
     std::vector<std::vector<cv::Mat>> drawings;
     cv::RNG rng;
     rng.state = 100;
-    
+
     canvases.resize(2);
     drawings.resize(2);
-    
+
     cv::Size maxSize(0, 0);
     for (int k = 0; k < 2; k++)
     {
@@ -406,34 +406,34 @@ static cv::Mat draw(BoostVec& gbdt, const EllipseVec& pCur, const ImageMaskPairV
             // visualize the features:
             int i = rng.uniform(0, int(pCur.size()) - 1);
             const cv::Mat& I = Is[imgIds[i]].getImage();
-            
+
             cv::Mat canvas;
             cv::cvtColor(I, canvas, cv::COLOR_GRAY2BGR);
-            
+
             CV_Assert(Is[imgIds[i]].getMask().size() == Is[imgIds[i]].getImage().size());
             cv::Mat tmp(canvas.size(), canvas.type(), cv::Scalar(255, 0, 0));
             canvas.copyTo(tmp, Is[imgIds[i]].getMask());
-            
+
             const float scale = M_SQRT2;
             drawFeatures(canvas, xs, pCur[i], features, scale);
             cv::RotatedRect e = phiToEllipse(pCur[i]) * scale;
-            
+
             cv::ellipse(canvas, e, { 255, 0, 255 }, 1, 8);
             cv::resize(tmp, tmp, {}, scale, scale);
             cv::ellipse(tmp, e, { 255, 0, 255 }, 1, 8);
-            
+
             drishti::geometry::Ellipse e2(e);
             cv::line(tmp, e.center, e2.getMajorAxisPos(), { 0, 255, 0 }, 1, 8);
             cv::vconcat(canvas, tmp, canvas);
-            
+
             // Update the max size
             maxSize.width = std::max(maxSize.width, canvas.cols);
             maxSize.height = std::max(maxSize.height, canvas.rows);
-            
+
             drawings[k].push_back(canvas);
         }
     }
-    
+
     for (int k = 0; k < 2; k++)
     {
         for (auto& i : drawings[k])
@@ -444,7 +444,7 @@ static cv::Mat draw(BoostVec& gbdt, const EllipseVec& pCur, const ImageMaskPairV
             cv::copyMakeBorder(i, canvas, 0, padY, 0, padX, cv::BORDER_CONSTANT);
             std::swap(i, canvas);
         }
-        
+
         cv::vconcat(drawings[k], canvases[k]);
         canvases[k] = canvases[k].t();
     }
@@ -461,16 +461,16 @@ static cv::Mat debug_current_and_ground_truth(const cv::Mat& Is, const Vector1d&
     cv::cvtColor(Is, canvas, cv::COLOR_GRAY2BGR);
     cv::RotatedRect eCur = phiToEllipse(pCur);
     cv::RotatedRect eGt = phiToEllipse(pGtIn);
-    
+
     drishti::geometry::Ellipse xCur(eCur);
     drishti::geometry::Ellipse xGt(eGt);
-    
+
     cv::ellipse(canvas, eCur, { 0, 255, 0 }, 1, 8);
     cv::line(canvas, eCur.center, xCur.getMajorAxisPos(), { 0, 255, 0 }, 2, 8);
-    
+
     cv::ellipse(canvas, eGt, { 255, 0, 0 }, 1, 8);
     cv::line(canvas, eGt.center, xGt.getMajorAxisPos(), { 0, 255, 0 }, 2, 8);
-    
+
     return canvas;
 }
 #endif

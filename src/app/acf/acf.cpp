@@ -393,7 +393,7 @@ int gauze_main(int argc, char** argv)
 
                 if (doBox && !writeAsText(filename + ".roi", objects))
                 {
-                    logger->error("Failed to write: {}.box", filename);                    
+                    logger->error("Failed to write: {}.box", filename);
                 }
 
                 if (doAnnotation || doWindow)
@@ -512,7 +512,7 @@ static bool writeAsText(const std::string& filename, const std::vector<cv::Rect>
     if (ofs)
     {
         ofs << objects.size() << " ";
-        for(auto &o : objects)
+        for (auto& o : objects)
         {
             ofs << o.x << " " << o.y << " " << o.width << " " << o.height << " ";
         }

@@ -24,7 +24,7 @@ class RegressionTreeEnsembleShapeEstimator::Impl
 public:
     Impl();
     Impl(const std::string& filename);
-    Impl(std::istream& is, const std::string &hint={});
+    Impl(std::istream& is, const std::string& hint = {});
     ~Impl();
 
     void packPointsInShape(const std::vector<cv::Point2f>& points, int ellipseCount, float* shape) const
@@ -80,7 +80,7 @@ public:
     {
         return m_stagesHint;
     }
-    
+
     // {{p[0].x, p[0].y}, ..., {p[n].x,p[n.y}, {phi0[0],0}, {phi0[1],0} {phi0[2],0}, {phi0[3],0}, {phi0[4],0}}...
     std::vector<cv::Point2f> getMeanShape() const
     {
@@ -109,8 +109,8 @@ public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        ar & m_predictor;
-        
+        ar& m_predictor;
+
         if (Archive::is_loading::value)
         {
             m_predictor->populate_f16();
@@ -140,7 +140,7 @@ void RTEShapeEstimator::serialize(Archive& ar, const unsigned int version)
 template <class Archive>
 void RTEShapeEstimator::serializeModel(Archive& ar, const unsigned int version)
 {
-    ar& (*m_impl->m_predictor);
+    ar&(*m_impl->m_predictor);
 }
 
 DRISHTI_ML_NAMESPACE_END

@@ -10,12 +10,13 @@
 
 #include "drishti/graphics/MeshShader.h"
 
-
+// clang-format off
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
 #else
 #  define TEXTURE_FORMAT GL_BGRA
 #endif
+// clang-format on
 
 BEGIN_OGLES_GPGPU
 
@@ -49,7 +50,7 @@ const char * MeshShader::fshaderMeshSrc =
 );
 // clang-format on
 
-MeshShader::MeshShader(const cv::Mat &iso, const VertexBuffer &vertices, const CoordBuffer &coords)
+MeshShader::MeshShader(const cv::Mat& iso, const VertexBuffer& vertices, const CoordBuffer& coords)
     : texture(iso.cols, iso.rows, TEXTURE_FORMAT, const_cast<void*>(iso.ptr<void>()))
     , texUnit(1)
     , texTarget(GL_TEXTURE_2D)
@@ -57,10 +58,10 @@ MeshShader::MeshShader(const cv::Mat &iso, const VertexBuffer &vertices, const C
     , coords(coords)
 {
     MVP = glm::mat4();
-    
+
     // Compile utility shader:
     shader = std::make_shared<Shader>();
-    if(!shader->buildFromSrc(vshaderMeshSrc, fshaderMeshSrc))
+    if (!shader->buildFromSrc(vshaderMeshSrc, fshaderMeshSrc))
     {
         throw std::runtime_error("MeshShader: shader error");
     }
@@ -71,12 +72,12 @@ MeshShader::MeshShader(const cv::Mat &iso, const VertexBuffer &vertices, const C
     shParamUMVP = shader->getParam(UNIF, "transformMatrix");
 }
 
-const char * MeshShader::getProcName()
+const char* MeshShader::getProcName()
 {
     return "MeshShader";
 }
 
-void MeshShader::setModelViewProjection(const glm::mat4 &mvp)
+void MeshShader::setModelViewProjection(const glm::mat4& mvp)
 {
     MVP = mvp;
 }
@@ -86,9 +87,9 @@ void MeshShader::draw(int outFrameW, int outFrameH)
     shader->use();
 
     //glViewport(0, 0, outFrameW, outFrameH);
-    
+
     assert(texTarget == GL_TEXTURE_2D);
-    
+
     // set input texture
     glActiveTexture(GL_TEXTURE0 + texUnit);
     glBindTexture(texTarget, texture.texId); // bind input texture

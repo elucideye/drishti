@@ -16,7 +16,6 @@
 
 #include "drishti/core/drishti_defs.hpp"
 #include "drishti/core/drishti_string_hash.h"
-
 #include "drishti/ml/ObjectDetector.h"
 #include "drishti/acf/drishti_acf.h"
 #include "drishti/acf/ACFField.h"
@@ -81,7 +80,6 @@ public:
             void merge(const Nms& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Nms& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -111,7 +109,6 @@ public:
                     void merge(const Color& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const Color& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -128,7 +125,6 @@ public:
                     void merge(const GradMag& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const GradMag& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -146,7 +142,6 @@ public:
                     void merge(const GradHist& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const GradHist& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -158,7 +153,6 @@ public:
                     void merge(const Custom& src, int mode);
                     friend std::ostream& operator<<(std::ostream& os, const Custom& src);
 
-                    // Boost serialization:
                     template <class Archive>
                     void serialize(Archive& ar, const uint32_t version);
                 };
@@ -168,7 +162,6 @@ public:
                 void merge(const Chns& src, int mode);
                 friend std::ostream& operator<<(std::ostream& os, const Chns& src);
 
-                // Boost serialization:
                 template <class Archive>
                 void serialize(Archive& ar, const uint32_t version);
             };
@@ -189,7 +182,6 @@ public:
             void merge(const Pyramid& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Pyramid& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -217,7 +209,6 @@ public:
                 void merge(const Tree& src, int mode);
                 friend std::ostream& operator<<(std::ostream& os, const Tree& src);
 
-                // Boost serialization:
                 template <class Archive>
                 void serialize(Archive& ar, const uint32_t version);
             };
@@ -229,7 +220,6 @@ public:
             void merge(const Boost& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Boost& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -256,7 +246,6 @@ public:
             void merge(const Jitter& src, int mode);
             friend std::ostream& operator<<(std::ostream& os, const Jitter& src);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const uint32_t version);
         };
@@ -266,7 +255,6 @@ public:
         void merge(const Options& src, int mode);
         friend std::ostream& operator<<(std::ostream& os, const Options& src);
 
-        // Boost serialization:
         template <class Archive>
         void serialize(Archive& ar, const uint32_t version);
     };
@@ -451,7 +439,6 @@ public:
     int deserializeAny(const std::string& filename);
     int deserializeAny(std::istream& is, const std::string& hint = {});
 
-    // Boost serialization:
     template <class Archive>
     void serialize(Archive& ar, const uint32_t version);
 

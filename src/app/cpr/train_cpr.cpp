@@ -122,7 +122,7 @@ int gauze_main(int argc, char** argv)
     std::string sTemplate;
     std::string sTestLog;
     std::string sLoggingDir;
-    
+
     bool doWindow = false;
 
     int targetWidth = 128;
@@ -208,10 +208,10 @@ int gauze_main(int argc, char** argv)
             return 1;
         }
     }
-    
+
     { // Test that we can write to the specified output model before starting training
         std::ofstream check(sModel);
-        if(check)
+        if (check)
         {
             remove(sModel.c_str());
         }
@@ -282,11 +282,10 @@ int gauze_main(int argc, char** argv)
         if (doWindow || !sLoggingDir.empty())
         {
             std::map<std::string, int> counter;
-            
+
             // clang-off
-            drishti::rcpr::CPR::ViewFunc viewer = [&](const std::string& name, const cv::Mat& image)
-            {
-                if(counter.find(name) == counter.end())
+            drishti::rcpr::CPR::ViewFunc viewer = [&](const std::string& name, const cv::Mat& image) {
+                if (counter.find(name) == counter.end())
                 {
                     counter[name] = 0;
                 }
@@ -295,14 +294,14 @@ int gauze_main(int argc, char** argv)
                     counter[name]++;
                 }
 
-#if defined(DRISHTI_USE_IMSHOW)                
-                if(doWindow)
+#if defined(DRISHTI_USE_IMSHOW)
+                if (doWindow)
                 {
                     glfw::imshow(name.c_str(), image);
                     glfw::waitKey(1);
                 }
 #endif
-                if(!sLoggingDir.empty())
+                if (!sLoggingDir.empty())
                 {
                     std::stringstream ss;
                     ss << sLoggingDir << "/" << name << "_" << std::setfill('0') << std::setw(4) << counter[name] << ".png";
@@ -397,9 +396,8 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
     samples.ellipses[0].resize(filenames.size());
     samples.ellipses[1].resize(filenames.size());
     samples.H.resize(filenames.size());
-    
-    drishti::core::ParallelHomogeneousLambda harness = [&](int i)
-    {
+
+    drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
         // Image filename:
         const auto& sImage = filenames[i];
 
@@ -473,14 +471,17 @@ void EllipseSamples::load(const std::string& filename, int targetWidth, const st
             samples.ellipses[1][i] = ellipse2;
         }
     };
-    
-    cv::parallel_for_({0,static_cast<int>(filenames.size())}, harness);
+
+    cv::parallel_for_({ 0, static_cast<int>(filenames.size()) }, harness);
 
     sigma = mu = { 0.f, 0.f, 0.f, 0.f, 0.f };
 
     for (int i = 0; i < 5; i++)
     {
-        struct { cv::Scalar mu, sigma; } stats;
+        struct
+        {
+            cv::Scalar mu, sigma;
+        } stats;
         cv::meanStdDev(features.col(i), stats.mu, stats.sigma);
         mu[i] = stats.mu[0];
         sigma[i] = stats.sigma[0];
@@ -512,7 +513,6 @@ struct list_list_int_parser : qi::grammar<Iterator, std::vector<std::vector<int>
         integer %= qi::int_[qi::_pass = (qi::_1 >= 0 && qi::_1 < 5)];
         list = '{' >> +(integer % ',') >> '}';
         start = '{' >> +(list % ',') >> '}';
-
     }
     qi::rule<Iterator, int(), Skipper> integer;
     qi::rule<Iterator, std::vector<int>(), Skipper> list;
@@ -524,7 +524,7 @@ std::vector<std::vector<int>> parseListOfLists(Iterator first, Iterator last)
 {
     std::vector<std::vector<int>> v;
     list_list_int_parser<decltype(first)> parser;
-    if(!qi::phrase_parse(first, last, parser, qi::blank, v))
+    if (!qi::phrase_parse(first, last, parser, qi::blank, v))
     {
         v.clear();
     }
@@ -552,7 +552,7 @@ std::vector<float> parseVec5f(Iterator first, Iterator last)
 {
     std::vector<float> v;
     vec5f_parser<decltype(first)> parser;
-    if(!qi::phrase_parse(first, last, parser, qi::blank, v))
+    if (!qi::phrase_parse(first, last, parser, qi::blank, v))
     {
         v.clear();
     }
