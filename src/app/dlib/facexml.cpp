@@ -101,9 +101,9 @@ int gauze_main(int argc, char** argv)
     // ### Command line parsing ###
     // ############################
 
-    std::string sInput, sOutput, sExtension = ".eye.xml";
+    std::string sInput, sOutput;
     int threads = -1;
-    int number = 0;
+    int number = std::numeric_limits<int>::max();
     bool doDump = false;
 
     cxxopts::Options options("eyexml", "Convert eye files to xml");
@@ -111,8 +111,7 @@ int gauze_main(int argc, char** argv)
     // clang-format off
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
-        ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
-        ("e,extension", "Extension", cxxopts::value<std::string>(sExtension))
+        ("o,output", "Output xml file", cxxopts::value<std::string>(sOutput))
         ("d,dump", "Dump imags", cxxopts::value<bool>(doDump))
         ("n,number", "Number of entries (max)", cxxopts::value<int>(number))
         ("t,threads", "Threads", cxxopts::value<int>(threads))
@@ -240,7 +239,15 @@ int gauze_main(int argc, char** argv)
         }
     }
 
-    return drishtiFaceToDlib(faces, sOutput);
+    logger->info("Have {} faces", faces.size());
+    
+    int code = drishtiFaceToDlib(faces, sOutput);
+    if(code != 0)
+    {
+        logger->error("Failed to create file {} for writing");
+    }
+
+    return code;
 }
 
 int main(int argc, char** argv)
@@ -269,6 +276,10 @@ static int drishtiFaceToDlib(const std::vector<FaceEntry>& faces, std::string& s
         }
         doc.finish();
         doc.write(os);
+    }
+    else
+    {
+        return 1;
     }
 
     return 0;

@@ -17,16 +17,13 @@
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/core/Logger.h"
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 #include <memory>
 #include <vector>
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
-// Specify API
-
-// cv::Point3f where z can represent occlusion
 class ShapeEstimator
 {
 public:
@@ -60,7 +57,6 @@ public:
 
     virtual void dump(std::vector<float>& params, bool pca = false) {}
 
-    // Boost serialization:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version) {}
 

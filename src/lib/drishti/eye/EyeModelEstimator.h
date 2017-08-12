@@ -22,8 +22,6 @@
 
 #include <memory>
 
-#include <stdio.h>
-
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 class EyeModelEstimator

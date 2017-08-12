@@ -27,16 +27,16 @@ struct Field
         has = false;
     }
     Field(const T& t)
+        : value(t)
+        , has(true)
     {
-        value = t;
-        has = true;
     }
-    Field(const std::string& name_, const T& value_, bool)
+    Field(const std::string& name, const T& value, bool)
+        : value(value)
+        , isLeaf(true)
+        , name(name)
+        , has(true)
     {
-        isLeaf = true;
-        has = true;
-        name = name_;
-        value = value_;
     }
 
     ~Field()
@@ -52,6 +52,14 @@ struct Field
         return *this;
     }
 
+    void merge(const Field<T>& df, int checkExtra)
+    {
+        if (!has && df.has)
+        {
+            set(df.name, df.has, df.isLeaf, df.value);
+        }
+    }    
+
     void set(const std::string& name_, bool has_, bool isLeaf_, const T& value_)
     {
         name = name_;
@@ -65,14 +73,6 @@ struct Field
         name = name_;
         has = has_;
         isLeaf = isLeaf_;
-    }
-
-    void merge(const Field<T>& df, int checkExtra)
-    {
-        if (!has && df.has)
-        {
-            set(df.name, df.has, df.isLeaf, df.value);
-        }
     }
 
     void set(const std::string& src)
@@ -120,9 +120,6 @@ struct Field
     {
         return value;
     }
-
-    //friend template<typename T2> std::ostream& operator<<(std::ostream &os, const Field<T2>& src);
-    //friend template<typename T2> std::ostream& operator<<(std::ostream &os, const Field<std::vector<T2>> &src);
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)

@@ -25,9 +25,9 @@
 
 #include <opencv2/core.hpp>
 
-CEREAL_CLASS_VERSION(drishti::rcpr::CPR::RegModel, 1);
-CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::acf::Field<cv::Mat>, cereal::specialization::member_serialize);
+CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::core::Field<cv::Mat>, cereal::specialization::member_serialize);
 CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(drishti::rcpr::CPR, cereal::specialization::member_serialize);
+CEREAL_CLASS_VERSION(drishti::rcpr::CPR, 1);
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
@@ -39,7 +39,6 @@ typedef cereal::PortableBinaryOutputArchive OArchive;
 template void CPR::Model::Parts::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::Model::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<OArchive>(OArchive& ar, const unsigned int);
-template void CPR::CprPrm::FernPrm::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::CprPrm::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<OArchive>(OArchive& ar, const unsigned int);
@@ -51,7 +50,6 @@ typedef cereal::PortableBinaryInputArchive IArchive;
 template void CPR::Model::Parts::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void CPR::Model::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<IArchive>(IArchive& ar, const unsigned int);
-template void CPR::CprPrm::FernPrm::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void CPR::CprPrm::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void CPR::RegModel::Regs::FtrData::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void CPR::RegModel::Regs::serialize<IArchive>(IArchive& ar, const unsigned int);

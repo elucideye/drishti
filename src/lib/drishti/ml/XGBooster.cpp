@@ -13,15 +13,19 @@
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
+XGBooster::Impl::~Impl() = default;
+
 XGBooster::XGBooster()
 {
-    m_impl = std::make_shared<XGBooster::Impl>();
+    m_impl = drishti::core::make_unique<XGBooster::Impl>();
 }
 
 XGBooster::XGBooster(const Recipe& recipe)
 {
-    m_impl = std::make_shared<XGBooster::Impl>(recipe);
+    m_impl = drishti::core::make_unique<XGBooster::Impl>(recipe);
 }
+
+XGBooster::~XGBooster() = default;
 
 void XGBooster::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
 {

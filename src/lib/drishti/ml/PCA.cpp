@@ -9,6 +9,7 @@
 */
 
 #include "drishti/ml/PCA.h"
+#include "drishti/core/make_unique.h"
 
 #include <Eigen/Dense>
 
@@ -96,7 +97,7 @@ void StandardizedPCA::compute(const cv::Mat& data, cv::Mat& projection, float re
     cv::Mat mu;
     m_transform.compute(data);
     cv::Mat data_ = m_transform.standardize(data);
-    m_pca = std::make_shared<cv::PCA>(data_, mu, cv::PCA::DATA_AS_ROW, retainedVariance);
+    m_pca = drishti::core::make_unique<cv::PCA>(data_, mu, cv::PCA::DATA_AS_ROW, retainedVariance);
     m_pca->project(data_, projection);
 
     init();
@@ -107,7 +108,7 @@ void StandardizedPCA::compute(const cv::Mat& data, cv::Mat& projection, int maxC
     cv::Mat mu;
     m_transform.compute(data);
     cv::Mat data_ = m_transform.standardize(data);
-    m_pca = std::make_shared<cv::PCA>(data_, mu, cv::PCA::DATA_AS_ROW, maxComponents);
+    m_pca = drishti::core::make_unique<cv::PCA>(data_, mu, cv::PCA::DATA_AS_ROW, maxComponents);
     m_pca->project(data_, projection);
 
     init();

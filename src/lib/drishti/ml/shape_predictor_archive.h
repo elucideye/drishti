@@ -1,10 +1,13 @@
 // Warning: This file is used as a template and is included/inlined for each archive library
 // so the include guards should not be used here.
 
-//#ifndef shape_predictor_archive_h
-//#define shape_predictor_archive_h
+#ifndef shape_predictor_archive_h
+#define shape_predictor_archive_h
 
 #include "drishti/ml/shape_predictor.h"
+#include "drishti/core/ThrowAssert.h"
+
+DRISHTI_BEGIN_NAMESPACE(cereal)
 
 template <class Archive>
 void serialize(Archive& ar, drishti::ml::fshape& g, const unsigned int version)
@@ -70,7 +73,6 @@ void serialize(Archive& ar, dlib::vector<float, 2>& g, const unsigned int versio
 template <class Archive>
 void serialize(Archive& ar, drishti::ml::impl::split_feature& g, const unsigned int version)
 {
-    // TODO :compress storage type (unsigned short)
     ar& g.idx1;
     ar& g.idx2;
 
@@ -119,13 +121,14 @@ void serialize(Archive& ar, drishti::ml::impl::regression_tree& g, const unsigne
 template <class Archive>
 void serialize(Archive& ar, drishti::ml::shape_predictor& sp, const unsigned int version)
 {
+    drishti_throw_assert(version == 4, "Incorrect shape_predictor archive format, please update models");
+    
     drishti::ml::fshape& initial_shape = sp.initial_shape;
     std::vector<std::vector<RTType>>& forests = sp.forests;
     std::vector<std::vector<unsigned short>>& anchor_idx = sp.anchor_idx;
     std::vector<std::vector<Vec2Type>>& deltas = sp.deltas;
 
     // Without forests a 2.3 MB compressed archive drops to 48K//
-    //CV_Assert(version >= 1);
     ar& initial_shape;
     ar& forests;
     ar& anchor_idx;
@@ -146,26 +149,16 @@ void serialize(Archive& ar, drishti::ml::shape_predictor& sp, const unsigned int
     ar& deltas;
 #endif
 
-    if (version >= 1)
-    {
-        ar& sp.m_pca;
-    }
-
-    if (version >= 2)
-    {
-        ar& sp.m_npd;
-        ar& sp.m_do_affine;
-    }
-
-    if (version >= 3)
-    {
-        ar& sp.m_ellipse_count;
-    }
-
-    if (version >= 4)
-    {
-        ar& sp.interpolated_features;
-    }
+    ar& sp.m_pca;
+    ar& sp.m_npd;
+    ar& sp.m_do_affine;
+    ar& sp.m_ellipse_count;
+    ar& sp.interpolated_features;
 }
 
-//#endif /* shape_predictor_archive_h */
+DRISHTI_END_NAMESPACE(cereal)
+
+#include <cereal/cereal.hpp>
+CEREAL_CLASS_VERSION(drishti::ml::shape_predictor, 4);
+
+#endif /* shape_predictor_archive_h */

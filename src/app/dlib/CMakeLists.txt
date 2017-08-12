@@ -25,7 +25,7 @@ install(TARGETS drishti-eyexml DESTINATION bin)
 ### drishti-facexml ###
 #######################
 
-if(BUILD_FACE)
+if(DRISHTI_BUILD_FACE)
   add_executable(drishti-facexml facexml.cpp)
   target_link_libraries(drishti-facexml drishtisdk drishti_landmarks cxxopts::cxxopts RapidXML::RapidXML
     Boost::system

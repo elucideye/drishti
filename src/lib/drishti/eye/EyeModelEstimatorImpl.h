@@ -182,7 +182,6 @@ public:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        assert(version >= 1); // drop support for older versions
         ar& m_eyeEstimator;
         ar& m_irisEstimator;
         ar& m_pupilEstimator;

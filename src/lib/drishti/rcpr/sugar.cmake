@@ -13,7 +13,6 @@ include(sugar_files)
 
 sugar_files(DRISHTI_RCPR_SRCS
   CPR.cpp
-  CPRIO.cpp
   CPRIOArchiveCereal.cpp  
   cprApply.cpp
   poseGt.cpp

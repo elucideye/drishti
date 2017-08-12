@@ -13,8 +13,8 @@
 
 #include "drishti/rcpr/drishti_rcpr.h"
 #include "drishti/rcpr/CPR.h"
-
 #include "drishti/core/drishti_cv_cereal.h"
+#include "drishti/core/ThrowAssert.h"
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
@@ -46,17 +46,6 @@ void CPR::CprPrm::FtrPrm::serialize(Archive& ar, const unsigned int version)
 }
 
 template <class Archive>
-void CPR::CprPrm::FernPrm::serialize(Archive& ar, const unsigned int version)
-{
-    ar& thrr;
-    ar& reg;
-    ar& S;
-    ar& M;
-    ar& R;
-    ar& eta;
-}
-
-template <class Archive>
 void Recipe::serialize(Archive& ar, const unsigned int version)
 {
     ar& maxLeafNodes;
@@ -80,9 +69,6 @@ void CPR::CprPrm::serialize(Archive& ar, const unsigned int version)
     ar& T;
     ar& L;
     ar& ftrPrm;
-#if !DRISHTI_CPR_DO_LEAN
-    ar& fernPrm;
-#endif
     ar& verbose;
 
     // New experimental features
@@ -118,10 +104,6 @@ void CPR::RegModel::Regs::FtrData::serialize(Archive& ar, const unsigned int ver
 template <class Archive>
 void CPR::RegModel::Regs::serialize(Archive& ar, const unsigned int version)
 {
-#if !DRISHTI_CPR_DO_LEAN
-    ar& ferns;
-#endif
-
     ar& ftrData;
     ar& r;
     ar& xgbdt;
@@ -135,16 +117,14 @@ void CPR::RegModel::serialize(Archive& ar, const unsigned int version)
     ar& pDstr;
     ar& T;
     ar& regs;
-
-    if (version >= 1)
-    {
-        ar& pStar_;
-    }
+    ar& pStar_;
 }
 
 template <class Archive>
 void CPR::serialize(Archive& ar, const unsigned int version)
 {
+    drishti_throw_assert(version == 1, "Incorrect CPR archive format, please update models");
+                         
     ar& cprPrm;
     ar& regModel;
 }

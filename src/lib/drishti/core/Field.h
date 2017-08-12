@@ -16,6 +16,7 @@
 
 #include "drishti/core/drishti_core.h"
 
+#include <string>
 #include <assert.h>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
@@ -23,18 +24,9 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 template <typename T>
 struct Field
 {
-    Field()
-    {
-        has = false;
-    }
-    Field(const T& t)
-        : value(t)
-        , has(true)
-    {
-    }
-    ~Field()
-    {
-    }
+    Field() : has(false) {}
+    Field(const T& t) : has(true), value(t) {}
+    ~Field() = default;
 
     Field<T>& operator=(const T& src)
     {
@@ -43,6 +35,20 @@ struct Field
         return *this;
     }
 
+    void merge(const Field<T>& df, int checkExtra)
+    {
+        if (!has && df.has)
+        {
+            set(df.has, df.value);
+        }
+    }
+
+    void set(bool has_, const T& value_)
+    {
+        has = has_;
+        value = value_;
+    }
+    
     void clear()
     {
         has = false;
@@ -83,14 +89,12 @@ struct Field
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        //ar & GENERIC_NVP("has", has);
-        //ar & GENERIC_NVP("value", value);
         ar& has;
         ar& value;
     }
 
+    bool has = false;    
     T value;
-    bool has = false;
 };
 
 DRISHTI_CORE_NAMESPACE_END

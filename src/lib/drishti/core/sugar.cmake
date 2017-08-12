@@ -32,6 +32,7 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   Parallel.h
   Semaphore.h
   Shape.h
+  ThrowAssert.h
   arithmetic.h
   convert.h
   drawing.h

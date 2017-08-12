@@ -12,6 +12,8 @@
 #define __drishti_ml_XGBoosterImpl_h__
 
 #include "drishti/core/drishti_stdlib_string.h"
+#include "drishti/core/make_unique.h"
+#include "drishti/core/ThrowAssert.h"
 #include "drishti/ml/Booster.h"
 
 DRISHTI_ML_NAMESPACE_BEGIN
@@ -45,11 +47,11 @@ public:
         init();
     }
 
+    ~Impl();
+
     void init()
     {
-        m_booster = std::make_shared<xgboost::wrapper::Booster>();
-
-        //xgboost::wrapper::Booster tsk(dmats);
+        m_booster = drishti::core::make_unique<xgboost::wrapper::Booster>();
 
         // https://github.com/dmlc/xgboost/blob/master/doc/parameter.md
         m_booster->SetParam("silent", "1");
@@ -96,8 +98,6 @@ public:
         m_booster->CheckInitModel();
         m_booster->CheckInit(dTrain.get());
 
-        //std::vector<DataMatrix *> dmats { dTrain.get() }; // what is this for?
-
         for (int t = 0; t < m_recipe.numberOfTrees; t++)
         {
             m_booster->UpdateOneIter(t, *dTrain);
@@ -142,7 +142,7 @@ public:
 
 protected:
     Recipe m_recipe;
-    std::shared_ptr<xgboost::wrapper::Booster> m_booster;
+    std::unique_ptr<xgboost::wrapper::Booster> m_booster;
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
@@ -158,16 +158,14 @@ void XGBooster::Recipe::serialize(Archive& ar, const unsigned int version)
     ar& maxDepth;
     ar& dataSubsample;
     ar& learningRate;
-    if (version >= 1)
-    {
-        ar& featureSubsample;
-    }
+    ar& featureSubsample;
 }
 
-// Boost serialization:
 template <class Archive>
 void XGBooster::serialize(Archive& ar, const unsigned int version)
 {
+    drishti_throw_assert(version == 1, "Incorrect XGBooster archive format, please update models");
+    
     ar& m_impl;
 }
 

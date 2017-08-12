@@ -19,12 +19,8 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 template <class Archive>
 void FaceModel::serialize(Archive& ar, const unsigned int version)
 {
-    if (version >= 1)
-    {
-        ar& GENERIC_NVP("eye-full-left", eyeFullL);
-        ar& GENERIC_NVP("eye-full-right", eyeFullR);
-    }
-
+    ar& GENERIC_NVP("eye-full-left", eyeFullL);
+    ar& GENERIC_NVP("eye-full-right", eyeFullR);
     ar& GENERIC_NVP("eye-left-inner", eyeLeftInner);
     ar& GENERIC_NVP("eye-left-center", eyeLeftCenter);
     ar& GENERIC_NVP("eye-left-outer", eyeLeftOuter);
@@ -45,11 +41,9 @@ void FaceModel::serialize(Archive& ar, const unsigned int version)
     ar& GENERIC_NVP("mouth-corner-right", mouthCornerRight);
 
     ar& GENERIC_NVP("mouth", mouth);
-    if (version >= 2)
-    {
-        ar& GENERIC_NVP("mouthOuter", mouthOuter);
-        ar& GENERIC_NVP("mouthInner", mouthInner);
-    }
+    ar& GENERIC_NVP("mouthOuter", mouthOuter);
+    ar& GENERIC_NVP("mouthInner", mouthInner);
+
     ar& GENERIC_NVP("nose", nose);
     ar& GENERIC_NVP("eye-left", eyeLeft);
     ar& GENERIC_NVP("eyebrow-left", eyebrowLeft);

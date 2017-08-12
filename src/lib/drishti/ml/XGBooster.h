@@ -42,6 +42,7 @@ public:
     class Impl;
     XGBooster();
     XGBooster(const Recipe& recipe);
+    ~XGBooster();
     float operator()(const std::vector<float>& features);
     void train(const MatrixType<float>& features, const std::vector<float>& values, const MatrixType<uint8_t>& mask = {});
 
@@ -55,7 +56,7 @@ public:
     void setStreamLogger(std::shared_ptr<spdlog::logger>& logger);
 
 protected:
-    std::shared_ptr<Impl> m_impl;
+    std::unique_ptr<Impl> m_impl;
 
     std::shared_ptr<spdlog::logger> m_streamLogger;
 };
