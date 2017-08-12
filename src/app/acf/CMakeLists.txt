@@ -13,3 +13,17 @@ target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${DRISHTI_APP_D
 
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/console")
 install(TARGETS ${test_app} DESTINATION bin)
+
+
+###############
+### mat2cpb ###
+###############
+
+set(conv_app drishti-acf-mat2cpb)
+
+if(DRISHTI_SERIALIZE_WITH_CVMATIO)
+  add_executable(${conv_app} mat2cpb.cpp)
+  target_link_libraries(${conv_app} drishtisdk cxxopts::cxxopts)
+  set_property(TARGET ${conv_app} PROPERTY FOLDER "app/console")
+  install(TARGETS ${conv_app} DESTINATION bin)
+endif()
