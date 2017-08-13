@@ -61,7 +61,7 @@ public:
 
 protected:
     Standardizer m_transform;
-    std::shared_ptr<cv::PCA> m_pca;
+    std::unique_ptr<cv::PCA> m_pca;
 
     cv::Mat m_eT; // transposed eigenvectors
 };

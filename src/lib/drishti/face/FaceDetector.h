@@ -73,6 +73,7 @@ public:
     typedef std::vector<cv::Point2f> Landmarks;
 
     FaceDetector(FaceDetectorFactory& Resources);
+    ~FaceDetector();
 
     void setLandmarkFormat(FaceSpecification::Format format);
 
@@ -117,7 +118,7 @@ public:
     virtual void refine(const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H, bool isDetection);
 
 protected:
-    std::shared_ptr<Impl> m_impl; // make_unique<> errors
+    std::unique_ptr<Impl> m_impl;
 };
 
 void splitContour(const std::vector<cv::Point2f>& points, std::vector<std::vector<cv::Point2f>>& contours);

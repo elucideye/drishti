@@ -184,7 +184,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
     const int R = int(pCur.front().size());
 
     // #### Store the features and the learned trees ####
-    std::vector<acf::Field<RegModel::Regs>> regs;
+    std::vector<core::Field<RegModel::Regs>> regs;
 
     CV_Assert(T == cprPrm.cascadeRecipes.size());
 
@@ -254,11 +254,6 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
 
         std::vector<std::shared_ptr<ml::XGBooster>> xgbdt(regressorToPhiIndex.size());
 
-        //% train independent 1D regressors for each r, keep best
-        //std::vector<double> losses(R, 0.0);
-        //std::vector<EllipseVec> pTmps(R + 1, pCur); // add 1 for (x,y)
-        //std::vector<T_VECTOR> predictions(R);
-
         MatrixType<float> predictions(regressorToPhiIndex.size());
 
         {
@@ -277,7 +272,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
                 params.maxDepth = recipe.maxDepth;
                 params.featureSubsample = float(recipe.featureSampleSize) / recipe.featurePoolSize;
 
-                xgbdt[i] = std::make_shared<ml::XGBooster>(params);
+                xgbdt[i] = std::make_shared<ml::XGBooster>(params);                
                 xgbdt[i]->train(data, target, recipe.doMask ? mask : MatrixType<uint8_t>());
 
                 predictions[i].resize(data.size());
@@ -358,24 +353,22 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
 
         //% Stop if loss did not decrease:
         RegModel::Regs reg;
-        reg.ftrData = { "ftrData", ftrData };
-        reg.r = { "r", best };
+        reg.ftrData = ftrData;
+        reg.r = best;
 
         for (int i = 0; i < phiSets[best].size(); i++)
         {
             reg.xgbdt.emplace_back(phiSets[best][i], xgbdt[i]);
         }
 
-        regs.emplace_back("reg", reg, true);
+        regs.emplace_back(reg);
     }
 
-    this->regModel->model = { "model", model };
-    this->regModel->pStar = { "pStar", pStar };
-    this->regModel->T = { "T", T };
-    this->regModel->regs = { "regs", regs };
-    this->regModel->pStar_ = { "pStar_", pStar_ }; // New store normalized version
-
-    // this->regModel->pca = pca;
+    this->regModel->model = model;
+    this->regModel->pStar = pStar;
+    this->regModel->T = T;
+    this->regModel->regs = regs;
+    this->regModel->pStar_ = pStar_;
 
     return 0;
 }

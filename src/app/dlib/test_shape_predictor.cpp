@@ -27,7 +27,7 @@ typedef unsigned char boolean;
 
 #include "drishti/core/Line.h"
 #include "drishti/core/string_utils.h"
-#include "drishti/ml/shape_predictor.h"
+#include "drishti/ml/shape_predictor_archive.h"
 #include "drishti/testlib/drishti_cli.h"
 
 #include "drishti/core/drishti_stdlib_string.h"

@@ -5,7 +5,6 @@
 #include "drishti/core/drishti_cereal_pba.h"
 
 CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator, 1);
-CEREAL_CLASS_VERSION(DRISHTI_EYE::EyeModelEstimator::Impl, 1);
 
 DRISHTI_EYE_NAMESPACE_BEGIN
 

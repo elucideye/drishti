@@ -13,7 +13,7 @@
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/make_unique.h"
 #include "drishti/ml/drishti_ml.h"
-#include "drishti/ml/shape_predictor.h"
+#include "drishti/ml/shape_predictor_archive.h"
 
 #define _SHAPE_PREDICTOR drishti::ml::shape_predictor
 

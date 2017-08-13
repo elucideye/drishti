@@ -5,6 +5,8 @@
 
 #include <opencv2/opencv.hpp>
 
+CEREAL_CLASS_VERSION(drishti::acf::Detector, 1);
+
 DRISHTI_ACF_NAMESPACE_BEGIN
 
 // ##################################################################

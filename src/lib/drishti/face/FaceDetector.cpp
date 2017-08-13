@@ -9,6 +9,7 @@
 */
 
 #include "drishti/core/drishti_core.h"
+#include "drishti/core/make_unique.h"
 #include "drishti/core/timing.h"
 #include "drishti/core/Parallel.h"
 #include "drishti/face/FaceDetector.h"
@@ -51,9 +52,7 @@ public:
         create(resources);
     }
 
-    ~Impl()
-    {
-    }
+    ~Impl() = default;
 
     void create(FaceDetectorFactory& resources)
     {
@@ -503,6 +502,13 @@ protected:
 
 // ((((((((((((( API )))))))))))))
 
+FaceDetector::FaceDetector(FaceDetectorFactory& resources)
+    : m_impl(drishti::core::make_unique<Impl>(resources))
+{
+}
+
+FaceDetector::~FaceDetector() = default;
+
 std::vector<cv::Point2f> FaceDetector::getFeatures() const
 {
     // noop
@@ -541,11 +547,6 @@ void FaceDetector::setLogger(MatLoggerType logger)
 drishti::ml::ObjectDetector* FaceDetector::getDetector()
 {
     return m_impl->getDetector();
-}
-
-FaceDetector::FaceDetector(FaceDetectorFactory& resources)
-    : m_impl(std::make_shared<Impl>(resources))
-{
 }
 
 void FaceDetector::setLandmarkFormat(FaceSpecification::Format format)

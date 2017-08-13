@@ -33,6 +33,7 @@
 // clang-format on
 
 #include "drishti/core/Logger.h"
+#include "drishti/core/Field.h"
 #include "drishti/rcpr/ImageMaskPair.h"
 #include "drishti/rcpr/Vector1d.h"
 #include "drishti/rcpr/Recipe.h"
@@ -43,7 +44,6 @@
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
-#if DRISHTI_CPR_DO_LEAN
 #define CV_REAL_TYPE CV_32F
 typedef float RealType;
 typedef std::vector<cv::Point2f> PointVec;
@@ -51,15 +51,7 @@ inline int PointVecSize(const PointVec& v)
 {
     return int(v.size());
 }
-#else
-#define CV_REAL_TYPE CV_64F
-typedef double RealType;
-typedef cv::Mat PointVec;
-inline int PointVecSize(const PointVec& v)
-{
-    return v.rows;
-}
-#endif
+
 typedef cv::Matx<RealType, 3, 3> Matx33Real;
 typedef std::vector<RealType> Vector1d;
 typedef std::vector<cv::Mat> ImageVec;
@@ -123,136 +115,112 @@ public:
     {
         struct Parts
         {
-            acf::Field<RealType> prn;
-            acf::Field<Vector1d> lks;
-            acf::Field<RealType> joint; // NA
-            acf::Field<Vector1d> mus;
-            acf::Field<Vector1d> sigs;
-            acf::Field<Vector1d> wts;
+            core::Field<RealType> prn;
+            core::Field<Vector1d> lks;
+            core::Field<RealType> joint; // NA
+            core::Field<Vector1d> mus;
+            core::Field<Vector1d> sigs;
+            core::Field<Vector1d> wts;
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
-        acf::Field<Parts> parts;
+        core::Field<Parts> parts;
 
-        // Boost serialization:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
 
     struct CprPrm
     {
-        acf::Field<Model> model;
-        acf::Field<RealType> T;
-        acf::Field<RealType> L;
+        core::Field<Model> model;
+        core::Field<RealType> T;
+        core::Field<RealType> L;
 
         struct FtrPrm
         {
-            acf::Field<RealType> type;
-            acf::Field<RealType> F;
-            acf::Field<RealType> radius;
-            acf::Field<int> nChn;
+            core::Field<RealType> type;
+            core::Field<RealType> F;
+            core::Field<RealType> radius;
+            core::Field<int> nChn;
 
             void merge(const FtrPrm& opts, int checkExtra);
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
-        acf::Field<FtrPrm> ftrPrm;
+        core::Field<FtrPrm> ftrPrm;
 
         struct FernPrm
         {
-            acf::Field<Vector1d> thrr;
-            acf::Field<RealType> reg;
-            acf::Field<RealType> S;
-            acf::Field<RealType> M;
-            acf::Field<RealType> R;
-            acf::Field<RealType> eta;
+            core::Field<Vector1d> thrr;
+            core::Field<RealType> reg;
+            core::Field<RealType> S;
+            core::Field<RealType> M;
+            core::Field<RealType> R;
+            core::Field<RealType> eta;
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
-        acf::Field<FernPrm> fernPrm;
+        core::Field<FernPrm> fernPrm;
 
-        acf::Field<RealType> verbose;
+        core::Field<RealType> verbose;
 
         typedef rcpr::Recipe Recipe;
 
         std::vector<Recipe> cascadeRecipes;
 
-        // Boost serialization:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
-    acf::Field<CprPrm> cprPrm;
+    core::Field<CprPrm> cprPrm;
 
     struct RegModel
     {
-        acf::Field<Model> model;
-        acf::Field<Vector1d> pStar;
-        acf::Field<cv::Mat> pDstr;
-        acf::Field<RealType> T;
-        acf::Field<Vector1d> pStar_; // CPR Verison 2
+        core::Field<Model> model;
+        core::Field<Vector1d> pStar;
+        core::Field<cv::Mat> pDstr; 
+        core::Field<RealType> T;
+        core::Field<Vector1d> pStar_; // CPR Verison 2
 
         struct Regs
         {
-#if !DRISHTI_CPR_DO_LEAN
-            struct Ferns
-            {
-                acf::Field<std::vector<uint32_t>> fids;
-                acf::Field<Vector1d> thrs;
-                acf::Field<Vector1d> ysFern;
-
-                template <class Archive>
-                void serialize(Archive& ar, const unsigned int version)
-                {
-                    ar& fids;
-                    ar& thrs;
-                    ar& ysFern;
-                }
-            };
-            acf::Field<Ferns> ferns;
-#endif
-
             struct FtrData
             {
-                acf::Field<RealType> type; // feature type (1 or 2) => always 2
-                acf::Field<RealType> F;    // number of features to generate
-                acf::Field<RealType> nChn; // number of image channels
-                acf::Field<PointVec> xs;   // feature locations relative to unit circle (Fx2)
-                acf::Field<Vector1d> pids; // part ids for each x (just one part implemented)
+                core::Field<RealType> type; // feature type (1 or 2) => always 2
+                core::Field<RealType> F;    // number of features to generate
+                core::Field<RealType> nChn; // number of image channels
+                core::Field<PointVec> xs;   // feature locations relative to unit circle (Fx2)
+                core::Field<Vector1d> pids; // part ids for each x (just one part implemented)
 
                 template <class Archive>
                 void serialize(Archive& ar, const unsigned int version);
             };
-            acf::Field<FtrData> ftrData;
+            core::Field<FtrData> ftrData;
 
-            acf::Field<RealType> r;
+            core::Field<RealType> r;
 
+            // std::shared_ptr<> is preferred here w/ std::vector<> to avoid need for copyable ml::XGBooster
             std::vector<std::pair<int, std::shared_ptr<ml::XGBooster>>> xgbdt;
 
-            // Boost serialization:
             template <class Archive>
             void serialize(Archive& ar, const unsigned int version);
         };
-        acf::Field<std::vector<acf::Field<Regs>>> regs;
+        core::Field<std::vector<core::Field<Regs>>> regs;
 
-        // Boost serialization:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version);
     };
-    acf::Field<RegModel> regModel;
+    core::Field<RegModel> regModel;
 
     bool usesMask() const;
 
     struct CPROpts
     {
-        acf::Field<Vector1d> pInit; // initial pose
-        acf::Field<int> K;          // number of initial pose restarts
-        acf::Field<double> rad;     // radius of Gassian Parzen window for finding mode
+        core::Field<Vector1d> pInit; // initial pose
+        core::Field<int> K;          // number of initial pose restarts
+        core::Field<double> rad;     // radius of Gassian Parzen window for finding mode
 
         void merge(const CPROpts& opts, int checkExtra);
     };
@@ -302,7 +270,6 @@ protected:
 #if !DRISHTI_CPR_DO_LEAN
     static int cprApply1(const cv::Mat& Is, const RegModel& regModel, const Vector1d& p, CPRResult& result);
     int cprApply(const cv::Mat& Is, const RegModel& regModel, CPRResult& result, const CPROpts& = {}) const;
-    static int fernsRegApply(const Vector1d& ftrs, const RegModel::Regs::Ferns& ferns, FernResult& result, const std::vector<uint32_t>& indsIn);
 #endif
 
 #if !DRISHTI_CPR_DO_LEAN

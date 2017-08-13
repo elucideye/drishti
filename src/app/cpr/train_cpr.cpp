@@ -238,14 +238,14 @@ int gauze_main(int argc, char** argv)
     cpr::loadJSON(sRecipe, cprPrm.cascadeRecipes);
     T = cprPrm.cascadeRecipes.size();
 
-    cprPrm.L = { "L", L };
-    cprPrm.T = { "T", T };
-    cprPrm.model = { "model", model };
-
+    cprPrm.L = L;
+    cprPrm.T = T;
+    cprPrm.model = model;
+    
     // Note: feature parameters can be overriden
-    cprPrm.ftrPrm->type = { "type", 2 };
-    cprPrm.ftrPrm->F = { "F", F };
-    cprPrm.ftrPrm->radius = { "radius", 1.66 };
+    cprPrm.ftrPrm->type = 2;
+    cprPrm.ftrPrm->F = F;
+    cprPrm.ftrPrm->radius = 1.66;
 
     // Per-dimmension coefficients for weighted ellipse loss function.
     // The original CPR approach trained regressors for each coordinate
@@ -273,7 +273,7 @@ int gauze_main(int argc, char** argv)
     //     wts[i] = (1.0 / cv::pow(trainSigma[i], 2.0));
     // }
 
-    cprPrm.model->parts->wts = { "wts", wts };
+    cprPrm.model->parts->wts = wts;
 
     { // Train the model:
         drishti::rcpr::CPR cpr;

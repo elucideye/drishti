@@ -38,38 +38,36 @@ int createPart(int parent, CPR::Model::Parts& part)
 {
     CV_Assert(parent == 0); // for now, just one part
 
-    part.prn = { "prn", parent };
-    part.lks = {
-        "lks",
-        { static_cast<RealType>(0.0),
-            static_cast<RealType>(0.0),
-            static_cast<RealType>(0.0),
-            static_cast<RealType>(0.0),
-            static_cast<RealType>(1.0f) }
+    part.prn = parent;
+    part.lks =  {
+        static_cast<RealType>(0.0),
+        static_cast<RealType>(0.0),
+        static_cast<RealType>(0.0),
+        static_cast<RealType>(0.0),
+        static_cast<RealType>(1.0f)
     };
     part.mus = {
-        "mus",
-        { static_cast<RealType>(100.0),
-            static_cast<RealType>(100.0),
-            static_cast<RealType>(0.0),
-            static_cast<RealType>(6.0),
-            static_cast<RealType>(-1.0) }
+        static_cast<RealType>(100.0),
+        static_cast<RealType>(100.0),
+        static_cast<RealType>(0.0),
+        static_cast<RealType>(6.0),
+        static_cast<RealType>(-1.0)
     };
+
     part.sigs = {
-        "sigs",
-        { static_cast<RealType>(10.0),
-            static_cast<RealType>(10.0),
-            static_cast<RealType>(M_PI),
-            static_cast<RealType>(0.5),
-            static_cast<RealType>(0.5) }
+        static_cast<RealType>(10.0),
+        static_cast<RealType>(10.0),
+        static_cast<RealType>(M_PI),
+        static_cast<RealType>(0.5),
+        static_cast<RealType>(0.5)
     };
+
     part.wts = {
-        "wts",
-        { static_cast<RealType>(0.313),
-            static_cast<RealType>(0.342),
-            static_cast<RealType>(11.339),
-            static_cast<RealType>(13.059),
-            static_cast<RealType>(48.0) }
+        static_cast<RealType>(0.313),
+        static_cast<RealType>(0.342),
+        static_cast<RealType>(11.339),
+        static_cast<RealType>(13.059),
+        static_cast<RealType>(48.0)
     };
 
     return 0;
@@ -79,7 +77,7 @@ int createModel(int type, CPR::Model& model)
 {
     CPR::Model::Parts parts;
     createPart(0, parts);
-    model.parts = { "parts", parts };
+    model.parts = parts;
     return 0;
 }
 
@@ -249,10 +247,10 @@ int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPa
 int ftrsGen(const CPR::Model& model, const CPR::CprPrm::FtrPrm& ftrPrmIn, FtrData& ftrData, float lambda)
 {
     CPR::CprPrm::FtrPrm dfs, ftrPrm;
-    dfs.type = { "type", 2 };
-    dfs.F = { "F", 100 };
-    dfs.radius = { "radius", 2 };
-    dfs.nChn = { "nChn", 1 };
+    dfs.type = 2;
+    dfs.F = 100;
+    dfs.radius = 2;
+    dfs.nChn = 1;
 
     ftrPrm = ftrPrmIn;
     ftrPrm.merge(dfs, 1);
@@ -263,10 +261,9 @@ int ftrsGen(const CPR::Model& model, const CPR::CprPrm::FtrPrm& ftrPrmIn, FtrDat
     const auto& nChn = *(ftrPrm.nChn);
 
     int F1 = F * type;
-    //std::cout << *(ftrData.xs) << std::endl;
 
     // currently only one model part:
-    ftrData.xs = { "xs", PointVec() };
+    ftrData.xs = PointVec();
 
 #if DRISHTI_CPR_USE_FEATURE_SEPARATION_PRIOR
     // Generate a bunch of pixels:
@@ -333,12 +330,12 @@ int ftrsGen(const CPR::Model& model, const CPR::CprPrm::FtrPrm& ftrPrmIn, FtrDat
     //std::cout << *(ftrData.xs) << std::endl;
 
     CV_Assert(nChn == 1); // for now just one channel
-    ftrData.type = { "type", type };
-    ftrData.F = { "F", F };
-    ftrData.nChn = { "nChn", nChn };
+    ftrData.type = type;
+    ftrData.F = F;
+    ftrData.nChn = nChn;
     if (ftrData.pids->empty())
     {
-        ftrData.pids = { "pids", { 0.0, RealType(F1) } };
+        ftrData.pids = { 0.0, RealType(F1) };
     }
 
     return 0;

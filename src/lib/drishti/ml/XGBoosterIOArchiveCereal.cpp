@@ -26,6 +26,8 @@ using namespace xgboost::io;
 
 using TreeModel32f = xgboost::tree::TreeModel<bst_float, xgboost::tree::RTreeNodeStat>;
 
+CEREAL_CLASS_VERSION(drishti::ml::XGBooster, 1);
+
 // ##################################################################
 // #################### portable_binary_*archive ####################
 // ##################################################################

@@ -32,9 +32,9 @@ typedef unsigned char boolean;
 
 #include "drishti/core/string_utils.h"
 #include "drishti/core/Line.h"
-#include "drishti/ml/shape_predictor.h"
+#include "drishti/ml/shape_predictor_archive.h"
+#include "drishti/ml/shape_predictor_trainer.h"
 #include "drishti/geometry/Ellipse.h"
-
 #include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
@@ -87,7 +87,6 @@ static void view_images(DlibImageArray& images_train, DlibObjectSet& faces_train
                 cv::Point2f p(part.x(), part.y());
                 cv::circle(canvas, p, 4, { 255, 255, 255 }, -1, 8);
                 cv::imwrite("/tmp/foo.png", canvas);
-                int pause = 1;
             }
         }
     }
