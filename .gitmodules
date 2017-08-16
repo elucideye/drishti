@@ -1,9 +1,6 @@
 [submodule "src/3rdparty/xgboost"]
     path = src/3rdparty/xgboost
     url = https://github.com/hunter-packages/xgboost.git
-[submodule "src/3rdparty/thread-pool-cpp"]
-    path = src/3rdparty/thread-pool-cpp
-    url = https://github.com/hunter-packages/thread-pool-cpp.git
 [submodule "drishti-upload"]
     path = drishti-upload
     url = https://github.com/elucideye/drishti-upload
