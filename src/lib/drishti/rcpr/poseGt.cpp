@@ -22,7 +22,8 @@
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
 static Matx33Real getPose(const Vector1d& phi);
-static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, int stride);
+static std::vector<cv::Point2f> xsToPoints(const Matx33Real& HS, const PointVec& xs);
+
 
 // function part = createPart( parent, wts )
 // % Create single part for model (parent==0 implies root).
@@ -107,52 +108,43 @@ int createModel(int type, CPR::Model& model)
 // ########
 
 using FtrData = CPR::RegModel::Regs::FtrData;
-int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPair& Im, const FtrData& ftrData, CPR::FeaturesResult& result, bool useNPD)
+using FtrResult =  CPR::FeaturesResult;
+int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPair& Im, const FtrData& ftrData, FtrResult& result, bool useNPD)
 {
     const auto& I = Im.getImage();
-    int h = I.rows;
-    int w = I.cols;
-    int stride = I.step1();
-    int nChn = I.channels();
+    CV_Assert(I.channels() == 1);
 
-    // compute image inds from xs adjusted for pose
+    // compute image coordinates from xs adjusted for pose
     Matx33Real HS = getPose(phi); // just single component model for now (don't need multiple parts)
-
     const auto& xs = *(ftrData.xs);
-
-    std::vector<cv::Point> pts;
-    auto&& inds = xsToInds(HS, xs, w, h, nChn, stride); // TODO: rowStride != cols
-
-#if DRISHTI_CPR_DO_FEATURE_MASK
-    const auto& M = Im.getMask();
-    auto& mask = result.ftrMask;
-#endif
-
-#if DRISHTI_CPR_DO_FTR_DEBUG
-    cv::Mat tmp1(M.size(), CV_8UC1, cv::Scalar::all(0)), tmp2 = tmp1.clone();
-#endif
-
-    // Compute features:
-    CV_Assert(!(inds.size() % 2));
-    auto& ftrs = result.ftrs;
-
-    int size = (w * h);
-    for (auto& i : inds)
+    auto points = xsToPoints(HS, xs);
+    
+    // Make sure we avoid out of bounds pixels, somewhat arbitrarily
+    // we can just set these to the top left corner.
+    for (auto& p: points)
     {
-        i = std::max(std::min(int(i), int(size - 1)), 0);
+        if(!cv::Rect({0,0}, I.size()).contains(p))
+        {
+            p = {0.f,0.f};
+        }
     }
 
-    ftrs.resize(inds.size() / 2);
-    for (int j = 0, i = 0; i < inds.size(); j++, i += 2)
+    // Compute features:
+    CV_Assert(!(points.size() % 2));
+    auto& ftrs = result.ftrs;
+
+    ftrs.resize(points.size() / 2);
+    for (int j = 0, i = 0; i < points.size(); j++, i += 2)
     {
-        double f1 = double(I.ptr()[inds[i + 0]]) / 255.0;
-        double f2 = double(I.ptr()[inds[i + 1]]) / 255.0;
+        double f1 = static_cast<double>(I.at<std::uint8_t>(points[i+0])) / 255.0;
+        double f2 = static_cast<double>(I.at<std::uint8_t>(points[i+1])) / 255.0;
 
         double d;
         if (useNPD) // possibly use functor (opt)
         {
             double denom = (f1 + f2);
-            d = (denom > 0.0) ? ((f1 - f2) / denom) : 0.0; // NPD
+            //d = (denom > 0.0) ? ((f1 - f2) / denom) : 0.0; // NPD
+            d = (f1 - f2) / (denom + 1e-6f); // NPD
         }
         else
         {
@@ -163,37 +155,22 @@ int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPa
 
 #if DRISHTI_CPR_DO_FEATURE_MASK
         // Store occlusion estimate
-        // TODO: test impact of full and partial occlusion
+        auto& M = Im.getMask();
+        auto& mask = result.ftrMask;
         if (!M.empty())
         {
-            uint8_t m1 = M.ptr()[inds[i + 0]];
-            uint8_t m2 = M.ptr()[inds[i + 1]];
+            uint8_t m1 = M.at<std::uint8_t>(points[i+0]);
+            uint8_t m2 = M.at<std::uint8_t>(points[i+1]);
             uint8_t valid = m1 & m2;
             mask.push_back(valid);
 
             if (!valid)
             {
-                ftrs[j] = NAN;
+                ftrs[j] = NAN; // xgboost special value
             }
-
-#if DRISHTI_CPR_DO_FTR_DEBUG
-            m1 = m2 = 255;
-            tmp1.ptr()[inds[i + 0]] = 255 * int(m1 && m2);
-            tmp1.ptr()[inds[i + 1]] = 255 * int(m1 && m2);
-#endif
         }
 #endif
     }
-
-#if DRISHTI_CPR_DO_FTR_DEBUG
-    cv::imshow("tmp1", tmp1); // opt
-    cv::imshow("M", M);       // opt
-    cv::imshow("I", I);       // opt
-    cv::waitKey(0);           // opt
-#endif
-
-    // Create V for visualization:
-    // TODO
 
     return 0;
 }
@@ -327,8 +304,6 @@ int ftrsGen(const CPR::Model& model, const CPR::CprPrm::FtrPrm& ftrPrmIn, FtrDat
     }
 #endif
 
-    //std::cout << *(ftrData.xs) << std::endl;
-
     CV_Assert(nChn == 1); // for now just one channel
     ftrData.type = type;
     ftrData.F = F;
@@ -360,34 +335,15 @@ static Matx33Real getPose(const Vector1d& phi)
     return HS;
 }
 
-// Note: Base 0 with transposed image (column major)
-static int index(RealType x, RealType y, int w, int h, int stride)
+static std::vector<cv::Point2f> xsToPoints(const Matx33Real& HS, const PointVec& xs)
 {
-    return std::min(int(y + 0.5f), h - 1) * stride + std::min(int(x + 0.5f), w - 1);
-}
-
-static std::vector<uint32_t> xsToInds(const Matx33Real& HS, const PointVec& xs, int w, int h, int nChn, int stride)
-{
-    CV_Assert(nChn == 1);
-
-#if DRISHTI_CPR_DO_LEAN
-    int n = xs.size();
-#else
-    int n = xs.rows;
-#endif
-
-    std::vector<uint32_t> inds(n);
-    for (int i = 0; i < inds.size(); i++)
+    std::vector<cv::Point2f> points(xs.size());
+    for (int i = 0; i < points.size(); i++)
     {
-#if DRISHTI_CPR_DO_LEAN
-        cv::Vec<RealType, 2> p = xs[i];
-#else
-        cv::Vec<RealType, 2> p = xs.at<cv::Vec<RealType, 2>>(i, 0);
-#endif
-        cv::Point3_<RealType> q = HS * cv::Point3_<RealType>(p[0], p[1], RealType(1.0));
-        inds[i] = index(q.x, q.y, w, h, stride);
+        const auto q = HS * cv::Point3f(xs[i].x, xs[i].y, 1.f);
+        points[i] = {q.x, q.y}; // pure affine (i.e., no /z)
     }
-    return inds;
+    return points;
 }
 
 Vector1d identity(const CPR::Model& model)
@@ -642,13 +598,9 @@ void drawFeatures(cv::Mat& canvas, const PointVec& xs, const Vector1d& phi, cons
         int k = (i * 2);
         cv::Scalar color(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 
-#if DRISHTI_CPR_DO_LEAN
         const cv::Vec<RealType, 2> p0 = xs[k + 0];
         const cv::Vec<RealType, 2> p1 = xs[k + 1];
-#else
-        cv::Vec<RealType, 2> p0 = xs.at<cv::Vec<RealType, 2>>(k + 0, 0);
-        cv::Vec<RealType, 2> p1 = xs.at<cv::Vec<RealType, 2>>(k + 1, 0);
-#endif
+
         cv::Point3_<RealType> q0 = (Hs * cv::Point3_<RealType>(p0[0], p0[1], 1.0)) * RealType(scale);
         cv::Point3_<RealType> q1 = (Hs * cv::Point3_<RealType>(p1[0], p1[1], 1.0)) * RealType(scale);
         cv::Point f0(q0.x, q0.y);

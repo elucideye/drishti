@@ -27,12 +27,9 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 
 #if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
 static void drawIrisEstimates(const cv::Mat& I, const EllipseVec& irises, const std::string& name = "iris");
-static cv::RotatedRect tranpose(cv::RotatedRect e);
 #endif
 
-static cv::RotatedRect ellipseFromCircle(const cv::Point2f& c, float radius, float theta);
 static void jitter(cv::RNG& rng, const EyeModel& eye, const geometry::UniformSimilarityParams& params, EllipseVec& irises, int n);
-static void createIrisEstimates(const EyeModel& eye, const cv::RotatedRect& pStar, EllipseVec& irises);
 
 void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
 {
@@ -47,8 +44,7 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
     }
 
     // Initial iris estimates:
-    EllipseVec irises;
-    createIrisEstimates(eye, cpr->getPStar(), irises);
+    EllipseVec irises {{ eye.irisEllipse.center, eye.irisEllipse.size, cpr->getPStar().angle }};
 
     cv::RNG rng;
     if (m_irisInits > 1)
@@ -104,7 +100,7 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat& I, const cv::Mat& M,
 
     // XGBoost is not reentrant:
     harness({ 0, int(irises.size()) });
-//cv::parallel_for_({0, int(irises.size())}, harness, 2);
+    //cv::parallel_for_({0, int(irises.size())}, harness, 2);
 
 #if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
     drawIrisEstimates(I, estimates, "iris-out");
@@ -165,28 +161,6 @@ static void jitter(cv::RNG& rng, const EyeModel& eye, const geometry::UniformSim
     std::copy(jittered.begin(), jittered.end(), std::back_inserter(irises));
 }
 
-static void createIrisEstimates(const EyeModel& eye, const cv::RotatedRect& pStar, EllipseVec& irises)
-{
-    if (eye.irisEllipse.size.width)
-    {
-        irises.push_back({ eye.irisEllipse.center, eye.irisEllipse.size, pStar.angle });
-    }
-    else
-    {
-        // Initial guess from point estimates:
-        cv::RotatedRect guessCenter, guessInner, guessOuter;
-        if (eye.irisCenter.has && eye.irisInner.has && eye.irisOuter.has)
-        {
-            // TODO: use interocular distance for constraint on radius;
-            irises = {
-                ellipseFromCircle(eye.irisCenter, cv::norm(*eye.irisOuter - *eye.irisInner) * 0.5f, pStar.angle),
-                ellipseFromCircle(eye.irisCenter, cv::norm(*eye.irisInner - *eye.irisCenter), pStar.angle),
-                ellipseFromCircle(eye.irisCenter, cv::norm(*eye.irisOuter - *eye.irisCenter), pStar.angle)
-            };
-        }
-    }
-}
-
 #if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
 static void drawIrisEstimates(const cv::Mat& I, const EllipseVec& irises, const std::string& name)
 {
@@ -201,14 +175,6 @@ static void drawIrisEstimates(const cv::Mat& I, const EllipseVec& irises, const 
     }
     cv::imshow(name, canvas);
     cv::waitKey(0);
-}
-
-static cv::RotatedRect tranpose(cv::RotatedRect e)
-{
-    float theta = e.angle * M_PI / 180.0;
-    std::swap(e.center.x, e.center.y);
-    e.angle = std::atan2(std::cos(theta), std::sin(theta)) * 180.0 / M_PI;
-    return e;
 }
 #endif // DRISHTI_CPR_DEBUG_PHI_ESTIMATE
 
