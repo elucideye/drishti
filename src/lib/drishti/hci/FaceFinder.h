@@ -71,7 +71,7 @@ public:
         float maxDetectionDistance = 1.f;
         float faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
         float acfCalibration = 0.f;
-        float regressorCropScale = 1.5f;
+        float regressorCropScale = 0.f;
 
         bool renderFaces = true;
         bool renderPupils = true;

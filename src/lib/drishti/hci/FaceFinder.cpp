@@ -1020,16 +1020,14 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
     // Get weak ref to underlying ACF detector
     impl->detector = dynamic_cast<drishti::acf::Detector*>(impl->faceDetector->getDetector());
 
-#if DRISHTI_HCI_FACEFINDER_DO_ACF_MODIFY
-    if (impl->detector)
+    if (impl->detector && (impl->acfCalibration != 0.f))
     {
         // Perform modification
         drishti::acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", -0.004 };
+        dflt.cascCal = { "cascCal", impl->acfCalibration };
         impl->detector->acfModify(dflt);
     }
-#endif
 
     impl->faceDetector->setDetectionTimeLogger(impl->timerInfo.detectionTimeLogger);
     impl->faceDetector->setRegressionTimeLogger(impl->timerInfo.regressionTimeLogger);

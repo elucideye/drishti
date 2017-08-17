@@ -1,0 +1,6 @@
+{
+    "face_detector": "@DRISHTI_ASSETS_FACE_DETECTOR_NAME@",
+    "eye_model_regressor": "@DRISHTI_ASSETS_EYE_MODEL_REGRESSOR_NAME@",
+    "face_landmark_regressor": "@DRISHTI_ASSETS_FACE_LANDMARK_REGRESSOR_NAME@",
+    "face_detector_mean": "@DRISHTI_ASSETS_FACE_DETECTOR_MEAN_NAME@"
+}
