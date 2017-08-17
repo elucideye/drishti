@@ -302,10 +302,6 @@ struct ACF::Impl
 
     uint64_t frameIndex = 0;
 
-    // These are temporary overrides
-    bool m_runChannels = true;
-    bool m_runFlow = true;
-
     // Experimental (flow)
     std::unique_ptr<Flow2Pipeline> flow;
     std::unique_ptr<ogles_gpgpu::SwizzleProc> flowBgra; // (optional)
@@ -323,6 +319,16 @@ struct ACF::Impl
     cv::Mat m_channels;
     bool m_hasChannelOutput = false;
 
+    bool needsTextures() const
+    {
+        bool status = false;
+        status |= m_doAcfTransfer && !m_hasChannelOutput;
+        status |= m_doGray && !m_hasGrayscaleOutput;
+        status |= m_doLuvTransfer && !m_hasLuvOutput;
+        status |= m_doFlow && ~m_hasFlowOutput;
+        return status;
+    }
+    
     std::shared_ptr<spdlog::logger> m_logger;
 };
 
@@ -356,12 +362,12 @@ void ACF::setLogger(std::shared_ptr<spdlog::logger>& logger)
 
 bool ACF::getChannelStatus()
 {
-    return impl->m_runChannels;
+    return impl->m_hasChannelOutput;
 }
 
 bool ACF::getFlowStatus()
 {
-    return impl->m_doFlow && impl->m_runFlow;
+    return impl->m_doFlow;
 }
 
 void ACF::setDoLuvTransfer(bool flag)
@@ -790,20 +796,21 @@ cv::Mat ACF::getChannelsImpl()
         }
     }; // clang-format on
 
-    {
-        drishti::core::ScopeTimeLogger glFinishTimer = [&](double t) { ss << "glFinish=" << t << ";"; };
-        if (auto pTransfer = dynamic_cast<MemTransferOptimized*>(impl->rgb2luvProc->getMemTransferObj()))
-        {
-            pTransfer->flush();
-        }
-        else
-        {
-            glFlush();
-        }
-    }
     
-    if (!impl->m_hasChannelOutput)
+    if (impl->needsTextures())
     {
+        { // Create a scope for glFlush() timing
+            drishti::core::ScopeTimeLogger glFinishTimer = [&](double t) { ss << "glFlush=" << t << ";"; };
+            if (auto pTransfer = dynamic_cast<MemTransferOptimized*>(impl->rgb2luvProc->getMemTransferObj()))
+            {
+                pTransfer->flush();
+            }
+            else
+            {
+                glFlush();
+            }
+        }
+
         prepare();
 
         if (m_timer)

@@ -347,144 +347,161 @@ void FaceFinder::init(const cv::Size& inputSize)
 // VIDEO |       |
 //       +=======+======== FLOW ===>
 
-// Illustrate circular FIFO for size == 2 and 3
-//
-//   (2 frame)   (3 frame)
-// 0 : [0][ ]	 [0][ ][ ]
-//     [I][ ]	 [I][ ][ ]
-//     [O][ ]	 [O][ ][ ]
-//
-// 1 : [0][1]	 [0][1][ ]
-//     [ ][I]	 [ ][I][ ]
-//     [O][ ]	 [O][ ][ ]
-//
-// 2 : [2][1]	 [0][1][2]
-//     [I][ ]	 [ ][ ][I]
-//     [ ][O]	 [O][ ][ ]
-//
-// 3 : [2][3]	 [3][1][2]
-//     [ ][I]	 [I][ ][ ]
-//     [O][ ]	 [ ][O][ ]
-//
-// 4 : [4][3]	 [3][4][2]
-//     [I][ ]	 [ ][I][ ]
-//     [ ][O]	 [ ][ ][O]
-//
-// 5 : [4][5]	 [3][4][5]
-//     [ ][I]	 [O][ ][ ]
-//     [O][ ]	 [ ][ ][I]
-
-GLuint FaceFinder::operator()(const FrameInput& frame1)
+std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2, bool doDetection)
 {
-    assert(impl->hasInit);
-    assert(impl->sensor->intrinsic().getSize() == cv::Size(frame1.size.width, frame1.size.height));
-
-    std::string methodName = DRISHTI_LOCATION_SIMPLE;
-    core::ScopeTimeLogger faceFinderTimeLogger = [this, methodName](double elapsed) {
-        if (impl->logger)
-        {
-            impl->logger->info("TIMING:{} : {} full={}", methodName, impl->timerInfo, elapsed);
-        }
-    };
-
-    // Get current timestamp
-    const auto& now = faceFinderTimeLogger.getTime();
-
-    const bool doDetection = needsDetection(now);
-
-    impl->frameIndex++; // increment frame index
-
-    // Run GPU based processing on current thread and package results as a task for CPU
-    // processing so that it will be available on the next frame.  This method will compute
-    // ACF output using shaders on the GPU, and may optionally extract other GPU related
-    // features.
-    ScenePrimitives scene1(impl->frameIndex), scene0, *outputScene = nullptr; // time: n+1 and n
-
-    { // *timing*
+    FrameInput frame1;
+    frame1.size = frame2.size;
+    
+    ScenePrimitives scene2(impl->frameIndex), scene1, scene0, *outputScene = &scene2;
+    
+    if(impl->fifo->getBufferCount() > 0)
+    {
         core::ScopeTimeLogger preprocessTimeLogger = [this](double t) { impl->timerInfo.acfProcessingTime = t; };
-        preprocess(frame1, scene1, doDetection);
-
-        //detectOnly(scene1, doDetection); // optionally try detection on current thread
+        
+        // read GPU results for frame n-1
+        
+        // Here we always trigger GPU pipeline reads
+        // to ensure upright + redeuced grayscale images will
+        // be available for regression, even if we won't be using ACF detection.
+        impl->acf->getChannels();
+        
+        if(impl->acf->getChannelStatus())
+        {
+            // If the ACF textures were loaded in the last call, then we know
+            // that detections were requrested for the last frame, and we will
+            // populate an ACF pyramid for the detection step.
+            scene1.m_P = std::make_shared<decltype(impl->P)>();
+            fill(*scene1.m_P);
+        }
+        
+        // ### Grayscale image ###
+        if (impl->doLandmarks)
+        {
+            scene1.image() = impl->acf->getGrayscale();
+        }
     }
 
-    // Initialize input texture with ACF upright texture:
-    GLuint texture1 = impl->acf->first()->getOutputTexId(), texture0 = 0, outputTexture = 0;
-
-    if (impl->threads)
+    // Start GPU pipeline for the current frame, immediately after we have
+    // retrieved results for the previous frame.    
+    computeAcf(frame2, false, doDetection);
+    GLuint texture2 = impl->acf->first()->getOutputTexId(), texture0 = 0, outputTexture = texture2;
+    
+    if(impl->fifo->getBufferCount() > 0)
     {
-        // Retrieve the previous frame and scene
-        if ((impl->fifo->getBufferCount() > 0) && doAnnotations())
+        if(impl->fifo->getBufferCount() > 1)
         {
-            {
-                // Retrieve the previous frame (latency == 1)
-                // from our N frame FIFO.
-                core::ScopeTimeLogger paintTimeLogger = [this](double t) { impl->logger->info("WAITING: {}", t); };
-                scene0 = impl->scene.get();                     // scene n-1
-                texture0 = (*impl->fifo)[-1]->getOutputTexId(); // texture n-1
-            }
-
+            // Retrieve CPU processing for frame n-2
+            scene0 = impl->scene.get();                     // scene n-2
+            texture0 = (*impl->fifo)[-2]->getOutputTexId(); // texture n-2
             updateEyes(texture0, scene0); // update the eye texture
-
-            { // Explicit output variable configuration:
-                core::ScopeTimeLogger glTimeLogger = [this](double t) { impl->timerInfo.renderSceneTimeLogger(t); };
-                outputTexture = paint(scene0, texture0);
-                outputScene = &scene0;
-            }
-        }
-        else
-        {
-            outputTexture = texture1;
-            outputScene = &scene0; // empty
+            
+            outputTexture = paint(scene0, texture0);
+            outputScene = &scene0;
         }
 
-        // Enque the current frame and scene for CPU processing so
-        // that results will be available for the next step (see above).
-        impl->scene = impl->threads->process([scene1, frame1, doDetection, this]() {
+        // Run CPU detection + regression for frame n-1
+        impl->scene = impl->threads->process([scene1, frame1, this]() {
             ScenePrimitives sceneOut = scene1;
-            detect(frame1, sceneOut, doDetection);
+            detect(frame1, sceneOut, scene1.m_P != nullptr);
             if (doAnnotations())
             {
                 // prepare line drawings for rendering while gpu is busy
                 sceneOut.draw(impl->renderFaces, impl->renderPupils, impl->renderCorners);
-
-                // TODO: Eye contours for current scene can be created
-                // for next frame here on the CPU thread.
             }
             return sceneOut;
         });
     }
+    
+    // Add the current frame to FIFO
+    impl->fifo->useTexture(texture2, 1);
+    impl->fifo->render();
+    
+    // Clear face motion estimate, update window:
+    impl->faceMotion = { 0.f, 0.f, 0.f };
+    impl->scenePrimitives.push_front(*outputScene);
+    if (impl->scenePrimitives.size() >= 3)
+    {
+        impl->scenePrimitives.pop_back();
+    }
+    
+    return std::make_pair(outputTexture, *outputScene);
+}
+
+std::pair<GLuint, ScenePrimitives> FaceFinder::runSimple(const FrameInput& frame1, bool doDetection)
+{
+    // Run GPU based processing on current thread and package results as a task for CPU
+    // processing so that it will be available on the next frame.  This method will compute
+    // ACF output using shaders on the GPU, and may optionally extract other GPU related
+    // features.
+    ScenePrimitives scene1(impl->frameIndex), *outputScene = nullptr; // time: n+1 and n
+    preprocess(frame1, scene1, doDetection);
+
+    // Initialize input texture with ACF upright texture:
+    GLuint texture1 = impl->acf->first()->getOutputTexId(), outputTexture = 0;
+
+    detect(frame1, scene1, doDetection);
+    
+    if (doAnnotations())
+    {
+        updateEyes(texture1, scene1);
+        
+        // Excplicit output variable configuration:
+        scene1.draw(impl->renderFaces, impl->renderPupils, impl->renderCorners);
+        outputTexture = paint(scene1, texture1); // was 1
+        outputScene = &scene1;
+    }
     else
     {
-        detect(frame1, scene1, doDetection);
-
-        if (doAnnotations())
-        {
-            updateEyes(texture1, scene1);
-
-            // Excplicit output variable configuration:
-            outputTexture = paint(scene1, texture1); // was 1
-            outputScene = &scene1;
-        }
-        else
-        {
-            outputTexture = texture1;
-            outputScene = &scene1; // empty
-        }
+        outputTexture = texture1;
+        outputScene = &scene1; // empty
     }
 
     // Add the current frame to FIFO
     impl->fifo->useTexture(texture1, 1);
     impl->fifo->render();
-
+    
     // Clear face motion estimate, update window:
     impl->faceMotion = { 0.f, 0.f, 0.f };
     impl->scenePrimitives.push_front(*outputScene);
-
+    
     if (impl->scenePrimitives.size() >= 3)
     {
         impl->scenePrimitives.pop_back();
     }
+    
+    return std::make_pair(outputTexture, *outputScene);
+}
 
+GLuint FaceFinder::operator()(const FrameInput& frame1)
+{
+    // clang-format off
+    std::string methodName = DRISHTI_LOCATION_SIMPLE;
+    core::ScopeTimeLogger faceFinderTimeLogger = [this, methodName](double elapsed)
+    {
+        if (impl->logger)
+        {
+            impl->logger->info("TIMING:{} : {} full={}", methodName, impl->timerInfo, elapsed);
+        }
+    };
+    // clang-format on
+    
+    // Get current timestamp
+    const auto& now = faceFinderTimeLogger.getTime();
+    const bool doDetection = needsDetection(now);
+    
+    GLuint outputTexture = 0;
+    ScenePrimitives outputScene;
+    if(impl->threads)
+    {
+        std::tie(outputTexture, outputScene) = runFast(frame1, doDetection);
+    }
+    else
+    {
+        std::tie(outputTexture, outputScene) = runSimple(frame1, doDetection);
+    }
+    
+    impl->frameIndex++; // increment frame index
+    
     if (impl->scenePrimitives.size() >= 2)
     {
         if (impl->scenePrimitives[0].faces().size() && impl->scenePrimitives[1].faces().size())
@@ -498,11 +515,9 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
 
     try
     {
-        this->notifyListeners(*outputScene, now, impl->fifo->isFull());
+        this->notifyListeners(outputScene, now, impl->fifo->isFull());
     }
-    catch (...)
-    {
-    }
+    catch (...) {}
 
     return outputTexture;
 }
@@ -647,7 +662,12 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInpu
     computeAcf(frame, false, doDetection);
 
     std::shared_ptr<decltype(impl->P)> P;
-    cv::Mat acf = impl->acf->getChannels(); // always trigger for gray output
+
+    // Here we always trigger channel processing
+    // to ensure grayscale images will be available
+    // for regression, even if we won't be using ACF detection.
+    cv::Mat acf = impl->acf->getChannels();
+    
     if (doDetection)
     {
         assert(acf.type() == CV_8UC1);
@@ -987,12 +1007,7 @@ void FaceFinder::computeGazePoints()
 void FaceFinder::initTimeLoggers()
 {
     // clang-format off
-    impl->timerInfo.detectionTimeLogger = [this](double seconds) { this->impl->timerInfo.detectionTime = seconds; };
-    impl->timerInfo.regressionTimeLogger = [this](double seconds) { this->impl->timerInfo.regressionTime = seconds; };
-    impl->timerInfo.eyeRegressionTimeLogger = [this](double seconds) { this->impl->timerInfo.eyeRegressionTime = seconds; };
-    impl->timerInfo.acfProcessingTimeLogger = [this](double seconds) { this->impl->timerInfo.acfProcessingTime = seconds; };
-    impl->timerInfo.blobExtractionTimeLogger = [this](double seconds) { this->impl->timerInfo.blobExtractionTime = seconds; };
-    impl->timerInfo.renderSceneTimeLogger = [this](double seconds) { this->impl->timerInfo.renderSceneTime = seconds; };
+    impl->timerInfo.init();
     // clang-format on
 }
 
@@ -1058,6 +1073,23 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 
         impl->faceDetector->setFaceDetectorMean(faceDetectorMean);
     }
+}
+
+static void smooth(double &t0, double t1, double alpha=0.95)
+{
+    t0 = (t0 != 0.0) ? t1 : ((t0 * alpha) + (t1 * (1.0 - alpha)));
+}
+
+void FaceFinder::TimerInfo::init()
+{
+    // clang-format off
+    detectionTimeLogger = [this](double seconds) { smooth(detectionTime, seconds); };
+    regressionTimeLogger = [this](double seconds) { smooth(regressionTime, seconds); };
+    eyeRegressionTimeLogger = [this](double seconds) { smooth(eyeRegressionTime, seconds); };
+    acfProcessingTimeLogger = [this](double seconds) { smooth(acfProcessingTime, seconds); };
+    blobExtractionTimeLogger = [this](double seconds) { smooth(blobExtractionTime, seconds); };
+    renderSceneTimeLogger = [this](double seconds) { smooth(renderSceneTime, seconds); };
+    // clang-format on
 }
 
 // #### utilty: ####
@@ -1192,7 +1224,6 @@ static void logPyramid(const std::string& filename, const drishti::acf::Detector
     cv::Mat canvas = draw(P);
     cv::imwrite(filename, canvas);
 }
-
 #endif // DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
 
 DRISHTI_HCI_NAMESPACE_END

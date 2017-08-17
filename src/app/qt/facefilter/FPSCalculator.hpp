@@ -23,12 +23,13 @@ public:
 
     FPSCalculator();
 
-    int fps();
+    float fps();
 
 private:
     TimePoint last_;
     int count_;
-    int fps_;
+    float fps_;
+    float alpha_ = 0.95f;
 };
 
 #endif // FPSCALCULATOR_HPP_

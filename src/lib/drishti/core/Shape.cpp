@@ -94,9 +94,9 @@ void fitSpline(const PointVec& controlPoints, PointVec& interpolatedPoints, int 
 
     if (controlPoints.size() > 1)
     {
-        typedef Eigen::Spline<double, 2> Spline2d;
-        typedef Spline2d::PointType PointType;
-        typedef Spline2d::ControlPointVectorType ControlPointVectorType;
+        using Spline2d = Eigen::Spline<double, 2>;
+        using PointType = Spline2d::PointType;
+        using ControlPointVectorType = Spline2d::ControlPointVectorType;
 
         ControlPointVectorType points(2, controlPoints.size() + int(closed));
         for (int i = 0; i < controlPoints.size() + int(closed); i++)
@@ -106,13 +106,12 @@ void fitSpline(const PointVec& controlPoints, PointVec& interpolatedPoints, int 
         }
 
         const Spline2d spline = Eigen::SplineFitting<Spline2d>::Interpolate(points, 3);
-        interpolatedPoints.clear();
-        count += int(closed);
+        interpolatedPoints.resize(count);
         for (int i = 0; i < count; i++)
         {
             float u = float(i) / count;
             PointType p = spline(u);
-            interpolatedPoints.emplace_back(p(0, 0), p(1, 0));
+            interpolatedPoints[i] = cv::Point2f(p(0,0), p(1,0));
         }
     }
 }
