@@ -138,10 +138,6 @@ else()
     target_link_libraries(drishti_core PUBLIC thread-pool-cpp::thread-pool-cpp)
   endif()
 
-  if(ANDROID)
-    target_link_libraries(drishti_core PRIVATE log) # for spdlog from android ndk
-  endif()
-
   ## drishti_geometry
   add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
   target_link_libraries(drishti_geometry PUBLIC ${OpenCV_LIBS})
