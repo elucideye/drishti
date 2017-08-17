@@ -27,9 +27,35 @@ configure_file(
   COPYONLY
   )
 
-## Serialization type/extension
-set(model_ext "cpb")
+###############################################
+### Create a JSON index for each model type ###
+###############################################
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(FACTORY_NAME "drishti_assets.json")
+set(DRISHTI_ASSETS_GENERATED_FACTORY "${generated_dir}/${FACTORY_NAME}")
+
+foreach(model ${DRISHTI_ASSETS_VARS})
+  # Create a variable with just the filename (no directory)
+  set(model_name "${model}_NAME")
+  get_filename_component(${model_name} ${${model}} NAME)
+endforeach()
+
+# Use variables:
+# * DRISHTI_ASSETS_FACE_DETECTOR_NAME
+# * DRISHTI_ASSETS_EYE_MODEL_REGRESSOR_NAME
+# * DRISHTI_ASSETS_FACE_LANDMARK_REGRESSOR_NAME
+# * DRISHTI_ASSETS_FACE_DETECTOR_MEAN_NAME
+configure_file(json.cmake.in "${DRISHTI_ASSETS_GENERATED_FACTORY}" @ONLY)
+
 set(facefilter_qrc "${CMAKE_CURRENT_BINARY_DIR}/generated/facefilter.qrc")
+set(model_ext "cpb")
+
+# Use variables:
+# * DRISHTI_ASSETS_GENERATED_FACTORY
+# * DRISHTI_ASSETS_FACE_DETECTOR
+# * DRISHTI_ASSETS_EYE_MODEL_REGRESSOR
+# * DRISHTI_ASSETS_FACE_LANDMARK_REGRESSOR
+# * DRISHTI_ASSETS_FACE_DETECTOR_MEAN
 configure_file(facefilter.qrc.in "${facefilter_qrc}" @ONLY)
 
 set(

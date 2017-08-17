@@ -289,6 +289,22 @@ endif()
 hunter_add_package(drishti_assets)
 find_package(drishti_assets CONFIG REQUIRED)
 
+set(DRISHTI_ASSETS_VARS
+  DRISHTI_ASSETS_FACE_DETECTOR
+  DRISHTI_ASSETS_FACE_DETECTOR_MEAN
+  DRISHTI_ASSETS_FACE_LANDMARK_REGRESSOR
+  DRISHTI_ASSETS_EYE_MODEL_REGRESSOR
+  )
+
+foreach(model ${DRISHTI_ASSETS_VARS})
+  # Override assets using corresponding environment variables if present:
+  if(DEFINED ENV{${model}})
+    message("RESET ${model} = $ENV{${model}}")
+    unset(${model} CACHE)
+    set(${model} $ENV{${model}})
+  endif()
+endforeach()
+
 hunter_add_package(drishti_faces)
 find_package(drishti_faces CONFIG REQUIRED)
 

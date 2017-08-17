@@ -15,18 +15,11 @@
 
 #include "drishti/core/drishti_cereal_pba.h"
 
+#include "nlohmann_json.hpp" // nlohman-json + ANDROID stdlib patch
+
 #include <iostream>
 
 using namespace string_hash;
-
-// TODO: Move these regressor names to a config file
-
-#define DRISHTI_ARCHIVE "cpb"
-
-#define DRISHTI_FACE_MEAN_5_POINT "drishti_face_tight_64x64_gray_V5_mean.json"
-#define DRISHTI_FACE_INNER_DETECT "drishti_face_tight_64x64_gray_V5." DRISHTI_ARCHIVE
-#define DRISHTI_FACE_FULL "drishti_full_face_model." DRISHTI_ARCHIVE
-#define DRISHTI_EYE_FULL "drishti_full_eye_model." DRISHTI_ARCHIVE
 
 bool QtFaceDetectorFactory::load(const std::string& filename, LoaderFunction& loader)
 {
@@ -65,10 +58,24 @@ bool QtFaceDetectorFactory::load(const std::string& filename, LoaderFunction& lo
 
 QtFaceDetectorFactory::QtFaceDetectorFactory()
 {
-    sFaceDetector = DRISHTI_FACE_INNER_DETECT;
-    sFaceRegressor = DRISHTI_FACE_FULL;
-    sEyeRegressor = DRISHTI_EYE_FULL;
-    sFaceDetectorMean = DRISHTI_FACE_MEAN_5_POINT;
+    // clang-format off
+    LoaderFunction loader = [&](std::istream& is, const std::string& hint)
+    {
+        if(is)
+        {
+            nlohmann::json object;
+            is >> object;
+            sEyeRegressor = object["eye_model_regressor"].get<std::string>();
+            sFaceRegressor = object["face_landmark_regressor"].get<std::string>();
+            sFaceDetector = object["face_detector"].get<std::string>();
+            sFaceDetectorMean = object["face_detector_mean"].get<std::string>();
+            return true;
+        }
+        return false;
+    };
+    // clang-format on
+    
+    load("drishti_assets.json", loader);
 }
 
 std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetector()

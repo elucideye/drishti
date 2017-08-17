@@ -3,6 +3,8 @@
     "doFlow": false,
     "doBlobs": true,
     "frameDelay": 2,
+    "cascadeCalibration": 0.0,
+    "regressorCropScale": 1.25,
 
     "ipAddress": {
         "host": "192.168.1.5",

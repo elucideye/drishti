@@ -113,10 +113,14 @@ struct VideoFilterRunnable::Impl
         auto* pSettings = manager->getSettings();
         if (pSettings != nullptr)
         {
-            settings.frameDelay = (*pSettings)["frameDelay"].get<int>();
-            settings.doLandmarks = (*pSettings)["doLandmarks"].get<bool>();
-            settings.doFlow = (*pSettings)["doFlow"].get<bool>();
-            settings.doBlobs = (*pSettings)["doBlobs"].get<bool>();
+            // clang-format off
+            try { settings.frameDelay = (*pSettings)["frameDelay"].get<int>(); } catch(...) {}
+            try { settings.doLandmarks = (*pSettings)["doLandmarks"].get<bool>(); } catch(...) {}
+            try { settings.doFlow = (*pSettings)["doFlow"].get<bool>(); } catch(...) {}
+            try { settings.doBlobs = (*pSettings)["doBlobs"].get<bool>(); } catch(...) {}
+            try { settings.acfCalibration = (*pSettings)["cascadeCalibration"].get<float>(); } catch(...) {}
+            try { settings.regressorCropScale = (*pSettings)["regressorCropScale"].get<float>(); } catch(...) {}
+            // clang-format on
         }
 
         drishti::hci::FaceFinder::tryEnablePlatformOptimizations();
