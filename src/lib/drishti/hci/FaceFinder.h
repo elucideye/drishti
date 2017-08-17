@@ -52,6 +52,8 @@ public:
         std::function<void(double second)> acfProcessingTimeLogger;
         std::function<void(double second)> blobExtractionTimeLogger;
         std::function<void(double second)> renderSceneTimeLogger;
+        
+        void init();
 
         friend std::ostream& operator<<(std::ostream& stream, const TimerInfo& info);
     };
@@ -89,7 +91,7 @@ public:
     create(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
 
     virtual GLuint operator()(const FrameInput& frame);
-
+    
     float getMaxDistance() const;
     float getMinDistance() const;
 
@@ -108,6 +110,10 @@ public:
     void setImageLogger(const ImageLogger& logger);
 
 protected:
+    
+    std::pair<GLuint, ScenePrimitives> runFast(const FrameInput& frame, bool doDetection);
+    std::pair<GLuint, ScenePrimitives> runSimple(const FrameInput& frame, bool doDetection);
+    
     bool needsDetection(const TimePoint& ts) const;
 
     void computeGazePoints();

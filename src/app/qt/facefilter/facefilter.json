@@ -3,7 +3,7 @@
     "doFlow": false,
     "doBlobs": true,
     "frameDelay": 2,
-    "cascadeCalibration": 0.0,
+    "cascadeCalibration": -0.002,
     "regressorCropScale": 1.25,
 
     "ipAddress": {

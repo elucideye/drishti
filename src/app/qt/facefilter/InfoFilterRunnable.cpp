@@ -48,7 +48,7 @@ QVideoFrame InfoFilterRunnable::run(
     Q_UNUSED(flags);
     InfoFilterResult* result = new InfoFilterResult;
     result->m_frameResolution = input->size();
-    result->m_fps = m_fps_calculator.fps();
+    result->m_fps = static_cast<int>(m_fps_calculator.fps() + 0.5f);
     switch (input->handleType())
     {
         case QAbstractVideoBuffer::NoHandle:

@@ -301,6 +301,7 @@ std::vector<std::vector<cv::Point2f>> EyeModel::getContours(bool doPupil) const
     std::vector<std::vector<cv::Point2f>> contours;
 
     contours.push_back(eyelidsSpline);
+    contours.back().push_back(eyelids.front()); // closed contour
 
     if (irisEllipse.size.width)
     {
@@ -429,6 +430,7 @@ void EyeModel::draw(cv::Mat& canvas, int level, bool doMask, const cv::Scalar& c
     if (eyelidsSpline.size())
     {
         std::copy(eyelidsSpline.begin(), eyelidsSpline.end(), std::back_inserter(contours[0]));
+        contours[0].push_back(contours[0].front()); // closed contour
         cv::polylines(canvas, contours, true, color, width, 8);
     }
 
