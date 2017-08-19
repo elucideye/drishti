@@ -500,6 +500,11 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
         std::tie(outputTexture, outputScene) = runSimple(frame1, doDetection);
     }
     
+    if (impl->imageLogger && outputScene.faces().size() && !outputScene.image().empty())
+    {
+        (impl->imageLogger)(outputScene.image());
+    }
+    
     impl->frameIndex++; // increment frame index
     
     if (impl->scenePrimitives.size() >= 2)
@@ -765,11 +770,6 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
     {
         core::ScopeTimeLogger scopeTimeLogger = [&](double t) { ss << "gray=" << t << ";"; };
         scene.image() = impl->acf->getGrayscale();
-
-        if (impl->imageLogger)
-        {
-            (impl->imageLogger)(scene.image());
-        }
     }
 }
 

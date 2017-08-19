@@ -410,3 +410,10 @@ set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
 ##################################
 
 add_subdirectory(src)
+
+#################################
+### Print the full asset list ###
+#################################
+foreach(model ${DRISHTI_ASSETS_VARS})
+  message(">>> ${model} = ${${model}}")
+endforeach()
