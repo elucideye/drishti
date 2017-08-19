@@ -83,7 +83,10 @@ int gauze_main(int argc, char** argv)
     boost::asio::io_service ios;
 
     int counter = 0;
-    websocket::async_server::streambuf_handler handler = [&](beast::streambuf& db) {
+    
+    // clang-format off
+    websocket::async_server::streambuf_handler handler = [&](beast::streambuf& db)
+    {
         std::stringstream ss;
         ss << sOutput << "/frame_" << std::setw(4) << std::setfill('0') << counter++ << ".png";
 
@@ -111,6 +114,8 @@ int gauze_main(int argc, char** argv)
             });
 #endif
         }
+        // clang-format on
+
         return 0;
     };
 

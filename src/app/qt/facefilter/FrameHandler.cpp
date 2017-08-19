@@ -64,6 +64,7 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
             std::string host = address["host"];
             std::string port = address["port"];
             m_imageLogger = std::make_shared<drishti::core::ImageLogger>(host, port);
+            m_imageLogger->setMaxFramesPerSecond(0.5); // throttle network traffic
         }
     }
 #endif
@@ -117,15 +118,28 @@ auto FrameHandlerManager::createAsynchronousImageLogger() -> FrameHandler
         return nullptr;
     }
 
-    std::function<void(const cv::Mat&)> logger = [&](const cv::Mat& image) {
-        if (m_imageLogger)
+    // clang-format off
+    std::function<void(const cv::Mat&)> logger = [this](const cv::Mat& image)
+    {
+        if (m_imageLogger && !image.empty())
         {
-            m_threads->post([&]() {
-                m_logger->info("Logging: {} : {}", m_imageLogger->host(), m_imageLogger->port());
-                (*m_imageLogger)(image);
-            });
+            cv::Mat payload = image; // need to make a handle in this lambda
+            std::function<void()> worker = [this,payload]()
+            {
+                try
+                {
+                    m_logger->info("Logging: {} : {} [{}x{}]", m_imageLogger->host(), m_imageLogger->port(), payload.cols, payload.rows);
+                    (*m_imageLogger)(payload);
+                }
+                catch(std::exception &e)
+                {
+                    m_logger->error("facefilter: network error {}", e.what());
+                }
+            };
+            m_threads->post(worker);
         }
     };
+    // clang-format on
 
     return logger;
 #else
