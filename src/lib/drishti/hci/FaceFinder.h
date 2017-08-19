@@ -23,6 +23,8 @@
 
 #include <memory>
 
+#define DRISHTI_HCI_FACEFINDER_MIN_DISTANCE 0.1
+#define DRISHTI_HCI_FACEFINDER_MAX_DISTANCE 0.4
 #define DRISHTI_HCI_FACEFINDER_INTERVAL 0.1
 #define DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR 0
 
@@ -69,8 +71,8 @@ public:
         bool doLandmarks = true;
         bool doFlow = true;
         bool doBlobs = false;
-        float minDetectionDistance = 0.f;
-        float maxDetectionDistance = 1.f;
+        float minDetectionDistance = DRISHTI_HCI_FACEFINDER_MIN_DISTANCE;
+        float maxDetectionDistance = DRISHTI_HCI_FACEFINDER_MAX_DISTANCE;
         float faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
         float acfCalibration = 0.f;
         float regressorCropScale = 0.f;

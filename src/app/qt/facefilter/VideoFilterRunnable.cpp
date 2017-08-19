@@ -109,6 +109,7 @@ struct VideoFilterRunnable::Impl
         settings.frameDelay = 1; // 1 frame delay
         settings.minDetectionDistance = manager->getDetectionParameters().m_minDepth;
         settings.maxDetectionDistance = manager->getDetectionParameters().m_maxDepth;
+        settings.faceFinderInterval = manager->getDetectionParameters().m_interval;
 
         auto* pSettings = manager->getSettings();
         if (pSettings != nullptr)
