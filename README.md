@@ -9,7 +9,7 @@
 ![eye models 3](https://user-images.githubusercontent.com/554720/28920920-dcd8e708-7821-11e7-8fc2-b9f375a9a550.png)
 
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square)](http://opensource.org/licenses/BSD-3-Clause)
-[![HUNTER](https://img.shields.io/badge/hunter-v0.18.28-blue.svg)](http://github.com/ruslo/hunter)
+[![HUNTER](https://img.shields.io/badge/hunter-v0.19.75-blue.svg)](http://github.com/ruslo/hunter)
 
 Goal: SDK size <= 1 MB and combined resources (object detection + regression models) <= 4 MB.
 
