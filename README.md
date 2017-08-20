@@ -31,7 +31,7 @@ Goal: SDK size <= 1 MB and combined resources (object detection + regression mod
 * Face landmarks and eye contours provided by ["One Millisecond Face Alignment with an Ensemble of Regression Trees"](http://www.cv-foundation.org/openaccess/content_cvpr_2014/papers/Kazemi_One_Millisecond_Face_2014_CVPR_paper.pdf) (Kazemi, et al) using a modified implementation from [Dlib](https://github.com/davisking/dlib) (Davis King) (normalized pixel differences, line indexed features, PCA size reductions)
 * OpenGL ES friendly GPGPU shader processing and efficient iOS + Android texture handling using a modified version of [ogles_gpgpu](https://github.com/hunter-packages/ogles_gpgpu) (Markus Kondrad) with a number of shader implementations taken directly from [GPUImage](https://github.com/BradLarson/GPUImage) (Brad Larson)
 
-iPhone @ 30 FPS                                                |  Hitchcock 
+iPhone @ 30 FPS (VIDEO)                                        |  Hitchcock 
 :-------------------------------------------------------------:|:-------------------------:
 [![iPhone](https://goo.gl/1uLQ44)](https://vimeo.com/230351171)|[![hitchcock](https://goo.gl/rMzrBB)](https://vimeo.com/219386623)
 
