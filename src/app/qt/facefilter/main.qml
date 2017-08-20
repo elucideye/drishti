@@ -53,8 +53,12 @@ Item {
     position: Camera.FrontFace
     objectName: "CameraObject"
 
-    exposure.exposureCompensation: -1.0
-    exposure.exposureMode: Camera.ExposureAuto
+    imageProcessing.whiteBalanceMode: CameraImageProcessing.WhiteBalanceAuto
+    
+    exposure {
+      exposureCompensation: -1.0
+      exposureMode: Camera.ExposureAuto
+    }
   }
 
   QTRenderGL {

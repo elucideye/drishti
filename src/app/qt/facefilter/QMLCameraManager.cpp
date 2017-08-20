@@ -116,8 +116,16 @@ cv::Size QMLCameraManagerApple::configureCamera()
     if (pExposure)
     {
         m_logger->info("Exposure avaialble: {}", int(pExposure->isAvailable()));
+        pExposure->setExposureMode(QCameraExposure::ExposureAuto);
     }
 
+    auto pImageProcessing = m_camera->imageProcessing();
+    if (pImageProcessing)
+    {
+        m_logger->info("Image processing: {}", int(pImageProcessing->isAvailable()));
+        pImageProcessing->setWhiteBalanceMode(QCameraImageProcessing::WhiteBalanceAuto);
+    }
+    
     m_logger->info("# of settings: {}", viewfinderSettings.size());
 
     m_logger->warn("Limiting video resolution to <= 2048");
@@ -137,8 +145,7 @@ cv::Size QMLCameraManagerApple::configureCamera()
         }
     }
 
-    best.second.setMinimumFrameRate(60.0);
-    best.second.setMinimumFrameRate(120.0);
+    best.second.setMinimumFrameRate(30.0);
 
     assert(!best.second.isNull());
     m_camera->setViewfinderSettings(best.second);
