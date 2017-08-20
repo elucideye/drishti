@@ -104,8 +104,11 @@ protected:
         m_settings.outputOrientation = 0;
         m_settings.frameDelay = 2;
         m_settings.doLandmarks = true;
-        m_settings.doFlow = true;
-        m_settings.doBlobs = true;
+        m_settings.doFlow = false;
+        m_settings.doBlobs = false;
+        m_settings.minDetectionDistance = 0.1f;
+        m_settings.maxDetectionDistance = 0.5f;
+        m_settings.acfCalibration = 0.001f;
 
 #if defined(DRISHTI_HCI_DO_GPU)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);

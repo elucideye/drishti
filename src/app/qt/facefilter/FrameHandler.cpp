@@ -63,26 +63,41 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
         {
             std::string host = address["host"];
             std::string port = address["port"];
+            
+            float frequency = address["frequency"];
             m_imageLogger = std::make_shared<drishti::core::ImageLogger>(host, port);
-            m_imageLogger->setMaxFramesPerSecond(0.5); // throttle network traffic
+            m_imageLogger->setMaxFramesPerSecond(frequency); // throttle network traffic
         }
     }
 #endif
 
     // Parse detection parameters (minDepth, maxDepth)
-    m_detectionParams.m_minDepth = device["detectionRange"]["minDepth"];
-    m_detectionParams.m_maxDepth = device["detectionRange"]["maxDepth"];
+    const auto& detectionParams = device["detection"];
+    if (!detectionParams.empty())
+    {
+        m_detectionParams.m_minDepth = detectionParams["minDepth"];
+        m_detectionParams.m_maxDepth = detectionParams["maxDepth"];
+        m_detectionParams.m_interval = detectionParams["interval"];
+    }
 
     const auto& sensor = device["sensor"];
     const auto& intrinsic = sensor["intrinsic"];
 
     cv::Size size;
-    size.width = intrinsic["size"]["width"].get<int>();
-    size.height = intrinsic["size"]["height"].get<int>();
+    const auto &sizeParams = intrinsic["size"];
+    if (!sizeParams.empty())
+    {
+        size.width = sizeParams["width"].get<int>();
+        size.height = sizeParams["height"].get<int>();
+    }
 
     cv::Point2f p;
-    p.x = intrinsic["principal"]["x"].get<float>();
-    p.y = intrinsic["principal"]["y"].get<float>();
+    const auto &principalParams = intrinsic["principal"];
+    if (!principalParams.empty())
+    {
+        p.x = principalParams["x"].get<float>();
+        p.y = principalParams["y"].get<float>();
+    }
 
     const auto fx = intrinsic["focal_length_x"].get<float>();
 

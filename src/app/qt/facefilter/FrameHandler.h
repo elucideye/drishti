@@ -39,6 +39,7 @@ public:
     {
         float m_minDepth; // meters
         float m_maxDepth; // meters
+        float m_interval; // seconds
     };
 
     using Settings = nlohmann::json;
