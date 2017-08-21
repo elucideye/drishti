@@ -3,6 +3,8 @@
 
 #include "drishti/face/FaceDetectorFactory.h"
 
+#include <functional> // std::function
+
 // clang-format off
 namespace drishti
 {
