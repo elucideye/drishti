@@ -157,11 +157,7 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
 #define FACEFILTER_QT_EXPORT
 #endif
 
-#if defined(Q_OS_IOS)
-extern "C" int qtmn(int argc, char** argv)
-#else
 extern "C" FACEFILTER_QT_EXPORT int main(int argc, char** argv)
-#endif
 {
     auto logger = drishti::core::Logger::create("facefilter");
     try
