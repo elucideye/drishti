@@ -836,7 +836,7 @@ cv::Mat ACF::getChannelsImpl()
             // Here we use the green channel:
             const auto graySize = impl->reduceRgbSmoothProc->getOutFrameSize();
             gray.create({ graySize.width, graySize.height }, CV_8UC1, 1);
-            PlaneInfoVec grayInfo{ { gray[0], rgba[1] } };
+            PlaneInfoVec grayInfo{ { gray[0], rgba[0] } };
             planeIndex.emplace_back(grayInfo, impl->reduceRgbSmoothProc.get());
         }
 
