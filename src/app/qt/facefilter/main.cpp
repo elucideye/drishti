@@ -36,18 +36,24 @@
 #include <cassert> // assert
 
 #include <QGuiApplication>
-#include <QQuickView>
 #include <QQuickItem>
 #include <QtPlugin> // Q_IMPORT_PLUGIN
 #include <QQmlExtensionPlugin>
-#include <QtOpenGL/QGLFormat>
 #include <QFile>
 #include <QTextStream>
 #include <QDirIterator>
 #include <QCameraExposure>
 
-#include "QMLCameraManager.h"
+// Includes 'glew.h' {
 #include "VideoFilterRunnable.hpp"
+// }
+
+// Includes 'gl2.h', after 'glew.h' {
+#include <QQuickView>
+#include <QtOpenGL/QGLFormat>
+// }
+
+#include "QMLCameraManager.h"
 #include "VideoFilter.hpp"
 #include "InfoFilter.hpp"
 #include "QTRenderGL.hpp"
