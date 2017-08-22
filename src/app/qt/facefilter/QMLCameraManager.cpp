@@ -78,10 +78,10 @@ QMLCameraManager::create(QQuickItem* root, std::shared_ptr<spdlog::logger>& logg
     cameraManager = drishti::core::make_unique<QMLCameraManagerApple>(camera, logger);
 #elif defined(Q_OS_WIN)
     // TODO: Specialize
-    cameraManager = drishti::core::make_unique<QMLCameraManage>(camera, logger);
+    cameraManager = drishti::core::make_unique<QMLCameraManager>(camera, logger);
 #elif defined(Q_OS_UNIX)
     // TODO: Specialize
-    cameraManager = drishti::core::make_unique<QMLCameraManage>(camera, logger);
+    cameraManager = drishti::core::make_unique<QMLCameraManager>(camera, logger);
 #endif
 
     return cameraManager;
