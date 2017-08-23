@@ -37,9 +37,14 @@
 #define VIDEO_FILTER_RUNNABLE_HPP_
 
 #include <QVideoFilterRunnable>
-#include <QOpenGLFunctions> // introduce GLuint in cross-platform fashion
 
+// Includes 'glew.h' {
 #include "drishti/acf/GPUACF.h"
+// }
+
+// Includes 'gl2.h', after 'glew.h' {
+#include <QOpenGLFunctions> // introduce GLuint in cross-platform fashion
+// }
 
 #include <memory> // std::shared_ptr
 
