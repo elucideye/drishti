@@ -96,11 +96,6 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
     qmlRegisterType<InfoFilter>("facefilter.test", 1, 0, "InfoFilter");
     qmlRegisterType<QTRenderGL>("OpenGLUnderQML", 1, 0, "QTRenderGL");
 
-#if defined(Q_OS_OSX)
-    qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QtQuick2Plugin().instance())->registerTypes("QtQuick");
-    qobject_cast<QQmlExtensionPlugin*>(qt_static_plugin_QMultimediaDeclarativeModule().instance())->registerTypes("QtMultimedia");
-#endif
-
     QQuickView view;
 
     view.setSource(QUrl("qrc:///main.qml"));
