@@ -205,17 +205,21 @@ std::unique_ptr<nlohmann::json> loadJSON(spdlog::logger& logger)
     if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         logger.error("Can't open file");
-        return json;
+        throw std::runtime_error("loadJSON: Can't open file");
     }
 
     QTextStream in(&inputFile);
-    //if (in.good())
+    if (in.status() == QTextStream::Ok)
     {
         std::stringstream stream;
         stream << in.readAll().toStdString();
 
         json = drishti::core::make_unique<nlohmann::json>();
         stream >> (*json);
+    }
+    else
+    {
+        throw std::runtime_error("loadJSON: Can't read file");
     }
     
     return json;
