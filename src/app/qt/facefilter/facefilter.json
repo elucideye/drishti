@@ -1,7 +1,7 @@
 {
     "doLandmarks": true,
     "doFlow": false,
-    "doBlobs": true,
+    "doBlobs": false,
     "frameDelay": 2,
     "cascadeCalibration": 0.01,
     "regressorCropScale": 1.25,

@@ -76,7 +76,7 @@ Item {
 
   VideoFilter {
     id: videofilter
-    active: true
+    active: false
   }
 
   InfoFilter {

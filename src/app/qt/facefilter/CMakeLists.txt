@@ -15,6 +15,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON) # for main.moc
 
 find_package(Qt5Quick REQUIRED) # Qt5::Quick
 find_package(Qt5Multimedia REQUIRED) # Qt5::QMultimediaDeclarativeModule
+find_package(Qt5Qml REQUIRED) # Qt5::QmlQtQuick2Plugin
 
 configure_file(
   facefilter.json
@@ -85,6 +86,9 @@ set(
   QtFaceMonitor.cpp
   QMLCameraManager.h
   QMLCameraManager.cpp
+
+  CameraListener.h
+  CameraListener.cpp
   
   QtStream.h
 
@@ -150,8 +154,6 @@ if(ANDROID)
   message("Path to `adb`: ${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
 
 else()
-  find_package(Qt5Quick REQUIRED) # Qt5::Quick
-  find_package(Qt5Qml REQUIRED) # Qt5::QmlQtQuick2Plugin
 
   # We should load this manually because of cyclic dependencies in Qt
   find_package(Qt5MultimediaWidgets REQUIRED)
@@ -209,27 +211,30 @@ else()
   endif()
 
   ### Workaround for Linux's linker problems {
-  set(fix_cyclic FALSE)
-  if(APPLE)
-    set(fix_cyclic FALSE)
-  elseif(CMAKE_COMPILER_IS_GNUCXX)
-    # MinGW included
-    set(fix_cyclic TRUE)
-  elseif(NOT UNIX)
-    set(fix_cyclic FALSE)
-  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    # Linux Clang
-    set(fix_cyclic TRUE)
-  endif()
 
-  if(fix_cyclic)
-    string(
+  if(NOT ANDROID)
+    set(fix_cyclic FALSE)
+    if(APPLE)
+      set(fix_cyclic FALSE)
+    elseif(CMAKE_COMPILER_IS_GNUCXX)
+      # MinGW included
+      set(fix_cyclic TRUE)
+    elseif(NOT UNIX)
+      set(fix_cyclic FALSE)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      # Linux Clang
+      set(fix_cyclic TRUE)
+    endif()
+
+    if(fix_cyclic)
+      string(
         REPLACE
         "<LINK_LIBRARIES>"
         " -Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group "
         CMAKE_CXX_LINK_EXECUTABLE
         "${CMAKE_CXX_LINK_EXECUTABLE}"
-    )
+        )
+    endif()
   endif()
   # }
 endif()
@@ -239,6 +244,10 @@ target_link_libraries(${app_name}
   ${OGLES_GPGPU_LIB}
   thread-pool-cpp::thread-pool-cpp
   nlohmann_json)
+
+if(DRISHTI_OPENGL_ES3)
+  target_compile_definitions(${app_name} PUBLIC QT_OPENGL_ES_3=1)
+endif()
 
 if(DRISHTI_USE_BEAST)
   target_compile_definitions(${app_name} PUBLIC DRISHTI_USE_BEAST=1)
