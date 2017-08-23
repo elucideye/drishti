@@ -211,30 +211,27 @@ else()
   endif()
 
   ### Workaround for Linux's linker problems {
-
-  if(NOT ANDROID)
+  set(fix_cyclic FALSE)
+  if(APPLE)
     set(fix_cyclic FALSE)
-    if(APPLE)
-      set(fix_cyclic FALSE)
-    elseif(CMAKE_COMPILER_IS_GNUCXX)
-      # MinGW included
-      set(fix_cyclic TRUE)
-    elseif(NOT UNIX)
-      set(fix_cyclic FALSE)
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      # Linux Clang
-      set(fix_cyclic TRUE)
-    endif()
+  elseif(CMAKE_COMPILER_IS_GNUCXX)
+    # MinGW included
+    set(fix_cyclic TRUE)
+  elseif(NOT UNIX)
+    set(fix_cyclic FALSE)
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # Linux Clang
+    set(fix_cyclic TRUE)
+  endif()
 
-    if(fix_cyclic)
-      string(
-        REPLACE
-        "<LINK_LIBRARIES>"
-        " -Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group "
-        CMAKE_CXX_LINK_EXECUTABLE
-        "${CMAKE_CXX_LINK_EXECUTABLE}"
-        )
-    endif()
+  if(fix_cyclic)
+    string(
+      REPLACE
+      "<LINK_LIBRARIES>"
+      " -Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group "
+      CMAKE_CXX_LINK_EXECUTABLE
+      "${CMAKE_CXX_LINK_EXECUTABLE}"
+      )
   endif()
   # }
 endif()
