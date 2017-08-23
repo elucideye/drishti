@@ -156,7 +156,7 @@ else()
   # We should load this manually because of cyclic dependencies in Qt
   find_package(Qt5MultimediaWidgets REQUIRED)
 
-  if(IOS)
+  if(IOS OR is_linux)
     set(qt_conf "${CMAKE_CURRENT_LIST_DIR}/qt.conf")
     set(qml_dir "${CMAKE_CURRENT_BINARY_DIR}/qt_qml")
 
@@ -207,6 +207,31 @@ else()
     find_package(Qt5PrintSupport REQUIRED)
     target_link_libraries(${app_name} Qt5::PrintSupport)
   endif()
+
+  ### Workaround for Linux's linker problems {
+  set(fix_cyclic FALSE)
+  if(APPLE)
+    set(fix_cyclic FALSE)
+  elseif(CMAKE_COMPILER_IS_GNUCXX)
+    # MinGW included
+    set(fix_cyclic TRUE)
+  elseif(NOT UNIX)
+    set(fix_cyclic FALSE)
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # Linux Clang
+    set(fix_cyclic TRUE)
+  endif()
+
+  if(fix_cyclic)
+    string(
+        REPLACE
+        "<LINK_LIBRARIES>"
+        " -Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group "
+        CMAKE_CXX_LINK_EXECUTABLE
+        "${CMAKE_CXX_LINK_EXECUTABLE}"
+    )
+  endif()
+  # }
 endif()
 
 target_link_libraries(${app_name} 
