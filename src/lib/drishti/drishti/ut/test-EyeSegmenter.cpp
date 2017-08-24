@@ -127,7 +127,7 @@ protected:
         m_eyeSegmenter = create(modelFilename);
 
         // Load the ground truth data:
-        //loadTruth();
+        loadTruth();
 
         // Load sample for each image width:
         loadImages();
@@ -178,16 +178,13 @@ protected:
 
     void loadTruth()
     {
+        drishti::sdk::Eye eye;
+        drishti::sdk::EyeIStream adapter(eye, drishti::sdk::EyeStream::JSON);
+        std::ifstream is(truthFilename);
+        if (is)
         {
-            assert(truthFilename);
-            drishti::sdk::Eye eye;
-            drishti::sdk::EyeIStream adapter(eye, drishti::sdk::EyeStream::JSON);
-            std::ifstream is(truthFilename);
-            if (is)
-            {
-                is >> adapter;
-                m_eye = std::make_shared<drishti::sdk::Eye>(eye);
-            }
+            is >> adapter;
+            m_eye = std::make_shared<drishti::sdk::Eye>(eye);
         }
     }
 
@@ -404,29 +401,29 @@ TEST_F(EyeSegmenterTest, ExternCInterface)
 {
     auto segmenter = createC(modelFilename);
 
-    if (segmenter)
+    ASSERT_NE(segmenter, nullptr);
+    ASSERT_NE(m_eye, nullptr);    
+    
+    // Requires at least m_eyeSegmenter->getMinWidth() + 1
+    ASSERT_GT(m_images.size(), m_eyeSegmenter->getMinWidth());
+
+    for (int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
     {
-        // Requires at least m_eyeSegmenter->getMinWidth() + 1
-        ASSERT_GT(m_images.size(), m_eyeSegmenter->getMinWidth());
+        // Make sure image has the expected size:
+        EXPECT_EQ(m_images[i].image.getCols(), i);
 
-        for (int i = m_eyeSegmenter->getMinWidth(); i < m_images.size(); i++)
+        drishti::sdk::Eye eye;
+        int code = drishti_eye_segmenter_segment(segmenter.get(), m_images[i].image, eye, m_images[i].isRight);
+
+        // Sanity check on each model:
+        EXPECT_EQ(code, 0);
+        checkValid(eye, m_images[i].storage.size());
+
+        // Ground truth comparison for reasonable resolutions
+        if (i > 128 && m_eye)
         {
-            // Make sure image has the expected size:
-            EXPECT_EQ(m_images[i].image.getCols(), i);
-
-            drishti::sdk::Eye eye;
-            int code = drishti_eye_segmenter_segment(segmenter.get(), m_images[i].image, eye, m_images[i].isRight);
-
-            // Sanity check on each model:
-            EXPECT_EQ(code, 0);
-            checkValid(eye, m_images[i].storage.size());
-
-            // Ground truth comparison for reasonable resolutions
-            if (i > 128)
-            {
-                const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
-                ASSERT_GT(detectionScore(eye, *m_eye), threshold);
-            }
+            const float threshold = (i == m_eye->getRoi().width) ? m_scoreThreshold : 0.5;
+            ASSERT_GT(detectionScore(eye, *m_eye), threshold);
         }
     }
 }
