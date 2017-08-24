@@ -67,7 +67,7 @@
 
 #include <iostream>
 
-#if defined(Q_OS_OSX) || defined(Q_OS_LINUX)
+#if defined(Q_OS_OSX) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
 Q_IMPORT_PLUGIN(QtQuick2Plugin);
 Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
 #endif
