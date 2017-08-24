@@ -12,6 +12,11 @@ CameraListener::CameraListener(QCamera *camera, LoggerPtr &logger, const GLVersi
     connect(camera, SIGNAL(statusChanged(QCamera::Status)), this, SLOT(updateCameraStatus(QCamera::Status)));
 }
 
+void CameraListener::setUsePBO(bool flag)
+{
+    m_usePBO = flag;
+}
+
 void CameraListener::updateCameraStatus(QCamera::Status status)
 {
     if(status == QCamera::LoadedStatus)
@@ -45,10 +50,14 @@ void CameraListener::configureCamera()
         throw std::runtime_error("Failed to instantiate FrameHandlerManager");
     }
 
-    if (frameHandler && qmlCameraManager)
+    if (frameHandler)
     {
-        frameHandler->setOrientation(qmlCameraManager->getOrientation());
-        frameHandler->setSize(qmlCameraManager->getSize());
+        frameHandler->setUsePBO(m_usePBO);
+        if (qmlCameraManager)
+        {
+            frameHandler->setOrientation(qmlCameraManager->getOrientation());
+            frameHandler->setSize(qmlCameraManager->getSize());
+        }
     }
 
 }

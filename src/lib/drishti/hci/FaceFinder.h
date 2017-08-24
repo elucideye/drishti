@@ -78,6 +78,7 @@ public:
         float regressorCropScale = 0.f;
         int glVersionMajor = 2;
         int glVersionMinor = 0; // future use
+        bool usePBO = false;
 
         bool renderFaces = true;
         bool renderPupils = true;

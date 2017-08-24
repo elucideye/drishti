@@ -87,6 +87,7 @@ struct FaceFinder::Impl
 
         , glVersionMajor(args.glVersionMajor)
         , glVersionMinor(args.glVersionMinor)
+        , usePBO(args.usePBO)
     {
     }
 
@@ -188,6 +189,7 @@ struct FaceFinder::Impl
 
     int glVersionMajor = 2;
     int glVersionMinor = 0;
+    bool usePBO = false;
 };
 
 DRISHTI_HCI_NAMESPACE_END

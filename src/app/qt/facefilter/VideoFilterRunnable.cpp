@@ -112,6 +112,7 @@ struct VideoFilterRunnable::Impl
         settings.faceFinderInterval = manager->getDetectionParameters().m_interval;
         settings.glVersionMajor = manager->getGLVersion().major;
         settings.glVersionMinor = manager->getGLVersion().minor;
+        settings.usePBO = manager->getUsePBO();
 
         m_logger = manager->getLogger();
 

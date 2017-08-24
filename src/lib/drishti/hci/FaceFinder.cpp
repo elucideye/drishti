@@ -227,7 +227,7 @@ void FaceFinder::initACF(const cv::Size& inputSizeUp)
     impl->acf->setRotation(impl->outputOrientation);
     impl->acf->setLogger(impl->logger);
 
-    impl->acf->setUsePBO(bool(impl->glVersionMajor >= 3));    
+    impl->acf->setUsePBO((impl->glVersionMajor >= 3) && impl->usePBO);
 }
 
 // ### Fifo ###

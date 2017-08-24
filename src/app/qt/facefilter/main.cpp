@@ -111,8 +111,11 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
     
     // https://stackoverflow.com/questions/40385482/why-cant-i-use-opengl-es-3-0-in-qt
     GLVersion glVersion { 2, 0 };
-#if defined(QT_OPENGL_ES_3)
+    bool usePBO = false;
+    
+#if defined(QT_OPENGL_ES_3) && defined(DRISHTI_OPENGL_ES3)
     glVersion.major = 3;
+    usePBO = true;
 #endif
 
     QSurfaceFormat::setDefaultFormat(createGLESSurfaceFormat(glVersion));
@@ -156,6 +159,14 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
     // * QMLCameraManager : for camera customizations    
     // * FrameHandlerManager : for application specific settings (depends on camera "name")
     auto listener = createCameraListener(root, logger, glVersion);
+    listener->setUsePBO(usePBO);
+    
+#if defined(Q_OS_IOS)
+    // On iOS we do not receive the
+    // * iOS does not receive QCamera::LoadedStatus, but we can configure the camera manually
+    // * Android does receive  QCamera::LoadedStatus,so we wait fot the signal
+    listener->configureCamera(); 
+#endif
     
     view.showFullScreen(); 
     return app.exec();
@@ -164,12 +175,15 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
 // QT uses a shared library for Android builds, so we must
 // explicitly export the main function for it to be loadable
 // with standard dlopen/dlsym pairs.
+
+// clang-format off
 #if defined(Q_OS_ANDROID)
-#include "facefilter_export.h"
-#define FACEFILTER_QT_EXPORT FACEFILTER_EXPORT
+#  include "facefilter_export.h"
+#  define FACEFILTER_QT_EXPORT FACEFILTER_EXPORT
 #else
-#define FACEFILTER_QT_EXPORT
+#  define FACEFILTER_QT_EXPORT
 #endif
+// clang-format on
 
 extern "C" FACEFILTER_QT_EXPORT int main(int argc, char** argv)
 {

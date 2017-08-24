@@ -243,7 +243,10 @@ target_link_libraries(${app_name}
   nlohmann_json)
 
 if(DRISHTI_OPENGL_ES3)
-  target_compile_definitions(${app_name} PUBLIC QT_OPENGL_ES_3=1)
+  # Note:
+  # * QT_OPENGL_ES_3: must be set manually for Android
+  # * QT_OPENGL_ES_3 == ON for iOS builds
+  target_compile_definitions(${app_name} PUBLIC QT_OPENGL_ES_3=1 DRISHTI_OPENGL_ES3=1)
 endif()
 
 if(DRISHTI_USE_BEAST)

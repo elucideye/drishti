@@ -56,6 +56,16 @@ public:
 
     static FrameHandlerManager* get(const std::string& name = {}, const std::string& description = {}, const GLVersion &glVersion = {});
 
+    void setUsePBO(bool flag)
+    {
+        m_usePBO = flag;
+    }
+    
+    bool getUsePBO()
+    {
+        return m_usePBO;
+    }
+    
     int getOrientation() const
     {
         return m_orientation;
@@ -135,6 +145,7 @@ protected:
 
     GLVersion m_glVersion;
     
+    bool m_usePBO = false;
     int m_orientation = 0;
     std::string m_deviceName;
     std::string m_deviceDescription;
