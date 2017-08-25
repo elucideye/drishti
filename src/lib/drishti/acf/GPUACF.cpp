@@ -841,10 +841,9 @@ cv::Mat ACF::getChannelsImpl()
 {
     using drishti::core::unpack;
 
-    const auto tag = DRISHTI_LOCATION_SIMPLE;
-    std::stringstream ss;
-    
     // clang-format off
+    std::stringstream ss;
+    const auto tag = DRISHTI_LOCATION_SIMPLE;        
     drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed)
     {
         if (impl->m_logger)
@@ -852,7 +851,6 @@ cv::Mat ACF::getChannelsImpl()
             impl->m_logger->info("TIMING:{}:{};total={}", tag, ss.str(), elapsed);
         }
     }; // clang-format on
-
     
     if (impl->needsTextures())
     {
@@ -860,13 +858,11 @@ cv::Mat ACF::getChannelsImpl()
             drishti::core::ScopeTimeLogger glFinishTimer = [&](double t) { ss << "glFlush=" << t << ";"; };
             if (auto pTransfer = dynamic_cast<MemTransferOptimized*>(impl->rgb2luvProc->getMemTransferObj()))
             {
-                impl->m_logger->info("OPTIMIZED_TRANSFER");
                 pTransfer->flush();
             }
             else
             {
                 glFlush();
-                impl->m_logger->info("UNOPTIMIZED_TRANSFER");                
             }
         }
 
