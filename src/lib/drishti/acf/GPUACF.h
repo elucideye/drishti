@@ -52,6 +52,9 @@ public:
 
     static void tryEnablePlatformOptimizations();
 
+    void setUsePBO(bool flag);
+    bool getUsePBO() const;
+    
     void setLogger(std::shared_ptr<spdlog::logger>& logger);
     bool getChannelStatus();
     bool getFlowStatus();
@@ -106,6 +109,8 @@ public:
 
     // Retrieve Luv image in packed CV_8UC4 (RGBA) format
     const cv::Mat& getLuv();
+
+    void beginTransfer();
 
 protected:
     cv::Mat getChannelsImpl();

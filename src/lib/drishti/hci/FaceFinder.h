@@ -76,6 +76,9 @@ public:
         float faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
         float acfCalibration = 0.f;
         float regressorCropScale = 0.f;
+        int glVersionMajor = 2;
+        int glVersionMinor = 0; // future use
+        bool usePBO = false;
 
         bool renderFaces = true;
         bool renderPupils = true;

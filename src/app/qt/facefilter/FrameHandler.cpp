@@ -15,11 +15,16 @@
 #include "drishti/core/Logger.h"
 #include "drishti/core/make_unique.h"
 
+#include "nlohmann_json.hpp" // nlohman-json + ANDROID stdlib patch
+
 // clang-format off
 #if DRISHTI_USE_BEAST
 #  include "ImageLogger.h"
 #endif
 // clang-format on
+
+#include <QTextStream>
+#include <QFile>
 
 // Sample:
 //
@@ -39,15 +44,19 @@
 
 #define DRISHTI_STACK_LOGGING_DEMO 0
 
+std::unique_ptr<nlohmann::json> loadJSON(spdlog::logger& logger);
+
 FrameHandlerManager* FrameHandlerManager::m_instance = nullptr;
 
-FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& name, const std::string& description)
-    : m_settings(settings)
+FrameHandlerManager::FrameHandlerManager(const std::string& name, const std::string& description, const GLVersion &glVersion) :
+    m_glVersion(glVersion)
 {
     m_logger = drishti::core::Logger::create("drishti");
-    m_logger->info("FaceFinder #################################################################");
+    m_logger->info("FrameHandlerManager #################################################################");
 
-    const auto& device = (*settings)[name];
+    m_settings = loadJSON(*m_logger);
+
+    const auto& device = (*m_settings)[name];
     if (device.empty())
     {
         m_logger->error("Failure to parse settings for device: {}", name);
@@ -55,7 +64,7 @@ FrameHandlerManager::FrameHandlerManager(Settings* settings, const std::string& 
     }
 
 #if DRISHTI_USE_BEAST
-    const auto& address = (*settings)["ipAddress"];
+    const auto& address = (*m_settings)["ipAddress"];
     if (!address.empty())
     {
         bool active = address["active"].get<bool>();
@@ -176,11 +185,44 @@ cv::Size FrameHandlerManager::getSize() const
 }
 
 FrameHandlerManager*
-FrameHandlerManager::get(nlohmann::json* settings, const std::string& name, const std::string& description)
+FrameHandlerManager::get(const std::string& name, const std::string& description, const GLVersion &glVersion)
 {
     if (!m_instance)
     {
-        m_instance = new FrameHandlerManager(settings, name, description);
+        m_instance = new FrameHandlerManager(name, description, glVersion);
     }
     return m_instance;
 }
+
+//////
+
+std::unique_ptr<nlohmann::json> loadJSON(spdlog::logger& logger)
+{
+    std::unique_ptr<nlohmann::json> json;
+
+    QString inputFilename(":/facefilter.json");
+    QFile inputFile(inputFilename);
+    if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        logger.error("Can't open file");
+        throw std::runtime_error("loadJSON: Can't open file");
+    }
+
+    QTextStream in(&inputFile);
+    if (in.status() == QTextStream::Ok)
+    {
+        std::stringstream stream;
+        stream << in.readAll().toStdString();
+
+        json = drishti::core::make_unique<nlohmann::json>();
+        stream >> (*json);
+    }
+    else
+    {
+        throw std::runtime_error("loadJSON: Can't read file");
+    }
+    
+    return json;
+}
+
+    

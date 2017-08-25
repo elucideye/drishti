@@ -110,10 +110,16 @@ struct VideoFilterRunnable::Impl
         settings.minDetectionDistance = manager->getDetectionParameters().m_minDepth;
         settings.maxDetectionDistance = manager->getDetectionParameters().m_maxDepth;
         settings.faceFinderInterval = manager->getDetectionParameters().m_interval;
+        settings.glVersionMajor = manager->getGLVersion().major;
+        settings.glVersionMinor = manager->getGLVersion().minor;
+        settings.usePBO = manager->getUsePBO();
+
+        m_logger = manager->getLogger();
 
         auto* pSettings = manager->getSettings();
         if (pSettings != nullptr)
         {
+            settings.acfCalibration = 0.0;
             // clang-format off
             try { settings.frameDelay = (*pSettings)["frameDelay"].get<int>(); } catch(...) {}
             try { settings.doLandmarks = (*pSettings)["doLandmarks"].get<bool>(); } catch(...) {}
@@ -122,6 +128,8 @@ struct VideoFilterRunnable::Impl
             try { settings.acfCalibration = (*pSettings)["cascadeCalibration"].get<float>(); } catch(...) {}
             try { settings.regressorCropScale = (*pSettings)["regressorCropScale"].get<float>(); } catch(...) {}
             // clang-format on
+
+            m_logger->info("DJH: settings ################### {}, {}", settings.doFlow, settings.acfCalibration);
         }
 
         drishti::hci::FaceFinder::tryEnablePlatformOptimizations();
@@ -150,6 +158,8 @@ struct VideoFilterRunnable::Impl
             m_detector->setBrightness(value);
         }
     }
+
+    std::shared_ptr<spdlog::logger> m_logger;
 
     std::chrono::high_resolution_clock::time_point m_tic;
 
@@ -245,6 +255,10 @@ bool VideoFilterRunnable::isFrameFormatYUV(const QVideoFrame& frame)
 // Create a texture from the image data.
 GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
 {
+    m_pImpl->m_logger->info("DJH VideoFilterRunnable::createTestureForFrame()");
+    auto tag = glGetString(GL_VERSION);
+    m_pImpl->m_logger->info("DJH tag drishti {}", tag);   
+    
     GLuint outTexture = detectFaces(input);
     return outTexture;
 }

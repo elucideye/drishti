@@ -226,6 +226,8 @@ void FaceFinder::initACF(const cv::Size& inputSizeUp)
     impl->acf = std::make_shared<ogles_gpgpu::ACF>(impl->glContext, size, sizes, featureKind, grayWidth, flowWidth, impl->debugACF);
     impl->acf->setRotation(impl->outputOrientation);
     impl->acf->setLogger(impl->logger);
+
+    impl->acf->setUsePBO((impl->glVersionMajor >= 3) && impl->usePBO);
 }
 
 // ### Fifo ###
@@ -1035,13 +1037,16 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
     // Get weak ref to underlying ACF detector
     impl->detector = dynamic_cast<drishti::acf::Detector*>(impl->faceDetector->getDetector());
 
-    if (impl->detector && (impl->acfCalibration != 0.f))
-    {
-        // Perform modification
-        drishti::acf::Detector::Modify dflt;
-        dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", impl->acfCalibration };
-        impl->detector->acfModify(dflt);
+    if (impl->detector)
+    {        
+        if (impl->acfCalibration != 0.f)
+        {
+            // Perform modification
+            drishti::acf::Detector::Modify dflt;
+            dflt.cascThr = { "cascThr", -1.0 };
+            dflt.cascCal = { "cascCal", impl->acfCalibration };
+            impl->detector->acfModify(dflt);
+        }
     }
 
     impl->faceDetector->setDetectionTimeLogger(impl->timerInfo.detectionTimeLogger);

@@ -5,6 +5,7 @@
 DRISHTI_BUILD_LOCAL=(
     DRISHTI_BUILD_QT=ON
     DRISHTI_COTIRE=OFF
+    DRISHTI_OPENGL_ES3=ON
 )
 
 TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
@@ -23,7 +24,7 @@ COMMAND=(
     "${DRISHTI_BUILD_LOCAL[*]} "
     "${DRISHTI_POLLY_ARGS[*]} "
     "--jobs 8 "
-    "--strip "
+#    "--strip "
 )
 
 COMMAND+=( $(add_polly_commands "$@") )

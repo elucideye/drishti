@@ -15,6 +15,7 @@
 
 #include "drishti/core/drishti_core.h"
 #include "drishti/core/make_unique.h"
+#include "drishti/graphics/drishti_graphics.h"
 
 #include <QQuickItem>
 #include <QCamera>
@@ -29,6 +30,12 @@
 // ###################################################################################
 // ############################### QMLCameraManager ##################################
 // ###################################################################################
+
+QMLCameraManager::QMLCameraManager(QCamera* camera, std::shared_ptr<spdlog::logger>& logger)
+    : m_camera(camera)
+    , m_logger(logger)
+{
+}
 
 std::string QMLCameraManager::getDeviceName() const
 {
@@ -50,73 +57,73 @@ cv::Size QMLCameraManager::getSize() const
     return m_size;
 }
 
+// Note: See example settings
+// https://github.com/RSATom/Qt/blob/master/qtmultimedia/tests/auto/unit/qcamera/tst_qcamera.cpp
+
 cv::Size QMLCameraManager::configure()
 {
     return m_size = configureCamera();
 }
 
-std::unique_ptr<QMLCameraManager>
-QMLCameraManager::create(QQuickItem* root, std::shared_ptr<spdlog::logger>& logger)
-{
-    // Manage the camera:
-    QObject* qmlCamera = root->findChild<QObject*>("CameraObject");
-    assert(qmlCamera != nullptr);
-
-    QCamera* camera = qvariant_cast<QCamera*>(qmlCamera->property("mediaObject"));
-    assert(camera != nullptr);
-
-    QCameraImageProcessing* processing = camera->imageProcessing();
-    if (processing->isAvailable())
-    {
-        processing->setWhiteBalanceMode(QCameraImageProcessing::WhiteBalanceAuto);
-    }
-
-    std::unique_ptr<QMLCameraManager> cameraManager;
-#if defined(Q_OS_ANDROID)
-    cameraManager = drishti::core::make_unique<QMLCameraManagerAndroid>(camera, logger);
-#elif defined(Q_OS_IOS) || defined(Q_OS_OSX)
-    cameraManager = drishti::core::make_unique<QMLCameraManagerApple>(camera, logger);
-#elif defined(Q_OS_WIN)
-    // TODO: Specialize
-    cameraManager = drishti::core::make_unique<QMLCameraManager>(camera, logger);
-#elif defined(Q_OS_UNIX)
-    // TODO: Specialize
-    cameraManager = drishti::core::make_unique<QMLCameraManager>(camera, logger);
-#endif
-
-    return cameraManager;
-}
-
-// ###################################################################################
-// ################################## Apple ##########################################
-// ###################################################################################
-
-// Note: See example settings
-// https://github.com/RSATom/Qt/blob/master/qtmultimedia/tests/auto/unit/qcamera/tst_qcamera.cpp
-
-cv::Size QMLCameraManagerApple::configureCamera()
+cv::Size QMLCameraManager::configureCamera()
 {
     cv::Size bestSize;
-
-    // Not available in Android:
-    // https://bugreports.qt.io/browse/QTBUG-46470
 
     // Try the highest resolution NV{12,21} format format:
     // This should work for both Android and iOS
     std::vector<QVideoFrame::PixelFormat> desiredFormats;
 
-#if defined(Q_OS_IOS)
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     desiredFormats = { QVideoFrame::Format_NV12, QVideoFrame::Format_NV21 };
 #else
     desiredFormats = { QVideoFrame::Format_ARGB32 };
 #endif
+    
     auto viewfinderSettings = m_camera->supportedViewfinderSettings();
+
+    QCameraImageProcessing* processing = m_camera->imageProcessing();
+    if (processing->isAvailable())
+    {
+        processing->setWhiteBalanceMode(QCameraImageProcessing::WhiteBalanceAuto);
+    }    
 
     auto pExposure = m_camera->exposure();
     if (pExposure)
     {
-        m_logger->info("Exposure avaialble: {}", int(pExposure->isAvailable()));
-        pExposure->setExposureMode(QCameraExposure::ExposureAuto);
+        std::vector<QCameraExposure::ExposureMode> exposureModes =
+        {
+            QCameraExposure::ExposureAuto,
+            QCameraExposure::ExposurePortrait,
+            QCameraExposure::ExposureBacklight
+        };
+        for (const auto &mode : exposureModes)
+        {
+            if (pExposure->isExposureModeSupported(mode))
+            {
+                pExposure->setExposureMode(mode);
+                break;
+            }
+        }
+        
+        std::vector<QCameraExposure::MeteringMode> meteringModes =
+        {
+            QCameraExposure::MeteringSpot,            
+            QCameraExposure::MeteringMatrix,
+            QCameraExposure::MeteringAverage
+        };
+        for (const auto &mode : meteringModes)
+        {
+            if (pExposure->isMeteringModeSupported(mode))
+            {
+                m_logger->info("DJH Exposure metering mode supported: {}", int(mode));
+                pExposure->setMeteringMode(mode);
+                if(mode == QCameraExposure::MeteringSpot)
+                {
+                    pExposure->setSpotMeteringPoint({0.5, 0.5});
+                }
+                break;
+            }
+        }
     }
 
     auto pImageProcessing = m_camera->imageProcessing();
@@ -151,51 +158,6 @@ cv::Size QMLCameraManagerApple::configureCamera()
     m_camera->setViewfinderSettings(best.second);
 
     bestSize = { best.second.resolution().width(), best.second.resolution().height() };
-
-    return bestSize;
-}
-
-// ###################################################################################
-// ################################## Android ########################################
-// ###################################################################################
-
-cv::Size QMLCameraManagerAndroid::configureCamera()
-{
-    cv::Size bestSize;
-
-    // viewfinderSettings doesn't work for Android:
-    // * https://bugreports.qt.io/browse/QTBUG-50422
-    // Experiments show that QCameraImageCapture can be used for this:
-    // * https://github.com/headupinclouds/gatherer/issues/109
-    // (probably not quite correctly)
-
-    std::pair<QSize, int> best;
-    QCameraImageCapture* imageCapture = new QCameraImageCapture(m_camera);
-    QList<QVideoFrame::PixelFormat> formats = imageCapture->supportedBufferFormats();
-
-    QList<QSize> resolutions = imageCapture->supportedResolutions();
-
-    if (resolutions.size())
-    {
-        // This seems to work on Android, but not for iOS
-        for (auto& i : resolutions)
-        {
-            int area = i.width() * i.height();
-            if (area > best.second)
-            {
-                best = { i, area };
-            }
-            m_logger->info("video: {} {}", i.width(), i.height());
-        }
-
-        m_logger->info("best: {} {}", best.first.width(), best.first.height());
-
-        bestSize = { best.first.width(), best.first.height() };
-
-        QImageEncoderSettings imageSettings;
-        imageSettings.setResolution(best.first);
-        imageCapture->setEncodingSettings(imageSettings);
-    }
 
     return bestSize;
 }

@@ -319,6 +319,8 @@ struct ACF::Impl
     cv::Mat m_channels;
     bool m_hasChannelOutput = false;
 
+    bool m_usePBO = false;
+
     bool needsTextures() const
     {
         bool status = false;
@@ -378,6 +380,16 @@ void ACF::setDoLuvTransfer(bool flag)
 void ACF::setDoAcfTrasfer(bool flag)
 {
     impl->m_doAcfTransfer = flag;
+}
+
+void ACF::setUsePBO(bool flag)
+{
+    impl->m_usePBO = flag;
+}
+
+bool ACF::getUsePBO() const
+{
+    return impl->m_usePBO;
 }
 
 // ACF base resolution to Grayscale image
@@ -506,6 +518,51 @@ void ACF::operator()(const FrameInput& frame)
     impl->frameIndex++;
 
     VideoSource::operator()(frame); // call main method
+
+    // Start the transfer asynchronously here:
+    if(impl->m_usePBO)
+    {
+        beginTransfer();
+    }
+}
+
+void ACF::beginTransfer()
+{
+    if (impl->m_doAcfTransfer)
+    {
+        switch (impl->m_featureKind)
+        {
+            case kLUVM012345:
+            {
+                impl->mergeProcLUVG->getResultData(nullptr);
+                impl->reduceGradHistProcASmooth->getResultData(nullptr);
+                impl->reduceGradHistProcBSmooth->getResultData(nullptr);
+            }
+            break;
+                
+            case kM012345:
+            {
+                impl->mergeProcLG56->getResultData(nullptr);
+                impl->reduceGradHistProcASmooth->getResultData(nullptr);
+            }
+            break;
+        }
+    }
+
+    if (impl->m_doGray)
+    {
+        impl->reduceRgbSmoothProc->getResultData(nullptr);
+    }
+
+    if (impl->m_doLuvTransfer)
+    {
+        impl->luvTransposeOut->getResultData(nullptr);
+    }
+        
+    if (impl->m_doFlow)
+    {
+        impl->flowBgraInterface->getResultData(nullptr);
+    }
 }
 
 void ACF::preConfig()
@@ -784,10 +841,9 @@ cv::Mat ACF::getChannelsImpl()
 {
     using drishti::core::unpack;
 
-    const auto tag = DRISHTI_LOCATION_SIMPLE;
-    std::stringstream ss;
-    
     // clang-format off
+    std::stringstream ss;
+    const auto tag = DRISHTI_LOCATION_SIMPLE;        
     drishti::core::ScopeTimeLogger scopeTimeLogger = [&](double elapsed)
     {
         if (impl->m_logger)
@@ -795,7 +851,6 @@ cv::Mat ACF::getChannelsImpl()
             impl->m_logger->info("TIMING:{}:{};total={}", tag, ss.str(), elapsed);
         }
     }; // clang-format on
-
     
     if (impl->needsTextures())
     {

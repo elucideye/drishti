@@ -19,6 +19,8 @@
 
 #include "nlohmann_json.hpp" // nlohman-json
 
+#include "GLVersion.h"
+
 #include <functional>
 #include <vector>
 #include <memory>
@@ -42,17 +44,28 @@ public:
         float m_interval; // seconds
     };
 
+
     using Settings = nlohmann::json;
     using FrameHandler = std::function<void(const cv::Mat&)>;
 
-    FrameHandlerManager(Settings* settings, const std::string& name, const std::string& description);
+    FrameHandlerManager(const std::string& name, const std::string& description, const GLVersion &glVersion);
 
     ~FrameHandlerManager();
 
     bool good() const;
 
-    static FrameHandlerManager* get(Settings* settings = nullptr, const std::string& name = {}, const std::string& description = {});
+    static FrameHandlerManager* get(const std::string& name = {}, const std::string& description = {}, const GLVersion &glVersion = {});
 
+    void setUsePBO(bool flag)
+    {
+        m_usePBO = flag;
+    }
+    
+    bool getUsePBO()
+    {
+        return m_usePBO;
+    }
+    
     int getOrientation() const
     {
         return m_orientation;
@@ -106,6 +119,11 @@ public:
     }
 #endif
 
+    const GLVersion& getGLVersion() const
+    {
+        return m_glVersion;
+    }
+
     const DetectionParams& getDetectionParameters()
     {
         return m_detectionParams;
@@ -116,12 +134,18 @@ public:
         return m_faceMonitor.get();
     }
 
-    Settings* getSettings() { return m_settings; }
-    const Settings* getSettings() const { return m_settings; }
+    Settings* getSettings() { return m_settings.get(); }
+    const Settings* getSettings() const { return m_settings.get(); }
 
 protected:
-    Settings* m_settings = nullptr;
+    
+    std::unique_ptr<Settings> m_settings;
+    
     DetectionParams m_detectionParams;
+
+    GLVersion m_glVersion;
+    
+    bool m_usePBO = false;
     int m_orientation = 0;
     std::string m_deviceName;
     std::string m_deviceDescription;

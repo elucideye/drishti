@@ -84,6 +84,10 @@ struct FaceFinder::Impl
         , renderFaces(args.renderFaces)
         , renderPupils(args.renderPupils)
         , renderCorners(args.renderCorners)
+
+        , glVersionMajor(args.glVersionMajor)
+        , glVersionMinor(args.glVersionMinor)
+        , usePBO(args.usePBO)
     {
     }
 
@@ -182,6 +186,10 @@ struct FaceFinder::Impl
     bool renderFaces = true;
     bool renderPupils = true;
     bool renderCorners = true;
+
+    int glVersionMajor = 2;
+    int glVersionMinor = 0;
+    bool usePBO = false;
 };
 
 DRISHTI_HCI_NAMESPACE_END
