@@ -789,7 +789,7 @@ int FaceFinder::detectOnly(ScenePrimitives& scene, bool doDetection)
         core::ScopeTimeLogger scopeTimeLogger = [this](double t) { impl->timerInfo.detectionTimeLogger(t); };
         std::vector<double> scores;
         (*impl->detector)(*scene.m_P, scene.objects(), &scores);
-        if (impl->doNMSGlobal)
+        if (impl->doSingleFace)
         {
             chooseBest(scene.objects(), scores);
         }
@@ -810,8 +810,6 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
     core::ScopeTimeLogger scopeTimeLogger = [this](double t) {
         impl->logger->info("FULL_CPU_PATH: {}", t);
     };
-
-    //assert(scene.objects().size() == 0); /* can be precomputed now */
 
     if (impl->detector && (!doDetection || scene.m_P))
     {
@@ -878,8 +876,14 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
                     }
                 }
             }
-
-            scene.faces() = faces;
+            
+            // Copy face models for valid tracks:
+            drishti::face::FaceTracker::FaceTrackVec facesOut;
+            (*impl->faceTracker)(faces, facesOut);
+            for(const auto & f : facesOut)
+            {
+                scene.faces().emplace_back(f.first);
+            }
         }
     }
 
@@ -1024,13 +1028,13 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 
 #if DRISHTI_HCI_FACEFINDER_DO_TRACKING
     // Insntiate a face detector w/ a tracking component:
-    auto faceDetectorAndTracker = std::make_shared<drishti::face::FaceDetectorAndTracker>(resources);
+    auto faceDetectorAndTracker = drishti::core::make_unique<drishti::face::FaceDetectorAndTracker>(resources);
     faceDetectorAndTracker->setMaxTrackAge(2.0);
-    impl->faceDetector = faceDetectorAndTracker;
+    impl->faceDetector = std::move(faceDetectorAndTracker);
 #else
-    impl->faceDetector = std::make_shared<drishti::face::FaceDetector>(resources);
+    impl->faceDetector = drishti::core::make_unique<drishti::face::FaceDetector>(resources);
 #endif
-    impl->faceDetector->setDoNMSGlobal(impl->doNMSGlobal); // single detection only
+    impl->faceDetector->setDoNMSGlobal(impl->doSingleFace); // single detection only
     impl->faceDetector->setDoNMS(true);
     impl->faceDetector->setInits(1);
 
@@ -1078,6 +1082,12 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 
         impl->faceDetector->setFaceDetectorMean(faceDetectorMean);
     }
+    
+    impl->faceTracker = core::make_unique<face::FaceTracker>(
+        impl->minFaceSeparation,
+        impl->minTrackHits,
+        impl->maxTrackMisses
+    );
 }
 
 static void smooth(double &t0, double t1, double alpha=0.95)

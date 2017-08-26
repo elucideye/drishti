@@ -110,6 +110,7 @@ struct VideoFilterRunnable::Impl
         settings.minDetectionDistance = manager->getDetectionParameters().m_minDepth;
         settings.maxDetectionDistance = manager->getDetectionParameters().m_maxDepth;
         settings.faceFinderInterval = manager->getDetectionParameters().m_interval;
+        settings.doSingleFace = manager->getDetectionParameters().m_singleFace;
         settings.glVersionMajor = manager->getGLVersion().major;
         settings.glVersionMinor = manager->getGLVersion().minor;
         settings.usePBO = manager->getUsePBO();
@@ -255,9 +256,8 @@ bool VideoFilterRunnable::isFrameFormatYUV(const QVideoFrame& frame)
 // Create a texture from the image data.
 GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
 {
-    m_pImpl->m_logger->info("DJH VideoFilterRunnable::createTestureForFrame()");
-    auto tag = glGetString(GL_VERSION);
-    m_pImpl->m_logger->info("DJH tag drishti {}", tag);   
+    m_pImpl->m_logger->info("VideoFilterRunnable::createTestureForFrame()");
+    m_pImpl->m_logger->info("OpenGL: {}", glGetString(GL_VERSION));
     
     GLuint outTexture = detectFaces(input);
     return outTexture;

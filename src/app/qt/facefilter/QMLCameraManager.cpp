@@ -115,7 +115,7 @@ cv::Size QMLCameraManager::configureCamera()
         {
             if (pExposure->isMeteringModeSupported(mode))
             {
-                m_logger->info("DJH Exposure metering mode supported: {}", int(mode));
+                m_logger->info("Exposure metering mode supported: {}", int(mode));
                 pExposure->setMeteringMode(mode);
                 if(mode == QCameraExposure::MeteringSpot)
                 {

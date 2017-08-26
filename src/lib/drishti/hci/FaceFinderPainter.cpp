@@ -207,10 +207,10 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
 #if DRISHTI_HCI_FACE_FINDER_PAINTER_SHOW_CIRCLE
     {
         const auto toc = std::chrono::high_resolution_clock::now();
-        const double elapsed = std::chrono::duration<double>(toc - m_pimpl->tic).count();
+        const double elapsed = std::chrono::duration<double>(toc - m_pImpl->m_tic).count();
         const int seconds = int(elapsed);
-        int index = seconds % m_pimpl->positions.size();
-        const auto& position = m_pimpl->positions[index];
+        int index = seconds % m_pImpl->m_positions.size();
+        const auto& position = m_pImpl->m_positions[index];
         const float scale = std::cos(elapsed * 4.f) * 0.01;
         m_circle->setRadius(0.05f + scale);
         m_circle->setCenter({ position.x, position.y });

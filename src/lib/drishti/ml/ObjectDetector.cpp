@@ -13,11 +13,14 @@
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/ObjectDetector.h"
 
+#include <iostream>
+
 DRISHTI_ML_NAMESPACE_BEGIN
 
 void ObjectDetector::prune(std::vector<cv::Rect>& objects, std::vector<double>& scores)
 {
     CV_Assert(objects.size() == scores.size());
+
 
     // Assum sorted detections:
     if (objects.size() > 1)
@@ -25,7 +28,7 @@ void ObjectDetector::prune(std::vector<cv::Rect>& objects, std::vector<double>& 
         int cutoff = 1;
         for (int i = 1; i < std::min(m_maxDetectionCount, objects.size()); i++)
         {
-            cutoff = i;
+            cutoff = i+1;
             if (scores[i] < (scores[0] * m_detectionScorePruneRatio))
             {
                 break;

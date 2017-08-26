@@ -23,6 +23,7 @@ sugar_files(DRISHTI_FACE_SRCS
   FaceIO.cpp
   FaceMesh.cpp
   FaceModelEstimator.cpp
+  FaceTracker.cpp  
   face_util.cpp
   )
 
@@ -37,6 +38,7 @@ sugar_files(DRISHTI_FACE_HDRS_PUBLIC
   FaceImpl.h  
   FaceMesh.h
   FaceModelEstimator.h
+  FaceTracker.h
   drishti_face.h
   face_util.h
   )
