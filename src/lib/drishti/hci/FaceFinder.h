@@ -138,6 +138,8 @@ protected:
     void computeGazePoints();
     void updateEyes(GLuint inputTexId, const ScenePrimitives& scene);
 
+    void scaleToFullResolution(std::vector<drishti::face::FaceModel> &faces);
+    
     void notifyListeners(const ScenePrimitives& scene, const TimePoint& time, bool isFull);
     bool hasValidFaceRequest(const ScenePrimitives& scene, const TimePoint& time) const;
 

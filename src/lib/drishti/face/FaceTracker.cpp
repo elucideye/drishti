@@ -39,21 +39,23 @@ struct FaceTracker::Impl
         }
         else
         {
-            cv::Mat1f C(m_tracks.size(), facesIn.size(), std::numeric_limits<float>::max());
-            for(int i = 0; i < m_tracks.size(); i++)
-            {
-                for(int j = 0; j < facesIn.size(); j++)
-                {
-                    C(i,j) = cv::norm(*m_tracks[i].first.eyesCenter - *facesIn[j].eyesCenter);
-                }
-            }
-        
+            
             // assign new detections to existing tracks:
             core::DMatchVec outMatches;
             core::IntVec inliers1, inliers2;
-
-            // ... linear assignment
-            core::hungarian(C, outMatches, inliers1, inliers2, C.rows, C.cols);
+            if(facesIn.size())
+            {
+                // ... linear assignment
+                cv::Mat1f C(m_tracks.size(), facesIn.size(), std::numeric_limits<float>::max());
+                for(int i = 0; i < m_tracks.size(); i++)
+                {
+                    for(int j = 0; j < facesIn.size(); j++)
+                    {
+                        C(i,j) = cv::norm(*m_tracks[i].first.eyesCenter - *facesIn[j].eyesCenter);
+                    }
+                }
+                core::hungarian(C, outMatches, inliers1, inliers2, C.rows, C.cols);
+            }
 
             std::vector<std::uint8_t> hits(m_tracks.size(), 0);
             for(const auto &m : outMatches)
