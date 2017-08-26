@@ -118,17 +118,20 @@ public:
 
         if (m_eyeRegressor.size() && m_eyeRegressor[0] && m_eyeRegressor[1] && m_doEyeRefinement && faces.size())
         {
-            DRISHTI_EYE::EyeModel eyeR, eyeL;
-            segmentEyes(Ib.Ib, faces[0], eyeR, eyeL);
-            if (eyeR.eyelids.size())
+            for(auto &f : faces)
             {
-                faces[0].eyeFullR = eyeR;
-                faces[0].eyeRightCenter = core::centroid(eyeR.eyelids);
-            }
-            if (eyeL.eyelids.size())
-            {
-                faces[0].eyeFullL = eyeL;
-                faces[0].eyeLeftCenter = core::centroid(eyeL.eyelids);
+                DRISHTI_EYE::EyeModel eyeR, eyeL;
+                segmentEyes(Ib.Ib, f, eyeR, eyeL);
+                if (eyeR.eyelids.size())
+                {
+                    f.eyeFullR = eyeR;
+                    f.eyeRightCenter = core::centroid(eyeR.eyelids);
+                }
+                if (eyeL.eyelids.size())
+                {
+                    f.eyeFullL = eyeL;
+                    f.eyeLeftCenter = core::centroid(eyeL.eyelids);
+                }
             }
         }
     }

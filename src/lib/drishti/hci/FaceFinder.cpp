@@ -900,6 +900,11 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
         {
             scene.faces().emplace_back(f);
         }
+        
+        // Sort near to far:
+        std::sort(scene.faces().begin(), scene.faces().end(), [](const face::FaceModel &a, const face::FaceModel &b) {
+            return (a.eyesCenter->z < b.eyesCenter->z);
+        });
     }
     
     return 0;
@@ -921,19 +926,6 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
 
         // Limit to points on iris:
         const auto& eyeWarps = impl->eyeFilter->getEyeWarps();
-// Can use this to retrieve view of internal filters:
-#define DRISHTI_VIEW_BLOBS_OUTPUT 0
-#if DRISHTI_VIEW_BLOBS_OUTPUT
-        if (impl->blobFilter)
-        {
-            cv::Mat canvas = impl->blobFilter->paint();
-            if (!canvas.empty())
-            {
-                cv::imshow("blobFilter", canvas);
-                cv::waitKey(0);
-            }
-        }
-#endif
 
         if (impl->doEyeFlow)
         { // Grab optical flow results:
