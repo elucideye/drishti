@@ -9,8 +9,8 @@
 */
 
 #include "drishti/face/FaceTracker.h" // FaceModel.h
-#include "drishti/core/hungarian.h" 
 #include "drishti/core/make_unique.h"
+#include "drishti/core/hungarian.h"
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
@@ -39,37 +39,36 @@ struct FaceTracker::Impl
         }
         else
         {
+            std::unordered_map<int, int> direct_assignment;
+            std::unordered_map<int, int> reverse_assignment;
+            std::vector<std::vector<double>> C;
             
-            // assign new detections to existing tracks:
-            core::DMatchVec outMatches;
-            core::IntVec inliers1, inliers2;
             if(facesIn.size())
             {
-                // ... linear assignment
-                cv::Mat1f C(m_tracks.size(), facesIn.size(), std::numeric_limits<float>::max());
+                C = std::vector<std::vector<double>>(m_tracks.size(), std::vector<double>(facesIn.size()));
                 for(int i = 0; i < m_tracks.size(); i++)
                 {
                     for(int j = 0; j < facesIn.size(); j++)
                     {
-                        C(i,j) = cv::norm(*m_tracks[i].first.eyesCenter - *facesIn[j].eyesCenter);
+                        C[i][j] = cv::norm(*m_tracks[i].first.eyesCenter - *facesIn[j].eyesCenter);
                     }
                 }
-                core::hungarian(C, outMatches, inliers1, inliers2, C.rows, C.cols);
+                core::MinimizeLinearAssignment(C, direct_assignment, reverse_assignment);
             }
 
             std::vector<std::uint8_t> hits(m_tracks.size(), 0);
-            for(const auto &m : outMatches)
+            for(const auto &m : direct_assignment)
             {
                 // Create a new track, or update an old track:
-                if(m.distance > m_costThreshold)
+                if(C[m.first][m.second] > m_costThreshold)
                 {
-                    m_tracks.emplace_back(facesIn[m.trainIdx], TrackInfo(m_id++));
+                    m_tracks.emplace_back(facesIn[m.second], TrackInfo(m_id++));
                 }
                 else
                 {
-                    m_tracks[m.queryIdx].second.hit();
-                    m_tracks[m.queryIdx].first = facesIn[m.trainIdx];
-                    hits[m.queryIdx] = 1;
+                    m_tracks[m.first].second.hit();
+                    m_tracks[m.first].first = facesIn[m.second];
+                    hits[m.first] = 1;
                 }
             }
             
