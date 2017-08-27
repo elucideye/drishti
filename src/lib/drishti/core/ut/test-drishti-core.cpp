@@ -34,24 +34,24 @@ TEST(HungarianAssignment, hungarian)
         { 2.5f, 1.5f },
         { 3.0f, 2.5f }
     };
-
-    cv::Mat1f C(points1.size(), points2.size(), 0.f);
+    
+    std::unordered_map<int, int> direct_assignment;
+    std::unordered_map<int, int> reverse_assignment;
+    std::vector<std::vector<double>> C(points1.size(), std::vector<double>(points2.size(), std::numeric_limits<float>::max()));
 
     for (int i = 0; i < points1.size(); i++)
     {
         for (int j = 0; j < points2.size(); j++)
         {
-            C(i,j) = cv::norm(points1[i] - points2[j]);
+            C[i][j] = cv::norm(points1[i] - points2[j]);
         }
     }
-
-    drishti::core::DMatchVec outMatches;
-    drishti::core::IntVec inliers1, inliers2;
-    drishti::core::hungarian(C, outMatches, inliers1, inliers2, C.rows, C.cols);
-
-    ASSERT_EQ(outMatches.size(), 3);
-    for(int i = 0; i < 3; i++)
+    
+    drishti::core::MinimizeLinearAssignment(C, direct_assignment, reverse_assignment);
+    
+    ASSERT_EQ(direct_assignment.size(), 3);
+    for(const auto &m : direct_assignment)
     {
-        ASSERT_EQ(outMatches[i].queryIdx, outMatches[i].trainIdx);
+        ASSERT_EQ(m.first, m.second);
     }
 }
