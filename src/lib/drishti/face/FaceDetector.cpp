@@ -21,6 +21,7 @@
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/geometry/Rectangle.h"
+#include "drishti/geometry/motion.h"
 
 #include <stdio.h>
 
@@ -117,17 +118,20 @@ public:
 
         if (m_eyeRegressor.size() && m_eyeRegressor[0] && m_eyeRegressor[1] && m_doEyeRefinement && faces.size())
         {
-            DRISHTI_EYE::EyeModel eyeR, eyeL;
-            segmentEyes(Ib.Ib, faces[0], eyeR, eyeL);
-            if (eyeR.eyelids.size())
+            for(auto &f : faces)
             {
-                faces[0].eyeFullR = eyeR;
-                faces[0].eyeRightCenter = core::centroid(eyeR.eyelids);
-            }
-            if (eyeL.eyelids.size())
-            {
-                faces[0].eyeFullL = eyeL;
-                faces[0].eyeLeftCenter = core::centroid(eyeL.eyelids);
+                DRISHTI_EYE::EyeModel eyeR, eyeL;
+                segmentEyes(Ib.Ib, f, eyeR, eyeL);
+                if (eyeR.eyelids.size())
+                {
+                    f.eyeFullR = eyeR;
+                    f.eyeRightCenter = core::centroid(eyeR.eyelids);
+                }
+                if (eyeL.eyelids.size())
+                {
+                    f.eyeFullL = eyeL;
+                    f.eyeLeftCenter = core::centroid(eyeL.eyelids);
+                }
             }
         }
     }
@@ -204,13 +208,7 @@ public:
             eyeL.roi = eyes[1];
         }
     }
-
-    static cv::Rect scaleRoi(cv::Rect& roi, float scale)
-    {
-        cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f), diag(br - center);
-        return cv::Rect(center - (diag * scale), center + (diag * scale));
-    }
-
+    
     void findLandmarks(const PaddedImage& Ib, std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& Hdr_, bool isDetection)
     {
         // Scope based eye segmentation timer:
@@ -228,44 +226,72 @@ public:
         const cv::Mat gray = Ib.Ib;
         CV_Assert(gray.type() == CV_8UC1);
 
-        cv::Rect fullBounds({ 0, 0 }, Ib.Ib.size());
-        cv::Rect bounds = Ib.roi.area() ? Ib.roi : fullBounds;
+        const cv::Rect fullBounds({ 0, 0 }, Ib.Ib.size());
+        const cv::Rect bounds = Ib.roi.area() ? Ib.roi : fullBounds;
 
         for (int i = 0; i < shapes.size(); i++)
         {
-            cv::Rect roi = isDetection ? mapDetectionToRegressor(shapes[i].roi, m_Hrd, Hdr_) : shapes[i].roi;
-            roi = scaleRoi(roi, m_scaling);
-            shapes[i].roi = roi;
-            cv::Rect clipped = shapes[i].roi & fullBounds;
-            cv::Mat crop = gray(clipped);
+            // Detection rectangles may have a geometry (w.r.t. face features) that is incompatible with the
+            // ROI geometry used for training the face landmark regressor.  In cases where we aim to refine
+            // such raw detection rectangles, we must map them onto faces in the landmark regression image
+            // with a geometry that is similar to that used during training.  We do this by using a known
+            // approximate homography mapping our mean detection face features (eyes, nose, moiuth) to the
+            // same face mean face features from the casecaded pose regressor training.  This transformation
+            // must also be composed with the input Hdr_ homography that provides a transformation from the
+            // detection image coordinate system to the landmark regression coordinate system, which is most
+            // likely a scale and translation (detection typically happens at lower resolution).
+            const cv::Rect roi = isDetection ? mapDetectionToRegressor(shapes[i].roi, m_Hrd, Hdr_) : (Hdr_ * shapes[i].roi);
 
-            if (clipped.size() != shapes[i].roi.size())
-            {
-                cv::Mat padded(shapes[i].roi.size(), crop.type(), cv::Scalar::all(0));
-                crop.copyTo(padded(clipped - shapes[i].roi.tl()));
-                cv::swap(crop, padded);
-            }
-
-            const float scaleInv = 1.f;
-            std::vector<cv::Point2f> points;
+            // Perform an addition (optional) scaling that can be tuned easily by the user as some detection
+            // scales will perform better than the mean mapping used above (experimentally).
+            shapes[i].roi = scaleRoi(roi, m_scaling);
+            
+            // Crop the image such that the ROI to pixel geometry is preserved.  For most cases this is
+            // a simple shallow copy/view, but in cases where the border is clipped, then we will effectively
+            // perform border padding to achieve this goal.  This make our prediction ROI closest to the ROI
+            // used during training and ensures our cascaded pose regression has the best chance of success.
+            cv::Mat crop = geometryPreservingCrop(shapes[i].roi, gray);
+ 
             std::vector<bool> mask;
+            std::vector<cv::Point2f> points;
             (*m_regressor)(crop, points, mask);
-
             for (const auto& p : points)
             {
-                cv::Point q((p.x * scaleInv) + shapes[i].roi.x, (p.y * scaleInv) + shapes[i].roi.y);
+                const cv::Point q = p + cv::Point2f(shapes[i].roi.tl());
                 shapes[i].contour.emplace_back(q.x, q.y, 0);
             }
         }
     }
-
+    
+    static cv::Rect scaleRoi(const cv::Rect& roi, float scale)
+    {
+        cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f), diag(br - center);
+        return cv::Rect(center - (diag * scale), center + (diag * scale));
+    }
+    
+    // Return requested light weight copy if roi is contained in frame bounds, else perform
+    // a deep copy that preseves the crop geometry via border padding.  This ensures that
+    // landmark regression has the best chance of success.
+    static cv::Mat geometryPreservingCrop(const cv::Rect &roi, const cv::Mat &gray)
+    {
+        const cv::Rect bounds({0,0}, gray.size());
+        const cv::Rect clipped = roi & bounds;
+        cv::Mat crop = gray(clipped);
+        if (clipped.size() != roi.size())
+        {
+            cv::Mat padded(roi.size(), gray.type(), cv::Scalar::all(0));
+            crop.copyTo(padded(clipped - roi.tl()));
+            cv::swap(crop, padded);
+        }
+        return crop;
+    }
+    
     // Notes on motion and coordinate systems:
     //
     // FaceDetector::m_Hrd : map normalized regressor mean face to normalized detector mean face
     // denormalize(s.roi)  : denormalize points
     // Hdr                 : detector image to regressor
-
-    cv::Rect mapDetectionToRegressor(const cv::Rect& roi, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)
+    static cv::Rect mapDetectionToRegressor(const cv::Rect& roi, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)
     {
         // 1) map the unit square from regressor to the detector;
         // 2) denormalize coordinates in the detector image;
@@ -612,10 +638,9 @@ void FaceDetector::setEyelidStagesHint(int stages)
 // Map from normalized coordinate system to input ROI
 static cv::Matx33f denormalize(const cv::Rect& roi)
 {
-    cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f);
-    cv::Matx33f C1(1, 0, -0.5, 0, 1, -0.5, 0, 0, 1);
-    cv::Matx33f C2(1, 0, +center.x, 0, 1, +center.y, 0, 0, 1);
-    cv::Matx33f S = cv::Matx33f::diag({ static_cast<float>(roi.width), static_cast<float>(roi.height), 1.f });
+    const cv::Matx33f C1 = transformation::translate(-0.5f, -0.5f);
+    const cv::Matx33f C2 = transformation::translate(transformation::center(roi));
+    const cv::Matx33f S = cv::Matx33f::diag({ static_cast<float>(roi.width), static_cast<float>(roi.height), 1.f });
     return (C2 * S * C1);
 }
 

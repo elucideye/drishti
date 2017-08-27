@@ -789,7 +789,7 @@ int FaceFinder::detectOnly(ScenePrimitives& scene, bool doDetection)
         core::ScopeTimeLogger scopeTimeLogger = [this](double t) { impl->timerInfo.detectionTimeLogger(t); };
         std::vector<double> scores;
         (*impl->detector)(*scene.m_P, scene.objects(), &scores);
-        if (impl->doNMSGlobal)
+        if (impl->doSingleFace)
         {
             chooseBest(scene.objects(), scores);
         }
@@ -803,16 +803,36 @@ int FaceFinder::detectOnly(ScenePrimitives& scene, bool doDetection)
     return scene.objects().size();
 }
 
+void FaceFinder::scaleToFullResolution(std::vector<drishti::face::FaceModel> &faces)
+{
+    const float Srf = 1.0f / impl->acf->getGrayscaleScale();
+    const cv::Matx33f Hrf = transformation::scale(Srf);
+    for (auto& f : faces)
+    {
+        f = Hrf * f;
+        
+        // Tag each face w/ approximate distance:
+        if (impl->faceEstimator)
+        {
+            if (f.eyeFullL.has && f.eyeFullR.has)
+            {
+                (*f.eyesCenter) = (*impl->faceEstimator)(f);
+            }
+        }
+    }
+}
+
 int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doDetection)
 {
     //impl->logger->set_level(spdlog::level::off);
-
     core::ScopeTimeLogger scopeTimeLogger = [this](double t) {
         impl->logger->info("FULL_CPU_PATH: {}", t);
     };
 
-    //assert(scene.objects().size() == 0); /* can be precomputed now */
-
+    // Start with empty face detections:
+    std::vector<drishti::face::FaceModel> faces;
+    drishti::face::FaceDetector::PaddedImage Ib(scene.image(), { { 0, 0 }, scene.image().size() });
+    
     if (impl->detector && (!doDetection || scene.m_P))
     {
         if (!scene.objects().size())
@@ -821,68 +841,72 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
         }
         if (impl->doLandmarks && scene.objects().size())
         {
-#if DRISHTI_HCI_FACEFINDER_LOG_DETECTIONS
-            {
-                cv::Mat canvas({ frame.size.width, frame.size.height }, CV_8UC4, frame.pixelBuffer);
-                const auto objects = scene.objects() * impl->ACFScale;
-                for (auto& d : objects)
-                {
-                    cv::rectangle(canvas, d, { 0, 255, 0 }, 1, 8);
-                }
-                cv::imwrite("/tmp/detections.png", canvas);
-            }
-#endif
-
-            auto& objects = scene.objects();
-            std::vector<drishti::face::FaceModel> faces(objects.size());
+            const auto& objects = scene.objects();
+            faces.resize(objects.size());
             for (int i = 0; i < faces.size(); i++)
             {
                 faces[i].roi = objects[i];
             }
 
-            bool isDetection = true;
-
-            cv::Mat1b gray = scene.image();
-
             //impl->imageLogger(gray);
-
+            const bool isDetection = true;
             const float Sdr = impl->ACFScale /* acf->full */ * impl->acf->getGrayscaleScale() /* full->gray */;
-            cv::Matx33f Hdr(Sdr, 0, 0, 0, Sdr, 0, 0, 0, 1); //  = cv::Matx33f::eye();
-            drishti::face::FaceDetector::PaddedImage Ib(gray, { { 0, 0 }, gray.size() });
-
+            const cv::Matx33f Hdr = transformation::scale(Sdr);
             impl->faceDetector->setDoIrisRefinement(true);
             impl->faceDetector->refine(Ib, faces, Hdr, isDetection);
 
-            impl->logger->info("Face image {} x {}", Ib.Ib.rows, Ib.Ib.cols);
-
-            //float iod = cv::norm(faces[0].eyeFullR->irisEllipse.center - faces[0].eyeFullL->irisEllipse.center);
-
-            // Scale faces from regression to level 0
+            // Scale faces from regression to level 0.
             // The configuration sizes used in the ACF stacked channel image
             // are all upright, but the output texture used for the display
             // is still in the native (potentially rotated) coordinate system,
             // so we need to perform scaling wrt that.
-
-            const float Srf = 1.0f / impl->acf->getGrayscaleScale();
-            cv::Matx33f H0(Srf, 0, 0, 0, Srf, 0, 0, 0, 1);
-            for (auto& f : faces)
-            {
-                f = H0 * f;
-
-                // Tag each face w/ approximate distance:
-                if (impl->faceEstimator)
-                {
-                    if (f.eyeFullL.has && f.eyeFullR.has)
-                    {
-                        (*f.eyesCenter) = (*impl->faceEstimator)(f);
-                    }
-                }
-            }
-
-            scene.faces() = faces;
+            
+            scaleToFullResolution(faces);
         }
     }
+    
+    {
+        // Perform simple prediction on every frame.  This occurs on full resolution
+        // FaceModel objects, for which approximate location is known.  In some cases
+        // we may need to update landmarks for a track prediction which had no corresponding
+        // detection assignment for this frame, in which case we must:
+        //   1) map to regression image resolution
+        //   2) refine the face model
+        //   3) map back to the full resolution image
+        
+        const float Sfr = impl->acf->getGrayscaleScale(); // full->regression
+        const cv::Matx33f Hfr = transformation::scale(Sfr);
+        drishti::face::FaceTracker::FaceTrackVec tracksOut;
+        (*impl->faceTracker)(faces, tracksOut);
 
+        faces.clear();
+        for(auto & f : tracksOut)
+        {
+            // For any missed face we need to update the landmarks from the
+            if (f.second.misses > 0)
+            {
+                faces.push_back(Hfr * f.first); // prepare for regression
+            }
+            else
+            {
+                scene.faces().emplace_back(f.first); // store output
+            }
+        }
+        
+        // Faces have been mapped to
+        impl->faceDetector->refine(Ib, faces, cv::Matx33f::eye(), false);
+        scaleToFullResolution(faces);
+        for (auto &f : faces)
+        {
+            scene.faces().emplace_back(f);
+        }
+        
+        // Sort near to far:
+        std::sort(scene.faces().begin(), scene.faces().end(), [](const face::FaceModel &a, const face::FaceModel &b) {
+            return (a.eyesCenter->z < b.eyesCenter->z);
+        });
+    }
+    
     return 0;
 }
 
@@ -902,19 +926,6 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
 
         // Limit to points on iris:
         const auto& eyeWarps = impl->eyeFilter->getEyeWarps();
-// Can use this to retrieve view of internal filters:
-#define DRISHTI_VIEW_BLOBS_OUTPUT 0
-#if DRISHTI_VIEW_BLOBS_OUTPUT
-        if (impl->blobFilter)
-        {
-            cv::Mat canvas = impl->blobFilter->paint();
-            if (!canvas.empty())
-            {
-                cv::imshow("blobFilter", canvas);
-                cv::waitKey(0);
-            }
-        }
-#endif
 
         if (impl->doEyeFlow)
         { // Grab optical flow results:
@@ -1024,13 +1035,13 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 
 #if DRISHTI_HCI_FACEFINDER_DO_TRACKING
     // Insntiate a face detector w/ a tracking component:
-    auto faceDetectorAndTracker = std::make_shared<drishti::face::FaceDetectorAndTracker>(resources);
+    auto faceDetectorAndTracker = drishti::core::make_unique<drishti::face::FaceDetectorAndTracker>(resources);
     faceDetectorAndTracker->setMaxTrackAge(2.0);
-    impl->faceDetector = faceDetectorAndTracker;
+    impl->faceDetector = std::move(faceDetectorAndTracker);
 #else
-    impl->faceDetector = std::make_shared<drishti::face::FaceDetector>(resources);
+    impl->faceDetector = drishti::core::make_unique<drishti::face::FaceDetector>(resources);
 #endif
-    impl->faceDetector->setDoNMSGlobal(impl->doNMSGlobal); // single detection only
+    impl->faceDetector->setDoNMSGlobal(impl->doSingleFace); // single detection only
     impl->faceDetector->setDoNMS(true);
     impl->faceDetector->setInits(1);
 
@@ -1078,6 +1089,12 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 
         impl->faceDetector->setFaceDetectorMean(faceDetectorMean);
     }
+    
+    impl->faceTracker = core::make_unique<face::FaceTracker>(
+        impl->minFaceSeparation,
+        impl->minTrackHits,
+        impl->maxTrackMisses
+    );
 }
 
 static void smooth(double &t0, double t1, double alpha=0.95)

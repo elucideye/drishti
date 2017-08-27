@@ -81,12 +81,16 @@ FrameHandlerManager::FrameHandlerManager(const std::string& name, const std::str
 #endif
 
     // Parse detection parameters (minDepth, maxDepth)
-    const auto& detectionParams = device["detection"];
+    const auto& detectionParams = (*m_settings)["detection"];
     if (!detectionParams.empty())
     {
         m_detectionParams.m_minDepth = detectionParams["minDepth"];
         m_detectionParams.m_maxDepth = detectionParams["maxDepth"];
         m_detectionParams.m_interval = detectionParams["interval"];
+        m_detectionParams.m_singleFace = detectionParams["singleFace"];
+        m_detectionParams.m_minTrackHits = detectionParams["minTrackHits"];
+        m_detectionParams.m_maxTrackMisses = detectionParams["maxTrackMisses"];
+        m_detectionParams.m_minSeparation = detectionParams["minSeparation"];
     }
 
     const auto& sensor = device["sensor"];

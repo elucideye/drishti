@@ -39,11 +39,14 @@ class FrameHandlerManager
 public:
     struct DetectionParams
     {
-        float m_minDepth; // meters
-        float m_maxDepth; // meters
-        float m_interval; // seconds
+        float m_minDepth;      // meters
+        float m_maxDepth;      // meters
+        float m_interval;      // seconds
+        bool m_singleFace;     // single face (i.e., global NMS)
+        int m_minTrackHits;    // min hits for valid track
+        int m_maxTrackMisses;  // max misses for track termination
+        float m_minSeparation; // min separation for distinct object detection (meters)
     };
-
 
     using Settings = nlohmann::json;
     using FrameHandler = std::function<void(const cv::Mat&)>;

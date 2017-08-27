@@ -22,6 +22,7 @@
 #include "drishti/face/FaceDetector.h"        // drishti::face::FaceDetector
 #include "drishti/face/FaceDetectorFactory.h" // drishti::face::FaceDetectorFactory
 #include "drishti/face/FaceModelEstimator.h"  // drishti::face::FaceModelEstimator
+#include "drishti/face/FaceTracker.h"         // drishti::face::FaceTracker
 #include "drishti/graphics/swizzle.h"         // ogles_gpgpu::SwizzleProc
 #include "drishti/hci/FaceMonitor.h"          // FaceMonitor*
 #include "drishti/hci/Scene.hpp"              // ScenePrimitives
@@ -65,9 +66,13 @@ struct FaceFinder::Impl
         // ACF and detection parameters:
         , debugACF(false)
         , acfCalibration(args.acfCalibration)
+        , doSingleFace(args.doSingleFace)
         , faceFinderInterval(args.faceFinderInterval)
         , minDistanceMeters(args.minDetectionDistance)
         , maxDistanceMeters(args.maxDetectionDistance)
+        , minTrackHits(args.minTrackHits)
+        , maxTrackMisses(args.maxTrackMisses)
+        , minFaceSeparation(args.minFaceSeparation)
 
         // Face landmarks:
         , doLandmarks(args.doLandmarks)
@@ -135,11 +140,16 @@ struct FaceFinder::Impl
     float acfCalibration = 0.f;
 
     // Detection:
-    bool doNMSGlobal = true;
+    bool doSingleFace = false;
     double faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
     float minDistanceMeters = 0.f;
     float maxDistanceMeters = 10.0f;
-    std::shared_ptr<drishti::face::FaceDetector> faceDetector;
+    std::size_t minTrackHits = 3;
+    std::size_t maxTrackMisses = 3;
+    float minFaceSeparation = 0.15;
+    std::unique_ptr<drishti::face::FaceDetector> faceDetector;
+    std::unique_ptr<drishti::face::FaceTracker> faceTracker;
+    
     drishti::acf::Detector* detector = nullptr; // weak ref
     std::pair<time_point, std::vector<cv::Rect>> objects;
     std::future<ScenePrimitives> scene;

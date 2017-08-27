@@ -25,7 +25,10 @@
 
 #define DRISHTI_HCI_FACEFINDER_MIN_DISTANCE 0.1
 #define DRISHTI_HCI_FACEFINDER_MAX_DISTANCE 0.4
-#define DRISHTI_HCI_FACEFINDER_INTERVAL 0.1
+#define DRISHTI_HCI_FACEFINDER_MIN_TRACK_HITS 3
+#define DRISHTI_HCI_FACEFINDER_MAX_TRACK_MISSES 3
+#define DRISHTI_HCI_FACEFINDER_MIN_SEPARATION 0.15f // meters
+#define DRISHTI_HCI_FACEFINDER_INTERVAL 0.1f
 #define DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR 0
 
 DRISHTI_HCI_NAMESPACE_BEGIN
@@ -71,15 +74,26 @@ public:
         bool doLandmarks = true;
         bool doFlow = true;
         bool doBlobs = false;
+
+        // Detection parameters:
+        bool doSingleFace = false;
         float minDetectionDistance = DRISHTI_HCI_FACEFINDER_MIN_DISTANCE;
         float maxDetectionDistance = DRISHTI_HCI_FACEFINDER_MAX_DISTANCE;
         float faceFinderInterval = DRISHTI_HCI_FACEFINDER_INTERVAL;
         float acfCalibration = 0.f;
         float regressorCropScale = 0.f;
+
+        // Detection tracks:
+        std::size_t minTrackHits = DRISHTI_HCI_FACEFINDER_MIN_TRACK_HITS;
+        std::size_t maxTrackMisses = DRISHTI_HCI_FACEFINDER_MAX_TRACK_MISSES;
+        float minFaceSeparation = DRISHTI_HCI_FACEFINDER_MIN_SEPARATION;
+
+        // OpengL parameters:
         int glVersionMajor = 2;
         int glVersionMinor = 0; // future use
         bool usePBO = false;
 
+        // Display parameters:
         bool renderFaces = true;
         bool renderPupils = true;
         bool renderCorners = true;
@@ -124,6 +138,8 @@ protected:
     void computeGazePoints();
     void updateEyes(GLuint inputTexId, const ScenePrimitives& scene);
 
+    void scaleToFullResolution(std::vector<drishti::face::FaceModel> &faces);
+    
     void notifyListeners(const ScenePrimitives& scene, const TimePoint& time, bool isFull);
     bool hasValidFaceRequest(const ScenePrimitives& scene, const TimePoint& time) const;
 

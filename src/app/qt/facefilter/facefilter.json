@@ -13,14 +13,18 @@
         "frequency": 0.5
     },
 
+    "detection": {
+        "minDepth": 0.1,
+        "maxDepth": 0.4,
+        "interval": 0.0666,
+        "singleFace": false,
+        "minTrackHits": 3,
+        "maxTrackMisses": 3,
+        "minSeparation": 0.15
+    },
+    
     "com.apple.avfoundation.avcapturedevice.built-in_video:1": {
         "description": "FaceTime HD Camera (Built-in)[5s]",
-
-        "detection": {
-            "minDepth": 0.1,
-            "maxDepth": 0.4,
-            "interval": 0.0666
-        },
 
         "sensor": {
             "intrinsic": {
@@ -40,12 +44,6 @@
     "front": {
         "description": "Front-facing camera",
 
-        "detection": {
-            "minDepth": 0.1,
-            "maxDepth": 0.4,
-            "interval": 0.0666
-        },
-
         "sensor": {
             "intrinsic": {
                 "size": {
@@ -64,12 +62,6 @@
     "0x1a11000005ac8510": {
         "description": "FaceTime HD Camera (Built-in)",
 
-        "detection": {
-            "minDepth": 0.1,
-            "maxDepth": 0.4,
-            "interval": 0.0666
-        },
-
         "sensor": {
             "intrinsic": {
                 "size": {
@@ -87,12 +79,6 @@
 
     "0xfa12000018ec3399": {
         "description": "Defender C-090",
-
-        "detection": {
-            "minDepth": 0.1,
-            "maxDepth": 0.4,
-            "interval": 0.0666
-        },
 
         "sensor": {
             "intrinsic": {

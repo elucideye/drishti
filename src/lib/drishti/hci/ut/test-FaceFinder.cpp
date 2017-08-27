@@ -106,9 +106,16 @@ protected:
         m_settings.doLandmarks = true;
         m_settings.doFlow = false;
         m_settings.doBlobs = false;
+
+        m_settings.doSingleFace = true;
         m_settings.minDetectionDistance = 0.1f;
         m_settings.maxDetectionDistance = 0.5f;
+        m_settings.faceFinderInterval = 0.f;
         m_settings.acfCalibration = 0.001f;
+
+        m_settings.minTrackHits = 0; // allow all detections for testing
+        m_settings.maxTrackMisses = 3;
+        m_settings.minFaceSeparation = 0.15f;
 
 #if defined(DRISHTI_HCI_DO_GPU)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);

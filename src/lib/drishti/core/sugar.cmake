@@ -17,6 +17,7 @@ sugar_files(DRISHTI_CORE_SRCS
   arithmetic.cpp
   convert.cpp
   drawing.cpp
+  hungarian.cpp
   padding.cpp
   string_utils.cpp
 )
@@ -48,6 +49,7 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   drishti_serialize.h
   drishti_stdlib_string.h
   drishti_string_hash.h
+  hungarian.h
   infix_iterator.h
   make_unique.h
   padding.h
