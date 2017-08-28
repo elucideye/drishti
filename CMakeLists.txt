@@ -7,8 +7,9 @@ cmake_minimum_required(VERSION 3.3)
 ### CMAKE_MODULE_PATH ###
 #########################
 
+set(drishti_upload_modules "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/cmake/Modules")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${drishti_upload_modules}")
 
 ############################
 ### HunterGate and cache ###
@@ -17,8 +18,17 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/cmake/Mo
 # drishti specific hunter cache pacakges:
 list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
 
-include(drishti_set_hunter_gate)
-drishti_set_hunter_version(DRISHTI_HUNTER_GATE_URL DRISHTI_HUNTER_GATE_SHA1)
+if(EXISTS "${drishti_upload_modules}")
+  include(drishti_set_hunter_gate)
+  drishti_set_hunter_version(DRISHTI_HUNTER_GATE_URL DRISHTI_HUNTER_GATE_SHA1)
+else()
+  # Release archive will not contain submodule 'drishti-upload'.
+  # It's a valid case when archive used in Hunter.
+  # URL/SHA1 arguments of HunterGate call will not be used while building
+  # in this situation.
+  set(DRISHTI_HUNTER_GATE_URL)
+  set(DRISHTI_HUNTER_GATE_SHA1)
+endif()
 
 include("cmake/HunterGate.cmake")
 HunterGate(
@@ -397,7 +407,7 @@ option(DRISHTI_BUILD_CV_ML "Build OpenCV ML classes" OFF)
 set(CMAKE_PROJECT_NAME drishti) # overwrite drishtisdk
 set(drishti_generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(drishti_include_install_dir "include")
-set(drishti_config_install_dir "share/${CMAKE_PROJECT_NAME}")
+set(drishti_config_install_dir "lib/cmake/${CMAKE_PROJECT_NAME}")
 set(drishti_version_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake")
 set(drishti_project_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config.cmake")
 set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
