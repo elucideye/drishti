@@ -373,8 +373,10 @@ else()
   drishti_strip(drishti)
 endif()
 
-drishti_split_debug_symbols(drishti)
-
+if(DRISHTI_BUILD_SHARED_SDK)  
+  drishti_split_debug_symbols(drishti)  
+endif()
+  
 ##############################################################
 ### Generate export header and set build/install include paths
 ##############################################################
