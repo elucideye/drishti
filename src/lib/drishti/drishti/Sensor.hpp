@@ -15,6 +15,7 @@
 #include "drishti/Image.hpp"
 
 #include <array>
+#include <memory>
 
 _DRISHTI_SDK_BEGIN
 
