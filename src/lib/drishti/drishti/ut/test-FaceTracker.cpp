@@ -113,9 +113,11 @@ protected:
     std::shared_ptr<drishti::sdk::FaceTracker> create(const cv::Size& size, int orientation, bool doThreads)
     {
         const float fx = size.width;
-        const cv::Point2f p(image.cols / 2, image.rows / 2);
-        drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
-        drishti::sensor::SensorModel sensor(params);
+        const drishti::sdk::Vec2f p(image.cols / 2, image.rows / 2);
+        drishti::sdk::SensorModel::Intrinsic intrinsic(p, fx, {size.width, size.height});
+        drishti::sdk::Matrix33f I = drishti::sdk::Matrix33f::eye();
+        drishti::sdk::SensorModel::Extrinsic extrinsic(I);
+        drishti::sdk::SensorModel sensor(intrinsic, extrinsic);
 
         drishti::sdk::Context context(sensor);
 

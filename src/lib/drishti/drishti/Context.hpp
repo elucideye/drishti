@@ -18,9 +18,7 @@
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/drishti_gl.hpp"
 #include "drishti/Image.hpp"
-
-// Note: This must be a public header
-#include "drishti/sensor/Sensor.h"
+#include "drishti/Sensor.hpp"
 
 #include <memory>
 
@@ -29,20 +27,47 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT Context
 {
 public:
-    class Impl;
-    Context(const drishti::sensor::SensorModel& sensor);
+
+    struct Impl;
+    
+    Context(drishti::sdk::SensorModel& sensor);
     ~Context();
 
-    Impl* get() { return m_impl.get(); }
+    Impl* get() { return impl.get(); }
 
+    void setDoSingleFace(bool flag);
+    bool getDoSingleFace() const;
+    
     void setMinDetectionDistance(float value);
     float getMinDetectionDistance() const;
 
     void setMaxDetectionDistance(float value);
     float getMaxDetectionDistance() const;
 
+    void setFaceFinderInterval(float value);
+    float getFaceFinderInterval() const;
+
+    void setAcfCalibration(float value);
+    float getAcfCalibration() const;
+
+    void setRegressorCropScale(float value);
+    float getRegressorCropScale() const;
+    
+    void setMinTrackHits(int hits);
+    int getMinTrackHits() const;
+
+    void setMaxTrackMisses(int hits);
+    int getMaxTrackMisses() const;    
+
+    void setMinFaceSeparation(float value);
+    float getMinFaceSeparation() const;
+
+    void setDoOptimizedPipeline(bool flag);
+    bool getDoOptimizedPipeline() const;
+
 protected:
-    std::unique_ptr<Impl> m_impl;
+    
+    std::unique_ptr<Impl> impl;
 };
 
 _DRISHTI_SDK_END

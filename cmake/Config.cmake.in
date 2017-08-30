@@ -1,6 +1,5 @@
 @PACKAGE_INIT@
 
-find_package(Boost CONFIG REQUIRED filesystem system)
 find_package(OpenCV REQUIRED)
 find_package(ogles_gpgpu CONFIG REQUIRED) # review OpenGL dependencies
 find_package(xgboost CONFIG REQUIRED)
@@ -10,7 +9,7 @@ find_package(xgboost CONFIG REQUIRED)
 ##
 
 find_package(ARM_NEON_2_x86_SSE CONFIG REQUIRED) # header
-find_package(Eigen CONFIG REQUIRED)              # header
+find_package(Eigen3 CONFIG REQUIRED)             # header
 find_package(cereal CONFIG REQUIRED)             # header
 find_package(dlib CONFIG REQUIRED)               # header (for now)
 find_package(half CONFIG REQUIRED)               # header 
@@ -40,6 +39,7 @@ endif()
 
 if(@DRISHTI_BUILD_EOS@)
   find_package(eos CONFIG REQUIRED)
+  find_package(Boost CONFIG REQUIRED filesystem system)  
 endif()
 
 find_package(glm CONFIG REQUIRED)

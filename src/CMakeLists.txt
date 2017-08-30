@@ -240,7 +240,9 @@ hunter_add_package(cxxopts)
 find_package(cxxopts CONFIG REQUIRED)
 
 # Include *nix style console apps (some will run on iOS and Android)
-add_subdirectory(app)
+if(DRISHTI_BUILD_EXAMPLES)
+  add_subdirectory(app)
+endif()
 
 # (Optional) build unit tests
 if(DRISHTI_BUILD_TESTS)

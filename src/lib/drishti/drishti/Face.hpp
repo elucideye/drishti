@@ -16,26 +16,18 @@
 #include "drishti/drishti_sdk.hpp"
 #include "drishti/Eye.hpp"
 #include "drishti/Image.hpp"
-
-#include <array>
-#include <iostream>
+#include "drishti/Array.hpp"
 
 _DRISHTI_SDK_BEGIN
 
 /*
- * Eye type
+ * Simple Face description
  */
 
-class DRISHTI_EXPORT Face
+struct DRISHTI_EXPORT Face
 {
-public:
-    Face() {}
-
-    Eye& getEye(int i) { return m_eyes[i]; }
-    const Eye& getEye(int i) const { return m_eyes[i]; }
-
-protected:
-    std::array<Eye, 2> m_eyes;
+    drishti::sdk::Array<drishti::sdk::Eye, 2> eyes;
+    drishti::sdk::Array<drishti::sdk::Vec2f, 128> landmarks;
 };
 
 _DRISHTI_SDK_END
