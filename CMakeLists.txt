@@ -108,7 +108,7 @@ set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 # and the CI builds are likely to terminate and report
 # an error.
 
-option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" ON)
+option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" OFF)
 option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
 
 option(DRISHTI_COPY_3RDPARTY_LICENSES "Install 3rd party licenses" OFF)
@@ -259,8 +259,8 @@ option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
 # DRISHIT_BUILD_INTEGRATION_TESTS:
 # ${DRISHTISDK}/src/examples/integration/
 
-option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." ON)
-option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." ON)
+option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." OFF)
+option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." OFF)
 option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
 
 string(COMPARE EQUAL "$ENV{TRAVIS}" "true" travis_ci)
@@ -386,15 +386,16 @@ option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 #################################
 
 # This will build a static library using all specified modules
-option(DRISHTI_BUILD_WORLD "Build single library" ON)
+option(DRISHTI_INSTALL "Run package-config installation" ON)
+option(DRISHTI_BUILD_WORLD "Build single drishti library/module (internal)" ON)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
-option(DRISHTI_BUILD_EXAMPLES "Build the examples" OFF)
+option(DRISHTI_BUILD_EXAMPLES "Build the examples" ON)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
-option(DRISHTI_BUILD_ACF "Drishti ACF lib." ON)
-option(DRISHTI_BUILD_FACE "Drishti face lib." ON)
-option(DRISHTI_BUILD_HCI "Drishti video and HCI lib." ON)
-option(DRISHTI_BUILD_REGRESSION_SIMD "Build regression using SIMD." ON)
-option(DRISHTI_BUILD_REGRESSION_FIXED_POINT "Build regression using fixed point." ON)
+option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
+option(DRISHTI_BUILD_FACE "Drishti face lib" ON)
+option(DRISHTI_BUILD_HCI "Drishti video and HCI lib" ON)
+option(DRISHTI_BUILD_REGRESSION_SIMD "Build multivariate gradient boosting using SIMD" ON)
+option(DRISHTI_BUILD_REGRESSION_FIXED_POINT "Build multivariate gradient boosting using fixed point" ON)
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)

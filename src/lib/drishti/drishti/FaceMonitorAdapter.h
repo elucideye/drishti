@@ -20,6 +20,38 @@
 
 _DRISHTI_SDK_BEGIN
 
+
+// Maintain lightweight inline conversions in private header for internal use
+inline drishti::sdk::Face convert(const drishti::face::FaceModel& model)
+{
+    drishti::sdk::Face f;
+
+    if(model.eyeFullR.has && model.eyeFullL.has)
+    {
+        f.eyes.resize(2);
+        f.eyes[0] = drishti::sdk::convert(*model.eyeFullR);
+        f.eyes[1] = drishti::sdk::convert(*model.eyeFullL);
+    }
+
+    if(model.points.has)
+    {
+        f.landmarks = drishti::sdk::cvToDrishti(*model.points);
+    }
+
+    return f;
+}
+
+inline drishti::face::FaceModel convert(const drishti::sdk::Face& model)
+{
+    drishti::face::FaceModel f;
+
+    f.eyeFullL = drishti::sdk::convert(model.eyes[0]);
+    f.eyeFullR = drishti::sdk::convert(model.eyes[1]);
+    f.points = drishti::sdk::drishtiToCv(model.landmarks);
+
+    return f;
+}
+
 /*
  * FaceMonitorAdapter
  *
@@ -70,6 +102,7 @@ public:
                 results[i].extra = cvToDrishti<cv::Vec4b, drishti::sdk::Vec4b>(frames[i].extra);
             }
 
+            results[i].eyeModels.resize(2);
             for (int j = 0; j < 2; j++)
             {
                 if (frames[i].eyeModels[j].eyelids.size())
@@ -78,8 +111,11 @@ public:
                 }
             }
 
-            // TODO:
-            //results[i].faceModels;
+            results[i].faceModels.resize(frames[i].faceModels.size());
+            for (int j = 0; j < frames[i].faceModels.size(); j++)
+            {
+                results[i].faceModels[j] = drishti::sdk::convert(frames[i].faceModels[j]);
+            }
         }
 
         m_table.callback(m_table.context, results);

@@ -80,6 +80,50 @@ typedef Size2<float> Size2f;
 typedef Size2<int> Size2i;
 
 /*
+ * Matrix types
+ */
+
+template <typename T, int rowDim, int colDim>
+struct Matrix
+{
+    Matrix() {}
+    Matrix(const Matrix &src)
+    {
+        for (int y = 0; y < rowDim; y++)
+        {
+            for (int x = 0; x< colDim; x++)
+            {
+                data[y][x] = src(y,x);
+            }
+        }
+    }
+
+    int rows() const { return rowDim; }
+    int cols() const { return colDim; }
+    
+    T& operator()(int y, int x) { return data[y][x]; }
+    const T& operator()(int y, int x) const { return data[y][x]; }
+
+    static Matrix<T, rowDim, colDim> eye()
+    {
+        Matrix<T, rowDim, colDim> I;
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                I(y,x) = 0.f;
+            }
+            I(y,y) = 1.f;
+        }
+        return I;
+    }
+    
+    T data[rowDim][colDim];
+};
+
+typedef Matrix<float, 3, 3> Matrix33f;
+
+/*
  * Rect types
  */
 

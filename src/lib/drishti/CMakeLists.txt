@@ -348,7 +348,11 @@ endif()
 set(drishti_interface_libs "")
 
 # Create the public shared library
-add_library(${drishti_api_name} ${api_lib_type} ${DRISHTI_DRISHTI_SRCS} ${DRISHTI_DRISHTI_HDRS_PUBLIC} ${drishti_sdk_hpp})
+add_library(${drishti_api_name} ${api_lib_type}
+  ${DRISHTI_DRISHTI_SRCS}
+  ${DRISHTI_DRISHTI_HDRS_PUBLIC}
+  ${DRISHTI_DRISHTI_HDRS_PRIVATE}
+  ${drishti_sdk_hpp})
 target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 target_link_libraries(${drishti_api_name} PRIVATE "${drishti_sdk_libs}")
 list(APPEND drishti_interface_libs ${drishti_api_name})
@@ -369,8 +373,10 @@ else()
   drishti_strip(drishti)
 endif()
 
-drishti_split_debug_symbols(drishti)
-
+if(DRISHTI_BUILD_SHARED_SDK)  
+  drishti_split_debug_symbols(drishti)  
+endif()
+  
 ##############################################################
 ### Generate export header and set build/install include paths
 ##############################################################
@@ -411,52 +417,55 @@ endforeach()
 ##### install #####
 ###################
 
-# See: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
-if(DRISHTI_BUILD_SHARED_SDK)
-  set(DRISHTI_INSTALL_TARGETS "")
-else()
-  set(DRISHTI_INSTALL_TARGETS ${drishti_libs})
+if(DRISHTI_INSTALL)
+
+  # See: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
+  if(DRISHTI_BUILD_SHARED_SDK)
+    set(DRISHTI_INSTALL_TARGETS "")
+  else()
+    set(DRISHTI_INSTALL_TARGETS ${drishti_libs})
+  endif()
+
+  # Export minimal public SDK or full internal SDK
+  set(TARGET_SDK "drishti")
+  set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC} "${drishti_export_header}" "${drishti_sdk_hpp}")
+
+  include(CMakePackageConfigHelpers)
+  write_basic_package_version_file("${drishti_version_config}"
+    VERSION "${drishtisdk_VERSION}"
+    COMPATIBILITY SameMajorVersion
+    )
+
+  # Note: variable 'drishti_targets_export_name' used
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
+
+  install(
+    TARGETS ${TARGET_SDK} ${DRISHTI_INSTALL_TARGETS}
+    EXPORT "${drishti_targets_export_name}"
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib"
+    RUNTIME DESTINATION "bin"
+    INCLUDES DESTINATION "${drishti_include_install_dir}"
+    PUBLIC_HEADER DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
+    )
+
+  install(
+    FILES
+    ${TARGET_PUBLIC_HDRS}
+    DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
+    )
+
+  install(
+    FILES "${drishti_project_config}" "${drishti_version_config}"
+    DESTINATION "${drishti_config_install_dir}"
+    )
+
+  install(
+    EXPORT "${drishti_targets_export_name}"
+    NAMESPACE "${drishti_namespace}"
+    DESTINATION "${drishti_config_install_dir}"
+    )  
 endif()
-
-# Export minimal public SDK or full internal SDK
-set(TARGET_SDK "drishti")
-set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC} "${drishti_export_header}" "${drishti_sdk_hpp}")
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${drishti_version_config}"
-  VERSION "${drishtisdk_VERSION}"
-  COMPATIBILITY SameMajorVersion
-  )
-
-# Note: variable 'drishti_targets_export_name' used
-configure_file("${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
-
-install(
-  TARGETS ${TARGET_SDK} ${DRISHTI_INSTALL_TARGETS}
-  EXPORT "${drishti_targets_export_name}"
-  LIBRARY DESTINATION "lib"
-  ARCHIVE DESTINATION "lib"
-  RUNTIME DESTINATION "bin"
-  INCLUDES DESTINATION "${drishti_include_install_dir}"
-  PUBLIC_HEADER DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
-  )
-
-install(
-  FILES
-  ${TARGET_PUBLIC_HDRS}
-  DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
-  )
-
-install(
-  FILES "${drishti_project_config}" "${drishti_version_config}"
-  DESTINATION "${drishti_config_install_dir}"
-  )
-
-install(
-  EXPORT "${drishti_targets_export_name}"
-  NAMESPACE "${drishti_namespace}"
-  DESTINATION "${drishti_config_install_dir}"
-  )
 
 # Experimental size reduction
 
@@ -498,15 +507,17 @@ if(DRISHTI_BUILD_C_INTERFACE)
     drishti_strip(drishti_c)
   endif()
 
-  # Simple install to execute post build strip
-  install(
-    TARGETS drishti_c
-    EXPORT "${drishti_targets_export_name}"
-    LIBRARY DESTINATION "lib"
-    ARCHIVE DESTINATION "lib"
-    RUNTIME DESTINATION "bin"
-    INCLUDES DESTINATION "${drishti_include_install_dir}"
-    )
+  if(DRISHTI_INSTALL)  
+    # Simple install to execute post build strip
+    install(
+      TARGETS drishti_c
+      EXPORT "${drishti_targets_export_name}"
+      LIBRARY DESTINATION "lib"
+      ARCHIVE DESTINATION "lib"
+      RUNTIME DESTINATION "bin"
+      INCLUDES DESTINATION "${drishti_include_install_dir}"
+      )
+  endif()  
 endif()
 
 foreach(library ${drishti_interface_libs})

@@ -89,7 +89,7 @@ void convertU8ToF32(const cv::Mat4b& input, std::vector<PlaneInfo>& planes)
         }
 
         // for now, process one at a time
-        for (; x <= input.cols; x++, ptrA++)
+        for (; x < input.cols; x++, ptrA++)
         {
             const cv::Vec4b& pix = ptrA[0];
             for (int i = 0; i < planes.size(); ptrs[i]++, i++)
@@ -125,7 +125,7 @@ void unpack(const cv::Mat4b& input, std::vector<PlaneInfo>& planes)
         }
 
         // for now, process one at a time
-        for (; x <= input.cols; x++, ptrA++)
+        for (; x < input.cols; x++, ptrA++)
         {
             const cv::Vec4b& pix = ptrA[0];
             for (int i = 0; i < planes.size(); ptrs[i]++, i++)

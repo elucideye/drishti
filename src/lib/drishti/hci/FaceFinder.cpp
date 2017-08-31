@@ -106,11 +106,15 @@ FaceFinder::~FaceFinder()
 {
     try
     {
-        // If this has already been retrieved it will throw
-        impl->scene.get(); // block on any abandoned calls
+        if(impl->threads && impl->doOptimizedPipeline)
+        {
+            // If this has already been retrieved it will throw
+            impl->scene.get(); // block on any abandoned calls
+        }
     }
     catch (...)
     {
+        // Noop
     }
 }
 
@@ -493,7 +497,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
     
     GLuint outputTexture = 0;
     ScenePrimitives outputScene;
-    if(impl->threads)
+    if(impl->threads && impl->doOptimizedPipeline)
     {
         std::tie(outputTexture, outputScene) = runFast(frame1, doDetection);
     }

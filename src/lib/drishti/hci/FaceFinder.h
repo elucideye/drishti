@@ -92,6 +92,7 @@ public:
         int glVersionMajor = 2;
         int glVersionMinor = 0; // future use
         bool usePBO = false;
+        bool doOptimizedPipeline = true;
 
         // Display parameters:
         bool renderFaces = true;

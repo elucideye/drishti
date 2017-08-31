@@ -34,7 +34,7 @@ public:
         TimePoint time;
 
         cv::Mat4b image;
-        std::vector<face::FaceModel> faceModels;
+        std::vector<drishti::face::FaceModel> faceModels;
 
         cv::Mat4b eyes; // eye pair image [ left | right ]
         std::array<drishti::eye::EyeModel, 2> eyeModels;

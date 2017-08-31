@@ -26,30 +26,27 @@ _DRISHTI_SDK_BEGIN
 
 #define DEFAULT_MIN_DETECTION_DISTANCE 0.0
 #define DEFAULT_MAX_DETECTION_DISTANCE 1.0
+#define DEFAULT_MIN_TRACK_AGE 3
 
-class Context::Impl
+struct Context::Impl
 {
-public:
-    Impl(const drishti::sensor::SensorModel& sensor);
+    Impl(drishti::sdk::SensorModel& sensor);
 
-    std::shared_ptr<drishti::sensor::SensorModel>& getSensor() { return m_sensor; }
-    std::shared_ptr<spdlog::logger>& getLogger() { return m_logger; }
-    std::shared_ptr<tp::ThreadPool<>>& getThreads() { return m_threads; }
-    void* getGlContext() { return m_glContext; }
-
-    float getMinDetectionDistance() const { return m_minDetectionDistance; }
-    void setMinDetectionDistance(float value) { m_minDetectionDistance = value; }
-
-    float getMaxDetectionDistance() const { return m_maxDetectionDistance; }
-    void setMaxDetectionDistance(float value) { m_maxDetectionDistance = value; }
-
-protected:
-    float m_minDetectionDistance = DEFAULT_MIN_DETECTION_DISTANCE;
-    float m_maxDetectionDistance = DEFAULT_MAX_DETECTION_DISTANCE;
-    std::shared_ptr<drishti::sensor::SensorModel> m_sensor;
-    std::shared_ptr<spdlog::logger> m_logger;
-    std::shared_ptr<tp::ThreadPool<>> m_threads;
-    void* m_glContext = nullptr;
+    bool doSingleFace = true;
+    float minDetectionDistance = DEFAULT_MIN_DETECTION_DISTANCE;
+    float maxDetectionDistance = DEFAULT_MAX_DETECTION_DISTANCE;
+    float faceFinderInterval = 0.f;
+    float acfCalibration = 0.f;
+    float regressorCropScale = 0.f;
+    int minTrackHits = 0;
+    int maxTrackMisses = 1;
+    float minFaceSeparation = 0.125f;
+    bool doOptimizedPipeline = false;
+    
+    std::shared_ptr<drishti::sensor::SensorModel> sensor;
+    std::shared_ptr<spdlog::logger> logger;
+    std::shared_ptr<tp::ThreadPool<>> threads;
+    void* glContext = nullptr;
 };
 
 _DRISHTI_SDK_END
