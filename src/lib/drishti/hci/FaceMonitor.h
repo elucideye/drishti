@@ -14,6 +14,7 @@
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/face/Face.h"
 #include "drishti/eye/Eye.h"
+#include "drishti/core/ImageView.h" // Image and/or Texture
 
 #include <opencv2/core/core.hpp>
 
@@ -26,23 +27,83 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceMonitor
 {
 public:
-    using HighResolutionClock = std::chrono::high_resolution_clock;
-    using TimePoint = HighResolutionClock::time_point;
 
+    //! An alias for the system high resolution clock
+    using HighResolutionClock = std::chrono::high_resolution_clock;
+
+    //! An alias for a time point from the high resolution clock
+    using TimePoint = HighResolutionClock::time_point;
+    
+    //! An alias for a vector of positions
+    using Positions = std::vector<cv::Point3f>;
+    
+    /**
+     * A face image structure containing metadata with associated l
+     * andmarks and eye images.
+     */
+    
     struct FaceImage
     {
+        //! Timestamp corresponding to acquisition time.
         TimePoint time;
 
-        cv::Mat4b image;
+        //! A captured face image.
+        core::ImageView image;
+
+        //! A vector of face models within the captured image
         std::vector<drishti::face::FaceModel> faceModels;
 
-        cv::Mat4b eyes; // eye pair image [ left | right ]
+        //! Eye pair image [ left | right ]
+        core::ImageView eyes;
+
+        //! An array of eye models in the coordinate system of the eyes image.
         std::array<drishti::eye::EyeModel, 2> eyeModels;
 
-        cv::Mat4b extra;
+        //! Additional image data (reserved).
+        core::ImageView filtered;
     };
 
-    virtual bool isValid(const cv::Point3f& position, const TimePoint& timeStamp) = 0;
+    struct Request
+    {
+        Request() = default;        
+        Request(int n, bool getImage, bool getTexture)
+            : n(n)
+            , getImage(getImage)
+            , getTexture(getTexture)
+        {
+            
+        }
+        
+        int n = 0;                //! Number of frames requested (last n)
+        bool getImage = false;    //! Request an image (typically incurs some overhead)
+        bool getTexture = false;  //! Request a texture (typically no overhead)
+        
+        Request & operator |=(const Request &src)
+        {
+            n = std::max(n, src.n);
+            getTexture |= src.getTexture;
+            getImage |= src.getImage;
+            return (*this);
+        }
+    };
+    
+    /**
+     * A user defined virtual method callback that should report the number
+     * of frames that should be captured from teh FIFO buffer based on the 
+     * reported face location.
+     * @param position the 3D position of the face (between the eyes)
+     * @param timestmap the acquisition timestamp for the frame
+     * @return a frame request for the last n frames with requested image formats
+     */
+    virtual Request request(const Positions& positions, const TimePoint& timeStamp) = 0;
+
+    /**
+     * A user defined virtual method callback that will be called with a
+     * a populated vector of FaceImage objects for the last N frames, where
+     * N is the number of frames requested in the preceding request callback.
+     * @param frames A vector containing the last N consecutive FaceImage objects
+     * @param isInitialized Return true if the FIFO buffer is fully initialized.
+     */    
     virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized) = 0;
 };
 

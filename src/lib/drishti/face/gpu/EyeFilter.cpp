@@ -23,26 +23,22 @@
 #include "ogles_gpgpu/common/proc/fir3.h"
 #include "ogles_gpgpu/common/common_includes.h"
 
-#include <opencv2/highgui.hpp>
-
 #include <memory>
-
-#define DRISHTI_EYE_FILTER_HISTORY_SIZE 3 // must be >=3 for fir3 proc
-#define DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP 0
 
 BEGIN_OGLES_GPGPU
 
 static void convert(const drishti::eye::EyeWarp& src, ogles_gpgpu::MappedTextureRegion& dst);
 
-EyeFilter::EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff)
+EyeFilter::EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff, int history)
     : m_sizeOut(sizeOut)
+    , m_history(history)
 {
     firstProc = &transformProc;
 
     transformProc.setInterpolation(TransformProc::BICUBIC);
 
     // Add a fifo proc for GPU sliding window:
-    fifoProc = drishti::core::make_unique<ogles_gpgpu::FifoProc>(DRISHTI_EYE_FILTER_HISTORY_SIZE);
+    fifoProc = drishti::core::make_unique<ogles_gpgpu::FifoProc>(history);
     transformProc.add(fifoProc.get());
 
     procPasses = { &transformProc, fifoProc.get() };
@@ -87,28 +83,22 @@ EyeFilter::~EyeFilter()
     procPasses.clear();
 }
 
-void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes)
+void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes, int n, bool getImage)
 {
-    // FifoProc::operator[] will preserve temporal ordering:
-    frames.resize(fifoProc->getBufferCount());
-    eyes.resize(fifoProc->getBufferCount());
-
-#if DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP
-    drishti::core::scope_guard guard = [&]() {
-        if (frames.size())
-        {
-            cv::Mat canvas;
-            cv::vconcat(frames, canvas);
-            cv::imshow("eyes", canvas);
-            cv::waitKey();
-        }
-    };
-#endif
-
-    for (int i = 0; i < frames.size(); i++)
+    // FifoProc::operator[] will preserve temporal ordering
+    auto length = fifoProc->getBufferCount();
+    n = std::min(n, static_cast<int>(length));
+    frames.resize(n);
+    eyes.resize(n);
+    for (int i = 0; i < n; i++)
     {
-        frames[i].create((*fifoProc)[i]->getOutFrameH(), (*fifoProc)[i]->getOutFrameW());
-        (*fifoProc)[i]->getResultData(frames[i].ptr<uint8_t>());
+        if(getImage)
+        {
+            // Pull frames in reverse order such that frames[0] is newest
+            auto* filter = (*fifoProc)[length - i - 1];
+            frames[i].create(filter->getOutFrameH(), filter->getOutFrameW());
+            filter->getResultData(frames[i].ptr<uint8_t>());
+        }
 
         cv::Matx33f N = transformation::denormalize(frames[i].size());
         for (int j = 0; j < m_eyeHistory[i].size(); j++)
@@ -116,13 +106,6 @@ void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes)
             const auto& e = m_eyeHistory[i][j];
             eyes[i][j] = (N * e.H) * e.eye;
         }
-
-#if DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP
-        for (const auto& e : eyes[i])
-        {
-            e.draw(frames[i], 2);
-        }
-#endif // DRISHIT_EYE_FILTER_DRAW_EYES_IN_DUMP
     }
 }
 
@@ -171,7 +154,7 @@ int EyeFilter::render(int position)
 
     // Maintain eye history queue of size == 3
     m_eyeHistory.push_front(m_eyes);
-    if (m_eyeHistory.size() > DRISHTI_EYE_FILTER_HISTORY_SIZE)
+    if (m_eyeHistory.size() > m_history)
     {
         m_eyeHistory.pop_back();
     }

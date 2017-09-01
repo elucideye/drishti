@@ -30,6 +30,7 @@
 #define DRISHTI_HCI_FACEFINDER_MIN_SEPARATION 0.15f // meters
 #define DRISHTI_HCI_FACEFINDER_INTERVAL 0.1f
 #define DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR 0
+#define DRISHTI_HCI_FACEFINDER_HISTORY 3
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
@@ -98,6 +99,8 @@ public:
         bool renderFaces = true;
         bool renderPupils = true;
         bool renderCorners = true;
+        
+        int history = DRISHTI_HCI_FACEFINDER_HISTORY;
     };
 
     FaceFinder(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
@@ -131,6 +134,10 @@ public:
 
 protected:
     
+    using ImageViews = std::vector<core::ImageView>;
+    using EyeModelPair = std::array<eye::EyeModel, 2>;
+    using EyeModelPairs = std::vector<EyeModelPair>;
+    
     std::pair<GLuint, ScenePrimitives> runFast(const FrameInput& frame, bool doDetection);
     std::pair<GLuint, ScenePrimitives> runSimple(const FrameInput& frame, bool doDetection);
     
@@ -142,7 +149,7 @@ protected:
     void scaleToFullResolution(std::vector<drishti::face::FaceModel> &faces);
     
     void notifyListeners(const ScenePrimitives& scene, const TimePoint& time, bool isFull);
-    bool hasValidFaceRequest(const ScenePrimitives& scene, const TimePoint& time) const;
+    FaceMonitor::Request hasValidFaceRequest(const ScenePrimitives& scene, const TimePoint& time) const;
 
     virtual void init(const cv::Size& inputSize);
     virtual void initPainter(const cv::Size& inputSizeUp);
@@ -155,8 +162,8 @@ protected:
     void initTimeLoggers();
     void init2(drishti::face::FaceDetectorFactory& resources);
 
-    void dumpEyes(std::vector<cv::Mat4b>& frames, std::vector<std::array<eye::EyeModel, 2>>& eyes);
-    void dumpFaces(std::vector<cv::Mat4b>& frames);
+    void dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n=1, bool getImage = false);
+    void dumpFaces(ImageViews& frames, int n=1, bool getImage = false);
     int detectOnly(ScenePrimitives& scene, bool doDetection);
     virtual int detect(const FrameInput& frame, ScenePrimitives& scene, bool doDetection);
     virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);

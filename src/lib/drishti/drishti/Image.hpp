@@ -157,6 +157,24 @@ typedef Rect<int> Recti;
 typedef Rect<float> Rectf;
 
 /*
+ * Texture container
+ */
+
+struct DRISHTI_EXPORT Texture
+{
+    Texture() = default;
+    Texture(const Vec2i &size, std::uint32_t texId)
+        : size(size)
+        , texId(texId)
+    {
+        // copy
+    }
+    
+    Vec2i size;
+    std::uint32_t texId;
+};
+
+/*
  * Image types
  */
 

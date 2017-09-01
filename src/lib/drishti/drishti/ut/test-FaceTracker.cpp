@@ -160,9 +160,7 @@ protected:
         factory.sEyeRegressor = &iEyeRegressor;
         factory.sFaceModel = &iFaceDetectorMean;
 
-        auto tracker = std::make_shared<drishti::sdk::FaceTracker>(&context, factory);
-
-        return tracker;
+        return std::make_shared<drishti::sdk::FaceTracker>(&context, factory);
     }
 
     void runTest(bool doCpu, bool doAsync)
