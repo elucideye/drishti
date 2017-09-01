@@ -51,7 +51,7 @@ public:
         kMean3,
     };
 
-    EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff);
+    EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff, int history);
 
     virtual ~EyeFilter();
 
@@ -93,11 +93,14 @@ public:
         m_faces.push_back(face);
     }
 
-    void dump(std::vector<cv::Mat4b>& images, std::vector<EyePair>& eyes);
+    void dump(std::vector<cv::Mat4b>& images, std::vector<EyePair>& eyes, int n, bool getImage);
 
     void renderIris();
 
 protected:
+    
+    int m_history = 3;
+    
     std::vector<drishti::face::FaceModel> m_faces;
 
     EyewWarpPair m_eyes;

@@ -52,10 +52,10 @@ inline drishti::face::FaceModel convert(const drishti::sdk::Face& model)
     return f;
 }
 
-/*
+/**
  * FaceMonitorAdapter
  *
- * Provide an interface for converting drishti::hc::FaceMonitor output to the public extern "C" API
+ * Provides an interface for converting drishti::hc::FaceMonitor output to the public extern "C" API
  */
 
 struct FaceMonitorAdapter : public drishti::hci::FaceMonitor
@@ -63,21 +63,35 @@ struct FaceMonitorAdapter : public drishti::hci::FaceMonitor
 public:
     using HighResolutionClock = std::chrono::high_resolution_clock;
     using TimePoint = HighResolutionClock::time_point; // <std::chrono::system_clock>;
-
-    FaceMonitorAdapter(drishti_face_tracker_t& table)
+    
+    FaceMonitorAdapter(drishti_face_tracker_t& table, int n=std::numeric_limits<int>::max())
         : m_start(HighResolutionClock::now())
         , m_table(table)
+        , m_n(n)
     {
     }
 
-    ~FaceMonitorAdapter()
-    {
-    }
+    ~FaceMonitorAdapter() = default;
 
-    virtual bool isValid(const cv::Point3f& position, const TimePoint& timeStamp)
+    virtual Request request(const Positions& positions, const TimePoint& timeStamp)
     {
         double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(timeStamp - m_start).count();
-        return m_table.trigger(m_table.context, cvToDrishti(position), elapsed);
+        auto request = m_table.trigger(m_table.context, cvToDrishti(positions[0]), elapsed);
+        return Request{request.n, request.getImage, request.getTexture};
+    }
+    
+    static drishti::sdk::Texture convert(const core::Texture &texture)
+    {
+        return {{texture.size.width, texture.size.height}, texture.texId };
+    }
+    
+    static void convert(const core::ImageView &src, drishti_image_tex_t &dst)
+    {
+        dst.texture = convert(src.texture);
+        if (!src.image.empty())
+        {
+            dst.image = cvToDrishti<cv::Vec4b, drishti::sdk::Vec4b>(src.image);
+        }
     }
 
     virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
@@ -87,21 +101,16 @@ public:
 
         for (size_t i = 0; i < frames.size(); i++)
         {
-            if (!frames[i].image.empty())
+            // Copy the full frame "face" image and metadata:
+            convert(frames[i].image, results[i].image);
+            results[i].faceModels.resize(frames[i].faceModels.size());
+            for (int j = 0; j < frames[i].faceModels.size(); j++)
             {
-                results[i].image = cvToDrishti<cv::Vec4b, drishti::sdk::Vec4b>(frames[i].image);
+                results[i].faceModels[j] = drishti::sdk::convert(frames[i].faceModels[j]);
             }
-
-            if (!frames[i].eyes.empty())
-            {
-                results[i].eyes = cvToDrishti<cv::Vec4b, drishti::sdk::Vec4b>(frames[i].eyes);
-            }
-
-            if (!frames[i].extra.empty())
-            {
-                results[i].extra = cvToDrishti<cv::Vec4b, drishti::sdk::Vec4b>(frames[i].extra);
-            }
-
+            
+            // Coyp the eye images and metadata:
+            convert(frames[i].eyes, results[i].eyes);
             results[i].eyeModels.resize(2);
             for (int j = 0; j < 2; j++)
             {
@@ -110,20 +119,16 @@ public:
                     results[i].eyeModels[j] = drishti::sdk::convert(frames[i].eyeModels[j]);
                 }
             }
-
-            results[i].faceModels.resize(frames[i].faceModels.size());
-            for (int j = 0; j < frames[i].faceModels.size(); j++)
-            {
-                results[i].faceModels[j] = drishti::sdk::convert(frames[i].faceModels[j]);
-            }
         }
 
         m_table.callback(m_table.context, results);
     }
 
 protected:
-    TimePoint m_start;
-    drishti_face_tracker_t m_table;
+    
+    TimePoint m_start; //! Timestmap for the start of tracking
+    drishti_face_tracker_t m_table; //! Table of callbacks for face tracker output
+    int m_n = 1; //! Number of frames to request for each callback
 };
 
 _DRISHTI_SDK_END

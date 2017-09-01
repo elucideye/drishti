@@ -26,6 +26,7 @@ sugar_files(DRISHTI_CORE_SRCS
 sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   Field.h
   FixedField.h
+  ImageView.h
   IndentingOStreamBuffer.h
   LazyParallelResource.h
   Line.h

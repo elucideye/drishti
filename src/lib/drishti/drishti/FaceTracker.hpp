@@ -20,17 +20,23 @@
 
 #include <memory>
 
+struct drishti_image_tex_t
+{
+    drishti::sdk::Texture texture;
+    drishti::sdk::Image4b image;
+};
+
 struct drishti_face_tracker_result_t
 {
     double time; //TimePoint time;
 
-    drishti::sdk::Image4b image;
+    drishti_image_tex_t image;
     drishti::sdk::Array<drishti::sdk::Face, 2> faceModels;
 
-    drishti::sdk::Image4b eyes; // eye pair image [ left | right ]
+    drishti_image_tex_t eyes; // eye pair image [ left | right ]
     drishti::sdk::Array<drishti::sdk::Eye, 2> eyeModels;
 
-    drishti::sdk::Image4b extra;
+    drishti::sdk::Image4b filtered;
 };
 
 DRISHTI_EXTERN_C_BEGIN
@@ -42,9 +48,18 @@ typedef struct drishti_image
     size_t channels;
 } drishti_image_t;
 
+typedef struct drishti_request
+{
+    int n;
+    bool getImage;
+    bool getTexture;
+} drishti_request_t;
+
+typedef drishti::sdk::Array<drishti_face_tracker_result_t, 64> drishti_face_tracker_results_t;
+
 // User defined callbacks:
-typedef int (*drishti_face_tracker_callback_t)(void* context, drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results);
-typedef int (*drishti_face_tracker_trigger_t)(void* context, const drishti::sdk::Vec3f& point, double timestamp);
+typedef int (*drishti_face_tracker_callback_t)(void* context, drishti_face_tracker_results_t& results);
+typedef drishti_request_t (*drishti_face_tracker_trigger_t)(void* context, const drishti::sdk::Vec3f& point, double timestamp);
 typedef int (*drishti_face_tracker_allocator_t)(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image);
 
 typedef struct drishti_face_tracker

@@ -112,10 +112,13 @@ protected:
         m_settings.maxDetectionDistance = 0.5f;
         m_settings.faceFinderInterval = 0.f;
         m_settings.acfCalibration = 0.001f;
+        m_settings.regressorCropScale = 1.5;
 
         m_settings.minTrackHits = 0; // allow all detections for testing
-        m_settings.maxTrackMisses = 3;
+        m_settings.maxTrackMisses = 1;
         m_settings.minFaceSeparation = 0.15f;
+        
+        m_settings.history = 3;
 
 #if defined(DRISHTI_HCI_DO_GPU)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
@@ -193,11 +196,12 @@ protected:
         FaceMonitorHCITest monitor;
         detector->registerFaceMonitorCallback(&monitor);
 
-        ogles_gpgpu::FrameInput frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
-
         const int iterations = 10;
         for (int i = 0; i < iterations; i++)
         {
+            cv::flip(image, image, 1);
+            ogles_gpgpu::FrameInput frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
+            
             (*detector)(frame);
 
             // Wait on face request callback:

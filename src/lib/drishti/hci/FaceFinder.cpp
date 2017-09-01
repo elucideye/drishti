@@ -18,6 +18,7 @@
 #include "drishti/geometry/Primitives.h"         // operator
 #include "drishti/geometry/motion.h"             // transformation::
 #include "drishti/hci/EyeBlob.h"                 // EyeBlobJob
+#include "drishti/core/ImageView.h"
 
 #include <functional>
 #include <deque>
@@ -159,23 +160,37 @@ void FaceFinder::registerFaceMonitorCallback(FaceMonitor* callback)
     impl->faceMonitorCallback.push_back(callback);
 }
 
-void FaceFinder::dumpEyes(std::vector<cv::Mat4b>& frames, std::vector<std::array<eye::EyeModel, 2>>& eyes)
+void FaceFinder::dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n, bool getImage)
 {
-    impl->eyeFilter->dump(frames, eyes);
+    std::vector<cv::Mat4b> images;
+    impl->eyeFilter->dump(images, eyes, n, getImage);
+    
+    frames.resize(images.size());
+    for (int i = 0; i < images.size(); i++)
+    {
+        frames[i].image = images[i];
+    }
 }
 
-void FaceFinder::dumpFaces(std::vector<cv::Mat4b>& frames)
+void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage)
 {
     if (impl->fifo->getBufferCount() == impl->fifo->getProcPasses().size())
     {
-        frames.resize(impl->fifo->getBufferCount());
+        auto length = impl->fifo->getBufferCount();
+        frames.resize(std::min(static_cast<std::size_t>(n), static_cast<std::size_t>(length)));
         for (int i = 0; i < frames.size(); i++)
         {
-            auto* filter = (*impl->fifo)[i];
-
-            cv::Size outSize(filter->getOutFrameW(), filter->getOutFrameH());
-            frames[i].create(outSize.height, outSize.width);
-            filter->getResultData(frames[i].ptr<uint8_t>());
+            auto* filter = (*impl->fifo)[length - i - 1];
+            const auto size = filter->getOutFrameSize();
+            
+            // Always assign texture (no cost)
+            frames[i].texture = { {size.width, size.height}, filter->getOutputTexId() };
+            
+            if(getImage)
+            {
+                frames[i].image.create(size.height, size.width);
+                filter->getResultData(frames[i].image.ptr<uint8_t>());
+            }
         }
     }
 }
@@ -270,7 +285,7 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
     const auto mode = ogles_gpgpu::EyeFilter::kMean3;
     const float cutoff = 0.5;
 
-    impl->eyeFilter = std::make_shared<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, cutoff);
+    impl->eyeFilter = std::make_shared<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, cutoff, impl->history);
     impl->eyeFilter->setAutoScaling(true);
     impl->eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
 
@@ -328,8 +343,8 @@ void FaceFinder::init(const cv::Size& inputSize)
     impl->faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*impl->sensor);
 
     initColormap();
-    initACF(inputSizeUp);     // initialize ACF first (configure opengl platform extensions)
-    initFIFO(inputSizeUp, 3); // keep last 3 frames
+    initACF(inputSizeUp); // initialize ACF first (configure opengl platform extensions)
+    initFIFO(inputSizeUp, impl->history); // keep last 3 frames
     initPainter(inputSizeUp); // {inputSizeUp.width/4, inputSizeUp.height/4}
 
     if (impl->doIris)
@@ -344,6 +359,16 @@ void FaceFinder::init(const cv::Size& inputSize)
     {
         // Must initialize blobFilter after eye filter:
         initBlobFilter();
+    }
+}
+
+template <typename Container>
+void push_fifo(Container &container, const typename Container::value_type &value, int size)
+{
+    container.push_front(value);
+    if (container.size() > size)
+    {
+        container.pop_back();
     }
 }
 
@@ -424,11 +449,7 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2,
     
     // Clear face motion estimate, update window:
     impl->faceMotion = { 0.f, 0.f, 0.f };
-    impl->scenePrimitives.push_front(*outputScene);
-    if (impl->scenePrimitives.size() >= 3)
-    {
-        impl->scenePrimitives.pop_back();
-    }
+    push_fifo(impl->scenePrimitives, *outputScene, impl->history);
     
     return std::make_pair(outputTexture, *outputScene);
 }
@@ -468,12 +489,7 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runSimple(const FrameInput& frame
     
     // Clear face motion estimate, update window:
     impl->faceMotion = { 0.f, 0.f, 0.f };
-    impl->scenePrimitives.push_front(*outputScene);
-    
-    if (impl->scenePrimitives.size() >= 3)
-    {
-        impl->scenePrimitives.pop_back();
-    }
+    push_fifo(impl->scenePrimitives, *outputScene, impl->history);
     
     return std::make_pair(outputTexture, *outputScene);
 }
@@ -526,36 +542,43 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
 
     try
     {
-        this->notifyListeners(outputScene, now, impl->fifo->isFull());
+        notifyListeners(outputScene, now, impl->fifo->isFull());
     }
-    catch (...) {}
+    catch (...)
+    {
+        // noop
+    }
 
     return outputTexture;
 }
 
-static bool hasValidFaceRequest(FaceMonitor& monitor, const ScenePrimitives& scene, const FaceMonitor::TimePoint& now)
+static FaceMonitor::Request
+hasValidFaceRequest(FaceMonitor& monitor, const ScenePrimitives& scene, const FaceMonitor::TimePoint& now)
 {
+    std::vector<cv::Point3f> locations;
     for (auto& face : scene.faces())
     {
-        if (monitor.isValid((*face.eyesCenter), now))
-        {
-            return true;
-        }
+        locations.push_back(*face.eyesCenter);
     }
-    return false;
+ 
+    // Sort near to far:
+    std::sort(locations.begin(), locations.end(), [](const cv::Point3f &a, const cv::Point3f &b) {
+        return a.z < b.z;
+    });
+    
+    return monitor.request(locations, now);
 }
 
 // Query list of listeners for valid face image
-bool FaceFinder::hasValidFaceRequest(const ScenePrimitives& scene, const TimePoint& now) const
+FaceMonitor::Request
+FaceFinder::hasValidFaceRequest(const ScenePrimitives& scene, const TimePoint& now) const
 {
+    FaceMonitor::Request requests;
     for (auto& callback : impl->faceMonitorCallback)
     {
-        if (::drishti::hci::hasValidFaceRequest(*callback, scene, now))
-        {
-            return true;
-        }
+        requests |= ::drishti::hci::hasValidFaceRequest(*callback, scene, now);
     }
-    return false;
+    return requests;
 }
 
 /**
@@ -571,24 +594,25 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
     std::vector<FaceMonitor::FaceImage> frames;
 
     // Build a list of active requests:
-    bool hasActive = false;
-    std::vector<bool> isActive(impl->faceMonitorCallback.size(), false);
+    std::vector<FaceMonitor::Request> requests(impl->faceMonitorCallback.size());
 
+    FaceMonitor::Request request;
+    
     if (scene.faces().size())
     {
         // 1) If any active face request is satisifed grab a frame+face buffer:
         for (int i = 0; i < impl->faceMonitorCallback.size(); i++)
         {
             auto& callback = impl->faceMonitorCallback[i];
-            isActive[i] = ::drishti::hci::hasValidFaceRequest(*callback, scene, now);
-            hasActive |= isActive[i];
+            requests[i] = ::drishti::hci::hasValidFaceRequest(*callback, scene, now);
+            request |= requests[i]; // accumulate requests
         }
 
-        if (hasActive)
+        if (request.n > 0)
         {
             // ### collect face images ###
-            std::vector<cv::Mat4b> faces;
-            dumpFaces(faces);
+            std::vector<core::ImageView> faces;
+            dumpFaces(faces, request.n, request.getImage);
 
             if (faces.size())
             {
@@ -596,23 +620,18 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
                 for (int i = 0; i < frames.size(); i++)
                 {
                     frames[i].image = faces[i];
+                    frames[i].faceModels = impl->scenePrimitives[i].faces();
                 }
-                // Tag active face image with model
-                frames[0].faceModels = scene.faces();
 
                 // ### collect eye images ###
-                std::vector<cv::Mat4b> eyes;
+                std::vector<core::ImageView> eyes;
                 std::vector<std::array<eye::EyeModel, 2>> eyePairs;
-                dumpEyes(eyes, eyePairs);
+                dumpEyes(eyes, eyePairs, request.n, request.getImage);
                 for (int i = 0; i < std::min(eyes.size(), faces.size()); i++)
                 {
                     frames[i].eyes = eyes[i];
+                    frames[i].eyeModels = eyePairs[i];
                 }
-
-                // ### Add the eye difference image ###
-                cv::Mat4b filtered(impl->eyeFilter->getOutFrameH(), impl->eyeFilter->getOutFrameW());
-                impl->eyeFilter->getResultData(filtered.ptr());
-                frames[0].extra = filtered;
             }
         }
     }
@@ -620,7 +639,7 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
     // 3) Provide face images as requested:
     for (int i = 0; i < impl->faceMonitorCallback.size(); i++)
     {
-        if (isActive[i])
+        if (requests[i].n)
         {
             impl->faceMonitorCallback[i]->grab(frames, isInit);
         }

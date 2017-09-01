@@ -94,6 +94,7 @@ struct FaceFinder::Impl
         , glVersionMinor(args.glVersionMinor)
         , usePBO(args.usePBO)
         , doOptimizedPipeline(args.doOptimizedPipeline)
+        , history(args.history)
     {
     }
 
@@ -202,6 +203,7 @@ struct FaceFinder::Impl
     int glVersionMinor = 0;
     bool usePBO = false;
     bool doOptimizedPipeline = true;
+    int history = 3; // frame history
 };
 
 DRISHTI_HCI_NAMESPACE_END
