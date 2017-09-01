@@ -285,16 +285,8 @@ protected:
     {
         // Instantiate a face finder and register a callback:
         auto tracker = createC(image.size(), 0, doAsync);
-
-        drishti_face_tracker_t table{
-            this,
-            triggerFunc,
-            callbackFunc,
-            allocatorFunc
-        };
-
+        drishti_face_tracker_t table{ this, triggerFunc, callbackFunc, allocatorFunc };
         drishti_face_tracker_callback(tracker.get(), table);
-
         drishti::sdk::VideoFrame frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
 
         const int iterations = 10;
