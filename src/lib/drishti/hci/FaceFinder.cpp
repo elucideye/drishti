@@ -24,6 +24,7 @@
 #include <deque>
 
 #include <spdlog/fmt/ostr.h>
+#include <errno.h> // https://www.taygeta.com/misc/nonTLS.html
 
 // clang-format off
 #ifdef ANDROID
