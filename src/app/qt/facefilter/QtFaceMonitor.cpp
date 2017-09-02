@@ -89,10 +89,10 @@ void QtFaceMonitor::grab(const std::vector<FaceImage>& frames, bool isInitialize
 
         for (int i = 0; i < frames.size(); i++)
         {
-            faces.push_back(frames[i].image);
-            if (!frames[i].eyes.empty())
+            faces.push_back(frames[i].image.image);
+            if (!frames[i].eyes.image.empty())
             {
-                eyes.push_back(frames[i].eyes);
+                eyes.push_back(frames[i].eyes.image);
             }
         }
 
@@ -112,15 +112,14 @@ void QtFaceMonitor::grab(const std::vector<FaceImage>& frames, bool isInitialize
             cv::vconcat(eyes, stack);
 
             std::stringstream ss;
-            ss << tmp << "/eyes_" << counter << "_"
-               << ".png";
+            ss << tmp << "/eyes_" << counter << ".png";
             cv::imwrite(ss.str(), stack);
         }
 
-        if (frames.size() && !frames[0].extra.empty())
+        if (frames.size() && !frames[0].filtered.image.empty())
         {
             cv::Mat bgr;
-            cv::cvtColor(frames[0].extra, bgr, cv::COLOR_BGRA2BGR);
+            cv::cvtColor(frames[0].filtered.image, bgr, cv::COLOR_BGRA2BGR);
 
             std::stringstream ss;
             ss << tmp << "/eye_mean_" << counter << ".png";
