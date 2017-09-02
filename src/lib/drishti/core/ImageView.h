@@ -18,14 +18,14 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 struct Texture
 {
     Texture() = default;
-    Texture(const cv::Size &size, GLuint texId)
+    Texture(const cv::Size &size, std::uint32_t texId)
         : size(size)
         , texId(texId)
     {
         
     }
     cv::Size size;     //! Teture dimensions in pixels
-    GLuint texId = 0;  //! Identifier for the texture
+    std::uint32_t texId = 0;  //! Identifier for the texture
 };
     
 struct ImageView
