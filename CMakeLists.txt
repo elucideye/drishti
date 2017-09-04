@@ -205,22 +205,6 @@ if(XCODE)
 
 endif()
 
-# OpenMP compiler checks take > 10 seconds on ios "Try OpenMP CXX flag = [-openmp]" in xcode
-# TODO: Investigate why this is so much slower with ios toolchain
-# OpenMP also causes a compiler error in Eigen on vs-14-2015
-# http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1131
-if(NOT XCODE AND NOT MSVC) # We'll never have openmp on ios, and this test is really slow
-  # This is only used for xgboost training and it will be removed once the
-  # xgboost interface is updated.
-  find_package( OpenMP )
-  if(OPENMP_FOUND)
-    message("OPENMP FOUND")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-  endif()
-endif()
-
 #######################
 ### Packaging/CPack ###
 #######################
