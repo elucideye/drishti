@@ -312,7 +312,7 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
     { // optical flow for eyes:
         impl->eyeFlow = drishti::core::make_unique<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
 #if TEXTURE_FORMAT_IS_RGBA
-        impl->eyeFlowBgra = std::make_shared<ogles_gpgpu::SwizzleProc>();
+        impl->eyeFlowBgra = drishti::core::make_unique<ogles_gpgpu::SwizzleProc>();
         impl->eyeFlow->add(impl->eyeFlowBgra.get());
         impl->eyeFlowBgraInterface = impl->eyeFlowBgra.get();
 #else
@@ -1141,7 +1141,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
             // clang-format on
 
             const cv::Point2f center = core::centroid(centers);
-            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale, center);
+            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale*1.1, center);
             faceDetectorMean = H * faceDetectorMean;
         }
 
