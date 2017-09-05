@@ -107,6 +107,16 @@ FaceFinderPainter::~FaceFinderPainter()
 {
 }
 
+void FaceFinderPainter::setEffectKind(EffectKind kind)
+{
+    m_effect = kind;
+}
+
+auto FaceFinderPainter::getEffectKind() const -> EffectKind
+{
+    return m_effect;
+}
+
 void FaceFinderPainter::setShowMotionAxes(bool value)
 {
     m_pImpl->m_showMotionAxes = value;
@@ -140,18 +150,20 @@ void FaceFinderPainter::setLetterboxHeight(float height)
 
 void FaceFinderPainter::init(const cv::Size& inputSize)
 {
+    m_inputSize = inputSize;
     FaceFinder::init(inputSize);
 }
 
 void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
 {
+    m_inputSizeUp = inputSizeUp;
     FaceFinder::initPainter(inputSizeUp);
 
     // ### Painter ###
-    ogles_gpgpu::RenderOrientation outputOrientation = ::ogles_gpgpu::degreesToOrientation(360 - impl->outputOrientation);
+    m_outputOrientation = ::ogles_gpgpu::degreesToOrientation(360 - impl->outputOrientation);
 
     m_rotater = std::make_shared<ogles_gpgpu::TransformProc>();
-    m_rotater->setOutputRenderOrientation(outputOrientation);
+    m_rotater->setOutputRenderOrientation(m_outputOrientation);
 
     m_painter = std::make_shared<ogles_gpgpu::FacePainter>(0);
     m_painter->setInterpolation(ogles_gpgpu::TransformProc::BILINEAR);
@@ -202,8 +214,17 @@ void cat(const Container& a, const Container& b, Container& c)
     std::copy(b.begin(), b.end(), std::back_inserter(c));
 }
 
-GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTexture)
+
+GLuint FaceFinderPainter::filter(const ScenePrimitives& scene, GLuint inputTexture)
 {
+    // clang-format on
+    MethodLog timeSummary(DRISHTI_LOCATION_SIMPLE);
+    core::ScopeTimeLogger paintLogger = [&](double ts)
+    {
+        impl->logger->info("TIMING:{}={};{}", timeSummary.name, ts, timeSummary.ss.str());
+    };
+    // clang-format off
+    
 #if DRISHTI_HCI_FACE_FINDER_PAINTER_SHOW_CIRCLE
     {
         const auto toc = std::chrono::high_resolution_clock::now();
@@ -216,28 +237,21 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
         m_circle->setCenter({ position.x, position.y });
     }
 #endif
-
-    MethodLog timeSummary(DRISHTI_LOCATION_SIMPLE);
-    core::ScopeTimeLogger paintLogger = [&](double ts) {
-        impl->logger->info("TIMING:{}={};{}", timeSummary.name, ts, timeSummary.ss.str());
-    };
-
-    m_painter->setBrightness(impl->brightness);
-
+    
     // Convert objects to line drawings
     m_painter->getLineDrawings().clear();
-
+    
     // Always set motion axes:
     if (m_pImpl->m_showMotionAxes)
     {
         cv::Point3f motion = (m_pImpl->m_showMotionAxes ? (impl->faceMotion) : cv::Point3f(0.f, 0.f, 0.f));
         m_painter->setAxes(motion * 500.f);
     }
-
+    
     // Note: scene.draw() muust be called prior to this point.  All drawing has been moved to the latency=1 cpu thread
     // for the previous frame to increase throughput.
     std::copy(scene.getDrawings().begin(), scene.getDrawings().end(), std::back_inserter(m_painter->getLineDrawings()));
-
+    
     if (scene.faces().size())
     {
         core::ScopeTimeLogger faceTime = [&](double ts) { timeSummary.ss << "FACES=" << ts << ";"; };
@@ -245,25 +259,25 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
         {
             m_painter->addFace(f);
         }
-
+        
         // Note: These eye warps are provided wrt
         auto& eyeWarps = impl->eyeFilter->getEyeWarps();
         for (int i = 0; i < 2; i++)
         {
             eyeWarps[i].setContours(scene.m_eyeDrawings[i]);
         }
-
+        
         { // Set the eye textures:
             m_painter->setEyeTexture(impl->eyeFilter->getOutputTexId(), impl->eyeFilter->getOutFrameSize(), eyeWarps);
             FeaturePoints eyePoints;
-
+            
             if (false)
             {
                 cat(impl->eyePoints[0], impl->eyePoints[1], eyePoints);
                 m_painter->setEyePoints(eyePoints);
             }
         }
-
+        
         if (impl->doIris && m_drawIris)
         {
             //Draw the normalized iris (polar coordinates):
@@ -277,38 +291,51 @@ GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTextur
     {
         rectanglesToDrawings(scene.objects() * impl->ACFScale, m_painter->getLineDrawings());
     }
-
+    
     if (impl->doFlow)
     {
         core::ScopeTimeLogger flowTime = [&](double ts) { timeSummary.ss << "FLOW=" << ts << ";"; };
-
+        
         if (scene.flow().size())
         {
             flowToDrawings(scene.flow(), m_painter->getLineDrawings(), impl->colors32FC3);
         }
-
+        
         // Add the flow for debugging:
         auto* flow = impl->acf->getFlowProc();
         m_painter->setFlowTexture(flow->getOutputTexId(), flow->getOutFrameSize());
     }
-
+    
     if (impl->doBlobs)
     {
         m_painter->setFlashTexture(impl->blobFilter->getOutputTexId(), impl->blobFilter->getOutFrameSize());
     }
-
+    
     if (impl->doEyeFlow)
     {
         m_painter->setEyeFlow(impl->eyeFlowField);
         m_painter->setEyeMotion(impl->eyeMotion);
     }
-
+    
     {
         core::ScopeTimeLogger processTime = [&](double ts) { timeSummary.ss << "PROCESS=" << ts << ";"; };
         m_painter->process(inputTexture, 1, GL_TEXTURE_2D);
     }
-
+    
     return m_rotater->getOutputTexId();
+}
+
+GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTexture)
+{
+    m_painter->setBrightness(impl->brightness);
+
+    // Here we can choose one of several display layouts or effects:
+    switch(m_effect)
+    {
+        case kStabilize : return stabilize(inputTexture, m_inputSizeUp, scene.faces().size() ? scene.faces()[0] : face::FaceModel());
+        case kWireframes :
+        default : return filter(scene, inputTexture);
+    }
 }
 
 DRISHTI_HCI_NAMESPACE_END

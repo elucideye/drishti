@@ -126,7 +126,6 @@ struct FaceFinder::Impl
     int outputOrientation = 0;
     float brightness = 1.f;
     std::shared_ptr<ogles_gpgpu::FifoProc> fifo;         // store last N faces
-    std::shared_ptr<ogles_gpgpu::TransformProc> rotater; // output frame rotation
 
     // :::::::::::::::::::::::::::::::::::::::
     // ::: ACF and detection parameters:   :::
@@ -179,11 +178,11 @@ struct FaceFinder::Impl
     bool doEyeFlow = false;
     cv::Size eyesSize = { 480, 240 };
 
-    std::shared_ptr<ogles_gpgpu::BlobFilter> blobFilter;
-    std::shared_ptr<ogles_gpgpu::EyeFilter> eyeFilter;
+    std::unique_ptr<ogles_gpgpu::BlobFilter> blobFilter;
+    std::unique_ptr<ogles_gpgpu::EyeFilter> eyeFilter;
     std::shared_ptr<ogles_gpgpu::EllipsoPolarWarp> ellipsoPolar[2];
-    std::shared_ptr<ogles_gpgpu::FlowOptPipeline> eyeFlow;
-    std::shared_ptr<ogles_gpgpu::SwizzleProc> eyeFlowBgra; // (optional)
+    std::unique_ptr<ogles_gpgpu::FlowOptPipeline> eyeFlow;
+    std::unique_ptr<ogles_gpgpu::SwizzleProc> eyeFlowBgra; // (optional)
     ogles_gpgpu::ProcInterface* eyeFlowBgraInterface = nullptr;
 
     FeaturePoints gazePoints;
@@ -204,6 +203,12 @@ struct FaceFinder::Impl
     bool usePBO = false;
     bool doOptimizedPipeline = true;
     int history = 3; // frame history
+    
+    // :::::::::::::::::::::::
+    // ::: Filters/Effects :::
+    // :::::::::::::::::::::::
+    std::unique_ptr<ogles_gpgpu::TransformProc> warper;
+    std::unique_ptr<ogles_gpgpu::TransformProc> rotater; // output frame rotation
 };
 
 DRISHTI_HCI_NAMESPACE_END

@@ -153,6 +153,7 @@ protected:
 
     virtual void init(const cv::Size& inputSize);
     virtual void initPainter(const cv::Size& inputSizeUp);
+    void initFaceFilters(const cv::Size &inputSizeUp);
     void initACF(const cv::Size& inputSizeUp);
     void initFIFO(const cv::Size& inputSize, std::size_t n);
     void initBlobFilter();
@@ -168,8 +169,9 @@ protected:
     virtual int detect(const FrameInput& frame, ScenePrimitives& scene, bool doDetection);
     virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);
     virtual void preprocess(const FrameInput& frame, ScenePrimitives& scene, bool needsDetection); // compute acf
-    int computeDetectionWidth(const cv::Size& inputSizeUp) const;
 
+    GLuint stabilize(GLuint inputTexId, const cv::Size &inputSizeUp, const drishti::face::FaceModel &face);
+    int computeDetectionWidth(const cv::Size& inputSizeUp) const;
     void computeAcf(const FrameInput& frame, bool doLuv, bool doDetection);
     std::shared_ptr<acf::Detector::Pyramid> createAcfGpu(const FrameInput& frame, bool doDetection);
     std::shared_ptr<acf::Detector::Pyramid> createAcfCpu(const FrameInput& frame, bool doDetection);

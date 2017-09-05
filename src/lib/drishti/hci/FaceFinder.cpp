@@ -261,7 +261,7 @@ void FaceFinder::initBlobFilter()
 {
     // ### Blobs ###
     assert(impl->eyeFilter.get());
-    impl->blobFilter = std::make_shared<ogles_gpgpu::BlobFilter>();
+    impl->blobFilter = drishti::core::make_unique<ogles_gpgpu::BlobFilter>();
     impl->blobFilter->init(128, 64, INT_MAX, false);
     impl->blobFilter->createFBOTex(false);
 
@@ -285,7 +285,7 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
     const auto mode = ogles_gpgpu::EyeFilter::kMean3;
     const float cutoff = 0.5;
 
-    impl->eyeFilter = std::make_shared<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, cutoff, impl->history);
+    impl->eyeFilter = drishti::core::make_unique<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, cutoff, impl->history);
     impl->eyeFilter->setAutoScaling(true);
     impl->eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
 
@@ -295,11 +295,14 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
         cv::Matx33f N = transformation::scale(0.5, 0.5) * transformation::translate(1.f, 1.f);
         for (int i = 0; i < 2; i++)
         {
-            std::function<drishti::eye::EyeWarp()> eyeDelegate = [&, N, i]() {
+            // clang-format off
+            std::function<drishti::eye::EyeWarp()> eyeDelegate = [&, N, i]()
+            {
                 auto eye = impl->eyeFilter->getEyeWarps()[i];
                 eye.eye = N * eye.H * eye.eye;
                 return eye;
             };
+            // clang-format on
             impl->ellipsoPolar[i]->addEyeDelegate(eyeDelegate);
             impl->eyeFilter->add(impl->ellipsoPolar[i].get());
         }
@@ -307,9 +310,9 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
 
     if (impl->doEyeFlow)
     { // optical flow for eyes:
-        impl->eyeFlow = std::make_shared<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
+        impl->eyeFlow = drishti::core::make_unique<ogles_gpgpu::FlowOptPipeline>(0.004, 1.0, false);
 #if TEXTURE_FORMAT_IS_RGBA
-        impl->eyeFlowBgra = std::make_shared<ogles_gpgpu::SwizzleProc>();
+        impl->eyeFlowBgra = drishti::core::make_unique<ogles_gpgpu::SwizzleProc>();
         impl->eyeFlow->add(impl->eyeFlowBgra.get());
         impl->eyeFlowBgraInterface = impl->eyeFlowBgra.get();
 #else
@@ -325,6 +328,37 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
 void FaceFinder::initPainter(const cv::Size& /* inputSizeUp */)
 {
     impl->logger->info("Init painter");
+}
+
+void FaceFinder::initFaceFilters(const cv::Size &inputSizeUp)
+{
+    const auto outputRenderOrientation = ::ogles_gpgpu::degreesToOrientation(360 - impl->outputOrientation);
+    impl->rotater = drishti::core::make_unique<ogles_gpgpu::TransformProc>();
+    impl->rotater->setOutputRenderOrientation(outputRenderOrientation);
+    
+    impl->warper = drishti::core::make_unique<ogles_gpgpu::TransformProc>();
+    impl->warper->add(impl->rotater.get());
+    impl->warper->prepare(inputSizeUp.width, inputSizeUp.width, GL_RGBA);
+}
+
+GLuint FaceFinder::stabilize(GLuint inputTexId, const cv::Size &inputSizeUp, const drishti::face::FaceModel &face)
+{
+    if(face.points.has)
+    {
+        const cv::Matx33f S = transformation::denormalize(inputSizeUp);
+        const cv::Matx33f Sinv = S.inv();
+        const cv::Matx33f H = drishti::face::FaceStabilizer::stabilize(face, inputSizeUp, 0.33);
+        
+        cv::Matx44f MVP;
+        transformation::R3x3To4x4(Sinv * H * S, MVP);
+        
+        ogles_gpgpu::Mat44f MVPt;
+        cv::Mat(MVP.t()).copyTo(cv::Mat(4,4,CV_32FC1,&MVPt.data[0][0]));
+        impl->warper->setTransformMatrix(MVPt);
+    }
+    
+    impl->warper->process(inputTexId, 1, GL_TEXTURE_2D);
+    return impl->rotater->getOutputTexId();
 }
 
 void FaceFinder::init(const cv::Size& inputSize)
@@ -344,8 +378,9 @@ void FaceFinder::init(const cv::Size& inputSize)
 
     initColormap();
     initACF(inputSizeUp); // initialize ACF first (configure opengl platform extensions)
-    initFIFO(inputSizeUp, impl->history); // keep last 3 frames
+    initFIFO(inputSizeUp, impl->history); // keep last N frames
     initPainter(inputSizeUp); // {inputSizeUp.width/4, inputSizeUp.height/4}
+    initFaceFilters(inputSizeUp); // gpu "filter" (effects)
 
     if (impl->doIris)
     {
@@ -1106,7 +1141,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
             // clang-format on
 
             const cv::Point2f center = core::centroid(centers);
-            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale, center);
+            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale*1.1, center);
             faceDetectorMean = H * faceDetectorMean;
         }
 

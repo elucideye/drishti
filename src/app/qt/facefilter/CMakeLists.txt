@@ -112,11 +112,7 @@ if(DRISHTI_USE_BEAST)
 endif()
 
 if(IOS)
-  list(APPEND FACE_FILTER_SOURCES
-    QIOSViewController+Fix.h
-    QIOSViewController+Fix.mm    
-    Device.mm    
-    )
+  list(APPEND FACE_FILTER_SOURCES Device.mm)
 endif()
 
 if(ANDROID)

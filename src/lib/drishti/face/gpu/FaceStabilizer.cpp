@@ -10,6 +10,7 @@
 
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/geometry/motion.h" // for transformation::
+#include "drishti/core/Shape.h"
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
@@ -21,7 +22,13 @@ FaceStabilizer::FaceStabilizer(const cv::Size& sizeOut)
 cv::Matx33f FaceStabilizer::stabilize(const drishti::face::FaceModel& face, const cv::Size& sizeOut, float span)
 {
     using PointPair = std::array<cv::Point2f, 2>;
-    const PointPair eyeCenters{ { face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center } };
+    
+    PointPair eyeCenters{ { face.eyeFullR->irisEllipse.center, face.eyeFullL->irisEllipse.center } };
+    if (std::min(face.eyeFullR->openness(), face.eyeFullL->openness()) < 0.1f)
+    {
+        eyeCenters = { { core::centroid(face.eyeRight), core::centroid(face.eyeLeft) } };
+    }
+    
     // clang-format off
     const PointPair screenCenters
     {{
