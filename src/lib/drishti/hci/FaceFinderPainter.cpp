@@ -327,7 +327,7 @@ GLuint FaceFinderPainter::filter(const ScenePrimitives& scene, GLuint inputTextu
 
 GLuint FaceFinderPainter::paint(const ScenePrimitives& scene, GLuint inputTexture)
 {
-    m_painter->setBrightness(impl->brightness); m_effect = kStabilize;
+    m_painter->setBrightness(impl->brightness);
 
     // Here we can choose one of several display layouts or effects:
     switch(m_effect)
