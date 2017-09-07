@@ -320,7 +320,7 @@ int VideoFilterRunnable::detectFaces(QVideoFrame* input)
     }
 
     // Be sure to active GL_TEXTURE0 for Qt
-    glActiveTexture(GL_TEXTURE0);
+    f->glActiveTexture(GL_TEXTURE0);
 
     return m_outTexture;
 }

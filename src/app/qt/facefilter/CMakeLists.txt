@@ -154,7 +154,7 @@ else()
   # We should load this manually because of cyclic dependencies in Qt
   find_package(Qt5MultimediaWidgets REQUIRED)
 
-  if(IOS OR is_linux)
+  if(IOS OR is_linux OR MSVC)
     set(qt_conf "${CMAKE_CURRENT_LIST_DIR}/qt.conf")
     set(qml_dir "${CMAKE_CURRENT_BINARY_DIR}/qt_qml")
 
@@ -171,6 +171,31 @@ else()
     ${qt_conf}
     ${qml_dir}
     )
+
+  if(is_linux OR MSVC)
+    # Qt resources are not bundled
+    add_custom_command(
+        TARGET ${app_name}
+        PRE_BUILD
+        COMMAND
+            ${CMAKE_COMMAND}
+            -E
+            make_directory
+            $<TARGET_FILE_DIR:${app_name}>
+        COMMAND
+            ${CMAKE_COMMAND}
+            -E
+            copy_directory
+            "${qml_dir}"
+            "$<TARGET_FILE_DIR:${app_name}>/qt_qml"
+        COMMAND
+            ${CMAKE_COMMAND}
+            -E
+            copy
+            "${qt_conf}"
+            $<TARGET_FILE_DIR:${app_name}>
+    )
+  endif()
 
   set_target_properties(
     ${app_name}

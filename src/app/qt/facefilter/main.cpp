@@ -34,7 +34,6 @@
 ****************************************************************************/
 
 #include <cassert> // assert
-#include <QOpenGLExtraFunctions>
 #include <QGuiApplication>
 #include <QQuickItem>
 #include <QtPlugin> // Q_IMPORT_PLUGIN
@@ -51,6 +50,7 @@
 // Includes 'gl2.h', after 'glew.h' {
 #include <QQuickView>
 #include <QtOpenGL/QGLFormat>
+#include <QOpenGLExtraFunctions>
 // }
 
 #include "GLVersion.h"
@@ -67,11 +67,6 @@
 #include "drishti/core/drishti_core.h"
 
 #include <iostream>
-
-#if defined(Q_OS_OSX) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
-Q_IMPORT_PLUGIN(QtQuick2Plugin);
-Q_IMPORT_PLUGIN(QMultimediaDeclarativeModule);
-#endif
 
 // Utilities
 static void printResources();
@@ -108,7 +103,7 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
 #elif defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QGuiApplication::setAttribute(Qt::AA_UseOpenGLES);
 #endif
-    
+
     // https://stackoverflow.com/questions/40385482/why-cant-i-use-opengl-es-3-0-in-qt
     GLVersion glVersion { 2, 0 };
     bool usePBO = false;
