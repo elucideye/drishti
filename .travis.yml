@@ -1,7 +1,8 @@
 # OSX/Linux (https://github.com/travis-ci-tester/toolchain-table)
 
+# Workaround for https://github.com/travis-ci/travis-ci/issues/8363
 language:
-  - cpp
+  - minimal
 
 # Container-based infrastructure (Linux)
 # * https://docs.travis-ci.com/user/migrating-from-legacy/#How-can-I-use-container-based-infrastructure%3F
@@ -30,6 +31,9 @@ addons:
       # * https://github.com/elucideye/drishti/issues/273#issuecomment-301297286
       - g++-5
       - gcc-5
+
+      # pip3
+      - python3-pip
 
 matrix:
   include:
@@ -122,9 +126,9 @@ script:
       HUNTER_SUPPRESS_LIST_OF_FILES=ON
       --archive drishti
       --jobs 2
-      --test      
+      --test
       ${INSTALL}
-      
+
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
     - export FILE_TO_UPLOAD=$(ls _archives/drishti-*.tar.gz)
