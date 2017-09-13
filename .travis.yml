@@ -22,6 +22,9 @@ addons:
       # For Qt
       - libegl1-mesa-dev
 
+      # For ogles_gpgpu (GL library)
+      - libgl1-mesa-dev
+
       # Packages for Android development: http://superuser.com/a/360398/252568
       - libncurses5:i386
       - libstdc++6:i386
