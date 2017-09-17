@@ -1,5 +1,22 @@
 # drishti
 
+[![Travis][travis_shield]][travis_builds]
+[![Appveyor][appveyor_shield]][appveyor_builds]
+[![License (3-Clause BSD)][license_shield]][license_link]
+[![Hunter][hunter_shield]][hunter_link]
+
+[hunter_shield]: https://img.shields.io/badge/hunter-v0.19.75-blue.svg
+[hunter_link]: http://github.com/ruslo/hunter
+
+[license_shield]: https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square
+[license_link]: http://opensource.org/licenses/BSD-3-Clause
+
+[travis_builds]: https://travis-ci.com/elucideye/drishti/builds
+[travis_shield]: https://img.shields.io/travis/elucideye/drishti/master.svg?style=flat-square&label=Linux%20OSX%20Android%20iOS
+
+[appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti/history
+[appveyor_shield]: https://img.shields.io/appveyor/ci/ingenue/hunter/pkg.gtest.svg?style=flat-square&label=Windows
+
 ![drishti_text_big](https://user-images.githubusercontent.com/554720/28922218-3a005f9c-7827-11e7-839c-ef3e9a282f70.png)
 
 ### Real time eye tracking for embedded and mobile devices in C++11.
@@ -8,22 +25,7 @@
 ![eye models 2](https://user-images.githubusercontent.com/554720/28920912-da9f3820-7821-11e7-848c-f526922e24ec.png)
 ![eye models 3](https://user-images.githubusercontent.com/554720/28920920-dcd8e708-7821-11e7-8fc2-b9f375a9a550.png)
 
-[![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square)](http://opensource.org/licenses/BSD-3-Clause)
-[![HUNTER](https://img.shields.io/badge/hunter-v0.19.75-blue.svg)](http://github.com/ruslo/hunter)
-
 Goal: SDK size <= 1 MB and combined resources (object detection + regression models) <= 4 MB.
-
-
-| Linux/OSX/Android/iOS                           | Windows                                             |
-|-------------------------------------------------|-----------------------------------------------------|
-| [![Build Status][travis_status]][travis_builds] | [![Build Status][appveyor_status]][appveyor_builds] |
-
-
-[travis_status]: https://travis-ci.com/elucideye/drishti.svg?token=2fYtPs8x4ziLvxfp2emx&branch=master
-[travis_builds]: https://travis-ci.com/elucideye/drishti
-
-[appveyor_status]: https://ci.appveyor.com/api/projects/status/m1ourfgbmmbp4p0o?svg=true
-[appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti
 
 * [Hunter](https://github.com/ruslo/hunter) package management and CMake build system by Ruslan Baratov, as well as much of the cross platform Qt work: "Organized Freedom!" :)
 * A C++ and OpenGL ES 2.0 implementation of [Fast Feature Pyramids for Object Detection](https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf) (see [Piotr's Matlab Toolbox](https://pdollar.github.io/toolbox)) for face and eye detection
