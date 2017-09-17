@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   GazeEstimator.h
   @author David Hirvonen
   @brief  Internal declaration for a simple model based relative gaze estimation scheme.

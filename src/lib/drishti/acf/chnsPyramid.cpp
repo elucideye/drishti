@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   chnsPyramid.cpp
   @author David Hirvonen
   @author P. Dollár (original matlab code)

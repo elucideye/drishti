@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   arithmetic.cpp
   @author David Hirvonen
   @brief  Implementation of optimized vector arithmetic.

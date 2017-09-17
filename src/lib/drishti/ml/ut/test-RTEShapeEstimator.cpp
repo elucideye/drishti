@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-RTEShapeEstimator.cpp
   @author David Hirvonen
   @brief  Google fixture with various subtests for the RegressionTreeEnsembleShapeEstimator

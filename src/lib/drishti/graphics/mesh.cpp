@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   MeshProc
   @author David Hirvonen
   @brief Implementation of ogles_gpgpu shader for drawing lines.

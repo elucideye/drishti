@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   string_utils.h
   @author David Hirvonen
   @brief  Declaration of string manipulation routines.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-convert.cpp
   @author David Hirvonen
   @brief  Google fixture with various subtests for optimized conversions.

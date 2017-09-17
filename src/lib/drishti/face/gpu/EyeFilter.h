@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   face/gpu/EyeFilter.h
   @author David Hirvonen
   @brief  Perform temporal filtering on stabilized eye crops.

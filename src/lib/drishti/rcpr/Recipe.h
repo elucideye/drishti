@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Recipe.h
   @author David Hirvonen
   @brief  Declaration of parameter set for a single cascade of pose regression.

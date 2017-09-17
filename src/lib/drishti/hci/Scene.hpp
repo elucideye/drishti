@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   finder/Scene.hpp
   @author David Hirvonen
   @brief  Scene viewed by the camera represented by low level primitives: (corners, face, flow, etc.)

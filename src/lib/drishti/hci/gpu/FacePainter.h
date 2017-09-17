@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   finder/FacePainter.h
   @author David Hirvonen
   @brief Simple interface to draw faces and other primitives from the scene.

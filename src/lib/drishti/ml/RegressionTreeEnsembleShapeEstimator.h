@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   RegressionTreeEnsembleShapeEstimator.h
   @author David Hirvonen
   @brief  Internal declaration of regression tree ensemble shape estimator variant.

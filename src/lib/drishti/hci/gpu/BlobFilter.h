@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   gpu/BlobFilter.cpp
   @author David Hirvonen
   @brief  Illuminate the scene with pulses of LCD light.

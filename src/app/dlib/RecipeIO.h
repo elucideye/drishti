@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   RecipeIO.h
   @author David Hirvonen
   @brief  Declaration of parameter set for a cascaded pose regression (dlib).

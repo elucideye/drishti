@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_sensor.h
   @author David Hirvonen
   @author TODO: Add attributes for model sample code

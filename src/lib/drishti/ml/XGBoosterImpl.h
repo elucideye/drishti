@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   XGBoosterImpl.h
  @author David Hirvonen
  @brief  Internal declaration of the XGBoost private implementation class.

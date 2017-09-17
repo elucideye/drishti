@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   MUCT.cpp
  @author David Hirvonen
  @brief  High level routines for parsing MUCT data.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_master.hpp
   @author David Hirvonen
   @brief  Minimal top level file to satisfy CMake + Xcode >= 1 source

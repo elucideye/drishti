@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_pca_cereal.h
   @author David Hirvonen
   @brief  Private header for cereal::serialize cv::Mat (de)serialization

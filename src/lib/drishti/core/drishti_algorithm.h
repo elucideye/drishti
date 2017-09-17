@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_algorithm.h
   @author David Hirvonen
   @brief  Return vector index for sorted array.

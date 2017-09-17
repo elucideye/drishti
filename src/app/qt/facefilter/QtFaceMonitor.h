@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   QtFaceMonitor.h
   @author David Hirvonen
   @brief Qt sample facemonitor 

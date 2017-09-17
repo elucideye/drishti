@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceDetectorAndTrackerImpl.h
   @author David Hirvonen
   @brief  Declaration of private iplementation for FaceDetectorAndTrackerImpl.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Shape.cpp
   @author David Hirvonen
   @brief  Implementation of simple (de)serializable shapes/contours.

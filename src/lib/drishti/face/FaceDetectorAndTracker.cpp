@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceDetectorAndTracker.cpp
   @author David Hirvonen
   @brief  Implementation of a class that extends the face detector with tracking.

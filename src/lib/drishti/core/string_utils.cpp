@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   string_utils.cpp
   @author David Hirvonen
   @brief  Implementation of string manipulation routines.

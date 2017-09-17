@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_testlib.h
   @author David Hirvonen
   @brief  Internal ACF namespace.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeIO.cpp
   @author David Hirvonen
   @brief  Eye serialization.

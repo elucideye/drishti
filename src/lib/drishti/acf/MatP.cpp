@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   MatP.cpp
   @author David Hirvonen
   @brief  Internal ACF namespace.

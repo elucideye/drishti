@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeModelEstimatorImpl.h
   @author David Hirvonen
   @brief  Internal declaration of eye model estimator private implementation class.

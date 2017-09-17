@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   cprApply.cpp
   @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Implementation of core CPR ellipse model prediction.

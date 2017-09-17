@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_cli.h
   @author David Hirvonen
   @brief  Portable cli utilites with no dependnecies

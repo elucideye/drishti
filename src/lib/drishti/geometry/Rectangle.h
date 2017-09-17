@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Rectangle.h
   @author David Hirvonen
   @brief  Declaration of rectangle class and geometric operations.

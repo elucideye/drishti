@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   Booster.h
  @author David Hirvonen
  @brief  Internal declaration of the XGBoost C++ interface class.

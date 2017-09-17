@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   pose.cpp
  @author David Hirvonen
  @brief  EOS deformable face mesh fitting test w/ rendering.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   fddb/FDDB.cpp
   @author David Hirvonen
   @brief  FDDB dataset parsing.

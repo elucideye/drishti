@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceJitterer
   @author David Hirvonen
   @brief  Face jitter utility to facilitate creation of training data.

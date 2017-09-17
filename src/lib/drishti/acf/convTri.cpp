@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   convTri.cpp
   @author David Hirvonen
   @author P. Dollár (original matlab code)

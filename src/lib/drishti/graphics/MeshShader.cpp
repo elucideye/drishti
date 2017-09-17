@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   MeshShader.cpp
   @author David Hirvonen
   @brief Implementation of ogles_gpgpu shader for warping a face mesh.

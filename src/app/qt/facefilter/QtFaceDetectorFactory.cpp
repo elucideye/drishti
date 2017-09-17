@@ -1,3 +1,13 @@
+/*! -*-c++-*-
+  @file   QtFaceDetectorFactory.cpp
+  @author David Hirvonen
+  @brief  Implementation of QT resource factory for drishti::face::FaceDetector creation
+
+  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
 #include "QtFaceDetectorFactory.h"
 
 #include <QDirIterator>

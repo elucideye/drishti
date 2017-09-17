@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Eye.cpp
   @author David Hirvonen
   @brief  Internal utility eye model class declaration.

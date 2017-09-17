@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Line.h
   @author David Hirvonen
   @brief  Declaration of stream based line reader.

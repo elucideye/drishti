@@ -1,3 +1,13 @@
+/*! -*-c++-*-
+  @file   QtFaceDetectorFactoryCereal
+  @author David Hirvonen
+  @brief  Implementation of cereal specific components of QtFaceDetectorFactory
+
+  \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
 #include "QtFaceDetectorFactory.h"
 
 #include "drishti/core/drishti_stdlib_string.h" // FIRST

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Pyramid.h
   @author David Hirvonen
   @brief  Gaussian and laplacian pyramid class + blending.

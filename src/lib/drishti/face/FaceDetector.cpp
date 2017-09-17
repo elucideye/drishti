@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceDetector.cpp
   @author David Hirvonen
   @brief  Internal implementation of a face trained object detector.

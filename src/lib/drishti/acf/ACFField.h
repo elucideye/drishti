@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ACFField.h
   @author David Hirvonen (C++ implementation)
   @brief  Utility class to provide optional fields for (de)serialization.

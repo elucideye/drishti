@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   convert.cpp
   @author David Hirvonen
   @brief  Implementation of optimized unpack and format conversion routines.

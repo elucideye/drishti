@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceImpl.h
   @author David Hirvonen
   @brief  Private face declaration.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceIO.h
   @author David Hirvonen
   @brief  Declaration of utilities for insantiating face models.

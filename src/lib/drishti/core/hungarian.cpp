@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   hungarian.cpp
   @brief  Adaptation of hungarian assignment algorithm from OpenCV:
 

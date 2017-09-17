@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceSpecification.h
   @author David Hirvonen
   @brief  Specificatino for mean face image.

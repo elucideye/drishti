@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file finder/Device.h
   @author David Hirvonen
   @brief Device settings.

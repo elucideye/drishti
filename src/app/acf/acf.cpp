@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   acf.cpp
   @author David Hirvonen
   @brief  Aggregated channel feature computation and object detection.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Rectangle.cpp
   @author David Hirvonen
   @brief  Implementation of rectangle class and geometric operations.

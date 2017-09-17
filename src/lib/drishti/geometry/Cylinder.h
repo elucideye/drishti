@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Cylinder.h
   @author David Hirvonen
   @brief  Abstraction for cylinder object.

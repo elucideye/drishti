@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   facexml.cpp
  @author David Hirvonen
  @brief  Convert drishti face model xml files to dlib shape_predictor "parts" file.

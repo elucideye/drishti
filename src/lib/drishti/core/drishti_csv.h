@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_csv.h
   @author David Hirvonen
   @brief  Boost serialization CVS parser.

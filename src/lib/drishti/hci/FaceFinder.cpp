@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   drishti/hci/FaceFinder.cpp
  @author David Hirvonen
  @brief  Face detection and tracking class with GPU acceleration.

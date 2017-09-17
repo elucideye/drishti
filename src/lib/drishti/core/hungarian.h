@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   hungarian.h
   @brief  Adaptation of hungarian assignment algorithm.
 

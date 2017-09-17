@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Semaphore.h
   @author David Hirvonen
   @brief  Simple Semaphore from C++11 primitives.

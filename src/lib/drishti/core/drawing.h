@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drawing.h
   @author David Hirvonen
   @brief  Declaration of simple drawing routines.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   FaceMeshMapperLandmarkContour.h
  @author David Hirvonen (from original code by Patrik Huber)
  @brief  Declaration of a FaceMeshMapper interface to the EOS library.

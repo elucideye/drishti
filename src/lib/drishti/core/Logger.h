@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Logger.h
   @author Ruslan Baratov
   @author David Hirvonen

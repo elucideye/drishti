@@ -1,3 +1,13 @@
+/*! -*-c++-*-
+  @file   ImageLogger.h
+  @author David Hirvonen
+  @brief  Declaration of a network image logger.
+
+  \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
 #ifndef __drishti_qt_facefilter_ImageLogger_h__
 #define __drishti_qt_facefilter_ImageLogger_h__
 

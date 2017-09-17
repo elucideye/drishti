@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ImageMaskPair.h
   @author David Hirvonen
   @brief  Declaration of utility image + mask container.

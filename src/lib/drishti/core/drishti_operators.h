@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_operator.h
   @author David Hirvonen
   @brief  Declaration of common arithmetic operators.

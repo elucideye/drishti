@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   serialize
   @author David Hirvonen
   @brief  Serialize an eye model.

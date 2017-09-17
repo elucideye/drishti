@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_string_hash.h
   @author Yakk
   @brief  String hashing utility.

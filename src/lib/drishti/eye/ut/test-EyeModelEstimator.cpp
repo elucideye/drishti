@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-EyeModelEstimator.cpp
   @author David Hirvonen
   @brief  Google fixture with various subtests for the drishti public SDK.

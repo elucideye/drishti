@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EllipsoPolarWarp.h
   @author David Hirvonen
   @brief  Declaration of class for OpenGL ellipso-polar warping shader (via GL_TRIANGLE_STRIPS).

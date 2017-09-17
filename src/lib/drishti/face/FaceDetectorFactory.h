@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceDetectorFactory.h
   @author David Hirvonen
   @brief  Internal declaration of a factory for FaceDetector modules

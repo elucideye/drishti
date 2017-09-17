@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   TWO.h
   @author David Hirvonen
   @brief  High level routines for parsing two line landmark data.

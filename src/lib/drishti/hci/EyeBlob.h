@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeBlob.h
   @author David Hirvonen
   @brief  Internal declaration for a utility feature point extraction.

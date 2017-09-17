@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   videoio/VideoSinkCV.h
  @author David Hirvonen
  @brief  Simple OpenCV cv::Mat VideoSink interface implementation.

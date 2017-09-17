@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   timing.h
   @author Shervin Emami
   @brief  Common timer macros

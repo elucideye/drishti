@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   facecrop.cpp
   @author David Hirvonen
   @brief  Batch processing to parse and synthesize new face images from various databases.

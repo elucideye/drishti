@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   poseGt.cpp
   @author David Hirvonen (C++ implementation (gradient boosting trees))
   @author P. Dollár (original matlab code (random ferns))

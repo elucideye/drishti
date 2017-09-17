@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   face.cpp
   @author David Hirvonen
   @brief  Face detection and landmark estimation.

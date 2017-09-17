@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   GLTexture.h
   @author David Hirvonen
   @brief Declaration of simple OpenGL texture wrapper.

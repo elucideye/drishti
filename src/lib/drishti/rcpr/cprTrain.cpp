@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   cprTrain.cpp
   @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Implementation of core CPR training routines.

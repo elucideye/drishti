@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   triangle.cpp
   @author David Hirvonen (C++ implementation)
   @brief Implementation of a separable ogles_gpgpu triangle filter shader.

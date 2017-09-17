@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Ellipse.cpp
   @author David Hirvonen
   @brief  Implementation of an Ellipse class with various geometric operations.

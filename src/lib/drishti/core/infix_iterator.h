@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   infix_iterator.h
   @author Jerry Coffin
   @brief  Implements a prefixed ostream iterator behavior that supports

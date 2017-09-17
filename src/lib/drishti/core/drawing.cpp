@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drawing.cpp
   @author David Hirvonen
   @brief  Implementation of simple drawing routines.

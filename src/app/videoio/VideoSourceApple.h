@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   videoio/VideoSourceCV.h
  @author David Hirvonen (C++ Adaptation)
  @brief  Simple OpenCV cv::Mat VideoSource interface declaration.

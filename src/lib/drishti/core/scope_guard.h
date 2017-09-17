@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   make_unique.h
   @brief  Simple macro to add make_unique functionality currently lacking in C++11
 

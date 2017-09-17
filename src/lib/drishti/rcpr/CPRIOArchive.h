@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   CPRIOArchive.h
   @author David Hirvonen 
   @brief  Declaration of (de)serialization routines for Cascaded Pose Regression class.

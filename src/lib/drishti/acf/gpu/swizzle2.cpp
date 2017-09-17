@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   swizzle2.cpp
   @author David Hirvonen (C++ implementation)
   @brief Implementation of an ogles_gpgpu simple triangle filter shader.

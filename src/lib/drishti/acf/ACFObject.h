@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ACFObject.h
   @author David Hirvonen (C++ implementation)
   @brief  Delcaration of an ACF object class.

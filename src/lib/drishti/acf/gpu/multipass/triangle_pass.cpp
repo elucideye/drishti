@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   triangle_pass.cpp
   @author David Hirvonen (C++ implementation)
   @brief Declaration of a single pass ogles_gpgpu triangle filter shader.

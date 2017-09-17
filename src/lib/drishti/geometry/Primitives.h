@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Primitives.h
   @author David Hirvonen
   @brief  Declaration of geometric routines and primitives.

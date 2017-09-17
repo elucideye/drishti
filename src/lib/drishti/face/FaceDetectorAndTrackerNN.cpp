@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceDetectorAndTrackerNN.h
   @author David Hirvonen
   @brief  A nearest neighbor (noop) face tracking variant.

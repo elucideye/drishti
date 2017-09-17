@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Eye.cpp
   @author David Hirvonen
   @brief  Top level API eye model implementation.

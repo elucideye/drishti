@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-FaceFinder.cpp
   @author David Hirvonen
   @brief  High level FaceFinder test.

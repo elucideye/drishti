@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   videoio/VideoSourceTest.h
  @author David Hirvonen
  @brief  Simple declaration of a list-of-files VideoSource.

@@ -1,3 +1,13 @@
+/*! -*-c++-*-
+  @file   ImageLogger.cpp
+  @author David Hirvonen
+  @brief  Implementation of a network image logger.
+
+  \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
 #include "ImageLogger.h"
 
 #include "drishti/core/make_unique.h"

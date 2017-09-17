@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   gradhist.h
   @author David Hirvonen (C++ implementation)
   @brief Declaration of an ogles_gpgpu shader for computing gradient orientation histograms.

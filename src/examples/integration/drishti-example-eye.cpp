@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti-example-eye.cpp
   @author David Hirvonen
   @brief  Drishti SDK test for eye model fitting.

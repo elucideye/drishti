@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file swizzle.h
   @author David Hirvonen (C++ implementation)
   @brief Declaration of an ogles_gpgpu shader for common texture channel swizzles.

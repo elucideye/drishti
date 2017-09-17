@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-FaceTracker.cpp
   @author David Hirvonen
   @brief  Google test for public drishti API FaceTracker interface.

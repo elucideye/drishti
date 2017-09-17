@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   GPUACF.cpp
   @author David Hirvonen
   @brief  Declaration of OpenGL shader optimized Aggregated Channel Feature computation.

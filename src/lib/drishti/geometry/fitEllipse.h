@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   fitEllipse.h
   @author David Hirvonen
   @brief  Declaration of ellipse fitting routines.
