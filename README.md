@@ -11,7 +11,7 @@
 [license_shield]: https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square
 [license_link]: http://opensource.org/licenses/BSD-3-Clause
 
-[travis_builds]: https://travis-ci.com/elucideye/drishti/builds
+[travis_builds]: https://travis-ci.org/elucideye/drishti/builds
 [travis_shield]: https://img.shields.io/travis/elucideye/drishti/master.svg?style=flat-square&label=Linux%20OSX%20Android%20iOS
 
 [appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti
