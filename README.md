@@ -14,7 +14,7 @@
 [travis_builds]: https://travis-ci.com/elucideye/drishti/builds
 [travis_shield]: https://img.shields.io/travis/elucideye/drishti/master.svg?style=flat-square&label=Linux%20OSX%20Android%20iOS
 
-[appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti/history
+[appveyor_builds]: https://ci.appveyor.com/api/projects/elucideye/drishti
 [appveyor_shield]: https://img.shields.io/appveyor/ci/ingenue/hunter/pkg.gtest.svg?style=flat-square&label=Windows
 
 ![drishti_text_big](https://user-images.githubusercontent.com/554720/28922218-3a005f9c-7827-11e7-839c-ef3e9a282f70.png)
