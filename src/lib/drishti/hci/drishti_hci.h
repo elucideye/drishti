@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_hci.h
   @author David Hirvonen
   @brief  Declaration of internal drishti hci namespace.

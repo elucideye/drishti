@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   TriangleStripWarp.h
   @author David Hirvonen
   @brief  Declaration of utility structure to perform arbitrary warps via GL_TRIANGL_STRIPS

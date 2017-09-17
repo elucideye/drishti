@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   BIOID.h
   @author David Hirvonen
   @brief  High level routines for parsing BIOID data

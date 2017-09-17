@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ObjectDetector.cpp
   @author David Hirvonen
   @brief  Internal ObjectDetector abstract API implementation file (high level routines).

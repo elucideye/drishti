@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceIO.cpp
   @author David Hirvonen
   @brief  Implementation of utilities for insantiating face models.

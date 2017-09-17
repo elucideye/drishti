@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeModelIris.cpp
   @author David Hirvonen
   @brief  Implemenation of iris specific eye model estimation.

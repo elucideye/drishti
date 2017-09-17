@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Field.h
   @author David Hirvonen
   @brief  Declaration of optional (de)serializable value

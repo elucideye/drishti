@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   XGBooster.cpp
   @author David Hirvonen
   @brief  Internal implementation of the XGBoost C++ interface class.

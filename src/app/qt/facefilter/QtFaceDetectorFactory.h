@@ -1,3 +1,13 @@
+/*! -*-c++-*-
+  @file   QtFaceDetectorFactory.h
+  @author David Hirvonen
+  @brief  Declaration of QT resource factory for drishti::face::FaceDetector creation
+
+  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
+
 #ifndef __drishti_qt_facefilter_QtFaceDetectorFactory_h__
 #define __drishti_qt_facefilter_QtFaceDetectorFactory_h__
 

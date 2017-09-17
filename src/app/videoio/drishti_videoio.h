@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_videoio.h
   @author David Hirvonen
   @brief  Declaration of the drishti::ml namespace macros.

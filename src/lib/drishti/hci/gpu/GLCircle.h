@@ -1,4 +1,4 @@
-/*! 
+/*! -*-c++-*- 
   @file GLCircle.h @author David Hirvonen (C++ implementation)
   @brief Declaration of ogles_gpgpu shader for rendering circles.
 

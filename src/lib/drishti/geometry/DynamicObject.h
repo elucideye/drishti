@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   DynamicObject.h
   @author David Hirvonen
   @brief  Abstraction for object w/ position, size, and velocity.

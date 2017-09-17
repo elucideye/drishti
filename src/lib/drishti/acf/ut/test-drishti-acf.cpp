@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-acf.cpp
   @author David Hirvonen
   @brief  Google test for the GPU ACF code.

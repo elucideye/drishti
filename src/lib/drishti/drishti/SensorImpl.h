@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   SensorImpl.h
   @author David Hirvonen
   @brief  Private implementation of a simple sensor/camera abstraction.

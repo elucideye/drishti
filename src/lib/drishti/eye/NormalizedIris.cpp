@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   NormalizedIris.cpp
   @author David Hirvonen
   @brief  Implementation of ellipso-polar iris normalization.

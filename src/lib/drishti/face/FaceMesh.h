@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceMesh.h
   @author David Hirvonen
   @brief  Internal declaration of a face landmark triangulation.

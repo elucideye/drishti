@@ -1,10 +1,12 @@
-//
-//  QVideoFrameScopeMap.h
-//  drishtisdk
-//
-//  Created by David Hirvonen on 2/26/16.
-//
-//
+/*! -*-c++-*-
+  @file   QVideoFrameScopeMap.h
+  @author David Hirvonen
+  @brief  Declaration of a "scope guard" utility for QVideoFrame management.
+
+  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \license{This project is released under the 3 Clause BSD License.}
+
+*/
 
 #ifndef __drishti_qt_facefilter_QVideoFrameScopeMap_h__
 #define __drishti_qt_facefilter_QVideoFrameScopeMap_h__

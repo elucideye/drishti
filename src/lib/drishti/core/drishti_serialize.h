@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_serialize.h
   @author David Hirvonen
   @brief  Declaration of serialization utility functions.

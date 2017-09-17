@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   StaticObject.h
   @author David Hirvonen
   @brief  Abstraction for object w/ position and size.

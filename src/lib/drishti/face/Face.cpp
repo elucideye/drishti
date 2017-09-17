@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Face.cpp
   @author David Hirvonen
   @brief  Internal implementation of a utility face model class.

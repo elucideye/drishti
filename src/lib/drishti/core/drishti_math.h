@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_math.h
   @author David Hirvonen
   @brief  Declaration of common math routines.

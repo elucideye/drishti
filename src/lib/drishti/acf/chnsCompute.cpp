@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   chnsCompute.cpp
   @author David Hirvonen
   @author P. Dollár (original matlab code)

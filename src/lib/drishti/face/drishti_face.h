@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_face.h
   @author David Hirvonen
   @brief  Declaration of drishti face namespace

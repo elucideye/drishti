@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   geometry/motion.cpp
   @author David Hirvonen
   @brief  Shared routines for expression parametric motion (homogeneous coordinates).

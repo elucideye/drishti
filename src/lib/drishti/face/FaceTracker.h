@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceTracker.h
   @author David Hirvonen
   @brief  Declaration of a face landmark tracker.

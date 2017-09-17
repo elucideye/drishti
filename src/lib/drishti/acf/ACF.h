@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ACF.h
   @author David Hirvonen (C++ implementation)
   @author P. Dollár (original matlab code)

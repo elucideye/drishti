@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-Detector.cpp
   @author David Hirvonen
   @brief  CPU ACF shader tests using a google test fixture.

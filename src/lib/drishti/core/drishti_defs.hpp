@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_defs.hpp
   @author David Hirvonen
   @brief  Drishti cross platform export header.

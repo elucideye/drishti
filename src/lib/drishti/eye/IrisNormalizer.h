@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   IrisNormalizer.h
   @author David Hirvonen
   @brief  Declaration of internal class for creating ellipso-polar normalized iris images.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   face_util.h
   @author David Hirvonen
   @brief  Internal declaration for some simple face model utility functions.

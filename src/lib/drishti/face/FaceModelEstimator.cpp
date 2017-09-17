@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceModelEstimator.cpp
   @author David Hirvonen
   @brief  Internal declaration of a class to estimate 3D models from 2D face landmarks.

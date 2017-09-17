@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   RegressorXGBoost.h
   @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Declaration of an univariate XGBoost regressor.

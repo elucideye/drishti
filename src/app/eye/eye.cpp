@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   eye.cpp
   @author David Hirvonen
   @brief  Console app to fit eye models.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeIO.h
   @author David Hirvonen
   @brief  Declaration of internal routines related to eye model conversion.

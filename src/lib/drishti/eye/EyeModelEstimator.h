@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeModelEstimator.h
   @author David Hirvonen
   @brief  Internal eye model estimator declaration.

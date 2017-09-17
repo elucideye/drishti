@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti/core/ImageView.h
   @author David Hirvonen
   @brief Container class for multiple views of the same image (RAM, GPU)

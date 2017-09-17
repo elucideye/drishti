@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ACFIO.cpp
   @author David Hirvonen (C++ implementation)
   @brief  Implementation of deserialization routines for ACFIO mat models.

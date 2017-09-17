@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeWarp.h
   @author David Hirvonen
   @brief  Declaration of utility structure to specify a transformed eye model.

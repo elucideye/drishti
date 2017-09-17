@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   DlibXML.h
  @author David Hirvonen
  @brief  Convert points to landmark format used by dlib shape_predictor.

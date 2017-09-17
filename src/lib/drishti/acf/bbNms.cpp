@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   bbNms.cpp
   @author David Hirvonen
   @brief  Bounding box non maxima suppression.

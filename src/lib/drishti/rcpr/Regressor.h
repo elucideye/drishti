@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Regressor.h
   @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Declaration of an abstract univariate regressor class/API.

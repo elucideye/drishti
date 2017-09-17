@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti/hci/FaceMonitor.h
   @author David Hirvonen
   @brief Simple position dependent frame grabbing callback API.

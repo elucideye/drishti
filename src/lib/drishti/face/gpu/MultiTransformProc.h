@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   finder/gpu/MultiTransformProc.h
   @author David Hirvonen
   @brief Simple interface to apply parametric transformations to multiple image ROI's.

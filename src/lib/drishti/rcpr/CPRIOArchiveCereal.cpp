@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   CPRIOArchiveCereal.cpp
   @author David Hirvonen 
   @brief  Implementation of (de)serialization routines for Cascaded Pose Regression class.

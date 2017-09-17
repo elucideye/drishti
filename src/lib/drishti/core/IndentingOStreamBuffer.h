@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   IndentingOStreamBuffer.h
   @author TODO
   @brief  Declaration of automatic ostream indentation

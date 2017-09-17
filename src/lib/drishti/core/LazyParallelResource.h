@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   LazyParallelResource.h
   @author David Hirvonen
   @brief  Declaration of parallel_for abstraction classes

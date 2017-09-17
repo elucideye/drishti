@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   MatP.h
   @author David Hirvonen
   @brief  Declaration of OpenCV cv::Mat planar format object.

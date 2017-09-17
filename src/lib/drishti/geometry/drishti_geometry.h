@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_geometry.h
   @author David Hirvonen (C++ implementation)
   @brief  Declaration of drishti geometry namespace.

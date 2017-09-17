@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   padding.cpp
   @author David Hirvonen
   @brief  Implementation of simple aspect ratio aware padding routines.

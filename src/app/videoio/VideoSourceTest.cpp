@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   videoio/VideoSourceTest.cpp
  @author David Hirvonen
  @brief  Simple implementation of a list-of-files VideoSource.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_eye.h
   @author David Hirvonen
   @brief  Namespace delcaration for drishti::eye

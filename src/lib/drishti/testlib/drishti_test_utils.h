@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_test_utils.h
   @author David Hirvonen
   @brief  Test utilities.

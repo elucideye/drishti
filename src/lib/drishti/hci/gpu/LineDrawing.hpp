@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   finder/LineDrawing.hpp
   @author David Hirvonen
   @brief Simple 2D line drawing representation for graphic overlay.

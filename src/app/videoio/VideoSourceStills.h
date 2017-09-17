@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   videoio/VideoSourceStills.h
  @author David Hirvonen
  @brief  Simple declaration of a list-of-files VideoSource.

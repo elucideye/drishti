@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_core.h
   @author David Hirvonen
   @brief  Declaration of internal drishti core namespace.

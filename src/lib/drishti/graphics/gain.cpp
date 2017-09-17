@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   gain.cpp
   @author David Hirvonen (C++ implementation)
   @brief Implementation of ogles_gpgpu shader for gain.

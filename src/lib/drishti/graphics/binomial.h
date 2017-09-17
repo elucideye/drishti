@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   binomial.h
   @author David Hirvonen (C++ implementation)
   @brief Declaration of an ogles_gpgpu binomial filter shader.

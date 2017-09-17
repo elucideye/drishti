@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   videoio.cpp
   @author David Hirvonen
   @brief  Video to stills IO test.

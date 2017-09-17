@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-json.cpp
   @author David Hirvonen
   @brief  Google test for nlohmann-json package.

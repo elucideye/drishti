@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   videoio/VideoSinkApple.h
   @author David Hirvonen
   @brief  AVFoundation movie writer.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   train_cpr.cpp
  @author David Hirvonen
  @brief  Train casecaded pose regression ellipse model.

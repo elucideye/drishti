@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   CPRIO.h
   @author David Hirvonen (C++ implementation (gradient boosting trees))
   @brief  Declaration of (de)serialization routines for Cascaded Pose Regression class.

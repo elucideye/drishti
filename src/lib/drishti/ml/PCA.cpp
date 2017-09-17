@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   PCA.cpp
   @author David Hirvonen
   @brief  Internal PCA class implementation.

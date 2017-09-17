@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceDetector.h
   @author David Hirvonen
   @brief  Internal declaration of a face trained object detector.

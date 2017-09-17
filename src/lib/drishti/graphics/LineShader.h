@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   LineShader.h
   @author David Hirvonen
   @brief Declaration of ogles_gpgpu shader for drawing lines.

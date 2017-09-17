@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ShapeEstimator.h
   @author David Hirvonen
   @brief  Internal declaration of shape estimator API.

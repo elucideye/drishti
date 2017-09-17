@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_cereal_pba.h
   @author David Hirvonen
   @brief  Provides compatibility with boost::serialization Archive::is_loading::value

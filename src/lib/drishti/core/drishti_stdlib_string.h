@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_stdlib_string.h
   @author David Hirvonen
   @brief  Declaration of missing stdlib routines in Android NDK r10e

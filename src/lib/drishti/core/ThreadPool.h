@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ThreadPool.h
   @author David Hirvonen
   @brief  Declaration of static ThreadPool storage

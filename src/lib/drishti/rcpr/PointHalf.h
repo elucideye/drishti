@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   PointHalf.h
   @author David Hirvonen
   @brief  Declaration of half precision floating point 2D point.

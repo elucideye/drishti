@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Mesh3D.h
   @author David Hirvonen
   @brief  3D mesh object.

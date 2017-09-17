@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   rgb2hsv.cpp
   @author David Hirvonen (C++ implementation)
   @brief Implementation of ogles_gpgpu shader for rgb2hsv.

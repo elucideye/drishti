@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   TWO.cpp
  @author David Hirvonen
  @brief  High level routines for parsing TWO data.

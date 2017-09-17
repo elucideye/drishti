@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   finder/FrameHandler.h
   @author David Hirvonen
   @brief Common state and stored frame handlers.

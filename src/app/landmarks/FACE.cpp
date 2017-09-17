@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FACE.cpp
   @author David Hirvonen
   @brief  High level routines for parsing face data.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Sensor.cpp
   @author David Hirvonen
   @brief  Implementation of a class to abstract a sensor/camera.

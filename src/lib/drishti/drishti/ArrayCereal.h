@@ -1,6 +1,9 @@
-/*! \file ArrayCereal.hpp
-    \brief Support for types found in \<drishti/Array.hpp\>
-    \ingroup STLSupport */
+/*! -*-c++-*- 
+  \file ArrayCereal.hpp
+  \brief Support for types found in \<drishti/Array.hpp\>
+  \ingroup STLSupport 
+*/
+
 /*
   Copyright (c) 2014, Randolph Voorhies, Shane Grant
   Copyright (c) 2016, David Hirvonen

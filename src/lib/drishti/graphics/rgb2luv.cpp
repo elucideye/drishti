@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   rgb2luv.cpp
   @author David Hirvonen (C++ implementation)
   @brief Implementation of an ogles_gpgpu shader for RGB to LUV colorspace conversions.

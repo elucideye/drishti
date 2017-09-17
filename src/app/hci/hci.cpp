@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   hci.cpp
   @author David Hirvonen
   @brief  Face and eye tracking, optical flow, corner detection, etc.

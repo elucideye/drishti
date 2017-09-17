@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   HELEN.h
   @author David Hirvonen
   @brief  High level routines for (de)serialization and manipulation of flattened HELEN data.

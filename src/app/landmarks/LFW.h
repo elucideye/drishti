@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   LFW.h
   @author David Hirvonen
   @brief  High level routines for parsing LFW data.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file ThrowAssert.h
   @brief Declaration of a throw-exception-on-assertio class.
 */

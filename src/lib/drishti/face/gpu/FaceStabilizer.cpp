@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   face/gpu/FaceStabilizer.cpp
   @author David Hirvonen
   @brief Simple interface to stabilize the eyes (similarity transformation).

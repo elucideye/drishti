@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_ml.h
   @author David Hirvonen
   @brief  Declaration of the drishti::ml namespace macros.

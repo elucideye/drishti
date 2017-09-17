@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   finder/FPSCalculator.cpp
   @author Ruslan Baratov
   @brief  Frame rate calculator for QT app.

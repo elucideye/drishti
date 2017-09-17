@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Vector1d.h
   @author David Hirvonen
   @brief  Declaration of utility vector class and common arithmetic operations.

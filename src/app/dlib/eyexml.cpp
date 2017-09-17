@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
  @file   eyexml.cpp
  @author David Hirvonen
  @brief  Convert drishti eye model xml files to dlib shape_predictor "parts" file.

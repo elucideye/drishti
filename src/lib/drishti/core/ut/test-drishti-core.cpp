@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   test-drishti.cpp
   @author David Hirvonen
   @brief  Google test for public drishti API.

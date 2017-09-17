@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceMeshMapperLandmark.cpp
   @author David Hirvonen (from original code by Patrik Huber)
   @brief  Implementation of a FaceMeshMapper interface to the EOS library.

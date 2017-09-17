@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   glfwimshow.cpp
   @author David Hirvonen
   @brief  Google test for glfwimshow.

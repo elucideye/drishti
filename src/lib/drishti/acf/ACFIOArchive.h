@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ACFIO.h
   @author David Hirvonen (C++ implementation)
   @brief  Declaration of serialization routines for ACF.

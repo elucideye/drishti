@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   Shape.h
   @author David Hirvonen
   @brief  Declaration of simple (de)serializable shapes/contours.

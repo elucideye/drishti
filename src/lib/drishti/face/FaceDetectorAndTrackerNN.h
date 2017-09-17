@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FaceDetectorAndTrackerNN.h
   @author David Hirvonen
   @brief  Declaration of simple nearest neighbor (noop) FaceDetectorAndTracker.

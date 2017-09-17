@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeModelEyelids.cpp
   @author David Hirvonen
   @brief  Implemenation of eyelid specific eye model estimation.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti/hci/FaceFinderPainter.h
   @author David Hirvonen
   @brief  Face tracking class with OpenGL texture drawing

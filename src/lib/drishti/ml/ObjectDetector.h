@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   ObjectDetector.h
   @author David Hirvonen
   @brief  Internal ObjectDetector abstract API declaration file.

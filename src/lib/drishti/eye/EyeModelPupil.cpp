@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   EyeModelPupil.cpp
   @author David Hirvonen
   @brief  Implemenation of pupile specific eye model estimation.

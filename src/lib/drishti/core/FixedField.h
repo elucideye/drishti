@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   FixedField.h
   @author David Hirvonen
   @brief  Declaration of "syntatic sugar" ostream formatting for floating point values.

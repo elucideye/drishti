@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   finder/QMLCameraManager.h
   @author David Hirvonen, Ruslan Baratov
   @brief  Platform abstraction for QML camera configuration

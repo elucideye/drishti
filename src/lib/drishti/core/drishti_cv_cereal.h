@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_cv_cereal.h
   @author David Hirvonen
   @brief  Serialization of common opencv types.

@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   drishti_graphics.h
   @author David Hirvonen (C++ implementation)
   @brief OpenGL abstractions and GPU macros.

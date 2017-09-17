@@ -1,4 +1,4 @@
-/*!
+/*! -*-c++-*-
   @file   DRISHTI.h
   @author David Hirvonen
   @brief  High level routines for parsing DRISHTI data.
