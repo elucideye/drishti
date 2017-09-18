@@ -1,8 +1,10 @@
+image: Visual Studio 2015
+
 environment:
 
   global:
     CI_USER_TOKEN:
-      secure: "iJyVR7z6BkcqxkctwnDldPxLBNLKfO1qD3EchXiH0fimfDx1oq2gGQyfG4/NtfGX"
+      secure: "aS2ZbXuGLbgWTUO3GxtirbFiE6jpBkAs073X8D/URg7Snw2NPBENvmJiWxZfDeTV"
 
   matrix:
 
