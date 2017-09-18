@@ -5,7 +5,7 @@
 [![License (3-Clause BSD)][license_shield]][license_link]
 [![Hunter][hunter_shield]][hunter_link]
 
-[hunter_shield]: https://img.shields.io/badge/hunter-v0.19.75-blue.svg
+[hunter_shield]: https://img.shields.io/badge/hunter-v0.19.94-blue.svg
 [hunter_link]: http://github.com/ruslo/hunter
 
 [license_shield]: https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square
