@@ -20,7 +20,7 @@ public:
     
     int m_index = 0;
 
-    virtual Request request(const Positions& position, const TimePoint& timeStamp)
+    virtual Request request(const Faces& faces, const TimePoint& timeStamp)
     {
         return Request {3, true, true};
     }

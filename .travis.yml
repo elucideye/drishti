@@ -107,7 +107,7 @@ script:
 
     # '--ios-{multiarch,combined}' do nothing for non-iOS builds
     - >
-      polly.py
+      travis_wait 200 polly.py
       --toolchain ${TOOLCHAIN}
       --config ${CONFIG}
       --verbose
