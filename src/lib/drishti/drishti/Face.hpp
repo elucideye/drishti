@@ -20,14 +20,34 @@
 
 _DRISHTI_SDK_BEGIN
 
-/*
- * Simple Face description
+/**
+ * @brief A simple face model class.
+ *
+ * This model contains a face bounding box, landmarks, detailed eye models
+ * and an estimated 3D position for the midpoint between the eyes.
  */
 
 struct DRISHTI_EXPORT Face
 {
+    /**
+     * A region of interest, typically provided by an object detector.
+     */
+    drishti::sdk::Recti roi;
+    
+    /**
+     * Detailed eye models for the subject's right and left eyes.
+     */
     drishti::sdk::Array<drishti::sdk::Eye, 2> eyes;
+    
+    /**
+     * Face landmarks provided for the operative annotation style.
+     */
     drishti::sdk::Array<drishti::sdk::Vec2f, 128> landmarks;
+    
+    /**
+     * Estimated 3D position for point between the eyes.
+     */
+    drishti::sdk::Vec3f position;
 };
 
 _DRISHTI_SDK_END

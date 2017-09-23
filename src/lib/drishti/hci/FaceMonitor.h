@@ -36,6 +36,9 @@ public:
     
     //! An alias for a vector of positions
     using Positions = std::vector<cv::Point3f>;
+
+    //! An alias for a vector of positions
+    using Faces = std::vector<drishti::face::FaceModel>;
     
     /**
      * A face image structure containing metadata with associated l
@@ -91,11 +94,11 @@ public:
      * A user defined virtual method callback that should report the number
      * of frames that should be captured from teh FIFO buffer based on the 
      * reported face location.
-     * @param position the 3D position of the face (between the eyes)
+     * @param faces a vector of faces for the current frame
      * @param timestmap the acquisition timestamp for the frame
      * @return a frame request for the last n frames with requested image formats
      */
-    virtual Request request(const Positions& positions, const TimePoint& timeStamp) = 0;
+    virtual Request request(const Faces& faces, const TimePoint& timeStamp) = 0;
 
     /**
      * A user defined virtual method callback that will be called with a

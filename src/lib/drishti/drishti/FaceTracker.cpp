@@ -35,9 +35,8 @@ static ogles_gpgpu::FrameInput convert(const VideoFrame& frame);
  * Impl
  */
 
-class FaceTracker::Impl
+struct FaceTracker::Impl
 {
-public:
     using Settings = drishti::hci::FaceFinder::Settings;
 
     /*
@@ -99,7 +98,6 @@ public:
         m_callbacks.emplace_back(callback);
     }
 
-protected:
     std::vector<std::shared_ptr<FaceMonitorAdapter>> m_callbacks;
 
     std::unique_ptr<drishti::hci::FaceFinder> m_faceFinder;

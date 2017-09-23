@@ -65,6 +65,6 @@ template class DRISHTI_EXPORT Image<Vec3b>;
 template class DRISHTI_EXPORT Image<float>;
 template class DRISHTI_EXPORT Image<Vec3f>;
 
-template class DRISHTI_EXPORT Matrix<float, 3, 3>;
+template struct DRISHTI_EXPORT Matrix<float, 3, 3>;
 
 _DRISHTI_SDK_END

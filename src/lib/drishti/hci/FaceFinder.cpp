@@ -587,35 +587,6 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
     return outputTexture;
 }
 
-static FaceMonitor::Request
-hasValidFaceRequest(FaceMonitor& monitor, const ScenePrimitives& scene, const FaceMonitor::TimePoint& now)
-{
-    std::vector<cv::Point3f> locations;
-    for (auto& face : scene.faces())
-    {
-        locations.push_back(*face.eyesCenter);
-    }
- 
-    // Sort near to far:
-    std::sort(locations.begin(), locations.end(), [](const cv::Point3f &a, const cv::Point3f &b) {
-        return a.z < b.z;
-    });
-    
-    return monitor.request(locations, now);
-}
-
-// Query list of listeners for valid face image
-FaceMonitor::Request
-FaceFinder::hasValidFaceRequest(const ScenePrimitives& scene, const TimePoint& now) const
-{
-    FaceMonitor::Request requests;
-    for (auto& callback : impl->faceMonitorCallback)
-    {
-        requests |= ::drishti::hci::hasValidFaceRequest(*callback, scene, now);
-    }
-    return requests;
-}
-
 /**
  * Provide per frame scene descriptor callbacks.
  * Notably, if a face requet listener is registered,
@@ -639,7 +610,7 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
         for (int i = 0; i < impl->faceMonitorCallback.size(); i++)
         {
             auto& callback = impl->faceMonitorCallback[i];
-            requests[i] = ::drishti::hci::hasValidFaceRequest(*callback, scene, now);
+            requests[i] = callback->request(scene.faces(), now);
             request |= requests[i]; // accumulate requests
         }
 

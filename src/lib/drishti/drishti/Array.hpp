@@ -178,6 +178,8 @@ public:
     void resize(std::size_t size) { size_ = std::min(N, size); }
 
     std::size_t size() const { return size_; }
+    
+    constexpr std::size_t limit() const {return N; };
 
     T& operator[](std::size_t index) { return data_[index]; }
     const T& operator[](std::size_t index) const { return data_[index]; }
