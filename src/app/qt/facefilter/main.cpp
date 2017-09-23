@@ -36,7 +36,6 @@
 #include <cassert> // assert
 #include <QGuiApplication>
 #include <QQuickItem>
-#include <QtPlugin> // Q_IMPORT_PLUGIN
 #include <QQmlExtensionPlugin>
 #include <QFile>
 #include <QTextStream>
@@ -50,7 +49,10 @@
 // Includes 'gl2.h', after 'glew.h' {
 #include <QQuickView>
 #include <QtOpenGL/QGLFormat>
-#include <QOpenGLExtraFunctions>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+# include <QOpenGLExtraFunctions>
+#endif
 // }
 
 #include "GLVersion.h"
