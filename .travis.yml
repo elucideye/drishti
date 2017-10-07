@@ -61,7 +61,7 @@ matrix:
       env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
 
     - os: osx
-      env: CONFIG=MinSizeRel TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto INSTALL=--strip
+      env: CONFIG=MinSizeRel TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
 
     # }
 
@@ -107,7 +107,7 @@ script:
 
     # '--ios-{multiarch,combined}' do nothing for non-iOS builds
     - >
-      travis_wait 200 polly.py
+      polly.py
       --toolchain ${TOOLCHAIN}
       --config ${CONFIG}
       --verbose

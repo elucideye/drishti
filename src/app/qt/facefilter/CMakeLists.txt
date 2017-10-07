@@ -197,6 +197,10 @@ else()
     )
   endif()
 
+  if(is_linux)
+    configure_file(env.sh ${CMAKE_CURRENT_BINARY_DIR}/env.sh @ONLY)
+  endif()
+
   set_target_properties(
     ${app_name}
     PROPERTIES
