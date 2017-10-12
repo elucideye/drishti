@@ -71,62 +71,12 @@ git:
 
 # See https://docs.travis-ci.com/user/private-dependencies/#API-Token
 # CI_USER_TOKEN is added to .travis.yml settings
-before_install:
-
-  # Add '--quiet' to avoid leaking the token to logs
-  - git submodule update --init --recursive --quiet
 
 install:
-  # Info about OS
-  - uname -a
-
-  # Install Python 3
-  - if [[ "`uname`" == "Darwin" ]]; then travis_retry brew install python3; fi
-
-  # Install Python package 'requests'
-  # 'easy_install3' is not installed by 'brew install python3' on OS X 10.9 Maverick
-  - if [[ "`uname`" == "Darwin" ]]; then pip3 install requests; fi
-  - if [[ "`uname`" == "Linux" ]]; then travis_retry pip3 install --user requests; fi
-
-  # Install latest Polly toolchains and scripts
-  - wget https://github.com/ruslo/polly/archive/master.zip
-  - unzip master.zip
-  - POLLY_ROOT="`pwd`/polly-master"
-  - export PATH="${POLLY_ROOT}/bin:${PATH}"
-
-  # Install dependencies (CMake, Android NDK)
-  - install-ci-dependencies.py
-
-  # Tune locations
-  - export PATH="`pwd`/_ci/cmake/bin:${PATH}"
-
-  # Installed if toolchain is Android (otherwise directory doesn't exist)
-  - export ANDROID_NDK_r10e="`pwd`/_ci/android-ndk-r10e"
-
+  - source bin/hunter_env.sh
+  
 script:
-
-    # '--ios-{multiarch,combined}' do nothing for non-iOS builds
-    - >
-      polly.py
-      --toolchain ${TOOLCHAIN}
-      --config ${CONFIG}
-      --verbose
-      --ios-multiarch --ios-combined
-      --fwd
-      DRISHTI_BUILD_REGRESSION_SIMD=NO
-      DRISHTI_BUILD_REGRESSION_FIXED_POINT=NO
-      DRISHTI_BUILD_TESTS=YES
-      DRISHTI_BUILD_EXAMPLES=YES
-      DRISHTI_COPY_3RDPARTY_LICENSES=ON
-      GAUZE_ANDROID_USE_EMULATOR=YES
-      HUNTER_USE_CACHE_SERVERS=ONLY
-      HUNTER_DISABLE_BUILDS=YES
-      HUNTER_CONFIGURATION_TYPES=${CONFIG}
-      HUNTER_SUPPRESS_LIST_OF_FILES=ON
-      --archive drishti
-      --jobs 2
-      --test
-      ${INSTALL}
+  - bin/drishti_build.sh "${TOOLCHAIN}" "${CONFIG}" "${INSTALL}"
 
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145
