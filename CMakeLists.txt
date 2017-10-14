@@ -16,7 +16,13 @@ list(APPEND CMAKE_MODULE_PATH "${drishti_upload_modules}")
 ############################
 
 # drishti specific hunter cache pacakges:
-list(APPEND HUNTER_CACHE_SERVERS "https://github.com/elucideye/hunter-cache")
+set(
+    HUNTER_CACHE_SERVERS
+    "https://github.com/elucideye/hunter-cache"
+    CACHE
+    STRING
+    "Hunter cache servers"
+)
 
 if(EXISTS "${drishti_upload_modules}")
   include(drishti_set_hunter_gate)
