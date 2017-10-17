@@ -10,12 +10,6 @@
 
 #include <gtest/gtest.h>
 
-// extern const char* modelFilename;
-// extern const char* imageFilename;
-// extern const char* truthFilename;
-// extern const char* outputDirectory;
-// extern bool isTextArchive;
-
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/ml/XGBooster.h"
 #include "drishti/ml/PCA.h"

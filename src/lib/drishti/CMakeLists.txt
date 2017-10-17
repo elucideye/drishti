@@ -6,9 +6,6 @@ include(drishti_hide)
 include(drishti_strip)
 include(drishti_split_debug_symbols)
 
-#include(sugar_include)
-#sugar_include(.)
-
 ## Customize linker flags
 include(CheckCCompilerFlag)
 if(NOT MSVC)
