@@ -31,21 +31,10 @@
 // clang-format on
 
 // https://code.google.com/p/googletest/wiki/Primer
-const char* modelFilename;
-const char* imageFilename;
-const char* truthFilename;
-const char* outputDirectory;
-
-int gauze_main(int argc, char** argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    assert(argc >= 4);
-    modelFilename = argv[1];
-    imageFilename = argv[2];
-    truthFilename = argv[3];
-    outputDirectory = argv[4];
-    return RUN_ALL_TESTS();
-}
+extern const char* sEyeRegressor;
+extern const char* sEyeImageFilename;
+extern const char* sEyeModelFilename;
+extern const char* sOutputDirectory;
 
 // clang-format off
 #define BEGIN_EMPTY_NAMESPACE namespace {
@@ -80,7 +69,7 @@ public:
         }
     }
 
-#ifdef DRISHTI_BUILD_C_INTERFACE
+#if defined(DRISHTI_BUILD_C_INTERFACE)
     static std::shared_ptr<drishti::sdk::EyeSegmenter> createC(const std::string& filename)
     {
         if (isArchiveSupported(filename))
@@ -124,7 +113,7 @@ protected:
     EyeSegmenterTest()
     {
         // Create the segmenter (constructor tests performed prior to this)
-        m_eyeSegmenter = create(modelFilename);
+        m_eyeSegmenter = create(sEyeRegressor);
 
         // Load the ground truth data:
         loadTruth();
@@ -147,10 +136,10 @@ protected:
     // Utility methods:
     void loadImages()
     {
-        assert(imageFilename);
+        assert(sEyeImageFilename);
 
         // First get our 4x3 aspect ratio image
-        cv::Mat image = cv::imread(imageFilename, cv::IMREAD_COLOR);
+        cv::Mat image = cv::imread(sEyeImageFilename, cv::IMREAD_COLOR);
         assert(!image.empty());
 
         cv::Mat padded;
@@ -180,7 +169,7 @@ protected:
     {
         drishti::sdk::Eye eye;
         drishti::sdk::EyeIStream adapter(eye, drishti::sdk::EyeStream::JSON);
-        std::ifstream is(truthFilename);
+        std::ifstream is(sEyeModelFilename);
         if (is)
         {
             is >> adapter;
@@ -216,23 +205,23 @@ protected:
 
 TEST(EyeSegmenter, StringConstructor)
 {
-    if (isArchiveSupported(modelFilename))
+    if (isArchiveSupported(sEyeRegressor))
     {
-        ASSERT_NE(modelFilename, (const char*)NULL);
-        auto segmenter = EyeSegmenterTest::create(modelFilename);
+        ASSERT_NE(sEyeRegressor, (const char*)NULL);
+        auto segmenter = EyeSegmenterTest::create(sEyeRegressor);
         ASSERT_EQ(segmenter && segmenter->good(), true);
     }
 }
 
 TEST(EyeSegmenter, StreamConstructor)
 {
-    if (isArchiveSupported(modelFilename))
+    if (isArchiveSupported(sEyeRegressor))
     {
-        // Make sure modelFilename is not null:
-        ASSERT_NE(modelFilename, (const char*)NULL);
-        std::ifstream is(modelFilename, std::ios_base::binary | std::ios::in);
+        // Make sure sEyeRegressor is not null:
+        ASSERT_NE(sEyeRegressor, (const char*)NULL);
+        std::ifstream is(sEyeRegressor, std::ios_base::binary | std::ios::in);
         ASSERT_TRUE((bool)is);
-        drishti::sdk::EyeSegmenter segmenter(is, getArchiveKind(modelFilename));
+        drishti::sdk::EyeSegmenter segmenter(is, getArchiveKind(sEyeRegressor));
         EXPECT_EQ(segmenter.good(), true);
     }
 }
@@ -259,7 +248,7 @@ static void checkInvalid(const drishti::sdk::Eye& eye)
 
 TEST_F(EyeSegmenterTest, EyeSerialization)
 {
-    if (m_eyeSegmenter && outputDirectory)
+    if (m_eyeSegmenter && sOutputDirectory)
     {
         int targetWidth = 127;
         drishti::sdk::Eye eye;
@@ -267,7 +256,7 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
 
         {
             drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
-            std::string filename = outputDirectory;
+            std::string filename = sOutputDirectory;
             filename += "/right_eye.json";
             std::ofstream os(filename);
             if (os)
@@ -280,7 +269,7 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
             auto privateEye = drishti::sdk::convert(eye);
             privateEye.eyelids = privateEye.eyelidsSpline;
 
-            std::string filename = outputDirectory;
+            std::string filename = sOutputDirectory;
             filename += "/right_eye_private.json";
 
             std::ofstream os(filename);
@@ -396,10 +385,10 @@ TEST_F(EyeSegmenterTest, ImageIsWhite)
     }
 }
 
-#ifdef DRISHTI_BUILD_C_INTERFACE
+#if defined(DRISHTI_BUILD_C_INTERFACE)
 TEST_F(EyeSegmenterTest, ExternCInterface)
 {
-    auto segmenter = createC(modelFilename);
+    auto segmenter = createC(sEyeRegressor);
 
     ASSERT_NE(segmenter, nullptr);
     ASSERT_NE(m_eye, nullptr);    
@@ -496,6 +485,7 @@ static float detectionScore(const drishti::sdk::Eye& eyeA, const drishti::sdk::E
     }
     catch (...)
     {
+        // opencv throws if count is 0
     }
     try
     {
@@ -503,16 +493,9 @@ static float detectionScore(const drishti::sdk::Eye& eyeA, const drishti::sdk::E
     }
     catch (...)
     {
+        // opencv throws if count is 0        
     }
     float score = denominator ? float(numerator) / (denominator) : 0;
-
-#define DEBUG_DETECTION_SCORE 0
-#if DEBUG_DETECTION_SCORE
-    std::cout << "SCORE: " << score << std::endl;
-    cv::imshow("maskA", maskA); // opt
-    cv::imshow("maskB", maskB); // opt
-    cv::waitKey(0);
-#endif
 
     return score;
 }

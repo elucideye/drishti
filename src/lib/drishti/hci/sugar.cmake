@@ -38,3 +38,10 @@ sugar_files(DRISHTI_HCI_HDRS_PUBLIC
   gpu/GLPrinter.h
   gpu/LineDrawing.hpp
   )
+
+sugar_files(DRISHTI_HCI_UT
+  ut/FaceMonitorHCITest.h
+  ut/test-drishti-hci.cpp
+  ut/test-hessian-cpu.cpp
+  ut/test-hessian-cpu.h
+  )

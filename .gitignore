@@ -36,6 +36,8 @@ _framework/*
 _os/*
 _archives/*
 _assets/*
+_ci/*
+polly-master/*
 
 # octave
 src/octave/toolbox/detector/models/*

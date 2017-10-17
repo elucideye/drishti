@@ -63,3 +63,7 @@ if(DRISHTI_USE_THREAD_POOL_CPP)
   sugar_files(DRISHTI_CORE_HDRS_PUBLIC ThreadPool.h)
   sugar_files(DRISHTI_CORE_SRCS ThreadPool.cpp)  
 endif()
+
+sugar_files(DRISHTI_CORE_UT
+  ut/test-drishti-core.cpp
+  )

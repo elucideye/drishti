@@ -67,3 +67,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     gpu/triangle.cpp
     )
 endif()
+
+sugar_files(DRISHTI_ACF_UT
+  ut/test-drishti-acf.cpp
+  )
