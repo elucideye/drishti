@@ -1,5 +1,7 @@
 # drishti
 
+[![Join the chat at https://gitter.im/elucideye/drishti](https://badges.gitter.im/elucideye/drishti.svg)](https://gitter.im/elucideye/drishti?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Travis][travis_shield]][travis_builds]
 [![Appveyor][appveyor_shield]][appveyor_builds]
 [![License (3-Clause BSD)][license_shield]][license_link]
