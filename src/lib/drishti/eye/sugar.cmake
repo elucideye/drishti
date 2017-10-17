@@ -45,3 +45,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     gpu/TriangleStripWarp.cpp
     )
 endif()
+
+sugar_files(DRISHTI_EYE_UT
+  ut/test-drishti-eye.cpp
+  )

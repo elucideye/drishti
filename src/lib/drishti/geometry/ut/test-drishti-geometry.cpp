@@ -13,12 +13,6 @@
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/geometry/intersectConicLine.h"
 
-int gauze_main(int argc, char** argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
 TEST(Ellipse, EllipseLineIntersection2)
 {
     const cv::RotatedRect E({ 0.f, 0.f }, { 2.f, 1.f }, 0.f);

@@ -37,6 +37,10 @@ sugar_files(DRISHTI_ML_HDRS_PUBLIC
   shape_predictor_archive.h
   )
 
+sugar_files(DRISHTI_ML_UT
+  ut/test-drishti-ml.cpp
+  )
+
 if(NOT DRISHTI_BUILD_MIN_SIZE)
   sugar_files(DRISHTI_ML_HDRS_PUBLIC shape_predictor_trainer.h)
 endif()
