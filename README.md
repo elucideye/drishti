@@ -49,12 +49,14 @@ Drishti is a [CMake](https://github.com/kitware/CMake) based project that uses t
 
 The [Travis](https://github.com/elucideye/drishti/blob/master/.travis.yml) (Linux/OSX/iOS/Android) and [Appveyor](https://github.com/elucideye/drishti/blob/master/appveyor.yml) (Windows) CI scripts in the project's root directory can serve as a reference for basic setup when building from source.  To support cross platform builds and testing, the CI scripts make use of [Polly](https://github.com/ruslo/polly): a set of common CMake toolchains paired with a simple `polly.py` CMake build script.  Polly is used here for convenience to generate `CMake` command line invocations -- it is not required for building Hunter projects.
 
-To reproduce the CI builds on a local host, the setup is recommended:
+To reproduce the CI builds on a local host, the following setup is recommended:
 
 * Install compiler: http://cgold.readthedocs.io/en/latest/first-step.html
 * Install [CMake](https://github.com/kitware/CMake) (and add to `PATH`)
 * Install Python (for Polly)
 * Clone [Polly](https://github.com/ruslo/polly) and add `<polly>/bin` to `PATH`
+
+Note: Polly is not a build requirement, CMake can always be used directly, but it is used here for convenience.
 
 The `bin/hunter_env.{sh,cmd}` scripts (used in the CI builds) can be used as a fast shortcut to install these tools for you.  You may want to add the `PATH` variables permanently to your `.bashrc` file (or equivalent) for future sessions.
 
@@ -68,8 +70,6 @@ After the environment is configured, you can build for any supported `Polly` too
 ```
 polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} --install --verbose
 ```
-
-You can override the default CMake options in the project by adding KEY=VALUE pairs to a forwarded list like this `--fwd DRISHTI_SOME_OPTION1=YES DRISHTI_SOME_OPTION2=YES`.  The `--fwd HUNTER_CONFIGURATION_TYPES=${CONFIG}` option is specified above to limit the Hunter package builds to a single configuration type (typically Release) when using multi-configuration generators (Visual Studio, Xcode, etc).  It is not required for standard `clang` or `gcc` builds.
 
 The configurations listed below have all been tested.  In general, most C++11 toolchains should work with minimal effort.  A `CI` comment indicates that the configuration is part of the Travis or Appveyor CI tests, so all Hunter packages will be available in the server side binary cache.
 
