@@ -1,11 +1,13 @@
 # drishti
 
-[![Join the chat at https://gitter.im/elucideye/drishti](https://badges.gitter.im/elucideye/drishti.svg)](https://gitter.im/elucideye/drishti?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [![Travis][travis_shield]][travis_builds]
 [![Appveyor][appveyor_shield]][appveyor_builds]
 [![License (3-Clause BSD)][license_shield]][license_link]
 [![Hunter][hunter_shield]][hunter_link]
+[![Gitter][gitter_badge]][gitter_link]
+
+[gitter_badge]: https://badges.gitter.im/elucideye/drishti.svg
+[gitter_link]: https://gitter.im/elucideye/drishti?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 [hunter_shield]: https://img.shields.io/badge/hunter-v0.19.94-blue.svg
 [hunter_link]: http://github.com/ruslo/hunter
