@@ -64,16 +64,15 @@ The `bin/hunter_env.{sh,cmd}` scripts (used in the CI builds) can be used as a f
 |-------------------------------|---------------------------|
 | `source bin/hunter_env.sh`    | `bin\hunter_env.cmd`      |
 
-
 After the environment is configured, you can build for any supported `Polly` toolchain (see `polly.py --help`) with a command like this:
 
 ```
 polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} --install --verbose
 ```
 
-The configurations listed below have all been tested.  In general, most C++11 toolchains should work with minimal effort.  A `CI` comment indicates that the configuration is part of the Travis or Appveyor CI tests, so all Hunter packages will be available in the server side binary cache.
-
 ## Toolchains 
+
+The configurations listed below have all been tested.  In general, most C++11 toolchains should work with minimal effort.  A `CI` comment indicates that the configuration is part of the Travis or Appveyor CI tests, so all Hunter packages will be available in the server side binary cache.
 
 Linux (Ubunty Trusty 14.04):
 * `TOOLCHAIN=gcc-5-pic-hid-sections-lto` `CONFIG=Release` # CI
