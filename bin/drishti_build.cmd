@@ -17,7 +17,7 @@ python %POLLY_ROOT%\bin\polly.py ^
 --config "%1%" ^
 --toolchain "%2%" ^
 --test ^
---fwd HUNTER_USE_CACHE_SERVERS=NO ^
+--fwd HUNTER_USE_CACHE_SERVERS=YES ^
 HUNTER_DISABLE_BUILDS=NO ^
 DRISHTI_COPY_3RDPARTY_LICENSES=ON ^
 DRISHTI_BUILD_TESTS=ON ^

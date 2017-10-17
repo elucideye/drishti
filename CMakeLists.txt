@@ -117,7 +117,7 @@ set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" OFF)
 option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
 
-option(DRISHTI_COPY_3RDPARTY_LICENSES "Install 3rd party licenses" OFF)
+option(DRISHTI_COPY_3RDPARTY_LICENSES "Install 3rd party licenses" ON)
 
 # See: drishti-upload/config.cmake
 # option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
@@ -246,7 +246,7 @@ option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
 # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
 # ${DRISHTISDK}/src/tests
 
-# DRISHIT_BUILD_INTEGRATION_TESTS:
+# DRISHTI_BUILD_INTEGRATION_TESTS:
 # ${DRISHTISDK}/src/examples/integration/
 
 option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." OFF)
@@ -384,13 +384,12 @@ option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
 option(DRISHTI_BUILD_FACE "Drishti face lib" ON)
 option(DRISHTI_BUILD_HCI "Drishti video and HCI lib" ON)
-option(DRISHTI_BUILD_REGRESSION_SIMD "Build multivariate gradient boosting using SIMD" ON)
-option(DRISHTI_BUILD_REGRESSION_FIXED_POINT "Build multivariate gradient boosting using fixed point" ON)
+drishti_option(DRISHTI_BUILD_REGRESSION_SIMD "Build multivariate gradient boosting using SIMD" ON IF(${DRISHTI_MOBILE}))
+drishti_option(DRISHTI_BUILD_REGRESSION_FIXED_POINT "Build multivariate gradient boosting using fixed point" ON IF(${DRISHTI_MOBILE}))
 
 # 3rd party libraries
 option(DRISHTI_BUILD_DEST "Build dest lib" OFF)
 option(DRISHTI_BUILD_EOS "EOS 2D-3D fitting" OFF) # duplicate symbols
-option(DRISHTI_BUILD_CV_ML "Build OpenCV ML classes" OFF)
 
 ##################################################
 ### Installation/packaging paths and variables ###
