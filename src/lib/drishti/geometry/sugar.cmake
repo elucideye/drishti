@@ -38,3 +38,7 @@ sugar_files(DRISHTI_GEOMETRY_HDRS_PUBLIC
   intersectConicLine.h  
   motion.h
   )
+
+sugar_files(DRISHTI_GEOMETRY_UT
+  ut/test-drishti-geometry.cpp
+  )

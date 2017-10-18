@@ -229,6 +229,9 @@ set(DRISHTI_SDK_3RDPARTY_LIBS
   ${DRISHTI_SDK_3RDPARTY_PKG_LIBS}
   )
 
+include(sugar_include)
+sugar_include(.)
+
 # Add the sub-libraries
 add_subdirectory(lib)
 
@@ -247,5 +250,5 @@ endif()
 # (Optional) build unit tests
 if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
-  add_subdirectory(benchmarks)
+  #add_subdirectory(benchmarks)
 endif()

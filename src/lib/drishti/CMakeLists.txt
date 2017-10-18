@@ -5,9 +5,6 @@ include(drishti_symbol_list)
 include(drishti_hide)
 include(drishti_strip)
 include(drishti_split_debug_symbols)
-include(sugar_include)
-
-sugar_include(.)
 
 ## Customize linker flags
 include(CheckCCompilerFlag)
@@ -549,20 +546,5 @@ if(DRISHTI_BUILD_TESTS)
       "$<INSTALL_INTERFACE:include>"  # <prefix>/include
       )
   endif()
-
-  add_subdirectory(core)
-  add_subdirectory(geometry)
-  add_subdirectory(ml)
-  add_subdirectory(eye)
-  if(DRISHTI_BUILD_ACF)
-    add_subdirectory(acf)
-  endif()
-  if(DRISHTI_BUILD_FACE)
-    add_subdirectory(face)
-  endif()
-  if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
-    add_subdirectory(hci)
-  endif()
-  add_subdirectory(drishti)
   
 endif()

@@ -33,6 +33,10 @@ sugar_files(DRISHTI_DRISHTI_HDRS_PUBLIC
   # EyeSegmenterImpl.hpp
   )
 
+sugar_files(DRISHTI_DRISHTI_UT
+  ut/test-EyeSegmenter.cpp
+  )
+
 if(DRISHTI_BUILD_ACF)
   sugar_files(DRISHTI_DRISHTI_SRCS
     EyeDetector.cpp)
@@ -61,6 +65,10 @@ if(DRISHTI_BUILD_HCI)
     ContextImpl.h 
     FaceMonitorAdapter.h
     SensorImpl.h
+    )
+
+  sugar_files(DRISHTI_DRISHTI_UT  
+    ut/test-FaceTracker.cpp
     )
   
 endif()

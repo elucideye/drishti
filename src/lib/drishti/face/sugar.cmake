@@ -69,3 +69,8 @@ if(DRISHTI_BUILD_EOS)
     FaceMeshMapperLandmarkContour.h
     )
 endif()
+
+
+sugar_files(DRISHTI_FACE_UT
+  ut/test-drishti-face.cpp
+  )

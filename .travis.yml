@@ -76,7 +76,7 @@ install:
   - source bin/hunter_env.sh
   
 script:
-  - bin/drishti_build.sh "${TOOLCHAIN}" "${CONFIG}" "${INSTALL}"
+  - travis_wait 200 bin/drishti_build.sh "${TOOLCHAIN}" "${CONFIG}" "${INSTALL}"
 
 before_deploy:
     - gem install mime-types -v 2.6.2 # workaround for https://github.com/travis-ci/travis-ci/issues/5145

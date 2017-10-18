@@ -13,7 +13,6 @@ include(sugar_files)
 include(sugar_include)
 
 sugar_include(lib)
-sugar_include(app)
 
 
 

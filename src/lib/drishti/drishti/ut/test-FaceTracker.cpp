@@ -15,9 +15,10 @@
 #include "drishti/drishti/drishti_cv.hpp"
 #include "drishti/core/Logger.h"
 #include "drishti/core/ThreadPool.h"
+#include "drishti/drishti/Sensor.hpp"
 
 // clang-format off
-#if defined(DRISHTI_DRISHTI_DO_GPU)
+#if defined(DRISHTI_DO_GPU_TESTING)
 #  include "aglet/GLContext.h"
 #endif
 // clang-format on
@@ -36,23 +37,11 @@
 #endif
 // clang-format on
 
-const char* sFaceDetector;
-const char* sFaceDetectorMean;
-const char* sFaceRegressor;
-const char* sEyeRegressor;
-const char* sImageFilename;
-
-int gauze_main(int argc, char** argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    assert(argc == 6);
-    sFaceDetector = argv[1];
-    sFaceDetectorMean = argv[2];
-    sFaceRegressor = argv[3];
-    sEyeRegressor = argv[4];
-    sImageFilename = argv[5];
-    return RUN_ALL_TESTS();
-}
+extern const char* sFaceDetector;
+extern const char* sFaceDetectorMean;
+extern const char* sFaceRegressor;
+extern const char* sEyeRegressor;
+extern const char* sFaceImageFilename;
 
 // clang-format off
 #define BEGIN_EMPTY_NAMESPACE namespace {
@@ -84,9 +73,9 @@ protected:
         m_logger->set_level(spdlog::level::off); // by default...
 
         // Load the ground truth data:
-        image = loadImage(sImageFilename);
+        image = loadImage(sFaceImageFilename);
 
-#if defined(DRISHTI_DRISHTI_DO_GPU)
+#if defined(DRISHTI_DO_GPU_TESTING)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
 #endif
 
@@ -163,6 +152,7 @@ protected:
         return std::make_shared<drishti::sdk::FaceTracker>(&context, factory);
     }
 
+#if defined(DRISHTI_DO_GPU_TESTING)
     void runTest(bool doCpu, bool doAsync)
     {
         // Instantiate a face finder and register a callback:
@@ -178,14 +168,18 @@ protected:
             (*tracker)(frame);
         }
     }
+#endif
 
-#ifdef DRISHTI_BUILD_C_INTERFACE
+#if defined(DRISHTI_BUILD_C_INTERFACE)
     std::shared_ptr<drishti::sdk::FaceTracker> createC(const cv::Size& size, int orientation, bool doThreads)
     {
         const float fx = size.width;
-        const cv::Point2f p(image.cols / 2, image.rows / 2);
-        drishti::sensor::SensorModel::Intrinsic params(p, fx, size);
-        drishti::sensor::SensorModel sensor(params);
+        const drishti::sdk::Vec2f p(image.cols / 2, image.rows / 2);
+        drishti::sdk::SensorModel::Intrinsic intrinsic(p, fx, {size.width, size.height});
+
+        drishti::sdk::Matrix33f R;
+        drishti::sdk::SensorModel::Extrinsic extrinsic(R);
+        drishti::sdk::SensorModel sensor(intrinsic, extrinsic);
 
         drishti::sdk::Context context(sensor);
         context.setMinDetectionDistance(0.0);
@@ -198,7 +192,7 @@ protected:
 
         drishti::sdk::FaceTracker::Resources factory;
         factory.sFaceDetector = &iFaceDetector;
-        factory.sFaceRegressors = { &iFaceRegressor };
+        factory.sFaceRegressor = &iFaceRegressor;
         factory.sEyeRegressor = &iEyeRegressor;
         factory.sFaceModel = &iFaceDetectorMean;
 
@@ -227,21 +221,23 @@ protected:
     {
         m_logger->info("callback: Received results");
 
-        int count = 0;
-        for (const auto& r : results)
-        {
-            //std::stringstream ss;
-            //ss << "/tmp/image_" << count++ << ".png";
-            //cv::imwrite(ss.str(), drishti::sdk::drishtiToCv<drishti::sdk::Vec4b, cv::Vec4b>(r.image));
-        }
+//        int count = 0;
+//        for (const auto& r : results)
+//        {
+//            std::stringstream ss;
+//            ss << "/tmp/image_" << count++ << ".png";
+//            cv::imwrite(ss.str(), drishti::sdk::drishtiToCv<drishti::sdk::Vec4b, cv::Vec4b>(r.image));
+//        }
 
         return 0;
     }
 
-    int trigger(const drishti::sdk::Vec3f& point, double timestamp)
+    drishti_request_t trigger(const drishti_face_tracker_result_t& faces, double timestamp)
     {
-        m_logger->info("trigger: Received results: {}, {}, {} {}", point[0], point[1], point[2], timestamp);
-        return 1; // force trigger
+        m_logger->info("trigger: Received results at time {}}", timestamp);
+        // if(some_condition_is_true(faces)) {
+        return {3, true, true}; // request last 3 images and textures
+        // }
     }
 
     int allocator(const drishti_image_t& spec, drishti::sdk::Image4b& image)
@@ -263,13 +259,13 @@ protected:
         return -1;
     }
 
-    static int triggerFunc(void* context, const drishti::sdk::Vec3f& point, double timestamp)
+    static drishti_request_t triggerFunc(void* context, const drishti_face_tracker_result_t& faces, double timestamp)
     {
         if (FaceTest* ft = static_cast<FaceTest*>(context))
         {
-            return ft->trigger(point, timestamp);
+            return ft->trigger(faces, timestamp);
         }
-        return -1;
+        return {0,false,false};
     }
 
     static int allocatorFunc(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image)
@@ -286,12 +282,15 @@ protected:
         // Instantiate a face finder and register a callback:
         auto tracker = createC(image.size(), 0, doAsync);
 
-        drishti_face_tracker_t table{
+        // clang-format off
+        drishti_face_tracker_t table
+        {
             this,
             triggerFunc,
             callbackFunc,
             allocatorFunc
         };
+        // clang-format on
 
         drishti_face_tracker_callback(tracker.get(), table);
 
@@ -323,7 +322,7 @@ protected:
         return image;
     }
 
-#if defined(DRISHTI_DRISHTI_DO_GPU)
+#if defined(DRISHTI_DO_GPU_TESTING)
     std::shared_ptr<aglet::GLContext> m_context;
 #endif
 
@@ -334,21 +333,22 @@ protected:
     cv::Mat image, truth;
 };
 
+#if defined(DRISHTI_DO_GPU_TESTING)
 TEST_F(FaceTest, RunSimpleTest)
 {
     static const bool doCpu = false;
     static const bool doAsync = true;
     runTest(doCpu, doAsync);
 }
+#endif
 
-#ifdef DRISHTI_BUILD_C_INTERFACE
+#if defined(DRISHTI_DO_GPU_TESTING) && defined(DRISHTI_BUILD_C_INTERFACE)
 TEST_F(FaceTest, RunSimpleTestC)
 {
     static const bool doCpu = true;
     static const bool doAsync = true;
     runTestC(doCpu, doAsync);
 }
-
 #endif // DRISHTI_BUILD_C_INTERFACE
 
 END_EMPTY_NAMESPACE

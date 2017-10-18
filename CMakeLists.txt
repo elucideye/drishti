@@ -151,6 +151,14 @@ else()
   set(DRISHTI_IS_MOBILE FALSE)
 endif()
 
+string(COMPARE EQUAL "$ENV{TRAVIS}" "true" travis_ci)
+string(COMPARE EQUAL "$ENV{APPVEYOR}" "True" appveyor_ci)
+if(travis_ci OR appveyor_ci)
+  set(DRISHTI_CI TRUE)
+else()
+  set(DRISHTI_CI FALSE)
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 ##############
@@ -252,14 +260,6 @@ option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
 option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." OFF)
 option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." OFF)
 option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
-
-string(COMPARE EQUAL "$ENV{TRAVIS}" "true" travis_ci)
-string(COMPARE EQUAL "$ENV{APPVEYOR}" "True" appveyor_ci)
-if(travis_ci OR appveyor_ci)
-  set(DRISHTI_CI TRUE)
-else()
-  set(DRISHTI_CI FALSE)
-endif()
 
 if(ANDROID OR NOT ${DRISHTI_CI})
   set(DRISHTI_DO_GPU_TESTING TRUE)
