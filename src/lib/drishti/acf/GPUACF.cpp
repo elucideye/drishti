@@ -16,16 +16,15 @@
 #include "ogles_gpgpu/common/proc/gauss.h"
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/proc/transform.h"
-
 #include "ogles_gpgpu/common/proc/tensor.h"
 #include "ogles_gpgpu/common/proc/nms.h"
 #include "ogles_gpgpu/common/proc/shitomasi.h"
 #include "ogles_gpgpu/common/proc/flow.h"
+#include "ogles_gpgpu/common/proc/gain.h"
+#include "ogles_gpgpu/common/proc/swizzle.h"
+#include "ogles_gpgpu/common/proc/rgb2luv.h"
 
-// generic shaders
-#include "drishti/graphics/gain.h"
-#include "drishti/graphics/swizzle.h"
-#include "drishti/graphics/rgb2luv.h"
+// generic shaders:
 #include "drishti/graphics/binomial.h"
 
 // acf specific shader
@@ -81,7 +80,7 @@ struct ACF::Impl
         if (m_doGray)
         {
             Size2d graySize(grayWidth, int(m_grayscaleScale * size.height + 0.5f));
-            reduceRgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+            reduceRgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::GainProc>();
             reduceRgbSmoothProc->setOutputSize(graySize.width, graySize.height);
             rgbSmoothProc->add(reduceRgbSmoothProc.get()); // ### OUTPUT ###
         }
@@ -115,21 +114,21 @@ struct ACF::Impl
 
     void initACF(const SizeVec& scales, FeatureKind kind, bool debug)
     {
-        rotationProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+        rotationProc = drishti::core::make_unique<ogles_gpgpu::GainProc>();
         rgbSmoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(2.0f);
         rgb2luvProc = drishti::core::make_unique<ogles_gpgpu::Rgb2LuvProc>();
         pyramidProc = drishti::core::make_unique<ogles_gpgpu::PyramidProc>(scales);
         smoothProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(1);
-        reduceLuvProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+        reduceLuvProc = drishti::core::make_unique<ogles_gpgpu::GainProc>();
         gradProc = drishti::core::make_unique<ogles_gpgpu::GradProc>(1.0f);
-        reduceGradProc = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+        reduceGradProc = drishti::core::make_unique<ogles_gpgpu::GainProc>();
         normProc = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(7, true, 0.005f);
         gradHistProcA = drishti::core::make_unique<ogles_gpgpu::GradHistProc>(6, 0, 1.f);
         gradHistProcB = drishti::core::make_unique<ogles_gpgpu::GradHistProc>(6, 4, 1.f);
         gradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(3.0f);
         gradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::GaussOptProc>(3.0f);
-        reduceGradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-        reduceGradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+        reduceGradHistProcASmooth = drishti::core::make_unique<ogles_gpgpu::GainProc>(1.0f);
+        reduceGradHistProcBSmooth = drishti::core::make_unique<ogles_gpgpu::GainProc>(1.0f);
 
         // Reduce base LUV image to highest resolution used in pyramid:
         rgb2luvProc->setOutputSize(scales[0].width, scales[0].height);
@@ -208,10 +207,10 @@ struct ACF::Impl
         if (debug)
         {
             // #### OUTPUT ###
-            normProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(0.33f);
-            gradProcOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-            gradHistProcAOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
-            gradHistProcBOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>(1.0f);
+            normProcOut = drishti::core::make_unique<ogles_gpgpu::GainProc>(0.33f);
+            gradProcOut = drishti::core::make_unique<ogles_gpgpu::GainProc>(1.0f);
+            gradHistProcAOut = drishti::core::make_unique<ogles_gpgpu::GainProc>(1.0f);
+            gradHistProcBOut = drishti::core::make_unique<ogles_gpgpu::GainProc>(1.0f);
 
             gradProc->add(gradProcOut.get());                       // ### OUTPUT ###
             normProc->add(normProcOut.get());                       // ### OUTPUT ###
@@ -272,29 +271,29 @@ struct ACF::Impl
     bool m_hasGrayscaleOutput = false;
     cv::Mat m_grayscale;
     
-    std::unique_ptr<ogles_gpgpu::NoopProc> rotationProc; // make sure we have an unmodified upright image
+    std::unique_ptr<ogles_gpgpu::GainProc> rotationProc; // make sure we have an unmodified upright image
     std::unique_ptr<ogles_gpgpu::GaussOptProc> rgbSmoothProc;
-    std::unique_ptr<ogles_gpgpu::NoopProc> reduceRgbSmoothProc; // reduce
+    std::unique_ptr<ogles_gpgpu::GainProc> reduceRgbSmoothProc; // reduce
     std::unique_ptr<ogles_gpgpu::Rgb2LuvProc> rgb2luvProc;
     std::unique_ptr<ogles_gpgpu::PyramidProc> pyramidProc;
     std::unique_ptr<ogles_gpgpu::GaussOptProc> smoothProc; // (1);
-    std::unique_ptr<ogles_gpgpu::NoopProc> reduceLuvProc;
+    std::unique_ptr<ogles_gpgpu::GainProc> reduceLuvProc;
     std::unique_ptr<ogles_gpgpu::GradProc> gradProc; // (1.0);
-    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradProc;
+    std::unique_ptr<ogles_gpgpu::GainProc> reduceGradProc;
     std::unique_ptr<ogles_gpgpu::GaussOptProc> normProc;              // (5, true, 0.015);
     std::unique_ptr<ogles_gpgpu::GradHistProc> gradHistProcA;         // (6, 0, 1.f);
     std::unique_ptr<ogles_gpgpu::GradHistProc> gradHistProcB;         // (6, 4, 1.f);
     std::unique_ptr<ogles_gpgpu::GaussOptProc> gradHistProcASmooth;   // (1);
     std::unique_ptr<ogles_gpgpu::GaussOptProc> gradHistProcBSmooth;   // (1);
-    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradHistProcASmooth; // (1);
-    std::unique_ptr<ogles_gpgpu::NoopProc> reduceGradHistProcBSmooth; // (1);
+    std::unique_ptr<ogles_gpgpu::GainProc> reduceGradHistProcASmooth; // (1);
+    std::unique_ptr<ogles_gpgpu::GainProc> reduceGradHistProcBSmooth; // (1);
 
     // #### OUTPUT ###
-    std::unique_ptr<ogles_gpgpu::NoopProc> normProcOut;      //(0.33);
-    std::unique_ptr<ogles_gpgpu::NoopProc> gradProcOut;      //(16.0);
-    std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcAOut; //(1.0f);
-    std::unique_ptr<ogles_gpgpu::NoopProc> gradHistProcBOut; //(1.0f);
-    std::unique_ptr<ogles_gpgpu::NoopProc> luvTransposeOut;  //  transposed LUV output
+    std::unique_ptr<ogles_gpgpu::GainProc> normProcOut;      //(0.33);
+    std::unique_ptr<ogles_gpgpu::GainProc> gradProcOut;      //(16.0);
+    std::unique_ptr<ogles_gpgpu::GainProc> gradHistProcAOut; //(1.0f);
+    std::unique_ptr<ogles_gpgpu::GainProc> gradHistProcBOut; //(1.0f);
+    std::unique_ptr<ogles_gpgpu::GainProc> luvTransposeOut;  //  transposed LUV output
 
     // Multi-texture swizzle (one or the other for 8 vs 10 channels)
     std::unique_ptr<ogles_gpgpu::MergeProc> mergeProcLUVG;
@@ -469,7 +468,7 @@ const cv::Mat& ACF::getFlow()
 void ACF::initLuvTransposeOutput()
 {
     // Add transposed Luv output for CPU processing (optional)
-    impl->luvTransposeOut = drishti::core::make_unique<ogles_gpgpu::NoopProc>();
+    impl->luvTransposeOut = drishti::core::make_unique<ogles_gpgpu::GainProc>();
     impl->luvTransposeOut->setOutputRenderOrientation(RenderOrientationDiagonal);
     impl->rgb2luvProc->add(impl->luvTransposeOut.get());
 }
@@ -596,7 +595,7 @@ cv::Mat ACF::getImage(ProcInterface& proc, cv::Mat& frame)
     }
     else
     {
-        frame.create(proc.getOutFrameH(), proc.getOutFrameW(), CV_8UC4); // noop if preallocated
+        frame.create(proc.getOutFrameH(), proc.getOutFrameW(), CV_8UC4); // Gain if preallocated
         proc.getResultData(frame.ptr());
     }
     return frame;

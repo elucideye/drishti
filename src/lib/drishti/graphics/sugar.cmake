@@ -26,14 +26,8 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     LineShader.cpp         
     MeshShader.cpp
     binomial.cpp
-    fade.cpp
-    gain.cpp
     mesh.cpp    
-    nms2.cpp
-    rgb2hsv.cpp
-    rgb2luv.cpp
     saturation.cpp
-    swizzle.cpp    
     )
   sugar_files(
     DRISHTI_GRAPHICS_HDRS_PUBLIC
@@ -41,14 +35,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     LineShader.h    
     MeshShader.h
     binomial.h
-    fade.h
-    gain.h
-    mesh.h
-    nms2.h
-    rgb2hsv.h
-    rgb2luv.h
     saturation.h
-    swizzle.h
     )
 endif()
 

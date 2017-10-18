@@ -23,12 +23,12 @@
 #include "drishti/face/FaceDetectorFactory.h" // drishti::face::FaceDetectorFactory
 #include "drishti/face/FaceModelEstimator.h"  // drishti::face::FaceModelEstimator
 #include "drishti/face/FaceTracker.h"         // drishti::face::FaceTracker
-#include "drishti/graphics/swizzle.h"         // ogles_gpgpu::SwizzleProc
 #include "drishti/hci/FaceMonitor.h"          // FaceMonitor*
 #include "drishti/hci/Scene.hpp"              // ScenePrimitives
 #include "drishti/hci/gpu/BlobFilter.h"       // ogles_gpgpu::BlobFilter
 #include "drishti/sensor/Sensor.h"            // drishti::sensor::SensorModel
 
+#include "ogles_gpgpu/common/proc/swizzle.h"   // ogles_gpgpu::SwizzleProc
 #include "ogles_gpgpu/common/proc/flow.h"      // ogles_gpgpu::FlowOptPipeline
 #include "ogles_gpgpu/common/proc/fifo.h"      // ogles_gpgpu::FifoProc
 #include "ogles_gpgpu/common/proc/transform.h" // ogles_gpgpu::TransformProc
