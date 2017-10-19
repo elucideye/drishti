@@ -7,9 +7,6 @@
 # This script supports CI builds but can also be used to configure a functional
 # Hunter build environment on a host machine for standard development.
 
-# Show everything for CI debugging:
-set -x
-
 if [ -z "${CI}" ]; then
 
     # Usage: travis_retry <flaky_command>
