@@ -14,6 +14,7 @@
 #include "drishti/hci/FaceFinderPainter.h"
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/graphics/swizzle.h" // ogles_gpgpu...
+#include "drishti/face/FaceDetectorFactoryJson.h"
 
 #include "videoio/VideoSourceCV.h"
 #include "videoio/VideoSinkCV.h"
@@ -66,10 +67,12 @@ int gauze_main(int argc, char** argv)
     float fx = 0.f;
 
     // Create FaceDetectorFactory (default file based):
-    std::shared_ptr<drishti::face::FaceDetectorFactory> factory;
-    factory = std::make_shared<drishti::face::FaceDetectorFactory>();
+    std::string sFactory;
+    auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
 
     cxxopts::Options options("drishti-hci", "Command line interface for video sequence FaceFinder processing.");
+    
+    float minZ = 0.1f, maxZ = 2.f;
 
     // clang-format off
     options.add_options()
@@ -87,12 +90,17 @@ int gauze_main(int argc, char** argv)
         ("c,calibration", "Cascade calibration", cxxopts::value<float>(cascCal))
         ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(scale))
         ("f,focal-length", "Focal length in pixels",cxxopts::value<float>(fx))
+        ("min", "Nearest distance in meters", cxxopts::value<float>(minZ))
+        ("max", "Farthest distance in meters", cxxopts::value<float>(maxZ))
     
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(factory->sFaceDetector))
         ("M,mean", "Face detector mean", cxxopts::value<std::string>(factory->sFaceDetectorMean))
         ("R,regressor", "Face regressor", cxxopts::value<std::string>(factory->sFaceRegressor))
         ("E,eye", "Eye model", cxxopts::value<std::string>(factory->sEyeRegressor))
+
+        // ... factory can be used instead of D,M,R,E
+        ("F,factory", "Factory (json model zoo)", cxxopts::value<std::string>(sFactory))
     
         ("h,help", "Print help message");
     // clang-format on
@@ -139,6 +147,11 @@ int gauze_main(int argc, char** argv)
         return 1;
     }
 
+    if(!sFactory.empty())
+    {
+        factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
+    }
+    
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{
         { factory->sFaceDetector, "face-detector" },
@@ -173,6 +186,12 @@ int gauze_main(int argc, char** argv)
         logger->info("No frames available in video");
         return -1;
     }
+    
+    if(maxZ < minZ)
+    {
+        logger->error("max distance must be > min distance");
+        return -1;
+    }
 
     opengl->resize(frame.cols(), frame.rows());
 
@@ -182,7 +201,7 @@ int gauze_main(int argc, char** argv)
     settings.outputOrientation = 0;
     settings.frameDelay = 2;
     settings.doLandmarks = true;
-    settings.doFlow = true;
+    settings.doFlow = false;
     settings.doBlobs = false;
     settings.threads = std::make_shared<tp::ThreadPool<>>();
     settings.outputOrientation = 0;
@@ -192,7 +211,8 @@ int gauze_main(int argc, char** argv)
     settings.renderFaces = true;      // *** rendering ***
     settings.renderPupils = true;     // *** rendering ***
     settings.renderCorners = false;   // *** rendering ***
-
+    settings.minDetectionDistance = minZ;
+    settings.maxDetectionDistance = maxZ;
     { // Create a sensor specification
         if(fx == 0.f)
         {

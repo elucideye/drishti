@@ -11,7 +11,6 @@
 // Local includes:
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/acf/ACF.h"
-#include "drishti/face/FaceDetector.h"
 #include "drishti/core/LazyParallelResource.h"
 #include "drishti/core/Line.h"
 #include "drishti/core/Logger.h"
@@ -21,6 +20,8 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/scope_guard.h"
 #include "drishti/testlib/drishti_cli.h"
+#include "drishti/face/FaceDetector.h"
+#include "drishti/face/FaceDetectorFactoryJson.h"
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/geometry/motion.h"
 
@@ -154,12 +155,12 @@ int gauze_main(int argc, char** argv)
     double cascCal = 0.0;
     int minWidth = -1; // minimum object width
 
-    // Full set of models must be specified:
-    std::string sFaceDetector;
-    std::string sFaceDetectorMean;
-    std::string sFaceRegressor;
-    std::string sEyeRegressor;
+    // Use factory as container for CLI inputs:
+    std::string sFactory;
+    auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
 
+    float minZ = 0.1f, maxZ = 1.f;
+    
     cxxopts::Options options("drishti-acf", "Command line interface for ACF object detection (see Piotr's toolbox)");
 
     // clang-format off
@@ -173,10 +174,15 @@ int gauze_main(int argc, char** argv)
         ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(scale))
 
         // Clasifier and regressor models:
-        ("D,detector", "Face detector model", cxxopts::value<std::string>(sFaceDetector))
-        ("M,mean", "Face detector mean", cxxopts::value<std::string>(sFaceDetectorMean))
-        ("R,regressor", "Face regressor", cxxopts::value<std::string>(sFaceRegressor))
-        ("E,eye", "Eye model", cxxopts::value<std::string>(sEyeRegressor))
+        ("D,detector", "Face detector model", cxxopts::value<std::string>(factory->sFaceDetector))
+        ("M,mean", "Face detector mean", cxxopts::value<std::string>(factory->sFaceDetectorMean))
+        ("R,regressor", "Face regressor", cxxopts::value<std::string>(factory->sFaceRegressor))
+        ("E,eye", "Eye model", cxxopts::value<std::string>(factory->sEyeRegressor))
+    
+        // ... factory can be used instead of D,M,R,E
+        ("F,factory", "Factory (json model zoo)", cxxopts::value<std::string>(sFactory))
+    
+    
     
         // Output parameters:
         ("e,eyes", "Crop eyes", cxxopts::value<bool>(doEyes))
@@ -230,12 +236,17 @@ int gauze_main(int argc, char** argv)
         return 1;
     }
 
+    if(!sFactory.empty())
+    {
+        factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
+    }
+
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{
-        { sFaceDetector, "face-detector" },
-        { sFaceDetectorMean, "face-detector-mean" },
-        { sFaceRegressor, "face-regressor" },
-        { sEyeRegressor, "eye-regressor" }
+        { factory->sFaceDetector, "face-detector" },
+        { factory->sFaceDetectorMean, "face-detector-mean" },
+        { factory->sFaceRegressor, "face-regressor" },
+        { factory->sEyeRegressor, "eye-regressor" }
     };
 
     for (const auto& c : config)
@@ -258,11 +269,6 @@ int gauze_main(int argc, char** argv)
     // Allocate resource manager:
     using FaceDetectorPtr = std::unique_ptr<drishti::face::FaceDetector>;
     drishti::core::LazyParallelResource<std::thread::id, FaceDetectorPtr> manager = [&]() {
-        auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
-        factory->sFaceDetector = sFaceDetector;
-        factory->sFaceRegressor = sFaceRegressor;
-        factory->sEyeRegressor = sEyeRegressor;
-        factory->sFaceDetectorMean = sFaceDetectorMean;
 
         FaceDetectorPtr detector = drishti::core::make_unique<drishti::face::FaceDetector>(*factory);
         detector->setScaling(scale);
