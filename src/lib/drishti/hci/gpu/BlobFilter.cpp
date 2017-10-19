@@ -8,19 +8,11 @@
 
 */
 
-#define FLASH_FILTER_USE_DELAY 1
-#define FLASH_FILTER_USE_NEW_NMS 1
+#define FLASH_FILTER_USE_NEW_NMS 0
 
 #include "drishti/hci/gpu/BlobFilter.h"
-
-// clang-format off
-#if FLASH_FILTER_USE_DELAY
-#  include "drishti/graphics/fade.h"
-#endif
-// clang-format on
-
-#include "drishti/graphics/saturation.h"
 #include "drishti/graphics/binomial.h"
+#include "drishti/graphics/saturation.h"
 
 #include "ogles_gpgpu/common/proc/hessian.h"
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
@@ -49,27 +41,18 @@ public:
     Impl()
         : smoothProc1(1)
         , hessianProc1(2000.0f, false)
-#if FLASH_FILTER_USE_DELAY
-        , fadeProc(0.95)
-#endif
         , saturationProc(1.0)
     {
         nmsProc1.swizzle(1, 3); // in(2), out(3)
 
         smoothProc1.add(&saturationProc);
         saturationProc.add(&hessianProc1);
-#if FLASH_FILTER_USE_DELAY
-        hessianProc1.add(&fadeProc);
-        fadeProc.add(&nmsProc1);
-#else
-        hessianProc.add(&nmsProc1);
-#endif
+        hessianProc1.add(&nmsProc1);
     }
 
     ogles_gpgpu::GaussOptProc smoothProc1;
     ogles_gpgpu::HessianProc hessianProc1;
-    ogles_gpgpu::FadeFilterProc fadeProc;
-    ogles_gpgpu::Nms2Proc nmsProc1;
+    ogles_gpgpu::NmsProc nmsProc1;
     ogles_gpgpu::SaturationProc saturationProc;
 };
 
@@ -80,7 +63,6 @@ BlobFilter::BlobFilter()
     // Add filters to procPasses for state management
     procPasses.push_back(&m_impl->smoothProc1);
     procPasses.push_back(&m_impl->hessianProc1);
-    procPasses.push_back(&m_impl->fadeProc);
     procPasses.push_back(&m_impl->nmsProc1);
     procPasses.push_back(&m_impl->saturationProc);
 }
