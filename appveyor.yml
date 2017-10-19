@@ -1,5 +1,7 @@
 image: Visual Studio 2015
 
+environment:
+
   matrix:
 
     - TOOLCHAIN: "vs-14-2015-sdk-8-1"
