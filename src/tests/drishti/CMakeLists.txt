@@ -42,7 +42,7 @@ set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 
 if(WIN32)
   set_property(
-    TEST ${e_test_name}
+    TEST ${test_name}
     PROPERTY
     ENVIRONMENT
     "PATH=$<TARGET_FILE_DIR:drishti>;$ENV{PATH}"
