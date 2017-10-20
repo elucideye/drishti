@@ -122,6 +122,9 @@ protected:
 
 #if defined(DRISHTI_DO_GPU_TESTING)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
+#if defined(_WIN32) || defined(_WIN64)
+	CV_Assert(!glewInit());
+#endif	
 #endif
     }
 
