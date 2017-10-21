@@ -168,7 +168,7 @@ inline static void add32F(const drishti::ml::fshape& a, const fshape& b, fshape&
 template <typename T>
 T compute_npd(const T& a, const T& b)
 {
-    return (a-b)/(a+b+T(1e-6));
+    return (a - b) / (a + b + T(1e-6));
     //return (a - b)/(a + b);
     //return ((a + b) == T(0.0)) ? std::numeric_limits<float>::lowest() : (a - b) / (a + b);
 }
@@ -793,7 +793,7 @@ public:
         {
             impl::create_shape_relative_encoding(initial_shape, pixel_coordinates[i], anchor_idx[i], deltas[i]);
         }
-        
+
         m_num_workers = 4; //cv::getNumberOfCPUs();
     }
 
@@ -870,21 +870,20 @@ public:
                 const unsigned long block_size = std::max(1UL, (num + m_num_workers - 1) / m_num_workers);
                 std::vector<fshape> block_sums(m_num_workers);
                 std::vector<DVec16s> shape_accumulators(m_num_workers);
-                drishti::core::ParallelHomogeneousLambda harness = [&](int block)
-                {
+                drishti::core::ParallelHomogeneousLambda harness = [&](int block) {
                     const unsigned long block_begin = block * block_size;
-                    const unsigned long block_end =  std::min(num, block_begin + block_size);
+                    const unsigned long block_end = std::min(num, block_begin + block_size);
                     for (unsigned long i = block_begin; i < block_end; ++i)
                     {
-                        auto &f = forests[iter][i];
+                        auto& f = forests[iter][i];
                         add16sAnd16s(shape_accumulators[block], f(feature_pixel_values, Fixed(), m_npd), shape_accumulators[block]);
                     }
                 };
 
                 //harness({0,static_cast<int>(num_workers)});
-                cv::parallel_for_({0,static_cast<int>(m_num_workers)}, harness);
+                cv::parallel_for_({ 0, static_cast<int>(m_num_workers) }, harness);
 
-                for(auto &s : shape_accumulators)
+                for (auto& s : shape_accumulators)
                 {
                     add16sAnd16s(shape_accumulator, s, shape_accumulator);
                 }
@@ -895,7 +894,7 @@ public:
                 add16sAnd16s(shape_accumulator, f(feature_pixel_values, Fixed(), m_npd), shape_accumulator);
             }
 #endif
-            
+
             // fixed -> float
             active_shape.set_size(shape_accumulator.size());
             for (int i = 0; i < shape_accumulator.size(); i++)

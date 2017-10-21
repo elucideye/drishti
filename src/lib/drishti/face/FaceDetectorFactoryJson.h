@@ -20,7 +20,7 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceDetectorFactoryJson : public FaceDetectorFactory
 {
 public:
-    FaceDetectorFactoryJson(const std::string &sModels);
+    FaceDetectorFactoryJson(const std::string& sModels);
 };
 
 DRISHTI_FACE_NAMESPACE_END

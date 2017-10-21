@@ -24,7 +24,6 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 static Matx33Real getPose(const Vector1d& phi);
 static std::vector<cv::Point2f> xsToPoints(const Matx33Real& HS, const PointVec& xs);
 
-
 // function part = createPart( parent, wts )
 // % Create single part for model (parent==0 implies root).
 // if(nargin<2), wts=[0.313 0.342 11.339 13.059 6.998]; end
@@ -40,7 +39,7 @@ int createPart(int parent, CPR::Model::Parts& part)
     CV_Assert(parent == 0); // for now, just one part
 
     part.prn = parent;
-    part.lks =  {
+    part.lks = {
         static_cast<RealType>(0.0),
         static_cast<RealType>(0.0),
         static_cast<RealType>(0.0),
@@ -108,7 +107,7 @@ int createModel(int type, CPR::Model& model)
 // ########
 
 using FtrData = CPR::RegModel::Regs::FtrData;
-using FtrResult =  CPR::FeaturesResult;
+using FtrResult = CPR::FeaturesResult;
 int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPair& Im, const FtrData& ftrData, FtrResult& result, bool useNPD)
 {
     const auto& I = Im.getImage();
@@ -118,14 +117,14 @@ int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPa
     Matx33Real HS = getPose(phi); // just single component model for now (don't need multiple parts)
     const auto& xs = *(ftrData.xs);
     auto points = xsToPoints(HS, xs);
-    
+
     // Make sure we avoid out of bounds pixels, somewhat arbitrarily
     // we can just set these to the top left corner.
-    for (auto& p: points)
+    for (auto& p : points)
     {
-        if(!cv::Rect({0,0}, I.size()).contains(p))
+        if (!cv::Rect({ 0, 0 }, I.size()).contains(p))
         {
-            p = {0.f,0.f};
+            p = { 0.f, 0.f };
         }
     }
 
@@ -136,8 +135,8 @@ int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPa
     ftrs.resize(points.size() / 2);
     for (int j = 0, i = 0; i < points.size(); j++, i += 2)
     {
-        double f1 = static_cast<double>(I.at<std::uint8_t>(points[i+0])) / 255.0;
-        double f2 = static_cast<double>(I.at<std::uint8_t>(points[i+1])) / 255.0;
+        double f1 = static_cast<double>(I.at<std::uint8_t>(points[i + 0])) / 255.0;
+        double f2 = static_cast<double>(I.at<std::uint8_t>(points[i + 1])) / 255.0;
 
         double d;
         if (useNPD) // possibly use functor (opt)
@@ -159,8 +158,8 @@ int featuresComp(const CPR::Model& model, const Vector1d& phi, const ImageMaskPa
         auto& mask = result.ftrMask;
         if (!M.empty())
         {
-            uint8_t m1 = M.at<std::uint8_t>(points[i+0]);
-            uint8_t m2 = M.at<std::uint8_t>(points[i+1]);
+            uint8_t m1 = M.at<std::uint8_t>(points[i + 0]);
+            uint8_t m2 = M.at<std::uint8_t>(points[i + 1]);
             uint8_t valid = m1 & m2;
             mask.push_back(valid);
 
@@ -341,7 +340,7 @@ static std::vector<cv::Point2f> xsToPoints(const Matx33Real& HS, const PointVec&
     for (int i = 0; i < points.size(); i++)
     {
         const auto q = HS * cv::Point3f(xs[i].x, xs[i].y, 1.f);
-        points[i] = {q.x, q.y}; // pure affine (i.e., no /z)
+        points[i] = { q.x, q.y }; // pure affine (i.e., no /z)
     }
     return points;
 }

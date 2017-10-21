@@ -16,10 +16,10 @@
 
 #include "drishti/face/FaceDetectorAndTracker.h"
 
-extern const char * sFaceDetector;
-extern const char * sFaceDetectorMean;
-extern const char * sFaceRegressor;
-extern const char * sEyeRegressor;
+extern const char* sFaceDetector;
+extern const char* sFaceDetectorMean;
+extern const char* sFaceRegressor;
+extern const char* sEyeRegressor;
 
 TEST(FaceDetectorAndTracker, Instantiation)
 {

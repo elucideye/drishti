@@ -104,20 +104,20 @@ protected:
         padToAspectRatio(image, padded, EYE_ASPECT_RATIO);
         assert(!padded.empty());
 
-        std::vector<int> widths = {0}; // first one is empty
+        std::vector<int> widths = { 0 }; // first one is empty
 #if defined(GAUZE_ANDROID_USE_EMULATOR)
-        for(int width = 16; width <= 256; width*=2)
+        for (int width = 16; width <= 256; width *= 2)
         {
             widths.push_back(width);
         }
 #else
-        for(int width = 16; width <= 256; width++)
+        for (int width = 16; width <= 256; width++)
         {
             widths.push_back(width);
         }
 #endif
-        
-        for (const auto &width : widths)
+
+        for (const auto& width : widths)
         {
             cv::Mat resized;
             if (width > 0)
@@ -156,12 +156,12 @@ protected:
         entry.isRight = true;
     }
 
-    std::map<int,Entry>::iterator getFirstGreat(int width = 32)
+    std::map<int, Entry>::iterator getFirstGreat(int width = 32)
     {
-        auto isok = [=](const std::pair<int,Entry> &e) { return e.second.image.cols >= width; };
+        auto isok = [=](const std::pair<int, Entry>& e) { return e.second.image.cols >= width; };
         return std::find_if(m_images.begin(), m_images.end(), isok);
     }
-    
+
     // Objects declared here can be used by all tests in the test case for EyeModelEstimator.
     std::shared_ptr<drishti::eye::EyeModelEstimator> m_eyeSegmenter;
 
@@ -236,13 +236,13 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
 TEST_F(EyeModelEstimatorTest, EyeSerialization)
 {
     drishti::eye::EyeModel eye;
-    
+
     assert(m_images[m_targetWidth].isRight);
     /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
-    
+
     std::string filename(sOutputDirectory);
     filename += "/right_eye_test.json";
-    
+
     std::ofstream os(filename);
     cereal::JSONOutputArchive oa(os);
     typedef decltype(oa) Archive;
@@ -256,7 +256,7 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
     {
         return;
     }
-    
+
     for (auto iter = getFirstGreat(); iter != m_images.end(); iter++)
     {
         // Make sure image has the expected size:
@@ -316,7 +316,7 @@ TEST_F(EyeModelEstimatorTest, ImageIsBlack)
     const int width = 128;
     const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
-    
+
     assert(entry.isRight);
     drishti::eye::EyeModel eye;
     int code = (*m_eyeSegmenter)(entry.image, eye);
@@ -330,7 +330,7 @@ TEST_F(EyeModelEstimatorTest, ImageIsWhite)
     const int width = 128;
     const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
-    
+
     assert(entry.isRight);
     drishti::eye::EyeModel eye;
     int code = (*m_eyeSegmenter)(entry.image, eye);
@@ -396,7 +396,6 @@ detectionScore(const drishti::eye::EyeModel& eyeA, const drishti::eye::EyeModel&
         // opencv throws when empty
     }
     float score = denominator ? float(numerator) / (denominator) : 0;
-
 
     return score;
 }

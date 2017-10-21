@@ -124,7 +124,7 @@ template <class Archive>
 void CPR::serialize(Archive& ar, const unsigned int version)
 {
     drishti_throw_assert(version == 1, "Incorrect CPR archive format, please update models");
-                         
+
     ar& cprPrm;
     ar& regModel;
 }

@@ -118,7 +118,7 @@ protected:
         CV_Assert(m_context && (*m_context));
 #if defined(_WIN32) || defined(_WIN64)
         CV_Assert(!glewInit());
-#endif	
+#endif
 #endif
     }
 

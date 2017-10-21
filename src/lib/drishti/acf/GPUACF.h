@@ -54,7 +54,7 @@ public:
 
     void setUsePBO(bool flag);
     bool getUsePBO() const;
-    
+
     void setLogger(std::shared_ptr<spdlog::logger>& logger);
     bool getChannelStatus();
     bool getFlowStatus();

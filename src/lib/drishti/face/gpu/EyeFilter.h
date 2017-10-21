@@ -98,9 +98,8 @@ public:
     void renderIris();
 
 protected:
-    
     int m_history = 3;
-    
+
     std::vector<drishti::face::FaceModel> m_faces;
 
     EyewWarpPair m_eyes;

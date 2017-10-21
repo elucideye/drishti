@@ -118,7 +118,7 @@ public:
 
         if (m_eyeRegressor.size() && m_eyeRegressor[0] && m_eyeRegressor[1] && m_doEyeRefinement && faces.size())
         {
-            for(auto &f : faces)
+            for (auto& f : faces)
             {
                 DRISHTI_EYE::EyeModel eyeR, eyeL;
                 segmentEyes(Ib.Ib, f, eyeR, eyeL);
@@ -136,9 +136,9 @@ public:
         }
     }
 
-    using RectPair = std::array<cv::Rect,2>;
-    using MatPair = std::array<cv::Mat,2>;
-    static void extractCrops(const cv::Mat& Ib, const RectPair &eyes, const cv::Rect& bounds, MatPair &crops)
+    using RectPair = std::array<cv::Rect, 2>;
+    using MatPair = std::array<cv::Mat, 2>;
+    static void extractCrops(const cv::Mat& Ib, const RectPair& eyes, const cv::Rect& bounds, MatPair& crops)
     {
         for (int i = 0; i < 2; i++)
         {
@@ -154,7 +154,7 @@ public:
                 crops[i].setTo(0);
                 Ib(roi).copyTo(crops[i](roi - eyes[i].tl()));
             }
-         }
+        }
     }
 
     void segmentEyes(const cv::Mat1b& Ib, FaceModel& face, DRISHTI_EYE::EyeModel& eyeR, DRISHTI_EYE::EyeModel& eyeL)
@@ -174,9 +174,9 @@ public:
             // clang-format on
 
             MatPair crops;
-            RectPair eyes = {{ roiR, roiL }};
+            RectPair eyes = { { roiR, roiL } };
             extractCrops(Ib, eyes, { { 0, 0 }, Ib.size() }, crops);
-            
+
             cv::Mat flipped;
             cv::flip(crops[1], flipped, 1); // Flip left eye to right eye cs
             crops[1] = flipped;
@@ -185,8 +185,8 @@ public:
             float theta = std::atan2(v.y, v.x);
             eyeR.angle = theta;
             eyeL.angle = (-theta);
-            
-            std::array<DRISHTI_EYE::EyeModel*,2> results {{ &eyeR, &eyeL }};
+
+            std::array<DRISHTI_EYE::EyeModel*, 2> results{ { &eyeR, &eyeL } };
             for (int i = 0; i < 2; i++)
             {
                 m_eyeRegressor[i]->setDoIndependentIrisAndPupil(m_doIrisRefinement);
@@ -208,7 +208,7 @@ public:
             eyeL.roi = eyes[1];
         }
     }
-    
+
     void findLandmarks(const PaddedImage& Ib, std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& Hdr_, bool isDetection)
     {
         // Scope based eye segmentation timer:
@@ -245,13 +245,13 @@ public:
             // Perform an addition (optional) scaling that can be tuned easily by the user as some detection
             // scales will perform better than the mean mapping used above (experimentally).
             shapes[i].roi = scaleRoi(roi, m_scaling);
-            
+
             // Crop the image such that the ROI to pixel geometry is preserved.  For most cases this is
             // a simple shallow copy/view, but in cases where the border is clipped, then we will effectively
             // perform border padding to achieve this goal.  This make our prediction ROI closest to the ROI
             // used during training and ensures our cascaded pose regression has the best chance of success.
             cv::Mat crop = geometryPreservingCrop(shapes[i].roi, gray);
- 
+
             std::vector<bool> mask;
             std::vector<cv::Point2f> points;
             (*m_regressor)(crop, points, mask);
@@ -262,19 +262,19 @@ public:
             }
         }
     }
-    
+
     static cv::Rect scaleRoi(const cv::Rect& roi, float scale)
     {
         cv::Point2f tl(roi.tl()), br(roi.br()), center((tl + br) * 0.5f), diag(br - center);
         return cv::Rect(center - (diag * scale), center + (diag * scale));
     }
-    
+
     // Return requested light weight copy if roi is contained in frame bounds, else perform
     // a deep copy that preseves the crop geometry via border padding.  This ensures that
     // landmark regression has the best chance of success.
-    static cv::Mat geometryPreservingCrop(const cv::Rect &roi, const cv::Mat &gray)
+    static cv::Mat geometryPreservingCrop(const cv::Rect& roi, const cv::Mat& gray)
     {
-        const cv::Rect bounds({0,0}, gray.size());
+        const cv::Rect bounds({ 0, 0 }, gray.size());
         const cv::Rect clipped = roi & bounds;
         cv::Mat crop = gray(clipped);
         if (clipped.size() != roi.size())
@@ -285,7 +285,7 @@ public:
         }
         return crop;
     }
-    
+
     // Notes on motion and coordinate systems:
     //
     // FaceDetector::m_Hrd : map normalized regressor mean face to normalized detector mean face

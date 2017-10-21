@@ -79,7 +79,7 @@ protected:
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
 #if defined(_WIN32) || defined(_WIN64)
         CV_Assert(!glewInit());
-#endif	
+#endif
 #endif
         // TODO: we need to load ground truth output for each shader
         // (some combinations could be tested, but that is probably excessive!)
@@ -105,7 +105,7 @@ protected:
     {
         const float fx = size.width;
         const drishti::sdk::Vec2f p(image.cols / 2, image.rows / 2);
-        drishti::sdk::SensorModel::Intrinsic intrinsic(p, fx, {size.width, size.height});
+        drishti::sdk::SensorModel::Intrinsic intrinsic(p, fx, { size.width, size.height });
         drishti::sdk::Matrix33f I = drishti::sdk::Matrix33f::eye();
         drishti::sdk::SensorModel::Extrinsic extrinsic(I);
         drishti::sdk::SensorModel sensor(intrinsic, extrinsic);
@@ -177,7 +177,7 @@ protected:
     {
         const float fx = size.width;
         const drishti::sdk::Vec2f p(image.cols / 2, image.rows / 2);
-        drishti::sdk::SensorModel::Intrinsic intrinsic(p, fx, {size.width, size.height});
+        drishti::sdk::SensorModel::Intrinsic intrinsic(p, fx, { size.width, size.height });
 
         drishti::sdk::Matrix33f R;
         drishti::sdk::SensorModel::Extrinsic extrinsic(R);
@@ -223,13 +223,13 @@ protected:
     {
         m_logger->info("callback: Received results");
 
-//        int count = 0;
-//        for (const auto& r : results)
-//        {
-//            std::stringstream ss;
-//            ss << "/tmp/image_" << count++ << ".png";
-//            cv::imwrite(ss.str(), drishti::sdk::drishtiToCv<drishti::sdk::Vec4b, cv::Vec4b>(r.image));
-//        }
+        //        int count = 0;
+        //        for (const auto& r : results)
+        //        {
+        //            std::stringstream ss;
+        //            ss << "/tmp/image_" << count++ << ".png";
+        //            cv::imwrite(ss.str(), drishti::sdk::drishtiToCv<drishti::sdk::Vec4b, cv::Vec4b>(r.image));
+        //        }
 
         return 0;
     }
@@ -238,7 +238,7 @@ protected:
     {
         m_logger->info("trigger: Received results at time {}}", timestamp);
         // if(some_condition_is_true(faces)) {
-        return {3, true, true}; // request last 3 images and textures
+        return { 3, true, true }; // request last 3 images and textures
         // }
     }
 
@@ -267,7 +267,7 @@ protected:
         {
             return ft->trigger(faces, timestamp);
         }
-        return {0,false,false};
+        return { 0, false, false };
     }
 
     static int allocatorFunc(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image)

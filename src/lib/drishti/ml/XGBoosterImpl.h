@@ -165,7 +165,7 @@ template <class Archive>
 void XGBooster::serialize(Archive& ar, const unsigned int version)
 {
     drishti_throw_assert(version == 1, "Incorrect XGBooster archive format, please update models");
-    
+
     ar& m_impl;
 }
 

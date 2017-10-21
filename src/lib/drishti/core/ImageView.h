@@ -18,24 +18,22 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 struct Texture
 {
     Texture() = default;
-    Texture(const cv::Size &size, std::uint32_t texId)
+    Texture(const cv::Size& size, std::uint32_t texId)
         : size(size)
         , texId(texId)
     {
-        
     }
-    cv::Size size;     //! Teture dimensions in pixels
-    std::uint32_t texId = 0;  //! Identifier for the texture
+    cv::Size size;           //! Teture dimensions in pixels
+    std::uint32_t texId = 0; //! Identifier for the texture
 };
-    
+
 struct ImageView
 {
     ImageView() = default;
-    ImageView(const Texture &texture, const cv::Mat4b &image)
+    ImageView(const Texture& texture, const cv::Mat4b& image)
         : texture(texture)
         , image(image)
     {
-
     }
     Texture texture; //! Texture descriptor
     cv::Mat4b image; //! Image descriptor

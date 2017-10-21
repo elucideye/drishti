@@ -272,7 +272,7 @@ int CPR::cprTrain(const ImageMaskPairVec& Is, const EllipseVec& pGtIn, const HVe
                 params.maxDepth = recipe.maxDepth;
                 params.featureSubsample = float(recipe.featureSampleSize) / recipe.featurePoolSize;
 
-                xgbdt[i] = std::make_shared<ml::XGBooster>(params);                
+                xgbdt[i] = std::make_shared<ml::XGBooster>(params);
                 xgbdt[i]->train(data, target, recipe.doMask ? mask : MatrixType<uint8_t>());
 
                 predictions[i].resize(data.size());

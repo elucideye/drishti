@@ -27,24 +27,23 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceMonitor
 {
 public:
-
     //! An alias for the system high resolution clock
     using HighResolutionClock = std::chrono::high_resolution_clock;
 
     //! An alias for a time point from the high resolution clock
     using TimePoint = HighResolutionClock::time_point;
-    
+
     //! An alias for a vector of positions
     using Positions = std::vector<cv::Point3f>;
 
     //! An alias for a vector of positions
     using Faces = std::vector<drishti::face::FaceModel>;
-    
+
     /**
      * A face image structure containing metadata with associated l
      * andmarks and eye images.
      */
-    
+
     struct FaceImage
     {
         //! Timestamp corresponding to acquisition time.
@@ -68,20 +67,19 @@ public:
 
     struct Request
     {
-        Request() = default;        
+        Request() = default;
         Request(int n, bool getImage, bool getTexture)
             : n(n)
             , getImage(getImage)
             , getTexture(getTexture)
         {
-            
         }
-        
-        int n = 0;                //! Number of frames requested (last n)
-        bool getImage = false;    //! Request an image (typically incurs some overhead)
-        bool getTexture = false;  //! Request a texture (typically no overhead)
-        
-        Request & operator |=(const Request &src)
+
+        int n = 0;               //! Number of frames requested (last n)
+        bool getImage = false;   //! Request an image (typically incurs some overhead)
+        bool getTexture = false; //! Request a texture (typically no overhead)
+
+        Request& operator|=(const Request& src)
         {
             n = std::max(n, src.n);
             getTexture |= src.getTexture;
@@ -89,7 +87,7 @@ public:
             return (*this);
         }
     };
-    
+
     /**
      * A user defined virtual method callback that should report the number
      * of frames that should be captured from teh FIFO buffer based on the 
@@ -106,7 +104,7 @@ public:
      * N is the number of frames requested in the preceding request callback.
      * @param frames A vector containing the last N consecutive FaceImage objects
      * @param isInitialized Return true if the FIFO buffer is fully initialized.
-     */    
+     */
     virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized) = 0;
 };
 

@@ -18,7 +18,7 @@ _DRISHTI_SDK_BEGIN
 
 struct SensorModel::Impl
 {
-    Impl(const sensor::SensorModel::Intrinsic &intrinsic, const sensor::SensorModel::Extrinsic &extrinsic)
+    Impl(const sensor::SensorModel::Intrinsic& intrinsic, const sensor::SensorModel::Extrinsic& extrinsic)
     {
         sensor = std::make_shared<sensor::SensorModel>(intrinsic, extrinsic);
     }

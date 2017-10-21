@@ -30,7 +30,6 @@ Context::Context(drishti::sdk::SensorModel& sensor)
 
 Context::~Context() = default;
 
-
 void Context::setDoSingleFace(bool flag)
 {
     impl->doSingleFace = flag;
@@ -40,7 +39,7 @@ bool Context::getDoSingleFace() const
 {
     return impl->doSingleFace;
 }
-    
+
 void Context::setMinDetectionDistance(float value)
 {
     impl->minDetectionDistance = value;

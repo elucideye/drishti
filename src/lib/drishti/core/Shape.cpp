@@ -111,7 +111,7 @@ void fitSpline(const PointVec& controlPoints, PointVec& interpolatedPoints, int 
         {
             float u = float(i) / count;
             PointType p = spline(u);
-            interpolatedPoints[i] = cv::Point2f(p(0,0), p(1,0));
+            interpolatedPoints[i] = cv::Point2f(p(0, 0), p(1, 0));
         }
     }
 }

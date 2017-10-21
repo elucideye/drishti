@@ -35,7 +35,7 @@ SensorModel::Intrinsic::Intrinsic(const Vec2f& c, float fx, const Vec2i& size)
 {
 }
 
-SensorModel::Extrinsic::Extrinsic(const Matrix33f &R)
+SensorModel::Extrinsic::Extrinsic(const Matrix33f& R)
     : m_R(R)
 {
 }
@@ -53,11 +53,11 @@ SensorModel::SensorModel(const Intrinsic& intrinsic, const Extrinsic& extrinsic)
     {
         for (int x = 0; x < 3; x++)
         {
-            R(y,x) = extrinsic.m_R(y,x);
+            R(y, x) = extrinsic.m_R(y, x);
         }
     }
     drishti::sensor::SensorModel::Extrinsic extrinsic_(R);
-    
+
     impl = make_unique<Impl>(intrinsic_, extrinsic_);
 }
 

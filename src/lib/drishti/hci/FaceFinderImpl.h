@@ -125,7 +125,7 @@ struct FaceFinder::Impl
 
     int outputOrientation = 0;
     float brightness = 1.f;
-    std::shared_ptr<ogles_gpgpu::FifoProc> fifo;         // store last N faces
+    std::shared_ptr<ogles_gpgpu::FifoProc> fifo; // store last N faces
 
     // :::::::::::::::::::::::::::::::::::::::
     // ::: ACF and detection parameters:   :::
@@ -150,7 +150,7 @@ struct FaceFinder::Impl
     float minFaceSeparation = 0.15;
     std::unique_ptr<drishti::face::FaceDetector> faceDetector;
     std::unique_ptr<drishti::face::FaceTracker> faceTracker;
-    
+
     drishti::acf::Detector* detector = nullptr; // weak ref
     std::pair<time_point, std::vector<cv::Rect>> objects;
     std::future<ScenePrimitives> scene;
@@ -203,7 +203,7 @@ struct FaceFinder::Impl
     bool usePBO = false;
     bool doOptimizedPipeline = true;
     int history = 3; // frame history
-    
+
     // :::::::::::::::::::::::
     // ::: Filters/Effects :::
     // :::::::::::::::::::::::

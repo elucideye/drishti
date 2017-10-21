@@ -51,7 +51,7 @@ struct drishti_face_tracker_result_t
      * The image description (memory and/or OpenGL texture)
      */
     drishti_image_tex_t image;
-    
+
     /**
      * Face models for the current frame.
      */
@@ -61,7 +61,7 @@ struct drishti_face_tracker_result_t
      * A filtered eye image pair (subject's rigth and left eyes) for the nearest face in the scene.
      */
     drishti_image_tex_t eyes; // eye pair image [ left | right ]
-    
+
     /**
      * Detailed eye models corresponding to the filtered eye pair image.
      */
@@ -87,22 +87,21 @@ typedef struct drishti_image
      * Image width in pixels
      */
     std::size_t width;
-    
+
     /**
      * Image height in pixels
      */
     std::size_t height;
-    
+
     /**
      * Number of channels
      */
     std::size_t channels;
-    
+
     /**
      * Row stride in bytes
      */
     std::size_t stride;
-    
 
 } drishti_image_t;
 
@@ -117,17 +116,17 @@ typedef struct drishti_request
      * Retrieve the last N frames.
      */
     int n;
-    
+
     /**
      * Get frames in user memory.
      */
     bool getImage;
-    
+
     /**
      * Get OpenGL textures.
      */
     bool getTexture;
-    
+
 } drishti_request_t;
 
 /**
@@ -193,19 +192,19 @@ typedef struct drishti_face_tracker
      * A pointer to allocated FaceTracker state.
      */
     void* context;
-    
+
     /**
      * A callback containins a list of all detected faces (if any) for each frame.
      * Note: This will be called for every frame (after an initializationp period)
      * even if no faces are deteted in the current frame.
      */
     drishti_face_tracker_update_t update;
-    
+
     /**
      * A callback returning frames requested by the <update> functino.
      */
     drishti_face_tracker_callback_t callback;
-    
+
     /**
      * A callback for memory allocation.
      */
@@ -248,7 +247,7 @@ public:
     FaceTracker(const FaceTracker&) = delete;
     FaceTracker& operator=(const FaceTracker&) = delete;
     FaceTracker(FaceTracker&&) = delete;
-    
+
     /**
      * Destructor
      */
@@ -270,7 +269,7 @@ public:
      * Return true if object was successfully allocated.
      */
     bool good() const;
-    
+
     /**
      * Returns true if object was successfully allcoated.
      */
@@ -284,7 +283,6 @@ public:
     void add(drishti_face_tracker_t& table);
 
 protected:
-    
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };

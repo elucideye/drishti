@@ -87,20 +87,20 @@ template <typename T, int rowDim, int colDim>
 struct Matrix
 {
     Matrix() {}
-    Matrix(const Matrix &src)
+    Matrix(const Matrix& src)
     {
         for (int y = 0; y < rowDim; y++)
         {
-            for (int x = 0; x< colDim; x++)
+            for (int x = 0; x < colDim; x++)
             {
-                data[y][x] = src(y,x);
+                data[y][x] = src(y, x);
             }
         }
     }
 
     int rows() const { return rowDim; }
     int cols() const { return colDim; }
-    
+
     T& operator()(int y, int x) { return data[y][x]; }
     const T& operator()(int y, int x) const { return data[y][x]; }
 
@@ -111,13 +111,13 @@ struct Matrix
         {
             for (int x = 0; x < 3; x++)
             {
-                I(y,x) = 0.f;
+                I(y, x) = 0.f;
             }
-            I(y,y) = 1.f;
+            I(y, y) = 1.f;
         }
         return I;
     }
-    
+
     T data[rowDim][colDim];
 };
 
@@ -163,13 +163,13 @@ typedef Rect<float> Rectf;
 struct DRISHTI_EXPORT Texture
 {
     Texture() = default;
-    Texture(const Vec2i &size, std::uint32_t texId)
+    Texture(const Vec2i& size, std::uint32_t texId)
         : size(size)
         , texId(texId)
     {
         // copy
     }
-    
+
     Vec2i size;
     std::uint32_t texId;
 };

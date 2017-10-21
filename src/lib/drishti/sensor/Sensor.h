@@ -53,7 +53,10 @@ public:
     struct Extrinsic
     {
         Extrinsic() {}
-        Extrinsic(const cv::Matx33f &R) : R(R) {}
+        Extrinsic(const cv::Matx33f& R)
+            : R(R)
+        {
+        }
         cv::Matx33f R;
     };
 

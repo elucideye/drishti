@@ -42,7 +42,7 @@ struct Context::Impl
     int maxTrackMisses = 1;
     float minFaceSeparation = 0.125f;
     bool doOptimizedPipeline = false;
-    
+
     std::shared_ptr<drishti::sensor::SensorModel> sensor;
     std::shared_ptr<spdlog::logger> logger;
     std::shared_ptr<tp::ThreadPool<>> threads;

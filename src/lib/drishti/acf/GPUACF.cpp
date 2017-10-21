@@ -329,7 +329,7 @@ struct ACF::Impl
         status |= m_doFlow && ~m_hasFlowOutput;
         return status;
     }
-    
+
     std::shared_ptr<spdlog::logger> m_logger;
 };
 
@@ -519,7 +519,7 @@ void ACF::operator()(const FrameInput& frame)
     VideoSource::operator()(frame); // call main method
 
     // Start the transfer asynchronously here:
-    if(impl->m_usePBO)
+    if (impl->m_usePBO)
     {
         beginTransfer();
     }
@@ -538,7 +538,7 @@ void ACF::beginTransfer()
                 impl->reduceGradHistProcBSmooth->getResultData(nullptr);
             }
             break;
-                
+
             case kM012345:
             {
                 impl->mergeProcLG56->getResultData(nullptr);
@@ -557,7 +557,7 @@ void ACF::beginTransfer()
     {
         impl->luvTransposeOut->getResultData(nullptr);
     }
-        
+
     if (impl->m_doFlow)
     {
         impl->flowBgraInterface->getResultData(nullptr);
@@ -850,7 +850,7 @@ cv::Mat ACF::getChannelsImpl()
             impl->m_logger->info("TIMING:{}:{};total={}", tag, ss.str(), elapsed);
         }
     }; // clang-format on
-    
+
     if (impl->needsTextures())
     {
         { // Create a scope for glFlush() timing
@@ -874,7 +874,7 @@ cv::Mat ACF::getChannelsImpl()
 
         ACF::ChannelSpecification planeIndex;
         const auto& rgba = impl->m_rgba; // alias
-        
+
         cv::Mat flow;
         MatP acf, gray, luv;
 
@@ -902,7 +902,7 @@ cv::Mat ACF::getChannelsImpl()
             PlaneInfoVec luvInfo{ { luv[0], rgba[0], alpha }, { luv[1], rgba[1], alpha }, { luv[2], rgba[2], alpha } };
             planeIndex.emplace_back(luvInfo, impl->luvTransposeOut.get());
         }
-        
+
         if (impl->m_doFlow)
         {
             const auto flowSize = impl->flowBgraInterface->getOutFrameSize();
@@ -961,7 +961,7 @@ cv::Mat ACF::getChannelsImpl()
             impl->m_luvPlanar = luv;
             impl->m_hasLuvOutput = true;
         }
-        
+
         if (impl->m_doFlow)
         {
             impl->m_flow = flow;

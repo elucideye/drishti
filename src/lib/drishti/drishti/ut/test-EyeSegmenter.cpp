@@ -109,7 +109,7 @@ protected:
         bool isRight;
     };
 
-    using EntryPair = std::pair<int,Entry>;
+    using EntryPair = std::pair<int, Entry>;
 
     // Setup
     EyeSegmenterTest()
@@ -151,17 +151,17 @@ protected:
 
         std::vector<int> widths = { 0 };
 #if defined(GAUZE_ANDROID_USE_EMULATOR)
-        for(int width = 16; width <= 256; width*=2)
+        for (int width = 16; width <= 256; width *= 2)
         {
             widths.push_back(width);
         }
 #else
-        for(int width = 16; width <= 256; width++)
+        for (int width = 16; width <= 256; width++)
         {
             widths.push_back(width);
         }
 #endif
-        for (const auto &width : widths)
+        for (const auto& width : widths)
         {
             cv::Mat resized;
             if (width > 0)
@@ -169,7 +169,7 @@ protected:
                 int height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
                 cv::resize(padded, resized, { width, height }, width);
             }
-         
+
             // Create right image
             Entry entry{ drishti::sdk::cvToDrishti<cv::Vec3b, drishti::sdk::Vec3b>(resized), resized, true };
             m_images[width] = entry;
@@ -195,10 +195,10 @@ protected:
         entry.isRight = true;
         entry.storage = cv::Scalar(color[0], color[1], color[2]);
     }
-    
-    std::map<int,Entry>::iterator getFirstValid()
+
+    std::map<int, Entry>::iterator getFirstValid()
     {
-        const auto isok = [&](const EntryPair &e) { return e.first >= m_eyeSegmenter->getMinWidth(); };
+        const auto isok = [&](const EntryPair& e) { return e.first >= m_eyeSegmenter->getMinWidth(); };
         return std::find_if(m_images.begin(), m_images.end(), isok);
     }
 
@@ -267,7 +267,7 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
     int targetWidth = 128;
     drishti::sdk::Eye eye;
     /* int code = */ (*m_eyeSegmenter)(m_images[targetWidth].image, eye, m_images[targetWidth].isRight);
-    
+
     {
         drishti::sdk::EyeOStream adapter(eye, drishti::sdk::EyeStream::JSON);
         std::string filename = sOutputDirectory;
@@ -278,14 +278,14 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
             os << adapter;
         }
     }
-    
+
     { // Convert this for use by private API
         auto privateEye = drishti::sdk::convert(eye);
         privateEye.eyelids = privateEye.eyelidsSpline;
-        
+
         std::string filename = sOutputDirectory;
         filename += "/right_eye_private.json";
-        
+
         std::ofstream os(filename);
         if (os)
         {
@@ -298,15 +298,15 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
 
 TEST_F(EyeSegmenterTest, ImageEmpty)
 {
-    for(const auto &entry : m_images)
+    for (const auto& entry : m_images)
     {
-        if(entry.first == 0)
+        if (entry.first == 0)
         {
             drishti::sdk::Eye eye;
             int code = (*m_eyeSegmenter)(m_images[0].image, eye, m_images[0].isRight);
             EXPECT_EQ(code, 1);
             checkInvalid(eye);
-            
+
             break;
         }
     }
@@ -314,15 +314,15 @@ TEST_F(EyeSegmenterTest, ImageEmpty)
 
 TEST_F(EyeSegmenterTest, ImageTooSmall)
 {
-    for(const auto &entry : m_images)
+    for (const auto& entry : m_images)
     {
-        if((entry.first > 0) && (entry.first < m_eyeSegmenter->getMinWidth()))
+        if ((entry.first > 0) && (entry.first < m_eyeSegmenter->getMinWidth()))
         {
             drishti::sdk::Eye eye;
             int code = (*m_eyeSegmenter)(entry.second.image, eye, entry.second.isRight);
             EXPECT_EQ(code, 1);
             checkInvalid(eye);
-            
+
             break;
         }
     }
@@ -336,15 +336,15 @@ TEST_F(EyeSegmenterTest, ImageValid)
     {
         // Make sure image has the expected size:
         EXPECT_EQ(iter->second.image.getCols(), iter->first);
-        
+
         drishti::sdk::Eye eye;
         int code = (*m_eyeSegmenter)(iter->second.image, eye, iter->second.isRight);
-        
+
         // Sanity check on each model:
-        
+
         EXPECT_EQ(code, 0);
         checkValid(eye, iter->second.storage.size());
-        
+
         // Ground truth comparison for reasonable resolutions
         if ((iter->first > 128) && m_eye)
         {
@@ -361,7 +361,7 @@ TEST_F(EyeSegmenterTest, ImageIsBlack)
     const int width = 256;
     const int height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
-    
+
     drishti::sdk::Eye eye;
     int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
     EXPECT_EQ(code, 0);
@@ -371,11 +371,11 @@ TEST_F(EyeSegmenterTest, ImageIsBlack)
 TEST_F(EyeSegmenterTest, ImageIsWhite)
 {
     Entry entry;
-    
+
     const int width = 256;
     const int height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
-    
+
     drishti::sdk::Eye eye;
     int code = (*m_eyeSegmenter)(entry.image, eye, entry.isRight);
     EXPECT_EQ(code, 0);
@@ -388,8 +388,8 @@ TEST_F(EyeSegmenterTest, ExternCInterface)
     auto segmenter = createC(sEyeRegressor);
 
     ASSERT_NE(segmenter, nullptr);
-    ASSERT_NE(m_eye, nullptr);    
-    
+    ASSERT_NE(m_eye, nullptr);
+
     for (auto iter = getFirstValid(); iter != m_images.end(); iter++)
     {
         // Make sure image has the expected size:
@@ -487,7 +487,7 @@ static float detectionScore(const drishti::sdk::Eye& eyeA, const drishti::sdk::E
     }
     catch (...)
     {
-        // opencv throws if count is 0        
+        // opencv throws if count is 0
     }
     float score = denominator ? float(numerator) / (denominator) : 0;
 
