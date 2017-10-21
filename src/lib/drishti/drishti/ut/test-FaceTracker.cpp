@@ -78,7 +78,7 @@ protected:
 #if defined(DRISHTI_DO_GPU_TESTING)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
 #if defined(_WIN32) || defined(_WIN64)
-	CV_Assert(!glewInit());
+        CV_Assert(!glewInit());
 #endif	
 #endif
         // TODO: we need to load ground truth output for each shader
@@ -164,7 +164,7 @@ protected:
 
         drishti::sdk::VideoFrame frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
 
-        const int iterations = 10;
+        const int iterations = 3;
         for (int i = 0; i < iterations; i++)
         {
             (*tracker)(frame);
@@ -298,7 +298,7 @@ protected:
 
         drishti::sdk::VideoFrame frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
 
-        const int iterations = 10;
+        const int iterations = 3;
         for (int i = 0; i < iterations; i++)
         {
             drishti_face_tracker_track(tracker.get(), frame);
