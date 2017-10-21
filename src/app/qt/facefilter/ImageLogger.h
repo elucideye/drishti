@@ -29,6 +29,7 @@ public:
     void setMaxFramesPerSecond(float value);
     float getMaxFramesPerSecond() const;
     void operator()(const cv::Mat& image);
+
 protected:
     struct Impl;
     std::unique_ptr<Impl> impl;

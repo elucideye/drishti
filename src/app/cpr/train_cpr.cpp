@@ -241,7 +241,7 @@ int gauze_main(int argc, char** argv)
     cprPrm.L = L;
     cprPrm.T = T;
     cprPrm.model = model;
-    
+
     // Note: feature parameters can be overriden
     cprPrm.ftrPrm->type = 2;
     cprPrm.ftrPrm->F = F;

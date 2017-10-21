@@ -31,8 +31,9 @@ public:
     virtual int getOrientation() const;
     virtual cv::Size getSize() const;
     virtual cv::Size configure();
+
 protected:
-    virtual cv::Size configureCamera();    
+    virtual cv::Size configureCamera();
 
     cv::Size m_size;
     QCamera* m_camera = nullptr;

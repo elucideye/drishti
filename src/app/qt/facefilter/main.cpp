@@ -51,7 +51,7 @@
 #include <QtOpenGL/QGLFormat>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-# include <QOpenGLExtraFunctions>
+#include <QOpenGLExtraFunctions>
 #endif
 // }
 
@@ -74,13 +74,13 @@
 static void printResources();
 
 std::shared_ptr<CameraListener>
-createCameraListener(QQuickItem* root, std::shared_ptr<spdlog::logger> &logger, const GLVersion &glVersion)
+createCameraListener(QQuickItem* root, std::shared_ptr<spdlog::logger>& logger, const GLVersion& glVersion)
 {
     // Manage the camera:
     QObject* qmlCamera = root->findChild<QObject*>("CameraObject");
     assert(qmlCamera != nullptr);
     CV_Assert(qmlCamera != nullptr);
-        
+
     QCamera* camera = qvariant_cast<QCamera*>(qmlCamera->property("mediaObject"));
     assert(camera != nullptr);
     CV_Assert(camera != nullptr);
@@ -88,7 +88,7 @@ createCameraListener(QQuickItem* root, std::shared_ptr<spdlog::logger> &logger, 
     return std::make_shared<CameraListener>(camera, logger, glVersion);
 }
 
-static QSurfaceFormat createGLESSurfaceFormat(const GLVersion &glVersion)
+static QSurfaceFormat createGLESSurfaceFormat(const GLVersion& glVersion)
 {
     QSurfaceFormat format;
     format.setSamples(4);
@@ -107,9 +107,9 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
 #endif
 
     // https://stackoverflow.com/questions/40385482/why-cant-i-use-opengl-es-3-0-in-qt
-    GLVersion glVersion { 2, 0 };
+    GLVersion glVersion{ 2, 0 };
     bool usePBO = false;
-    
+
 #if defined(QT_OPENGL_ES_3) && defined(DRISHTI_OPENGL_ES3)
     glVersion.major = 3;
     usePBO = true;
@@ -121,7 +121,7 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
     logger->info("Start");
 
     printResources();
-    
+
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
@@ -153,19 +153,19 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
     // Create a CameraListener in order to trigger instantiation of classes
     // when the camera is in state QCamera::LoadedStatus.  The QML Android
     // camera does not response to manual camera->load() calls.
-    // * QMLCameraManager : for camera customizations    
+    // * QMLCameraManager : for camera customizations
     // * FrameHandlerManager : for application specific settings (depends on camera "name")
     auto listener = createCameraListener(root, logger, glVersion);
     listener->setUsePBO(usePBO);
-    
+
 #if defined(Q_OS_IOS)
     // On iOS we do not receive the
     // * iOS does not receive QCamera::LoadedStatus, but we can configure the camera manually
     // * Android does receive  QCamera::LoadedStatus,so we wait fot the signal
-    listener->configureCamera(); 
+    listener->configureCamera();
 #endif
-    
-    view.showFullScreen(); 
+
+    view.showFullScreen();
     return app.exec();
 }
 
@@ -210,4 +210,3 @@ static void printResources()
         qDebug() << it.next();
     }
 }
-

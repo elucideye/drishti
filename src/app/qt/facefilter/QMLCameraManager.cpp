@@ -78,25 +78,24 @@ cv::Size QMLCameraManager::configureCamera()
 #else
     desiredFormats = { QVideoFrame::Format_ARGB32 };
 #endif
-    
+
     auto viewfinderSettings = m_camera->supportedViewfinderSettings();
 
     QCameraImageProcessing* processing = m_camera->imageProcessing();
     if (processing->isAvailable())
     {
         processing->setWhiteBalanceMode(QCameraImageProcessing::WhiteBalanceAuto);
-    }    
+    }
 
     auto pExposure = m_camera->exposure();
     if (pExposure)
     {
-        std::vector<QCameraExposure::ExposureMode> exposureModes =
-        {
+        std::vector<QCameraExposure::ExposureMode> exposureModes = {
             QCameraExposure::ExposureAuto,
             QCameraExposure::ExposurePortrait,
             QCameraExposure::ExposureBacklight
         };
-        for (const auto &mode : exposureModes)
+        for (const auto& mode : exposureModes)
         {
             if (pExposure->isExposureModeSupported(mode))
             {
@@ -104,22 +103,21 @@ cv::Size QMLCameraManager::configureCamera()
                 break;
             }
         }
-        
-        std::vector<QCameraExposure::MeteringMode> meteringModes =
-        {
-            QCameraExposure::MeteringSpot,            
+
+        std::vector<QCameraExposure::MeteringMode> meteringModes = {
+            QCameraExposure::MeteringSpot,
             QCameraExposure::MeteringMatrix,
             QCameraExposure::MeteringAverage
         };
-        for (const auto &mode : meteringModes)
+        for (const auto& mode : meteringModes)
         {
             if (pExposure->isMeteringModeSupported(mode))
             {
                 m_logger->info("Exposure metering mode supported: {}", int(mode));
                 pExposure->setMeteringMode(mode);
-                if(mode == QCameraExposure::MeteringSpot)
+                if (mode == QCameraExposure::MeteringSpot)
                 {
-                    pExposure->setSpotMeteringPoint({0.5, 0.5});
+                    pExposure->setSpotMeteringPoint({ 0.5, 0.5 });
                 }
                 break;
             }
@@ -132,7 +130,7 @@ cv::Size QMLCameraManager::configureCamera()
         m_logger->info("Image processing: {}", int(pImageProcessing->isAvailable()));
         pImageProcessing->setWhiteBalanceMode(QCameraImageProcessing::WhiteBalanceAuto);
     }
-    
+
     m_logger->info("# of settings: {}", viewfinderSettings.size());
 
     m_logger->warn("Limiting video resolution to <= 2048");

@@ -31,11 +31,10 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 struct ImageLogger::Impl
 {
 public:
-    
     using Clock = std::chrono::high_resolution_clock;
     using Duration = Clock::duration;
     using TimePoint = Clock::time_point;
-    
+
     Impl(const std::string& host, const std::string& port)
         : host(host)
         , port(port)
@@ -43,16 +42,16 @@ public:
     }
 
     ~Impl() = default;
-    
-    float getElapsed(const TimePoint &now) const
+
+    float getElapsed(const TimePoint& now) const
     {
         return std::chrono::duration_cast<std::chrono::duration<float>>(now - timeOfLastImage).count();
     }
-    
-    bool isTooSoon(const TimePoint &now)
+
+    bool isTooSoon(const TimePoint& now)
     {
-        const float fps = 1.f/(getElapsed(Clock::now())+1e-6f);
-        if(fps < maxFramesPerSecond)
+        const float fps = 1.f / (getElapsed(Clock::now()) + 1e-6f);
+        if (fps < maxFramesPerSecond)
         {
             timeOfLastImage = now;
             return false;
@@ -62,7 +61,7 @@ public:
             return true;
         }
     }
-    
+
     std::string host;
     std::string port;
     float maxFramesPerSecond = std::numeric_limits<float>::max();
@@ -95,11 +94,11 @@ static std::vector<std::uint8_t> create(const cv::Mat& image)
 
 void ImageLogger::operator()(const cv::Mat& image)
 {
-    if(impl->isTooSoon(Impl::Clock::now()))
+    if (impl->isTooSoon(Impl::Clock::now()))
     {
         return;
     }
-    
+
     // Normal boost::asio setup
     boost::asio::io_service ios;
     boost::asio::ip::tcp::resolver r{ ios };

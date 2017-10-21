@@ -160,7 +160,7 @@ int gauze_main(int argc, char** argv)
     auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
 
     float minZ = 0.1f, maxZ = 1.f;
-    
+
     cxxopts::Options options("drishti-acf", "Command line interface for ACF object detection (see Piotr's toolbox)");
 
     // clang-format off
@@ -236,7 +236,7 @@ int gauze_main(int argc, char** argv)
         return 1;
     }
 
-    if(!sFactory.empty())
+    if (!sFactory.empty())
     {
         factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
     }

@@ -258,7 +258,7 @@ GLuint VideoFilterRunnable::createTextureForFrame(QVideoFrame* input)
 {
     m_pImpl->m_logger->info("VideoFilterRunnable::createTestureForFrame()");
     m_pImpl->m_logger->info("OpenGL: {}", glGetString(GL_VERSION));
-    
+
     GLuint outTexture = detectFaces(input);
     return outTexture;
 }
