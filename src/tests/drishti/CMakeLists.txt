@@ -40,15 +40,6 @@ endif()
 target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 
-if(WIN32)
-  set_property(
-    TEST ${e_test_name}
-    PROPERTY
-    ENVIRONMENT
-    "PATH=$<TARGET_FILE_DIR:drishti>;$ENV{PATH}"
-    )
-endif()
-
 gauze_add_test(
   NAME ${test_name}
   COMMAND ${test_app}
@@ -63,6 +54,15 @@ gauze_add_test(
   "$<GAUZE_RESOURCE_FILE:${DRISHTI_FACES_FACE_IMAGE}>" # TODO: model
   "."
   )
+
+if(WIN32)
+  set_property(
+    TEST ${test_name}
+    PROPERTY
+    ENVIRONMENT
+    "PATH=$<TARGET_FILE_DIR:drishti>;$ENV{PATH}"
+    )
+endif()
 
 #####
 

@@ -77,8 +77,10 @@ protected:
 
 #if defined(DRISHTI_DO_GPU_TESTING)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
+#if defined(_WIN32) || defined(_WIN64)
+	CV_Assert(!glewInit());
+#endif	
 #endif
-
         // TODO: we need to load ground truth output for each shader
         // (some combinations could be tested, but that is probably excessive!)
         //truth = loadImage(truthFilename);

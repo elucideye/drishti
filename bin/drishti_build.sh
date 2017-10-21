@@ -34,6 +34,7 @@ ARGS=(
     --verbose
     --ios-multiarch --ios-combined
     --fwd
+    DRISHTI_BUILD_SHARED_SDK=YES
     DRISHTI_BUILD_TESTS=YES
     DRISHTI_BUILD_EXAMPLES=YES
     DRISHTI_COPY_3RDPARTY_LICENSES=ON
