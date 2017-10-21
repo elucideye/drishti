@@ -98,10 +98,10 @@ inline cv::Point2f project2(const cv::Vec4f& line, const cv::Point2f& q)
 // TODO: move this to a transformation class:
 struct UniformSimilarityParams
 {
-    cv::Vec2f scale = { 1.0, 1.5 };
-    cv::Vec2f deltaX = { -0.33, +0.33 };
-    cv::Vec2f deltaY = { -0.50, +0.50 };
-    cv::Vec2f theta = { -10.0 * M_PI / 180.0, 10.0 * M_PI / 180.0 };
+    cv::Vec2f scale = { 1.0f, 1.5f };
+    cv::Vec2f deltaX = { -0.33f, +0.33f };
+    cv::Vec2f deltaY = { -0.50f, +0.50f };
+    cv::Vec2f theta = { -10.0f * static_cast<float>(M_PI) / 180.0f, 10.0f * static_cast<float>(M_PI) / 180.0f };
 };
 
 cv::RotatedRect randomSimilarityEllipse(const UniformSimilarityParams& params, cv::RNG& rng);
