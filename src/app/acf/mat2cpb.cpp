@@ -69,7 +69,7 @@ int gauze_main(int argc, char** argv)
     else
     {
         std::ofstream ofs(sOutput);
-        if(ofs)
+        if (ofs)
         {
             remove(sOutput.c_str());
         }
@@ -78,7 +78,7 @@ int gauze_main(int argc, char** argv)
             logger->error("Unable to open {} for writing", sOutput);
         }
     }
-    
+
     drishti::acf::Detector acf(sInput);
 
     save_cpb(sOutput, acf);

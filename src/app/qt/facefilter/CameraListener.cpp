@@ -4,7 +4,7 @@
 
 #include "drishti/core/make_unique.h"
 
-CameraListener::CameraListener(QCamera *camera, LoggerPtr &logger, const GLVersion &glVersion)
+CameraListener::CameraListener(QCamera* camera, LoggerPtr& logger, const GLVersion& glVersion)
     : m_camera(camera)
     , m_logger(logger)
     , m_glVersion(glVersion)
@@ -19,7 +19,7 @@ void CameraListener::setUsePBO(bool flag)
 
 void CameraListener::updateCameraStatus(QCamera::Status status)
 {
-    if(status == QCamera::LoadedStatus)
+    if (status == QCamera::LoadedStatus)
     {
         configureCamera();
     }
@@ -28,7 +28,7 @@ void CameraListener::updateCameraStatus(QCamera::Status status)
 void CameraListener::configureCamera()
 {
     m_logger->info("Configuring camera");
-    
+
     // Create a QMLCameraManager and configure camera
     auto qmlCameraManager = drishti::core::make_unique<QMLCameraManager>(m_camera, m_logger);
     auto size = qmlCameraManager->configure();
@@ -38,7 +38,7 @@ void CameraListener::configureCamera()
         m_logger->error("Unable to configure valid camera resolution");
         throw std::runtime_error("Unable to configure valid camera resolution");
     }
-    
+
     m_logger->info("device: {}", qmlCameraManager->getDeviceName());
     m_logger->info("description: {}", qmlCameraManager->getDescription());
     m_logger->info("resolution: {} {}", qmlCameraManager->getSize().width, qmlCameraManager->getSize().height);
@@ -59,5 +59,4 @@ void CameraListener::configureCamera()
             frameHandler->setSize(qmlCameraManager->getSize());
         }
     }
-
 }

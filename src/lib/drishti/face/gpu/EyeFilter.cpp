@@ -92,7 +92,7 @@ void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes,
     eyes.resize(n);
     for (int i = 0; i < n; i++)
     {
-        if(getImage)
+        if (getImage)
         {
             // Pull frames in reverse order such that frames[0] is newest
             auto* filter = (*fifoProc)[length - i - 1];

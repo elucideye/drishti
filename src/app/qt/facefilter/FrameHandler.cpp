@@ -48,8 +48,8 @@ std::unique_ptr<nlohmann::json> loadJSON(spdlog::logger& logger);
 
 FrameHandlerManager* FrameHandlerManager::m_instance = nullptr;
 
-FrameHandlerManager::FrameHandlerManager(const std::string& name, const std::string& description, const GLVersion &glVersion) :
-    m_glVersion(glVersion)
+FrameHandlerManager::FrameHandlerManager(const std::string& name, const std::string& description, const GLVersion& glVersion)
+    : m_glVersion(glVersion)
 {
     m_logger = drishti::core::Logger::create("drishti");
     m_logger->info("FrameHandlerManager #################################################################");
@@ -72,7 +72,7 @@ FrameHandlerManager::FrameHandlerManager(const std::string& name, const std::str
         {
             std::string host = address["host"];
             std::string port = address["port"];
-            
+
             float frequency = address["frequency"];
             m_imageLogger = std::make_shared<drishti::core::ImageLogger>(host, port);
             m_imageLogger->setMaxFramesPerSecond(frequency); // throttle network traffic
@@ -97,7 +97,7 @@ FrameHandlerManager::FrameHandlerManager(const std::string& name, const std::str
     const auto& intrinsic = sensor["intrinsic"];
 
     cv::Size size;
-    const auto &sizeParams = intrinsic["size"];
+    const auto& sizeParams = intrinsic["size"];
     if (!sizeParams.empty())
     {
         size.width = sizeParams["width"].get<int>();
@@ -105,7 +105,7 @@ FrameHandlerManager::FrameHandlerManager(const std::string& name, const std::str
     }
 
     cv::Point2f p;
-    const auto &principalParams = intrinsic["principal"];
+    const auto& principalParams = intrinsic["principal"];
     if (!principalParams.empty())
     {
         p.x = principalParams["x"].get<float>();
@@ -189,7 +189,7 @@ cv::Size FrameHandlerManager::getSize() const
 }
 
 FrameHandlerManager*
-FrameHandlerManager::get(const std::string& name, const std::string& description, const GLVersion &glVersion)
+FrameHandlerManager::get(const std::string& name, const std::string& description, const GLVersion& glVersion)
 {
     if (!m_instance)
     {
@@ -225,8 +225,6 @@ std::unique_ptr<nlohmann::json> loadJSON(spdlog::logger& logger)
     {
         throw std::runtime_error("loadJSON: Can't read file");
     }
-    
+
     return json;
 }
-
-    

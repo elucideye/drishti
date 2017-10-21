@@ -24,8 +24,15 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 template <typename T>
 struct Field
 {
-    Field() : has(false) {}
-    Field(const T& t) : has(true), value(t) {}
+    Field()
+        : has(false)
+    {
+    }
+    Field(const T& t)
+        : has(true)
+        , value(t)
+    {
+    }
     ~Field() = default;
 
     Field<T>& operator=(const T& src)
@@ -48,7 +55,7 @@ struct Field
         has = has_;
         value = value_;
     }
-    
+
     void clear()
     {
         has = false;
@@ -93,7 +100,7 @@ struct Field
         ar& value;
     }
 
-    bool has = false;    
+    bool has = false;
     T value;
 };
 

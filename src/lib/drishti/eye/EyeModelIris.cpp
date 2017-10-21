@@ -44,7 +44,7 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
     }
 
     // Initial iris estimates:
-    EllipseVec irises {{ eye.irisEllipse.center, eye.irisEllipse.size, cpr->getPStar().angle }};
+    EllipseVec irises{ { eye.irisEllipse.center, eye.irisEllipse.size, cpr->getPStar().angle } };
 
     cv::RNG rng;
     if (m_irisInits > 1)
@@ -100,7 +100,7 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat& I, const cv::Mat& M,
 
     // XGBoost is not reentrant:
     harness({ 0, int(irises.size()) });
-    //cv::parallel_for_({0, int(irises.size())}, harness, 2);
+//cv::parallel_for_({0, int(irises.size())}, harness, 2);
 
 #if DRISHTI_CPR_DEBUG_PHI_ESTIMATE
     drawIrisEstimates(I, estimates, "iris-out");

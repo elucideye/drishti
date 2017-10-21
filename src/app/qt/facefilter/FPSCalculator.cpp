@@ -36,5 +36,5 @@ float FPSCalculator::fps()
     fps_ = (count_ > 0) ? ((fps_ * alpha_) + ((1.0 - alpha_) * fps)) : fps;
     last_ = now;
     ++count_;
-    return  fps_;
+    return fps_;
 }

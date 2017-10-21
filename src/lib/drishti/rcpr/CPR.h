@@ -180,7 +180,7 @@ public:
     {
         core::Field<Model> model;
         core::Field<Vector1d> pStar;
-        core::Field<cv::Mat> pDstr; 
+        core::Field<cv::Mat> pDstr;
         core::Field<RealType> T;
         core::Field<Vector1d> pStar_; // CPR Verison 2
 

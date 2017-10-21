@@ -32,13 +32,12 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 class FaceFinderPainter : public FaceFinder
 {
 public:
-
     enum EffectKind
     {
         kWireframes,
         kStabilize
     };
-    
+
     class Impl;
     using FaceFinderPtr = std::unique_ptr<FaceFinderPainter>;
     using FrameDelegate = std::function<void(const cv::Mat& ref)>;
@@ -56,7 +55,7 @@ public:
 
     void setShowDetectionScales(bool value);
     bool getShowDetectionScales() const;
-    
+
     void setEffectKind(EffectKind kind);
     EffectKind getEffectKind() const;
 

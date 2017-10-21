@@ -84,7 +84,7 @@ QtFaceDetectorFactory::QtFaceDetectorFactory()
         return false;
     };
     // clang-format on
-    
+
     load("drishti_assets.json", loader);
 }
 

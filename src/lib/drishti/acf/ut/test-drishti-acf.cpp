@@ -33,12 +33,6 @@
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 
-// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
-// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
-// #!#!#!#!#!#!#!#!#!#!#!#!#!#!# Work in progress !#!#!#!#!#!#!#!#!#!#!#!#!
-// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
-// #!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
-
 #include <gtest/gtest.h>
 
 #include "drishti/core/drawing.h"
@@ -123,8 +117,8 @@ protected:
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
         CV_Assert(m_context && (*m_context));
 #if defined(_WIN32) || defined(_WIN64)
-	CV_Assert(!glewInit());
-#endif	
+        CV_Assert(!glewInit());
+#endif
 #endif
     }
 
@@ -215,12 +209,12 @@ protected:
         static const bool doCorners = false;
         ogles_gpgpu::Size2d inputSize(image.cols, image.rows);
 
-        m_acf = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, ogles_gpgpu::ACF::kLUVM012345, doGrayscale, doCorners, false);
+        m_acf = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, ogles_gpgpu::ACF::kM012345, doGrayscale, doCorners, false);
         m_acf->setRotation(0);
 
         cv::Mat input = image;
 #if DRISHTI_ACF_TEST_WARM_UP_GPU
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 3; i++)
         {
             (*m_acf)({ input.cols, input.rows }, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
         }
@@ -228,23 +222,6 @@ protected:
 
         (*m_acf)({ input.cols, input.rows }, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
         m_acf->fill(Pgpu, Pcpu);
-
-        {
-            // This code block is a place holder for 7 channel ACF output, which conveniently fits in 2 textures
-            // for faster transfers on low performing Android devices.  Currently there is no 7 channel ACF
-            // classifier/detector, so this is used as a place holder to illustrate the raw channel extraction
-            // and pyramid formatting until equivalent CPU formatting is in place.
-            auto acf7 = std::make_shared<ogles_gpgpu::ACF>(nullptr, inputSize, sizes, ogles_gpgpu::ACF::kM012345, doGrayscale, doCorners, false);
-            (*acf7)({ input.cols, input.rows }, input.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
-
-            drishti::acf::Detector::Pyramid Pgpu7;
-            acf7->fill(Pgpu7, Pcpu);
-
-            //cv::imshow("Pgpu7", draw(Pgpu7);
-            //cv::imshow("LM012345", acf7->getChannels());
-            //cv::imshow("LUVM012345", m_acf->getChannels());
-            //cv::waitKey(0);
-        }
     }
 
     std::shared_ptr<aglet::GLContext> m_context;

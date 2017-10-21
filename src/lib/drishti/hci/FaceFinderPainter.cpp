@@ -214,16 +214,14 @@ void cat(const Container& a, const Container& b, Container& c)
     std::copy(b.begin(), b.end(), std::back_inserter(c));
 }
 
-
 GLuint FaceFinderPainter::filter(const ScenePrimitives& scene, GLuint inputTexture)
 {
     // clang-format on
     MethodLog timeSummary(DRISHTI_LOCATION_SIMPLE);
-    core::ScopeTimeLogger paintLogger = [&](double ts)
-    {
+    core::ScopeTimeLogger paintLogger = [&](double ts) {
         impl->logger->info("TIMING:{}={};{}", timeSummary.name, ts, timeSummary.ss.str());
     };
-    // clang-format off
+// clang-format off
     
 #if DRISHTI_HCI_FACE_FINDER_PAINTER_SHOW_CIRCLE
     {

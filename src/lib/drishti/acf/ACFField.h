@@ -58,7 +58,7 @@ struct Field
         {
             set(df.name, df.has, df.isLeaf, df.value);
         }
-    }    
+    }
 
     void set(const std::string& name_, bool has_, bool isLeaf_, const T& value_)
     {

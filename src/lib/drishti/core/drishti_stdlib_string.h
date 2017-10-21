@@ -81,15 +81,15 @@ inline long double stold(const std::string& s)
 }
 
 // strto*
-inline unsigned long strtoll( const char *str, char **str_end, int base)
+inline unsigned long strtoll(const char* str, char** str_end, int base)
 {
     return ::strtoll(str, str_end, base);
 }
-inline unsigned long long strtoull( const char *str, char **str_end, int base)
+inline unsigned long long strtoull(const char* str, char** str_end, int base)
 {
     return ::strtoull(str, str_end, base);
 }
-inline float strtof(const char *str, char **str_end)
+inline float strtof(const char* str, char** str_end)
 {
     return ::strtof(str, str_end);
 }

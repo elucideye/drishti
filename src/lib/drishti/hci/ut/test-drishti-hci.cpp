@@ -117,14 +117,14 @@ protected:
         m_settings.minTrackHits = 0; // allow all detections for testing
         m_settings.maxTrackMisses = 1;
         m_settings.minFaceSeparation = 0.15f;
-        
+
         m_settings.history = 3;
 
 #if defined(DRISHTI_DO_GPU_TESTING)
         m_context = aglet::GLContext::create(aglet::GLContext::kAuto);
 #if defined(_WIN32) || defined(_WIN64)
-	CV_Assert(!glewInit());
-#endif	
+        CV_Assert(!glewInit());
+#endif
 #endif
     }
 
@@ -204,7 +204,7 @@ protected:
         {
             cv::flip(image, image, 1);
             ogles_gpgpu::FrameInput frame({ image.cols, image.rows }, image.ptr(), true, 0, DFLT_TEXTURE_FORMAT);
-            
+
             (*detector)(frame);
 
             // Wait on face request callback:

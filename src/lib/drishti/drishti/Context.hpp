@@ -27,9 +27,8 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT Context
 {
 public:
-
     struct Impl;
-    
+
     Context(drishti::sdk::SensorModel& sensor);
     ~Context();
 
@@ -37,7 +36,7 @@ public:
 
     void setDoSingleFace(bool flag);
     bool getDoSingleFace() const;
-    
+
     void setMinDetectionDistance(float value);
     float getMinDetectionDistance() const;
 
@@ -52,12 +51,12 @@ public:
 
     void setRegressorCropScale(float value);
     float getRegressorCropScale() const;
-    
+
     void setMinTrackHits(int hits);
     int getMinTrackHits() const;
 
     void setMaxTrackMisses(int hits);
-    int getMaxTrackMisses() const;    
+    int getMaxTrackMisses() const;
 
     void setMinFaceSeparation(float value);
     float getMinFaceSeparation() const;
@@ -66,7 +65,6 @@ public:
     bool getDoOptimizedPipeline() const;
 
 protected:
-    
     std::unique_ptr<Impl> impl;
 };
 

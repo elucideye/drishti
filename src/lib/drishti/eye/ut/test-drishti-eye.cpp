@@ -25,6 +25,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 
@@ -100,24 +101,32 @@ protected:
 
         cv::Mat padded;
         cv::Rect roi({ 0, 0 }, image.size());
-        padToAspectRatio(image, padded, 4.0 / 3.0);
+        padToAspectRatio(image, padded, EYE_ASPECT_RATIO);
         assert(!padded.empty());
 
-        // Next create each possible size from 0 to 1000:
-        for (int width = 0; width < 256; width++)
+        std::vector<int> widths = { 0 }; // first one is empty
+#if defined(GAUZE_ANDROID_USE_EMULATOR)
+        for (int width = 16; width <= 256; width *= 2)
+        {
+            widths.push_back(width);
+        }
+#else
+        for (int width = 16; width <= 256; width++)
+        {
+            widths.push_back(width);
+        }
+#endif
+
+        for (const auto& width : widths)
         {
             cv::Mat resized;
             if (width > 0)
             {
-                int height(float(width) / EYE_ASPECT_RATIO + 0.5f);
+                const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
                 cv::resize(padded, resized, { width, height }, width);
             }
 
-            {
-                // Create right image
-                Entry entry{ resized, true };
-                m_images.emplace_back(entry);
-            }
+            m_images[width] = { resized, true };
         }
     }
 
@@ -147,13 +156,19 @@ protected:
         entry.isRight = true;
     }
 
+    std::map<int, Entry>::iterator getFirstGreat(int width = 32)
+    {
+        auto isok = [=](const std::pair<int, Entry>& e) { return e.second.image.cols >= width; };
+        return std::find_if(m_images.begin(), m_images.end(), isok);
+    }
+
     // Objects declared here can be used by all tests in the test case for EyeModelEstimator.
     std::shared_ptr<drishti::eye::EyeModelEstimator> m_eyeSegmenter;
 
     // Test images:
-    std::vector<Entry> m_images;
+    std::map<int, Entry> m_images;
 
-    int m_targetWidth = 127;
+    int m_targetWidth = 128;
 
     // Ground truth image:
     cv::Mat m_image;
@@ -207,14 +222,11 @@ TEST(EyeModelEstimator, StreamConstructor)
 
 TEST_F(EyeModelEstimatorTest, CerealSerialization)
 {
-    if (m_eyeSegmenter)
-    {
-        std::string filename = std::string(sOutputDirectory) + "/eye.cpb";
-        save_cpb(filename, *m_eyeSegmenter);
+    std::string filename = std::string(sOutputDirectory) + "/eye.cpb";
+    save_cpb(filename, *m_eyeSegmenter);
 
-        drishti::eye::EyeModelEstimator segmenter2;
-        load_cpb(filename, segmenter2);
-    }
+    drishti::eye::EyeModelEstimator segmenter2;
+    load_cpb(filename, segmenter2);
 }
 
 /*
@@ -223,21 +235,18 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
 
 TEST_F(EyeModelEstimatorTest, EyeSerialization)
 {
-    if (m_eyeSegmenter)
-    {
-        drishti::eye::EyeModel eye;
+    drishti::eye::EyeModel eye;
 
-        assert(m_images[m_targetWidth].isRight);
-        /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
+    assert(m_images[m_targetWidth].isRight);
+    /* int code = */ (*m_eyeSegmenter)(m_images[m_targetWidth].image, eye);
 
-        std::string filename(sOutputDirectory);
-        filename += "/right_eye_2.json";
+    std::string filename(sOutputDirectory);
+    filename += "/right_eye_test.json";
 
-        std::ofstream os(filename);
-        cereal::JSONOutputArchive oa(os);
-        typedef decltype(oa) Archive;
-        oa << GENERIC_NVP("eye", eye);
-    }
+    std::ofstream os(filename);
+    cereal::JSONOutputArchive oa(os);
+    typedef decltype(oa) Archive;
+    oa << GENERIC_NVP("eye", eye);
 }
 
 // * hamming distance for sclera and iris masks components
@@ -248,24 +257,24 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
         return;
     }
 
-    for (int i = 32; i < m_images.size(); i++)
+    for (auto iter = getFirstGreat(); iter != m_images.end(); iter++)
     {
         // Make sure image has the expected size:
-        EXPECT_EQ(m_images[i].image.cols, i);
+        EXPECT_EQ(iter->second.image.cols, iter->first);
 
-        assert(m_images[i].isRight);
+        assert(iter->second.isRight);
         drishti::eye::EyeModel eye;
-        int code = (*m_eyeSegmenter)(m_images[i].image, eye);
+        int code = (*m_eyeSegmenter)(iter->second.image, eye);
         EXPECT_EQ(code, 0);
 
         eye.refine();
-        checkValid(eye, m_images[i].image.size());
+        checkValid(eye, iter->second.image.size());
 
         // Ground truth comparison for reasonable resolutions
-        if (i > 100)
+        if (iter->first >= 128)
         {
-            const float scaleGroundTruthToCurrent = float(m_images[i].image.cols) / float(m_targetWidth);
-            const float score = detectionScore(*m_eye, eye, m_images[i].image.size(), scaleGroundTruthToCurrent);
+            const float scaleGroundTruthToCurrent = static_cast<float>(iter->second.image.cols) / static_cast<float>(m_targetWidth);
+            const float score = detectionScore(*m_eye, eye, iter->second.image.size(), scaleGroundTruthToCurrent);
             ASSERT_GT(score, m_scoreThreshold);
         }
     }
@@ -278,23 +287,23 @@ TEST_F(EyeModelEstimatorTest, IsRepeatable)
         return;
     }
 
-    for (int i = 64; i < m_images.size(); i++)
+    for (auto iter = getFirstGreat(); iter != m_images.end(); iter++)
     {
         // Make sure image has the expected size:
-        EXPECT_EQ(m_images[i].image.cols, i);
+        EXPECT_EQ(iter->second.image.cols, iter->first);
 
-        assert(m_images[i].isRight);
+        assert(iter->second.isRight);
         drishti::eye::EyeModel eyeA, eyeB;
 
-        int codeA = (*m_eyeSegmenter)(m_images[i].image, eyeA);
+        int codeA = (*m_eyeSegmenter)(iter->second.image, eyeA);
         EXPECT_EQ(codeA, 0);
         eyeA.refine();
-        checkValid(eyeA, m_images[i].image.size());
+        checkValid(eyeA, iter->second.image.size());
 
-        int codeB = (*m_eyeSegmenter)(m_images[i].image, eyeB);
+        int codeB = (*m_eyeSegmenter)(iter->second.image, eyeB);
         EXPECT_EQ(codeB, 0);
         eyeB.refine();
-        checkValid(eyeB, m_images[i].image.size());
+        checkValid(eyeB, iter->second.image.size());
 
         EXPECT_EQ(isEqual(eyeA, eyeB), true);
     }
@@ -303,36 +312,30 @@ TEST_F(EyeModelEstimatorTest, IsRepeatable)
 // Currently there is no internal quality check, but this is included for regression:
 TEST_F(EyeModelEstimatorTest, ImageIsBlack)
 {
-    if (m_eyeSegmenter)
-    {
-        Entry entry;
-        int width = 256;
-        int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
-        createImage(entry, height, width, { 0, 0, 0 });
+    Entry entry;
+    const int width = 128;
+    const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
+    createImage(entry, height, width, { 0, 0, 0 });
 
-        assert(entry.isRight);
-        drishti::eye::EyeModel eye;
-        int code = (*m_eyeSegmenter)(entry.image, eye);
-        EXPECT_EQ(code, 0);
-        checkValid(eye, entry.image.size());
-    }
+    assert(entry.isRight);
+    drishti::eye::EyeModel eye;
+    int code = (*m_eyeSegmenter)(entry.image, eye);
+    EXPECT_EQ(code, 0);
+    checkValid(eye, entry.image.size());
 }
 
 TEST_F(EyeModelEstimatorTest, ImageIsWhite)
 {
-    if (m_eyeSegmenter)
-    {
-        Entry entry;
-        int width = 256;
-        int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
-        createImage(entry, height, width, { 0, 0, 0 });
+    Entry entry;
+    const int width = 128;
+    const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
+    createImage(entry, height, width, { 0, 0, 0 });
 
-        assert(entry.isRight);
-        drishti::eye::EyeModel eye;
-        int code = (*m_eyeSegmenter)(entry.image, eye);
-        EXPECT_EQ(code, 0);
-        checkValid(eye, entry.image.size());
-    }
+    assert(entry.isRight);
+    drishti::eye::EyeModel eye;
+    int code = (*m_eyeSegmenter)(entry.image, eye);
+    EXPECT_EQ(code, 0);
+    checkValid(eye, entry.image.size());
 }
 
 // #######
@@ -349,13 +352,13 @@ static cv::Point padToAspectRatio(const cv::Mat& image, cv::Mat& padded, double 
     int top = 0, left = 0, bottom = 0, right = 0;
     if (double(image.cols) / image.rows > aspectRatio)
     {
-        int padding = int(double(image.cols) / aspectRatio + 0.5) - image.rows;
+        int padding = static_cast<int>(static_cast<double>(image.cols) / aspectRatio + 0.5) - image.rows;
         top = padding / 2;
         bottom = padding - top;
     }
     else
     {
-        int padding = int(double(image.rows) * aspectRatio + 0.5) - image.cols;
+        int padding = static_cast<int>(static_cast<double>(image.rows) * aspectRatio + 0.5) - image.cols;
         left = padding / 2;
         right = padding - left;
     }
@@ -382,6 +385,7 @@ detectionScore(const drishti::eye::EyeModel& eyeA, const drishti::eye::EyeModel&
     }
     catch (...)
     {
+        // opencv throws when empty
     }
     try
     {
@@ -389,24 +393,9 @@ detectionScore(const drishti::eye::EyeModel& eyeA, const drishti::eye::EyeModel&
     }
     catch (...)
     {
+        // opencv throws when empty
     }
     float score = denominator ? float(numerator) / (denominator) : 0;
-
-#define DEBUG_PASCAL 0
-#if DEBUG_PASCAL
-    {
-        std::cout << "SCORE: " << score << std::endl;
-        cv::imshow("maskA", maskGT); // opt
-        cv::imshow("maskB", maskB);  // opt
-        int i = 0;
-        cv::Mat tmp[2] = { maskGT, maskB };
-        do
-        {
-            cv::imshow("a", tmp[i++ % 2]);
-        } while (cv::waitKey(0) != int('q'));
-        cv::waitKey(0);
-    }
-#endif
 
     return score;
 }

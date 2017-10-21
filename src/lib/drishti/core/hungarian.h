@@ -51,7 +51,6 @@
 #ifndef __drishti_core_hungarian_h__
 #define __drishti_core_hungarian_h__
 
-
 #include <unordered_map>
 #include <vector>
 

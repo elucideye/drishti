@@ -51,24 +51,24 @@ public:
     using Settings = nlohmann::json;
     using FrameHandler = std::function<void(const cv::Mat&)>;
 
-    FrameHandlerManager(const std::string& name, const std::string& description, const GLVersion &glVersion);
+    FrameHandlerManager(const std::string& name, const std::string& description, const GLVersion& glVersion);
 
     ~FrameHandlerManager();
 
     bool good() const;
 
-    static FrameHandlerManager* get(const std::string& name = {}, const std::string& description = {}, const GLVersion &glVersion = {});
+    static FrameHandlerManager* get(const std::string& name = {}, const std::string& description = {}, const GLVersion& glVersion = {});
 
     void setUsePBO(bool flag)
     {
         m_usePBO = flag;
     }
-    
+
     bool getUsePBO()
     {
         return m_usePBO;
     }
-    
+
     int getOrientation() const
     {
         return m_orientation;
@@ -141,13 +141,12 @@ public:
     const Settings* getSettings() const { return m_settings.get(); }
 
 protected:
-    
     std::unique_ptr<Settings> m_settings;
-    
+
     DetectionParams m_detectionParams;
 
     GLVersion m_glVersion;
-    
+
     bool m_usePBO = false;
     int m_orientation = 0;
     std::string m_deviceName;

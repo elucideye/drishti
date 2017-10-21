@@ -33,17 +33,17 @@ struct DRISHTI_EXPORT Face
      * A region of interest, typically provided by an object detector.
      */
     drishti::sdk::Recti roi;
-    
+
     /**
      * Detailed eye models for the subject's right and left eyes.
      */
     drishti::sdk::Array<drishti::sdk::Eye, 2> eyes;
-    
+
     /**
      * Face landmarks provided for the operative annotation style.
      */
     drishti::sdk::Array<drishti::sdk::Vec2f, 128> landmarks;
-    
+
     /**
      * Estimated 3D position for point between the eyes.
      */

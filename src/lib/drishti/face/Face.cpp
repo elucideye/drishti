@@ -65,11 +65,11 @@ std::vector<cv::Point2f> asSpline(const std::vector<cv::Point2f>& points, int n,
 {
     std::vector<cv::Point2f> spline;
     drishti::core::fitSpline(points, spline, n, closed);
-    if(closed)
+    if (closed)
     {
         spline.push_back(spline.front());
     }
-    
+
     return spline;
 }
 

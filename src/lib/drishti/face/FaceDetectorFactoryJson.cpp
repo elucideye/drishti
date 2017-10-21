@@ -21,9 +21,9 @@ namespace bfs = boost::filesystem;
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-static std::string cat(const std::string &a, const std::string &b) { return a + b; }
+static std::string cat(const std::string& a, const std::string& b) { return a + b; }
 
-FaceDetectorFactoryJson::FaceDetectorFactoryJson(const std::string &sModels)
+FaceDetectorFactoryJson::FaceDetectorFactoryJson(const std::string& sModels)
 {
     std::ifstream ifs(sModels);
     if (!ifs)
@@ -34,8 +34,7 @@ FaceDetectorFactoryJson::FaceDetectorFactoryJson(const std::string &sModels)
     nlohmann::json json;
     ifs >> json;
 
-    std::vector< std::pair<const char *, std::string *> > bindings =
-    {
+    std::vector<std::pair<const char*, std::string*>> bindings = {
         { "face_detector", &sFaceDetector },
         { "eye_model_regressor", &sEyeRegressor },
         { "face_landmark_regressor", &sFaceRegressor },
@@ -44,11 +43,11 @@ FaceDetectorFactoryJson::FaceDetectorFactoryJson(const std::string &sModels)
 
     // Get the directory name:
     auto path = bfs::path(sModels);
-    for(auto &binding : bindings)
+    for (auto& binding : bindings)
     {
         auto filename = path.parent_path() / json[binding.first].get<std::string>();
         (*binding.second) = filename.string();
-        if(binding.second->empty())
+        if (binding.second->empty())
         {
             throw std::runtime_error(cat("FaceDetectorFactoryJson::FaceDetectorFactoryJson()", binding.first));
         }

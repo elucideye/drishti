@@ -34,7 +34,7 @@ public:
     // ### Extrinsic camera parameters:
     struct Extrinsic
     {
-        Extrinsic(const Matrix33f &R);
+        Extrinsic(const Matrix33f& R);
         Matrix33f m_R;
     };
 
@@ -42,19 +42,18 @@ public:
     ~SensorModel();
 
     struct Impl;
-    
-    std::unique_ptr<Impl> &getImpl()
+
+    std::unique_ptr<Impl>& getImpl()
     {
         return impl;
     }
 
-    const std::unique_ptr<Impl> &getImpl() const
+    const std::unique_ptr<Impl>& getImpl() const
     {
         return impl;
-    }   
+    }
 
 protected:
-
     std::unique_ptr<Impl> impl;
 };
 

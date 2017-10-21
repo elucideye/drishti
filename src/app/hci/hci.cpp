@@ -72,7 +72,7 @@ int gauze_main(int argc, char** argv)
     auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
 
     cxxopts::Options options("drishti-hci", "Command line interface for video sequence FaceFinder processing.");
-    
+
     float minZ = 0.1f, maxZ = 2.f;
 
     // clang-format off
@@ -148,11 +148,11 @@ int gauze_main(int argc, char** argv)
         return 1;
     }
 
-    if(!sFactory.empty())
+    if (!sFactory.empty())
     {
         factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
     }
-    
+
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{
         { factory->sFaceDetector, "face-detector" },
@@ -173,11 +173,11 @@ int gauze_main(int argc, char** argv)
     // Events will not be handled correctly. This is probably because _TSGetMainThread
     // was called for the first time off the main thread.
 
-    // NOTE: We can create the OpenGL context prior to AVFoundation use as a workaround    
+    // NOTE: We can create the OpenGL context prior to AVFoundation use as a workaround
     auto opengl = aglet::GLContext::create(aglet::GLContext::kAuto, doWindow ? "hci" : "", 640, 480);
 #if defined(_WIN32) || defined(_WIN64)
-	CV_Assert(!glewInit());
-#endif    
+    CV_Assert(!glewInit());
+#endif
 
     auto video = drishti::videoio::VideoSourceCV::create(sInput);
     video->setOutputFormat(drishti::videoio::VideoSourceCV::ARGB); // be explicit, fail on error
@@ -190,8 +190,8 @@ int gauze_main(int argc, char** argv)
         logger->info("No frames available in video");
         return -1;
     }
-    
-    if(maxZ < minZ)
+
+    if (maxZ < minZ)
     {
         logger->error("max distance must be > min distance");
         return -1;
@@ -212,13 +212,13 @@ int gauze_main(int argc, char** argv)
     settings.faceFinderInterval = 0.f;
     settings.regressorCropScale = scale;
     settings.acfCalibration = cascCal;
-    settings.renderFaces = true;      // *** rendering ***
-    settings.renderPupils = true;     // *** rendering ***
-    settings.renderCorners = false;   // *** rendering ***
+    settings.renderFaces = true;    // *** rendering ***
+    settings.renderPupils = true;   // *** rendering ***
+    settings.renderCorners = false; // *** rendering ***
     settings.minDetectionDistance = minZ;
     settings.maxDetectionDistance = maxZ;
     { // Create a sensor specification
-        if(fx == 0.f)
+        if (fx == 0.f)
         {
             fx = frame.image.cols; // use a sensible default guess
         }
@@ -231,9 +231,9 @@ int gauze_main(int argc, char** argv)
 
     // Allocate the detector:
     auto detector = drishti::hci::FaceFinderPainter::create(factory, settings, nullptr);
-    detector->setLetterboxHeight(1.0);         // *** rendering ***
-    detector->setShowMotionAxes(false);        // *** rendering ***
-    detector->setShowDetectionScales(false);   // *** rendering ***
+    detector->setLetterboxHeight(1.0);       // *** rendering ***
+    detector->setShowMotionAxes(false);      // *** rendering ***
+    detector->setShowDetectionScales(false); // *** rendering ***
 
     ogles_gpgpu::VideoSource source;
     ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB); // kSwizzleRGBA

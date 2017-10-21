@@ -107,7 +107,7 @@ FaceFinder::~FaceFinder()
 {
     try
     {
-        if(impl->threads && impl->doOptimizedPipeline)
+        if (impl->threads && impl->doOptimizedPipeline)
         {
             // If this has already been retrieved it will throw
             impl->scene.get(); // block on any abandoned calls
@@ -164,7 +164,7 @@ void FaceFinder::dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n, bool g
 {
     std::vector<cv::Mat4b> images;
     impl->eyeFilter->dump(images, eyes, n, getImage);
-    
+
     frames.resize(images.size());
     for (int i = 0; i < images.size(); i++)
     {
@@ -182,11 +182,11 @@ void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage)
         {
             auto* filter = (*impl->fifo)[length - i - 1];
             const auto size = filter->getOutFrameSize();
-            
+
             // Always assign texture (no cost)
-            frames[i].texture = { {size.width, size.height}, filter->getOutputTexId() };
-            
-            if(getImage)
+            frames[i].texture = { { size.width, size.height }, filter->getOutputTexId() };
+
+            if (getImage)
             {
                 frames[i].image.create(size.height, size.width);
                 filter->getResultData(frames[i].image.ptr<uint8_t>());
@@ -330,33 +330,33 @@ void FaceFinder::initPainter(const cv::Size& /* inputSizeUp */)
     impl->logger->info("Init painter");
 }
 
-void FaceFinder::initFaceFilters(const cv::Size &inputSizeUp)
+void FaceFinder::initFaceFilters(const cv::Size& inputSizeUp)
 {
     const auto outputRenderOrientation = ::ogles_gpgpu::degreesToOrientation(360 - impl->outputOrientation);
     impl->rotater = drishti::core::make_unique<ogles_gpgpu::TransformProc>();
     impl->rotater->setOutputRenderOrientation(outputRenderOrientation);
-    
+
     impl->warper = drishti::core::make_unique<ogles_gpgpu::TransformProc>();
     impl->warper->add(impl->rotater.get());
     impl->warper->prepare(inputSizeUp.width, inputSizeUp.width, GL_RGBA);
 }
 
-GLuint FaceFinder::stabilize(GLuint inputTexId, const cv::Size &inputSizeUp, const drishti::face::FaceModel &face)
+GLuint FaceFinder::stabilize(GLuint inputTexId, const cv::Size& inputSizeUp, const drishti::face::FaceModel& face)
 {
-    if(face.points.has)
+    if (face.points.has)
     {
         const cv::Matx33f S = transformation::denormalize(inputSizeUp);
         const cv::Matx33f Sinv = S.inv();
         const cv::Matx33f H = drishti::face::FaceStabilizer::stabilize(face, inputSizeUp, 0.33);
-        
+
         cv::Matx44f MVP;
         transformation::R3x3To4x4(Sinv * H * S, MVP);
-        
+
         ogles_gpgpu::Mat44f MVPt;
-        cv::Mat(MVP.t()).copyTo(cv::Mat(4,4,CV_32FC1,&MVPt.data[0][0]));
+        cv::Mat(MVP.t()).copyTo(cv::Mat(4, 4, CV_32FC1, &MVPt.data[0][0]));
         impl->warper->setTransformMatrix(MVPt);
     }
-    
+
     impl->warper->process(inputTexId, 1, GL_TEXTURE_2D);
     return impl->rotater->getOutputTexId();
 }
@@ -377,10 +377,10 @@ void FaceFinder::init(const cv::Size& inputSize)
     impl->faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*impl->sensor);
 
     initColormap();
-    initACF(inputSizeUp); // initialize ACF first (configure opengl platform extensions)
+    initACF(inputSizeUp);                 // initialize ACF first (configure opengl platform extensions)
     initFIFO(inputSizeUp, impl->history); // keep last N frames
-    initPainter(inputSizeUp); // {inputSizeUp.width/4, inputSizeUp.height/4}
-    initFaceFilters(inputSizeUp); // gpu "filter" (effects)
+    initPainter(inputSizeUp);             // {inputSizeUp.width/4, inputSizeUp.height/4}
+    initFaceFilters(inputSizeUp);         // gpu "filter" (effects)
 
     if (impl->doIris)
     {
@@ -398,7 +398,7 @@ void FaceFinder::init(const cv::Size& inputSize)
 }
 
 template <typename Container>
-void push_fifo(Container &container, const typename Container::value_type &value, int size)
+void push_fifo(Container& container, const typename Container::value_type& value, int size)
 {
     container.push_front(value);
     if (container.size() > size)
@@ -417,21 +417,21 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2,
 {
     FrameInput frame1;
     frame1.size = frame2.size;
-    
+
     ScenePrimitives scene2(impl->frameIndex), scene1, scene0, *outputScene = &scene2;
-    
-    if(impl->fifo->getBufferCount() > 0)
+
+    if (impl->fifo->getBufferCount() > 0)
     {
         core::ScopeTimeLogger preprocessTimeLogger = [this](double t) { impl->timerInfo.acfProcessingTime = t; };
-        
+
         // read GPU results for frame n-1
-        
+
         // Here we always trigger GPU pipeline reads
         // to ensure upright + redeuced grayscale images will
         // be available for regression, even if we won't be using ACF detection.
         impl->acf->getChannels();
-        
-        if(impl->acf->getChannelStatus())
+
+        if (impl->acf->getChannelStatus())
         {
             // If the ACF textures were loaded in the last call, then we know
             // that detections were requrested for the last frame, and we will
@@ -439,7 +439,7 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2,
             scene1.m_P = std::make_shared<decltype(impl->P)>();
             fill(*scene1.m_P);
         }
-        
+
         // ### Grayscale image ###
         if (impl->doLandmarks)
         {
@@ -448,19 +448,19 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2,
     }
 
     // Start GPU pipeline for the current frame, immediately after we have
-    // retrieved results for the previous frame.    
+    // retrieved results for the previous frame.
     computeAcf(frame2, false, doDetection);
     GLuint texture2 = impl->acf->first()->getOutputTexId(), texture0 = 0, outputTexture = texture2;
-    
-    if(impl->fifo->getBufferCount() > 0)
+
+    if (impl->fifo->getBufferCount() > 0)
     {
-        if(impl->fifo->getBufferCount() > 1)
+        if (impl->fifo->getBufferCount() > 1)
         {
             // Retrieve CPU processing for frame n-2
             scene0 = impl->scene.get();                     // scene n-2
             texture0 = (*impl->fifo)[-2]->getOutputTexId(); // texture n-2
-            updateEyes(texture0, scene0); // update the eye texture
-            
+            updateEyes(texture0, scene0);                   // update the eye texture
+
             outputTexture = paint(scene0, texture0);
             outputScene = &scene0;
         }
@@ -477,15 +477,15 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2,
             return sceneOut;
         });
     }
-    
+
     // Add the current frame to FIFO
     impl->fifo->useTexture(texture2, 1);
     impl->fifo->render();
-    
+
     // Clear face motion estimate, update window:
     impl->faceMotion = { 0.f, 0.f, 0.f };
     push_fifo(impl->scenePrimitives, *outputScene, impl->history);
-    
+
     return std::make_pair(outputTexture, *outputScene);
 }
 
@@ -502,11 +502,11 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runSimple(const FrameInput& frame
     GLuint texture1 = impl->acf->first()->getOutputTexId(), outputTexture = 0;
 
     detect(frame1, scene1, doDetection);
-    
+
     if (doAnnotations())
     {
         updateEyes(texture1, scene1);
-        
+
         // Excplicit output variable configuration:
         scene1.draw(impl->renderFaces, impl->renderPupils, impl->renderCorners);
         outputTexture = paint(scene1, texture1); // was 1
@@ -521,11 +521,11 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runSimple(const FrameInput& frame
     // Add the current frame to FIFO
     impl->fifo->useTexture(texture1, 1);
     impl->fifo->render();
-    
+
     // Clear face motion estimate, update window:
     impl->faceMotion = { 0.f, 0.f, 0.f };
     push_fifo(impl->scenePrimitives, *outputScene, impl->history);
-    
+
     return std::make_pair(outputTexture, *outputScene);
 }
 
@@ -541,14 +541,14 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
         }
     };
     // clang-format on
-    
+
     // Get current timestamp
     const auto& now = faceFinderTimeLogger.getTime();
     const bool doDetection = needsDetection(now);
-    
+
     GLuint outputTexture = 0;
     ScenePrimitives outputScene;
-    if(impl->threads && impl->doOptimizedPipeline)
+    if (impl->threads && impl->doOptimizedPipeline)
     {
         std::tie(outputTexture, outputScene) = runFast(frame1, doDetection);
     }
@@ -556,14 +556,14 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
     {
         std::tie(outputTexture, outputScene) = runSimple(frame1, doDetection);
     }
-    
+
     if (impl->imageLogger && outputScene.faces().size() && !outputScene.image().empty())
     {
         (impl->imageLogger)(outputScene.image());
     }
-    
+
     impl->frameIndex++; // increment frame index
-    
+
     if (impl->scenePrimitives.size() >= 2)
     {
         if (impl->scenePrimitives[0].faces().size() && impl->scenePrimitives[1].faces().size())
@@ -603,7 +603,7 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
     std::vector<FaceMonitor::Request> requests(impl->faceMonitorCallback.size());
 
     FaceMonitor::Request request;
-    
+
     if (scene.faces().size())
     {
         // 1) If any active face request is satisifed grab a frame+face buffer:
@@ -703,7 +703,7 @@ std::shared_ptr<acf::Detector::Pyramid> FaceFinder::createAcfGpu(const FrameInpu
     // to ensure grayscale images will be available
     // for regression, even if we won't be using ACF detection.
     cv::Mat acf = impl->acf->getChannels();
-    
+
     if (doDetection)
     {
         assert(acf.type() == CV_8UC1);
@@ -832,14 +832,14 @@ int FaceFinder::detectOnly(ScenePrimitives& scene, bool doDetection)
     return scene.objects().size();
 }
 
-void FaceFinder::scaleToFullResolution(std::vector<drishti::face::FaceModel> &faces)
+void FaceFinder::scaleToFullResolution(std::vector<drishti::face::FaceModel>& faces)
 {
     const float Srf = 1.0f / impl->acf->getGrayscaleScale();
     const cv::Matx33f Hrf = transformation::scale(Srf);
     for (auto& f : faces)
     {
         f = Hrf * f;
-        
+
         // Tag each face w/ approximate distance:
         if (impl->faceEstimator)
         {
@@ -861,7 +861,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
     // Start with empty face detections:
     std::vector<drishti::face::FaceModel> faces;
     drishti::face::FaceDetector::PaddedImage Ib(scene.image(), { { 0, 0 }, scene.image().size() });
-    
+
     if (impl->detector && (!doDetection || scene.m_P))
     {
         if (!scene.objects().size())
@@ -889,11 +889,11 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
             // are all upright, but the output texture used for the display
             // is still in the native (potentially rotated) coordinate system,
             // so we need to perform scaling wrt that.
-            
+
             scaleToFullResolution(faces);
         }
     }
-    
+
     {
         // Perform simple prediction on every frame.  This occurs on full resolution
         // FaceModel objects, for which approximate location is known.  In some cases
@@ -902,14 +902,14 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
         //   1) map to regression image resolution
         //   2) refine the face model
         //   3) map back to the full resolution image
-        
+
         const float Sfr = impl->acf->getGrayscaleScale(); // full->regression
         const cv::Matx33f Hfr = transformation::scale(Sfr);
         drishti::face::FaceTracker::FaceTrackVec tracksOut;
         (*impl->faceTracker)(faces, tracksOut);
 
         faces.clear();
-        for(auto & f : tracksOut)
+        for (auto& f : tracksOut)
         {
             // For any missed face we need to update the landmarks from the
             if (f.second.misses > 0)
@@ -921,21 +921,21 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
                 scene.faces().emplace_back(f.first); // store output
             }
         }
-        
+
         // Faces have been mapped to
         impl->faceDetector->refine(Ib, faces, cv::Matx33f::eye(), false);
         scaleToFullResolution(faces);
-        for (auto &f : faces)
+        for (auto& f : faces)
         {
             scene.faces().emplace_back(f);
         }
-        
+
         // Sort near to far:
-        std::sort(scene.faces().begin(), scene.faces().end(), [](const face::FaceModel &a, const face::FaceModel &b) {
+        std::sort(scene.faces().begin(), scene.faces().end(), [](const face::FaceModel& a, const face::FaceModel& b) {
             return (a.eyesCenter->z < b.eyesCenter->z);
         });
     }
-    
+
     return 0;
 }
 
@@ -1078,7 +1078,7 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
     impl->detector = dynamic_cast<drishti::acf::Detector*>(impl->faceDetector->getDetector());
 
     if (impl->detector)
-    {        
+    {
         if (impl->acfCalibration != 0.f)
         {
             // Perform modification
@@ -1112,21 +1112,20 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
             // clang-format on
 
             const cv::Point2f center = core::centroid(centers);
-            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale*1.1, center);
+            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale * 1.1, center);
             faceDetectorMean = H * faceDetectorMean;
         }
 
         impl->faceDetector->setFaceDetectorMean(faceDetectorMean);
     }
-    
+
     impl->faceTracker = core::make_unique<face::FaceTracker>(
         impl->minFaceSeparation,
         impl->minTrackHits,
-        impl->maxTrackMisses
-    );
+        impl->maxTrackMisses);
 }
 
-static void smooth(double &t0, double t1, double alpha=0.95)
+static void smooth(double& t0, double t1, double alpha = 0.95)
 {
     t0 = (t0 != 0.0) ? t1 : ((t0 * alpha) + (t1 * (1.0 - alpha)));
 }

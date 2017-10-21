@@ -122,7 +122,7 @@ template <class Archive>
 void serialize(Archive& ar, drishti::ml::shape_predictor& sp, const unsigned int version)
 {
     drishti_throw_assert(version == 4, "Incorrect shape_predictor archive format, please update models");
-    
+
     drishti::ml::fshape& initial_shape = sp.initial_shape;
     std::vector<std::vector<RTType>>& forests = sp.forests;
     std::vector<std::vector<unsigned short>>& anchor_idx = sp.anchor_idx;

@@ -21,14 +21,13 @@ void ObjectDetector::prune(std::vector<cv::Rect>& objects, std::vector<double>& 
 {
     CV_Assert(objects.size() == scores.size());
 
-
     // Assum sorted detections:
     if (objects.size() > 1)
     {
         int cutoff = 1;
         for (int i = 1; i < std::min(m_maxDetectionCount, objects.size()); i++)
         {
-            cutoff = i+1;
+            cutoff = i + 1;
             if (scores[i] < (scores[0] * m_detectionScorePruneRatio))
             {
                 break;

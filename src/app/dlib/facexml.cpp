@@ -240,9 +240,9 @@ int gauze_main(int argc, char** argv)
     }
 
     logger->info("Have {} faces", faces.size());
-    
+
     int code = drishtiFaceToDlib(faces, sOutput);
-    if(code != 0)
+    if (code != 0)
     {
         logger->error("Failed to create file {} for writing");
     }
