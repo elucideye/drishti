@@ -19,6 +19,11 @@ endif()
 
 set(LIB_TYPE STATIC)
 
+if(DRISHTI_BUILD_FACE)
+  hunter_add_package(nlohmann_json)
+  find_package(nlohmann_json CONFIG REQUIRED)
+endif()
+
 ##################
 #### world #######
 ##################
@@ -108,6 +113,9 @@ if(DRISHTI_BUILD_WORLD)
   drishti_hide(drishti_world)
 
   target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen3::Eigen)
+  if(DRISHTI_BUILD_FACE)
+    target_link_libraries(drishti_world PUBLIC nlohmann_json)
+  endif()
 
   if(DRISHTI_USE_THREAD_POOL_CPP)
     target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
@@ -175,7 +183,7 @@ else()
   ## drishti_face
   if(DRISHTI_BUILD_FACE)
     add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-    target_link_libraries(drishti_face PUBLIC drishti_eye ${DRISHTI_OBJ_ACF} ${OpenCV_LIBS} ${EOS_LIB})
+    target_link_libraries(drishti_face PUBLIC drishti_eye ${DRISHTI_OBJ_ACF} ${OpenCV_LIBS} ${EOS_LIB} nlohmann_json)
     set(DRISHTI_OBJ_FACE drishti_face)
   endif()
 

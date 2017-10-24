@@ -12,7 +12,7 @@ find_package(ARM_NEON_2_x86_SSE CONFIG REQUIRED) # header
 find_package(Eigen3 CONFIG REQUIRED)             # header
 find_package(cereal CONFIG REQUIRED)             # header
 find_package(dlib CONFIG REQUIRED)               # header (for now)
-find_package(half CONFIG REQUIRED)               # header 
+find_package(half CONFIG REQUIRED)               # header
 find_package(spdlog CONFIG REQUIRED)             # header
 find_package(sse2neon CONFIG REQUIRED)           # header
 if(@DRISHTI_USE_THREAD_POOL_CPP@)
@@ -31,7 +31,7 @@ endif()
 
 ##
 ## Experimental: typically disabled for release
-## 
+##
 
 if(@DRISHTI_BUILD_DEST@)
   find_package(dest CONFIG REQUIRED)
@@ -39,7 +39,11 @@ endif()
 
 if(@DRISHTI_BUILD_EOS@)
   find_package(eos CONFIG REQUIRED)
-  find_package(Boost CONFIG REQUIRED filesystem system)  
+  find_package(Boost CONFIG REQUIRED filesystem system)
+endif()
+
+if(@DRISHTI_BUILD_FACE@)
+  find_package(nlohmann_json CONFIG REQUIRED)
 endif()
 
 find_package(glm CONFIG REQUIRED)
@@ -50,4 +54,3 @@ endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/@drishti_targets_export_name@.cmake")
 check_required_components("@PROJECT_NAME@")
-
