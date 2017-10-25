@@ -137,30 +137,33 @@ indicates that the configuration is part of the Travis or Appveyor CI
 tests, so all Hunter packages will be available in the server side
 binary cache.
 
-Linux (Ubunty Trusty 14.04): \* ``TOOLCHAIN=gcc-5-pic-hid-sections-lto``
-``CONFIG=Release`` # CI \* ``TOOLCHAIN=libcxx`` ``CONFIG=Release`` # w/
-clang 3.8
+Linux (Ubunty Trusty 14.04):
 
-OSX: \* ``TOOLCHAIN=osx-10-11-hid-sections-lto`` ``CONFIG=Release`` # CI
-\* ``TOOLCHAIN=osx-10-12-sanitize-address-hid-sections``
-``CONFIG=Release`` # CI \* ``TOOLCHAIN=xcode-hid-sections``
-``CONFIG=Release`` # generic
+* ``TOOLCHAIN=gcc-5-pic-hid-sections-lto`` ``CONFIG=Release`` # CI 
+* ``TOOLCHAIN=libcxx`` ``CONFIG=Release`` # w/ clang 3.8
 
-iOS: \*
-``TOOLCHAIN=ios-nocodesign-10-1-arm64-dep-9-0-device-libcxx-hid-sections-lto``
-``CONFIG=MinSizeRel`` # CI \*
-``TOOLCHAIN=ios-10-1-arm64-dep-8-0-hid-sections`` ``CONFIG=Release``
+OSX: 
 
-Android (from OSX): \*
-``TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections``
-``CONFIG=MinSizeRel`` # CI \*
-``TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto``
-``CONFIG=MinSizeRel``
+* ``TOOLCHAIN=osx-10-11-hid-sections-lto`` ``CONFIG=Release`` # CI
+* ``TOOLCHAIN=osx-10-12-sanitize-address-hid-sections`` ``CONFIG=Release`` # CI 
+* ``TOOLCHAIN=xcode-hid-sections`` ``CONFIG=Release`` # generic
 
-Windows: \* ``TOOLCHAIN=vs-14-2015-sdk-8-1`` ``CONFIG=Release`` # CI \*
-``TOOLCHAIN=vs-14-2015-sdk-8-1`` ``CONFIG=Debug`` # CI \*
-``TOOLCHAIN=vs-14-2015-win64-sdk-8-1`` ``CONFIG=Release`` # CI \*
-``TOOLCHAIN=vs-14-2015-win64-sdk-8-1`` ``CONFIG=Debug`` # CI
+iOS: 
+
+* ``TOOLCHAIN=ios-nocodesign-10-1-arm64-dep-9-0-device-libcxx-hid-sections-lto`` ``CONFIG=MinSizeRel`` # CI 
+* ``TOOLCHAIN=ios-10-1-arm64-dep-8-0-hid-sections`` ``CONFIG=Release``
+
+Android (from OSX): 
+
+* ``TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections`` ``CONFIG=MinSizeRel`` # CI 
+* ``TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto`` ``CONFIG=MinSizeRel``
+
+Windows: 
+
+* ``TOOLCHAIN=vs-14-2015-sdk-8-1`` ``CONFIG=Release`` # CI 
+* ``TOOLCHAIN=vs-14-2015-sdk-8-1`` ``CONFIG=Debug`` # CI 
+* ``TOOLCHAIN=vs-14-2015-win64-sdk-8-1`` ``CONFIG=Release`` # CI 
+* ``TOOLCHAIN=vs-14-2015-win64-sdk-8-1`` ``CONFIG=Debug`` # CI
 
 The polly out of source build trees are located in
 ``_builds/${TOOLCHAIN}``, the final build products (the stuff you want)
