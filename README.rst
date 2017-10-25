@@ -6,8 +6,6 @@ drishti
 .. figure:: https://user-images.githubusercontent.com/554720/28922218-3a005f9c-7827-11e7-839c-ef3e9a282f70.png
    :alt: drishti\_text\_big
 
-   drishti\_text\_big
-
 Real time eye tracking for embedded and mobile devices in C++11.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
