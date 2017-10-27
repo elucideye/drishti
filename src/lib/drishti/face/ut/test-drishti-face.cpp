@@ -12,9 +12,15 @@
 
 */
 
+#include "drishti/face/FaceDetectorAndTracker.h"
+#include "drishti/core/Logger.h"
+
 #include <gtest/gtest.h>
 
-#include "drishti/face/FaceDetectorAndTracker.h"
+// clang-format off
+#define BEGIN_EMPTY_NAMESPACE namespace {
+#define END_EMPTY_NAMESPACE }
+// clang-format on
 
 extern const char* sFaceDetector;
 extern const char* sFaceDetectorMean;
@@ -29,7 +35,7 @@ class FaceDetectorTest : public ::testing::Test
 protected:
 
     // Setup
-    FaceDetectorTest
+    FaceDetectorTest()
     {
         m_logger = drishti::core::Logger::create("test-drishti-face");
         m_logger->set_level(spdlog::level::off); // by default...
@@ -44,7 +50,7 @@ protected:
         m_factory->sEyeRegressor = sEyeRegressor;
         m_factory->sFaceDetectorMean = sFaceDetectorMean;
 
-        m_detector = std::make_shared<drishti::face::FaceDetectorAndTracker>(*factory);
+        m_detector = std::make_shared<drishti::face::FaceDetectorAndTracker>(*m_factory);
         m_detector->setScaling(1.f);
         m_detector->setDoNMS(true);
         m_detector->setDoNMSGlobal(true);
@@ -62,7 +68,7 @@ protected:
     // Called after destructor for each test
     virtual void TearDown() {}
 
-    static cv::Mat loadImage(const std::string& filename)
+    cv::Mat loadImage(const std::string& filename)
     {
         assert(!filename.empty());
         cv::Mat image = cv::imread(filename, cv::IMREAD_COLOR);
@@ -72,15 +78,18 @@ protected:
 
         cv::Mat It = Irgb.t(), Itf;
         It.convertTo(Itf, CV_32FC3, 1.0f / 255.f);
-        Ip MatP(Itf);
+        Ip = MatP(Itf);
 
         cv::Mat green;
         cv::extractChannel(image, green, 1);
-        Ib = PaddedImage(green, { { 0, 0 }, green.size() });
+        Ib = drishti::face::FaceDetector::PaddedImage(green, { { 0, 0 }, green.size() });
+        
+        return image;
     }
 
+    cv::Mat image;
     MatP Ip;
-    PaddedImage Ip;
+    drishti::face::FaceDetector::PaddedImage Ib;
 
     std::shared_ptr<spdlog::logger> m_logger;
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;
@@ -89,7 +98,7 @@ protected:
 
 TEST_F(FaceDetectorTest, FaceDetector)
 {
-    std::vetor<drishti::face::FaceModel> faces;
+    std::vector<drishti::face::FaceModel> faces;
     (*m_detector)(Ip, Ib, faces, cv::Matx33f::eye());
     ASSERT_EQ(faces.size(), 1);
 }
@@ -97,7 +106,7 @@ TEST_F(FaceDetectorTest, FaceDetector)
 #if defined(DRISHTI_BUILD_EOS)
 TEST_F(FaceDetectorTest, FaceMeshMapper)
 {
-    std::vetor<drishti::face::FaceModel> faces;
+    std::vector<drishti::face::FaceModel> faces;
     (*m_detector)(Ip, Ib, faces, cv::Matx33f::eye());
     ASSERT_EQ(faces.size(), 1);
 
