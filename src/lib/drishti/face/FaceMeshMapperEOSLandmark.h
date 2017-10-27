@@ -1,5 +1,5 @@
 /*! -*-c++-*-
-  @file   FaceMeshMapperLandmark.h
+  @file   FaceMeshMapperEOSLandmark.h
   @author David Hirvonen (from original code by Patrik Huber)
   @brief  Declaration of a FaceMeshMapper interface to the EOS library.
 
@@ -18,12 +18,6 @@
 #include "drishti/face/Face.h"
 #include "drishti/face/FaceMeshMapper.h"
 
-// experimental eos stuff
-#include "eos/core/Landmark.hpp"
-#include "eos/core/LandmarkMapper.hpp"
-#include "eos/fitting/fitting.hpp"
-#include "eos/core/Mesh.hpp"
-
 #include "opencv2/core/core.hpp"
 
 #include <iostream>
@@ -31,18 +25,19 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-class FaceMeshMapperLandmark : public FaceMeshMapper
+class FaceMeshMapperEOSLandmark : public FaceMeshMapper
 {
 public:
-    using LandmarkCollection2d = eos::core::LandmarkCollection<cv::Vec2f>;
+    using FaceMeshContainerPtr = std::shared_ptr<FaceMeshContainer>;
 
-    FaceMeshMapperLandmark(const std::string& modelfile, const std::string& mappingsfile);
-
-    virtual Result operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image);
-
-    virtual Result operator()(const FaceModel& face, const cv::Mat& image);
+    FaceMeshMapperEOSLandmark(const std::string& modelfile, const std::string& mappingsfile);
+    ~FaceMeshMapperEOSLandmark() = default;
+    
+    virtual FaceMeshContainerPtr operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image);
+    virtual FaceMeshContainerPtr operator()(const FaceModel& face, const cv::Mat& image);
 
 protected:
+    
     struct Impl;
     std::shared_ptr<Impl> m_pImpl;
 };

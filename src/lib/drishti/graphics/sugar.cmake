@@ -26,7 +26,8 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     LineShader.cpp         
     MeshShader.cpp
     binomial.cpp
-    mesh.cpp    
+    mesh.cpp 
+    meshtex.cpp
     saturation.cpp
     )
   sugar_files(
@@ -35,6 +36,8 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
     LineShader.h    
     MeshShader.h
     binomial.h
+    mesh.h
+    meshtex.h
     saturation.h
     )
 endif()

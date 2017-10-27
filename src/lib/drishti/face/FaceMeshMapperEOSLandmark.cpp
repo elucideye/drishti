@@ -1,5 +1,5 @@
 /*! -*-c++-*-
-  @file   FaceMeshMapperLandmark.cpp
+  @file   FaceMeshMapperEOSLandmark.cpp
   @author David Hirvonen (from original code by Patrik Huber)
   @brief  Implementation of a FaceMeshMapper interface to the EOS library.
  
@@ -11,7 +11,9 @@
 
 */
 
-#include "drishti/face/FaceMeshMapperLandmark.h"
+
+#include "drishti/face/FaceMeshMapperEOSLandmark.h"
+#include "drishti/face/FaceMeshMapperEOS.h"
 #include "drishti/core/drishti_stdlib_string.h"
 
 #include "eos/render/utils.hpp"
@@ -20,9 +22,10 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-struct FaceMeshMapperLandmark::Impl
+struct FaceMeshMapperEOSLandmark::Impl
 {
     using LandmarkSet = eos::core::LandmarkCollection<cv::Vec2f>;
+    using FaceMeshContainerPtr = std::shared_ptr<FaceMeshContainer>;
 
     Impl(const std::string& modelfile, const std::string& mappingsfile)
     {
@@ -30,7 +33,7 @@ struct FaceMeshMapperLandmark::Impl
         landmark_mapper = mappingsfile.empty() ? eos::core::LandmarkMapper() : eos::core::LandmarkMapper(mappingsfile);
     }
 
-    Result operator()(const LandmarkSet& landmarks, const cv::Mat& image)
+    auto operator()(const LandmarkSet& landmarks, const cv::Mat& image) -> FaceMeshContainerPtr
     {
         // These will be the final 2D and 3D points used for the fitting:
         std::vector<cv::Vec4f> model_points; // the points in the 3D shape model
@@ -64,10 +67,10 @@ struct FaceMeshMapperLandmark::Impl
         // Obtain the full mesh with the estimated coefficients:
         auto mesh = morphable_model.draw_sample(fitted_coeffs, std::vector<float>());
 
-        return Result{ mesh, rendering_params, affine_from_ortho };
+        return std::make_shared<FaceMeshContainerEOS>(mesh, rendering_params, affine_from_ortho);
     }
 
-    Result operator()(const FaceModel& face, const cv::Mat& image)
+    auto operator()(const FaceModel& face, const cv::Mat& image) -> FaceMeshContainerPtr
     {
         return (*this)(extractLandmarks(face), image);
     }
@@ -76,19 +79,17 @@ struct FaceMeshMapperLandmark::Impl
     eos::core::LandmarkMapper landmark_mapper;
 };
 
-FaceMeshMapperLandmark::FaceMeshMapperLandmark(const std::string& modelfile, const std::string& mappingsfile)
+FaceMeshMapperEOSLandmark::FaceMeshMapperEOSLandmark(const std::string& modelfile, const std::string& mappingsfile)
 {
     m_pImpl = std::make_shared<Impl>(modelfile, mappingsfile);
 }
 
-FaceMeshMapperLandmark::Result
-FaceMeshMapperLandmark::operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image)
+auto FaceMeshMapperEOSLandmark::operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image) -> FaceMeshContainerPtr
 {
     return (*m_pImpl)(convertLandmarks(landmarks), image);
 }
 
-FaceMeshMapperLandmark::Result
-FaceMeshMapperLandmark::operator()(const DRISHTI_FACE::FaceModel& face, const cv::Mat& image)
+auto FaceMeshMapperEOSLandmark::operator()(const DRISHTI_FACE::FaceModel& face, const cv::Mat& image) -> FaceMeshContainerPtr
 {
     return (*m_pImpl)(face, image);
 }

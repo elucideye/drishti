@@ -1,5 +1,5 @@
 /*! -*-c++-*-
- @file   FaceMeshMapperLandmarkContour.h
+ @file   FaceMeshMapperEOSLandmarkContour.h
  @author David Hirvonen (from original code by Patrik Huber)
  @brief  Declaration of a FaceMeshMapper interface to the EOS library.
  
@@ -11,18 +11,12 @@
  
  */
 
-#ifndef __drishti_face_FaceMeshMapperLandmarkContour_h__
-#define __drishti_face_FaceMeshMapperLandmarkContour_h__ 1
+#ifndef __drishti_face_FaceMeshMapperEOSLandmarkContour_h__
+#define __drishti_face_FaceMeshMapperEOSLandmarkContour_h__ 1
 
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
 #include "drishti/face/FaceMeshMapper.h"
-
-// experimental eos stuff
-#include "eos/core/Landmark.hpp"
-#include "eos/core/LandmarkMapper.hpp"
-#include "eos/core/Mesh.hpp"
-#include "eos/fitting/fitting.hpp"
 
 #include "opencv2/core/core.hpp"
 
@@ -31,11 +25,12 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-class FaceMeshMapperLandmarkContour : public FaceMeshMapper
+class FaceMeshMapperEOSLandmarkContour : public FaceMeshMapper
 {
 public:
-    using LandmarkCollection2d = eos::core::LandmarkCollection<cv::Vec2f>;
-
+    
+    using FaceMeshContainerPtr = std::shared_ptr<FaceMeshContainer>;
+    
     struct Assets
     {
         std::string model;
@@ -53,17 +48,18 @@ public:
         std::string edgetopology;
     };
 
-    FaceMeshMapperLandmarkContour(const Assets& assets);
+    FaceMeshMapperEOSLandmarkContour(const Assets& assets);
+    ~FaceMeshMapperEOSLandmarkContour() = default;
 
-    virtual Result operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image);
-
-    virtual Result operator()(const FaceModel& face, const cv::Mat& image);
+    virtual FaceMeshContainerPtr operator()(const std::vector<cv::Point2f>& landmarks, const cv::Mat& image);
+    virtual FaceMeshContainerPtr operator()(const FaceModel& face, const cv::Mat& image);
 
 protected:
+    
     struct Impl;
     std::shared_ptr<Impl> m_pImpl;
 };
 
 DRISHTI_FACE_NAMESPACE_END
 
-#endif // __drishti_face_FaceMeshMapperLandmarkContour_h__
+#endif // __drishti_face_FaceMeshMapperEOSLandmarkContour_h__

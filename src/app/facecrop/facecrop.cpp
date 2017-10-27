@@ -48,7 +48,7 @@
 
 // clang-format off
 #if defined(DRISHTI_BUILD_EOS)
-#  include "drishti/face/FaceMeshMapperLandmark.h"
+#  include "drishti/face/FaceMeshMapperEOSLandmark.h"
 #endif
 // clang-format on
 
@@ -180,7 +180,7 @@ static int standardizeFaceData(const FACE::Table& table, const std::string& sOut
 
 #if defined(DRISHTI_BUILD_EOS)
 // Face pose estimation...
-using FaceMeshMapperPtr = std::unique_ptr<drishti::face::FaceMeshMapperLandmark>;
+using FaceMeshMapperPtr = std::unique_ptr<drishti::face::FaceMeshMapperEOSLandmark>;
 using FaceMeshMapperResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceMeshMapperPtr>;
 static void computePose(FACE::Table& table, const std::string& sModel, const std::string& sMapping, std::shared_ptr<spdlog::logger>& logger);
 #endif // DRISHTI_BUILD_POSE
@@ -724,7 +724,7 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
 {
     FaceMeshMapperResourceManager manager = [&]()
     {
-        return drishti::core::make_unique<drishti::face::FaceMeshMapperLandmark>(sModel, sMapping);
+        return drishti::core::make_unique<drishti::face::FaceMeshMapperEOSLandmark>(sModel, sMapping);
     };
     
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
@@ -747,17 +747,19 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
                 size = cv::imread(record.filename).size();
             }
             
-            eos::core::Mesh mesh;
-
             cv::Mat dummy;
             dummy.cols = size.width;
             dummy.rows = size.height;
             auto result = (*meshMapper)(record.points, dummy);
             
-            const auto &q = result.rendering_params.get_rotation();
+            const auto &q = result->getQuaternion();
             record.quaternion = { q[0], q[1], q[2], q[3] };  // Note: q1 == frontal for now
             Eigen::Quaternion<float> q0(q[0], q[1], q[2], q[3]), q1(0.f, 0.f, 0.f, 1.f), arc = q0 * q1.inverse();
+#if defined(__ANDROID__)
+            record.angle = ::acosf(arc.w()) * 2.f;
+#else
             record.angle = std::acosf(arc.w()) * 2.f;
+#endif
         }
     };
     

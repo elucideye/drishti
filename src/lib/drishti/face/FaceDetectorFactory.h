@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 // clang-format off
 namespace drishti { namespace ml { class ObjectDetector; } };
@@ -52,6 +53,8 @@ public:
     std::string sFaceRegressor;
     std::string sEyeRegressor;
     std::string sFaceDetectorMean;
+
+    std::map<std::string, std::string> sModelBindings;
 };
 
 class FaceDetectorFactoryStream : public FaceDetectorFactory
