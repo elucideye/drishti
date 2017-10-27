@@ -1,5 +1,5 @@
 /*! -*-c++-*-
-  @file   FaceMeshMapper.cpp
+  @file   FaceMeshMapperEOS.cpp
   @author David Hirvonen (from original code by Patrik Huber)
   @brief  Implementation of a FaceMeshMapper interface to the EOS library.
 
@@ -12,11 +12,13 @@
 */
 
 #include "drishti/face/FaceMeshMapper.h"
-
+#include "drishti/face/FaceMeshMapperEOS.h"
 #include "drishti/core/drishti_stdlib_string.h"
 
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
+
+#include <glm/glm.hpp>
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
@@ -32,16 +34,67 @@ draw_wireframe(cv::Mat& image, const eos::core::Mesh& mesh, GLMTransform& transf
 
 /// ===== UTILITY  ====
 
-cv::Point3f getRotation(const eos::fitting::RenderingParameters& rendering_parameters)
+drishti::face::Frustum convert(const eos::fitting::Frustum& f)
 {
-    const auto euler = glm::eulerAngles(rendering_parameters.get_rotation());
+    return { f.l, f.r, f.b, f.t };
+}
+
+Frustum FaceMeshContainerEOS::getFrustum() const
+{
+    return convert(rendering_params.get_frustum());
+}
+
+cv::Matx44f FaceMeshContainerEOS::getModelViewProjection() const
+{
+    const auto &mvp = rendering_params.get_modelview();
+    
+    cv::Matx44f MVP;
+    for(int y = 0; y < 4; y++)
+    {
+        for(int x = 0; x < 4; x++)
+        {
+            MVP(y,x) = mvp[y][x];
+        }
+    }
+    return MVP;
+}
+
+void FaceMeshContainerEOS::getFaceMesh(drishti::graphics::MeshTex &dest) const
+{
+    dest = { mesh.vertices, mesh.texcoords, mesh.tvi };
+}
+
+cv::Point3f FaceMeshContainerEOS::getRotation() const
+{
+    const auto euler = glm::eulerAngles(rendering_params.get_rotation());
     const float pitch = glm::degrees(euler[0]);
     const float yaw = glm::degrees(euler[1]);
     const float roll = glm::degrees(euler[2]);
     return cv::Point3f(pitch, yaw, roll);
 }
 
-cv::Mat extractTexture(const FaceMeshMapper::Result& result, const cv::Mat& image)
+void FaceMeshContainerEOS::setRotation(const cv::Point3f &R)
+{
+    // https://gamedev.stackexchange.com/a/13441
+    rendering_params.set_rotation(glm::quat(glm::vec3(glm::radians(R.x), glm::radians(R.y), glm::radians(R.z))));
+}
+
+void FaceMeshContainerEOS::setQuaternion(const cv::Vec4f &Q)
+{
+    rendering_params.set_rotation(glm::quat(Q[0], Q[1], Q[2], Q[3]));
+}
+
+static cv::Vec4f convert(const glm::quat &Q)
+{
+    return {Q[0], Q[1], Q[2], Q[3]};
+}
+
+cv::Vec4f FaceMeshContainerEOS::getQuaternion() const
+{
+    return convert(rendering_params.get_rotation());
+}
+
+cv::Mat FaceMeshContainerEOS::extractTexture(const cv::Mat& image)
 {
     //bool compute_view_angle = false;
     //TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour;
@@ -49,7 +102,7 @@ cv::Mat extractTexture(const FaceMeshMapper::Result& result, const cv::Mat& imag
     const auto interpolation = eos::render::TextureInterpolation::Bilinear;
 
     // Extract the texture from the image using given mesh and camera parameters:
-    return eos::render::extract_texture(result.mesh, result.affine_from_ortho, image, false, interpolation);
+    return eos::render::extract_texture(mesh, affine_from_ortho, image, false, interpolation);
 }
 
 eos::core::LandmarkCollection<cv::Vec2f> convertLandmarks(const std::vector<cv::Point2f>& points)
@@ -133,15 +186,14 @@ void draw_wireframe(cv::Mat& image, const eos::core::Mesh& mesh, GLMTransform& t
     }
 };
 
-void serialize(const eos::core::Mesh& mesh, const std::string& filename)
+void FaceMeshContainerEOS::serialize(const std::string& filename)
 {
     // Save the mesh as textured obj:
     eos::core::write_textured_obj(mesh, filename);
 }
 
-void drawWireFrameOnIso(cv::Mat& iso, const eos::core::Mesh& meshIn)
+void FaceMeshContainerEOS::drawWireFrameOnIso(cv::Mat& iso)
 {
-    auto mesh = meshIn;
     for (auto& p : mesh.texcoords)
     {
         p[0] *= iso.cols;
@@ -166,10 +218,8 @@ void drawWireFrameOnIso(cv::Mat& iso, const eos::core::Mesh& meshIn)
     }
 }
 
-void drawWireFrame(cv::Mat& iso, const FaceMeshMapper::Result& result)
+void FaceMeshContainerEOS::drawWireFrame(cv::Mat& iso)
 {
-    const auto& mesh = result.mesh;
-    const auto& rendering_params = result.rendering_params;
     auto viewport = eos::fitting::get_opencv_viewport(iso.cols, iso.rows);
     GLMTransform transform{ rendering_params.get_modelview(), rendering_params.get_projection(), viewport };
     draw_wireframe(iso, mesh, transform);

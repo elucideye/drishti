@@ -41,6 +41,10 @@ if(GAUZE_ANDROID_USE_EMULATOR)
   target_compile_definitions(${test_app} PUBLIC GAUZE_ANDROID_USE_EMULATOR=1)
 endif()
 
+if(DRISHTI_BUILD_EOS)
+  target_compile_definitions(${test_app} PUBLIC DRISHTI_BUILD_EOS=1)
+endif()
+
 target_include_directories(${test_app} PUBLIC "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>")
 set_property(TARGET ${test_app} PROPERTY FOLDER "app/tests")
 

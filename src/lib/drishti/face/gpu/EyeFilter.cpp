@@ -30,8 +30,8 @@ BEGIN_OGLES_GPGPU
 static void convert(const drishti::eye::EyeWarp& src, ogles_gpgpu::MappedTextureRegion& dst);
 
 EyeFilter::EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff, int history)
-    : m_sizeOut(sizeOut)
-    , m_history(history)
+    : m_history(history)
+    , m_sizeOut(sizeOut)
 {
     firstProc = &transformProc;
 

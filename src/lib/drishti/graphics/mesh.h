@@ -13,6 +13,7 @@
 
 #include "ogles_gpgpu/common/proc/base/filterprocbase.h"
 
+#include "drishti/graphics/meshtex.h"
 #include "drishti/graphics/LineShader.h"
 #include "drishti/graphics/MeshShader.h"
 
@@ -22,26 +23,13 @@
 
 BEGIN_OGLES_GPGPU
 
-struct Mesh
-{
-    using VertexBuffer = std::vector<glm::vec4>;
-    using CoordBuffer = std::vector<glm::vec2>;
-
-    void getTriangleList(VertexBuffer& vb, CoordBuffer& cb) const;
-    void getWireMeshSegments(VertexBuffer& vb) const;
-
-    VertexBuffer vertices;               ///< 3D vertex positions.
-    CoordBuffer texcoords;               ///< Texture coordinates for each vertex.
-    std::vector<std::array<int, 3>> tvi; ///< Triangle vertex indices
-};
-
 class MeshProc : public ogles_gpgpu::FilterProcBase
 {
 public:
     using VertexBuffer = std::vector<glm::vec4>;
     using CoordBuffer = std::vector<glm::vec2>;
 
-    MeshProc(const Mesh& mesh, const cv::Mat& iso, bool doWire);
+    MeshProc(const drishti::graphics::MeshTex& mesh, const cv::Mat& iso, bool doWire);
 
     const char* getProcName()
     {
