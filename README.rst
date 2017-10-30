@@ -122,9 +122,51 @@ equivalent) for future sessions.
 After the environment is configured, you can build for any supported
 ``Polly`` toolchain (see ``polly.py --help``) with a command like this:
 
-::
+.. code-block:: bash
 
     polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} --install --verbose
+    
+::
+
+Integration
+-----------
+
+Drishti is also available as a hunter package.  If you would like to integrate drishti in your project, please see the hunter  `drishti package documentation <https://docs.hunter.sh/en/latest/packages/pkg/drishti.html#pkg-drishti>`__.
+
+Steps:
+
+Add ``cmake/HunterGate.cmake`` to your project: 
+
+.. code-block:: cmake
+
+    mkdir cmake
+    wget https://raw.githubusercontent.com/hunter-packages/gate/master/cmake/HunterGate.cmake -O cmake/HunterGate.cmake`
+    
+::
+    
+Add ``HunterGate(URL <url> SHA1 <sha1>)`` to the top of your ``CMakeLists.txt`` (You can find updated release information `here <https://github.com/ruslo/hunter/releases>`__).
+
+.. code-block:: cmake
+
+    include("cmake/HunterGate.cmake")
+    HunterGate(
+        URL "https://github.com/ruslo/hunter/archive/v0.19.140.tar.gz"
+        SHA1 "f2c30348c05d0d424976648ce3560044e007496c"
+    )
+
+::
+
+Finally, add the drishti package to your CMakeLists.txt and link it to your target:
+
+.. code-block:: cmake
+
+    hunter_add_package(drishti)
+    find_package(drishti CONFIG REQUIRED)
+    target_link_libraries(your_app_or_lib drishti::drishti)
+
+::
+
+Please see https://github.com/elucideye/drishti_hunter_test for a minimal working example using the drishti hunter package.
 
 Toolchains
 ----------
