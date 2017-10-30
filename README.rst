@@ -135,12 +135,13 @@ Drishti is also available as a hunter package.  If you would like to integrate d
 
 Steps:
 
-Add ``cmake/HunterGate.cmake`` to your project: 
+Add ``cmake/HunterGate.cmake`` and a minimal ``cmake/Hunter/config.cmake`` to your project: 
 
 .. code-block:: cmake
 
-    mkdir cmake
-    wget https://raw.githubusercontent.com/hunter-packages/gate/master/cmake/HunterGate.cmake -O cmake/HunterGate.cmake`
+    mkdir -p cmake/Hunter
+    wget https://raw.githubusercontent.com/hunter-packages/gate/master/cmake/HunterGate.cmake -O cmake/HunterGate.cmake
+    wget https://raw.githubusercontent.com/ruslo/hunter/master/examples/drishti/config.cmake -O cmake/Hunter/config.cmake
     
 ::
     
@@ -152,6 +153,7 @@ Add ``HunterGate(URL <url> SHA1 <sha1>)`` to the top of your ``CMakeLists.txt`` 
     HunterGate(
         URL "https://github.com/ruslo/hunter/archive/v0.19.140.tar.gz"
         SHA1 "f2c30348c05d0d424976648ce3560044e007496c"
+        LOCAL # use cmake/Hunter/config.cmake 
     )
 
 ::
@@ -165,6 +167,8 @@ Finally, add the drishti package to your CMakeLists.txt and link it to your targ
     target_link_libraries(your_app_or_lib drishti::drishti)
 
 ::
+
+You can customize the drishti package (and dependencies) by specifying a `VERSION` and/or `CMAKE_ARGS` (options) list for each package in ``cmake/Hunter/config.cmake``.
 
 Please see https://github.com/elucideye/drishti_hunter_test for a minimal working example using the drishti hunter package.
 
