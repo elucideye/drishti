@@ -99,7 +99,7 @@ set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 #   This is an override for the same setting in
 #   drishti-upload/config.cmake.
 #
-# DRISHTI_BIULD_MIN_SIZE:
+# DRISHTI_BUILD_MIN_SIZE:
 #   This can alter the hunter-package options for
 #   various dependencies in order to produce smaller builds,
 #   such as eliminating code related to model training.
@@ -244,7 +244,7 @@ endif()
 # Serialization options pertain to both library builds and integration testing.
 # In the case of integration testing, the user must specify serialization options
 # that are compatible with the compiled libraries.
-option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" ON)
+option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
 
 ################
 #### Testing ###
@@ -261,7 +261,7 @@ option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." OF
 option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." OFF)
 option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
 
-if(ANDROID OR NOT ${DRISHTI_CI})
+if(DRISHTI_BUILD_TESTS AND (ANDROID OR NOT ${DRISHTI_CI}))
   set(DRISHTI_DO_GPU_TESTING TRUE)
 else()
   set(DRISHTI_DO_GPU_TESTING FALSE)

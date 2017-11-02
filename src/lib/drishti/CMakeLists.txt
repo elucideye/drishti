@@ -256,7 +256,9 @@ endif()
 ### drishtisdk (static)
 add_library(drishtisdk ${drishti_sdk_srcs})
 target_link_libraries(drishtisdk PUBLIC ${drishti_sdk_libs})
-drishti_strip(drishtisdk)
+if(DRISHTI_BUILD_SHARED_SDK)
+  drishti_strip(drishtisdk)
+endif()
 drishti_hide(drishtisdk)
 set_target_properties(drishtisdk
   PROPERTIES
@@ -372,9 +374,8 @@ endif()
 
 drishti_hide(drishti)
 
-if(IOS AND DRISHTI_BUILD_MERGED_SDK)
+if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
   # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
-else()
   drishti_strip(drishti)
 endif()
 
@@ -506,9 +507,8 @@ if(DRISHTI_BUILD_C_INTERFACE)
   endif()
   drishti_hide(drishti_c)
 
-  if(IOS AND DRISHTI_BUILD_MERGED_SDK)
+  if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
     # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
-  else()
     drishti_strip(drishti_c)
   endif()
 
