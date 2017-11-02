@@ -23,11 +23,11 @@ BEGIN_OGLES_GPGPU
 // [0][1][2][3]
 
 // clang-format off
-const char * GradHistProc::fshaderGradHistSrcN = OG_TO_STR
-(
+const char * GradHistProc::fshaderGradHistSrcN = 
 #if defined(OGLES_GPGPU_OPENGLES)
  precision mediump float;
 #endif
+OG_TO_STR(
  varying vec2 vTexCoord;
  uniform sampler2D uInputTex;
  uniform float nOrientations;

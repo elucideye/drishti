@@ -13,12 +13,11 @@
 BEGIN_OGLES_GPGPU
 
 // clang-format off
-const char * BinomialProc::fshaderBinomialSrc = OG_TO_STR
-(
+const char * BinomialProc::fshaderBinomialSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
  precision highp float;
 #endif
-
+OG_TO_STR(
  varying vec2 textureCoordinate;
  varying vec2 leftTextureCoordinate;
  varying vec2 rightTextureCoordinate;

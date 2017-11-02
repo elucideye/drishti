@@ -13,11 +13,11 @@
 BEGIN_OGLES_GPGPU
 
 // clang-format off
-const char * TriangleStripWarp::fshaderTriangleSrc = OG_TO_STR
-(
+const char * TriangleStripWarp::fshaderTriangleSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
  precision mediump float;
 #endif
+OG_TO_STR(
  varying vec2 vTexCoord;
  uniform sampler2D uInputTex;
  uniform float gain;

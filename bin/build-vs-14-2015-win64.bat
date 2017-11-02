@@ -17,5 +17,5 @@ python %POLLY_ROOT%\bin\polly.py --reconfig ^
 DRISHTI_USE_TEXT_ARCHIVES=YES  ^
 DRISHTI_BUILD_TESTS=ON ^
 DRISHTI_BUILD_EXAMPLES=ON ^
---open
+--open --reconfig
 ::--nobuild -open

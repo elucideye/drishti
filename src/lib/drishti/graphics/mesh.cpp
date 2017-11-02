@@ -13,10 +13,11 @@
 BEGIN_OGLES_GPGPU
 
 // clang-format off
-const char* MeshProc::fshaderPixelSrc = OG_TO_STR(
+const char* MeshProc::fshaderPixelSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
 precision mediump float;
 #endif
+OG_TO_STR(
 varying vec2 vTexCoord;
 uniform sampler2D uInputTex;
 void main() {

@@ -25,11 +25,11 @@ const char * LineShader::vshaderColorSrc = OG_TO_STR
 // clang-format on
 
 // clang-format off
-const char * LineShader::fshaderColorSrc = OG_TO_STR
-(
+const char * LineShader::fshaderColorSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
  precision highp float;
 #endif
+OG_TO_STR(
  uniform vec3 lineColor;
  void main()
  {

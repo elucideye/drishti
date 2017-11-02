@@ -42,12 +42,11 @@ struct DrawingSpec
 // =====
 
 // clang-format off
-const char *FacePainter::fshaderLetterBoxSrc = OG_TO_STR
-(
+const char *FacePainter::fshaderLetterBoxSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
 precision mediump float;
 #endif
-
+OG_TO_STR(
  varying vec2 vTexCoord;
  uniform sampler2D uInputTex;
 
@@ -77,11 +76,11 @@ const char * FacePainter::vshaderColorSrc = OG_TO_STR
 // clang-format on
 
 // clang-format off
-const char * FacePainter::fshaderColorSrc = OG_TO_STR
-(
+const char * FacePainter::fshaderColorSrc =
 #if defined(OGLES_GPGPU_OPENGLES)
  precision highp float;
 #endif
+OG_TO_STR(
  uniform vec3 lineColor;
  varying color;
  void main()
@@ -108,11 +107,11 @@ const char * FacePainter::vshaderColorVaryingSrc = OG_TO_STR
 // clang-format on
 
 // clang-format off
-const char * FacePainter::fshaderColorVaryingSrc = OG_TO_STR
-(
+const char * FacePainter::fshaderColorVaryingSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
  precision highp float;
 #endif
+OG_TO_STR(
  varying vec3 lineColor;
  void main()
  {

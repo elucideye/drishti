@@ -15,12 +15,11 @@
 
 // clang-format off
 BEGIN_OGLES_GPGPU
-const char * SaturationProc::fshaderSaturationSrc = OG_TO_STR
-(
+const char * SaturationProc::fshaderSaturationSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
  precision mediump float;
 #endif
- 
+OG_TO_STR(
  const float sqrt3 = 1.7320508075;
  
  varying vec2 vTexCoord;

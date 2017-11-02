@@ -42,7 +42,10 @@ public:
 
     VideoSourceCV::Frame operator()(int i = -1)
     {
-        // TODO: throw if range is incorrect
+		if (!((0 <= i) && (i < m_filenames.size())))
+		{
+			return {};
+		}
         return VideoSourceCV::Frame(cv::imread(m_filenames[i]), i, m_filenames[i]);
     }
 

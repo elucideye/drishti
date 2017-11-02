@@ -14,6 +14,7 @@
 #include "drishti/hci/FaceFinderPainter.h"
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/face/FaceDetectorFactoryJson.h"
+#include "ogles_gpgpu/common/proc/swizzle.h"
 
 #include "videoio/VideoSourceCV.h"
 #include "videoio/VideoSinkCV.h"

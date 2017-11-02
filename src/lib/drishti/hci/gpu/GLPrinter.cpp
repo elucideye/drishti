@@ -24,11 +24,11 @@
 BEGIN_OGLES_GPGPU
 
 // clang-format off
-const char * GLPrinterShader::vshaderPrinterSrc = OG_TO_STR
-(
+const char * GLPrinterShader::vshaderPrinterSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
  precision mediump float;
 #endif
+OG_TO_STR(
  attribute vec4 position;
  varying vec2 texCoords; 
  void main()
@@ -39,12 +39,12 @@ const char * GLPrinterShader::vshaderPrinterSrc = OG_TO_STR
 // clang-format on
 
 // clang-format off
-const char * GLPrinterShader::fshaderPrinterSrc = OG_TO_STR
-(
+const char * GLPrinterShader::fshaderPrinterSrc =
 #if defined(OGLES_GPGPU_OPENGLES)
  precision mediump float;
 #endif
- varying vec2 texCoords;
+OG_TO_STR(
+varying vec2 texCoords;
  uniform sampler2D tex;
  void main()
  {
