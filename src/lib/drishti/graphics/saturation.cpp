@@ -17,7 +17,7 @@
 BEGIN_OGLES_GPGPU
 const char * SaturationProc::fshaderSaturationSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
- precision mediump float;
+OG_TO_STR(precision mediump float;)
 #endif
 OG_TO_STR(
  const float sqrt3 = 1.7320508075;

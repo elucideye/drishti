@@ -25,7 +25,7 @@ BEGIN_OGLES_GPGPU
 // clang-format off
 const char * GradHistProc::fshaderGradHistSrcN = 
 #if defined(OGLES_GPGPU_OPENGLES)
- precision mediump float;
+OG_TO_STR(precision mediump float;)
 #endif
 OG_TO_STR(
  varying vec2 vTexCoord;

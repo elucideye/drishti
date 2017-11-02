@@ -14,7 +14,7 @@
 BEGIN_OGLES_GPGPU
 const char * CircleProc::fshaderCircleSrc =
 #if defined(OGLES_GPGPU_OPENGLES)
- precision mediump float;
+OG_TO_STR(precision mediump float;)
 #endif
 OG_TO_STR(
  varying vec2 vTexCoord;

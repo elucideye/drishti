@@ -26,7 +26,7 @@ BEGIN_OGLES_GPGPU
 // clang-format off
 const char * GLPrinterShader::vshaderPrinterSrc = 
 #if defined(OGLES_GPGPU_OPENGLES)
- precision mediump float;
+OG_TO_STR(precision mediump float;)
 #endif
 OG_TO_STR(
  attribute vec4 position;
@@ -41,7 +41,7 @@ OG_TO_STR(
 // clang-format off
 const char * GLPrinterShader::fshaderPrinterSrc =
 #if defined(OGLES_GPGPU_OPENGLES)
- precision mediump float;
+OG_TO_STR(precision mediump float;)
 #endif
 OG_TO_STR(
 varying vec2 texCoords;
