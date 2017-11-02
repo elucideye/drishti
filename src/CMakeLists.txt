@@ -185,15 +185,22 @@ if(DRISHTI_DO_GPU_TESTING)
   find_package(aglet CONFIG REQUIRED)
 endif()
 
+#############
+### boost ###
+#############
+
+# Note: Used for boost::fileystem::path() (de)construction
+# TODO: Find a lighterweight alternative for portble path manipulation
+hunter_add_package(Boost COMPONENTS filesystem system)
+find_package(Boost CONFIG REQUIRED system filesystem) # TODO: add upstream to eos/cmake/Config.cmake.in
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS Boost::filesystem Boost::system)
+
 ###########
 ### eos ### :: experimental :: (header only)
 ###########
 
 set(EOS_LIB "") # Make EOS_LIB optional
 if(DRISHTI_BUILD_EOS)
-
-  hunter_add_package(Boost COMPONENTS filesystem system)
-  find_package(Boost CONFIG REQUIRED system filesystem) # TODO: add upstream to eos/cmake/Config.cmake.in
   
   hunter_add_package(eos)
   find_package(eos CONFIG REQUIRED)
