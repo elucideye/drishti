@@ -28,193 +28,107 @@ endif()
 #### world #######
 ##################
 
-if(DRISHTI_BUILD_WORLD)
+set(DRISHTI_WORLD_SOURCES
+  ${DRISHTI_CORE_SRCS}
+  ${DRISHTI_CORE_HDRS_PUBLIC}
+  ${DRISHTI_GEOMETRY_SRCS}
+  ${DRISHTI_GEOMETRY_HDRS_PUBLIC}
+  ${DRISHTI_SENSOR_SRCS}
+  ${DRISHTI_SENSOR_HDRS_PUBLIC}
+  ${DRISHTI_ML_SRCS}
+  ${DRISHTI_ML_HDRS_PUBLIC}
+  ${DRISHTI_RCPR_SRCS}
+  ${DRISHTI_RCPR_HDRS_PUBLIC}
+  ${DRISHTI_EYE_SRCS}
+  ${DRISHTI_EYE_HDRS_PUBLIC}
+  ${DRISHTI_GRAPHICS_SRCS}
+  ${DRISHTI_GRAPHICS_HDRS_PUBLIC}
+  )
 
-  set(DRISHTI_WORLD_SOURCES
-    ${DRISHTI_CORE_SRCS}
-    ${DRISHTI_CORE_HDRS_PUBLIC}
-    ${DRISHTI_GEOMETRY_SRCS}
-    ${DRISHTI_GEOMETRY_HDRS_PUBLIC}
-    ${DRISHTI_SENSOR_SRCS}
-    ${DRISHTI_SENSOR_HDRS_PUBLIC}
-    ${DRISHTI_ML_SRCS}
-    ${DRISHTI_ML_HDRS_PUBLIC}
-    ${DRISHTI_RCPR_SRCS}
-    ${DRISHTI_RCPR_HDRS_PUBLIC}
-    ${DRISHTI_EYE_SRCS}
-    ${DRISHTI_EYE_HDRS_PUBLIC}
-    ${DRISHTI_GRAPHICS_SRCS}
-    ${DRISHTI_GRAPHICS_HDRS_PUBLIC}
-    )
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# Here we provide our own IDE source groupings according to namespace
+# Each source_group() will be a subfolder of the drishti_world target:
 
-  # Here we provide our own IDE source groupings according to namespace
-  # Each source_group() will be a subfolder of the drishti_world target:
+### core
+source_group("core\\Header Files" FILES ${DRISHTI_CORE_HDRS_PUBLIC})
+source_group("core\\Source Files" FILES ${DRISHTI_CORE_SRCS})
 
-  ### core
-  source_group("core\\Header Files" FILES ${DRISHTI_CORE_HDRS_PUBLIC})
-  source_group("core\\Source Files" FILES ${DRISHTI_CORE_SRCS})
+### geometry
+source_group("geometry\\Header Files" FILES ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
+source_group("geometry\\Source Files" FILES ${DRISHTI_GEOMETRY_SRCS})
 
-  ### geometry
-  source_group("geometry\\Header Files" FILES ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
-  source_group("geometry\\Source Files" FILES ${DRISHTI_GEOMETRY_SRCS})
+### sensor
+source_group("sensor\\Header Files" FILES ${DRISHTI_SENSOR_HDRS_PUBLIC})
+source_group("sensor\\Source Files" FILES ${DRISHTI_SENSOR_SRCS})
 
-  ### sensor
-  source_group("sensor\\Header Files" FILES ${DRISHTI_SENSOR_HDRS_PUBLIC})
-  source_group("sensor\\Source Files" FILES ${DRISHTI_SENSOR_SRCS})
+### ml
+source_group("ml\\Header Files" FILES ${DRISHTI_ML_HDRS_PUBLIC})
+source_group("ml\\Source Files" FILES ${DRISHTI_ML_SRCS})
 
-  ### ml
-  source_group("ml\\Header Files" FILES ${DRISHTI_ML_HDRS_PUBLIC})
-  source_group("ml\\Source Files" FILES ${DRISHTI_ML_SRCS})
+### rcpr
+source_group("rcpr\\Header Files" FILES ${DRISHTI_RCPR_HDRS_PUBLIC})
+source_group("rcpr\\Source Files" FILES ${DRISHTI_RCPR_SRCS})
 
-  ### rcpr
-  source_group("rcpr\\Header Files" FILES ${DRISHTI_RCPR_HDRS_PUBLIC})
-  source_group("rcpr\\Source Files" FILES ${DRISHTI_RCPR_SRCS})
+### eye
+source_group("eye\\Header Files" FILES ${DRISHTI_EYE_HDRS_PUBLIC})
+source_group("eye\\Source Files" FILES ${DRISHTI_EYE_SRCS})
 
-  ### eye
-  source_group("eye\\Header Files" FILES ${DRISHTI_EYE_HDRS_PUBLIC})
-  source_group("eye\\Source Files" FILES ${DRISHTI_EYE_SRCS})
+### graphics
+source_group("graphics\\Header Files" FILES ${DRISHTI_GRAPHICS_HDRS_PUBLIC})
+source_group("graphics\\Source Files" FILES ${DRISHTI_GRAPHICS_SRCS})
 
-  ### graphics
-  source_group("graphics\\Header Files" FILES ${DRISHTI_GRAPHICS_HDRS_PUBLIC})
-  source_group("graphics\\Source Files" FILES ${DRISHTI_GRAPHICS_SRCS})
+#   if(DRISHTI_BUILD_ACF)
+#     ### acf
+#     source_group("acf\\Header Files" FILES ${DRISHTI_ACF_HDRS_PUBLIC})
+#     source_group("acf\\Source Files" FILES ${DRISHTI_ACF_SRCS})
+#     list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
+#   endif()
 
-  if(DRISHTI_BUILD_ACF)
-    ### acf
-    source_group("acf\\Header Files" FILES ${DRISHTI_ACF_HDRS_PUBLIC})
-    source_group("acf\\Source Files" FILES ${DRISHTI_ACF_SRCS})
-    list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
-  endif()
+if(DRISHTI_BUILD_FACE)
+  ### face
+  source_group("face\\Header Files" FILES ${DRISHTI_FACE_HDRS_PUBLIC})
+  source_group("face\\Source Files" FILES ${DRISHTI_FACE_SRCS})
+  list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
+endif()
 
-  if(DRISHTI_BUILD_FACE)
-    ### face
-    source_group("face\\Header Files" FILES ${DRISHTI_FACE_HDRS_PUBLIC})
-    source_group("face\\Source Files" FILES ${DRISHTI_FACE_SRCS})
-    list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-  endif()
+if(DRISHTI_BUILD_OGLES_GPGPU)
+  list(APPEND DRISHTI_SDK_3RDPARTY_LIBS ${OGLES_GPGPU_LIB})
 
-  if(DRISHTI_BUILD_OGLES_GPGPU)
-    list(APPEND DRISHTI_SDK_3RDPARTY_LIBS ${OGLES_GPGPU_LIB})
-
-    ### hci
-    # currently only works w/ ogles_gpgpu
-    # TODO: needs CPU only path
-    if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
-      source_group("hci\\Header Files" FILES ${DRISHTI_HCI_HDRS_PUBLIC})
-      source_group("hci\\Source Files" FILES ${DRISHTI_HCI_SRCS})
-      list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_HCI_SRCS} ${DRISHTI_HCI_HDRS_PUBLIC})
-    endif()
-
-  endif()
-
-  add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
-  set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
-  drishti_hide(drishti_world)
-
-  target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen3::Eigen)
-  if(DRISHTI_BUILD_FACE)
-    target_link_libraries(drishti_world PUBLIC nlohmann_json)
-  endif()
-
-  if(DRISHTI_USE_THREAD_POOL_CPP)
-    target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
-  endif()
-
-  if(DRISHTI_COTIRE)
-    cotire(drishti_world)
-    set(drishti_libs drishti_world_unity)
-    set(drishti_regression_libs drishti_world_unity)
-    set(drishti_half_libs drishti_world_unity)
-  else()
-    set(drishti_libs drishti_world)
-    set(drishti_regression_libs drishti_world)
-    set(drishti_half_libs drishti_world)
-  endif()
-else()
-
-  ## drishti_core
-  add_library(drishti_core ${LIB_TYPE} ${DRISHTI_CORE_SRCS} ${DRISHTI_CORE_HDRS_PUBLIC})
-  if(NOT TARGET Eigen3::Eigen)
-    message(FATAL_ERROR "Not a target")
-  endif()
-  target_link_libraries(drishti_core PUBLIC ${OpenCV_LIBS} Eigen3::Eigen)
-  if(DRISHTI_USE_THREAD_POOL_CPP)
-    target_link_libraries(drishti_core PUBLIC thread-pool-cpp::thread-pool-cpp)
-  endif()
-
-  ## drishti_geometry
-  add_library(drishti_geometry ${LIB_TYPE} ${DRISHTI_GEOMETRY_SRCS} ${DRISHTI_GEOMETRY_HDRS_PUBLIC})
-  target_link_libraries(drishti_geometry PUBLIC ${OpenCV_LIBS})
-
-  ## drishti_sensors
-  add_library(drishti_sensor ${LIB_TYPE} ${DRISHTI_SENSOR_SRCS} ${DRISHTI_SENSOR_HDRS_PUBLIC})
-  target_link_libraries(drishti_sensor PUBLIC ${OpenCV_LIBS})
-
-  ## drishti_ml
-  add_library(drishti_ml ${LIB_TYPE} ${DRISHTI_ML_SRCS} ${DRISHTI_ML_HDRS_PUBLIC})
-  target_link_libraries(drishti_ml PUBLIC ${OpenCV_LIBS} xgboost::xgboost)
-
-  ## drishti_rcpr
-  add_library(drishti_rcpr ${LIB_TYPE} ${DRISHTI_RCPR_SRCS} ${DRISHTI_RCPR_HDRS_PUBLIC})
-  target_link_libraries(drishti_rcpr PUBLIC drishti_ml ${OpenCV_LIBS} xgboost::xgboost)
-
-  ## drishti_eye
-  add_library(drishti_eye ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
-  target_link_libraries(drishti_eye PUBLIC drishti_ml drishti_rcpr drishti_geometry ${OpenCV_LIBS} xgboost::xgboost)
-
-  ## drishti_graphics
-  if(DRISHTI_GRAPHICS_SRCS)
-    add_library(drishti_graphics ${LIB_TYPE} ${DRISHTI_EYE_SRCS} ${DRISHTI_EYE_HDRS_PUBLIC})
-    if(DRISHTI_BUILD_OGLES_GPGPU)
-      target_link_libraries(drishti_graphics PUBLIC ${OGLES_GPGPU_LIB} glm)
-    endif()
-  endif()
-
-  ## drishti_acf
-  if(DRISHTI_BUILD_ACF)
-    add_library(drishti_acf ${LIB_TYPE} ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
-    if(DRISHTI_BUILD_OGLES_GPGPU)
-      target_link_libraries(drishti_acf PUBLIC ${OGLES_GPGPU_LIB} ${OpenCV_LIBS})
-    endif()
-    set(DRISHTI_OBJ_ACF drishti_acf)
-  endif()
-
-  ## drishti_face
-  if(DRISHTI_BUILD_FACE)
-    add_library(drishti_face ${LIB_TYPE} ${DRISHTI_FACE_SRCS} ${DRISHTI_FACE_HDRS_PUBLIC})
-    target_link_libraries(drishti_face PUBLIC drishti_eye ${DRISHTI_OBJ_ACF} ${OpenCV_LIBS} ${EOS_LIB} nlohmann_json)
-    set(DRISHTI_OBJ_FACE drishti_face)
-  endif()
-
+  ### hci
+  # currently only works w/ ogles_gpgpu
+  # TODO: needs CPU only path
   if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
-    add_library(drishti_hci ${LIB_TYPE} ${DRISHTI_HCI_SRCS} ${DRISHTI_HCI_NDRS_PUBLIC})
-    target_link_libraries(drishti_hci PUBLIC ${DRISHTI_OBJ_FACE} ${DRISHTI_OBJ_ACF} drishti_eye ${OpenCV_LIBS} ${EOS_LIB})
-    set(DRISHTI_OBJ_HCI drishti_hci)
+    source_group("hci\\Header Files" FILES ${DRISHTI_HCI_HDRS_PUBLIC})
+    source_group("hci\\Source Files" FILES ${DRISHTI_HCI_SRCS})
+    list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_HCI_SRCS} ${DRISHTI_HCI_HDRS_PUBLIC})
   endif()
 
-  # Define a list of individual static libraries
-  set(drishti_libs
-    ${DRISHTI_OBJ_HCI}
-    ${DRISHIT_OBJ_ACF}
-    ${DRISHTI_OBJ_FACE}
-    drishti_eye
-    drishti_rcpr
-    drishti_ml
-    drishti_geometry
-    drishti_sensor
-    drishti_core
-    )
+endif()
 
-  set(drishti_half_libs drishti_ml drishti_rcpr drishti_acf)
-  set(drishti_regression_libs drishti_ml) # for DRISHTI_BUILD_REGRESSION_*
+add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
+set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
+drishti_hide(drishti_world)
 
-  foreach(library ${drishti_libs})
-    target_link_libraries(${library} PUBLIC Eigen3::Eigen)
-    drishti_hide(${library})
-  endforeach()
+target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen3::Eigen)
+if(DRISHTI_BUILD_FACE)
+  target_link_libraries(drishti_world PUBLIC nlohmann_json)
+endif()
 
-endif(DRISHTI_BUILD_WORLD)
+if(DRISHTI_USE_THREAD_POOL_CPP)
+  target_link_libraries(drishti_world PUBLIC thread-pool-cpp::thread-pool-cpp)
+endif()
+
+if(DRISHTI_COTIRE)
+  cotire(drishti_world)
+  set(drishti_libs drishti_world_unity)
+  set(drishti_regression_libs drishti_world_unity)
+  set(drishti_half_libs drishti_world_unity)
+else()
+  set(drishti_libs drishti_world)
+  set(drishti_regression_libs drishti_world)
+  set(drishti_half_libs drishti_world)
+endif()
 
 # For Android platforms, we must specify -DHALF_ENABLE_CPP11_CMATH=0 for all modules
 # using the half precision floating point storage (i.e., package half)
@@ -304,10 +218,6 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
     target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_OGLES_GPGPU=1)
   endif()
 
-  if(DRISHTI_BUILD_QT)
-    target_compile_definitions(${library} PUBLIC DRISHTI_BUILD_QT=1)
-  endif()
-
 endforeach()
 
 ############################
@@ -376,7 +286,7 @@ drishti_hide(drishti)
 
 if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
   # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
-  drishti_strip(drishti)
+  #drishti_strip(drishti)
 endif()
 
 if(DRISHTI_BUILD_SHARED_SDK)  
@@ -509,7 +419,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
 
   if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
     # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
-    drishti_strip(drishti_c)
+    #drishti_strip(drishti_c)
   endif()
 
   if(DRISHTI_INSTALL)  

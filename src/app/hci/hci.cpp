@@ -11,6 +11,7 @@
 // Local includes:
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/core/Semaphore.h"
+#include "drishti/core/Logger.h"
 #include "drishti/hci/FaceFinderPainter.h"
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/face/FaceDetectorFactoryJson.h"

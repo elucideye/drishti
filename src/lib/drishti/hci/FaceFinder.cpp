@@ -19,6 +19,8 @@
 #include "drishti/geometry/motion.h"             // transformation::
 #include "drishti/hci/EyeBlob.h"                 // EyeBlobJob
 #include "drishti/core/ImageView.h"
+#include "drishti/ml/ObjectDetector.h"
+#include "drishti/ml/ObjectDetectorACF.h"
 
 #include <functional>
 #include <deque>
@@ -46,11 +48,6 @@ DRISHTI_HCI_NAMESPACE_BEGIN
 
 static void chooseBest(std::vector<cv::Rect>& objects, std::vector<double>& scores);
 static int getDetectionImageWidth(float, float, float, float, float);
-
-#if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
-static cv::Size uprightSize(const cv::Size& size, int orientation);
-static void extractFlow(const cv::Mat4b& ayxb, const cv::Size& frameSize, ScenePrimitives& scene, float flowScale = 1.f);
-#endif
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
 static cv::Mat draw(const drishti::acf::Detector::Pyramid& pyramid);
@@ -197,6 +194,8 @@ void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage)
 
 int FaceFinder::computeDetectionWidth(const cv::Size& inputSizeUp) const
 {
+    CV_Assert(impl->detector);
+    
     // TODO: Add global constant and set limits on reasonable detection size
     const float faceWidthMeters = 0.120;
     const float fx = impl->sensor->intrinsic().m_fx;
@@ -235,14 +234,13 @@ void FaceFinder::initACF(const cv::Size& inputSizeUp)
     }
 
     const int grayWidth = impl->doLandmarks ? std::min(inputSizeUp.width, impl->landmarksWidth) : 0;
-    const int flowWidth = impl->doFlow ? impl->flowWidth : 0;
     const auto& pChns = impl->detector->opts.pPyramid->pChns;
     const auto featureKind = ogles_gpgpu::getFeatureKind(*pChns);
 
     CV_Assert(featureKind != ogles_gpgpu::ACF::kUnknown);
 
     const ogles_gpgpu::Size2d size(inputSizeUp.width, inputSizeUp.height);
-    impl->acf = std::make_shared<ogles_gpgpu::ACF>(impl->glContext, size, sizes, featureKind, grayWidth, flowWidth, impl->debugACF);
+    impl->acf = std::make_shared<ogles_gpgpu::ACF>(impl->glContext, size, sizes, featureKind, grayWidth, impl->debugACF);
     impl->acf->setRotation(impl->outputOrientation);
     impl->acf->setLogger(impl->logger);
 
@@ -784,18 +782,6 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
         scene.m_P = createAcfGpu(frame, doDetection);
     }
 
-// Flow pyramid currently unused:
-// auto flowPyramid = impl->acf->getFlowPyramid();
-#if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
-    if (impl->acf->getFlowStatus())
-    {
-        core::ScopeTimeLogger scopeTimeLogger = [&](double t) { ss << "flow=" << t << ";"; };
-        cv::Size frameSize = uprightSize({ frame.size.width, frame.size.height }, impl->outputOrientation);
-        cv::Mat4b ayxb = impl->acf->getFlow();
-        extractFlow(ayxb, frameSize, scene, 1.0f / impl->acf->getFlowScale());
-    }
-#endif
-
     // ### Grayscale image ###
     if (impl->doLandmarks)
     {
@@ -804,7 +790,7 @@ void FaceFinder::preprocess(const FrameInput& frame, ScenePrimitives& scene, boo
     }
 }
 
-void FaceFinder::fill(drishti::acf::Detector::Pyramid& P)
+void FaceFinder::fill(acf::Detector::Pyramid& P)
 {
     impl->acf->fill(P, impl->P);
 }
@@ -1075,14 +1061,16 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
     impl->faceDetector->setInits(1);
 
     // Get weak ref to underlying ACF detector
-    impl->detector = dynamic_cast<drishti::acf::Detector*>(impl->faceDetector->getDetector());
+    auto *detector = dynamic_cast<ml::ObjectDetectorACF *>(impl->faceDetector->getDetector());
+    impl->detector = dynamic_cast<acf::Detector*>(detector->getDetector());
+    
 
     if (impl->detector)
     {
         if (impl->acfCalibration != 0.f)
         {
             // Perform modification
-            drishti::acf::Detector::Modify dflt;
+            acf::Detector::Modify dflt;
             dflt.cascThr = { "cascThr", -1.0 };
             dflt.cascCal = { "cascCal", impl->acfCalibration };
             impl->detector->acfModify(dflt);
@@ -1196,46 +1184,6 @@ static cv::Size uprightSize(const cv::Size& size, int orientation)
     }
     return upSize;
 }
-
-static void extractFlow(const cv::Mat4b& ayxb, const cv::Size& frameSize, ScenePrimitives& scene, float flowScale)
-{
-    // Compute size of flow image for just the lowest pyramid level:
-    cv::Size flowSize = cv::Size2f(frameSize) * (1.0f / flowScale);
-    cv::Rect flowRoi({ 0, 0 }, ayxb.size());
-    flowRoi &= cv::Rect({ 0, 0 }, flowSize);
-
-#if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER
-    const int step = 2;
-    scene.flow().reserve(scene.flow().size() + (ayxb.rows / step * ayxb.cols / step));
-
-    for (int y = 0; y < ayxb.rows; y += step)
-    {
-        for (int x = 0; x < ayxb.cols; x += step)
-        {
-            // Extract flow:
-            const cv::Vec4b& pixel = ayxb(y, x);
-            cv::Point2f p(pixel[2], pixel[1]);
-            cv::Point2f d = (p * (2.0f / 255.0f)) - cv::Point2f(1.0f, 1.0f);
-            d *= 2.0; // additional scale for visualization
-            scene.flow().emplace_back(cv::Vec4f(x, y, d.x, d.y) * flowScale);
-        }
-    }
-#endif // DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER
-
-    // {BGRA}, {RGBA}
-    cv::Mat1b corners;
-    cv::extractChannel(ayxb(flowRoi), corners, 0);
-
-    std::vector<FeaturePoint> features;
-    extractPoints(corners, features, flowScale);
-    scene.corners() = {};
-    scene.corners().reserve(features.size());
-    for (const auto& f : features)
-    {
-        scene.corners().push_back(f.point);
-    }
-}
-
 #endif // DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS

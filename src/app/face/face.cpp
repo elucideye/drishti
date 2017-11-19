@@ -10,7 +10,6 @@
 
 // Local includes:
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
-#include "drishti/acf/ACF.h"
 #include "drishti/core/LazyParallelResource.h"
 #include "drishti/core/Line.h"
 #include "drishti/core/Logger.h"
@@ -24,6 +23,9 @@
 #include "drishti/face/FaceDetectorFactoryJson.h"
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/geometry/motion.h"
+#include "drishti/ml/ObjectDetector.h"
+
+#include <acf/ACF.h>
 
 // clang-format off
 #if defined(DRISHTI_USE_IMSHOW)
@@ -278,13 +280,13 @@ int gauze_main(int argc, char** argv)
             detector->setDoNMS(true);
             detector->setDoNMSGlobal(true);
 
-            auto acf = dynamic_cast<drishti::acf::Detector*>(detector->getDetector());
+            auto acf = dynamic_cast<acf::Detector*>(detector->getDetector());
             if (acf && acf->good())
             {
                 // Cascade threhsold adjustment:
                 if (cascCal != 0.f)
                 {
-                    drishti::acf::Detector::Modify dflt;
+                    acf::Detector::Modify dflt;
                     dflt.cascThr = { "cascThr", -1.0 };
                     dflt.cascCal = { "cascCal", cascCal };
                     acf->acfModify(dflt);

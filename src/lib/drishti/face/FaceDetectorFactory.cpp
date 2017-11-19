@@ -1,11 +1,13 @@
 #include "drishti/face/FaceDetectorFactory.h"
-#include "drishti/acf/ACF.h" // ACF detection
+#include "drishti/ml/ObjectDetectorACF.h"
 #include "drishti/ml/ShapeEstimator.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/core/drishti_core.h"
 #include "drishti/core/make_unique.h"
+
+#include <acf/ACF.h> // ACF detection
 
 #include "drishti/core/infix_iterator.h"
 #include <iterator>
@@ -22,7 +24,7 @@ drishti::face::FaceModel loadFaceModel(const std::string& filename);
 
 std::unique_ptr<ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
 {
-    return core::make_unique<acf::Detector>(sFaceDetector);
+    return core::make_unique<drishti::ml::ObjectDetectorACF>(sFaceDetector);
 }
 
 std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getFaceEstimator()
@@ -51,7 +53,7 @@ face::FaceModel FaceDetectorFactory::getMeanFace()
 
 std::unique_ptr<ml::ObjectDetector> FaceDetectorFactoryStream::getFaceDetector()
 {
-    return core::make_unique<acf::Detector>(*iFaceDetector);
+    return drishti::core::make_unique<ml::ObjectDetectorACF>(*iFaceDetector);
 }
 
 std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getFaceEstimator()

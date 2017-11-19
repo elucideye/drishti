@@ -39,7 +39,7 @@
 #include <QVideoFilterRunnable>
 
 // Includes 'glew.h' {
-#include "drishti/acf/GPUACF.h"
+#include <acf/GPUACF.h>
 // }
 
 // Includes 'gl2.h', after 'glew.h' {
@@ -49,7 +49,7 @@
 #include <memory> // std::shared_ptr
 
 // clang-format off
-namespace drishti { namespace acf { class Detector; } };
+namespace acf { class Detector; };
 namespace ogles_gpgpu { struct ACF; };
 // clang-format on
 

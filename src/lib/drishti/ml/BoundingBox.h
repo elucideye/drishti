@@ -1,5 +1,5 @@
 /*! -*-c++-*-
-  @file   ACFObject.h
+  @file   BoundingBox.h
   @author David Hirvonen (C++ implementation)
   @brief  Delcaration of an ACF object class.
 
@@ -8,15 +8,17 @@
 
 */
 
-#ifndef __drishti_acf_ACFObject_h__
-#define __drishti_acf_ACFObject_h__
+#ifndef __ml_BoundingBox_h__
+#define __ml_BoundingBox_h__
 
-#include "drishti/acf/drishti_acf.h"
+#include "drishti/ml/drishti_ml.h"
+
+#include <opencv2/core.hpp>
 
 #include <string>
 #include <iostream>
 
-DRISHTI_ACF_NAMESPACE_BEGIN
+DRISHTI_ML_NAMESPACE_BEGIN
 
 // ((((( FACE ROI )))))
 
@@ -34,9 +36,9 @@ DRISHTI_ACF_NAMESPACE_BEGIN
 // ign: 0
 // ang: 0
 
-struct ACFObject
+struct BoundingBox
 {
-    ACFObject(const std::string& lbl, const cv::Rect& bb, float occ, const cv::Rect& bbV, bool ign, double ang)
+    BoundingBox(const std::string& lbl, const cv::Rect& bb, float occ, const cv::Rect& bbV, bool ign, double ang)
         : lbl(lbl)
         , bb(bb)
         , occ(occ)
@@ -55,20 +57,20 @@ struct ACFObject
 
     cv::RotatedRect ellipse; // NOTE: preserve FDDG ellipse -- not in the output
 
-    friend std::ostream& operator<<(std::ostream& os, const ACFObject& src);
+    friend std::ostream& operator<<(std::ostream& os, const BoundingBox& src);
 };
 
-struct ACFObjectSet
+struct BoundingBoxSet
 {
-    ACFObjectSet() {}
-    friend std::ostream& operator<<(std::ostream& os, const ACFObjectSet& src);
+    BoundingBoxSet() {}
+    friend std::ostream& operator<<(std::ostream& os, const BoundingBoxSet& src);
 
-    std::vector<ACFObject> objects;
+    std::vector<BoundingBox> objects;
 };
 
 // ((((((((( IO )))))))))
 
-inline std::ostream& operator<<(std::ostream& os, const ACFObject& src)
+inline std::ostream& operator<<(std::ostream& os, const BoundingBox& src)
 {
     static const char space = ' ';
     os << src.lbl << space;
@@ -80,7 +82,7 @@ inline std::ostream& operator<<(std::ostream& os, const ACFObject& src)
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const ACFObjectSet& src)
+inline std::ostream& operator<<(std::ostream& os, const BoundingBoxSet& src)
 {
     static const std::string header = "% bbGt version=3\n";
     os << header;
@@ -92,6 +94,6 @@ inline std::ostream& operator<<(std::ostream& os, const ACFObjectSet& src)
     return os;
 }
 
-DRISHTI_ACF_NAMESPACE_END
+DRISHTI_ML_NAMESPACE_END
 
-#endif /* defined(__drishti_acf_ACFObject_h__) */
+#endif /* defined(__ml_BoundingBox_h__) */

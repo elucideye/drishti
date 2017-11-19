@@ -15,13 +15,15 @@
 #include "drishti/face/FaceDetector.h"
 #include "drishti/face/FaceIO.h"
 #include "drishti/geometry/Primitives.h"
-#include "drishti/acf/ACF.h" // ACF detection
 #include "drishti/ml/ShapeEstimator.h"
+#include "drishti/ml/ObjectDetector.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
 #include "drishti/face/Face.h"
 #include "drishti/eye/EyeModelEstimator.h"
 #include "drishti/geometry/Rectangle.h"
 #include "drishti/geometry/motion.h"
+
+#include <acf/ACF.h> // ACF detection
 
 #include <stdio.h>
 

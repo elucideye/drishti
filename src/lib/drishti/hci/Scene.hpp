@@ -14,13 +14,12 @@
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/gpu/LineDrawing.hpp"
 #include "drishti/face/Face.h"
-#include "drishti/acf/ACF.h"
-#include <opencv2/core/core.hpp>
-#include <vector>
 
-// clang-format off
-namespace drishti { namespace acf { class Detector; } };
-// clang-format on
+#include <acf/ACF.h>
+
+#include <opencv2/core/core.hpp>
+
+#include <vector>
 
 DRISHTI_HCI_NAMESPACE_BEGIN
 
@@ -92,11 +91,11 @@ struct ScenePrimitives
 
     std::vector<cv::Vec3f> colors; // should match flow
 
-    const std::shared_ptr<drishti::acf::Detector::Pyramid>& pyramid() const
+    const std::shared_ptr<acf::Detector::Pyramid>& pyramid() const
     {
         return m_P;
     }
-    std::shared_ptr<drishti::acf::Detector::Pyramid>& pyramid()
+    std::shared_ptr<acf::Detector::Pyramid>& pyramid()
     {
         return m_P;
     }
@@ -136,7 +135,7 @@ struct ScenePrimitives
     std::vector<cv::Point2f> m_corners;
     std::vector<cv::Rect> m_objects;
     std::vector<drishti::face::FaceModel> m_faces;
-    std::shared_ptr<drishti::acf::Detector::Pyramid> m_P;
+    std::shared_ptr<acf::Detector::Pyramid> m_P;
 
     // Drawing cache:
     std::vector<ogles_gpgpu::LineDrawing> m_drawings;

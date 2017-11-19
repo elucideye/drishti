@@ -13,6 +13,7 @@ include(sugar_files)
 
 sugar_files(DRISHTI_ML_SRCS
   ObjectDetector.cpp
+  ObjectDetectorACF.cpp  
   PCA.cpp
   PCAArchiveCereal.cpp
   RTEShapeEstimatorArchiveCereal.cpp  
@@ -24,7 +25,9 @@ sugar_files(DRISHTI_ML_SRCS
 
 sugar_files(DRISHTI_ML_HDRS_PUBLIC
   Booster.h
+  BoundingBox.h
   ObjectDetector.h
+  ObjectDetectorACF.h
   PCA.h
   PCAImpl.h
   RTEShapeEstimatorImpl.h

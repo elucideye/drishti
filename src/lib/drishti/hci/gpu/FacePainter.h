@@ -16,7 +16,6 @@
  */
 
 #include "drishti/face/gpu/EyeFilter.h"
-#include "drishti/acf/drishti_acf.h"
 #include "drishti/hci/gpu/LineDrawing.hpp"
 #include "drishti/hci/Scene.hpp"
 #include "drishti/face/Face.h" // face model
