@@ -39,8 +39,8 @@ else()
   # It's a valid case when archive used in Hunter.
   # URL/SHA1 arguments of HunterGate call will not be used while building
   # in this situation.
-  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.19.161.tar.gz")
-  set(DRISHTI_HUNTER_GATE_SHA1 "9af482b6a54875bbbb221274f7290324dff29919")
+  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.19.165.tar.gz")
+  set(DRISHTI_HUNTER_GATE_SHA1 "61153ee77b9a3651aae3611d57c3497b28001194")
   set(DRISHTI_HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake")
 endif()
 
