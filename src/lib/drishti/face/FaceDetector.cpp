@@ -466,8 +466,7 @@ public:
 protected:
     FaceSpecification::Format m_landmarkFormat = FaceSpecification::kibug68;
 
-    cv::Mat m_Ib; // TODO: review.  needed for clean virtual api
-
+    cv::Mat m_Ib;
     bool m_doIrisRefinement = true;
     bool m_doEyeRefinement = true;
     bool m_doNMSGlobal = false;

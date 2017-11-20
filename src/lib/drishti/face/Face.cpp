@@ -86,11 +86,14 @@ std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool b
         { eyeLeft_ },
         { asSpline(nose, 64, false) },
         { asSpline(eyebrowRight, 64, browClosed) },
-        { asSpline(eyebrowLeft, 64, browClosed) },
-        { asSpline(mouthOuter, 64, true) },
-        { asSpline(mouthInner, 64, true) }
-
+        { asSpline(eyebrowLeft, 64, browClosed) }
     };
+    
+    if(mouthOuter.size() && mouthInner.size())
+    {
+        features.emplace_back( ContourVec{asSpline(mouthOuter, 64, true)} );
+        features.emplace_back( ContourVec{asSpline(mouthInner, 64, true)} );
+    }
     // clang-format on
 
     if (sideLeft.size() && sideRight.size())

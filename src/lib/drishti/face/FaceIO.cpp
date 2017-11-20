@@ -84,11 +84,21 @@ static void makeibug68(FaceSpecification& spec)
 {
     spec.eyeR = iota({ 36, 41 });
     spec.eyeL = iota({ 42, 47 });
-    spec.nose = iota({ 31, 35 }); // {27, 35} );
+    spec.nose = iota({ 31, 35 });
     spec.browR = iota({ 17, 21 });
     spec.browL = iota({ 22, 26 });
     spec.mouthOuter = iota({ 48, 58 });
     spec.mouthInner = iota({ 60, 67 });
+}
+
+static void makeibug68_inner(FaceSpecification& spec)
+{
+    static const int start = 17;
+    spec.eyeR = iota({ 36 - start, 41 - start });
+    spec.eyeL = iota({ 42 - start, 47 - start });
+    spec.nose = iota({ 31 - start, 35 - start });
+    spec.browR = iota({ 17 - start, 21 - start });
+    spec.browL = iota({ 22 - start, 26 - start });
 }
 
 FaceSpecification FaceSpecification::create(Format format)
@@ -101,6 +111,9 @@ FaceSpecification FaceSpecification::create(Format format)
             break;
         case kibug68:
             makeibug68(spec);
+            break;
+        case kibug68_inner:
+            makeibug68_inner(spec);
             break;
     }
     return spec;
@@ -140,21 +153,17 @@ FaceModel shapeToFace(drishti::core::Shape& shape, const FaceSpecification& spec
                 {
                     const auto& p = points[index];
                     o.second->push_back(p);
-                    //cv::circle(canvas, p, 2, {0,255,0}, -1, 8);
                 }
             }
             total += o.first->size();
         }
     }
 
-    //cv::imshow("canvas", canvas), cv::waitKey(0);
-
     fill(face);
 
     return face;
 }
 
-// HELEN
 FaceModel shapeToFace(drishti::core::Shape& shape, FaceSpecification::Format kind)
 {
     auto points = shape.getPoints();

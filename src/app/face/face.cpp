@@ -24,6 +24,7 @@
 #include "drishti/face/gpu/FaceStabilizer.h"
 #include "drishti/geometry/motion.h"
 #include "drishti/ml/ObjectDetector.h"
+#include "drishti/ml/ObjectDetectorACF.h"
 
 #include <acf/ACF.h>
 
@@ -40,6 +41,7 @@
 #include <opencv2/highgui.hpp>
 #include <cereal/archives/json.hpp>
 
+using drishti::face::FaceSpecification;
 using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
 static cv::Mat
@@ -157,6 +159,8 @@ int gauze_main(int argc, char** argv)
     double cascCal = 0.0;
     int minWidth = -1; // minimum object width
 
+    bool doInner = false;
+
     // Use factory as container for CLI inputs:
     std::string sFactory;
     auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
@@ -183,8 +187,7 @@ int gauze_main(int argc, char** argv)
     
         // ... factory can be used instead of D,M,R,E
         ("F,factory", "Factory (json model zoo)", cxxopts::value<std::string>(sFactory))
-    
-    
+        ("inner", "Inner face landmakrs", cxxopts::value<bool>(doInner))
     
         // Output parameters:
         ("e,eyes", "Crop eyes", cxxopts::value<bool>(doEyes))
@@ -273,14 +276,17 @@ int gauze_main(int argc, char** argv)
     drishti::core::LazyParallelResource<std::thread::id, FaceDetectorPtr> manager = [&]() {
 
         FaceDetectorPtr detector = drishti::core::make_unique<drishti::face::FaceDetector>(*factory);
-        detector->setScaling(scale);
+
         if (detector)
         {
+            detector->setScaling(scale);
+            detector->setLandmarkFormat( doInner ? FaceSpecification::kibug68_inner : FaceSpecification::kibug68);
+            
             // Cofigure parameters:
             detector->setDoNMS(true);
             detector->setDoNMSGlobal(true);
 
-            auto acf = dynamic_cast<acf::Detector*>(detector->getDetector());
+            auto acf = dynamic_cast<drishti::ml::ObjectDetectorACF*>(detector->getDetector());
             if (acf && acf->good())
             {
                 // Cascade threhsold adjustment:
@@ -289,7 +295,7 @@ int gauze_main(int argc, char** argv)
                     acf::Detector::Modify dflt;
                     dflt.cascThr = { "cascThr", -1.0 };
                     dflt.cascCal = { "cascCal", cascCal };
-                    acf->acfModify(dflt);
+                    acf->getDetector()->acfModify(dflt);
                 }
             }
             else
