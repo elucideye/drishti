@@ -8,7 +8,7 @@
 
 */
 
-#include "drishti/ml/OBjectDetectorACF.h"
+#include "drishti/ml/ObjectDetectorACF.h"
 #include "drishti/core/make_unique.h"
 
 #include <acf/ACF.h>
