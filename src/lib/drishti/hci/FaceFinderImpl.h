@@ -13,8 +13,6 @@
 
 #include "drishti/hci/drishti_hci.h"
 
-#include "drishti/acf/ACF.h"                  // drishti::acf::Detector+Pyramid
-#include "drishti/acf/GPUACF.h"               // ogles_gpgpu::ACF
 #include "drishti/core/Logger.h"              // spdlog::logger
 #include "drishti/eye/gpu/EllipsoPolarWarp.h" // ogles_gpgpu::EllipsoPolarWarp
 #include "drishti/eye/gpu/EyeWarp.h"
@@ -28,6 +26,9 @@
 #include "drishti/hci/gpu/BlobFilter.h"       // ogles_gpgpu::BlobFilter
 #include "drishti/sensor/Sensor.h"            // drishti::sensor::SensorModel
 
+#include <acf/ACF.h>                          // drishti::acf::Detector+Pyramid
+#include <acf/GPUACF.h>               // ogles_gpgpu::ACF
+
 #include "ogles_gpgpu/common/proc/swizzle.h"   // ogles_gpgpu::SwizzleProc
 #include "ogles_gpgpu/common/proc/flow.h"      // ogles_gpgpu::FlowOptPipeline
 #include "ogles_gpgpu/common/proc/fifo.h"      // ogles_gpgpu::FifoProc
@@ -40,8 +41,6 @@
 #include <vector> // vector
 
 #define DRISHTI_HCI_FACEFINDER_LANDMARKS_WIDTH 1024
-#define DRISHTI_HCI_FACEFINDER_FLOW_WIDTH 256
-#define DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER 0 // *** display ***
 #define DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT 1 // *** display ***
 #define DRISHTI_HCI_FACEFINDER_DO_TRACKING 1
 #define DRISHTI_HCI_FACEFINDER_DO_DIFFERENCE_EYES 1
@@ -80,8 +79,6 @@ struct FaceFinder::Impl
         , regressorCropScale(args.regressorCropScale)
 
         // Eye parameters:
-        , doFlow(args.doFlow)
-        , flowWidth(DRISHTI_HCI_FACEFINDER_FLOW_WIDTH)
         , doBlobs(args.doBlobs)
         , doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
 
@@ -136,7 +133,7 @@ struct FaceFinder::Impl
     bool doCpuACF = false;
     float ACFScale = 2.0f;
     std::vector<cv::Size> pyramidSizes;
-    drishti::acf::Detector::Pyramid P;
+    acf::Detector::Pyramid P;
     std::shared_ptr<ogles_gpgpu::ACF> acf;
     float acfCalibration = 0.f;
 
@@ -151,7 +148,7 @@ struct FaceFinder::Impl
     std::unique_ptr<drishti::face::FaceDetector> faceDetector;
     std::unique_ptr<drishti::face::FaceTracker> faceTracker;
 
-    drishti::acf::Detector* detector = nullptr; // weak ref
+    acf::Detector* detector = nullptr; // weak ref
     std::pair<time_point, std::vector<cv::Rect>> objects;
     std::future<ScenePrimitives> scene;
     std::deque<ScenePrimitives> scenePrimitives; // stash
@@ -171,8 +168,6 @@ struct FaceFinder::Impl
     // ::: Eye parameters: :::
     // :::::::::::::::::::::::
 
-    bool doFlow = false;
-    int flowWidth = 256;
     bool doBlobs = false;
     bool doIris = false;
     bool doEyeFlow = false;

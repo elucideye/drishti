@@ -14,9 +14,10 @@
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/FaceDetectorFactory.h"
 #include "drishti/core/Shape.h"
-#include "drishti/acf/MatP.h"
 #include "drishti/face/Face.h"
 #include "drishti/face/FaceIO.h"
+
+#include "acf/MatP.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/objdetect/objdetect.hpp>

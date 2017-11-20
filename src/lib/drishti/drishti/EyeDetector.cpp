@@ -11,10 +11,11 @@
 */
 
 #include "drishti/EyeDetector.hpp"
-#include "drishti/acf/ACF.h"
+#include "drishti/drishti_cv.hpp"
+
+#include <acf/ACF.h>
 
 #include <opencv2/core/core.hpp>
-#include "drishti/drishti_cv.hpp"
 
 _DRISHTI_SDK_BEGIN
 
@@ -34,7 +35,7 @@ public:
 
 #if 1
         // Perform modification
-        drishti::acf::Detector::Modify dflt;
+        acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
         dflt.cascCal = { "cascCal", -0.005 };
         m_detector->acfModify(dflt);

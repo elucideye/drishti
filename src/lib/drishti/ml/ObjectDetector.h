@@ -11,8 +11,10 @@
 #ifndef __drishti_ml_ObjectDetector_h__
 #define __drishti_ml_ObjectDetector_h__
 
+#include "drishti/ml/ObjectDetector.h"
 #include "drishti/ml/drishti_ml.h"
-#include "drishti/acf/MatP.h"
+
+#include <acf/MatP.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -24,28 +26,13 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class ObjectDetector
 {
 public:
-    // TODO: enforce a public non virtual API that calls a virtual detect method
-    // and applies pruning criteria as needed.
     virtual int operator()(const cv::Mat& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0) = 0;
     virtual int operator()(const MatP& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0) = 0;
-    virtual void setMaxDetectionCount(size_t maxCount)
-    {
-        m_maxDetectionCount = maxCount;
-    }
-    virtual void setDetectionScorePruneRatio(double ratio)
-    {
-        m_detectionScorePruneRatio = ratio;
-    }
+    virtual void setMaxDetectionCount(size_t maxCount);
+    virtual void setDetectionScorePruneRatio(double ratio);
     virtual void prune(std::vector<cv::Rect>& objects, std::vector<double>& scores);
-    virtual void setDoNonMaximaSuppression(bool flag)
-    {
-        m_doNms = flag;
-    }
-    virtual bool getDoNonMaximaSuppression() const
-    {
-        return m_doNms;
-    }
-
+    virtual void setDoNonMaximaSuppression(bool flag);
+    virtual bool getDoNonMaximaSuppression() const;
     virtual cv::Size getWindowSize() const = 0;
 
 protected:

@@ -17,6 +17,26 @@
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
+void ObjectDetector::setMaxDetectionCount(size_t maxCount)
+{
+    m_maxDetectionCount = maxCount;
+}
+
+void ObjectDetector::setDoNonMaximaSuppression(bool flag)
+{
+    m_doNms = flag;
+}
+
+bool ObjectDetector::getDoNonMaximaSuppression() const
+{
+    return m_doNms;
+}
+
+void ObjectDetector::setDetectionScorePruneRatio(double ratio)
+{
+    m_detectionScorePruneRatio = ratio;
+}
+
 void ObjectDetector::prune(std::vector<cv::Rect>& objects, std::vector<double>& scores)
 {
     CV_Assert(objects.size() == scores.size());

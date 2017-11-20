@@ -8,8 +8,7 @@
 
 */
 
-#include "drishti/acf/ACF.h"
-#include "drishti/acf/ACFObject.h"
+#include "drishti/ml/BoundingBox.h"
 
 #include "FDDB.h"
 #include "cxxopts.hpp"
@@ -96,7 +95,7 @@ int main(int argc, char* argv[])
         // ign  - 0/1 value indicating bb was marked as ignore
         // ang  - [0-360] orientation of bb in degrees
         
-        drishti::acf::ACFObjectSet objectSet;
+        drishti::ml::BoundingBoxSet objectSet;
         
         for(auto &l : r.ellipses)
         {
@@ -107,7 +106,7 @@ int main(int argc, char* argv[])
             cv::Point2f v(std::cos(e[2]), std::sin(e[2])), c = ellipse.center + (v * ((0<v.y)-(v.y<0)) * ellipse.size.height * 0.2 /* 0.06125f */ );
             cv::Rect roi(cv::Point(c) - cv::Point(r,r), cv::Point(c) + cv::Point(r,r));
             
-            drishti::acf::ACFObject object("face", roi, 0.0, roi, false, /* ellipse.angle */ 0.0);
+            drishti::ml::BoundingBox object("face", roi, 0.0, roi, false, /* ellipse.angle */ 0.0);
             object.ellipse = ellipse;
             objectSet.objects.push_back(object);
         }

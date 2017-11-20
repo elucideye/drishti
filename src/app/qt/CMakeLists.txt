@@ -1,14 +1,18 @@
+option(DRISHTI_BUILD_QT "Build with Qt" OFF)
+
 if(DRISHTI_BUILD_QT)
-  # Some background: https://github.com/ruslo/hunter/issues/253
-  # hunter_add_package(Qt COMPONENTS qtmultimedia qtdeclarative)
-  # find_package(Qt5Widgets REQUIRED)
-  # find_package(Qt5Multimedia REQUIRED)
-  # find_package(Qt5MultimediaWidgets REQUIRED)
-  # find_package(Qt5OpenGL REQUIRED)
-  # find_package(Qt5Qml REQUIRED)
-  # find_package(Qt5Quick REQUIRED)
-  # find_package(Qt5QuickTest REQUIRED)
-  # find_package(Qt5QuickWidgets REQUIRED)
+
+  hunter_add_package(Qt COMPONENTS qtmultimedia qtsensors qtquickcontrols)
+
+  find_package(Qt5Widgets REQUIRED)
+  find_package(Qt5Multimedia REQUIRED)
+  find_package(Qt5MultimediaWidgets REQUIRED)
+  find_package(Qt5OpenGL REQUIRED)
+  find_package(Qt5Qml REQUIRED)
+  find_package(Qt5Quick REQUIRED)
+  find_package(Qt5QuickTest REQUIRED)
+  find_package(Qt5QuickWidgets REQUIRED)
+  find_package(Qt5Sensors REQUIRED) # for rotation
 
   message("Used Qt:")
   message("  ${QT_ROOT} (root from Hunter)")

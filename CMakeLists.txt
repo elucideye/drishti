@@ -15,33 +15,41 @@ list(APPEND CMAKE_MODULE_PATH "${drishti_upload_modules}")
 ### HunterGate and cache ###
 ############################
 
-# drishti specific hunter cache pacakges:
-set(
-    HUNTER_CACHE_SERVERS
-    "https://github.com/elucideye/hunter-cache"
-    CACHE
-    STRING
-    "Hunter cache servers"
-)
+# The drishti-upload module provides a common hunter config with
+# a corresponding binary server cache.  We use this for fast CI
+# builds by default.  It can be disabled with this option in favor
+# of a local cmake/Hunter/config.cmake
+option(DRISHTI_USE_DRISHTI_UPLOAD "Use the drishti-upload config and cache" ON)
 
-if(EXISTS "${drishti_upload_modules}")
+if(EXISTS "${drishti_upload_modules}" AND DRISHTI_USE_DRISHTI_UPLOAD)
+
+  # drishti specific hunter cache pacakges:
+  set(
+      HUNTER_CACHE_SERVERS
+      "https://github.com/elucideye/hunter-cache"
+      CACHE
+      STRING
+      "Hunter cache servers"
+  )
   include(drishti_set_hunter_gate)
   drishti_set_hunter_version(DRISHTI_HUNTER_GATE_URL DRISHTI_HUNTER_GATE_SHA1)
+  set(DRISHTI_HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake")
 else()
   # Release archive will not contain submodule 'drishti-upload'.
   # It's a valid case when archive used in Hunter.
   # URL/SHA1 arguments of HunterGate call will not be used while building
   # in this situation.
-  set(DRISHTI_HUNTER_GATE_URL)
-  set(DRISHTI_HUNTER_GATE_SHA1)
+  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.19.165.tar.gz")
+  set(DRISHTI_HUNTER_GATE_SHA1 "61153ee77b9a3651aae3611d57c3497b28001194")
+  set(DRISHTI_HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake")
 endif()
 
 include("cmake/HunterGate.cmake")
 HunterGate(
   URL "${DRISHTI_HUNTER_GATE_URL}"
   SHA1 "${DRISHTI_HUNTER_GATE_SHA1}"
-  FILEPATH "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake"
-  )
+  FILEPATH "${DRISHTI_HUNTER_CONFIG}"
+)
 
 ##########################
 ### CI Travis/Appveyor ###
@@ -377,11 +385,9 @@ option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
 # This will build a static library using all specified modules
 option(DRISHTI_INSTALL "Run package-config installation" ON)
-option(DRISHTI_BUILD_WORLD "Build single drishti library/module (internal)" ON)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
 option(DRISHTI_BUILD_EXAMPLES "Build the examples" ON)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
-option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
 option(DRISHTI_BUILD_FACE "Drishti face lib" ON)
 option(DRISHTI_BUILD_HCI "Drishti video and HCI lib" ON)
 drishti_option(DRISHTI_BUILD_REGRESSION_SIMD "Build multivariate gradient boosting using SIMD" ON IF(${DRISHTI_MOBILE}))

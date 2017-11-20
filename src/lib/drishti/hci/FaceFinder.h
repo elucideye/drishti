@@ -14,11 +14,13 @@
 #include "drishti/hci/drishti_hci.h"
 #include "drishti/hci/Scene.hpp"
 #include "drishti/hci/FaceMonitor.h"
-#include "drishti/acf/GPUACF.h"
-#include "drishti/acf/ACF.h" // needed for pyramid
 #include "drishti/face/Face.h"
 #include "drishti/face/FaceDetectorFactory.h"
 #include "drishti/sensor/Sensor.h"
+
+#include <acf/GPUACF.h>
+#include <acf/ACF.h> // needed for pyramid
+
 #include "thread_pool/thread_pool.hpp"
 
 #include <memory>
@@ -173,7 +175,7 @@ protected:
     void computeAcf(const FrameInput& frame, bool doLuv, bool doDetection);
     std::shared_ptr<acf::Detector::Pyramid> createAcfGpu(const FrameInput& frame, bool doDetection);
     std::shared_ptr<acf::Detector::Pyramid> createAcfCpu(const FrameInput& frame, bool doDetection);
-    void fill(drishti::acf::Detector::Pyramid& P);
+    void fill(acf::Detector::Pyramid& P);
 
     struct Impl;
     std::unique_ptr<Impl> impl;

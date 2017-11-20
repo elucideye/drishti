@@ -19,8 +19,8 @@
 #include "drishti/core/drishti_core.h"
 #include "drishti/core/drishti_string_hash.h"
 #include "drishti/core/make_unique.h"
-#include "drishti/acf/ACF.h"
 #include "drishti/ml/RegressionTreeEnsembleShapeEstimator.h"
+#include "drishti/ml/ObjectDetectorACF.h"
 #include "drishti/eye/EyeModelEstimator.h"
 
 #include "drishti/core/drishti_cereal_pba.h"
@@ -95,7 +95,7 @@ std::unique_ptr<drishti::ml::ObjectDetector> QtFaceDetectorFactory::getFaceDetec
     // clang-format off
     LoaderFunction loader = [&](std::istream& is, const std::string& hint)
     {
-        ptr = drishti::core::make_unique<drishti::acf::Detector>(is, hint);
+        ptr = drishti::core::make_unique<drishti::ml::ObjectDetectorACF>(is, hint);
         return true;
     };
     // clang-format on

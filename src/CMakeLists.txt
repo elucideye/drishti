@@ -18,26 +18,6 @@ set(LIB_TYPE STATIC)
 
 sugar_include(${DRISHTI_3RD_PARTY_DIR})
 
-##########
-### Qt ###
-##########
-
-option(DRISHTI_BUILD_QT "Build with Qt" OFF)
-
-if(DRISHTI_BUILD_QT)
-  hunter_add_package(Qt COMPONENTS qtmultimedia qtsensors qtquickcontrols)
-  find_package(Qt5Widgets REQUIRED)
-  find_package(Qt5Multimedia REQUIRED)
-  find_package(Qt5MultimediaWidgets REQUIRED)
-  find_package(Qt5OpenGL REQUIRED)
-  find_package(Qt5Qml REQUIRED)
-  find_package(Qt5Quick REQUIRED)
-  find_package(Qt5QuickTest REQUIRED)
-  find_package(Qt5QuickWidgets REQUIRED)
-  find_package(Qt5Sensors REQUIRED) # for rotation
-  #find_package(Qt5QuickControls REQUIRED) #  QtQuick.Control
-endif()
-
 ##############
 ### OpenCV ###
 ##############
@@ -53,7 +33,6 @@ message("OpenCV_LIB_COMPONENTS = ${OpenCV_LIB_COMPONENTS}")
 message("OpenCV_LIBS = ${OpenCV_LIBS}")
 message("${CMAKE_MODULE_PATH}")
 
-
 #############
 ### Beast ### :: optional :: (header only)
 #############
@@ -64,6 +43,14 @@ if(DRISHTI_USE_BEAST)
   find_package(Beast CONFIG REQUIRED)
   # !!! Limit use to applicaiton layer + callbacks, don't add to core libraries !!!!
 endif()
+
+###########
+### acf ###
+###########
+
+hunter_add_package(acf)
+find_package(acf CONFIG REQUIRED)
+list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS acf::acf)
 
 ##############
 ### spdlog ###
@@ -148,8 +135,6 @@ list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS xgboost::xgboost) # Add library
 ###################
 ### ogles_gpgpu ###
 ###################
-
-option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
 
 if(DRISHTI_BUILD_OGLES_GPGPU)
   hunter_add_package(ogles_gpgpu)

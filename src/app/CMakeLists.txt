@@ -26,9 +26,10 @@ if(DRISHTI_BUILD_FACE)
 endif()
 
 add_subdirectory(eye)
-if(DRISHTI_BUILD_ACF)
-  add_subdirectory(acf)
-endif()
+
+# if(DRISHTI_BUILD_ACF)
+#   add_subdirectory(acf)
+# endif()
 
 if(DRISHTI_BUILD_FACE)  
   add_subdirectory(face)

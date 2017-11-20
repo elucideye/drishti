@@ -22,6 +22,8 @@
 #include "drishti/core/Parallel.h"
 #include "drishti/geometry/motion.h"
 
+#include <acf/GPUACF.h>
+
 #include "ogles_gpgpu/common/types.h"
 #include "ogles_gpgpu/common/proc/transform.h"
 #include "ogles_gpgpu/common/gl/memtransfer_optimized.h"
@@ -289,21 +291,7 @@ GLuint FaceFinderPainter::filter(const ScenePrimitives& scene, GLuint inputTextu
     {
         rectanglesToDrawings(scene.objects() * impl->ACFScale, m_painter->getLineDrawings());
     }
-    
-    if (impl->doFlow)
-    {
-        core::ScopeTimeLogger flowTime = [&](double ts) { timeSummary.ss << "FLOW=" << ts << ";"; };
-        
-        if (scene.flow().size())
-        {
-            flowToDrawings(scene.flow(), m_painter->getLineDrawings(), impl->colors32FC3);
-        }
-        
-        // Add the flow for debugging:
-        auto* flow = impl->acf->getFlowProc();
-        m_painter->setFlowTexture(flow->getOutputTexId(), flow->getOutFrameSize());
-    }
-    
+
     if (impl->doBlobs)
     {
         m_painter->setFlashTexture(impl->blobFilter->getOutputTexId(), impl->blobFilter->getOutFrameSize());
