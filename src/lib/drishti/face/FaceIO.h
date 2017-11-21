@@ -24,7 +24,8 @@ struct FaceSpecification
     enum Format
     {
         kHELEN,
-        kibug68
+        kibug68,
+        kibug68_inner
     };
 
     Format format = kibug68;

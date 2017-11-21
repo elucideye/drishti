@@ -17,6 +17,7 @@
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/Parallel.h"
+#include "drishti/core/string_utils.h"
 
 #include "landmarks/DlibXML.h"
 #include "landmarks/TWO.h"
@@ -44,9 +45,10 @@ struct FaceEntry
     std::string filename;
     cv::Rect roi;
     std::vector<cv::Point2f> points;
+    std::vector<cv::Point2f> landmarks; // eye-right eye-left nose (mouth-left mouth-right)
 };
 
-static int drishtiFaceToDlib(const std::vector<FaceEntry>& faces, std::string& sOutput);
+static int drishtiFaceToDlib(const std::vector<FaceEntry>& faces, std::string& sOutput, const cv::Range &range={});
 
 static std::vector<cv::Point2f> readPoints(const std::string& filename)
 {
@@ -102,19 +104,23 @@ int gauze_main(int argc, char** argv)
     // ############################
 
     std::string sInput, sOutput;
+    std::string sRange;
     int threads = -1;
     int number = std::numeric_limits<int>::max();
     bool doDump = false;
+    bool doInner = false;
 
-    cxxopts::Options options("eyexml", "Convert eye files to xml");
+    cxxopts::Options options("eyexml", "Convert face files to xml");
 
     // clang-format off
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output xml file", cxxopts::value<std::string>(sOutput))
-        ("d,dump", "Dump imags", cxxopts::value<bool>(doDump))
+        ("d,dump", "Dump images", cxxopts::value<bool>(doDump))
         ("n,number", "Number of entries (max)", cxxopts::value<int>(number))
+        ("r,range", "Landmark range", cxxopts::value<std::string>(sRange))
         ("t,threads", "Threads", cxxopts::value<int>(threads))
+        ("inner", "Inner landmarks: eyes + nose", cxxopts::value<bool>(doInner))
         ("h,help", "Print help message");
     // clang-format on
 
@@ -137,6 +143,14 @@ int gauze_main(int argc, char** argv)
 
     std::vector<FaceEntry> faces(filenames.size());
 
+    cv::Range range;
+    if(!sRange.empty())
+    {
+        std::vector<std::string> tokens;
+        drishti::core::tokenize(sRange, tokens);
+        range = { std::stoi(tokens[0]), std::stoi(tokens[1]) };
+    }
+
     int counter = 0;
     drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
         const auto& filename = filenames[i];
@@ -155,7 +169,12 @@ int gauze_main(int argc, char** argv)
 
             // Read points
             std::vector<cv::Point2f> points = readPoints(sPoints);
-
+            
+            if(!points.size())
+            {
+                return;
+            }
+            
             // Read roi;
             cv::Rect roi = readRoi(sRoi);
             cv::Rect padded = scale(roi, 1.5);
@@ -181,29 +200,47 @@ int gauze_main(int argc, char** argv)
                     &mapping.eyeL,
                     &mapping.eyeR,
                     &mapping.nose,
-                    &mapping.mouth
                 };
+                
+                if (!doInner)
+                {
+                    features.push_back(&mapping.mouth);
+                }
+                
+                std::vector<cv::Point2f> landmarks;
 
                 // Concatenate feature indices:
                 std::vector<int> index;
                 for (const auto& f : features)
                 {
-                    for (const auto& i : (*f))
+                    cv::Point2f mu;
+                    
+                    for (const auto& j : (*f))
                     {
-                        if (!padded.contains(points[i]))
-                        {
-                            const auto slash = filename.rfind("/");
-                            if (slash != std::string::npos)
-                            {
-                                if (doDump)
-                                {
-                                    std::string failure = filename.substr(slash + 1);
-                                    cv::imwrite("/tmp/fail/" + failure, canvas);
-                                }
-                                return;
-                            }
-                        }
+                        mu += points[j];
+                        
+//                        if (!padded.contains(points[j]))
+//                        {
+//                            const auto slash = filename.rfind("/");
+//                            if (slash != std::string::npos)
+//                            {
+//                                if (doDump)
+//                                {
+//                                    std::string failure = filename.substr(slash + 1);
+//                                    cv::imwrite("/tmp/fail/" + failure, canvas);
+//                                }
+//                                return;
+//                            }
+//                        }
                     }
+                    
+                    // Get feature center in normalized coordinates wrt roi:
+                    cv::Point2f p = mu * (1.0f / static_cast<float>(f->size()));
+                    p.x -= roi.x;
+                    p.y -= roi.y;
+                    p.x *= (1.0f / static_cast<float>(roi.width));
+                    p.y *= (1.0f / static_cast<float>(roi.height));
+                    landmarks.emplace_back(p);
                 }
 
                 // If we reach here, landmarks are ok:
@@ -212,7 +249,7 @@ int gauze_main(int argc, char** argv)
                     cv::imwrite(sTarget, canvas);
                 }
 
-                faces[i] = { filename, padded, points };
+                faces[i] = { filename, padded, points, landmarks };
             }
         }
     };
@@ -240,8 +277,24 @@ int gauze_main(int argc, char** argv)
     }
 
     logger->info("Have {} faces", faces.size());
-
-    int code = drishtiFaceToDlib(faces, sOutput);
+    
+    {// compute mean eyes + nose
+        std::vector<cv::Point2f> mu( faces.front().landmarks.size(), cv::Point2f(0.f, 0.f) );
+        for(const auto &f : faces)
+        {
+            for(int i = 0; i < mu.size(); i++)
+            {
+                mu[i] = mu[i] + ((f.landmarks[i] - mu[i]) * (1.0f / static_cast<float>(i+1)));
+            }
+        }
+        
+        for(int i = 0; i < mu.size(); i++)
+        {
+            std::cout << mu[i].x << "," << mu[i].y << " ";
+        }
+    }
+    
+    int code = drishtiFaceToDlib(faces, sOutput, range);
     if (code != 0)
     {
         logger->error("Failed to create file {} for writing");
@@ -262,7 +315,7 @@ int main(int argc, char** argv)
     }
 }
 
-static int drishtiFaceToDlib(const std::vector<FaceEntry>& faces, std::string& sOutput)
+static int drishtiFaceToDlib(const std::vector<FaceEntry>& faces, std::string& sOutput, const cv::Range &range)
 {
     std::ofstream os(sOutput);
     if (os)
@@ -272,7 +325,16 @@ static int drishtiFaceToDlib(const std::vector<FaceEntry>& faces, std::string& s
         doc.start();
         for (const auto& face : faces)
         {
-            doc.addPoints(face.roi, face.points, face.filename);
+            if(range.size())
+            {
+                std::vector<cv::Point2f> points;
+                std::copy(face.points.begin() + range.start, face.points.begin() + range.end + 1, std::back_inserter(points));
+                doc.addPoints(face.roi, points, face.filename);
+            }
+            else
+            {
+                doc.addPoints(face.roi, face.points, face.filename);
+            }
         }
         doc.finish();
         doc.write(os);
