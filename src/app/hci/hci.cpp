@@ -68,7 +68,9 @@ int gauze_main(int argc, char** argv)
     float cascCal = 0.f;
     float scale = 1.f;
     float fx = 0.f;
-
+    
+    bool doInner; // inner face processing
+    
     // Create FaceDetectorFactory (default file based):
     std::string sFactory;
     auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
@@ -104,6 +106,7 @@ int gauze_main(int argc, char** argv)
 
         // ... factory can be used instead of D,M,R,E
         ("F,factory", "Factory (json model zoo)", cxxopts::value<std::string>(sFactory))
+        ("inner", "Inner face landmakrs", cxxopts::value<bool>(doInner))
     
         ("h,help", "Print help message");
     // clang-format on
@@ -154,6 +157,7 @@ int gauze_main(int argc, char** argv)
     {
         factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
     }
+    factory->inner = doInner;
 
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{
@@ -187,6 +191,8 @@ int gauze_main(int argc, char** argv)
     // Retrieve first frame to configure sensor parameters:
     std::size_t counter = 0;
     auto frame = (*video)(counter);
+    const cv::Size frameSize = frame.image.size();
+
     if (frame.image.empty())
     {
         logger->info("No frames available in video");
@@ -267,11 +273,21 @@ int gauze_main(int argc, char** argv)
     }
 
     std::function<bool(void)> render = [&]() {
+
         frame = (*video)(counter++);
+        
         if (frame.image.empty())
         {
+            logger->info("Frame {} is empty, skipping ...", counter);
             return false;
         }
+        
+        if (frame.image.size() != frameSize)
+        {
+            logger->info("Frame size has changed, skipping ...", frameSize);
+            return false;
+        }
+        
         if (frame.image.channels() == 3)
         {
             cv::cvtColor(frame.image, frame.image, cv::COLOR_BGR2BGRA);

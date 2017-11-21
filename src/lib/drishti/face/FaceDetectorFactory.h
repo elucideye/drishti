@@ -30,20 +30,21 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 class FaceDetectorFactory
 {
 public:
-    FaceDetectorFactory() {}
+    FaceDetectorFactory(bool inner=false) : inner(inner) {}
 
     FaceDetectorFactory(
         const std::string& sFaceDetector,
         const std::string& sFaceRegressor,
         const std::string& sEyeRegressor,
-        const std::string& sFaceDetectorMean)
+        const std::string& sFaceDetectorMean, bool inner=false)
         : sFaceDetector(sFaceDetector)
         , sFaceRegressor(sFaceRegressor)
         , sEyeRegressor(sEyeRegressor)
         , sFaceDetectorMean(sFaceDetectorMean)
+        , inner(inner)
     {
     }
-
+    
     virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
     virtual std::unique_ptr<drishti::ml::ShapeEstimator> getFaceEstimator();
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
@@ -53,6 +54,8 @@ public:
     std::string sFaceRegressor;
     std::string sEyeRegressor;
     std::string sFaceDetectorMean;
+    
+    bool inner = false;
 
     std::map<std::string, std::string> sModelBindings;
 };
@@ -66,8 +69,9 @@ public:
         std::istream* iFaceDetector,
         std::istream* iFaceRegressor,
         std::istream* iEyeRegressor,
-        std::istream* iFaceDetectorMean)
-        : iFaceDetector(iFaceDetector)
+        std::istream* iFaceDetectorMean, bool inner = false)
+        : FaceDetectorFactory(inner)
+        , iFaceDetector(iFaceDetector)
         , iFaceRegressor(iFaceRegressor)
         , iEyeRegressor(iEyeRegressor)
         , iFaceDetectorMean(iFaceDetectorMean)

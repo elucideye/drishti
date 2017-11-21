@@ -245,6 +245,7 @@ int gauze_main(int argc, char** argv)
     {
         factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
     }
+    factory->inner = doInner;
 
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{
@@ -280,7 +281,7 @@ int gauze_main(int argc, char** argv)
         if (detector)
         {
             detector->setScaling(scale);
-            detector->setLandmarkFormat( doInner ? FaceSpecification::kibug68_inner : FaceSpecification::kibug68);
+            detector->setLandmarkFormat( factory->inner ? FaceSpecification::kibug68_inner : FaceSpecification::kibug68);
             
             // Cofigure parameters:
             detector->setDoNMS(true);

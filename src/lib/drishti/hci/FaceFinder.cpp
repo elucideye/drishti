@@ -1043,6 +1043,8 @@ void FaceFinder::initTimeLoggers()
 
 void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 {
+    using drishti::face::FaceSpecification;
+    
     impl->logger->info("FaceFinder::init2() {}", sBar);
     impl->logger->info("{}", resources);
 
@@ -1056,6 +1058,8 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
 #else
     impl->faceDetector = drishti::core::make_unique<drishti::face::FaceDetector>(resources);
 #endif
+    
+    impl->faceDetector->setLandmarkFormat( impl->factory->inner ? FaceSpecification::kibug68_inner : FaceSpecification::kibug68);    
     impl->faceDetector->setDoNMSGlobal(impl->doSingleFace); // single detection only
     impl->faceDetector->setDoNMS(true);
     impl->faceDetector->setInits(1);
