@@ -190,43 +190,35 @@ cv::Mat getSimilarityMotion(const FaceModel& a, const FaceModel& b)
     return cv::Mat(transformation::estimateSimilarity(ptsA, ptsB));
 }
 
+// Use eyes + nose tip, since this is compatible with both full and inner face landmark sets:
 cv::Mat getAffineMotion(const FaceModel& a, const FaceModel& b)
 {
     CV_Assert(a.eyeLeftCenter.has);
     CV_Assert(a.eyeRightCenter.has);
     CV_Assert(a.noseTip.has);
-    CV_Assert(a.mouthCornerLeft.has);
-    CV_Assert(a.mouthCornerRight.has);
-
-    cv::Point2f ptsA[3] = { a.eyeRightCenter.value, a.eyeLeftCenter.value, (a.mouthCornerRight.value + a.mouthCornerLeft.value) * 0.5f };
+    cv::Point2f ptsA[3] = { a.eyeRightCenter.value, a.eyeLeftCenter.value, a.noseTip.value };
 
     CV_Assert(b.eyeLeftCenter.has);
     CV_Assert(b.eyeRightCenter.has);
     CV_Assert(b.noseTip.has);
-    CV_Assert(b.mouthCornerLeft.has);
-    CV_Assert(b.mouthCornerRight.has);
-
-    cv::Point2f ptsB[3] = { b.eyeRightCenter.value, b.eyeLeftCenter.value, (b.mouthCornerRight.value + b.mouthCornerLeft.value) * 0.5f };
+    cv::Point2f ptsB[3] = { b.eyeRightCenter.value, b.eyeLeftCenter.value, b.noseTip };
 
     cv::Mat H = cv::getAffineTransform(&ptsA[0], &ptsB[0]);
     return H;
 }
 
+// Use eyes + nose tip, since this is compatible with both full and inner face landmark sets:
 cv::Mat estimateMotionLeastSquares(const FaceModel& a, const FaceModel& b)
 {
     CV_Assert(a.eyeLeftCenter.has);
     CV_Assert(a.eyeRightCenter.has);
     CV_Assert(a.noseTip.has);
-    CV_Assert(a.mouthCornerLeft.has);
-    CV_Assert(a.mouthCornerRight.has);
-    std::vector<cv::Point2f> ptsA{ a.eyeRightCenter.value, a.eyeLeftCenter.value, (a.mouthCornerRight.value + a.mouthCornerLeft.value) * 0.5f };
+    std::vector<cv::Point2f> ptsA{ a.eyeRightCenter.value, a.eyeLeftCenter.value, a.noseTip.value };
 
     CV_Assert(b.eyeLeftCenter.has);
     CV_Assert(b.eyeRightCenter.has);
     CV_Assert(b.noseTip.has);
-    CV_Assert(b.mouthCornerLeft.has);
-    CV_Assert(b.mouthCornerRight.has);
-    std::vector<cv::Point2f> ptsB{ b.eyeRightCenter.value, b.eyeLeftCenter.value, (b.mouthCornerRight.value + b.mouthCornerLeft.value) * 0.5f };
+    std::vector<cv::Point2f> ptsB{ b.eyeRightCenter.value, b.eyeLeftCenter.value, b.noseTip.value };
 
     cv::Mat H = cv::videostab::estimateGlobalMotionLeastSquares(ptsA, ptsB, cv::videostab::MM_SIMILARITY);
     if (!H.empty())

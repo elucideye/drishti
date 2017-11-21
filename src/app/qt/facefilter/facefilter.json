@@ -22,6 +22,24 @@
         "maxTrackMisses": 3,
         "minSeparation": 0.15
     },
+
+    "com.apple.avfoundation.avcapturedevice.built-in_video:0": {
+        "description": "FaceTime HD Camera (Built-in)[5s]",
+
+        "sensor": {
+            "intrinsic": {
+                "size": {
+                    "width": 1280,
+                    "height": 720
+                },
+                "principal": {
+                    "x": 640.0,
+                    "y": 360.0
+                },
+                "focal_length_x": 684.0
+            }
+        }
+    },
     
     "com.apple.avfoundation.avcapturedevice.built-in_video:1": {
         "description": "FaceTime HD Camera (Built-in)[5s]",

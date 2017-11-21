@@ -37,7 +37,6 @@ static cv::Point2f maxPointX(std::vector<cv::Point2f>& points)
 static void fill(FaceModel& face)
 {
     // Estimate centers for normalization:
-    // TODO: use weighted mean for HELEN nose contour
     face.eyeRightCenter = drishti::core::centroid(face.eyeRight);
     face.eyeLeftCenter = drishti::core::centroid(face.eyeLeft);
     face.noseTip = drishti::core::centroid(face.nose);
