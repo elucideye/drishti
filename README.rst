@@ -24,7 +24,8 @@ regression models) <= 4 MB.
    Object
    Detection <https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf>`__
    (see `Piotr's Matlab Toolbox <https://pdollar.github.io/toolbox>`__)
-   for face and eye detection
+   for face and eye detection; UPDATE: The acf code has been moved to a separate
+   repository with a hunter package `HERE <https://github.com/elucideye/acf>`__
 -  Iris ellipse fitting via `Cascaded Pose
    Regression <https://pdollar.github.io/files/papers/DollarCVPR10pose.pdf>`__
    (Piotr Dollar, et al) + `XGBoost <https://github.com/dmlc/xgboost>`__
