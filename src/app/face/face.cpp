@@ -470,12 +470,7 @@ writeAsJson(const std::string& filename, const std::vector<drishti::face::FaceMo
     {
         cereal::JSONOutputArchive oa(ofs);
         typedef decltype(oa) Archive; // needed by macro
-
-#if 0
-        oa << GENERIC_NVP("objects", faces);
-#else
-        std::cerr << "Must be implemented" << std::endl;
-#endif
+        oa << GENERIC_NVP("faces", faces);
     }
     return ofs.good();
 }

@@ -49,16 +49,17 @@ matrix:
 
     # OSX {
 
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=osx-10-11-hid-sections-lto INSTALL=--install
+#     - os: osx
+#       osx_image: xcode8.3
+#       env: CONFIG=Release TOOLCHAIN=osx-10-11-hid-sections-lto INSTALL=--install
 
-    - os: osx
-      osx_image: xcode8.1
-      env: CONFIG=MinSizeRel TOOLCHAIN=ios-nocodesign-10-1-arm64-dep-9-0-device-libcxx-hid-sections-lto INSTALL=--install
+#     - os: osx
+#       osx_image: xcode8.3
+#       env: CONFIG=MinSizeRel TOOLCHAIN=ios-nocodesign-10-1-arm64-dep-9-0-device-libcxx-hid-sections-lto INSTALL=--install
 
-    - os: osx
-      osx_image: xcode8.1
-      env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
+#     - os: osx
+#       osx_image: xcode8.3
+#       env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
 
     - os: osx
       env: CONFIG=MinSizeRel TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
