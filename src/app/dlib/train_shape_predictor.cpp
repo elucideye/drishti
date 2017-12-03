@@ -113,7 +113,7 @@ int gauze_main(int argc, char* argv[])
     std::string sRecipe;
     std::string sRecipeOut;
     std::string sOutput;
-
+    
     cxxopts::Options options("train_shape_predictor", "Command line interface for dlib shape_predictor training");
 
     // clang-format off
@@ -264,8 +264,14 @@ int gauze_main(int argc, char* argv[])
         logger->info("Begin training...");
     }
 
+    std::map<int, float> weights;
+    for(const auto &w : recipe.weights)
+    {
+        weights[std::stoi(w.first)] = w.second;
+    }
+    
     //_SP::shape_predictor sp;
-    _SP::shape_predictor sp = trainer.train(images_train, faces_train);
+    _SP::shape_predictor sp = trainer.train(images_train, faces_train, weights);
     if(do_verbose)
     {
         logger->info("Done training...");

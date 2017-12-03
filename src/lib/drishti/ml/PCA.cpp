@@ -30,7 +30,7 @@ void StandardizedPCA::Standardizer::create(int size, int type)
     sigma.create(1, size, type);
 }
 
-void StandardizedPCA::Standardizer::compute(const cv::Mat& src)
+void StandardizedPCA::Standardizer::compute(const cv::Mat& src, const cv::Mat &columnWeights)
 {
     create(src.cols, CV_32FC1);
     float *pMu = mu.ptr<float>(), *pSigma = sigma.ptr<float>();
@@ -41,6 +41,12 @@ void StandardizedPCA::Standardizer::compute(const cv::Mat& src)
         cv::meanStdDev(x, mu, sigma);
         pMu[0] = mu[0];
         pSigma[0] = sigma[0];
+    }
+    
+    if(!columnWeights.empty())
+    {
+        CV_Assert(columnWeights.size().area() == sigma.size().area());
+        cv::divide(sigma, (sigma.cols == columnWeights.cols) ? columnWeights : columnWeights.t(), sigma);
     }
 }
 
@@ -92,10 +98,10 @@ size_t StandardizedPCA::getNumComponents() const
     return m_transform.mu.cols;
 }
 
-void StandardizedPCA::compute(const cv::Mat& data, cv::Mat& projection, float retainedVariance)
+void StandardizedPCA::compute(const cv::Mat& data, cv::Mat& projection, float retainedVariance, const cv::Mat &columnWeights)
 {
     cv::Mat mu;
-    m_transform.compute(data);
+    m_transform.compute(data, columnWeights);
     cv::Mat data_ = m_transform.standardize(data);
     m_pca = drishti::core::make_unique<cv::PCA>(data_, mu, cv::PCA::DATA_AS_ROW, retainedVariance);
     m_pca->project(data_, projection);
@@ -103,10 +109,10 @@ void StandardizedPCA::compute(const cv::Mat& data, cv::Mat& projection, float re
     init();
 }
 
-void StandardizedPCA::compute(const cv::Mat& data, cv::Mat& projection, int maxComponents)
+void StandardizedPCA::compute(const cv::Mat& data, cv::Mat& projection, int maxComponents, const cv::Mat &columnWeights)
 {
     cv::Mat mu;
-    m_transform.compute(data);
+    m_transform.compute(data, columnWeights);
     cv::Mat data_ = m_transform.standardize(data);
     m_pca = drishti::core::make_unique<cv::PCA>(data_, mu, cv::PCA::DATA_AS_ROW, maxComponents);
     m_pca->project(data_, projection);
