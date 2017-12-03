@@ -51,6 +51,33 @@ regression models) <= 4 MB.
 
 -  Hithcock source: Koganada's "Eyes of Hitchcock"\*
 
+Drishti Right Eye Annotation Scheme
+-----------------------------------
+
+* the left eye is obtained by Y axis mirroring.
+* total (27*2)+(2*5) = 64 parameters
+
++----------------+---------------------------------------------------------------+
+| FEATURE        | SPECIFICATION                                                 | 
++================+===============================================================+
+| eyelids        | 2D points 0-15                                                |
++----------------+---------------------------------------------------------------+
+| crease         | 2D points 16-24                                               |
++----------------+---------------------------------------------------------------+
+| iris center    | 2D point 25                                                   |
++----------------+---------------------------------------------------------------+
+| outer limbus   | limbus intersection with ray from outer corner to iris center |
++----------------+---------------------------------------------------------------+
+| inner limbus   | limbus intersection with ray from inner corner to iris center |
++----------------+---------------------------------------------------------------+
+| iris           | 2D center, minor axis, major axis, angle (radians)            | 
++----------------+---------------------------------------------------------------+
+| pupil          | 2D center, minor axis, major axis, angle (radians)            | 
++----------------+---------------------------------------------------------------+
+
+.. figure:: https://user-images.githubusercontent.com/554720/33522880-227e2468-d7c6-11e7-9705-13df5da04894.jpg
+   :alt: drishti\_annotation\_scheme
+
 Quick Start (i.e., How do I make this library work?)
 ----------------------------------------------------
 
