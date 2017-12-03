@@ -54,9 +54,6 @@ regression models) <= 4 MB.
 Drishti Right Eye Annotation Scheme
 -----------------------------------
 
-* the left eye is obtained by Y axis mirroring.
-* total (27*2)+(2*5) = 64 parameters
-
 +----------------+---------------------------------------------------------------+
 | FEATURE        | SPECIFICATION                                                 | 
 +================+===============================================================+
@@ -74,6 +71,12 @@ Drishti Right Eye Annotation Scheme
 +----------------+---------------------------------------------------------------+
 | pupil          | 2D center, minor axis, major axis, angle (radians)            | 
 +----------------+---------------------------------------------------------------+
+
+* the left eye is obtained by Y axis mirroring
+* total (27*2)+(2*5) = 64 parameters
+* the eye crease is useful for pose indexing, but better guidelines are needed
+* the 2D limbus points are slightly redundant (given the ellipse iris model) but the intersection points are stable with respect to squinting and provide an efficient anchor for posed indexed features (accurate point-to-ellipse distances are non-trivial and are fairly computationally intensive)
+* currently 2D only (gaze angle ground truth would be beneficial)
 
 .. figure:: https://user-images.githubusercontent.com/554720/33522880-227e2468-d7c6-11e7-9705-13df5da04894.jpg
    :alt: drishti\_annotation\_scheme
