@@ -67,9 +67,9 @@ Drishti Right Eye Annotation Scheme
 +----------------+---------------------------------------------------------------+
 | inner limbus   | limbus intersection with ray from inner corner to iris center |
 +----------------+---------------------------------------------------------------+
-| iris           | 2D center, minor axis, major axis, angle (radians)            | 
+| iris ellipse   | 2D center, minor axis, major axis, angle (radians)            | 
 +----------------+---------------------------------------------------------------+
-| pupil          | 2D center, minor axis, major axis, angle (radians)            | 
+| pupil ellipse  | 2D center, minor axis, major axis, angle (radians)            | 
 +----------------+---------------------------------------------------------------+
 
 * the left eye is obtained by Y axis mirroring
