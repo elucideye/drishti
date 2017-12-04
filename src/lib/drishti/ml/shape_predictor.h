@@ -190,28 +190,36 @@ struct InterpolatedFeature
 {
     uint16_t f1;
     uint16_t f2;
-    float alpha;
+    uint16_t f3;
+    float w12;
+    float w13;
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
         ar& f1;
         ar& f2;
+        ar& f3;
 #if DRISHTI_DLIB_DO_HALF
         if (Archive::is_loading::value)
         {
-            half_float::detail::uint16 value;
-            ar& value;
-            alpha = half_float::detail::half2float(value);
+            half_float::detail::uint16 value1, value2;
+            ar& value1;
+            ar& value2;
+            w12 = half_float::detail::half2float(value1);
+            w13 = half_float::detail::half2float(value2);
         }
         else
         {
-            half_float::detail::uint16 value;
-            value = half_float::detail::float2half<std::round_to_nearest>(alpha);
-            ar& value;
+            half_float::detail::uint16 value1, value2;
+            value1 = half_float::detail::float2half<std::round_to_nearest>(w12);
+            value2 = half_float::detail::float2half<std::round_to_nearest>(w13);
+            ar& value1;
+            ar& value2;
         }
 #else
-        ar& alpha;
+        ar& w12;
+        ar& w13;
 #endif
     }
 };
@@ -222,9 +230,12 @@ static fpoint interpolate_feature_point(const InterpolatedFeature& f, const fsha
 {
     fpoint p1(shape(f.f1 * 2 + 0), shape(f.f1 * 2 + 1));
     fpoint p2(shape(f.f2 * 2 + 0), shape(f.f2 * 2 + 1));
-    fpoint v = p2 - p1;
-    fpoint p = p1 + (v * f.alpha);
-    return p;
+    fpoint p3(shape(f.f3 * 2 + 0), shape(f.f3 * 2 + 1));
+
+    fpoint p12 = p2 - p1;
+    fpoint p13 = p3 - p1;
+    
+    return p1 + ((p2 - p1) * f.w12)  + ((p3 - p1) * f.w13);
 }
 
 struct recipe

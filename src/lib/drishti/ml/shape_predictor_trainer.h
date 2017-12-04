@@ -230,7 +230,8 @@ public:
     template <typename image_array>
     shape_predictor train(
         const image_array& images,
-        const std::vector<std::vector<dlib::full_object_detection>>& objects) const
+        const std::vector<std::vector<dlib::full_object_detection>>& objects,
+        const std::map<int,float> &weights = {}) const
     {
         using namespace impl;
         DLIB_CASSERT(images.size() == objects.size() && images.size() > 0,
@@ -296,7 +297,7 @@ public:
         StandardizedPCAPtr pca;
         if (do_pca)
         {
-            pca = compute_pca(samples, num_dim, _dimensions);
+            pca = compute_pca(samples, num_dim, _dimensions, weights);
         }
 
         unsigned long trees_fit_so_far = 0;
@@ -536,7 +537,7 @@ private:
     using IntVec = std::vector<int>;
     using SampleVec = std::vector<training_sample>;
 
-    StandardizedPCAPtr compute_pca(SampleVec& samples, int num_dim, const IntVec& dimensions) const
+    StandardizedPCAPtr compute_pca(SampleVec& samples, int num_dim, const IntVec& dimensions, const std::map<int,float> &sparse_weights={}) const
     {
         using namespace impl;
         CV_Assert(int(dimensions.size()) == get_cascade_depth());
@@ -558,10 +559,20 @@ private:
         cv::Mat full;
         cv::vconcat(ts, cs, full);
 
-        auto pca = std::make_shared<StandardizedPCA>();
+        cv::Mat weights(1, full.cols, CV_32F, cv::Scalar::all(1.0));
+        for(const auto &w : sparse_weights)
+        {
+            // Here we assume the weights are only applied to the leading 2D points (not trailing ellipse)
+            weights.at<float>((w.first * 2)+0) = w.second;
+            weights.at<float>((w.first * 2)+1) = w.second;
+        }
+        
+        std::cout << "Using weights: " << weights << std::endl;
 
+        auto pca = std::make_shared<StandardizedPCA>();
+        
         cv::Mat full_;
-        pca->compute(full, full_, max_pca_dim);
+        pca->compute(full, full_, max_pca_dim, weights);
 
         //cv::Mat full_;
         //pca->compute(ts, full_, max_pca_dim);
@@ -941,7 +952,22 @@ private:
                 // Avoid points inside the roi:
                 locations[i].f1 = rnd.get_random_32bit_number() % point_length;
                 locations[i].f2 = rnd.get_random_32bit_number() % point_length;
-                locations[i].alpha = (rnd.get_random_double() * (1.0 + 2.0 * padding)) - padding; // [-padding ... 1.0+padding]
+                locations[i].f3 = rnd.get_random_32bit_number() % point_length;
+
+                // https://github.com/ChrisYang/TIFfacealignment/blob/15c60270e99f6d0ab45b5ec4fb971ba47a921abe/dlib-18.16/dlib/image_processing/shape_predictor_TIF.h#L1061-L1072
+                // The TIF code uses two random numbers with range [0 ... 0.5]
+                //
+                //const double alpha = rnd.get_random_double() * 0.5;
+                //const double beta = rnd.get_random_double() * 0.5;
+                
+                // This scheme will allow sampling along either ray's exteme points
+                //
+                const double alpha = rnd.get_random_double();
+                const double beta = (1.0 - alpha) * rnd.get_random_double();
+                
+                locations[i].w12 = static_cast<float>(alpha);
+                locations[i].w13 = static_cast<float>(beta);
+                
                 pixel_coordinates[i] = impl::interpolate_feature_point(locations[i], initial_shape);
             } while (roi.contains(pixel_coordinates[i]));
         }

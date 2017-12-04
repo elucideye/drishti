@@ -14,6 +14,7 @@
 #include "drishti/core/drishti_core.h"
 
 #include <vector>
+#include <map>
 #include <iostream>
 
 DRISHTI_BEGIN_NAMESPACE(drishti)
@@ -37,6 +38,9 @@ struct Recipe
     int width = 0;
     bool do_pca = true;
     std::vector<int> dimensions;
+    
+    // Sparse weights, assume 1.0 for all non missing entries:
+    std::map<std::string,float> weights = { {"0", 1.0f}, {"8", 1.0f} };
 
     void print(std::ostream& os)
     {

@@ -12,11 +12,14 @@
 #include "drishti/eye/EyeIO.h"
 #include "drishti/core/Logger.h"
 #include "drishti/core/drishti_string_hash.h"
+#include "drishti/core/string_utils.h"
 #include "drishti/testlib/drishti_cli.h"
 
 #include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
+#include "drishti/geometry/motion.h"
+
 #include <cereal/archives/json.hpp>
 
 #include "rapidxml/rapidxml.hpp"
@@ -188,6 +191,61 @@ public:
             addEye(eye, sImage);
         }
     }
+    
+    cv::Mat draw_with_padding(const cv::Mat &image, const drishti::eye::EyeModel &eyeIn)
+    {
+        static const int border = 200;
+        
+        cv::Mat canvas, bigger;
+        cv::resize(image, bigger, image.size() * 4);
+        cv::copyMakeBorder(bigger, canvas, border, border, border, border, cv::BORDER_CONSTANT);
+        
+        const cv::Matx33f H = transformation::translate(border, border) * transformation::scale(4.f, 4.f);
+        const auto eye = H * eyeIn;
+        const auto points = drishti::eye::eyeToShape(eye, m_spec);
+        
+        for(int i = 0; i < 16; i++)
+        {
+            cv::line(canvas, points[(i+0)%16], points[(i+1)%16], {255,255,255}, 1, 8);
+        }
+        
+        for(int i = 16; i < 24; i++)
+        {
+            cv::line(canvas, points[i+0], points[i+1], {255,255,255}, 1, 8);
+        }
+        
+        cv::ellipse(canvas, eye.irisEllipse, {255,255,255}, 1, 8);
+        cv::ellipse(canvas, eye.pupilEllipse, {255,255,255}, 1, 8);
+        
+        const float scale1 = 1.35f;
+        const float scale2 = scale1 * 1.1f;
+        cv::Matx33f S1 = transformation::scale(scale1, scale1, eye.irisEllipse.center);
+        cv::Matx33f S2 = transformation::scale(scale2, scale2, eye.irisEllipse.center);
+        
+        for(int i = 0; i < points.size() - 10; i++)
+        {
+            const cv::Point2f p2 = points[i];
+            const cv::Point3f p3(p2.x, p2.y, 1.f), q3 = S1 * p3, r3 = S2 * p3;
+            const cv::Point q2(q3.x, q3.y), r2(r3.x, r3.y);
+            cv::circle(canvas, p2, 6, {0,255,0}, -1, 8);
+            cv::line(canvas, p2, q2, {0,255,0}, 1, 8);
+            
+            std::stringstream ss;
+            ss << i;
+            
+            const int fontFace = CV_FONT_HERSHEY_PLAIN;
+            const double fontScale = 2.0;
+            int thickness = 3, baseline = 0;
+            const cv::Size textSize = cv::getTextSize(ss.str(), fontFace, fontScale, thickness, &baseline);
+            baseline += thickness;
+            
+            cv::Point2f bl = (q2 + cv::Point(0, thickness)), tr = (q2 + cv::Point(textSize.width, -textSize.height)), diag = (tr - bl) * 0.5f;
+            cv::putText(canvas, ss.str(), r2 - cv::Point(diag.x, diag.y), fontFace, fontScale, {127,255,127}, thickness);
+        }
+
+        return canvas;
+
+    }
 
     void addEye(drishti::eye::EyeModel& eye, const std::string& filename)
     {
@@ -200,6 +258,13 @@ public:
             // TODO: deserialize spec from command line
             auto points = drishti::eye::eyeToShape(eye, m_spec);
 
+            {
+                // Example visualization via annotation scheme drawing
+                //std::string base = drishti::core::basename(filename);
+                //cv::Mat canvas = draw_with_padding(cv::imread(filename), eye);
+                //cv::imwrite("/tmp/eyes/" + base + ".jpg", canvas);
+            }
+            
             // ###########
             // ### XML ###
             // ###########

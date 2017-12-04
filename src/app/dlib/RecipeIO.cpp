@@ -32,6 +32,9 @@ void loadJSON(const std::string& filename, drishti::dlib::Recipe& recipe)
         recipe.trees_per_level = json["trees_per_level"].get<int>();
         recipe.width = json["width"].get<int>();
         recipe.dimensions = json["dimensions"].get<std::vector<int>>();
+        
+        // Per parameter weighting
+        recipe.weights = json["weights"].get<std::map<std::string, float>>();
     }
     else
     {
@@ -62,6 +65,9 @@ void saveJSON(const std::string& filename, const drishti::dlib::Recipe& recipe)
         json["trees_per_level"] = recipe.trees_per_level;
         json["width"] = recipe.width;
         json["dimensions"] = recipe.dimensions;
+        
+        // Per parameter weighting
+        json["weights"] = recipe.weights;
 
         os << json.dump(4);
     }
