@@ -11,7 +11,6 @@
 #include "drishti/face/Face.h"
 #include "drishti/face/FaceIO.h"
 #include "drishti/core/Logger.h"
-#include "drishti/core/drishti_string_hash.h"
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
@@ -37,8 +36,6 @@
 #include <string>
 
 namespace bfs = boost::filesystem;
-
-using string_hash::operator"" _hash;
 
 struct FaceEntry
 {

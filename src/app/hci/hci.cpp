@@ -13,8 +13,11 @@
 #include "drishti/core/Semaphore.h"
 #include "drishti/core/Logger.h"
 #include "drishti/hci/FaceFinderPainter.h"
+#include "drishti/hci/FaceMonitor.h"
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/face/FaceDetectorFactoryJson.h"
+#include "drishti/core/drishti_string_hash.h"
+
 #include "ogles_gpgpu/common/proc/swizzle.h"
 
 #include "videoio/VideoSourceCV.h"
@@ -30,6 +33,8 @@
 
 #include <spdlog/fmt/ostr.h>
 
+using string_hash::operator"" _hash;
+
 // clang-format off
 #ifdef ANDROID
 #  define TEXTURE_FORMAT GL_RGBA
@@ -38,16 +43,88 @@
 #endif
 // clang-format on
 
+#define DRISHTI_HCI_USE_CACHE 0 // simulate speed of real video
+
 #include <opencv2/highgui.hpp>
+
+using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
 static void* void_ptr(const cv::Mat& image)
 {
     return const_cast<void*>(image.ptr<void>());
 }
 
-using LoggerPtr = std::shared_ptr<spdlog::logger>;
-
 static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description);
+static ogles_gpgpu::SwizzleProc::SwizzleKind getSwizzleKind(const std::string &sSwizzle);
+
+// Simple FaceMonitor class to report face detection results over time.
+struct FaceMonitorLogger : public drishti::hci::FaceMonitor
+{
+    FaceMonitorLogger(std::shared_ptr<spdlog::logger> &logger) : m_logger(logger)
+    {
+        
+    }
+    
+    /**
+     * A user defined virtual method callback that should report the number
+     * of frames that should be captured from teh FIFO buffer based on the
+     * reported face location.
+     * @param faces a vector of faces for the current frame
+     * @param timestmap the acquisition timestamp for the frame
+     * @return a frame request for the last n frames with requested image formats
+     */
+    virtual Request request(const Faces& faces, const TimePoint& timeStamp)
+    {
+        cv::Point3f xyz = faces.size() ? (*faces.front().eyesCenter) : cv::Point3f();
+        m_logger->info("SimpleFaceMonitor: Found {} faces {}", faces.size(), xyz);
+        return {};
+    }
+    
+    /**
+     * A user defined virtual method callback that will be called with a
+     * a populated vector of FaceImage objects for the last N frames, where
+     * N is the number of frames requested in the preceding request callback.
+     * @param frames A vector containing the last N consecutive FaceImage objects
+     * @param isInitialized Return true if the FIFO buffer is fully initialized.
+     */
+    virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
+    {
+        m_logger->info("SimpleFaceMonitor: Received {} frames", frames.size());
+    }
+    
+    std::shared_ptr<spdlog::logger> m_logger;
+};
+
+// Add a simple timer to report frame rate.  For any offline VideoSource type
+// the processing will almost certainly be IO limited.  As a simple workaround
+// you can define
+//
+// #define DRISHTI_HCI_USE_CACHE 1
+//
+// For videos that will fit in memory and it will cache the frames in memory.
+// The reported times will be closer to what one would see with a live video
+// capture.
+struct SimpleTimer
+{
+    int frames = 0;
+    std::chrono::high_resolution_clock::time_point tic;
+    void reset()
+    {
+        frames = 0;
+        tic = std::chrono::high_resolution_clock::now();
+    }
+    SimpleTimer& operator++()
+    {
+        frames++;
+        return (*this);
+    }
+    float fps() const
+    {
+        const auto toc = std::chrono::high_resolution_clock::now();
+        const double elapsed = std::chrono::duration<double>(toc - tic).count();
+        return static_cast<float>(frames / elapsed);
+    }
+};
 
 int gauze_main(int argc, char** argv)
 {
@@ -62,9 +139,12 @@ int gauze_main(int argc, char** argv)
 
     bool doWindow = false;
     bool doMovie = false;
+    bool doDebug = false;
+    int loops = 0;
 
-    std::string sInput, sOutput;
+    std::string sInput, sOutput, sSwizzle = "rgba";
 
+    float resolution = 1.f;
     float cascCal = 0.f;
     float scale = 1.f;
     float fx = 0.f;
@@ -84,9 +164,14 @@ int gauze_main(int argc, char** argv)
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
 
+        ("swizzle", "Swizzle channel operation", cxxopts::value<std::string>(sSwizzle))
+    
 #if !defined(DRISHTI_IS_MOBILE)
         ("w,window", "Create a display window", cxxopts::value<bool>(doWindow))
+        ("r,resolution", "Display resolution (scale factory)", cxxopts::value<float>(resolution))
+        ("debug", "Provide debugging annotations", cxxopts::value<bool>(doDebug))
 #endif
+        ("l,loops", "Loop the input video", cxxopts::value<int>(loops))
     
         // Generate a quicktime movie:
         ("m,movie", "Output quicktime movie", cxxopts::value<bool>(doMovie))
@@ -175,6 +260,9 @@ int gauze_main(int argc, char** argv)
         }
     }
 
+    // In some glfw + avfoundation + os x combinations we can see the following system
+    // error.  This may be behind us now!
+    // ~~~~~
     // !!! BUG: The current event queue and the main event queue are not the same.
     // Events will not be handled correctly. This is probably because _TSGetMainThread
     // was called for the first time off the main thread.
@@ -205,7 +293,8 @@ int gauze_main(int argc, char** argv)
         return -1;
     }
 
-    opengl->resize(frame.cols(), frame.rows());
+    cv::Size windowSize = cv::Size2f(frameSize) * resolution;
+    opengl->resize(windowSize.width, windowSize.height);
 
     // Create configuration:
     drishti::hci::FaceFinder::Settings settings;
@@ -220,11 +309,17 @@ int gauze_main(int argc, char** argv)
     settings.faceFinderInterval = 0.f;
     settings.regressorCropScale = scale;
     settings.acfCalibration = cascCal;
-    settings.renderFaces = true;    // *** rendering ***
-    settings.renderPupils = true;   // *** rendering ***
-    settings.renderCorners = false; // *** rendering ***
+    
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    settings.renderFaces = true;          // *** rendering ***
+    settings.renderPupils = true;         // *** rendering ***
+    settings.renderCorners = false;       // *** rendering ***
+    settings.renderEyesWidthRatio = 0.25f * opengl->getGeometry().sx; // *** rendering ***
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
     settings.minDetectionDistance = minZ;
     settings.maxDetectionDistance = maxZ;
+    settings.doSingleFace = true;
     { // Create a sensor specification
         if (fx == 0.f)
         {
@@ -235,18 +330,26 @@ int gauze_main(int argc, char** argv)
         settings.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
     }
 
-    (*opengl)(); // active context
+    (*opengl)(); // activate context
 
-    // Allocate the detector:
+    // Allocate the detector and configure the display properties
     auto detector = drishti::hci::FaceFinderPainter::create(factory, settings, nullptr);
-    detector->setLetterboxHeight(1.0);       // *** rendering ***
-    detector->setShowMotionAxes(false);      // *** rendering ***
-    detector->setShowDetectionScales(false); // *** rendering ***
-
+    detector->setLetterboxHeight(1.0);         // *** rendering ***
+    detector->setShowMotionAxes(doDebug);      // *** rendering ***
+    detector->setShowDetectionScales(doDebug); // *** rendering ***
+    
+    // Instantiate and register a samle FaceMonitor class to log tracking results
+    // over time.
+    FaceMonitorLogger faceMonitor(logger);
+    detector->registerFaceMonitorCallback(&faceMonitor);
+    
+    // Allocate an input video source for feeding texture or image buffers
+    // into the gpgpu pipeline.
     ogles_gpgpu::VideoSource source;
-    ogles_gpgpu::SwizzleProc swizzle(ogles_gpgpu::SwizzleProc::kSwizzleGRAB); // kSwizzleRGBA
+    ogles_gpgpu::SwizzleProc swizzle(getSwizzleKind(sSwizzle));
     source.set(&swizzle);
 
+    // Provide a default quicktime movie name for logging on Apple platforms.
     std::string filename = sOutput + "/movie.mov";
     if (drishti::cli::file::exists(filename))
     {
@@ -264,6 +367,8 @@ int gauze_main(int argc, char** argv)
         }
     }
 
+    // Instantiate an ogles_gpgpu display class that will draw to the
+    // default texture (0) which will be managed by aglet (typically glfw)
     std::shared_ptr<ogles_gpgpu::Disp> display;
     if (doWindow && opengl->hasDisplay())
     {
@@ -272,13 +377,45 @@ int gauze_main(int argc, char** argv)
         display->setOutputRenderOrientation(ogles_gpgpu::RenderOrientationFlipped);
     }
 
-    std::function<bool(void)> render = [&]() {
+    SimpleTimer timer;
+    
+#if DRISHTI_HCI_USE_CACHE
+    std::map<int, drishti::videoio::VideoSourceCV::Frame> cache;
+#endif
+    
+    int loopCount = 0;
+    std::function<bool(void)> render = [&]()
+    {
+#if DRISHTI_HCI_USE_CACHE
+        if(cache.find(counter) != cache.end())
+        {
+            frame = cache[counter];
+        }
+        else
+#endif
+        {
+            frame = (*video)(counter);
 
-        frame = (*video)(counter++);
+#if DRISHTI_HCI_USE_CACHE
+            cache[counter] = frame; // cache it
+#endif            
+            timer.reset(); // reset timer
+        }
         
+        logger->info("fps: {}", (++timer).fps());
+        
+        counter++;
         if (frame.image.empty())
         {
             logger->info("Frame {} is empty, skipping ...", counter);
+            
+            if(loopCount < loops)
+            {
+                counter = 0;
+                loopCount++;
+                return true;
+            }
+            
             return false;
         }
         
@@ -307,7 +444,7 @@ int gauze_main(int argc, char** argv)
         {
             auto& geometry = opengl->getGeometry();
             display->setOffset(geometry.tx, geometry.ty);
-            display->setDisplayResolution(geometry.sx, geometry.sy);
+            display->setDisplayResolution(geometry.sx * resolution, geometry.sy * resolution);
             display->useTexture(texture1);
             display->render(0);
         }
@@ -337,34 +474,9 @@ int gauze_main(int argc, char** argv)
     return 0;
 }
 
-/*
-// This has been replaced by drishti_test_lib main()
-// for cross-platform console app, but is left to 
-// support standalone use as needed.
-int main(int argc, char** argv)
-{
-    try
-    {
-        return gauze_main(argc, argv);
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Exception: " << e.what() << std::endl;
-        return 1;
-    }
-    catch (...)
-    {
-        std::cerr << "Unknown exception";
-    }
-
-    return 0;
-}
-*/
-
 // utility:
 
-static bool
-checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description)
+static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& description)
 {
     if (sModel.empty())
     {
@@ -377,4 +489,17 @@ checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& desc
         return 1;
     }
     return 0;
+}
+
+static ogles_gpgpu::SwizzleProc::SwizzleKind getSwizzleKind(const std::string &sSwizzle)
+{
+    switch (string_hash::hash(sSwizzle))
+    {
+        case "rgba"_hash: return ogles_gpgpu::SwizzleProc::kSwizzleRGBA; break;
+        case "bgra"_hash: return ogles_gpgpu::SwizzleProc::kSwizzleBGRA; break;
+        case "argb"_hash: return ogles_gpgpu::SwizzleProc::kSwizzleARGB; break;
+        case "abgr"_hash: return ogles_gpgpu::SwizzleProc::kSwizzleABGR; break;
+        case "grab"_hash: return ogles_gpgpu::SwizzleProc::kSwizzleGRAB; break;
+        default: throw std::runtime_error("Unsupported type specified in" + sSwizzle);
+    }
 }

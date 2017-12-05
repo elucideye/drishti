@@ -176,7 +176,15 @@ void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
     }
 
     { // Project detection sizes to full resolution image:
-        const auto winSize = impl->detector->getWindowSize();
+        auto winSize = impl->detector->getWindowSize();
+        
+        // Some detectors may expect column major storage,
+        // so we transpose the detector windows dimensions here.
+        if(!impl->detector->getIsRowMajor())
+        {
+            std::swap(winSize.width, winSize.height);
+        }
+        
         for (const auto& size : impl->pyramidSizes)
         {
             ogles_gpgpu::LineDrawing drawing;
@@ -302,6 +310,8 @@ GLuint FaceFinderPainter::filter(const ScenePrimitives& scene, GLuint inputTextu
         m_painter->setEyeFlow(impl->eyeFlowField);
         m_painter->setEyeMotion(impl->eyeMotion);
     }
+    
+    m_painter->setEyesWidthRatio(impl->renderEyesWidthRatio);
     
     {
         core::ScopeTimeLogger processTime = [&](double ts) { timeSummary.ss << "PROCESS=" << ts << ";"; };

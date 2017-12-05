@@ -101,6 +101,7 @@ public:
         bool renderFaces = true;
         bool renderPupils = true;
         bool renderCorners = true;
+        float renderEyesWidthRatio = 0.25f;
 
         int history = DRISHTI_HCI_FACEFINDER_HISTORY;
     };
