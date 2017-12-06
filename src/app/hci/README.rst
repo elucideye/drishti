@@ -79,6 +79,8 @@ Here is a quick breakdown of the parameters:
 
 The optional ``--swizzle`` argument can be used to specify permutations of ``RGBA`` (i.e., ``GRAB``, ``ARGB``, etc)
 which controls the GGPU channels swizzling.  (AVFoundation videos from iOS typically required ``GRAB``.)
+You can adjust ``--calibration=0.0001`` to adjust detection sensitivity (use a *small* negative value if you 
+encounter false detections).
 
 In a typical use case, once you instantiate a ``drishti::hci::FaceFinder`` and begin processing frames,
 you will register a `drishti::hci::FaceMonitor` callback to get continuous per frame face models.
@@ -136,6 +138,18 @@ FaceDetectorFactory JSON format
       "face_landmark_regressor": "drishti_full_face_model.cpb",
       "face_detector_mean": "drishti_face_gray_80x80_mean.json"
   }
+
+
+This command line 
+
+::
+
+  drishti-hci --factory=${HOME}/drishti-assets/drishti_assets_big.json --input=${HOME}/vimeo/Eyes_of_Hitchcock.mov --output=/tmp/ --scale=1.2 --window --swizzle=grab
+
+was used to create this frame from the preview window:
+
+.. image:: https://user-images.githubusercontent.com/554720/33672534-72d8c01c-da78-11e7-8017-7c59dc282aac.jpg
+   :width: 480pt
 
 .. _FaceMonitor_definition: https://github.com/elucideye/drishti/blob/0ab16cfea2b1046ab97c1c0d8d27cecb8c375bdb/src/app/hci/hci.cpp#L60-L96
 .. _FaceMonitor_registration: https://github.com/elucideye/drishti/blob/0ab16cfea2b1046ab97c1c0d8d27cecb8c375bdb/src/app/hci/hci.cpp#L341-L344
