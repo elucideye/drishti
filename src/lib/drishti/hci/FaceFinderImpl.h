@@ -86,6 +86,7 @@ struct FaceFinder::Impl
         , renderFaces(args.renderFaces)
         , renderPupils(args.renderPupils)
         , renderCorners(args.renderCorners)
+        , renderEyesWidthRatio(args.renderEyesWidthRatio)
 
         , glVersionMajor(args.glVersionMajor)
         , glVersionMinor(args.glVersionMinor)
@@ -192,6 +193,7 @@ struct FaceFinder::Impl
     bool renderFaces = true;
     bool renderPupils = true;
     bool renderCorners = true;
+    float renderEyesWidthRatio = 0.25f;
 
     int glVersionMajor = 2;
     int glVersionMinor = 0;

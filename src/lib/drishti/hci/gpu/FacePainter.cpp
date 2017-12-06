@@ -713,3 +713,61 @@ void FacePainter::filterRenderSetCoordsTex(DisplayTexture& texInfo)
     glVertexAttribPointer(shParamATexCoord, OGLES_GPGPU_QUAD_TEXCOORDS_PER_VERTEX, GL_FLOAT, GL_FALSE, 0, &ProcBase::quadTexCoordsStd[0]);
     glEnableVertexAttribArray(shParamATexCoord);
 }
+
+//===========================
+//========= FLOW -===========
+//===========================
+
+void FacePainter::setFlowTexture(GLint texIdx, const ogles_gpgpu::Size2d& size)
+{
+    Size2d flowSize(outFrameW, outFrameW * size.height / size.width);
+    Rect2d flowRoi(0, outFrameH - flowSize.height - 1, flowSize.width, flowSize.height);
+    m_flowInfo = { texIdx, size, flowRoi };
+}
+
+//===========================
+//========= FLASH ===========
+//===========================
+
+void FacePainter::setFlashTexture(GLint texIdx, const ogles_gpgpu::Size2d& size)
+{
+    const int flashWidth = outFrameW / 4;
+    Size2d flashSize(flashWidth, flashWidth * size.height / size.width);
+    Rect2d flashRoi(0, (outFrameH / 2) - (flashSize.height / 2), flashSize.width, flashSize.height);
+    m_flashInfo = { texIdx, size, flashRoi };
+}
+
+//===========================
+//========= IRIS ============
+//===========================
+
+void FacePainter::setIrisTexture(int index, GLint texIdx, const ogles_gpgpu::Size2d& size)
+{
+    int shrink = 3; // vertical shrink for small displays
+    assert(index >= 0 && index <= 1);
+    Size2d irisSize(outFrameW, (outFrameW * m_eyes.m_eyesInfo.size.height / m_eyes.m_eyesInfo.size.width) / shrink);
+    Rect2d irisRoi(0, index * (outFrameH - irisSize.height - 1), irisSize.width, irisSize.height);
+    m_irisInfo[index] = { texIdx, size, irisRoi };
+}
+
+//===========================
+//========= EYES ============
+//===========================
+
+void FacePainter::setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d& size, const std::array<drishti::eye::EyeWarp, 2>& eyes)
+{
+    // A) This stretches and preserves the aspect ratio across the top of the frame:
+    Rect2d eyesRoi(0, 0, outFrameW, outFrameW * size.height / size.width);
+    
+    if (outFrameW > outFrameH)
+    {
+        // B) Place the eyes in the upper left corner
+        const int width = static_cast<int>(m_eyesWidthRatio * outFrameW + 0.5f);
+        eyesRoi = { 0, 0, width, width * size.height / size.width };
+        eyesRoi.x = 0;
+    }
+    
+    m_eyes.m_eyes = eyes;
+    m_eyes.m_eyesInfo = { texIdx, size, eyesRoi };
+    m_eyes.m_eyesInfo.m_delegate = [&]() { annotateEyes(m_eyes, m_eyeAttributes); };
+}
