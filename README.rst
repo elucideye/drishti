@@ -159,6 +159,13 @@ After the environment is configured, you can build for any supported
     
 ::
 
+Applications
+------------
+
+Please see the README for the `drishti-hci <https://github.com/elucideye/drishti/blob/master/src/app/hci/README.rst>`__
+console application to see an example of a full eye tracking pipeline with the GPGPU optimizations.
+
+
 Integration
 -----------
 
