@@ -1,4 +1,7 @@
 
+.. image:: https://user-images.githubusercontent.com/554720/33672534-72d8c01c-da78-11e7-8017-7c59dc282aac.jpg
+   :width: 480pt
+
 The ``drishti-hci`` application is similar in functionality to the ``drishti-face`` application, in that it will
 compute full face models:
 
@@ -140,16 +143,11 @@ FaceDetectorFactory JSON format
   }
 
 
-This command line 
+This following command line was used to generate the image of the preview window shown at the top of the page:
 
 ::
 
   drishti-hci --factory=${HOME}/drishti-assets/drishti_assets_big.json --input=${HOME}/vimeo/Eyes_of_Hitchcock.mov --output=/tmp/ --scale=1.2 --window --swizzle=grab
-
-was used to create this frame from the preview window:
-
-.. image:: https://user-images.githubusercontent.com/554720/33672534-72d8c01c-da78-11e7-8017-7c59dc282aac.jpg
-   :width: 480pt
 
 .. _FaceMonitor_definition: https://github.com/elucideye/drishti/blob/0ab16cfea2b1046ab97c1c0d8d27cecb8c375bdb/src/app/hci/hci.cpp#L60-L96
 .. _FaceMonitor_registration: https://github.com/elucideye/drishti/blob/0ab16cfea2b1046ab97c1c0d8d27cecb8c375bdb/src/app/hci/hci.cpp#L341-L344
