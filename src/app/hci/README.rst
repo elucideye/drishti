@@ -95,7 +95,7 @@ you will register a `drishti::hci::FaceMonitor` callback to get continuous per f
 Note that these callbacks are blocking and should be handled efficiently to preserve real time behavior.
 
 See the following sample `FaceMonitor_definition`_ for a sample ``drishti::hci::FaceMonitor`` definition 
-and a correspoding code block for registering the callback: `_FaceMonitor_registration`_. 
+and a correspoding code block for registering the callback: `FaceMonitor_registration`_. 
 
 .. code:: c++
 
