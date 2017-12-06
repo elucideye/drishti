@@ -33,8 +33,7 @@ calibration step for this.  You can obtain a reasonable estimate for the focal l
 
   focal_length_in_pixels = (image_width_in_pixels) * (focal_length_in_mm) / (CCD_width_in_mm)
 
-If you have built drishti locally with with `DRISHTI_BUILD_TESTS=ON` (this enables the OpenGL context)
-you will find the executable in the following installation tree path: ``_install/${TOOLCHAIN}/bin/drishti-hci``
+**IMPORTANT**: You must build drishti with the ``DRISHTI_BUILD_TESTS=ON`` option to enable the OpenGL context that is required for the GPGPU processing that ``drishti-hci`` uses.  When that is provided to ``cmake`` (or ``polly ... --fwd DRISHTI_BUILD_TESTS=ON``) you will find the executable in the following installation tree path: ``_install/${TOOLCHAIN}/bin/drishti-hci``
 
 Some trained models can be obtained from the `drishti-assets`_ repository.  You will find models for 
 each stage of processing: face detection, face landmarks (to locate the eyes) and eye models.
