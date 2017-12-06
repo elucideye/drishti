@@ -83,7 +83,12 @@ Here is a quick breakdown of the parameters:
 The optional ``--swizzle`` argument can be used to specify permutations of ``RGBA`` (i.e., ``GRAB``, ``ARGB``, etc)
 which controls the GGPU channels swizzling.  (AVFoundation videos from iOS typically required ``GRAB``.)
 You can adjust ``--calibration=0.0001`` to adjust detection sensitivity (use a *small* negative value if you 
-encounter false detections).
+encounter false detections).  You can also use the ``--debug`` option to visualize the object detector scale search.  It will render a series of rectangles corresponding to the effective object detector window size resulting from search on the multi-resolution ACF pyramids that will look like this:
+
+.. image:: https://user-images.githubusercontent.com/554720/33676055-ab48ec10-da82-11e7-87d1-689348182dfe.jpg
+   :width: 480pt
+
+You can use this to visualize the scale search resulting from your `--focal-length` + `--min=<min>` and `--max=<max>` parameters.
 
 In a typical use case, once you instantiate a ``drishti::hci::FaceFinder`` and begin processing frames,
 you will register a `drishti::hci::FaceMonitor` callback to get continuous per frame face models.
