@@ -104,7 +104,7 @@ FaceFinder::~FaceFinder()
 {
     try
     {
-        if (impl->threads && impl->doOptimizedPipeline)
+        if (impl->doOptimizedPipeline)
         {
             // If this has already been retrieved it will throw
             impl->scene.get(); // block on any abandoned calls
@@ -177,6 +177,7 @@ void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage)
         frames.resize(std::min(static_cast<std::size_t>(n), static_cast<std::size_t>(length)));
         for (int i = 0; i < frames.size(); i++)
         {
+            // Rerverse fifo for storage such that the largest timestamp comes first
             auto* filter = (*impl->fifo)[length - i - 1];
             const auto size = filter->getOutFrameSize();
 
@@ -375,10 +376,10 @@ void FaceFinder::init(const cv::Size& inputSize)
     impl->faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*impl->sensor);
 
     initColormap();
-    initACF(inputSizeUp);                 // initialize ACF first (configure opengl platform extensions)
+    initACF(inputSizeUp);                     // initialize ACF first (configure opengl platform extensions)
     initFIFO(inputSizeUp, impl->history); // keep last N frames
-    initPainter(inputSizeUp);             // {inputSizeUp.width/4, inputSizeUp.height/4}
-    initFaceFilters(inputSizeUp);         // gpu "filter" (effects)
+    initPainter(inputSizeUp);                 // {inputSizeUp.width/4, inputSizeUp.height/4}
+    initFaceFilters(inputSizeUp);             // gpu "filter" (effects)
 
     if (impl->doIris)
     {
@@ -393,6 +394,11 @@ void FaceFinder::init(const cv::Size& inputSize)
         // Must initialize blobFilter after eye filter:
         initBlobFilter();
     }
+    
+    impl->doOptimizedPipeline &= static_cast<bool>(impl->threads);
+    
+    impl->latency = impl->doOptimizedPipeline ? 2 : 0;
+
 }
 
 template <typename Container>
@@ -476,11 +482,19 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2,
         });
     }
 
+    // Maintain a history for last N textures and scenes.
+    // Note that with the current optimized pipeline (i.e., runFast) we introduce a latency of T=2
+    // so when we the texture for time T=2 to the OpenGL FIFO we wil push the most recent available
+    // scene for T-2 (T=0) to our scene buffer.
+    //
+    // IMAGE : { image[n-0], image[n-1], image[n-2] }
+    // SCENE : { __________, __________, scene[n-2], ... }
+    
     // Add the current frame to FIFO
     impl->fifo->useTexture(texture2, 1);
     impl->fifo->render();
 
-    // Clear face motion estimate, update window:
+    // Clear face motion estimate, update window
     impl->faceMotion = { 0.f, 0.f, 0.f };
     push_fifo(impl->scenePrimitives, *outputScene, impl->history);
 
@@ -546,7 +560,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
 
     GLuint outputTexture = 0;
     ScenePrimitives outputScene;
-    if (impl->threads && impl->doOptimizedPipeline)
+    if (impl->doOptimizedPipeline)
     {
         std::tie(outputTexture, outputScene) = runFast(frame1, doDetection);
     }
@@ -589,6 +603,14 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
  * Provide per frame scene descriptor callbacks.
  * Notably, if a face requet listener is registered,
  * then a response is expected on a per frame basis.
+ *
+ * Maintain a history for last N textures and scenes.
+ * Note that with the current optimized pipeline (i.e., runFast) we introduce a latency of T=2
+ * so when we the texture for time T=2 to the OpenGL FIFO we wil push the most recent available
+ * scene for T-2 (T=0) to our scene buffer.
+ *
+ * IMAGE : { image[n-0], image[n-1], image[n-2] }
+ * SCENE : { __________, __________, scene[n-2], ... }
  */
 
 void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& now, bool isInit)
@@ -624,7 +646,11 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
                 for (int i = 0; i < frames.size(); i++)
                 {
                     frames[i].image = faces[i];
-                    frames[i].faceModels = impl->scenePrimitives[i].faces();
+                    if(i >= impl->latency)
+                    {
+                        frames[i].faceModels = impl->scenePrimitives[i - impl->latency].faces();
+                    }
+                    //frames[i].faceModels = impl->scenePrimitives[ impl->scenePrimitives.size() - 1 - i ].faces();
                 }
 
                 // ### collect eye images ###

@@ -200,7 +200,8 @@ struct FaceFinder::Impl
     bool usePBO = false;
     bool doOptimizedPipeline = true;
     int history = 3; // frame history
-
+    int latency = 2;
+    
     // :::::::::::::::::::::::
     // ::: Filters/Effects :::
     // :::::::::::::::::::::::
