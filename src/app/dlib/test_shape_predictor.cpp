@@ -5,11 +5,7 @@
 // http://www.csc.kth.se/~vahidk/papers/KazemiCVPR14.pdf
 //
 
-typedef unsigned char boolean;
-#define TRUE 1
-#define FALSE 0
-#define HAVE_BOOLEAN
-#include "jpeglib.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST!
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -30,7 +26,6 @@ typedef unsigned char boolean;
 #include "drishti/ml/shape_predictor_archive.h"
 #include "drishti/testlib/drishti_cli.h"
 
-#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
 
@@ -215,4 +210,3 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
     }
 }
-

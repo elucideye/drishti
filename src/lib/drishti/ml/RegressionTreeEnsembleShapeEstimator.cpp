@@ -99,16 +99,3 @@ void RTEShapeEstimator::dump(std::vector<float>& values, bool pca)
 }
 
 DRISHTI_ML_NAMESPACE_END
-
-// clang-format off
-#if !DRISHTI_BUILD_MIN_SIZE
-// Partial include of dlib source.cpp contents
-#  include "dlib/threads/multithreaded_object_extension.cpp"
-#  include "dlib/threads/threaded_object_extension.cpp"
-#  include "dlib/threads/threads_kernel_1.cpp"
-#  include "dlib/threads/threads_kernel_2.cpp"
-#  include "dlib/threads/threads_kernel_shared.cpp"
-#  include "dlib/threads/thread_pool_extension.cpp"
-#  include "dlib/threads/async.cpp"
-#endif
-// clang-format on
