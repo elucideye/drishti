@@ -3,7 +3,16 @@ set(test_app drishti-hci)
 hunter_add_package(gauze)
 find_package(gauze CONFIG REQUIRED)
 
-add_executable(${test_app} hci.cpp)
+set(hci_srcs hci.cpp)
+set(hci_defs "")
+
+message("DRISHTI_BUILD_OPENCV_EXTRA=${DRISHTI_BUILD_OPENCV_EXTRA}")
+if(DRISHTI_BUILD_OPENCV_EXTRA)
+  list(APPEND hci_srcs FacePatchTracker.h FacePatchTracker.cpp)
+  list(APPEND hci_defs DRISHTI_BUILD_OPENCV_CONTRIB=1)
+endif()
+
+add_executable(${test_app} ${hci_srcs})
 target_link_libraries(${test_app} PUBLIC
   drishtisdk
   cxxopts::cxxopts
@@ -11,6 +20,10 @@ target_link_libraries(${test_app} PUBLIC
   drishti_videoio
   aglet::aglet
   gauze::gauze)
+
+foreach(def ${hci_defs})
+  target_compile_definitions(${test_app} PUBLIC ${def})
+endforeach()
 
 # Get toolchain suffix:
 if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")

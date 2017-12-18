@@ -17,14 +17,9 @@
 #include "drishti/testlib/drishti_cli.h"
 #include "drishti/face/FaceDetectorFactoryJson.h"
 #include "drishti/core/drishti_string_hash.h"
-
-#define USE_EOS 0
-
-#if USE_EOS
-#  include "drishti/face/FaceMeshMapperFactory.h"
-#endif
-
 #include "drishti/geometry/motion.h"
+#include "drishti/core/drishti_cv_cereal.h"
+
 
 #include "ogles_gpgpu/common/proc/swizzle.h"
 
@@ -41,11 +36,16 @@
 
 #include <spdlog/fmt/ostr.h>
 
-#define DRISHTI_BUILD_OPENCV_CONTRIB 1
-
-#if DRISHTI_BUILD_OPENCV_CONTRIB
-#  include <opencv2/tracking.hpp>
+#if defined(DRISHTI_BUILD_OPENCV_CONTRIB)
+#  include "FacePatchTracker.h"
 #endif
+
+// cereal logging
+#include <cereal/types/deque.hpp>
+#include <cereal/types/array.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/archives/json.hpp>
+
 #include <opencv2/imgproc.hpp>
 
 #include <memory>
@@ -63,6 +63,37 @@ using string_hash::operator"" _hash;
 #define DRISHTI_HCI_USE_CACHE 0 // simulate speed of real video
 
 #include <opencv2/highgui.hpp>
+
+struct RawGazeMeasurement
+{
+    using UserFeatures = decltype(drishti::face::FaceModel::userFeatures);
+    
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
+    {
+        ar& GENERIC_NVP("timestamp", timestamp);
+        ar& GENERIC_NVP("features", features);
+    }
+    
+    std::size_t timestamp;
+    UserFeatures features;
+};
+
+struct GazeMeasurement
+{
+    using UserFeatures = decltype(drishti::face::FaceModel::userFeatures);
+    
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
+    {
+        ar& GENERIC_NVP("timestamp", timestamp);
+        ar& GENERIC_NVP("eye-right", eyes[0]); // serialize independent from array type
+        ar& GENERIC_NVP("eye-left", eyes[1]);
+    }
+    
+    std::size_t timestamp;
+    std::array<cv::Point2f, 2> eyes;
+};
 
 using LoggerPtr = std::shared_ptr<spdlog::logger>;
 
@@ -112,46 +143,61 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
     std::shared_ptr<spdlog::logger> m_logger;
 };
 
-//////
-
-
 #if DRISHTI_BUILD_OPENCV_CONTRIB
-
 // Simple FaceMonitor class to report face detection results over time.
 struct FaceMonitorTracker: public drishti::hci::FaceMonitor
 {
-    typedef cv::TrackerMedianFlow PatchTracker;
-    typedef cv::TrackerMedianFlow::Params PatchParams;
-    
-#if USE_EOS
-    using FaceMeshMapperFactory = drishti::face::FaceMeshMapperFactory;
-    using FaceMeshMapper = drishti::face::FaceMeshMapper;
-    using FaceMeshContainer = drishti::face::FaceMeshContainer;
-#endif
-    
-    struct Tracker
-    {
-        std::string name;
-        cv::Rect2d roi;
-        cv::Ptr<PatchTracker> tracker;
-    };
-    
-    FaceMonitorTracker(std::shared_ptr<spdlog::logger> &logger, const std::string &sMapper={})
+    FaceMonitorTracker(std::shared_ptr<spdlog::logger> &logger, const std::string &sOutput={})
         : m_logger(logger)
+        , sOutput(sOutput)
     {
-#if USE_EOS
-        if(!sMapper.empty())
-        {
-            m_mapper = FaceMeshMapperFactory(sMapper).create(FaceMeshMapperFactory::kLandmarksContours);
-        }
-#endif
-        std::cout << "sqrt # kepoints" << m_params.pointsInGrid << std::endl;
+
     }
     
     ~FaceMonitorTracker()
     {
         // Serialize the gaze measurements:
-        std::vector< std::vector< std::pair<std::string, float
+        if(!sOutput.empty())
+        {
+            if(m_doGazeLog)
+            {
+                std::vector<GazeMeasurement> gazeMeasurements;
+                gazeMeasurements.reserve(m_faceHistory.size());
+                for(const auto &f : m_faceHistory)
+                {
+                    gazeMeasurements.push_back({ f.first, m_tracker.getFrontalizedEyePair(f.second)} );
+                }
+                
+                std::ofstream os(sOutput);
+                if(os)
+                {
+                    cereal::JSONOutputArchive oa(os);
+                    typedef decltype(oa) Archive;
+                    oa << GENERIC_NVP("gaze", gazeMeasurements);
+                }
+            }
+            else
+            {
+                // Log the full face models (huge!!!)
+                std::ofstream os(sOutput);
+                if(os)
+                {
+                    cereal::JSONOutputArchive oa(os);
+                    typedef decltype(oa) Archive;
+                    oa << GENERIC_NVP("faces", m_faceHistory);
+                }
+            }
+        }
+    }
+    
+    void setIndex(std::size_t value)
+    {
+        m_frameIndex = value;
+    }
+    
+    void setDoGaze(bool flag)
+    {
+        m_doGazeLog = flag;
     }
     
     /**
@@ -168,11 +214,6 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
         m_logger->info("SimpleFaceMonitor: Found {} faces {}", faces.size(), xyz);
         return { 3, true, true }; // n, getImage, getTexture
     }
-    
-    static cv::Rect makeRect(const cv::Point &center, const cv::Size &size)
-    {
-        return { center - cv::Point(size.width/2, size.height/2), size };
-    }
 
     /**
      * A user defined virtual method callback that will be called with a
@@ -185,147 +226,58 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
     {
         m_logger->info("SimpleFaceMonitor: Received {} frames", frames.size());
         
-#if USE_EOS
-        std::shared_ptr<drishti::face::FaceMeshContainer> mesh;
-#endif
-        
         if(frames.size() >= 3) // account for latency
         {
             const auto &image = frames.back().image.image;
             const auto &face = frames.back().faceModels.front();
             
-            if(!(frames[0].eyes.image.empty()) && !(frames[2].eyes.image.empty()))
-            {
-                //estimateGaze( {{frames[0].eyes.image, frames[1].eyes.image }} );
-            }
-            
-#if USE_EOS
-            if(m_mapper)
-            {
-                cv::Mat gray;
-                cv::extractChannel(image, gray, 1);
-                mesh = (*m_mapper)(*face.points, gray);
-            }
-#endif
-            
-            if(m_trackers.empty())
-            {
-                std::array<cv::Rect2f, 2> eyes, eyesUpper, eyesLower;
-                face.getEyeRegions(eyes[0], eyes[1], 0.33);
+//            if(!(frames[0].eyes.image.empty()) && !(frames[2].eyes.image.empty()))
+//            {
+//                estimateGaze( {{frames[0].eyes.image, frames[1].eyes.image }} );
+//            }
 
-                cv::Point2f nose = (*face.noseTip);
-                std::array<std::array<cv::Point2f, 2>, 2> corners
-                {{
-                    {{ face.eyeFullR->getOuterCorner(), face.eyeFullR->getInnerCorner() }},
-                    {{ face.eyeFullL->getInnerCorner(), face.eyeFullL->getOuterCorner() }}
-                }};
-
-                // Create new line indexed templates (somewhat pose invariant):
-                const cv::Point2f vro = corners[0][0] - nose;
-                const cv::Point2f vri = corners[0][1] - nose;
-                const cv::Point2f vli = corners[1][0] - nose;
-                const cv::Point2f vlo = corners[1][1] - nose;
-               
-                m_trackers =
-                {
-                    { "right-upper", makeRect(nose + vri * 1.666f, eyes[0].size()), PatchTracker::create() },
-                    { "right-lower", makeRect(nose + vro * 0.666f, eyes[0].size()), PatchTracker::create() },
-                    { "left-lower", makeRect(nose + vlo * 0.666f, eyes[1].size()), PatchTracker::create() },
-                    { "left-upper", makeRect(nose + vli * 1.666f, eyes[1].size()), PatchTracker::create() },
-                    { "dorsal-bridge", getDorsalBridgeRoi(face, 0.33f), PatchTracker::create() }
-                };
-
-                for(auto &t : m_trackers)
-                {
-                    t.roi &= cv::Rect2d({0.0,0.0}, image.size());
-                }
-                
-                // Skip if any patch isn't visible:
-                cv::parallel_for_({0, static_cast<int>(m_trackers.size())}, [&](const cv::Range &r) {
-                    for(int i = r.start; i < r.end; i++) {
-                        m_trackers[i].tracker->init(image, m_trackers[i].roi);
-                    }
-                });
+            if(m_tracker.empty())
+            {
+                m_tracker.init(face, image);
             }
             else
             {
-                // Update the trackers:
-                cv::parallel_for_({0, static_cast<int>(m_trackers.size())}, [&](const cv::Range &r) {
-                    for(int i = r.start; i < r.end; i++) {
-                        m_trackers[i].tracker->update(image, m_trackers[i].roi);
-                    }
-                });
+                m_tracker.update(face, image);
             }
             
-            addFaceToLog(face, 0) ;
+            if(m_doRecord)
+            {
+                static const std::string gaze_filename = "/tmp/drishti_gaze_poc.mov";
+                cv::Mat canvas = m_tracker.draw(face, image);
+                if(!m_writer.isOpened())
+                {
+                    if(drishti::cli::file::exists(gaze_filename))
+                    {
+                        remove(gaze_filename.c_str());
+                    }
+                    m_writer.open(gaze_filename, CV_FOURCC('m','p','4','v'), 24, canvas.size(), true);
+                }
+                
+                m_writer << canvas;
+                addFaceToLog(face, m_frameIndex);
+            }
             
-            draw(face, image);
+            m_tracker.draw(face, image);
         }
     }
     
     void addFaceToLog(const drishti::face::FaceModel &faceIn, std::size_t index)
     {
         auto face = faceIn;
-        for(const auto &t : m_trackers)
-        {
-            face.userFeatures.emplace_back(t.name, (t.roi.tl() + t.roi.br()) * 0.5);
-        }
+        m_tracker.fill(face);
         
-        faceHistory.emplace_back(index, face);
-        if(faceHistory.size() > 4000)
+        m_faceHistory.emplace_back(index, face);
+        if(m_faceHistory.size() > 4000)
         {
-            faceHistory.pop_front();
+            m_faceHistory.pop_front();
         }
     }
     
-    void draw(const drishti::face::FaceModel &face, const cv::Mat4b &image)
-    {
-        cv::Mat canvas = image.clone();
-        face.draw(canvas, 4, true, false);
-        
-#if USE_EOS
-        if(mesh)
-        {
-            mesh->drawWireFrame(canvas);
-        }
-#endif
-        
-        //            for(const auto &r : face.rois)
-        //            {
-        //                cv::rectangle(canvas, r, {255,255,0}, 2, 8);
-        //            }
-        
-        for(const auto &t : m_trackers)
-        {
-            cv::Point2f tl(t.roi.tl()), br(t.roi.br()), tr(br.x, tl.y), bl(tl.x, br.y);
-            cv::rectangle(canvas, t.roi, {0,255,0}, 2, 8);
-            cv::line(canvas, tl, br, {0,255,0}, 2, 8);
-            cv::line(canvas, tr, bl, {0,255,0}, 2, 8);
-            
-            cv::line(canvas, (tl+br)*0.5, face.eyeFullL->irisEllipse.center, {0,255,0}, 2, 8);
-            cv::line(canvas, (tl+br)*0.5, face.eyeFullR->irisEllipse.center, {0,255,0}, 2, 8);
-            
-            cv::circle(canvas, (tl + br) * 0.5f, std::max(6, static_cast<int>(cv::norm(tl-br)*0.025f)), {255,0,255}, -1, 8);
-        }
-        cv::imshow("face", canvas); cv::waitKey(0);
-        
-        if(!m_writer.isOpened())
-        {
-            m_writer.open("/tmp/drishti_gaze_poc.mov", CV_FOURCC('m','p','4','v'), 24, canvas.size(), true);
-        }
-        m_writer << canvas;
-    }
-
-    
-    cv::Rect2d getDorsalBridgeRoi(const drishti::face::FaceModel &face, float scale) const
-    {
-        const cv::Point2f l = face.eyeFullL->irisEllipse.center;
-        const cv::Point2f r = face.eyeFullR->irisEllipse.center;
-        const float iod = cv::norm(l - r);
-        const cv::Point2f center = (l + r) * 0.5f, diag(iod * scale * 0.5, iod * scale * 0.5f);
-        return { center - diag, center + diag };
-    }
-
     /*
      * Calculates gradient and difference between images
      * \param[in] img1 Image one
@@ -335,62 +287,58 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
      * \param[out] It Difference of images
      */
     
-    void gradient(const cv::Mat& img1, const cv::Mat& img2, cv::Mat& Ix, cv::Mat& Iy, cv::Mat& It) const
-    {
-        cv::Size sz1 = img2.size();
-        
-        cv::Mat xkern = (cv::Mat_<double>(1, 3) << -1., 0., 1.)/2.;
-        cv::filter2D(img2, Ix, -1, xkern, {-1,-1}, 0., cv::BORDER_REPLICATE);
-        
-        cv::Mat ykern = (cv::Mat_<double>(3, 1) << -1., 0., 1.)/2.;
-        cv::filter2D(img2, Iy, -1, ykern, {-1,-1}, 0., cv::BORDER_REPLICATE);
-        
-        It = cv::Mat::zeros(sz1, img1.type());
-        It = img2 - img1;
-    }
-    
-    void estimateGaze(const std::array<cv::Mat4b, 2> &eyes)
-    {
-        cv::Mat gradx, grady, imgDiff;
-        gradient(eyes[0], eyes[1], gradx, grady, imgDiff);
-        
-        // Calculate parameters using least squares
-        cv::Matx<double, 2, 2> A;
-        cv::Vec<double, 2> b;
-        // For each value in A, all the matrix elements are added and then the channels are also added,
-        // so we have two calls to "sum". The result can be found in the first element of the final
-        // Scalar object.
-        
-        A(0, 0) = cv::sum(cv::sum(gradx.mul(gradx)))[0];
-        A(0, 1) = cv::sum(cv::sum(gradx.mul(grady)))[0];
-        A(1, 1) = cv::sum(cv::sum(grady.mul(grady)))[0];
-        A(1, 0) = A(0, 1);
-        
-        b(0) = -cv::sum(cv::sum(imgDiff.mul(gradx)))[0];
-        b(1) = -cv::sum(cv::sum(imgDiff.mul(grady)))[0];
-        
-        // Calculate shift. We use Cholesky decomposition, as A is symmetric.
-        cv::Vec<double, 2> shift = A.inv(cv::DECOMP_CHOLESKY)*b;
-        
-        const float scale = 40.0;
-        cv::Point center(eyes[0].cols/2, eyes[0].rows/2);
-        cv::line(eyes[0], center, center - cv::Point(shift[0]*scale, shift[1]*scale), {0,255,255}, 2, 8);
-        cv::imshow("e0", eyes[0]);
-        cv::imshow("e1", eyes[1]);
-        cv::waitKey(0);
-    }
+//    void gradient(const cv::Mat& img1, const cv::Mat& img2, cv::Mat& Ix, cv::Mat& Iy, cv::Mat& It) const
+//    {
+//        cv::Size sz1 = img2.size();
+//        
+//        cv::Mat xkern = (cv::Mat_<double>(1, 3) << -1., 0., 1.)/2.;
+//        cv::filter2D(img2, Ix, -1, xkern, {-1,-1}, 0., cv::BORDER_REPLICATE);
+//        
+//        cv::Mat ykern = (cv::Mat_<double>(3, 1) << -1., 0., 1.)/2.;
+//        cv::filter2D(img2, Iy, -1, ykern, {-1,-1}, 0., cv::BORDER_REPLICATE);
+//        
+//        It = cv::Mat::zeros(sz1, img1.type());
+//        It = img2 - img1;
+//    }
+//    
+//    cv::Vec2f estimateGaze(const std::array<cv::Mat4b, 2> &eyes)
+//    {
+//        cv::Mat gradx, grady, imgDiff;
+//        gradient(eyes[0], eyes[1], gradx, grady, imgDiff);
+//        
+//        // Calculate parameters using least squares
+//        cv::Matx<double, 2, 2> A;
+//        cv::Vec<double, 2> b;
+//        // For each value in A, all the matrix elements are added and then the channels are also added,
+//        // so we have two calls to "sum". The result can be found in the first element of the final
+//        // Scalar object.
+//        
+//        A(0, 0) = cv::sum(cv::sum(gradx.mul(gradx)))[0];
+//        A(0, 1) = cv::sum(cv::sum(gradx.mul(grady)))[0];
+//        A(1, 1) = cv::sum(cv::sum(grady.mul(grady)))[0];
+//        A(1, 0) = A(0, 1);
+//        
+//        b(0) = -cv::sum(cv::sum(imgDiff.mul(gradx)))[0];
+//        b(1) = -cv::sum(cv::sum(imgDiff.mul(grady)))[0];
+//        
+//        // Calculate shift. We use Cholesky decomposition, as A is symmetric.
+//        cv::Vec<double, 2> shift = A.inv(cv::DECOMP_CHOLESKY)*b;
+//
+//        return shift;
+//    }
    
-    std::deque< std::pair<int, drishti::face::FaceModel> > faceHistory;
+    std::shared_ptr<spdlog::logger> m_logger;
     
+    std::size_t m_frameIndex = 0;
+    
+    FacePatchTracker m_tracker;
+    std::deque<std::pair<std::size_t, drishti::face::FaceModel>> m_faceHistory;
+    
+    bool m_doRecord = true;
     cv::VideoWriter m_writer;
 
-#if USE_EOS
-    std::shared_ptr<drishti::face::FaceMeshMapper> m_mapper;
-#endif
-    
-    PatchParams m_params;
-    std::vector< Tracker > m_trackers;
-    std::shared_ptr<spdlog::logger> m_logger;
+    bool m_doGazeLog = true; // (compact) else full face
+    std::string sOutput;
 };
 #endif
 
@@ -450,6 +398,8 @@ int gauze_main(int argc, char** argv)
     float scale = 1.f;
     float fx = 0.f;
     
+    std::string sLogFilename;
+    
     bool doInner = false; // inner face processing
     
     // Create FaceDetectorFactory (default file based):
@@ -485,6 +435,8 @@ int gauze_main(int argc, char** argv)
         ("f,focal-length", "Focal length in pixels",cxxopts::value<float>(fx))
         ("min", "Nearest distance in meters", cxxopts::value<float>(minZ))
         ("max", "Farthest distance in meters", cxxopts::value<float>(maxZ))
+    
+        ("log", "Log filename", cxxopts::value<std::string>(sLogFilename))
     
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(factory->sFaceDetector))
@@ -583,9 +535,7 @@ int gauze_main(int argc, char** argv)
     std::size_t counter = 0;
     auto frame = (*video)(counter);
     const cv::Size frameSize = frame.image.size();
-    
-    cv::Matx33f S = transformation::scale(1.f, 0.9f, cv::Point2f(frameSize.width/2, frameSize.height/2));
-  
+
     if (frame.image.empty())
     {
         logger->info("No frames available in video");
@@ -644,14 +594,15 @@ int gauze_main(int argc, char** argv)
     detector->setShowMotionAxes(doDebug);      // *** rendering ***
     detector->setShowDetectionScales(doDebug); // *** rendering ***
     
-#if DRISHTI_BUILD_OPENCV_CONTRIB
-    FaceMonitorTracker faceTracker(logger, sEOS);
+#if defined(DRISHTI_BUILD_OPENCV_CONTRIB)
+    FaceMonitorTracker faceTracker(logger, sLogFilename);
+    faceTracker.setDoGaze(true); // compact measurements
     detector->registerFaceMonitorCallback(&faceTracker);
 #else
     // Instantiate and register a samle FaceMonitor class to log tracking results
     // over time.
-    FaceMonitorLogger faceLogger(logger);
-    detector->registerFaceMonitorCallback(&faceLogger);
+    FaceMonitorLogger faceTracker(logger);
+    detector->registerFaceMonitorCallback(&faceTracker);
 #endif
     
     // Allocate an input video source for feeding texture or image buffers
@@ -707,8 +658,6 @@ int gauze_main(int argc, char** argv)
         {
             frame = (*video)(counter);
             
-            //cv::warpAffine(frame.image, frame.image, S.get_minor<2,3>(0,0), frame.image.size());
-
 #if DRISHTI_HCI_USE_CACHE
             cache[counter] = frame; // cache it
 #endif            
@@ -716,6 +665,8 @@ int gauze_main(int argc, char** argv)
         }
         
         logger->info("fps: {}", (++timer).fps());
+        
+        faceTracker.setIndex(counter);
         
         counter++;
         if (frame.image.empty())
@@ -748,8 +699,6 @@ int gauze_main(int argc, char** argv)
         std::cout << "TAG " << ss.str() << std::endl;
         cv::putText(frame.image,  ss.str(), {64, frame.image.rows-64}, CV_FONT_HERSHEY_SIMPLEX, 4.0, {255,255,255,255}, 8);
 
-        
-        
         CV_Assert(frame.image.channels() == 4);
 
         logger->info("{}", cv::mean(frame.image));
@@ -785,13 +734,6 @@ int gauze_main(int argc, char** argv)
 
     (*opengl)(render);
 
-    { // dump metadata
-        for (const auto &f : )
-        {
-            
-        }
-    }
-    
     if (sink)
     {
         drishti::core::Semaphore s(0);
