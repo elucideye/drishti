@@ -18,6 +18,14 @@
 #include "drishti/face/FaceDetectorFactoryJson.h"
 #include "drishti/core/drishti_string_hash.h"
 
+#define USE_EOS 0
+
+#if USE_EOS
+#  include "drishti/face/FaceMeshMapperFactory.h"
+#endif
+
+#include "drishti/geometry/motion.h"
+
 #include "ogles_gpgpu/common/proc/swizzle.h"
 
 #include "videoio/VideoSourceCV.h"
@@ -32,6 +40,15 @@
 #include "ogles_gpgpu/common/proc/swizzle.h"
 
 #include <spdlog/fmt/ostr.h>
+
+#define DRISHTI_BUILD_OPENCV_CONTRIB 1
+
+#if DRISHTI_BUILD_OPENCV_CONTRIB
+#  include <opencv2/tracking.hpp>
+#endif
+#include <opencv2/imgproc.hpp>
+
+#include <memory>
 
 using string_hash::operator"" _hash;
 
@@ -62,7 +79,7 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
 {
     FaceMonitorLogger(std::shared_ptr<spdlog::logger> &logger) : m_logger(logger)
     {
-        
+
     }
     
     /**
@@ -94,6 +111,290 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
     
     std::shared_ptr<spdlog::logger> m_logger;
 };
+
+//////
+
+
+#if DRISHTI_BUILD_OPENCV_CONTRIB
+
+// Simple FaceMonitor class to report face detection results over time.
+struct FaceMonitorTracker: public drishti::hci::FaceMonitor
+{
+    typedef cv::TrackerMedianFlow PatchTracker;
+    typedef cv::TrackerMedianFlow::Params PatchParams;
+    
+#if USE_EOS
+    using FaceMeshMapperFactory = drishti::face::FaceMeshMapperFactory;
+    using FaceMeshMapper = drishti::face::FaceMeshMapper;
+    using FaceMeshContainer = drishti::face::FaceMeshContainer;
+#endif
+    
+    struct Tracker
+    {
+        std::string name;
+        cv::Rect2d roi;
+        cv::Ptr<PatchTracker> tracker;
+    };
+    
+    FaceMonitorTracker(std::shared_ptr<spdlog::logger> &logger, const std::string &sMapper={})
+        : m_logger(logger)
+    {
+#if USE_EOS
+        if(!sMapper.empty())
+        {
+            m_mapper = FaceMeshMapperFactory(sMapper).create(FaceMeshMapperFactory::kLandmarksContours);
+        }
+#endif
+        std::cout << "sqrt # kepoints" << m_params.pointsInGrid << std::endl;
+    }
+    
+    ~FaceMonitorTracker()
+    {
+        // Serialize the gaze measurements:
+        std::vector< std::vector< std::pair<std::string, float
+    }
+    
+    /**
+     * A user defined virtual method callback that should report the number
+     * of frames that should be captured from teh FIFO buffer based on the
+     * reported face location.
+     * @param faces a vector of faces for the current frame
+     * @param timestmap the acquisition timestamp for the frame
+     * @return a frame request for the last n frames with requested image formats
+     */
+    virtual Request request(const Faces& faces, const TimePoint& timeStamp)
+    {
+        cv::Point3f xyz = faces.size() ? (*faces.front().eyesCenter) : cv::Point3f();
+        m_logger->info("SimpleFaceMonitor: Found {} faces {}", faces.size(), xyz);
+        return { 3, true, true }; // n, getImage, getTexture
+    }
+    
+    static cv::Rect makeRect(const cv::Point &center, const cv::Size &size)
+    {
+        return { center - cv::Point(size.width/2, size.height/2), size };
+    }
+
+    /**
+     * A user defined virtual method callback that will be called with a
+     * a populated vector of FaceImage objects for the last N frames, where
+     * N is the number of frames requested in the preceding request callback.
+     * @param frames A vector containing the last N consecutive FaceImage objects
+     * @param isInitialized Return true if the FIFO buffer is fully initialized.
+     */
+    virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
+    {
+        m_logger->info("SimpleFaceMonitor: Received {} frames", frames.size());
+        
+#if USE_EOS
+        std::shared_ptr<drishti::face::FaceMeshContainer> mesh;
+#endif
+        
+        if(frames.size() >= 3) // account for latency
+        {
+            const auto &image = frames.back().image.image;
+            const auto &face = frames.back().faceModels.front();
+            
+            if(!(frames[0].eyes.image.empty()) && !(frames[2].eyes.image.empty()))
+            {
+                //estimateGaze( {{frames[0].eyes.image, frames[1].eyes.image }} );
+            }
+            
+#if USE_EOS
+            if(m_mapper)
+            {
+                cv::Mat gray;
+                cv::extractChannel(image, gray, 1);
+                mesh = (*m_mapper)(*face.points, gray);
+            }
+#endif
+            
+            if(m_trackers.empty())
+            {
+                std::array<cv::Rect2f, 2> eyes, eyesUpper, eyesLower;
+                face.getEyeRegions(eyes[0], eyes[1], 0.33);
+
+                cv::Point2f nose = (*face.noseTip);
+                std::array<std::array<cv::Point2f, 2>, 2> corners
+                {{
+                    {{ face.eyeFullR->getOuterCorner(), face.eyeFullR->getInnerCorner() }},
+                    {{ face.eyeFullL->getInnerCorner(), face.eyeFullL->getOuterCorner() }}
+                }};
+
+                // Create new line indexed templates (somewhat pose invariant):
+                const cv::Point2f vro = corners[0][0] - nose;
+                const cv::Point2f vri = corners[0][1] - nose;
+                const cv::Point2f vli = corners[1][0] - nose;
+                const cv::Point2f vlo = corners[1][1] - nose;
+               
+                m_trackers =
+                {
+                    { "right-upper", makeRect(nose + vri * 1.666f, eyes[0].size()), PatchTracker::create() },
+                    { "right-lower", makeRect(nose + vro * 0.666f, eyes[0].size()), PatchTracker::create() },
+                    { "left-lower", makeRect(nose + vlo * 0.666f, eyes[1].size()), PatchTracker::create() },
+                    { "left-upper", makeRect(nose + vli * 1.666f, eyes[1].size()), PatchTracker::create() },
+                    { "dorsal-bridge", getDorsalBridgeRoi(face, 0.33f), PatchTracker::create() }
+                };
+
+                for(auto &t : m_trackers)
+                {
+                    t.roi &= cv::Rect2d({0.0,0.0}, image.size());
+                }
+                
+                // Skip if any patch isn't visible:
+                cv::parallel_for_({0, static_cast<int>(m_trackers.size())}, [&](const cv::Range &r) {
+                    for(int i = r.start; i < r.end; i++) {
+                        m_trackers[i].tracker->init(image, m_trackers[i].roi);
+                    }
+                });
+            }
+            else
+            {
+                // Update the trackers:
+                cv::parallel_for_({0, static_cast<int>(m_trackers.size())}, [&](const cv::Range &r) {
+                    for(int i = r.start; i < r.end; i++) {
+                        m_trackers[i].tracker->update(image, m_trackers[i].roi);
+                    }
+                });
+            }
+            
+            addFaceToLog(face, 0) ;
+            
+            draw(face, image);
+        }
+    }
+    
+    void addFaceToLog(const drishti::face::FaceModel &faceIn, std::size_t index)
+    {
+        auto face = faceIn;
+        for(const auto &t : m_trackers)
+        {
+            face.userFeatures.emplace_back(t.name, (t.roi.tl() + t.roi.br()) * 0.5);
+        }
+        
+        faceHistory.emplace_back(index, face);
+        if(faceHistory.size() > 4000)
+        {
+            faceHistory.pop_front();
+        }
+    }
+    
+    void draw(const drishti::face::FaceModel &face, const cv::Mat4b &image)
+    {
+        cv::Mat canvas = image.clone();
+        face.draw(canvas, 4, true, false);
+        
+#if USE_EOS
+        if(mesh)
+        {
+            mesh->drawWireFrame(canvas);
+        }
+#endif
+        
+        //            for(const auto &r : face.rois)
+        //            {
+        //                cv::rectangle(canvas, r, {255,255,0}, 2, 8);
+        //            }
+        
+        for(const auto &t : m_trackers)
+        {
+            cv::Point2f tl(t.roi.tl()), br(t.roi.br()), tr(br.x, tl.y), bl(tl.x, br.y);
+            cv::rectangle(canvas, t.roi, {0,255,0}, 2, 8);
+            cv::line(canvas, tl, br, {0,255,0}, 2, 8);
+            cv::line(canvas, tr, bl, {0,255,0}, 2, 8);
+            
+            cv::line(canvas, (tl+br)*0.5, face.eyeFullL->irisEllipse.center, {0,255,0}, 2, 8);
+            cv::line(canvas, (tl+br)*0.5, face.eyeFullR->irisEllipse.center, {0,255,0}, 2, 8);
+            
+            cv::circle(canvas, (tl + br) * 0.5f, std::max(6, static_cast<int>(cv::norm(tl-br)*0.025f)), {255,0,255}, -1, 8);
+        }
+        cv::imshow("face", canvas); cv::waitKey(0);
+        
+        if(!m_writer.isOpened())
+        {
+            m_writer.open("/tmp/drishti_gaze_poc.mov", CV_FOURCC('m','p','4','v'), 24, canvas.size(), true);
+        }
+        m_writer << canvas;
+    }
+
+    
+    cv::Rect2d getDorsalBridgeRoi(const drishti::face::FaceModel &face, float scale) const
+    {
+        const cv::Point2f l = face.eyeFullL->irisEllipse.center;
+        const cv::Point2f r = face.eyeFullR->irisEllipse.center;
+        const float iod = cv::norm(l - r);
+        const cv::Point2f center = (l + r) * 0.5f, diag(iod * scale * 0.5, iod * scale * 0.5f);
+        return { center - diag, center + diag };
+    }
+
+    /*
+     * Calculates gradient and difference between images
+     * \param[in] img1 Image one
+     * \param[in] img2 Image two
+     * \param[out] Ix Gradient x-coordinate
+     * \param[out] Iy Gradient y-coordinate
+     * \param[out] It Difference of images
+     */
+    
+    void gradient(const cv::Mat& img1, const cv::Mat& img2, cv::Mat& Ix, cv::Mat& Iy, cv::Mat& It) const
+    {
+        cv::Size sz1 = img2.size();
+        
+        cv::Mat xkern = (cv::Mat_<double>(1, 3) << -1., 0., 1.)/2.;
+        cv::filter2D(img2, Ix, -1, xkern, {-1,-1}, 0., cv::BORDER_REPLICATE);
+        
+        cv::Mat ykern = (cv::Mat_<double>(3, 1) << -1., 0., 1.)/2.;
+        cv::filter2D(img2, Iy, -1, ykern, {-1,-1}, 0., cv::BORDER_REPLICATE);
+        
+        It = cv::Mat::zeros(sz1, img1.type());
+        It = img2 - img1;
+    }
+    
+    void estimateGaze(const std::array<cv::Mat4b, 2> &eyes)
+    {
+        cv::Mat gradx, grady, imgDiff;
+        gradient(eyes[0], eyes[1], gradx, grady, imgDiff);
+        
+        // Calculate parameters using least squares
+        cv::Matx<double, 2, 2> A;
+        cv::Vec<double, 2> b;
+        // For each value in A, all the matrix elements are added and then the channels are also added,
+        // so we have two calls to "sum". The result can be found in the first element of the final
+        // Scalar object.
+        
+        A(0, 0) = cv::sum(cv::sum(gradx.mul(gradx)))[0];
+        A(0, 1) = cv::sum(cv::sum(gradx.mul(grady)))[0];
+        A(1, 1) = cv::sum(cv::sum(grady.mul(grady)))[0];
+        A(1, 0) = A(0, 1);
+        
+        b(0) = -cv::sum(cv::sum(imgDiff.mul(gradx)))[0];
+        b(1) = -cv::sum(cv::sum(imgDiff.mul(grady)))[0];
+        
+        // Calculate shift. We use Cholesky decomposition, as A is symmetric.
+        cv::Vec<double, 2> shift = A.inv(cv::DECOMP_CHOLESKY)*b;
+        
+        const float scale = 40.0;
+        cv::Point center(eyes[0].cols/2, eyes[0].rows/2);
+        cv::line(eyes[0], center, center - cv::Point(shift[0]*scale, shift[1]*scale), {0,255,255}, 2, 8);
+        cv::imshow("e0", eyes[0]);
+        cv::imshow("e1", eyes[1]);
+        cv::waitKey(0);
+    }
+   
+    std::deque< std::pair<int, drishti::face::FaceModel> > faceHistory;
+    
+    cv::VideoWriter m_writer;
+
+#if USE_EOS
+    std::shared_ptr<drishti::face::FaceMeshMapper> m_mapper;
+#endif
+    
+    PatchParams m_params;
+    std::vector< Tracker > m_trackers;
+    std::shared_ptr<spdlog::logger> m_logger;
+};
+#endif
+
+//////
 
 // Add a simple timer to report frame rate.  For any offline VideoSource type
 // the processing will almost certainly be IO limited.  As a simple workaround
@@ -141,15 +442,15 @@ int gauze_main(int argc, char** argv)
     bool doMovie = false;
     bool doDebug = false;
     int loops = 0;
-
-    std::string sInput, sOutput, sSwizzle = "rgba";
+    
+    std::string sInput, sOutput, sSwizzle = "rgba", sEOS;
 
     float resolution = 1.f;
     float cascCal = 0.f;
     float scale = 1.f;
     float fx = 0.f;
     
-    bool doInner; // inner face processing
+    bool doInner = false; // inner face processing
     
     // Create FaceDetectorFactory (default file based):
     std::string sFactory;
@@ -172,6 +473,8 @@ int gauze_main(int argc, char** argv)
         ("debug", "Provide debugging annotations", cxxopts::value<bool>(doDebug))
 #endif
         ("l,loops", "Loop the input video", cxxopts::value<int>(loops))
+    
+        ("e,eos", "Eos assets file (factory)", cxxopts::value<std::string>(sEOS))
     
         // Generate a quicktime movie:
         ("m,movie", "Output quicktime movie", cxxopts::value<bool>(doMovie))
@@ -280,7 +583,9 @@ int gauze_main(int argc, char** argv)
     std::size_t counter = 0;
     auto frame = (*video)(counter);
     const cv::Size frameSize = frame.image.size();
-
+    
+    cv::Matx33f S = transformation::scale(1.f, 0.9f, cv::Point2f(frameSize.width/2, frameSize.height/2));
+  
     if (frame.image.empty())
     {
         logger->info("No frames available in video");
@@ -309,13 +614,14 @@ int gauze_main(int argc, char** argv)
     settings.faceFinderInterval = 0.f;
     settings.regressorCropScale = scale;
     settings.acfCalibration = cascCal;
-    
+    settings.doOptimizedPipeline = true; // set to false for latency=0 else latency=2
+        
     // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     settings.renderFaces = true;          // *** rendering ***
     settings.renderPupils = true;         // *** rendering ***
     settings.renderCorners = false;       // *** rendering ***
     settings.renderEyesWidthRatio = 0.25f * opengl->getGeometry().sx; // *** rendering ***
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    // |||||||||||||||||||||||||||||||||||||||||||||||||||||||
     
     settings.minDetectionDistance = minZ;
     settings.maxDetectionDistance = maxZ;
@@ -338,10 +644,15 @@ int gauze_main(int argc, char** argv)
     detector->setShowMotionAxes(doDebug);      // *** rendering ***
     detector->setShowDetectionScales(doDebug); // *** rendering ***
     
+#if DRISHTI_BUILD_OPENCV_CONTRIB
+    FaceMonitorTracker faceTracker(logger, sEOS);
+    detector->registerFaceMonitorCallback(&faceTracker);
+#else
     // Instantiate and register a samle FaceMonitor class to log tracking results
     // over time.
-    FaceMonitorLogger faceMonitor(logger);
-    detector->registerFaceMonitorCallback(&faceMonitor);
+    FaceMonitorLogger faceLogger(logger);
+    detector->registerFaceMonitorCallback(&faceLogger);
+#endif
     
     // Allocate an input video source for feeding texture or image buffers
     // into the gpgpu pipeline.
@@ -395,6 +706,8 @@ int gauze_main(int argc, char** argv)
 #endif
         {
             frame = (*video)(counter);
+            
+            //cv::warpAffine(frame.image, frame.image, S.get_minor<2,3>(0,0), frame.image.size());
 
 #if DRISHTI_HCI_USE_CACHE
             cache[counter] = frame; // cache it
@@ -430,6 +743,13 @@ int gauze_main(int argc, char** argv)
             cv::cvtColor(frame.image, frame.image, cv::COLOR_BGR2BGRA);
         }
 
+        std::stringstream ss;
+        ss << "N=" << counter;
+        std::cout << "TAG " << ss.str() << std::endl;
+        cv::putText(frame.image,  ss.str(), {64, frame.image.rows-64}, CV_FONT_HERSHEY_SIMPLEX, 4.0, {255,255,255,255}, 8);
+
+        
+        
         CV_Assert(frame.image.channels() == 4);
 
         logger->info("{}", cv::mean(frame.image));
@@ -465,6 +785,13 @@ int gauze_main(int argc, char** argv)
 
     (*opengl)(render);
 
+    { // dump metadata
+        for (const auto &f : )
+        {
+            
+        }
+    }
+    
     if (sink)
     {
         drishti::core::Semaphore s(0);

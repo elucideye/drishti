@@ -29,6 +29,9 @@
 
 #define DRISHTI_FACE_DETECTOR_DO_SIMILARITY_MOTION 1
 
+#define DRISHTI_IRIS_INITS 7   // 1
+#define DRISHTI_EYELID_INITS 7 // 1
+
 DRISHTI_FACE_NAMESPACE_BEGIN
 
 using drishti::geometry::operator*;
@@ -105,7 +108,7 @@ public:
         }
     }
 
-    void refineFace(const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H, bool isDetection)
+    void refineFace(const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& Hdr, bool isDetection)
     {
         // Find the landmarks:
         if (m_regressor)
@@ -114,8 +117,19 @@ public:
             std::transform(faces.begin(), faces.end(), shapes.begin(), [](const FaceModel& face) {
                 return dsdkc::Shape(face.roi);
             });
-            findLandmarks(Ib, shapes, H, isDetection);
+            
+            findLandmarks(Ib, shapes, Hdr, isDetection);
+            
+            std::vector<cv::Rect> detection(faces.size());
+            for(int i = 0; i < faces.size(); i++)
+            {
+                detection[i] = (Hdr * *faces[i].roi);
+            }
             shapesToFaces(shapes, faces);
+            for(int i = 0; i < faces.size(); i++)
+            {
+                faces[i].rois = { detection[i] };
+            }
         }
 
         if (m_eyeRegressor.size() && m_eyeRegressor[0] && m_eyeRegressor[1] && m_doEyeRefinement && faces.size())
@@ -146,7 +160,7 @@ public:
         {
             cv::Rect roi = eyes[i] & bounds;
             if (roi == eyes[i])
-            {
+             {
                 crops[i] = Ib(roi); // shallow copy
             }
             else
@@ -192,8 +206,8 @@ public:
             for (int i = 0; i < 2; i++)
             {
                 m_eyeRegressor[i]->setDoIndependentIrisAndPupil(m_doIrisRefinement);
-                m_eyeRegressor[i]->setEyelidInits(1);
-                m_eyeRegressor[i]->setIrisInits(1);
+                m_eyeRegressor[i]->setEyelidInits(7);
+                m_eyeRegressor[i]->setIrisInits(7);
             }
 
             drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
@@ -238,7 +252,7 @@ public:
             // such raw detection rectangles, we must map them onto faces in the landmark regression image
             // with a geometry that is similar to that used during training.  We do this by using a known
             // approximate homography mapping our mean detection face features (eyes, nose, moiuth) to the
-            // same face mean face features from the casecaded pose regressor training.  This transformation
+            // same mean face features from the casecaded pose regressor training.  This transformation
             // must also be composed with the input Hdr_ homography that provides a transformation from the
             // detection image coordinate system to the landmark regression coordinate system, which is most
             // likely a scale and translation (detection typically happens at lower resolution).
@@ -295,11 +309,13 @@ public:
     // Hdr                 : detector image to regressor
     static cv::Rect mapDetectionToRegressor(const cv::Rect& roi, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)
     {
+        static const cv::Rect2f square = { 0.f, 0.f, 1.f, 1.f };
+        
         // 1) map the unit square from regressor to the detector;
         // 2) denormalize coordinates in the detector image;
         // 3) transform from the detector image to the regressor image;
         cv::Matx33f H = Hdr_ * denormalize(roi) * Hrd;
-        return H * cv::Rect_<float>(0, 0, 1, 1);
+        return H * square;
     }
 
     void mapDetectionsToRegressor(std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)

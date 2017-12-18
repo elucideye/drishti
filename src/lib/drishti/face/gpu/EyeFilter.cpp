@@ -68,6 +68,22 @@ EyeFilter::EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff, int history
             lastProc = mean3Proc.get();
         }
         break;
+            
+        case kCenteredDiff:
+        {
+            mean3Proc = drishti::core::make_unique<ogles_gpgpu::Fir3Proc>();
+            mean3Proc->setWeights({ -1.0f, 0.f, +1.0f });
+            mean3Proc->setAlpha(2.0f);
+            mean3Proc->setBeta(0.5f);
+            procPasses.push_back(mean3Proc.get());
+            
+            fifoProc->addWithDelay(mean3Proc.get(), 0, 0);
+            fifoProc->addWithDelay(mean3Proc.get(), 1, 1);
+            fifoProc->addWithDelay(mean3Proc.get(), 2, 2);
+            
+            lastProc = mean3Proc.get();
+        }
+        break;
 
         case kNone:
         default:

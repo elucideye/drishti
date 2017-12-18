@@ -38,11 +38,11 @@ struct FaceModel
     float getInterPupillaryDistance() const;
     cv::Point2f getEyeLeftCenter() const;
     cv::Point2f getEyeRightCenter() const;
-    std::vector<ContourVec> getFaceParts(bool fullEyes = false, bool browClosed = true) const;
+    std::vector<ContourVec> getFaceParts(bool fullEyes = false, bool browClosed = true, bool doMouth = false) const;
     bool getEyeRegions(cv::Rect2f& eyeR, cv::Rect2f& eyeL, float scale = 0.666f) const;
 
     // ======================
-
+    
     // Note: eyeLeftCenter, eyeRightCenter, noseTip used for affine normalization
 
     core::Field<Contour> points;
@@ -91,6 +91,8 @@ struct FaceModel
     std::vector<cv::Rect2d> rois;
 
     core::Field<cv::Point3f> eyesCenter;
+    
+    std::vector< std::pair<std::string, cv::Point2f> > userFeatures; // generic feature
 
     template <typename T>
     FaceModel& operator+=(const cv::Point_<T>& p)
@@ -112,7 +114,7 @@ struct FaceModel
         return *this;
     }
 
-    void draw(cv::Mat& canvas, int width = 1, bool fullEyes = false, bool allPoints = false) const;
+    void draw(cv::Mat& canvas, int width = 1, bool fullEyes = false, bool allPoints = false, bool doMouth = false) const;
 
     // ((( IO )))
     template <class Archive>

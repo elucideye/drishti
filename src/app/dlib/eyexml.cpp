@@ -13,6 +13,7 @@
 #include "drishti/core/Logger.h"
 #include "drishti/core/drishti_string_hash.h"
 #include "drishti/core/string_utils.h"
+#include "drishti/core/Shape.h"
 #include "drishti/testlib/drishti_cli.h"
 
 #include "drishti/core/drishti_stdlib_string.h"
@@ -26,6 +27,8 @@
 #include "rapidxml/rapidxml_print.hpp"
 
 #include <opencv2/highgui.hpp>
+#include <opencv2/photo.hpp>
+
 #include <boost/filesystem.hpp>
 
 #include "cxxopts.hpp"
@@ -34,9 +37,19 @@
 #include <iostream>
 #include <string>
 
+#define DRISHTI_DO_EYE_CROP 1
+
+#if DRISHTI_DO_EYE_CROP
+#  define DRISHTI_EYE_WIDTH 80
+#  define DRISHTI_EYE_HEIGHT 60
+#  define DRISHTI_EYE_MARGIN 16
+#endif
+
 namespace bfs = boost::filesystem;
 
 using string_hash::operator"" _hash;
+
+using StringVec = std::vector<std::string>;
 
 /*
  
@@ -129,10 +142,33 @@ static void load(const std::string& sEye, drishti::eye::EyeModel& eye)
     }
 }
 
+// Save in piotr's toolbox bbGt version=3 format
+//
+// % bbGt version=3
+// face 128 117 124 124 0 128 117 124 124 0 0
+
+static void save_bbGtv3(const std::string &sOutput, const std::vector<cv::Rect> &objects)
+{
+    static const char *sHeader = "% bbGt version=3";
+    static const char *sLabel = "face";
+    
+    std::ofstream ofs(sOutput);
+    if(ofs)
+    {
+        for(const auto &o : objects)
+        {
+            std::stringstream box;
+            box << o.x << ' ' << o.y << ' ' << o.width << ' ' << o.height;
+            ofs << sHeader << "\n" << sLabel << ' ' << box.str() << " 0 " << box.str() << " 0 0" << std::endl;
+        }
+    }
+}
+
 class DlibDocument
 {
 public:
-    DlibDocument()
+    DlibDocument(const std::string &sCrops)
+        : m_sCrops(sCrops)
     {
         m_spec = drishti::eye::EyeModelSpecification::create();
     }
@@ -246,6 +282,40 @@ public:
         return canvas;
 
     }
+    
+    static cv::Mat is_black(const cv::Mat &image)
+    {
+        return (image & cv::Scalar::all(255));
+    }
+    
+    std::pair<cv::Mat, cv::Rect> make_crop(const cv::Mat &image, const drishti::eye::EyeModel &eye)
+    {
+        const cv::Size margin(DRISHTI_EYE_MARGIN, DRISHTI_EYE_MARGIN);
+        const cv::Size size(DRISHTI_EYE_WIDTH, DRISHTI_EYE_HEIGHT);
+        const cv::Size dimensions = size + (margin * 2);
+        cv::Mat crop = cv::Mat::zeros(dimensions, CV_8UC3);
+        
+        const cv::Point2f mu = drishti::core::centroid(eye.eyelids);
+        const float width = cv::norm(eye.getInnerCorner() - eye.getOuterCorner());
+        const float scale = (width / static_cast<float>(size.width)) / 0.666f;
+        
+        const cv::Matx33f S = transformation::scale(scale, scale);
+        const cv::Matx33f C1 = transformation::translate(mu);
+        const cv::Matx33f C2 = transformation::translate(-dimensions.width/2, -dimensions.height/2);
+        const cv::Matx33f H = C1 * S * C2;
+        
+        cv::Mat bgra, bgr, mask;
+        cv::cvtColor(image, bgra, cv::COLOR_BGR2BGRA);
+        cv::warpAffine(bgra, crop, H.get_minor<2,3>(0,0), crop.size(), CV_WARP_INVERSE_MAP);
+        cv::extractChannel(crop, mask, 3);
+        cv::dilate(~mask, mask, {}, {-1,-1}, 3);
+        cv::cvtColor(crop, bgr, cv::COLOR_BGRA2BGR);
+        
+        cv::Mat filled;
+        cv::inpaint(bgr, mask, filled, 5.0, cv::INPAINT_TELEA);
+        
+        return { filled, cv::Rect({margin.width, margin.height}, size) };
+    }
 
     void addEye(drishti::eye::EyeModel& eye, const std::string& filename)
     {
@@ -255,6 +325,28 @@ public:
         {
             m_eyeCount++; // only write if # eyes > 0
 
+            if(!m_sCrops.empty())
+            {
+                cv::Mat image = cv::imread(filename);
+                if(!image.empty())
+                {
+                    cv::Mat crop;
+                    cv::Rect roi;
+                    std::tie(crop, roi) = make_crop(image, eye);
+                    std::string stem = m_sCrops + "/" + drishti::core::basename(filename);
+                    
+                    // RIGHT:
+                    cv::imwrite(stem + "_r.png", crop);
+                    save_bbGtv3(stem + "_r.box", { roi });
+
+                    cv::flip(crop, crop, 1);
+                    
+                    // LEFT:
+                    cv::imwrite(stem + "_l.png", crop);
+                    save_bbGtv3(stem + "_l.box", { roi });
+                }
+            }
+            
             // TODO: deserialize spec from command line
             auto points = drishti::eye::eyeToShape(eye, m_spec);
 
@@ -323,14 +415,17 @@ public:
     rapidxml::xml_node<>* dataset = nullptr;
     rapidxml::xml_node<>* images = nullptr;
     rapidxml::xml_document<> doc;
+    
+    std::string m_sCrops;
 };
 
-static int drishtiEyeToDlib(const std::vector<std::string>& filenames, std::string& sOutput, const std::string& ext = ".eye.xml")
+// EXT : ".eye.xml" or similar
+static int drishtiEyeToDlib(const StringVec& filenames, std::string& sOutput, const std::string& ext, const std::string &sCrops={})
 {
     std::ofstream os(sOutput);
     if (os)
     {
-        DlibDocument doc;
+        DlibDocument doc(sCrops);
 
         doc.start();
         for (const auto& sImage : filenames)
@@ -357,8 +452,8 @@ int gauze_main(int argc, char** argv)
     // ### Command line parsing ###
     // ############################
 
-    std::string sInput, sOutput, sExtension = ".eye.xml";
-
+    std::string sInput, sOutput, sExtension = ".eye.xml", sCrops;
+    
     cxxopts::Options options("eyexml", "Convert eye files to xml");
 
     // clang-format off
@@ -366,6 +461,7 @@ int gauze_main(int argc, char** argv)
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
         ("e,extension", "Extension", cxxopts::value<std::string>(sExtension))
+        ("c,crops", "Output crop directory (optional)", cxxopts::value<std::string>(sCrops))
         ("h,help", "Print help message");
     // clang-format on
 
@@ -379,7 +475,7 @@ int gauze_main(int argc, char** argv)
 
     auto filenames = drishti::cli::expand(sInput);
 
-    return drishtiEyeToDlib(filenames, sOutput, sExtension);
+    return drishtiEyeToDlib(filenames, sOutput, sExtension, sCrops);
 }
 
 int main(int argc, char** argv)

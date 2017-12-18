@@ -49,6 +49,7 @@ public:
         kNone,
         kIirLowPass,
         kMean3,
+        kCenteredDiff
     };
 
     EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff, int history);
@@ -114,6 +115,7 @@ protected:
     std::unique_ptr<FifoProc> fifoProc; // maintain buffer
     std::unique_ptr<LowPassFilterProc> lowPassProc;
     std::unique_ptr<Fir3Proc> mean3Proc;
+    std::unique_ptr<DiffProc> diffProc;
 
     ProcInterface* lastProc = nullptr;
     ProcInterface* firstProc = nullptr;

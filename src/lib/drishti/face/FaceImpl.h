@@ -49,6 +49,11 @@ void FaceModel::serialize(Archive& ar, const unsigned int version)
     ar& GENERIC_NVP("eyebrow-left", eyebrowLeft);
     ar& GENERIC_NVP("eye-right", eyeRight);
     ar& GENERIC_NVP("eyebrow-right", eyebrowRight);
+    
+    if(version >= 3)
+    {
+        ar & GENERIC_NVP("features", userFeatures);
+    }
 };
 
 DRISHTI_FACE_NAMESPACE_END

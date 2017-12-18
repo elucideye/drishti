@@ -73,7 +73,7 @@ std::vector<cv::Point2f> asSpline(const std::vector<cv::Point2f>& points, int n,
     return spline;
 }
 
-std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool browClosed) const
+std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool browClosed, bool doMouth) const
 {
     bool useFull = (fullEyes && eyeFullR.has && eyeFullL.has);
     ContourVec eyeRight_ = useFull ? eyeFullR->getContours() : ContourVec(1, asSpline(eyeRight, 64, true));
@@ -89,7 +89,7 @@ std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool b
         { asSpline(eyebrowLeft, 64, browClosed) }
     };
     
-    if(mouthOuter.size() && mouthInner.size())
+    if(doMouth && mouthOuter.size() && mouthInner.size())
     {
         features.emplace_back( ContourVec{asSpline(mouthOuter, 64, true)} );
         features.emplace_back( ContourVec{asSpline(mouthInner, 64, true)} );
@@ -108,7 +108,7 @@ std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool b
     return features;
 };
 
-void FaceModel::draw(cv::Mat& canvas, int width, bool fullEyes, bool allPoints) const
+void FaceModel::draw(cv::Mat& canvas, int width, bool fullEyes, bool allPoints, bool doMouth) const
 {
     static std::vector<cv::Vec3b> rainbow{
         { 0, 0, 255 },     // red
@@ -130,16 +130,20 @@ void FaceModel::draw(cv::Mat& canvas, int width, bool fullEyes, bool allPoints) 
     }
 
     const bool browClosed = false;
-    auto features = getFaceParts(fullEyes, browClosed);
+    auto features = getFaceParts(fullEyes, browClosed, doMouth);
 
     // Draw the nose tip estimate:
     std::vector<const core::Field<cv::Point2f>*> things{
         &noseTip,
         &eyebrowLeftInner,
         &eyebrowRightInner,
-        &mouthCornerLeft,
-        &mouthCornerRight
     };
+    
+    if(doMouth)
+    {
+        things.emplace_back(&mouthCornerLeft);
+        things.emplace_back(&mouthCornerRight);
+    }
 
     if (!fullEyes)
     {

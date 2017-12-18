@@ -2,12 +2,14 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/core/drishti_cereal_pba.h"
 
+#include <cereal/types/string.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "Face.h"
 #include "FaceImpl.h"
 
-CEREAL_CLASS_VERSION(DRISHTI_FACE::FaceModel, 2);
-
-
+CEREAL_CLASS_VERSION(DRISHTI_FACE::FaceModel, 3);
 
 // ##################################################################
 // #################### portable_binary_*archive ####################

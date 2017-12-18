@@ -1,7 +1,10 @@
 #!/bin/bash
 
+export IOS_10_1_DEVELOPER_DIR=/Applications/develop/ide/xcode/8.1/Xcode.app/Contents/Developer
+
 . ${DRISHTISDK}/bin/build-common-devel.sh
 
+#TOOLCHAIN=ios-10-3-arm64
 TOOLCHAIN=ios-10-1-arm64-dep-8-0-hid-sections
 
 if [ -z "${DRISHTISDK}" ]; then
