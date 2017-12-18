@@ -51,7 +51,7 @@ matrix:
     # Linux {
 
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=libcxx INSTALL=--strip
+      env: CONFIG=Release TOOLCHAIN=libcxx-fpic-hid-sections INSTALL=--strip
 
     - os: linux
       env: CONFIG=Release TOOLCHAIN=gcc-5-pic-hid-sections-lto INSTALL=--strip
