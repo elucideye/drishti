@@ -402,7 +402,6 @@ void EyeModel::flop(int width)
 
 void EyeModel::draw(cv::Mat& canvas, int level, bool doMask, const cv::Scalar& color, int width) const
 {
-#if !DRISHTI_BUILD_MIN_SIZE
     CV_Assert(canvas.type() == CV_8UC3 || canvas.type() == CV_8UC4);
     if (eyelids.size() < 3)
     {
@@ -461,10 +460,6 @@ void EyeModel::draw(cv::Mat& canvas, int level, bool doMask, const cv::Scalar& c
     const cv::Point2f* pI = reinterpret_cast<const cv::Point2f*>(&initial_shape_ref(0, 0));
     for (int i = 0; i < n; i++)
         cv::circle(canvas, cv::Point2f(pI[i].x * image.cols, pI[i].y * image.rows), 1, { 255, 0, 255 }, CV_AA);
-#endif
-
-#else
-    CV_Assert(false);
 #endif
 }
 

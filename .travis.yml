@@ -18,6 +18,7 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - llvm-toolchain-trusty-5.0
     packages:
       # For Qt
       - libegl1-mesa-dev
@@ -35,12 +36,22 @@ addons:
       - g++-5
       - gcc-5
 
+      - clang-5.0
+      - libc++-dev
+      - libc++abi-dev
+      - libclang-5.0-dev
+      - libclang-common-5.0-dev
+      - libclang1-5.0
+
       # pip3
       - python3-pip
 
 matrix:
   include:
     # Linux {
+
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=libcxx-fpic-hid-sections INSTALL=--strip
 
     - os: linux
       env: CONFIG=Release TOOLCHAIN=gcc-5-pic-hid-sections-lto INSTALL=--strip
@@ -73,9 +84,13 @@ git:
 # See https://docs.travis-ci.com/user/private-dependencies/#API-Token
 # CI_USER_TOKEN is added to .travis.yml settings
 
+before_install:
+
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then mkdir -p latest-clang-symlinks && ln -s /usr/bin/clang-5.0 latest-clang-symlinks/clang && ln -s /usr/bin/clang++-5.0 latest-clang-symlinks/clang++ && export PATH="$PWD/latest-clang-symlinks:$PATH"; fi
+
 install:
   - source bin/hunter_env.sh
-  
+
 script:
   - bin/drishti_build.sh "${TOOLCHAIN}" "${CONFIG}" "${INSTALL}"
 

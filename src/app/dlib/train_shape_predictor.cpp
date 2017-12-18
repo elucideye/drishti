@@ -11,11 +11,7 @@
 //  - support trailing ellipse parameters (embedded in point list)
 //    for simultaneous contour and ellipse model regression
 
-typedef unsigned char boolean;
-#define TRUE 1
-#define FALSE 0
-#define HAVE_BOOLEAN
-#include "jpeglib.h"
+#include "drishti/core/drishti_stdlib_string.h" // FIRST !!!
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -35,7 +31,6 @@ typedef unsigned char boolean;
 #include "drishti/ml/shape_predictor_archive.h"
 #include "drishti/ml/shape_predictor_trainer.h"
 #include "drishti/geometry/Ellipse.h"
-#include "drishti/core/drishti_stdlib_string.h"
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
 
@@ -478,15 +473,3 @@ static dlib::rectangle parse_roi(const std::string &str)
     float b = std::stof(tokens[3]);
     return dlib::drectangle(l, t, r-l, b-t);
 }
-
-// clang-format off
-// #ifdef DLIB_PNG_SUPPORT
-// #  include "dlib/image_loader/png_loader.cpp"
-// #  include "dlib/image_saver/save_png.cpp"
-// #endif
-
-// #ifdef DLIB_JPEG_SUPPORT
-// #  include "dlib/image_loader/jpeg_loader.cpp"
-// #  include "dlib/image_saver/save_jpeg.cpp"
-// #endif
-// clang-format on

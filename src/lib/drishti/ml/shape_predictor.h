@@ -231,10 +231,6 @@ static fpoint interpolate_feature_point(const InterpolatedFeature& f, const fsha
     fpoint p1(shape(f.f1 * 2 + 0), shape(f.f1 * 2 + 1));
     fpoint p2(shape(f.f2 * 2 + 0), shape(f.f2 * 2 + 1));
     fpoint p3(shape(f.f3 * 2 + 0), shape(f.f3 * 2 + 1));
-
-    fpoint p12 = p2 - p1;
-    fpoint p13 = p3 - p1;
-    
     return p1 + ((p2 - p1) * f.w12)  + ((p3 - p1) * f.w13);
 }
 
