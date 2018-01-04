@@ -261,6 +261,10 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
                 }
                 
                 m_writer << canvas;
+            }
+            
+            if(!sLog.empty())
+            {
                 addFaceToLog(face, m_frameIndex);
             }
             
