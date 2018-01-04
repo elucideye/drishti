@@ -207,7 +207,7 @@ public:
             {
                 m_eyeRegressor[i]->setDoIndependentIrisAndPupil(m_doIrisRefinement);
                 m_eyeRegressor[i]->setEyelidInits(7);
-                m_eyeRegressor[i]->setIrisInits(7);
+                m_eyeRegressor[i]->setIrisInits(32);
             }
 
             drishti::core::ParallelHomogeneousLambda harness = [&](int i) {
