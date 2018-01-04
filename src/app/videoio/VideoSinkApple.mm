@@ -20,8 +20,6 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-#include <iostream>
-
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
 struct VideoSinkApple::Impl
@@ -123,10 +121,11 @@ bool VideoSinkApple::Impl::end(const VideoSinkCV::CompletionHandler &handler)
 {
     if(isStarted)
     {
-        std::cout << assetWriter.status << std::endl;
+        auto handler_ = handler;
         [assetWriterVideoInput markAsFinished];
-        [assetWriter finishWritingWithCompletionHandler:^{ handler(); }];
-        isStarted = false;
+        [assetWriter finishWritingWithCompletionHandler:^{
+            handler_();
+        }];
     }
     return true;
 }

@@ -19,7 +19,7 @@
 #include "drishti/core/drishti_string_hash.h"
 #include "drishti/geometry/motion.h"
 #include "drishti/core/drishti_cv_cereal.h"
-
+#include "drishti/core/string_utils.h"
 
 #include "ogles_gpgpu/common/proc/swizzle.h"
 
@@ -147,9 +147,12 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
 // Simple FaceMonitor class to report face detection results over time.
 struct FaceMonitorTracker: public drishti::hci::FaceMonitor
 {
-    FaceMonitorTracker(std::shared_ptr<spdlog::logger> &logger, const std::string &sOutput={})
+    using LoggerPtr = std::shared_ptr<spdlog::logger>;
+    
+    FaceMonitorTracker(LoggerPtr &logger, const std::string &sLog={}, const std::string &sMovie={})
         : m_logger(logger)
-        , sOutput(sOutput)
+        , sLog(sLog)
+        , sMovie(sMovie)
     {
 
     }
@@ -157,7 +160,7 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
     ~FaceMonitorTracker()
     {
         // Serialize the gaze measurements:
-        if(!sOutput.empty())
+        if(!sLog.empty())
         {
             if(m_doGazeLog)
             {
@@ -168,7 +171,7 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
                     gazeMeasurements.push_back({ f.first, m_tracker.getFrontalizedEyePair(f.second)} );
                 }
                 
-                std::ofstream os(sOutput);
+                std::ofstream os(sLog);
                 if(os)
                 {
                     cereal::JSONOutputArchive oa(os);
@@ -179,7 +182,7 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
             else
             {
                 // Log the full face models (huge!!!)
-                std::ofstream os(sOutput);
+                std::ofstream os(sLog);
                 if(os)
                 {
                     cereal::JSONOutputArchive oa(os);
@@ -245,17 +248,16 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
                 m_tracker.update(face, image);
             }
             
-            if(m_doRecord)
+            if(!sMovie.empty())
             {
-                static const std::string gaze_filename = "/tmp/drishti_gaze_poc.mov";
                 cv::Mat canvas = m_tracker.draw(face, image);
                 if(!m_writer.isOpened())
                 {
-                    if(drishti::cli::file::exists(gaze_filename))
+                    if(drishti::cli::file::exists(sMovie))
                     {
-                        remove(gaze_filename.c_str());
+                        remove(sMovie.c_str());
                     }
-                    m_writer.open(gaze_filename, CV_FOURCC('m','p','4','v'), 24, canvas.size(), true);
+                    m_writer.open(sMovie, CV_FOURCC('m','p','4','v'), 24, canvas.size(), true);
                 }
                 
                 m_writer << canvas;
@@ -338,7 +340,7 @@ struct FaceMonitorTracker: public drishti::hci::FaceMonitor
     cv::VideoWriter m_writer;
 
     bool m_doGazeLog = true; // (compact) else full face
-    std::string sOutput;
+    std::string sLog, sMovie;
 };
 #endif
 
@@ -398,8 +400,8 @@ int gauze_main(int argc, char** argv)
     float scale = 1.f;
     float fx = 0.f;
     
-    std::string sLogFilename;
-    
+    bool doGazeLog = false;
+    bool doGazeMovie = false;
     bool doInner = false; // inner face processing
     
     // Create FaceDetectorFactory (default file based):
@@ -436,7 +438,8 @@ int gauze_main(int argc, char** argv)
         ("min", "Nearest distance in meters", cxxopts::value<float>(minZ))
         ("max", "Farthest distance in meters", cxxopts::value<float>(maxZ))
     
-        ("log", "Log filename", cxxopts::value<std::string>(sLogFilename))
+        ("gaze-log", "Do gaze logging", cxxopts::value<bool>(doGazeLog))
+        ("gaze-movie", "Do gaze video", cxxopts::value<bool>(doGazeMovie))
     
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(factory->sFaceDetector))
@@ -594,8 +597,12 @@ int gauze_main(int argc, char** argv)
     detector->setShowMotionAxes(doDebug);      // *** rendering ***
     detector->setShowDetectionScales(doDebug); // *** rendering ***
     
+    std::string sBase = drishti::core::basename(sInput);
+    
 #if defined(DRISHTI_BUILD_OPENCV_CONTRIB)
-    FaceMonitorTracker faceTracker(logger, sLogFilename);
+    std::string sGazeLog = doGazeLog ? (sOutput + "/" + sBase + "_gaze.json") : "";
+    std::string sGazeMovie = doGazeMovie ? (sOutput + "/" + sBase + "_gaze.mov") : "";
+    FaceMonitorTracker faceTracker(logger, sGazeLog, sGazeMovie);
     faceTracker.setDoGaze(true); // compact measurements
     detector->registerFaceMonitorCallback(&faceTracker);
 #else
@@ -612,16 +619,17 @@ int gauze_main(int argc, char** argv)
     source.set(&swizzle);
 
     // Provide a default quicktime movie name for logging on Apple platforms.
-    std::string filename = sOutput + "/movie.mov";
-    if (drishti::cli::file::exists(filename))
+
+    std::string sMovie = sOutput + "/" + sBase + ".mov";
+    if (drishti::cli::file::exists(sMovie))
     {
-        remove(filename.c_str());
+        remove(sMovie.c_str());
     }
 
     std::shared_ptr<drishti::videoio::VideoSinkCV> sink;
     if (doMovie)
     {
-        sink = drishti::videoio::VideoSinkCV::create(filename, ".mov");
+        sink = drishti::videoio::VideoSinkCV::create(sMovie, ".mov");
         if (sink)
         {
             sink->setProperties({ frame.cols(), frame.rows() });
@@ -696,7 +704,6 @@ int gauze_main(int argc, char** argv)
 
         std::stringstream ss;
         ss << "N=" << counter;
-        std::cout << "TAG " << ss.str() << std::endl;
         cv::putText(frame.image,  ss.str(), {64, frame.image.rows-64}, CV_FONT_HERSHEY_SIMPLEX, 4.0, {255,255,255,255}, 8);
 
         CV_Assert(frame.image.channels() == 4);
@@ -736,10 +743,11 @@ int gauze_main(int argc, char** argv)
 
     if (sink)
     {
-        drishti::core::Semaphore s(0);
-        sink->end([&] { s.signal(); });
-        s.wait();
+        drishti::core::Semaphore sem(0);
+        sink->end([&]{ sem.signal(); });
+        sem.wait();
     }
+    
     return 0;
 }
 
