@@ -43,13 +43,11 @@ regression models) <= 4 MB.
    directly from `GPUImage <https://github.com/BradLarson/GPUImage>`__
    (Brad Larson)
 
-+---------------------------+---------------+
-| iPhone @ 30 FPS (VIDEO)   | Hitchcock     |
-+===========================+===============+
-| |iPhone|                  | |hitchcock|   |
-+---------------------------+---------------+
-
--  Hithcock source: Koganada's "Eyes of Hitchcock"\*
++---------------------------+
+| iPhone @ 30 FPS (VIDEO)   |
++===========================+
+| |iPhone|                  |
++---------------------------+
 
 Drishti Right Eye Annotation Scheme
 -----------------------------------
@@ -268,5 +266,4 @@ dumped in ``_logs/${TOOLCHAIN}``. The iOS frameworks are installed in
 .. |eye models 3| image:: https://user-images.githubusercontent.com/554720/28920920-dcd8e708-7821-11e7-8fc2-b9f375a9a550.png
 .. |iPhone| image:: https://goo.gl/1uLQ44
    :target: https://vimeo.com/230351171
-.. |hitchcock| image:: https://goo.gl/rMzrBB
-   :target: https://vimeo.com/219386623
+   
