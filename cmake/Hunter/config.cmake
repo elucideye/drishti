@@ -1,6 +1,6 @@
 hunter_config(
   xgboost
-  VERSION ${HUNTER_xgboost_VERSION}
+  VERSION 0.40-p9 # v0.7.0 introduces significant API changes
   CMAKE_ARGS XGBOOST_USE_HALF=ON XGBOOST_USE_CEREAL=ON XGBOOST_DO_LEAN=ON
   )
 
@@ -30,8 +30,15 @@ endif()
     
 hunter_config(dlib VERSION ${dlib_version} CMAKE_ARGS ${dlib_cmake_args})
 
+# Maintain one-to-one correspondence with options in drishti-upload
+option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
+option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
+option(DRISHTI_OPENGL_ES3 "Support OpenGL ES 3.0 (default 2.0)" OFF)
+option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
+option(DRISHTI_BUILD_OPENCV_WORLD "Build OpenCV world (monolithic lib)" ON)
+option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
+
 set(acf_cmake_args
-  ACF_BUILD_OGLES_GPGPU=ON 
   ACF_BUILD_TESTS=OFF 
   ACF_BUILD_EXAMPLES=OFF
   ACF_SERIALIZE_WITH_CVMATIO=${DRISHTI_SERIALIZE_WITH_CVMATIO}
@@ -121,8 +128,6 @@ if (DRISHTI_BUILD_OPENCV_EXTRA)
     BUILD_opencv_xfeatures2d=OFF
     BUILD_opencv_xobjdetect=OFF
     BUILD_opencv_xphoto=OFF
-
-    
     )
 
   hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION} CMAKE_ARGS ${OPENCV_CMAKE_ARGS})
