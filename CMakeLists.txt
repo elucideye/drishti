@@ -19,7 +19,7 @@ list(APPEND CMAKE_MODULE_PATH "${drishti_upload_modules}")
 # a corresponding binary server cache.  We use this for fast CI
 # builds by default.  It can be disabled with this option in favor
 # of a local cmake/Hunter/config.cmake
-option(DRISHTI_USE_DRISHTI_UPLOAD "Use the drishti-upload config and cache" ON)
+option(DRISHTI_USE_DRISHTI_UPLOAD "Use the drishti-upload config and cache" OFF)
 
 if(EXISTS "${drishti_upload_modules}" AND DRISHTI_USE_DRISHTI_UPLOAD)
 
