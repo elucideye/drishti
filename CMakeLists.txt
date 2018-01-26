@@ -39,8 +39,9 @@ else()
   # It's a valid case when archive used in Hunter.
   # URL/SHA1 arguments of HunterGate call will not be used while building
   # in this situation.
-  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.19.227.tar.gz")
-  set(DRISHTI_HUNTER_GATE_SHA1 "808b778a443fcdf19c2d18fea8fa4bb59d16596a")
+
+  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.19.237.tar.gz")
+  set(DRISHTI_HUNTER_GATE_SHA1 "b64ad42b7ef398a7332f5f4a98cf7bbfd38ca8d0")
   set(DRISHTI_HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake")
 endif()
 
@@ -344,9 +345,8 @@ message("--- ${CMAKE_BUILD_TYPE} ---")
 ### Sugar: collect cmake sources ###
 ####################################
 
-hunter_add_package(Sugar)
-include("${SUGAR_ROOT}/cmake/Sugar")
-include(sugar_include)
+hunter_add_package(sugar)
+find_package(sugar CONFIG REQUIRED)
 
 ################################################
 ### Drishti integration (post-install) tests ###
