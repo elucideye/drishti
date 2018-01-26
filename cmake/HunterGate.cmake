@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Ruslan Baratov
+# Copyright (c) 2013-2017, Ruslan Baratov
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,12 +42,19 @@
 #     * https://github.com/hunter-packages/gate/
 #     * https://github.com/ruslo/hunter
 
-cmake_minimum_required(VERSION 3.0) # Minimum for Hunter
+option(HUNTER_ENABLED "Enable Hunter package manager support" ON)
+if(HUNTER_ENABLED)
+  if(CMAKE_VERSION VERSION_LESS "3.0")
+    message(FATAL_ERROR "At least CMake version 3.0 required for hunter dependency management."
+      " Update CMake or set HUNTER_ENABLED to OFF.")
+  endif()
+endif()
+
 include(CMakeParseArguments) # cmake_parse_arguments
 
-option(HUNTER_ENABLED "Enable Hunter package manager support" ON)
 option(HUNTER_STATUS_PRINT "Print working status" ON)
 option(HUNTER_STATUS_DEBUG "Print a lot info" OFF)
+option(HUNTER_TLS_VERIFY "Enable/disable TLS certificate checking on downloads" ON)
 
 set(HUNTER_WIKI "https://github.com/ruslo/hunter/wiki")
 
@@ -88,7 +95,8 @@ endfunction()
 
 function(hunter_gate_fatal_error)
   cmake_parse_arguments(hunter "" "WIKI" "" "${ARGV}")
-  if(NOT hunter_WIKI)
+  string(COMPARE EQUAL "${hunter_WIKI}" "" have_no_wiki)
+  if(have_no_wiki)
     hunter_gate_internal_error("Expected wiki")
   endif()
   message("")
@@ -137,7 +145,8 @@ endfunction()
 # Set HUNTER_GATE_ROOT cmake variable to suitable value.
 function(hunter_gate_detect_root)
   # Check CMake variable
-  if(HUNTER_ROOT)
+  string(COMPARE NOTEQUAL "${HUNTER_ROOT}" "" not_empty)
+  if(not_empty)
     set(HUNTER_GATE_ROOT "${HUNTER_ROOT}" PARENT_SCOPE)
     hunter_gate_status_debug("HUNTER_ROOT detected by cmake variable")
     return()
@@ -267,6 +276,8 @@ function(hunter_gate_download dir)
       "    SHA1=${HUNTER_GATE_SHA1}\n"
       "    DOWNLOAD_DIR\n"
       "    \"${dir}\"\n"
+      "    TLS_VERIFY\n"
+      "    ${HUNTER_TLS_VERIFY}\n"
       "    SOURCE_DIR\n"
       "    \"${dir}/Unpacked\"\n"
       "    CONFIGURE_COMMAND\n"
@@ -285,8 +296,34 @@ function(hunter_gate_download dir)
   endif()
 
   hunter_gate_status_debug("Run generate")
+
+  # Need to add toolchain file too.
+  # Otherwise on Visual Studio + MDD this will fail with error:
+  # "Could not find an appropriate version of the Windows 10 SDK installed on this machine"
+  if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")
+    get_filename_component(absolute_CMAKE_TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+    set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=${absolute_CMAKE_TOOLCHAIN_FILE}")
+  else()
+    # 'toolchain_arg' can't be empty
+    set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=")
+  endif()
+
+  string(COMPARE EQUAL "${CMAKE_MAKE_PROGRAM}" "" no_make)
+  if(no_make)
+    set(make_arg "")
+  else()
+    # Test case: remove Ninja from PATH but set it via CMAKE_MAKE_PROGRAM
+    set(make_arg "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}")
+  endif()
+
   execute_process(
-      COMMAND "${CMAKE_COMMAND}" "-H${dir}" "-B${build_dir}"
+      COMMAND
+      "${CMAKE_COMMAND}"
+      "-H${dir}"
+      "-B${build_dir}"
+      "-G${CMAKE_GENERATOR}"
+      "${toolchain_arg}"
+      ${make_arg}
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
       ${logging_params}
@@ -338,6 +375,17 @@ macro(HunterGate)
     # Empty function to avoid error "unknown function"
     function(hunter_add_package)
     endfunction()
+
+    set(
+        _hunter_gate_disabled_mode_dir
+        "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/disabled-mode"
+    )
+    if(EXISTS "${_hunter_gate_disabled_mode_dir}")
+      hunter_gate_status_debug(
+          "Adding \"disabled-mode\" modules: ${_hunter_gate_disabled_mode_dir}"
+      )
+      list(APPEND CMAKE_PREFIX_PATH "${_hunter_gate_disabled_mode_dir}")
+    endif()
   elseif(_hunter_gate_done)
     hunter_gate_status_debug("Secondary HunterGate (use old settings)")
     hunter_gate_self(
@@ -350,9 +398,11 @@ macro(HunterGate)
   else()
     set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 
-    if(PROJECT_NAME)
+    string(COMPARE NOTEQUAL "${PROJECT_NAME}" "" _have_project_name)
+    if(_have_project_name)
       hunter_gate_fatal_error(
-          "Please set HunterGate *before* 'project' command"
+          "Please set HunterGate *before* 'project' command. "
+          "Detected project: ${PROJECT_NAME}"
           WIKI "error.huntergate.before.project"
       )
     endif()
@@ -360,35 +410,48 @@ macro(HunterGate)
     cmake_parse_arguments(
         HUNTER_GATE "LOCAL" "URL;SHA1;GLOBAL;FILEPATH" "" ${ARGV}
     )
-    if(NOT HUNTER_GATE_SHA1)
-      hunter_gate_user_error("SHA1 suboption of HunterGate is mandatory")
-    endif()
-    if(NOT HUNTER_GATE_URL)
-      hunter_gate_user_error("URL suboption of HunterGate is mandatory")
-    endif()
-    if(HUNTER_GATE_UNPARSED_ARGUMENTS)
+
+    string(COMPARE EQUAL "${HUNTER_GATE_SHA1}" "" _empty_sha1)
+    string(COMPARE EQUAL "${HUNTER_GATE_URL}" "" _empty_url)
+    string(
+        COMPARE
+        NOTEQUAL
+        "${HUNTER_GATE_UNPARSED_ARGUMENTS}"
+        ""
+        _have_unparsed
+    )
+    string(COMPARE NOTEQUAL "${HUNTER_GATE_GLOBAL}" "" _have_global)
+    string(COMPARE NOTEQUAL "${HUNTER_GATE_FILEPATH}" "" _have_filepath)
+
+    if(_have_unparsed)
       hunter_gate_user_error(
           "HunterGate unparsed arguments: ${HUNTER_GATE_UNPARSED_ARGUMENTS}"
       )
     endif()
-    if(HUNTER_GATE_GLOBAL)
+    if(_empty_sha1)
+      hunter_gate_user_error("SHA1 suboption of HunterGate is mandatory")
+    endif()
+    if(_empty_url)
+      hunter_gate_user_error("URL suboption of HunterGate is mandatory")
+    endif()
+    if(_have_global)
       if(HUNTER_GATE_LOCAL)
         hunter_gate_user_error("Unexpected LOCAL (already has GLOBAL)")
       endif()
-      if(HUNTER_GATE_FILEPATH)
+      if(_have_filepath)
         hunter_gate_user_error("Unexpected FILEPATH (already has GLOBAL)")
       endif()
     endif()
     if(HUNTER_GATE_LOCAL)
-      if(HUNTER_GATE_GLOBAL)
+      if(_have_global)
         hunter_gate_user_error("Unexpected GLOBAL (already has LOCAL)")
       endif()
-      if(HUNTER_GATE_FILEPATH)
+      if(_have_filepath)
         hunter_gate_user_error("Unexpected FILEPATH (already has LOCAL)")
       endif()
     endif()
-    if(HUNTER_GATE_FILEPATH)
-      if(HUNTER_GATE_GLOBAL)
+    if(_have_filepath)
+      if(_have_global)
         hunter_gate_user_error("Unexpected GLOBAL (already has FILEPATH)")
       endif()
       if(HUNTER_GATE_LOCAL)
@@ -431,17 +494,17 @@ macro(HunterGate)
         "${HUNTER_GATE_ROOT}"
         "${HUNTER_GATE_VERSION}"
         "${HUNTER_GATE_SHA1}"
-        hunter_self_
+        _hunter_self
     )
 
-    set(_master_location "${hunter_self_}/cmake/Hunter")
+    set(_master_location "${_hunter_self}/cmake/Hunter")
     if(EXISTS "${HUNTER_GATE_ROOT}/cmake/Hunter")
       # Hunter downloaded manually (e.g. by 'git clone')
       set(_unused "xxxxxxxxxx")
       set(HUNTER_GATE_SHA1 "${_unused}")
       set(HUNTER_GATE_VERSION "${_unused}")
     else()
-      get_filename_component(_archive_id_location "${hunter_self_}/.." ABSOLUTE)
+      get_filename_component(_archive_id_location "${_hunter_self}/.." ABSOLUTE)
       set(_done_location "${_archive_id_location}/DONE")
       set(_sha1_location "${_archive_id_location}/SHA1")
 
