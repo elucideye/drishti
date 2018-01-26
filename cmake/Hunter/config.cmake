@@ -1,6 +1,6 @@
 hunter_config(
   xgboost
-  VERSION 0.40-p9 # v0.7.0 introduces significant API changes
+  VERSION 0.40-p10 # v0.7.0 introduces significant API changes
   CMAKE_ARGS XGBOOST_USE_HALF=ON XGBOOST_USE_CEREAL=ON XGBOOST_DO_LEAN=ON
   )
 
