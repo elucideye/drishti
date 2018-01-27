@@ -3,6 +3,8 @@
 find_package(OpenCV REQUIRED)
 find_package(ogles_gpgpu CONFIG REQUIRED) # review OpenGL dependencies
 find_package(xgboost CONFIG REQUIRED)
+find_package(acf CONFIG REQUIRED)
+find_package(Boost CONFIG REQUIRED system filesystem)
 
 ##
 ## Header (INTERFACE) libraries

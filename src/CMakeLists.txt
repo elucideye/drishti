@@ -177,7 +177,7 @@ endif()
 # Note: Used for boost::fileystem::path() (de)construction
 # TODO: Find a lighterweight alternative for portble path manipulation
 hunter_add_package(Boost COMPONENTS filesystem system)
-find_package(Boost CONFIG REQUIRED system filesystem) # TODO: add upstream to eos/cmake/Config.cmake.in
+find_package(Boost CONFIG REQUIRED system filesystem)
 list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS Boost::filesystem Boost::system)
 
 ###########
