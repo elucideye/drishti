@@ -302,7 +302,7 @@ GLuint FaceFinderPainter::filter(const ScenePrimitives& scene, GLuint inputTextu
 
     if (impl->doBlobs)
     {
-        m_painter->setFlashTexture(impl->blobFilter->getOutputTexId(), impl->blobFilter->getOutFrameSize());
+        m_painter->setBlobTexture(impl->blobFilter->getOutputTexId(), impl->blobFilter->getOutFrameSize());
     }
     
     if (impl->doEyeFlow)

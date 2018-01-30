@@ -77,7 +77,7 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
     {
         cv::Point3f xyz = faces.size() ? (*faces.front().eyesCenter) : cv::Point3f();
         m_logger->info("SimpleFaceMonitor: Found {} faces {}", faces.size(), xyz);
-        return {};
+        return {3, true, true, false, true};
     }
     
     /**

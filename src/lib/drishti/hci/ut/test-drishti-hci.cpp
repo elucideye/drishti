@@ -11,7 +11,6 @@
 // https://code.google.com/p/googletest/wiki/Primer
 
 #define DRISHTI_HCI_TEST_WARM_UP_GPU 0 // for timing only
-#define DRISHTI_HCI_TEST_DISPLAY_OUTPUT 0
 
 extern const char* sFaceDetector;
 extern const char* sFaceDetectorMean;
@@ -62,17 +61,6 @@ extern const char* sFaceImageFilename; // sImageFilename);
 // clang-format on
 
 BEGIN_EMPTY_NAMESPACE
-
-struct WaitKey
-{
-    WaitKey() {}
-    ~WaitKey()
-    {
-#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
-        cv::waitKey(0);
-#endif
-    }
-};
 
 class HCITest : public ::testing::Test
 {
@@ -188,10 +176,6 @@ protected:
 
     void runTest(bool doCpu, bool doAsync)
     {
-#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
-        WaitKey waitKey;
-#endif
-
         // Instantiate a face finder and register a callback:
         auto detector = create(image.size(), 0, doAsync);
         detector->setDoCpuAcf(doCpu);
@@ -215,54 +199,9 @@ protected:
                 GTEST_ASSERT_GT(monitor.getFaces().size(), 0);
             }
 
-#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
-            analyzeFaceRequest(monitor.getFaces());
-#endif // DRISHTI_HCI_TEST_DISPLAY_OUTPUT
-
             monitor.clear();
         }
     }
-
-#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
-    void analyzeFaceRequest(const std::vector<drishti::hci::FaceMonitor::FaceImage>& images)
-    {
-        std::vector<cv::Mat> faces, eyes;
-        for (auto& f : images)
-        {
-            if (!f.image.empty())
-            {
-                faces.push_back(f.image);
-            }
-            if (!f.eyes.empty())
-            {
-                eyes.push_back(f.eyes);
-            }
-        }
-
-        if ((eyes.size() == 3) && !images[0].extra.empty())
-        {
-            WaitKey waitKey;
-
-            { // eye stack
-                cv::Mat canvas;
-                cv::vconcat(eyes, canvas);
-                cv::imshow("eyes", canvas);
-            }
-
-            { // gpu results:
-                cv::imshow("ogles_gpgpu_FlashFilter_det1", images[0].extra);
-            }
-        }
-
-        if (faces.size() > 0)
-        {
-            cv::Mat canvas;
-            cv::hconcat(faces, canvas);
-            cv::resize(canvas, canvas, { 512, canvas.rows * 512 / canvas.cols });
-            cv::imshow("faces", canvas);
-        }
-    }
-#endif
 
     drishti::hci::FaceFinder::Settings m_settings;
     std::shared_ptr<drishti::face::FaceDetectorFactory> m_factory;

@@ -8,8 +8,6 @@
 
 */
 
-#define FLASH_FILTER_USE_NEW_NMS 0
-
 #include "drishti/hci/gpu/BlobFilter.h"
 #include "drishti/graphics/binomial.h"
 #include "drishti/graphics/saturation.h"
@@ -18,16 +16,7 @@
 #include "ogles_gpgpu/common/proc/gauss_opt.h"
 #include "ogles_gpgpu/common/proc/fifo.h"
 #include "ogles_gpgpu/common/proc/fir3.h"
-
-// clang-format off
-#if FLASH_FILTER_USE_NEW_NMS
-#  include "drishti/graphics/nms2.h"
-#  define NMS_PROC ogles_gpgpu::Nms2Proc
-#else
-#  include "ogles_gpgpu/common/proc/nms.h"
-#  define NMS_PROC ogles_gpgpu::NmsProc
-#endif
-// clang-format on
+#include "ogles_gpgpu/common/proc/nms.h"
 
 #include <opencv2/core.hpp>
 
@@ -131,12 +120,6 @@ cv::Mat BlobFilter::paint()
             smoothProc1,
             hessianProc1
         };
-
-#if FLASH_FILTER_USE_DELAY
-        cv::Mat4b fadeProc(ogles_gpgpu_size(m_impl->fadeProc.getOutFrameSize()));
-        m_impl->fadeProc.getResultData(fadeProc.ptr());
-        all.emplace_back(fadeProc);
-#endif
 
         cv::vconcat(all, canvas);
     }

@@ -23,7 +23,7 @@
 
 #define DRISHIT_HCI_FACEPAINTER_DO_COLOR 1
 #define DRISHTI_HCI_FACEPAINTER_COLOR_TINTING 1
-#define DRISHTI_HCI_FACEPAINTER_SHOW_FLASH_INPUT 0
+#define DRISHTI_HCI_FACEPAINTER_SHOW_BLOB_INPUT 0
 
 using namespace std;
 using namespace ogles_gpgpu;
@@ -406,7 +406,7 @@ int FacePainter::FacePainter::render(int position)
         setUniforms();
 
 #if DRISHTI_HCI_FACEPAINTER_COLOR_TINTING
-        if (m_flashInfo.texId >= 0)
+        if (m_blobInfo.texId >= 0)
         {
             m_colorRGB = Vec3f(0.f, 0.f, 0.f);
             m_colorRGB.data[0] = 1.f;
@@ -444,10 +444,10 @@ int FacePainter::FacePainter::render(int position)
         renderTex(m_flowInfo);
     }
 
-#if DRISHTI_HCI_FACEPAINTER_SHOW_FLASH_INPUT
-    if (m_flashInfo.texId >= 0)
+#if DRISHTI_HCI_FACEPAINTER_SHOW_BLOB_INPUT
+    if (m_blobInfo.texId >= 0)
     {
-        renderTex(m_flashInfo);
+        renderTex(m_blobInfo);
     }
 #endif
 
@@ -725,16 +725,16 @@ void FacePainter::setFlowTexture(GLint texIdx, const ogles_gpgpu::Size2d& size)
     m_flowInfo = { texIdx, size, flowRoi };
 }
 
-//===========================
-//========= FLASH ===========
-//===========================
+//==========================
+//========= BLOB ===========
+//==========================
 
-void FacePainter::setFlashTexture(GLint texIdx, const ogles_gpgpu::Size2d& size)
+void FacePainter::setBlobTexture(GLint texIdx, const ogles_gpgpu::Size2d& size)
 {
-    const int flashWidth = outFrameW / 4;
-    Size2d flashSize(flashWidth, flashWidth * size.height / size.width);
-    Rect2d flashRoi(0, (outFrameH / 2) - (flashSize.height / 2), flashSize.width, flashSize.height);
-    m_flashInfo = { texIdx, size, flashRoi };
+    const int blobWidth = outFrameW / 4;
+    Size2d blobSize(blobWidth, blobWidth * size.height / size.width);
+    Rect2d blobRoi(0, (outFrameH / 2) - (blobSize.height / 2), blobSize.width, blobSize.height);
+    m_blobInfo = { texIdx, size, blobRoi };
 }
 
 //===========================

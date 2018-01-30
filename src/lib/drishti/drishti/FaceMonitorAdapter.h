@@ -82,7 +82,7 @@ public:
 
         auto request = m_table.update(m_table.context, result, elapsed);
 
-        return Request{ request.n, request.getImage, request.getTexture };
+        return Request{ request.n, request.getImage, request.getTexture, request.getFrames, request.getEyes };
     }
 
     virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
