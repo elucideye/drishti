@@ -43,6 +43,16 @@ else()
   set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.19.237.tar.gz")
   set(DRISHTI_HUNTER_GATE_SHA1 "b64ad42b7ef398a7332f5f4a98cf7bbfd38ca8d0")
   set(DRISHTI_HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake")
+
+  # Maintain one-to-one correspondence with options in drishti-upload.
+  option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
+  option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
+  option(DRISHTI_OPENGL_ES3 "Support OpenGL ES 3.0 (default 2.0)" OFF)
+  option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
+  option(DRISHTI_BUILD_OPENCV_WORLD "Build OpenCV world (monolithic lib)" ON)
+  option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
+  option(DRISHTI_BUILD_OPENCV_EXTRA "Build opencv_contrib modules" OFF)
+  
 endif()
 
 include("cmake/HunterGate.cmake")

@@ -6,6 +6,12 @@ include(drishti_hide)
 include(drishti_strip)
 include(drishti_split_debug_symbols)
 
+option(DRISHTI_PRINT_ALL "Print all variables" OFF)
+if(DRISHTI_PRINT_ALL)
+  include(drishti_print_env_var)
+  drishti_print_env_var()
+endif()
+
 ## Customize linker flags
 include(CheckCCompilerFlag)
 if(NOT MSVC)
