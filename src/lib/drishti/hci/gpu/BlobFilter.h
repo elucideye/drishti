@@ -17,7 +17,7 @@
 
 #include <memory>
 
-// #### Simple flash filter ####
+// #### Simple blob filter ####
 BEGIN_OGLES_GPGPU
 
 class BlobFilter : public MultiPassProc

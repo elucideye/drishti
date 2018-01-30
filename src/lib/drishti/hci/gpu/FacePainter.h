@@ -202,7 +202,7 @@ public:
 
     void setFlowTexture(GLint texIdx, const ogles_gpgpu::Size2d& size);
     
-    void setFlashTexture(GLint texIdx, const ogles_gpgpu::Size2d& size);
+    void setBlobTexture(GLint texIdx, const ogles_gpgpu::Size2d& size);
     
     void setIrisTexture(int index, GLint texIdx, const ogles_gpgpu::Size2d& size);
     
@@ -347,7 +347,7 @@ private:
     DisplayTexture m_flowInfo;
 
     // #### Flash texture ###
-    DisplayTexture m_flashInfo;
+    DisplayTexture m_blobInfo;
 
     // #### Iris textures ####
     DisplayTexture m_irisInfo[2];

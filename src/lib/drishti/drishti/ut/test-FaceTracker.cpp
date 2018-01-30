@@ -222,15 +222,6 @@ protected:
     int callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
     {
         m_logger->info("callback: Received results");
-
-        //        int count = 0;
-        //        for (const auto& r : results)
-        //        {
-        //            std::stringstream ss;
-        //            ss << "/tmp/image_" << count++ << ".png";
-        //            cv::imwrite(ss.str(), drishti::sdk::drishtiToCv<drishti::sdk::Vec4b, cv::Vec4b>(r.image));
-        //        }
-
         return 0;
     }
 
@@ -238,7 +229,7 @@ protected:
     {
         m_logger->info("trigger: Received results at time {}}", timestamp);
         // if(some_condition_is_true(faces)) {
-        return { 3, true, true }; // request last 3 images and textures
+        return { 3, true, true, true, true }; // request last 3 images and textures
         // }
     }
 

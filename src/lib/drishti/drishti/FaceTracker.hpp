@@ -126,6 +126,16 @@ typedef struct drishti_request
      * Get OpenGL textures.
      */
     bool getTexture;
+    
+    /**
+     * Grab full frame images/textures.
+     */
+    bool getFrames;
+    
+    /**
+     * Grab eye pair images/textures.
+     */
+    bool getEyes;
 
 } drishti_request_t;
 

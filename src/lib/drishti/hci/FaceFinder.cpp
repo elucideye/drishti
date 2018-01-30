@@ -264,7 +264,7 @@ void FaceFinder::initBlobFilter()
     impl->blobFilter->init(128, 64, INT_MAX, false);
     impl->blobFilter->createFBOTex(false);
 
-    // ### Send eye images into the flash filter ###
+    // ### Send eye images into the blob filter ###
     impl->eyeFilter->getOutputFilter()->add(impl->blobFilter->getInputFilter());
 }
 
@@ -281,7 +281,7 @@ void FaceFinder::initIris(const cv::Size& size)
 void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& eyesSize)
 {
     // ### Eye enhancer ###
-    const auto mode = ogles_gpgpu::EyeFilter::kMean3;
+    const auto mode = ogles_gpgpu::EyeFilter::kNone;
     const float cutoff = 0.5;
 
     impl->eyeFilter = drishti::core::make_unique<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, cutoff, impl->history);
@@ -622,7 +622,7 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
     // Build a list of active requests:
     std::vector<FaceMonitor::Request> requests(impl->faceMonitorCallback.size());
 
-    FaceMonitor::Request request;
+    FaceMonitor::Request request{0,false,false,false,false};
 
     if (scene.faces().size())
     {
@@ -636,28 +636,33 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
 
         if (request.n > 0)
         {
-            // ### collect face images ###
-            std::vector<core::ImageView> faces;
-            dumpFaces(faces, request.n, request.getImage);
-
-            if (faces.size())
+            frames.resize(request.n);
+            
+            if (request.getFrames)
             {
-                frames.resize(faces.size());
-                for (int i = 0; i < frames.size(); i++)
+                // ### collect face images ###
+                std::vector<core::ImageView> faces;
+                dumpFaces(faces, request.n, request.getImage);  CV_Assert(frames.size() == faces.size());
+                if (faces.size() && request.getFrames)
                 {
-                    frames[i].image = faces[i];
-                    if(i >= impl->latency)
+                    for (int i = 0; i < static_cast<int>(std::min(faces.size(), frames.size())); i++)
                     {
-                        frames[i].faceModels = impl->scenePrimitives[i - impl->latency].faces();
+                        frames[i].image = faces[i];
+                        if(i >= impl->latency)
+                        {
+                            frames[i].faceModels = impl->scenePrimitives[i - impl->latency].faces();
+                        }
                     }
-                    //frames[i].faceModels = impl->scenePrimitives[ impl->scenePrimitives.size() - 1 - i ].faces();
                 }
-
+            }
+            
+            if (request.getEyes)
+            {
                 // ### collect eye images ###
                 std::vector<core::ImageView> eyes;
                 std::vector<std::array<eye::EyeModel, 2>> eyePairs;
                 dumpEyes(eyes, eyePairs, request.n, request.getImage);
-                for (int i = 0; i < std::min(eyes.size(), faces.size()); i++)
+                for (int i = 0; i < static_cast<int>(std::min(eyes.size(), frames.size())); i++)
                 {
                     frames[i].eyes = eyes[i];
                     frames[i].eyeModels = eyePairs[i];
@@ -962,7 +967,7 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
             impl->eyeFilter->addFace(f);
         }
 
-        // Trigger eye enhancer, triggers flash filter:
+        // Trigger eye enhancer, triggers blob filter:
         impl->eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
 
         // Limit to points on iris:

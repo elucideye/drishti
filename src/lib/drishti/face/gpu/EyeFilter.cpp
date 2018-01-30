@@ -95,7 +95,7 @@ void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes,
         if (getImage)
         {
             // Pull frames in reverse order such that frames[0] is newest
-            auto* filter = (*fifoProc)[length - i - 1];
+            auto* filter = (*fifoProc)[i];
             frames[i].create(filter->getOutFrameH(), filter->getOutFrameW());
             filter->getResultData(frames[i].ptr<uint8_t>());
         }
