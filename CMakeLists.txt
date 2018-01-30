@@ -74,7 +74,7 @@ if(travis_deploy)
 elseif(appveyor_deploy)
   set(version "$ENV{APPVEYOR_REPO_TAG_NAME}")
 else()
-  set(version "v0.8.8")
+  set(version "v0.8.9")
 endif()
 
 string(REGEX REPLACE "^v" "" version "${version}")
