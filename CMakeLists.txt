@@ -7,60 +7,34 @@ cmake_minimum_required(VERSION 3.3)
 ### CMAKE_MODULE_PATH ###
 #########################
 
-set(drishti_upload_modules "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/cmake/Modules")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
-list(APPEND CMAKE_MODULE_PATH "${drishti_upload_modules}")
 
 ############################
 ### HunterGate and cache ###
 ############################
 
-# The drishti-upload module provides a common hunter config with
-# a corresponding binary server cache.  We use this for fast CI
-# builds by default.  It can be disabled with this option in favor
-# of a local cmake/Hunter/config.cmake
-option(DRISHTI_USE_DRISHTI_UPLOAD "Use the drishti-upload config and cache" OFF)
-
-if(EXISTS "${drishti_upload_modules}" AND DRISHTI_USE_DRISHTI_UPLOAD)
-
-  # drishti specific hunter cache pacakges:
-  set(
-      HUNTER_CACHE_SERVERS
-      "https://github.com/elucideye/hunter-cache"
-      CACHE
-      STRING
-      "Hunter cache servers"
-  )
-  include(drishti_set_hunter_gate)
-  drishti_set_hunter_version(DRISHTI_HUNTER_GATE_URL DRISHTI_HUNTER_GATE_SHA1)
-  set(DRISHTI_HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/config.cmake")
-else()
-  # Release archive will not contain submodule 'drishti-upload'.
-  # It's a valid case when archive used in Hunter.
-  # URL/SHA1 arguments of HunterGate call will not be used while building
-  # in this situation.
-
-  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.19.237.tar.gz")
-  set(DRISHTI_HUNTER_GATE_SHA1 "b64ad42b7ef398a7332f5f4a98cf7bbfd38ca8d0")
-  set(DRISHTI_HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake")
-
-  # Maintain one-to-one correspondence with options in drishti-upload.
-  option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
-  option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
-  option(DRISHTI_OPENGL_ES3 "Support OpenGL ES 3.0 (default 2.0)" OFF)
-  option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
-  option(DRISHTI_BUILD_OPENCV_WORLD "Build OpenCV world (monolithic lib)" ON)
-  option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
-  option(DRISHTI_BUILD_OPENCV_EXTRA "Build opencv_contrib modules" OFF)
-  
-endif()
-
 include("cmake/HunterGate.cmake")
-HunterGate(
-  URL "${DRISHTI_HUNTER_GATE_URL}"
-  SHA1 "${DRISHTI_HUNTER_GATE_SHA1}"
-  FILEPATH "${DRISHTI_HUNTER_CONFIG}"
-)
+
+set(drishti_upload_init "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/init.cmake")
+
+if(EXISTS "${drishti_upload_init}")
+  include("${drishti_upload_init}")
+elseif(HUNTER_ENABLED)
+  # Building as a Hunter dependency. This settings will be inherited from
+  # parent project and was not used in fact.
+  HunterGate(
+      URL "https://github.com/ruslo/hunter/archive/v0.19.237.tar.gz"
+      SHA1 "b64ad42b7ef398a7332f5f4a98cf7bbfd38ca8d0"
+  )
+else()
+  message(
+      FATAL_ERROR
+      "File not exists:\n"
+      "  ${drishti_upload_init}\n"
+      "Run this command if submodule is not initialized:\n"
+      "  git submodule update --init --recursive ."
+  )
+endif()
 
 ##########################
 ### CI Travis/Appveyor ###
