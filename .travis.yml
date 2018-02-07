@@ -46,6 +46,10 @@ addons:
       # pip3
       - python3-pip
 
+env:
+  global:
+    secure: "ZwpRmqxF5EXRiRKKyT5iR7AR4Tlqmali5IsSaAFPERfo/dINPpibar38qC3elWgrZCR73PtV9sqCN7K873vovK3fGFeb3pXDPRsVmelQ1K/vbjs+pdLE0YFrui5vLvkukii0EcRlBxJ93E8lNcHc9jQKvpydcMUr6RUcH2n/PacG7lT7dMqWF3Vh7iRG6KTqiwi9iQ4Hz4LtVMmeZ+18vTctQ07kePMQAYnhnpfbpTHPIZj9dFtZaL/EjxcSdZOJjZzXa/nE2irlRJiU4XOBtfcrW7cRgr9ICjUy2G83KLzO68iHkig9cetOTWs5qfKzp0GrUbiRlc5TQTpUzFSOMGdufeG2BV6Br0X7tUkVicU8R9NO56QCQ2MKoJsf06m22WSrr+WJvk/xNHLLzuInZ51vA4xMIiIXBf8zATkCnaEO4dWcM7iq64enY73REF2SRcHPMsjaRQB7i/9GOC7W9TwL06PcFGNRj/e4YWy5Tm+R+uNiXS0R5UfWfoltSQkATTZ35baPK/Sxdo05MXscgolTFe2nDhmPliyLwufHUDizvebVSccSyvp2RMQ8pmr5vs97/R783t01SOsnxhCFgXnCz0D/5MDWuftjg6+9rKo0tCtFUOvHdY4LcnhHYLO1Pv5/MhtnAkatcgYBw2x5amPs4/NAoLMyiDK/ZkCPHig="
+
 matrix:
   include:
     # Linux {
