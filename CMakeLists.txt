@@ -96,16 +96,6 @@ set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 #   This can alter the hunter-package options for
 #   various dependencies in order to produce smaller builds,
 #   such as eliminating code related to model training.
-#
-# In typical CI builds we use the following settings:
-#   HUNTER_USE_CACHE_SERVERS=ONLY
-#   HUNTER_DISABLE_BUILDS=YES
-#
-# Note that any time we attempt to override a setting
-# in drishti-upload/config.cmake, the config-id will
-# often be different, which can invalidate the cache
-# and the CI builds are likely to terminate and report
-# an error.
 
 option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" OFF)
 option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
