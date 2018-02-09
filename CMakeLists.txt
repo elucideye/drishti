@@ -36,28 +36,11 @@ else()
   )
 endif()
 
-##########################
-### CI Travis/Appveyor ###
-##########################
-
-string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
-string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
-
-if(travis_deploy)
-  set(version "$ENV{TRAVIS_TAG}")
-elseif(appveyor_deploy)
-  set(version "$ENV{APPVEYOR_REPO_TAG_NAME}")
-else()
-  set(version "v0.8.9")
-endif()
-
-string(REGEX REPLACE "^v" "" version "${version}")
-
 #######################
 ### Drishti project ###
 #######################
 
-project(drishtisdk VERSION ${version})
+project(drishtisdk VERSION 0.8.9)
 
 if(CMAKE_INTERPROCEDURAL_OPTIMIZATION)
   set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
@@ -144,6 +127,14 @@ endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+####################
+## Version check ###
+####################
+
+hunter_add_package(check_ci_tag)
+find_package(check_ci_tag CONFIG REQUIRED)
+check_ci_tag()
+
 ##############
 ## Doxygen ###
 ##############
@@ -209,6 +200,9 @@ endif()
 
 include(InstallRequiredSystemLibraries)
 include("cmake/pack.cmake") # includes Cpack
+
+string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
+string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
 
 if(travis_deploy OR appveyor_deploy)
   string(COMPARE EQUAL "$ENV{CONFIG}" "Debug" debug_build)
