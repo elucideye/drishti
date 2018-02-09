@@ -1,7 +1,7 @@
 # Copyright (c) 2014-2017, David Hirvonen
 # All rights reserved.
 
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.9) # CMAKE_INTERPROCEDURAL_OPTIMIZATION
 
 #########################
 ### CMAKE_MODULE_PATH ###
@@ -42,10 +42,7 @@ endif()
 
 project(drishtisdk VERSION 0.8.9)
 
-if(CMAKE_INTERPROCEDURAL_OPTIMIZATION)
-  set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
-  cmake_policy(SET CMP0069 NEW)
-endif()
+set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
 
 set(DRISHTI_3RD_PARTY_DIR "${CMAKE_CURRENT_LIST_DIR}/src/3rdparty")
 set(DRISHTI_APP_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/app")
