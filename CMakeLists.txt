@@ -1,7 +1,7 @@
 # Copyright (c) 2014-2017, David Hirvonen
 # All rights reserved.
 
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.9) # CMAKE_INTERPROCEDURAL_OPTIMIZATION
 
 #########################
 ### CMAKE_MODULE_PATH ###
@@ -13,13 +13,15 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 ### HunterGate and cache ###
 ############################
 
-include("cmake/HunterGate.cmake")
-
 set(drishti_upload_init "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/init.cmake")
 
 if(EXISTS "${drishti_upload_init}")
+  include("cmake/HunterGate.cmake") # HUNTER_ENABLED
+
   include("${drishti_upload_init}")
 elseif(HUNTER_ENABLED)
+  include("cmake/HunterGate.cmake") # HUNTER_ENABLED
+
   # Building as a Hunter dependency. This settings will be inherited from
   # parent project and was not used in fact.
   HunterGate(
@@ -36,33 +38,13 @@ else()
   )
 endif()
 
-##########################
-### CI Travis/Appveyor ###
-##########################
-
-string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
-string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
-
-if(travis_deploy)
-  set(version "$ENV{TRAVIS_TAG}")
-elseif(appveyor_deploy)
-  set(version "$ENV{APPVEYOR_REPO_TAG_NAME}")
-else()
-  set(version "v0.8.9")
-endif()
-
-string(REGEX REPLACE "^v" "" version "${version}")
-
 #######################
 ### Drishti project ###
 #######################
 
-project(drishtisdk VERSION ${version})
+project(drishtisdk VERSION 0.8.9)
 
-if(CMAKE_INTERPROCEDURAL_OPTIMIZATION)
-  set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
-  cmake_policy(SET CMP0069 NEW)
-endif()
+set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
 
 set(DRISHTI_3RD_PARTY_DIR "${CMAKE_CURRENT_LIST_DIR}/src/3rdparty")
 set(DRISHTI_APP_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/app")
@@ -144,6 +126,14 @@ endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+####################
+## Version check ###
+####################
+
+hunter_add_package(check_ci_tag)
+find_package(check_ci_tag CONFIG REQUIRED)
+check_ci_tag()
+
 ##############
 ## Doxygen ###
 ##############
@@ -209,6 +199,9 @@ endif()
 
 include(InstallRequiredSystemLibraries)
 include("cmake/pack.cmake") # includes Cpack
+
+string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
+string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
 
 if(travis_deploy OR appveyor_deploy)
   string(COMPARE EQUAL "$ENV{CONFIG}" "Debug" debug_build)
