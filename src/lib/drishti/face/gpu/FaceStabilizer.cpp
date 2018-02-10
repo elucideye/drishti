@@ -61,40 +61,28 @@ FaceStabilizer::renderEyes(const std::array<cv::Point2f, 2>& eyeCenters, const c
 {
     using PointPair = std::array<cv::Point2f, 2>;
 
-    const cv::Size screenSize(m_sizeOut.width, m_sizeOut.height);
-    const cv::Point screenCenter(screenSize.width / 2, screenSize.height / 2);
-
-    // SCREEN: map pixels to normalized texture [-1.0 ... +1.0]
-    cv::Matx33f No = transformation::normalize(screenSize);
-
-    // Map pixel from normalized texture to input pixels
-    //cv::Matx33f Ni = transformation::denormalize(sizeIn);
-
-    int eyeWidth = screenSize.width / 2;
-    std::array<cv::Rect, 2> eyeRois;
-
-    if (m_autoScaling) // auto
-    {
-        const cv::Rect eyeRoi(0, 0, screenSize.width / 2, screenSize.height);
-        eyeRois = { { eyeRoi, eyeRoi + cv::Point(eyeRoi.width, 0) } };
-    }
-    else
-    {
-        eyeWidth = std::min(screenSize.width / 2, m_maxEyeWidth);
-        const cv::Point eyeOffset(eyeWidth / 2, 0);
-        const cv::Rect eyeRoi(screenCenter.x - eyeOffset.x, 0, eyeWidth, int(m_aspectRatio * eyeWidth + 0.5f));
-        eyeRois = { { eyeRoi - eyeOffset, eyeRoi + eyeOffset } };
-    }
-
+    const cv::Size screenSize(m_sizeOut.width, m_sizeOut.height); // both eyes
+    const cv::Rect eyeRoi(0, 0, screenSize.width / 2, screenSize.height);
+    const std::array<cv::Rect, 2> eyeRois { { eyeRoi, eyeRoi + cv::Point(eyeRoi.width, 0) } };
+    
     const PointPair screenCenters{ { transformation::center(eyeRois[0]), transformation::center(eyeRois[1]) } };
     const float eyeScaleInScreen = cv::norm(screenCenters[0] - screenCenters[1]);
-    cv::Matx33f H = transformation::estimateSimilarity(eyeCenters, screenCenters);
+    const cv::Matx33f H = transformation::estimateSimilarity(eyeCenters, screenCenters);
 
+    // SCREEN: map pixels to normalized texture [-1.0 ... +1.0]
+    const cv::Matx33f No = transformation::normalize(screenSize);
+    
     std::array<eye::EyeWarp, 2> cropInfo;
     for (int i = 0; i < 2; i++)
     {
+        float eyeScaleInOutput = cv::norm(eyeCenters[0] - eyeCenters[1]);
+        if(m_autoScaling)
+        {
+            eyeScaleInOutput = static_cast<float>(eyeRoi.width * 2);
+        }
+        
         // Adjust scaling
-        const float scale = 2.f * float(eyeWidth) / eyeScaleInScreen;
+        const float scale = eyeScaleInOutput / eyeScaleInScreen;
         const cv::Matx33f S = transformation::scale(scale, scale, screenCenters[i]);
         const cv::Matx33f Heye = No * S * H;
         cropInfo[i] = { eyeRois[i], Heye }; // return this for use later

@@ -143,7 +143,7 @@ void FacePainter::getUniforms()
 
 FacePainter::FacePainter(int outputOrientation)
     : m_outputOrientation(outputOrientation)
-    , m_colorRGB(0.f, 0.f, 1.f)
+    , m_colorRGB(1.f, 1.f, 1.f)
     , m_colorLetterboxHeight(0.5f)
 {
     assert(m_outputOrientation == 0);
@@ -404,17 +404,13 @@ int FacePainter::FacePainter::render(int position)
         filterRenderPrepare();
         Tools::checkGLErr(getProcName(), "render prepare");
         setUniforms();
-
+        
+        glUniform1f(m_colorShLetterboxHeight, m_colorLetterboxHeight);
+        Tools::checkGLErr(getProcName(), "setUniforms");
+        
 #if DRISHTI_HCI_FACEPAINTER_COLOR_TINTING
-        if (m_blobInfo.texId >= 0)
-        {
-            m_colorRGB = Vec3f(0.f, 0.f, 0.f);
-            m_colorRGB.data[0] = 1.f;
-            m_colorRGB.data[1] = 1.f;
-            m_colorRGB.data[2] = 1.f;
-
-            glUniform3fv(m_colorShParamRGB, 1, &m_colorRGB.data[0]);
-        }
+        m_colorRGB = Vec3f(1.f, 1.f, 1.f);
+        glUniform3fv(m_colorShParamRGB, 1, &m_colorRGB.data[0]);
 #endif
 
         filterRenderSetCoords();
@@ -469,11 +465,7 @@ int FacePainter::init(int inW, int inH, unsigned int order, bool prepareForExter
     return FilterProcBase::init(inW, inH, order, prepareForExternalInput);
 }
 
-//0, 0,
-//1, 0,
-//0, 1,
-//1, 1
-
+// {0, 0}, {1, 0}, {0, 1}, {1, 1}
 template <typename T>
 std::vector<cv::Point_<T>> getCorners(const cv::Rect_<T>& roi)
 {
@@ -660,7 +652,7 @@ void FacePainter::renderTex(DisplayTexture& texInfo)
     filterRenderPrepareTex(texInfo);
     Tools::checkGLErr(getProcName(), "render prepare");
 
-    glUniform1f(m_colorShLetterboxHeight, m_colorLetterboxHeight);
+    glUniform1f(m_colorShLetterboxHeight, 1.f);
     Tools::checkGLErr(getProcName(), "setUniforms");
 
     filterRenderSetCoordsTex(texInfo);

@@ -59,7 +59,6 @@
 #include "QMLCameraManager.h"
 #include "VideoFilter.hpp"
 #include "InfoFilter.hpp"
-#include "QTRenderGL.hpp"
 #include "FrameHandler.h"
 #include "QtStream.h"
 #include "QtFaceMonitor.h"
@@ -126,7 +125,6 @@ int facefilter_main(int argc, char** argv, std::shared_ptr<spdlog::logger>& logg
 
     qmlRegisterType<VideoFilter>("facefilter.test", 1, 0, "VideoFilter");
     qmlRegisterType<InfoFilter>("facefilter.test", 1, 0, "InfoFilter");
-    qmlRegisterType<QTRenderGL>("OpenGLUnderQML", 1, 0, "QTRenderGL");
 
     QQuickView view;
     view.setSource(QUrl("qrc:///main.qml"));

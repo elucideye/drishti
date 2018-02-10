@@ -77,6 +77,8 @@ public:
         bool doLandmarks = true;
         bool doFlow = true;
         bool doBlobs = false;
+        cv::Size eyesSize = { 480, 240 };
+        bool doEyesScaling = true;
 
         // Detection parameters:
         bool doSingleFace = false;

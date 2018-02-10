@@ -77,8 +77,6 @@ set(
   FPSCalculator.cpp
   ${facefilter_qrc}
   main.qml
-  QTRenderGL.hpp
-  QTRenderGL.cpp
   QtFaceDetectorFactory.h
   QtFaceDetectorFactory.cpp
   QtFaceDetectorFactoryCereal.cpp
@@ -122,8 +120,12 @@ if(ANDROID)
   include (GenerateExportHeader)
   generate_export_header(facefilter)
 
-  target_link_libraries(${app_name} Qt5::Quick Qt5::Multimedia)
-  target_link_libraries(${app_name} EGL GLESv2)
+  target_link_libraries(${app_name} 
+    Qt5::Quick
+    Qt5::Multimedia
+    EGL 
+    GLESv2
+    )
 
   set_target_properties(
     facefilter
@@ -218,22 +220,22 @@ else()
       "com.github.headupinclouds.drishtisdk.${app_name}"
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       )
-  endif()
-  target_link_libraries(${app_name} Qt5::Quick)
-  target_link_libraries(${app_name} Qt5::Multimedia)
-  target_link_libraries(${app_name} Qt5::OpenGL)
-  target_link_libraries(${app_name} Qt5::Sensors)
-
-  ### Plugins
-  target_link_libraries(${app_name} Qt5::QmlQtQuick2Plugin)
-  target_link_libraries(${app_name} ${Qt5Multimedia_PLUGINS})
-  target_link_libraries(${app_name} Qt5::QMultimediaDeclarativeModule)
-  if(IOS)
     target_link_libraries(${app_name} ${Qt5Gui_PLUGINS})
   else()
     find_package(Qt5PrintSupport REQUIRED)
     target_link_libraries(${app_name} Qt5::PrintSupport)
   endif()
+
+  target_link_libraries(${app_name} 
+    Qt5::Quick
+    Qt5::Multimedia
+    Qt5::OpenGL
+    Qt5::Sensors
+    ### Plugins
+    Qt5::QmlQtQuick2Plugin
+    ${Qt5Multimedia_PLUGINS}
+    Qt5::QMultimediaDeclarativeModule
+    )
 
   ### Workaround for Linux's linker problems {
   set(fix_cyclic FALSE)

@@ -35,10 +35,7 @@
 
 import QtQuick 2.0
 import QtMultimedia 5.5
-//import QtQuick.Controls 1.0
 import facefilter.test 1.0 // VideoFilter, InfoFilter
-
-import OpenGLUnderQML 1.0 // direct rendering
 
 Item {
 
@@ -59,10 +56,6 @@ Item {
       exposureCompensation: -1.0
       exposureMode: Camera.ExposureAuto
     }
-  }
-
-  QTRenderGL {
-    id: qtrendergl
   }
   
   VideoOutput {
