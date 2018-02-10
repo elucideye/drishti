@@ -285,7 +285,7 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
     const float cutoff = 0.5;
 
     impl->eyeFilter = drishti::core::make_unique<ogles_gpgpu::EyeFilter>(convert(eyesSize), mode, cutoff, impl->history);
-    impl->eyeFilter->setAutoScaling(true);
+    impl->eyeFilter->setAutoScaling(impl->doEyesScaling);
     impl->eyeFilter->setOutputSize(eyesSize.width, eyesSize.height);
 
     if (impl->doIris)
@@ -398,7 +398,6 @@ void FaceFinder::init(const cv::Size& inputSize)
     impl->doOptimizedPipeline &= static_cast<bool>(impl->threads);
     
     impl->latency = impl->doOptimizedPipeline ? 2 : 0;
-
 }
 
 template <typename Container>
@@ -1099,7 +1098,6 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
     auto *detector = dynamic_cast<ml::ObjectDetectorACF *>(impl->faceDetector->getDetector());
     impl->detector = dynamic_cast<acf::Detector*>(detector->getDetector());
     
-
     if (impl->detector)
     {
         if (impl->acfCalibration != 0.f)
@@ -1133,9 +1131,8 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
                 *faceDetectorMean.mouthCornerLeft
             };
             // clang-format on
-
             const cv::Point2f center = core::centroid(centers);
-            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale * 1.1, center);
+            const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale, center);
             faceDetectorMean = H * faceDetectorMean;
         }
 
@@ -1208,18 +1205,6 @@ getDetectionImageWidth(float objectWidthMeters, float fxPixels, float zMeters, f
     // N = winSizePixels / (objectWidthPixels / imageWidthPixels);
     return winSizePixels / (objectWidthPixels / imageWidthPixels);
 }
-
-#if DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
-static cv::Size uprightSize(const cv::Size& size, int orientation)
-{
-    cv::Size upSize = size;
-    if ((orientation / 90) % 2)
-    {
-        std::swap(upSize.width, upSize.height);
-    }
-    return upSize;
-}
-#endif // DRISHTI_HCI_FACEFINDER_DO_FLOW_QUIVER || DRISHTI_HCI_FACEFINDER_DO_CORNER_PLOT
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
 

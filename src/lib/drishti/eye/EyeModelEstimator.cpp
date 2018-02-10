@@ -156,8 +156,6 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat& crop, EyeModel& eye) cons
     return 0;
 }
 
-//====
-
 EyeModelEstimator::EyeModelEstimator()
 {
 }

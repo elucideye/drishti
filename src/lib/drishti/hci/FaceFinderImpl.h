@@ -81,6 +81,8 @@ struct FaceFinder::Impl
         // Eye parameters:
         , doBlobs(args.doBlobs)
         , doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
+        , eyesSize(args.eyesSize)
+        , doEyesScaling(args.doEyesScaling)
 
         // Annotations:
         , renderFaces(args.renderFaces)
@@ -173,6 +175,7 @@ struct FaceFinder::Impl
     bool doIris = false;
     bool doEyeFlow = false;
     cv::Size eyesSize = { 480, 240 };
+    bool doEyesScaling = true;
 
     std::unique_ptr<ogles_gpgpu::BlobFilter> blobFilter;
     std::unique_ptr<ogles_gpgpu::EyeFilter> eyeFilter;
