@@ -126,7 +126,7 @@ bool VideoSinkApple::Impl::end(const VideoSinkCV::CompletionHandler &handler)
         std::cout << assetWriter.status << std::endl;
         auto handler_ = handler;
         [assetWriterVideoInput markAsFinished];
-        [assetWriter finishWritingWithCompletionHandler:^{ handle_r(); }];
+        [assetWriter finishWritingWithCompletionHandler:^{ handler_(); }];
         isStarted = false;
     }
     return true;
