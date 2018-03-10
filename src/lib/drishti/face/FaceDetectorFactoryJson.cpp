@@ -8,10 +8,10 @@
 
 */
 
-#include "drishti/face/FaceDetectorFactoryJson.h"
-
 // Need std:: extensions for android targets
 #include "drishti/core/drishti_stdlib_string.h"
+
+#include "drishti/face/FaceDetectorFactoryJson.h"
 
 #include <nlohmann/json.hpp> // nlohman-json
 

@@ -23,12 +23,15 @@ set(dlib_cmake_args
 if(ANDROID)
   # https://travis-ci.org/ingenue/hunter/jobs/287844545
   # Will be fixed in Android NDK 17
-  set(dlib_version 19.2-p1)
+  set(dlib_version 19.2-p2)
+  set(nlohmann_json_version 2.1.1-p1)
 else()
   set(dlib_version ${HUNTER_dlib_VERSION})
+  set(nlohmann_json_version ${HUNTER_nlohmann_json_VERSION})  
 endif()
-    
+
 hunter_config(dlib VERSION ${dlib_version} CMAKE_ARGS ${dlib_cmake_args})
+hunter_config(nlohmann_json VERSION ${nlohmann_json_version})
 
 set(acf_cmake_args
   ACF_BUILD_TESTS=OFF 

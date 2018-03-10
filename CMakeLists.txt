@@ -13,29 +13,46 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 ### HunterGate and cache ###
 ############################
 
+option(DRISHTI_USE_DRISHTI_UPLOAD "Use drishti upload configuration" OFF)
 set(drishti_upload_init "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/init.cmake")
 
-if(EXISTS "${drishti_upload_init}")
-  include("cmake/HunterGate.cmake") # HUNTER_ENABLED
-
-  include("${drishti_upload_init}")
-elseif(HUNTER_ENABLED)
-  include("cmake/HunterGate.cmake") # HUNTER_ENABLED
-
-  # Building as a Hunter dependency. This settings will be inherited from
-  # parent project and was not used in fact.
-  HunterGate(
-      URL "https://github.com/ruslo/hunter/archive/v0.19.237.tar.gz"
-      SHA1 "b64ad42b7ef398a7332f5f4a98cf7bbfd38ca8d0"
-  )
-else()
-  message(
+if(DRISHTI_USE_DRISHTI_UPLOAD)
+  if(EXISTS "${drishti_upload_init}")
+    # CI: Locked CI build configuration
+    include("${drishti_upload_init}")
+  else()
+    # FAILURE:
+    message(
       FATAL_ERROR
-      "File not exists:\n"
+      "File does not exist:\n"
       "  ${drishti_upload_init}\n"
       "Run this command if submodule is not initialized:\n"
       "  git submodule update --init --recursive ."
   )
+  endif()
+else()
+  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.20.14.tar.gz")
+  set(DRISHTI_HUNTER_GATE_SHA1 "18cdbf5c47abdda437c73bf5437b7c3c65afe47c")
+  if(HUNTER_ENABLED)
+    # DEPENDENCY: if(HUNTER_ENABLE): we are being used as a dependency from
+    # another project and we will use the config.cmake from the parent project.
+    include("cmake/HunterGate.cmake") # HUNTER_ENABLED
+    HunterGate(
+      URL "${DRISHTI_HUNTER_GATE_URL}"
+      SHA1 "${DRISHTI_HUNTER_GATE_SHA1}"
+    )
+  else()
+    # LOCAL: This is a local repository build and we are relying on a local
+    # config (instead of CI friendly drishti-upload) that is closer to the 
+    # current default versions in ${HUNTER_ROOT}/cmake/configs/default.cmake
+    include("cmake/default_options.cmake")
+    include("cmake/HunterGate.cmake") # HUNTER_ENABLED
+    HunterGate(
+      URL "${DRISHTI_HUNTER_GATE_URL}"
+      SHA1 "${DRISHTI_HUNTER_GATE_SHA1}"
+      FILEPATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake"
+    )
+  endif()
 endif()
 
 #######################

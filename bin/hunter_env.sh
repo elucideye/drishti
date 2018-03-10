@@ -39,7 +39,9 @@ git submodule update --init --recursive --quiet
 uname -a
 
 # Install Python 3
-if [[ "$(uname)" == "Darwin" ]] && [ ! $(which python3) ]; then travis_retry brew install python3; fi
+# >> Error: python 2.7.14 is already installed \n To upgrade to 3.6.4_3, run `brew upgrade python`
+# if [[ "$(uname)" == "Darwin" ]] && [ ! $(which python3) ]; then travis_retry brew install python3; fi
+if [[ "$(uname)" == "Darwin" ]] && [ ! $(which python3) ]; then travis_retry brew upgrade python; fi
 
 # Install Python package 'requests'
 # 'easy_install3' is not installed by 'brew install python3' on OS X 10.9 Maverick
