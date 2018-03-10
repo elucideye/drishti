@@ -19,6 +19,7 @@ set(drishti_upload_init "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/init.cmake")
 if(DRISHTI_USE_DRISHTI_UPLOAD)
   if(EXISTS "${drishti_upload_init}")
     # CI: Locked CI build configuration
+    include("cmake/HunterGate.cmake") # HUNTER_ENABLED
     include("${drishti_upload_init}")
   else()
     # FAILURE:

@@ -73,7 +73,7 @@ std::vector<cv::Point2f> asSpline(const std::vector<cv::Point2f>& points, int n,
     return spline;
 }
 
-std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool browClosed) const
+std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool browClosed, bool doInner) const
 {
     bool useFull = (fullEyes && eyeFullR.has && eyeFullL.has);
     ContourVec eyeRight_ = useFull ? eyeFullR->getContours() : ContourVec(1, asSpline(eyeRight, 64, true));
@@ -88,21 +88,24 @@ std::vector<FaceModel::ContourVec> FaceModel::getFaceParts(bool fullEyes, bool b
         { asSpline(eyebrowRight, 64, browClosed) },
         { asSpline(eyebrowLeft, 64, browClosed) }
     };
-    
-    if(mouthOuter.size() && mouthInner.size())
-    {
-        features.emplace_back( ContourVec{asSpline(mouthOuter, 64, true)} );
-        features.emplace_back( ContourVec{asSpline(mouthInner, 64, true)} );
-    }
     // clang-format on
-
-    if (sideLeft.size() && sideRight.size())
+    
+    if(!doInner)
     {
-        auto cL = asSpline(sideLeft, 10, false);
-        auto cR = asSpline(sideRight, 10, false);
+        if(mouthOuter.size() && mouthInner.size())
+        {
+            features.emplace_back( ContourVec{asSpline(mouthOuter, 64, true)} );
+            features.emplace_back( ContourVec{asSpline(mouthInner, 64, true)} );
+        }
 
-        features.push_back({ cL });
-        features.push_back({ cR });
+        if (sideLeft.size() && sideRight.size())
+        {
+            auto cL = asSpline(sideLeft, 10, false);
+            auto cR = asSpline(sideRight, 10, false);
+
+            features.push_back({ cL });
+            features.push_back({ cR });
+        }
     }
 
     return features;

@@ -38,7 +38,7 @@ struct FaceModel
     float getInterPupillaryDistance() const;
     cv::Point2f getEyeLeftCenter() const;
     cv::Point2f getEyeRightCenter() const;
-    std::vector<ContourVec> getFaceParts(bool fullEyes = false, bool browClosed = true) const;
+    std::vector<ContourVec> getFaceParts(bool fullEyes = false, bool browClosed = true, bool doInner=true) const;
     bool getEyeRegions(cv::Rect2f& eyeR, cv::Rect2f& eyeL, float scale = 0.666f) const;
 
     // ======================
