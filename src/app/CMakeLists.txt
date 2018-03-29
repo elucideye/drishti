@@ -43,8 +43,9 @@ add_subdirectory(dlib) # cpb
 
 add_subdirectory(fddb)
 
-# Currently this has a glfw assumption
-# Can use use glfm, sfml or boost for android and iOS
-if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU AND (${DRISHTI_DO_GPU_TESTING}))
+# This application tests the high level drishti::hci modules
+# which makes use of OpenGL ES (or compatible) GPGPU processing.
+# This is provided by the cross platform aglet library
+if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU AND aglet_FOUND)
   add_subdirectory(hci)
 endif()
