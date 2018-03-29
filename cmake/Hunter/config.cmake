@@ -39,7 +39,10 @@ set(acf_cmake_args
   ACF_SERIALIZE_WITH_CVMATIO=${DRISHTI_SERIALIZE_WITH_CVMATIO}
   ACF_SERIALIZE_WITH_CEREAL=ON
   ACF_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU}
-)
+  ACF_KEEPS_SOURCES=1
+  )
+
+message("acf_cmake_args ${acf_cmake_args}")
 
 hunter_config(acf VERSION ${HUNTER_acf_VERSION} CMAKE_ARGS ${acf_cmake_args})
 
@@ -92,7 +95,7 @@ if (DRISHTI_BUILD_OPENCV_EXTRA)
     OPENCV_WITH_EXTRA_MODULES=YES # <===== opencv_contrib
 
     BUILD_opencv_dnn=OFF
-    BUILD_LIBPROTOBUF_FROM_SOURCES=YES
+    BUILD_LIBPROTOBUF_FROM_SOURCES=NO
 
     BUILD_opencv_imgproc=ON   
     BUILD_opencv_optflow=ON   # optflow
@@ -124,7 +127,13 @@ if (DRISHTI_BUILD_OPENCV_EXTRA)
     BUILD_opencv_xobjdetect=OFF
     BUILD_opencv_xphoto=OFF
     )
-
-  hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION} CMAKE_ARGS ${OPENCV_CMAKE_ARGS})
-
+else()
+    set(OPENCV_CMAKE_ARGS
+      WITH_PROTOBUF=OFF 
+      BUILD_PROTOBUF=OFF   # avoid protobuf
+      BUILD_LIBPROTOBUF_FROM_SOURCES=NO # don't need protobuf
+      BUILD_opencv_dnn=OFF # avoid protobuf 
+    )
 endif()
+
+hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION} CMAKE_ARGS ${OPENCV_CMAKE_ARGS})

@@ -165,7 +165,8 @@ list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS sse2neon::sse2neon) # Add library
 #   * GLContextIOS
 #   * GLContextAndroid
 # Note: Android emulator supports GPU use
-if(DRISHTI_DO_GPU_TESTING)
+
+if(DRISHTI_DO_GPU_TESTING OR (DRISHTI_HAS_GPU AND DRISHTI_BUILD_HCI))
   hunter_add_package(aglet)
   find_package(aglet CONFIG REQUIRED)
 endif()

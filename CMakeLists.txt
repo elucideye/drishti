@@ -3,6 +3,34 @@
 
 cmake_minimum_required(VERSION 3.9) # CMAKE_INTERPROCEDURAL_OPTIMIZATION
 
+# By default, the source code for all managed dependencies will be removed after
+# building and installing to the cache.  This behavior is consistent with most 
+# installed libraries (i.e., /usr/local/lib/*), but it does prevent stepping 
+# through the dependencies in a debugger in cases where a problem is not 
+# contained within the drishti project sources.  In such cases, you can set 
+# HUNTER_KEEP_PACKAGE_SOURCES=ON from the command line during the project 
+# configuration and the source will be left for all packages when they are
+# created.  This setting must be used before a package is installed -- it 
+# won't be applied retroactively to installed packages.  In order to re-install
+# a package with sources you can always remove the cache
+# (i.e., rm -rf ${HOME}/.hunter) or, less drastically you can modify the 
+# CONFIG-ID of an installed package to trigger the configuration and 
+# installation steps.  This can be done by modifying the input CMAKE_ARGS 
+# list in a hunter_config() call.  In the following example KEEP_SOURCES=1
+# is  added to trigger a re-installation:
+#
+#   hunter_config(foo VERSION ${HUNTER_foo_VERSION} CMAKE_ARGS KEEP_SOURCES=1)
+#
+# The HUNTER_KEEP_PACKAGE_SOURCES development feature is described here:
+#
+# In order to support stepping through package sources you will also have to
+# make sure that debug versions of the packages are installed.  This will
+# happen by default, but will not happen if you specify a release only build
+# using HUNTER_CONFIGURATION_TYPES=Release
+
+# https://docs.hunter.sh/en/latest/reference/user-variables.html#hunter-keep-package-sources
+option(HUNTER_KEEP_PACKAGE_SOURCES "Keep installed package sources for debugging (caveat...)" OFF)
+
 #########################
 ### CMAKE_MODULE_PATH ###
 #########################
@@ -34,9 +62,10 @@ if(DRISHTI_USE_DRISHTI_UPLOAD)
 else()
   set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.20.14.tar.gz")
   set(DRISHTI_HUNTER_GATE_SHA1 "18cdbf5c47abdda437c73bf5437b7c3c65afe47c")
-  if(HUNTER_ENABLED)
+  if(HUNTER_ENABLED AND NOT DRISHTI_IS_REPO_BUILD)
     # DEPENDENCY: if(HUNTER_ENABLE): we are being used as a dependency from
     # another project and we will use the config.cmake from the parent project.
+    message(STATUS "Drishti Hunter package build detected")
     include("cmake/HunterGate.cmake") # HUNTER_ENABLED
     HunterGate(
       URL "${DRISHTI_HUNTER_GATE_URL}"
@@ -46,6 +75,10 @@ else()
     # LOCAL: This is a local repository build and we are relying on a local
     # config (instead of CI friendly drishti-upload) that is closer to the 
     # current default versions in ${HUNTER_ROOT}/cmake/configs/default.cmake
+    # Note that HUNTER_ENABLED=ON will eventually be set in the cache so
+    # we set a variable to cache for subsequent builds.
+    message(STATUS "Drishti in-repository build detected")
+    set(DRISHTI_IS_REPO_BUILD TRUE CACHE STRING "Is a build from the local repository")
     include("cmake/default_options.cmake")
     include("cmake/HunterGate.cmake") # HUNTER_ENABLED
     HunterGate(
@@ -255,7 +288,15 @@ option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." OF
 option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." OFF)
 option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
 
-if(DRISHTI_BUILD_TESTS AND (ANDROID OR NOT ${DRISHTI_CI}))
+# On CI platforms we won't have a usable GPU except for the Android emulator
+# We set a variable here to help us make decisions about dependencies later on.
+if(ANDROID OR NOT ${DRISHTI_CI}) 
+  set(DRISHTI_HAS_GPU TRUE)
+else()
+  set(DRISHTI_HAS_GPU FALSE)
+endif()
+
+if(DRISHTI_HAS_GPU AND DRISHTI_BUILD_TESTS)
   set(DRISHTI_DO_GPU_TESTING TRUE)
 else()
   set(DRISHTI_DO_GPU_TESTING FALSE)
