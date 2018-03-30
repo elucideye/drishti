@@ -27,8 +27,6 @@
 
 #include <stdio.h>
 
-#define DRISHTI_FACE_DETECTOR_DO_SIMILARITY_MOTION 1
-
 DRISHTI_FACE_NAMESPACE_BEGIN
 
 using drishti::geometry::operator*;
@@ -242,7 +240,15 @@ public:
             // must also be composed with the input Hdr_ homography that provides a transformation from the
             // detection image coordinate system to the landmark regression coordinate system, which is most
             // likely a scale and translation (detection typically happens at lower resolution).
-            const cv::Rect roi = isDetection ? mapDetectionToRegressor(shapes[i].roi, m_Hrd, Hdr_) : (Hdr_ * shapes[i].roi);
+            cv::Rect roi;
+            if(isDetection)
+            {
+                roi = mapDetectionToRegressor(shapes[i].roi, m_Hrd, Hdr_);
+            }
+            else
+            {
+                roi = (Hdr_ * shapes[i].roi);
+            }
 
             // Perform an addition (optional) scaling that can be tuned easily by the user as some detection
             // scales will perform better than the mean mapping used above (experimentally).
@@ -271,9 +277,10 @@ public:
         return cv::Rect(center - (diag * scale), center + (diag * scale));
     }
 
-    // Return requested light weight copy if roi is contained in frame bounds, else perform
-    // a deep copy that preseves the crop geometry via border padding.  This ensures that
-    // landmark regression has the best chance of success.
+    // Return requested light weight copy if roi is contained in frame bounds,
+    // else perform a deep copy that preseves the crop geometry via border
+    // padding.  This ensures that landmark regression has the best chance of
+    // success.
     static cv::Mat geometryPreservingCrop(const cv::Rect& roi, const cv::Mat& gray)
     {
         const cv::Rect bounds({ 0, 0 }, gray.size());
@@ -287,19 +294,101 @@ public:
         }
         return crop;
     }
-
-    // Notes on motion and coordinate systems:
+    
+    // This comment block describes how we map rectangles from face detections
+    // to recangles with an appropriate geometry to start the landmark
+    // regression process.
     //
-    // FaceDetector::m_Hrd : map normalized regressor mean face to normalized detector mean face
-    // denormalize(s.roi)  : denormalize points
-    // Hdr                 : detector image to regressor
+    // We have an input face detector with associated mean landmarks from the
+    // training set:
+    //
+    //   * RE: right-eye
+    //   * LE: left-eye
+    //   * N:  nose-tip
+    //   * RM: right-mouth
+    //   * LM: left-mouth
+    //
+    // The encodings are relative to the subject (i.e., "Stage right") so the
+    // right eye will be visible on the left side of the image and vice-versa.
+    // These points are specified in a normalized coordinate system relative to
+    // the detection image crops, so we simply divide x coordinates by the
+    // corresponding crop width and y coordinates by the crop height:
+    //
+    //  (x',y') = (x/width,y/height)
+    //
+    // Various training geometries may be used by the face detector, and it is
+    // not necessary for all 5 of the landmarks to be visible in the operative
+    // crop geometry.  One example of a tight inner face detector is shown
+    // below, note that it excludes the mouth corner points.  That's okay.
+    //
+    // +-----------------------------------+
+    // |                                   |
+    // |      RE                 LE        |
+    // |                                   |
+    // |                                   |
+    // |                                   |
+    // |                 N                 |
+    // +-----------------------------------+
+    //
+    //
+    //              RM       LM
+    //
+    //
+    // We also have a landmark regressor which may be trained with a different
+    // crop geometry, resulting in a different set of mean normalized landmark
+    // points.  This requires some form of *calibration* if we want the modules
+    // to be plug and play.  If the landmark regressor is trained on crops from
+    // a specific face detector, then this step wouldn't be needed. The landmark
+    // regressor might employ a geometry that looks something more like this:
+    //
+    //
+    // +---------------------+
+    // |                     |
+    // |                     |
+    // |    RE         LE    |
+    // |                     |
+    // |                     |
+    // |          N          |
+    // |                     |
+    // |                     |
+    // |      RM     LM      |
+    // |                     |
+    // +---------------------+
+    //
+    //
+    // In this case the mean landmarks are all contained within the training
+    // data crop.  (We use an exagerated case here to illustrate the process.)
+    
+    // The end-to-end processing pipeline required to fit the eye models
+    // looks like this:
+    //
+    // 1) low-res face detection
+    // 2) low-res face landmark regression
+    // 3) high-res eye model fitting
+    //
+    // Here we are concerned with the process of initializing the face landmark
+    // regression ROI (2) based on the detection rectangles provided by (1).
+    // We use correspondence between the the mean landmark points to provide
+    // this mapping.  This enables us to find an affine transformation from
+    // LANDMARK-to-DETECTION coordinate systems which can then be used to map
+    // the desired normalized regressor unit square to an appropriate rectangle
+    // crop in the image space.
+    //
+    // This transformation takes the following form:
+    //
+    // Given:
+    // [Hrd] homography mapping from regressor to detector normalized landmarks
+    // [D]   homography that denormalizes the detection crop landmarks
+    // [Hdr_] homography that maps from the full detection image to the
+    // full regression image -- here we are refering to the full images and
+    // not the detector/regressor crops.
+    //
+    // 1) use Hrd to map the unit square from regressor to the detection ROI
+    // 2) use D to denormalize the mapped ROI in the detection image c.s.
+    // 3) use Hdr to map the rectangle from the detectio image to the regressor image
     static cv::Rect mapDetectionToRegressor(const cv::Rect& roi, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)
     {
-        // 1) map the unit square from regressor to the detector;
-        // 2) denormalize coordinates in the detector image;
-        // 3) transform from the detector image to the regressor image;
-        cv::Matx33f H = Hdr_ * denormalize(roi) * Hrd;
-        return H * cv::Rect_<float>(0, 0, 1, 1);
+        return (Hdr_ * denormalize(roi) * Hrd) * cv::Rect2f(0.f, 0.f, 1.f, 1.f);
     }
 
     void mapDetectionsToRegressor(std::vector<dsdkc::Shape>& shapes, const cv::Matx33f& Hrd, const cv::Matx33f& Hdr_)
@@ -347,20 +436,10 @@ public:
     cv::Matx33f getAffineMotionFromRegressorToDetector(const ml::ShapeEstimator& regressor)
     {
         FaceModel faceRegressorMean = getMeanShape(regressor, { 0.f, 0.f, 1.f, 1.f });
-
-#if DRISHTI_FACE_DETECTOR_DO_SIMILARITY_MOTION
-        cv::Mat M = estimateMotionLeastSquares(faceRegressorMean, m_faceDetectorMean);
-#else
         cv::Mat M = getAffineMotion(faceRegressorMean, m_faceDetectorMean);
-#endif
+
         cv::Matx33f Hrd = cv::Matx33f::eye();
-        for (int y = 0; y < 2; y++)
-        {
-            for (int x = 0; x < 3; x++)
-            {
-                Hrd(y, x) = M.at<double>(y, x);
-            }
-        }
+        M({0,0,3,2}).convertTo(cv::Mat(2,3,CV_32F,&Hrd(0,0),false), CV_32F);
         return Hrd;
     }
 

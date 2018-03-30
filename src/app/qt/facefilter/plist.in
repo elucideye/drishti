@@ -32,6 +32,12 @@
   <string>$(BUNDLE_IDENTIFIER)</string>
 
   <!--
+  Storyboards
+  -->
+  <key>UILaunchStoryboardName</key>
+  <string>LaunchScreen</string>
+
+  <!--
   Device supported orientations
   -->
   <key>UISupportedInterfaceOrientations</key>

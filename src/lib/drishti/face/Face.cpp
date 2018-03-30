@@ -41,10 +41,10 @@ bool FaceModel::getEyeRegions(cv::Rect2f& eyeR, cv::Rect2f& eyeL, float scale) c
     if ((eyeLeft.size() && eyeRight.size()) || (eyeRightCenter.has && eyeLeftCenter.has))
     {
         okay = true;
-        cv::Point2f pL = getEyeLeftCenter();
-        cv::Point2f pR = getEyeRightCenter();
-        cv::Point2f ratio(1.0, 3.0 / 4.0);
-        cv::Point2f diag = ratio * cv::norm(pL - pR) * scale * 0.5f;
+        const cv::Point2f pL = getEyeLeftCenter();
+        const cv::Point2f pR = getEyeRightCenter();
+        const cv::Point2f ratio(1.0, 3.0 / 4.0);
+        const cv::Point2f diag = ratio * cv::norm(pL - pR) * scale * 0.5f;
         eyeL = cv::Rect2f((pL - diag), (pL + diag));
         eyeR = cv::Rect2f((pR - diag), (pR + diag));
     }
@@ -181,8 +181,6 @@ cv::Mat getSimilarityMotionFromEyes(const FaceModel& a, const FaceModel& b)
 {
     std::array<cv::Point2f, 2> ptsA{ { a.eyeFullR->irisEllipse.center, a.eyeFullL->irisEllipse.center } };
     std::array<cv::Point2f, 2> ptsB{ { b.getEyeRightCenter(), b.getEyeLeftCenter() } };
-    //std::array<cv::Point2f,2> ptsB {{ b.eyeFullR->irisEllipse.center, b.eyeFullL->irisEllipse.center }};
-
     return cv::Mat(transformation::estimateSimilarity(ptsA, ptsB));
 }
 
@@ -199,12 +197,12 @@ cv::Mat getAffineMotion(const FaceModel& a, const FaceModel& b)
     CV_Assert(a.eyeLeftCenter.has);
     CV_Assert(a.eyeRightCenter.has);
     CV_Assert(a.noseTip.has);
-    cv::Point2f ptsA[3] = { a.eyeRightCenter.value, a.eyeLeftCenter.value, a.noseTip.value };
+    cv::Point2f ptsA[3] = { a.getEyeRightCenter(), a.getEyeLeftCenter(), a.noseTip.value };
 
     CV_Assert(b.eyeLeftCenter.has);
     CV_Assert(b.eyeRightCenter.has);
     CV_Assert(b.noseTip.has);
-    cv::Point2f ptsB[3] = { b.eyeRightCenter.value, b.eyeLeftCenter.value, b.noseTip };
+    cv::Point2f ptsB[3] = { b.getEyeRightCenter(), b.getEyeLeftCenter(), b.noseTip.value };
 
     cv::Mat H = cv::getAffineTransform(&ptsA[0], &ptsB[0]);
     return H;

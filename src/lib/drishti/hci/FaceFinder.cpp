@@ -50,8 +50,8 @@ static void chooseBest(std::vector<cv::Rect>& objects, std::vector<double>& scor
 static int getDetectionImageWidth(float, float, float, float, float);
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
-static cv::Mat draw(const drishti::acf::Detector::Pyramid& pyramid);
-static void logPyramid(const std::string& filename, const drishti::acf::Detector::Pyramid& P);
+static cv::Mat draw(const acf::Detector::Pyramid& pyramid);
+static void logPyramid(const std::string& filename, const acf::Detector::Pyramid& P);
 #endif // DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
 
 static ogles_gpgpu::Size2d convert(const cv::Size& size)
@@ -104,15 +104,22 @@ FaceFinder::~FaceFinder()
 {
     try
     {
-        if (impl->doOptimizedPipeline)
+        if (impl && impl->doOptimizedPipeline)
         {
             // If this has already been retrieved it will throw
             impl->scene.get(); // block on any abandoned calls
         }
     }
+    catch (std::exception &e)
+    {
+        if(impl && impl->logger)
+        {
+            impl->logger->error("Exception {}", e.what());
+        }
+    }
     catch (...)
     {
-        // Noop
+
     }
 }
 
@@ -197,11 +204,17 @@ int FaceFinder::computeDetectionWidth(const cv::Size& inputSizeUp) const
 {
     CV_Assert(impl->detector);
     
-    // TODO: Add global constant and set limits on reasonable detection size
-    const float faceWidthMeters = 0.120;
+    // Some detectors may expect column major storage, so we transpose
+    // the detector window dimensions for such cases here.
+    auto winSize = impl->detector->getWindowSize();
+    if(!impl->detector->getIsRowMajor())
+    {
+        std::swap(winSize.width, winSize.height);
+    }
+    
+    const float faceWidthMeters = 0.12f; // reasonable constant
     const float fx = impl->sensor->intrinsic().m_fx;
-    const float winSize = impl->detector->getWindowSize().width;
-    return getDetectionImageWidth(faceWidthMeters, fx, impl->maxDistanceMeters, winSize, inputSizeUp.width);
+    return getDetectionImageWidth(faceWidthMeters, fx, impl->maxDistanceMeters, winSize.width, inputSizeUp.width);
 }
 
 // Side effect: set impl->pyramdSizes
@@ -212,20 +225,26 @@ void FaceFinder::initACF(const cv::Size& inputSizeUp)
     const int detectionWidth = computeDetectionWidth(inputSizeUp);
     impl->ACFScale = float(inputSizeUp.width) / float(detectionWidth);
 
-    // ACF implementation uses reduce resolution transposed image:
+    // ACF implementation uses reduced resolution transposed image:
     cv::Size detectionSize = inputSizeUp * (1.0f / impl->ACFScale);
     cv::Mat I(detectionSize.width, detectionSize.height, CV_32FC3, cv::Scalar::all(0));
 
     MatP Ip(I);
     impl->detector->computePyramid(Ip, impl->P);
+    
+    if(impl->P.nScales <= 0)
+    {
+        throw std::runtime_error("There are no valid detections scales for your provided configuration");
+    }
 
     impl->pyramidSizes.resize(impl->P.nScales);
     std::vector<ogles_gpgpu::Size2d> sizes(impl->P.nScales);
     for (int i = 0; i < impl->P.nScales; i++)
     {
+        const int shrink = impl->detector->opts.pPyramid->pChns->shrink.get();
         const auto size = impl->P.data[i][0][0].size();
-        sizes[i] = { size.width * 4, size.height * 4 }; // undo ACF binning x4
-        impl->pyramidSizes[i] = { size.width * 4, size.height * 4 };
+        sizes[i] = { size.width * shrink, size.height * shrink }; // undo ACF binning x4
+        impl->pyramidSizes[i] = { size.width * shrink, size.height * shrink };
 
         // CPU processing works with tranposed images for col-major storage assumption.
         // Undo that here to map to row major representation.  Perform this step
@@ -1208,7 +1227,7 @@ getDetectionImageWidth(float objectWidthMeters, float fxPixels, float zMeters, f
 
 #if DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
 
-static cv::Mat draw(const drishti::acf::Detector::Pyramid& pyramid)
+static cv::Mat draw(const acf::Detector::Pyramid& pyramid)
 {
     cv::Mat canvas;
     std::vector<cv::Mat> levels;
@@ -1237,7 +1256,7 @@ static cv::Mat draw(const drishti::acf::Detector::Pyramid& pyramid)
     return canvas;
 }
 
-static void logPyramid(const std::string& filename, const drishti::acf::Detector::Pyramid& P)
+static void logPyramid(const std::string& filename, const acf::Detector::Pyramid& P)
 {
     cv::Mat canvas = draw(P);
     cv::imwrite(filename, canvas);

@@ -140,6 +140,7 @@ int gauze_main(int argc, char** argv)
     bool doWindow = false;
     bool doMovie = false;
     bool doDebug = false;
+    bool doCpu = false;
     int loops = 0;
 
     std::string sInput, sOutput, sSwizzle = "rgba";
@@ -182,6 +183,7 @@ int gauze_main(int argc, char** argv)
         ("f,focal-length", "Focal length in pixels",cxxopts::value<float>(fx))
         ("min", "Nearest distance in meters", cxxopts::value<float>(minZ))
         ("max", "Farthest distance in meters", cxxopts::value<float>(maxZ))
+        ("cpu", "Force CPU ACF processing", cxxopts::value<bool>(doCpu))
     
         // Clasifier and regressor models:
         ("D,detector", "Face detector model", cxxopts::value<std::string>(factory->sFaceDetector))
@@ -309,27 +311,34 @@ int gauze_main(int argc, char** argv)
     settings.faceFinderInterval = 0.f;
     settings.regressorCropScale = scale;
     settings.acfCalibration = cascCal;
-    
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     settings.renderFaces = true;          // *** rendering ***
     settings.renderPupils = true;         // *** rendering ***
     settings.renderCorners = false;       // *** rendering ***
     settings.renderEyesWidthRatio = 0.25f * opengl->getGeometry().sx; // *** rendering ***
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-    
     settings.minDetectionDistance = minZ;
     settings.maxDetectionDistance = maxZ;
     settings.doSingleFace = true;
-    { // Create a sensor specification
+    settings.doOptimizedPipeline = !doCpu;
+    { // Create a sensor specification, here we pick a focal length (in pixels)
+      // in case the user has not provided one.  This should really be specified
+      // by the user
         if (fx == 0.f)
         {
-            fx = frame.image.cols; // use a sensible default guess
+            fx = frame.image.cols;
         }
         const cv::Point2f p(frame.image.cols / 2, frame.image.rows / 2);
         drishti::sensor::SensorModel::Intrinsic params(p, fx, frame.image.size());
         settings.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
     }
-
+    
+    // One can customize the simple tracking step (data association)
+    // by specifying constraints for the minimum # of hits required
+    // to create a new track *and* the number of misses before the
+    // track will die.
+    //
+    // settings.minTrackHits = 1;
+    // settings.maxTrackMisses = 1;
+    
     (*opengl)(); // activate context
 
     // Allocate the detector and configure the display properties
@@ -337,6 +346,7 @@ int gauze_main(int argc, char** argv)
     detector->setLetterboxHeight(1.0);         // *** rendering ***
     detector->setShowMotionAxes(doDebug);      // *** rendering ***
     detector->setShowDetectionScales(doDebug); // *** rendering ***
+    detector->setDoCpuAcf(doCpu);
     
     // Instantiate and register a samle FaceMonitor class to log tracking results
     // over time.
