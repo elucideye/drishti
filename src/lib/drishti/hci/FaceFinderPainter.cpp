@@ -176,10 +176,9 @@ void FaceFinderPainter::initPainter(const cv::Size& inputSizeUp)
     }
 
     { // Project detection sizes to full resolution image:
-        auto winSize = impl->detector->getWindowSize();
-        
         // Some detectors may expect column major storage,
         // so we transpose the detector windows dimensions here.
+        auto winSize = impl->detector->getWindowSize();
         if(!impl->detector->getIsRowMajor())
         {
             std::swap(winSize.width, winSize.height);
