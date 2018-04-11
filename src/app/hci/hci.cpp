@@ -150,8 +150,6 @@ int gauze_main(int argc, char** argv)
     float scale = 1.f;
     float fx = 0.f;
     
-    bool doInner; // inner face processing
-    
     // Create FaceDetectorFactory (default file based):
     std::string sFactory;
     auto factory = std::make_shared<drishti::face::FaceDetectorFactory>();
@@ -193,7 +191,6 @@ int gauze_main(int argc, char** argv)
 
         // ... factory can be used instead of D,M,R,E
         ("F,factory", "Factory (json model zoo)", cxxopts::value<std::string>(sFactory))
-        ("inner", "Inner face landmakrs", cxxopts::value<bool>(doInner))
     
         ("h,help", "Print help message");
     // clang-format on
@@ -244,7 +241,6 @@ int gauze_main(int argc, char** argv)
     {
         factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
     }
-    factory->inner = doInner;
 
     // Check for valid models
     std::vector<std::pair<std::string, std::string>> config{

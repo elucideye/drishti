@@ -50,6 +50,9 @@ public:
     virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
     virtual drishti::face::FaceModel getMeanFace();
 
+    virtual bool isInner(drishti::ml::ShapeEstimator &estimator);
+    virtual bool isInner();
+
     std::string sFaceDetector;
     std::string sFaceRegressor;
     std::string sEyeRegressor;

@@ -4,7 +4,7 @@
     "doBlobs": false,
     "frameDelay": 2,
     "cascadeCalibration": 0.01,
-    "regressorCropScale": 1.25,
+    "regressorCropScale": 1.00,
 
     "ipAddress": {
         "host": "192.168.0.6",
@@ -42,17 +42,17 @@
     },
     
     "com.apple.avfoundation.avcapturedevice.built-in_video:1": {
-        "description": "FaceTime HD Camera (Built-in)[5s]",
+        "description": "FaceTime HD Camera (Built-in)[7]",
 
         "sensor": {
             "intrinsic": {
                 "size": {
-                    "width": 1280,
-                    "height": 720
+                    "width": 1920,
+                    "height": 1080
                 },
                 "principal": {
-                    "x": 640.0,
-                    "y": 360.0
+                    "x": 960.0,
+                    "y": 540.0
                 },
                 "focal_length_x": 684.0
             }
