@@ -237,33 +237,36 @@ void FaceFinder::initACF(const cv::Size& inputSizeUp)
         throw std::runtime_error("There are no valid detections scales for your provided configuration");
     }
 
+    const auto& pChns = impl->detector->opts.pPyramid->pChns;
+    const int shrink = pChns->shrink.get();
+
     impl->pyramidSizes.resize(impl->P.nScales);
     std::vector<ogles_gpgpu::Size2d> sizes(impl->P.nScales);
     for (int i = 0; i < impl->P.nScales; i++)
     {
-        const int shrink = impl->detector->opts.pPyramid->pChns->shrink.get();
         const auto size = impl->P.data[i][0][0].size();
-        sizes[i] = { size.width * shrink, size.height * shrink }; // undo ACF binning x4
+        sizes[i] = { size.width * shrink, size.height * shrink };
         impl->pyramidSizes[i] = { size.width * shrink, size.height * shrink };
 
         // CPU processing works with tranposed images for col-major storage assumption.
         // Undo that here to map to row major representation.  Perform this step
         // to make transpose operation explicit.
-        std::swap(sizes[i].width, sizes[i].height);
-        std::swap(impl->pyramidSizes[i].width, impl->pyramidSizes[i].height);
+        if(!impl->detector->getIsRowMajor())
+        {
+            std::swap(sizes[i].width, sizes[i].height);
+            std::swap(impl->pyramidSizes[i].width, impl->pyramidSizes[i].height);
+        }
     }
 
     const int grayWidth = impl->doLandmarks ? std::min(inputSizeUp.width, impl->landmarksWidth) : 0;
-    const auto& pChns = impl->detector->opts.pPyramid->pChns;
     const auto featureKind = ogles_gpgpu::getFeatureKind(*pChns);
 
     CV_Assert(featureKind != ogles_gpgpu::ACF::kUnknown);
 
     const ogles_gpgpu::Size2d size(inputSizeUp.width, inputSizeUp.height);
-    impl->acf = std::make_shared<ogles_gpgpu::ACF>(impl->glContext, size, sizes, featureKind, grayWidth, impl->debugACF);
+    impl->acf = std::make_shared<ogles_gpgpu::ACF>(impl->glContext, size, sizes, featureKind, grayWidth, shrink);
     impl->acf->setRotation(impl->outputOrientation);
     impl->acf->setLogger(impl->logger);
-
     impl->acf->setUsePBO((impl->glVersionMajor >= 3) && impl->usePBO);
 }
 
@@ -1146,9 +1149,14 @@ void FaceFinder::init2(drishti::face::FaceDetectorFactory& resources)
                 faceDetectorMean.getEyeRightCenter(),
                 faceDetectorMean.getEyeLeftCenter(),
                 *faceDetectorMean.noseTip,
-                *faceDetectorMean.mouthCornerRight,
-                *faceDetectorMean.mouthCornerLeft
             };
+            
+            if(!impl->factory->inner)
+            {
+                centers.push_back(*faceDetectorMean.mouthCornerRight);
+                centers.push_back(*faceDetectorMean.mouthCornerLeft);
+            }
+
             // clang-format on
             const cv::Point2f center = core::centroid(centers);
             const cv::Matx33f H = transformation::scale(impl->regressorCropScale, impl->regressorCropScale, center);

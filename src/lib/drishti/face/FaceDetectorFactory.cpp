@@ -29,7 +29,9 @@ std::unique_ptr<ml::ObjectDetector> FaceDetectorFactory::getFaceDetector()
 
 std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactory::getFaceEstimator()
 {
-    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressor);
+    std::unique_ptr<ml::ShapeEstimator> ptr = core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(sFaceRegressor);
+    inner = isInner(*ptr);
+    return ptr;
 }
 
 std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactory::getEyeEstimator()
@@ -47,6 +49,23 @@ face::FaceModel FaceDetectorFactory::getMeanFace()
     return faceDetectorMean;
 }
 
+// Here we rely on heuristics for inner/outer designation.  This logic is safe for the
+// current implementatino but would need to be updated as new model types are added.
+bool FaceDetectorFactory::isInner(drishti::ml::ShapeEstimator &estimator)
+{
+    switch(estimator.getMeanShape().size())
+    {
+        case 68: return false;
+        case 31: return true;
+        default: throw std::runtime_error("Unknown point format for face landmark regressor");
+    }
+}
+
+bool FaceDetectorFactory::isInner()
+{
+    return inner;
+}
+
 /*
  * FaceDetectorFactorStream (std::istream)
  */
@@ -58,7 +77,9 @@ std::unique_ptr<ml::ObjectDetector> FaceDetectorFactoryStream::getFaceDetector()
 
 std::unique_ptr<ml::ShapeEstimator> FaceDetectorFactoryStream::getFaceEstimator()
 {
-    return core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressor);
+    std::unique_ptr<ml::ShapeEstimator> ptr = core::make_unique<ml::RegressionTreeEnsembleShapeEstimator>(*iFaceRegressor);
+    inner = isInner(*ptr);
+    return ptr;
 }
 
 std::unique_ptr<eye::EyeModelEstimator> FaceDetectorFactoryStream::getEyeEstimator()

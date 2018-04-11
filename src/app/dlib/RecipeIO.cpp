@@ -34,7 +34,7 @@ void loadJSON(const std::string& filename, drishti::dlib::Recipe& recipe)
         recipe.dimensions = json["dimensions"].get<std::vector<int>>();
         
         // Per parameter weighting
-        recipe.weights = json["weights"].get<std::map<std::string, float>>();
+        try { recipe.weights = json["weights"].get<std::map<std::string, float>>(); } catch(...) {}
     }
     else
     {
@@ -67,7 +67,7 @@ void saveJSON(const std::string& filename, const drishti::dlib::Recipe& recipe)
         json["dimensions"] = recipe.dimensions;
         
         // Per parameter weighting
-        json["weights"] = recipe.weights;
+        try { json["weights"] = recipe.weights; } catch(...) {}
 
         os << json.dump(4);
     }

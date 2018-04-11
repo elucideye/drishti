@@ -83,10 +83,13 @@ static cv::Rect readRoi(const std::string& filename)
     return roi;
 }
 
-static cv::Rect scale(const cv::Rect& roi, float s)
+namespace facexml
 {
-    cv::Point2f tl = roi.tl(), br = roi.br(), center = (br + tl) * 0.5f, diag = (br - tl) * 0.5f;
-    return cv::Rect(center - (diag * s), center + (diag * s));
+    static cv::Rect scale(const cv::Rect& roi, float s)
+    {
+        cv::Point2f tl = roi.tl(), br = roi.br(), center = (br + tl) * 0.5f, diag = (br - tl) * 0.5f;
+        return cv::Rect(center - (diag * s), center + (diag * s));
+    }
 }
 
 int gauze_main(int argc, char** argv)
@@ -106,6 +109,7 @@ int gauze_main(int argc, char** argv)
     int number = std::numeric_limits<int>::max();
     bool doDump = false;
     bool doInner = false;
+    float scale = 1.f;
 
     cxxopts::Options options("eyexml", "Convert face files to xml");
 
@@ -117,6 +121,7 @@ int gauze_main(int argc, char** argv)
         ("n,number", "Number of entries (max)", cxxopts::value<int>(number))
         ("r,range", "Landmark range", cxxopts::value<std::string>(sRange))
         ("t,threads", "Threads", cxxopts::value<int>(threads))
+        ("s,scale", "scale", cxxopts::value<float>(scale))
         ("inner", "Inner landmarks: eyes + nose", cxxopts::value<bool>(doInner))
         ("h,help", "Print help message");
     // clang-format on
@@ -174,7 +179,7 @@ int gauze_main(int argc, char** argv)
             
             // Read roi;
             cv::Rect roi = readRoi(sRoi);
-            cv::Rect padded = scale(roi, 1.5);
+            cv::Rect padded = facexml::scale(roi, scale); // no padding
 
             // Draw the annotated image:
             cv::Mat canvas;

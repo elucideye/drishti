@@ -119,6 +119,7 @@ std::unique_ptr<drishti::ml::ShapeEstimator> QtFaceDetectorFactory::getFaceEstim
     if (!sFaceRegressor.empty())
     {
         load(sFaceRegressor, loader);
+        inner = isInner(*ptr);
     }
     return ptr;
 }
