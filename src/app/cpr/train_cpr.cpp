@@ -63,6 +63,8 @@
 #define TRAIN_CPR_DEBUG_LOAD 0
 #define TRAIN_CPR_MIN_IRIS_DIAMETER 10.0
 
+#define SNS cv
+
 namespace bfs = boost::filesystem;
 
 using drishti::rcpr::Vector1d;
@@ -154,6 +156,7 @@ int gauze_main(int argc, char** argv)
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose) )
         ( "silent", "Disable logging entirely.", cxxopts::value<bool>(doSilent) )
         ( "pupil", "Train on pupil (else iris)", cxxopts::value<bool>(doPupil))
+        ( "width", "Target width for training", cxxopts::value<int>(targetWidth))
     
 #if defined(DRISHTI_USE_IMSHOW)        
         ( "window", "Do window", cxxopts::value<bool>(doWindow) )
@@ -297,8 +300,8 @@ int gauze_main(int argc, char** argv)
 #if defined(DRISHTI_USE_IMSHOW)
                 if (doWindow)
                 {
-                    glfw::imshow(name.c_str(), image);
-                    glfw::waitKey(1);
+                    SNS::imshow(name.c_str(), image);
+                    SNS::waitKey(1);
                 }
 #endif
                 if (!sLoggingDir.empty())
@@ -342,9 +345,9 @@ int gauze_main(int argc, char** argv)
 #if defined(DRISHTI_USE_IMSHOW) && TRAIN_CPR_DEBUG_LOAD
             {
                 cv::Mat canvas = previewSample(test.samples.images[i].getImage(), result, *(cpr.regModel->pStar));
-                glfw::destroyWindow("I");
-                glfw::imshow("I", canvas);
-                glfw::waitKey(0);
+                SNS::destroyWindow("I");
+                SNS::imshow("I", canvas);
+                SNS::waitKey(0);
             }
 #endif
         }
