@@ -7,11 +7,12 @@ environment:
 
   matrix:
 
-    - TOOLCHAIN: "vs-14-2015-sdk-8-1"
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      TOOLCHAIN: "vs-15-2017"
       CONFIG: Release
 
     - TOOLCHAIN: "vs-14-2015-sdk-8-1"
-      CONFIG: Debug
+      CONFIG: Release
 
     - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Release
