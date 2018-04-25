@@ -236,10 +236,22 @@ int gauze_main(int argc, char** argv)
         logger->error("Specified input file does not exist or is not readable");
         return 1;
     }
+    
+    if (options.count("focal-length") != 1)
+    {
+        logger->error("You must specify the focal-length (in pixels)");
+        return 1;
+    }
 
     if (!sFactory.empty())
     {
         factory = std::make_shared<drishti::face::FaceDetectorFactoryJson>(sFactory);
+    }
+    
+    if (maxZ < minZ)
+    {
+        logger->error("max distance must be > min distance");
+        return -1;
     }
 
     // Check for valid models
@@ -285,12 +297,6 @@ int gauze_main(int argc, char** argv)
         return -1;
     }
 
-    if (maxZ < minZ)
-    {
-        logger->error("max distance must be > min distance");
-        return -1;
-    }
-
     cv::Size windowSize = cv::Size2f(frameSize) * resolution;
     opengl->resize(windowSize.width, windowSize.height);
 
@@ -315,13 +321,7 @@ int gauze_main(int argc, char** argv)
     settings.maxDetectionDistance = maxZ;
     settings.doSingleFace = true;
     settings.doOptimizedPipeline = !doCpu;
-    { // Create a sensor specification, here we pick a focal length (in pixels)
-      // in case the user has not provided one.  This should really be specified
-      // by the user
-        if (fx == 0.f)
-        {
-            fx = frame.image.cols;
-        }
+    { // Add intrinsic camera parameters:
         const cv::Point2f p(frame.image.cols / 2, frame.image.rows / 2);
         drishti::sensor::SensorModel::Intrinsic params(p, fx, frame.image.size());
         settings.sensor = std::make_shared<drishti::sensor::SensorModel>(params);
