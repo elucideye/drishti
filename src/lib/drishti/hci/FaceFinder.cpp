@@ -104,7 +104,7 @@ FaceFinder::~FaceFinder()
 {
     try
     {
-        if (impl && impl->doOptimizedPipeline)
+        if (impl && impl->scene.valid())
         {
             // If this has already been retrieved it will throw
             impl->scene.get(); // block on any abandoned calls
