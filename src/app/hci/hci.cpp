@@ -60,9 +60,10 @@ static ogles_gpgpu::SwizzleProc::SwizzleKind getSwizzleKind(const std::string &s
 // Simple FaceMonitor class to report face detection results over time.
 struct FaceMonitorLogger : public drishti::hci::FaceMonitor
 {
-    FaceMonitorLogger(std::shared_ptr<spdlog::logger> &logger) : m_logger(logger)
+    FaceMonitorLogger(std::shared_ptr<spdlog::logger> &logger, int history)
+        : m_logger(logger)
+        , history(history)
     {
-        
     }
     
     /**
@@ -73,11 +74,11 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
      * @param timestmap the acquisition timestamp for the frame
      * @return a frame request for the last n frames with requested image formats
      */
-    virtual Request request(const Faces& faces, const TimePoint& timeStamp)
+    virtual Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t texture)
     {
         cv::Point3f xyz = faces.size() ? (*faces.front().eyesCenter) : cv::Point3f();
         m_logger->info("SimpleFaceMonitor: Found {} faces {}", faces.size(), xyz);
-        return {3, true, true, false, true};
+        return {history, true, true, false, true};
     }
     
     /**
@@ -91,6 +92,8 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
     {
         m_logger->info("SimpleFaceMonitor: Received {} frames", frames.size());
     }
+
+    int history;
     
     std::shared_ptr<spdlog::logger> m_logger;
 };
@@ -345,8 +348,10 @@ int gauze_main(int argc, char** argv)
     detector->setDoCpuAcf(doCpu);
     
     // Instantiate and register a samle FaceMonitor class to log tracking results
-    // over time.
-    FaceMonitorLogger faceMonitor(logger);
+    // over time.  Here we setup a sample callback that will request just the
+    // last frame N=1 at each step, but we can set this up to request a buffer
+    // of frames with something like N=3.
+    FaceMonitorLogger faceMonitor(logger, 1);
     detector->registerFaceMonitorCallback(&faceMonitor);
     
     // Allocate an input video source for feeding texture or image buffers

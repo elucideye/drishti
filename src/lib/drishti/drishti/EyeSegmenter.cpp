@@ -156,7 +156,7 @@ drishti_eye_segmenter_create_from_stream(std::istream& is, drishti::sdk::Archive
     return new drishti::sdk::EyeSegmenter(is, kind);
 }
 
-void drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter* segmenter)
+void drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter*& segmenter)
 {
     if (segmenter)
     {
@@ -164,11 +164,14 @@ void drishti_eye_segmenter_destroy(drishti::sdk::EyeSegmenter* segmenter)
     }
 }
 
-int drishti_eye_segmenter_segment(
+// clang-format off
+int drishti_eye_segmenter_segment
+(
     drishti::sdk::EyeSegmenter* segmenter,
     const drishti::sdk::Image3b& image,
     drishti::sdk::Eye& eye,
-    bool isRight)
+    bool isRight
+) // clang-format on
 {
     return segmenter ? (*segmenter)(image, eye, isRight) : -1;
 }

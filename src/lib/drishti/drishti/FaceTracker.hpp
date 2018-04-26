@@ -169,9 +169,11 @@ typedef int (*drishti_face_tracker_callback_t)(void* context, drishti_face_track
  * @param context Allocated context with internal library state.
  * @param faces A list of face models for the current frame.
  * @param timestamp The acquisition time for the reported frame results.
+ * @param texture The texture ID for the current frame (for preview).
  * @return A request structure for frame history + associated metadata.
  */
-typedef drishti_request_t (*drishti_face_tracker_update_t)(void* context, const drishti_face_tracker_result_t& faces, double timestamp);
+typedef drishti_request_t (*drishti_face_tracker_update_t)
+(void* context, const drishti_face_tracker_result_t& faces, double timestamp, std::uint32_t texture);
 
 /** 
  * @brief Allocation routine.
@@ -183,7 +185,8 @@ typedef drishti_request_t (*drishti_face_tracker_update_t)(void* context, const 
  * @param spec A specification describing how the image to be allocated.
  * @return Error code (reserved).
  */
-typedef int (*drishti_face_tracker_allocator_t)(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image);
+typedef int (*drishti_face_tracker_allocator_t)
+(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image);
 
 /**
  * @brief A table of user defined callbacks to assist in face tracking.
@@ -327,7 +330,7 @@ drishti_face_tracker_create_from_streams(drishti::sdk::Context* manager, drishti
  */
 
 DRISHTI_EXPORT void
-drishti_face_tracker_destroy(drishti::sdk::FaceTracker* tracker);
+drishti_face_tracker_destroy(drishti::sdk::FaceTracker*& tracker);
 
 /**
  * @brief Perform face tracking for a single frame.

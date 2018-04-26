@@ -64,6 +64,9 @@ public:
     void setDoOptimizedPipeline(bool flag);
     bool getDoOptimizedPipeline() const;
 
+    void setDoAnnotation(bool flag);
+    bool getDoAnnotation() const;
+
 protected:
     std::unique_ptr<Impl> impl;
 };
