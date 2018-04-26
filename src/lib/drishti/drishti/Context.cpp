@@ -132,7 +132,7 @@ bool Context::getDoOptimizedPipeline() const
 
 void Context::setDoAnnotation(bool flag)
 {
-    return impl->doAnnotation = flag;
+    impl->doAnnotation = flag;
 }
 
 bool Context::getDoAnnotation() const
