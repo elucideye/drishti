@@ -654,6 +654,12 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
         request |= requests[i]; // accumulate requests
     }
 
+    // Clip request to available history:
+    if(request.n > impl->fifo->getBufferCount())
+    {
+        request.n = impl->fifo->getBufferCount();
+    }
+
     // If a frame was requested we'll have to pull down data from the GPU here:
     // * eye buffer: eye crops may be requested
     // * face buffer: face crops may be requested
@@ -664,7 +670,7 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
         {
             // ### collect face images ###
             std::vector<core::ImageView> faces;
-            dumpFaces(faces, request.n, request.getImage);  CV_Assert(frames.size() == faces.size());
+            dumpFaces(faces, request.n, request.getImage);
             if (faces.size() && request.getFrames)
             {
                 for (int i = 0; i < static_cast<int>(std::min(faces.size(), frames.size())); i++)
