@@ -130,4 +130,15 @@ bool Context::getDoOptimizedPipeline() const
     return impl->doOptimizedPipeline;
 }
 
+void Context::setDoAnnotation(bool flag)
+{
+    impl->doAnnotation = flag;
+}
+
+bool Context::getDoAnnotation() const
+{
+    return impl->doAnnotation;
+
+}
+
 _DRISHTI_SDK_END

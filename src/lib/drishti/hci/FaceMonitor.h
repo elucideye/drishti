@@ -100,9 +100,10 @@ public:
      * reported face location.
      * @param faces a vector of faces for the current frame
      * @param timestmap the acquisition timestamp for the frame
+     * @param texture the current texture ID to faciliate preview
      * @return a frame request for the last n frames with requested image formats
      */
-    virtual Request request(const Faces& faces, const TimePoint& timeStamp) = 0;
+    virtual Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t tex) = 0;
 
     /**
      * A user defined virtual method callback that will be called with a

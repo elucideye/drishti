@@ -73,15 +73,12 @@ public:
 
     ~FaceMonitorAdapter() = default;
 
-    virtual Request request(const Faces& faces, const TimePoint& timeStamp)
+    virtual Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t texture)
     {
         double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(timeStamp - m_start).count();
-
         drishti_face_tracker_result_t result;
         convert(faces, result.faceModels);
-
-        auto request = m_table.update(m_table.context, result, elapsed);
-
+        auto request = m_table.update(m_table.context, result, elapsed, texture);
         return Request{ request.n, request.getImage, request.getTexture, request.getFrames, request.getEyes };
     }
 

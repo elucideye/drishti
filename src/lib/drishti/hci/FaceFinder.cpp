@@ -610,7 +610,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
 
     try
     {
-        notifyListeners(outputScene, now, impl->fifo->isFull());
+        notifyListeners(outputScene, now, impl->fifo->isFull(), outputTexture);
     }
     catch (...)
     {
@@ -634,7 +634,7 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
  * SCENE : { __________, __________, scene[n-2], ... }
  */
 
-void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& now, bool isInit)
+void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& now, bool isInit, std::uint32_t tex)
 {
     // Perform optional frame grabbing
     // NOTE: This must occur in the main OpenGL thread:
@@ -645,54 +645,60 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
 
     FaceMonitor::Request request{0,false,false,false,false};
 
-    if (scene.faces().size())
+    // Check each listener's request() methods to see if any images are requested
+    // and format a request as the union of all individual requests:
+    for (int i = 0; i < impl->faceMonitorCallback.size(); i++)
     {
-        // 1) If any active face request is satisifed grab a frame+face buffer:
-        for (int i = 0; i < impl->faceMonitorCallback.size(); i++)
-        {
-            auto& callback = impl->faceMonitorCallback[i];
-            requests[i] = callback->request(scene.faces(), now);
-            request |= requests[i]; // accumulate requests
-        }
+        auto& callback = impl->faceMonitorCallback[i];
+        requests[i] = callback->request(scene.faces(), now, tex);
+        request |= requests[i]; // accumulate requests
+    }
 
-        if (request.n > 0)
+    // Clip request to available history:
+    if(request.n > impl->fifo->getBufferCount())
+    {
+        request.n = impl->fifo->getBufferCount();
+    }
+
+    // If a frame was requested we'll have to pull down data from the GPU here:
+    // * eye buffer: eye crops may be requested
+    // * face buffer: face crops may be requested
+    if (request.n > 0)
+    {
+        frames.resize(request.n);
+        if (request.getFrames)
         {
-            frames.resize(request.n);
-            
-            if (request.getFrames)
+            // ### collect face images ###
+            std::vector<core::ImageView> faces;
+            dumpFaces(faces, request.n, request.getImage);
+            if (faces.size() && request.getFrames)
             {
-                // ### collect face images ###
-                std::vector<core::ImageView> faces;
-                dumpFaces(faces, request.n, request.getImage);  CV_Assert(frames.size() == faces.size());
-                if (faces.size() && request.getFrames)
+                for (int i = 0; i < static_cast<int>(std::min(faces.size(), frames.size())); i++)
                 {
-                    for (int i = 0; i < static_cast<int>(std::min(faces.size(), frames.size())); i++)
+                    frames[i].image = faces[i];
+                    if(i >= impl->latency)
                     {
-                        frames[i].image = faces[i];
-                        if(i >= impl->latency)
-                        {
-                            frames[i].faceModels = impl->scenePrimitives[i - impl->latency].faces();
-                        }
+                        frames[i].faceModels = impl->scenePrimitives[i - impl->latency].faces();
                     }
                 }
             }
+        }
             
-            if (request.getEyes)
+        if (request.getEyes)
+        {
+            // ### collect eye images ###
+            std::vector<core::ImageView> eyes;
+            std::vector<std::array<eye::EyeModel, 2>> eyePairs;
+            dumpEyes(eyes, eyePairs, request.n, request.getImage);
+            for (int i = 0; i < static_cast<int>(std::min(eyes.size(), frames.size())); i++)
             {
-                // ### collect eye images ###
-                std::vector<core::ImageView> eyes;
-                std::vector<std::array<eye::EyeModel, 2>> eyePairs;
-                dumpEyes(eyes, eyePairs, request.n, request.getImage);
-                for (int i = 0; i < static_cast<int>(std::min(eyes.size(), frames.size())); i++)
-                {
-                    frames[i].eyes = eyes[i];
-                    frames[i].eyeModels = eyePairs[i];
-                }
+                frames[i].eyes = eyes[i];
+                frames[i].eyeModels = eyePairs[i];
             }
         }
     }
 
-    // 3) Provide face images as requested:
+    // Pass down all of the populated face images pointers w/ associated models
     for (int i = 0; i < impl->faceMonitorCallback.size(); i++)
     {
         if (requests[i].n)

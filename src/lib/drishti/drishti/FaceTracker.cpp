@@ -15,6 +15,7 @@
 
 #include "drishti/face/Face.h"
 #include "drishti/hci/FaceFinder.h"
+#include "drishti/hci/FaceFinderPainter.h"
 #include "drishti/core/make_unique.h"
 #include "drishti/core/Logger.h"
 
@@ -83,7 +84,14 @@ struct FaceTracker::Impl
 
         std::shared_ptr<drishti::face::FaceDetectorFactory> factory = stream;
 
-        m_faceFinder = drishti::hci::FaceFinder::create(factory, settings, manager->get()->glContext);
+        if (manager->getDoAnnotation())
+        {
+            m_faceFinder = drishti::hci::FaceFinderPainter::create(factory, settings, manager->get()->glContext);            
+        }
+        else
+        {
+            m_faceFinder = drishti::hci::FaceFinder::create(factory, settings, manager->get()->glContext);
+        }
     }
 
     int operator()(const VideoFrame& frame)
@@ -174,7 +182,7 @@ drishti_face_tracker_create_from_streams(drishti::sdk::Context* manager, drishti
 }
 
 DRISHTI_EXPORT void
-drishti_face_tracker_destroy(drishti::sdk::FaceTracker* tracker)
+drishti_face_tracker_destroy(drishti::sdk::FaceTracker*& tracker)
 {
     if (tracker)
     {

@@ -152,7 +152,7 @@ protected:
 
     void scaleToFullResolution(std::vector<drishti::face::FaceModel>& faces);
 
-    void notifyListeners(const ScenePrimitives& scene, const TimePoint& time, bool isFull);
+    void notifyListeners(const ScenePrimitives& scene, const TimePoint& time, bool isFull, std::uint32_t tex);
 
     virtual void init(const cv::Size& inputSize);
     virtual void initPainter(const cv::Size& inputSizeUp);
