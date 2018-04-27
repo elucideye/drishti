@@ -37,6 +37,11 @@ inline drishti::sdk::Face convert(const drishti::face::FaceModel& model)
         f.landmarks = drishti::sdk::cvToDrishti(*model.points);
     }
 
+    if (model.eyesCenter.has)
+    {
+        f.position = drishti::sdk::cvToDrishti(*model.eyesCenter);
+    }
+
     return f;
 }
 
