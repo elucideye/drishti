@@ -889,7 +889,7 @@ void FaceFinder::scaleToFullResolution(std::vector<drishti::face::FaceModel>& fa
         {
             if (f.eyeFullL.has && f.eyeFullR.has)
             {
-                (*f.eyesCenter) = (*impl->faceEstimator)(f);
+                f.eyesCenter = (*impl->faceEstimator)(f);
             }
         }
     }
