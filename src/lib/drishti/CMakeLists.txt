@@ -2,7 +2,6 @@
 # All rights reserved.
 
 include(drishti_symbol_list)
-include(drishti_hide)
 include(drishti_strip)
 include(drishti_split_debug_symbols)
 
@@ -114,7 +113,6 @@ endif()
 
 add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
 set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
-drishti_hide(drishti_world)
 
 target_link_libraries(drishti_world PUBLIC ${DRISHTI_SDK_3RDPARTY_LIBS} xgboost::xgboost Eigen3::Eigen)
 if(DRISHTI_BUILD_FACE)
@@ -179,7 +177,6 @@ target_link_libraries(drishtisdk PUBLIC ${drishti_sdk_libs})
 if(DRISHTI_BUILD_SHARED_SDK)
   drishti_strip(drishtisdk)
 endif()
-drishti_hide(drishtisdk)
 set_target_properties(drishtisdk
   PROPERTIES
   PUBLIC_HEADER "${DRISHTISDK_PUBLIC_HDRS}"
@@ -287,8 +284,6 @@ if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
   drishti_merge_libraries(LIBRARIES ${drishti_api_name} FINAL drishti)
   list(APPEND drishti_interface_libs drishti)
 endif()
-
-drishti_hide(drishti)
 
 if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
   # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
@@ -421,7 +416,6 @@ if(DRISHTI_BUILD_C_INTERFACE)
     # "_drishti_eye_segmenter_create_from_file", referenced from:
     drishti_symbol_list(drishti_c)
   endif()
-  drishti_hide(drishti_c)
 
   if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
     # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
