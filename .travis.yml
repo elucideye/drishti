@@ -65,8 +65,8 @@ matrix:
     # OSX {
 
     - os: osx
-      osx_image: xcode8.3
-      env: CONFIG=Release TOOLCHAIN=osx-10-12-hid-sections INSTALL=--install
+      osx_image: xcode9.3
+      env: CONFIG=Release TOOLCHAIN=osx-10-13 INSTALL=--install
 
     - os: osx
       osx_image: xcode8.3
