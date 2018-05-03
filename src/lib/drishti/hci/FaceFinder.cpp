@@ -178,24 +178,21 @@ void FaceFinder::dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n, bool g
 
 void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage)
 {
-    if (impl->fifo->getBufferCount() == impl->fifo->getProcPasses().size())
+    auto length = impl->fifo->getBufferCount();
+    frames.resize(std::min(static_cast<std::size_t>(n), static_cast<std::size_t>(length)));
+    for (int i = 0; i < frames.size(); i++)
     {
-        auto length = impl->fifo->getBufferCount();
-        frames.resize(std::min(static_cast<std::size_t>(n), static_cast<std::size_t>(length)));
-        for (int i = 0; i < frames.size(); i++)
+        // Rerverse fifo for storage such that the largest timestamp comes first
+        auto* filter = (*impl->fifo)[length - i - 1];
+        const auto size = filter->getOutFrameSize();
+        
+        // Always assign texture (no cost)
+        frames[i].texture = { { size.width, size.height }, filter->getOutputTexId() };
+        
+        if (getImage)
         {
-            // Rerverse fifo for storage such that the largest timestamp comes first
-            auto* filter = (*impl->fifo)[length - i - 1];
-            const auto size = filter->getOutFrameSize();
-
-            // Always assign texture (no cost)
-            frames[i].texture = { { size.width, size.height }, filter->getOutputTexId() };
-
-            if (getImage)
-            {
-                frames[i].image.create(size.height, size.width);
-                filter->getResultData(frames[i].image.ptr<uint8_t>());
-            }
+            frames[i].image.create(size.height, size.width);
+            filter->getResultData(frames[i].image.ptr<uint8_t>());
         }
     }
 }

@@ -61,8 +61,8 @@ static ogles_gpgpu::SwizzleProc::SwizzleKind getSwizzleKind(const std::string &s
 struct FaceMonitorLogger : public drishti::hci::FaceMonitor
 {
     FaceMonitorLogger(std::shared_ptr<spdlog::logger> &logger, int history)
-        : m_logger(logger)
-        , history(history)
+        : history(history)
+        , m_logger(logger)
     {
     }
     
@@ -78,7 +78,17 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
     {
         cv::Point3f xyz = faces.size() ? (*faces.front().eyesCenter) : cv::Point3f();
         m_logger->info("SimpleFaceMonitor: Found {} faces {}", faces.size(), xyz);
-        return {history, true, true, false, true};
+        
+        // clang-format off
+        return
+        {
+            history, // histtory
+            true,    // getImage
+            true,    // getTexture
+            false,   // getFrames (for high-res image this can be expensive)
+            true     // getEyes
+        };
+        // clang-format on
     }
     
     /**
@@ -90,11 +100,24 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
      */
     virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
     {
-        m_logger->info("SimpleFaceMonitor: Received {} frames", frames.size());
-    }
+        int faces = 0, eyes = 0; // full images, and eye images
+        for(const auto &f : frames)
+        {
+            if(!f.eyes.image.empty())
+            {
+                eyes++;
+            }
+            if(!f.image.image.empty())
+            {
+                faces++;
+            }
+        }
 
-    int history;
+        m_logger->info("SimpleFaceMonitor[{}]: Frames={}; faces={} eyes={}", count++, frames.size(), faces, eyes);
+    }
     
+    std::size_t count = 0;
+    int history;
     std::shared_ptr<spdlog::logger> m_logger;
 };
 
@@ -145,12 +168,10 @@ int gauze_main(int argc, char** argv)
     bool doDebug = false;
     bool doCpu = false;
     int loops = 0;
-
+    
     std::string sInput, sOutput, sSwizzle = "rgba";
 
     float resolution = 1.f;
-    float cascCal = 0.f;
-    float scale = 1.f;
     float fx = 0.f;
     
     // Create FaceDetectorFactory (default file based):
@@ -160,6 +181,8 @@ int gauze_main(int argc, char** argv)
     cxxopts::Options options("drishti-hci", "Command line interface for video sequence FaceFinder processing.");
 
     float minZ = 0.1f, maxZ = 2.f;
+    
+    drishti::hci::FaceFinder::Settings settings;
 
     // clang-format off
     options.add_options()
@@ -177,13 +200,18 @@ int gauze_main(int argc, char** argv)
     
         // Generate a quicktime movie:
         ("m,movie", "Output quicktime movie", cxxopts::value<bool>(doMovie))
+
+        // ::::::::::::::::::::::::::::::::::::::::::
+        // ::: drishti::hci::Facefinder::Settings :::
+        // ::::::::::::::::::::::::::::::::::::::::::
     
-        // Detection and regression parameters:
-        ("c,calibration", "Cascade calibration", cxxopts::value<float>(cascCal))
-        ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(scale))
+        ("c,calibration", "Cascade calibration", cxxopts::value<float>(settings.acfCalibration))
+        ("s,scale", "Scale term for detection->regression mapping", cxxopts::value<float>(settings.regressorCropScale))
+        ("min", "Nearest distance in meters", cxxopts::value<float>(settings.minDetectionDistance))
+        ("max", "Farthest distance in meters", cxxopts::value<float>(settings.maxDetectionDistance))
+        ("min-track-hits", "Minimum consecutive detections to start a trck", cxxopts::value<std::size_t>(settings.minTrackHits))
+        ("max-track-misses", "Minimum consecutive detections to start a trck", cxxopts::value<std::size_t>(settings.maxTrackMisses))
         ("f,focal-length", "Focal length in pixels",cxxopts::value<float>(fx))
-        ("min", "Nearest distance in meters", cxxopts::value<float>(minZ))
-        ("max", "Farthest distance in meters", cxxopts::value<float>(maxZ))
         ("cpu", "Force CPU ACF processing", cxxopts::value<bool>(doCpu))
     
         // Clasifier and regressor models:
@@ -258,12 +286,15 @@ int gauze_main(int argc, char** argv)
     }
 
     // Check for valid models
-    std::vector<std::pair<std::string, std::string>> config{
+    // clang-format off
+    std::vector<std::pair<std::string, std::string>> config
+    {
         { factory->sFaceDetector, "face-detector" },
         { factory->sFaceDetectorMean, "face-detector-mean" },
         { factory->sFaceRegressor, "face-regressor" },
         { factory->sEyeRegressor, "eye-regressor" }
     };
+        // clang-format on
 
     for (const auto& c : config)
     {
@@ -304,7 +335,6 @@ int gauze_main(int argc, char** argv)
     opengl->resize(windowSize.width, windowSize.height);
 
     // Create configuration:
-    drishti::hci::FaceFinder::Settings settings;
     settings.logger = drishti::core::Logger::create("test-drishti-hci");
     settings.outputOrientation = 0;
     settings.frameDelay = 2;
@@ -314,16 +344,22 @@ int gauze_main(int argc, char** argv)
     settings.threads = std::make_shared<tp::ThreadPool<>>();
     settings.outputOrientation = 0;
     settings.faceFinderInterval = 0.f;
-    settings.regressorCropScale = scale;
-    settings.acfCalibration = cascCal;
     settings.renderFaces = true;          // *** rendering ***
     settings.renderPupils = true;         // *** rendering ***
     settings.renderCorners = false;       // *** rendering ***
     settings.renderEyesWidthRatio = 0.25f * opengl->getGeometry().sx; // *** rendering ***
-    settings.minDetectionDistance = minZ;
-    settings.maxDetectionDistance = maxZ;
     settings.doSingleFace = true;
     settings.doOptimizedPipeline = !doCpu;
+    
+    // The following parameters are set directly through the command line parser:
+    //
+    //  settings.minDetectionDistance = ...;
+    //  settings.maxDetectionDistance = ...;
+    //  settings.minTrackHits = ...;
+    //  settings.maxTrackMisses = ...;
+    //  settings.regressorCropScale = ...;
+    //  settings.acfCalibration = ...;
+
     { // Add intrinsic camera parameters:
         const cv::Point2f p(frame.image.cols / 2, frame.image.rows / 2);
         drishti::sensor::SensorModel::Intrinsic params(p, fx, frame.image.size());
@@ -335,8 +371,22 @@ int gauze_main(int argc, char** argv)
     // to create a new track *and* the number of misses before the
     // track will die.
     //
-    // settings.minTrackHits = 1;
-    // settings.maxTrackMisses = 1;
+    // For example, the following settings will start a new track
+    // for every new detection (that is not mapped to an existing track)
+    // and it will kill each track on any frame where there is no
+    // new detection assigned to the track.
+    //
+    //   settings.minTrackHits = 0;
+    //   settings.maxTrackMisses = 1;
+    //
+    // A more robust configuration could be achieved with the following
+    // entries.  In this configuration a new track is not "born" until it
+    // receives three consecutive detection assignments.  Similarly, it
+    // is not terminated unless there are no correpsondending detection
+    // assignements for 3 consecutive frames.  You can use
+    //
+    //   settings.minTrackHits = 3;
+    //   settings.maxTrackMisses = 3;
     
     (*opengl)(); // activate context
 
