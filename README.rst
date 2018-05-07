@@ -142,6 +142,14 @@ used as a fast shortcut to install these tools for you. You may want to
 add the ``PATH`` variables permanently to your ``.bashrc`` file (or
 equivalent) for future sessions.
 
+Note: If you are building with an Android toolchain, you should set the ``TOOLCHAIN`` variable appropriately *before* "sourcing" the ``hunter_env.{sh,cmd}`` setup script.  That will call ``install-ci-depepdencies.py``, and if an Android toolchain is detected, it will install it in your temporary ``_ci`` folder.  This helps standardize the setup for first time builds, although a different configuration or layout can be used after you are are able to build properly.  If you have a pre-installed NDK and are familiar with Android builds, you can set your ``ANDROID_NDK_<version>`` variable approriately (e.g., ``export ANDROID_NDK_r10e=${YOUR_PATH_TO_NDK_FOLDER}/android-ndk-r10e``).   The latest Android Studio releases also provides native support for standard CMake builds (previously only a custom Android specific CMake could be used), so you can use Hunter based projects directly through Android Studio.  For a sample project please see `_android-studio-with-hunter <https://github.com/forexample/android-studio-with-hunter>`__
+
+.. code-block:: bash
+
+    # For Android, set be sure to set the TOOLCHAIN variable before sourcing bin/hunter_env.{sh,cmd}
+    export TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
+    export CONFIG=Release
+
 +--------------------------------+--------------------------+
 | Linux/OSX/Android/iOS          | Windows                  |
 +================================+==========================+
@@ -153,16 +161,18 @@ After the environment is configured, you can build for any supported
 
 .. code-block:: bash
 
-    polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} --install --verbose
+    polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} --install --verbose --reconfig
     
 ::
+
+
+Note: The ``--reconfig`` flag is included in the example above, which will re-run the CMake configure step (to incorporate CMake changes) for you.  It is a reasonable step to add in cases where you aren't sure if it is needed.
 
 Applications
 ------------
 
 Please see the README for the `drishti-hci <https://github.com/elucideye/drishti/blob/master/src/app/hci/README.rst>`__
 console application to see an example of a full eye tracking pipeline with the GPGPU optimizations.
-
 
 Integration
 -----------
