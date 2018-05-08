@@ -331,10 +331,9 @@ foreach(library ${drishti_libs} drishtisdk)
 endforeach()
 
 if(DRISHTI_HAVE_TO_STRING)
-  foreach(library ${drishti_libs} drishtisdk)
-    target_compile_definitions(${library} PUBLIC DRISHTI_HAVE_TO_STRING=1)
+  foreach(library ${drishti_libs} drishtisdk drishti)
+    target_compile_definitions(${library} PUBLIC $<BUILD_INTERFACE:DRISHTI_HAVE_TO_STRING>)
   endforeach()
-  target_compile_definitions(drishti PUBLIC DRISHTI_HAVE_TO_STRING=1)
 endif()
 
 ###################
