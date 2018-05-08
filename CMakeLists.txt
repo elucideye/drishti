@@ -60,8 +60,8 @@ if(DRISHTI_USE_DRISHTI_UPLOAD)
   )
   endif()
 else()
-  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.20.38.tar.gz")
-  set(DRISHTI_HUNTER_GATE_SHA1 "efd84db1349e38974f53d4c4fc0b368a3b49f022")
+  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.20.70.tar.gz")
+  set(DRISHTI_HUNTER_GATE_SHA1 "95fb7d11f0828746e2983b5f06ff7981a676da3f")
   if(HUNTER_ENABLED AND NOT DRISHTI_IS_REPO_BUILD)
     # DEPENDENCY: if(HUNTER_ENABLE): we are being used as a dependency from
     # another project and we will use the config.cmake from the parent project.
@@ -434,6 +434,9 @@ set(drishti_version_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config
 set(drishti_project_config "${drishti_generated_dir}/${CMAKE_PROJECT_NAME}Config.cmake")
 set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
 set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
+
+#### std::to_string ####
+try_compile(DRISHTI_HAVE_TO_STRING "${CMAKE_BINARY_DIR}/compile_tests" "${PROJECT_SOURCE_DIR}/cmake/to_string.cpp")
 
 ##################################
 ### Includes (to be deprecated ###

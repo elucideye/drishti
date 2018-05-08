@@ -326,9 +326,16 @@ if(NOT IOS)
     )
 endif()
 
-foreach(library ${drishti_libs} drishti drishtisdk)
+foreach(library ${drishti_libs} drishtisdk)
   set_property(TARGET ${library} PROPERTY FOLDER "libs/drishti")
 endforeach()
+
+if(DRISHTI_HAVE_TO_STRING)
+  foreach(library ${drishti_libs} drishtisdk)
+    target_compile_definitions(${library} PUBLIC DRISHTI_HAVE_TO_STRING=1)
+  endforeach()
+  target_compile_definitions(drishti PUBLIC DRISHTI_HAVE_TO_STRING=1)
+endif()
 
 ###################
 ##### install #####

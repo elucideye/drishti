@@ -3,7 +3,11 @@
   @author David Hirvonen
   @brief  Declaration of missing stdlib routines in Android NDK r10e
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  This file is included as a workaround for platforms without full c++11 support and should 
+  be considered a workaround.  It is highly reocommended to use a full c++11 toolchain
+  if possible.
+
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
 */
@@ -11,7 +15,7 @@
 #ifndef __drishti_core_drishti_stdlib_string_h__
 #define __drishti_core_drishti_stdlib_string_h__
 
-#if ANDROID
+#if !defined(DRISHTI_HAVE_TO_STRING)
 
 #include "drishti/core/drishti_core.h"
 
@@ -97,6 +101,6 @@ inline float strtof(const char* str, char** str_end)
 DRISHTI_END_NAMESPACE(std)
 
 #include <cerrno>
-#endif
+#endif // #if !defined(DRISHTI_HAVE_TO_STRING)
 
 #endif // __drishti_core_drishti_stdlib_string_h__
