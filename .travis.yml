@@ -61,7 +61,7 @@ matrix:
       env: CONFIG=Release TOOLCHAIN=gcc-5-pic-hid-sections-lto INSTALL=--strip
 
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r16b-api-21-arm64-v8a-neon-clang-libcxx INSTALL=--strip
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r16b-api-24-arm64-v8a-clang-libcxx14 INSTALL=--strip
       
     # }
 
