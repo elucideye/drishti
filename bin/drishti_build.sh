@@ -23,6 +23,10 @@ ARGS=(
     --config "${CONFIG}"
     --verbose
     --ios-multiarch --ios-combined
+    --archive drishti
+    --jobs 2
+    --test      
+    "${INSTALL}"
     --fwd
     DRISHTI_USE_DRISHTI_UPLOAD=YES
     DRISHTI_BUILD_SHARED_SDK=YES
@@ -32,10 +36,6 @@ ARGS=(
     GAUZE_ANDROID_USE_EMULATOR=YES
     HUNTER_CONFIGURATION_TYPES="${CONFIG}"
     HUNTER_SUPPRESS_LIST_OF_FILES=ON
-    --archive drishti
-    --jobs 2
-    --test      
-    "${INSTALL}"
 )
 
 # http://gauze.readthedocs.io/en/latest/prereq/android.html?highlight=GAUZE_ANDROID_EMULATOR_GPU
