@@ -61,6 +61,4 @@ ARGS=(
     HUNTER_SUPPRESS_LIST_OF_FILES=ON
 )
 
-ARGS+=(DRISHTI_OPENGL_ES3=ON)
-
 polly.py ${ARGS[@]} --reconfig
