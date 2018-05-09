@@ -33,7 +33,7 @@ else
 fi
 
 # skip emulator CI tests for linux builds
-if [[ -v TRAVIS ]] && [[ ! -z ${is_linux+x} ]]; then
+if [[ ! -z ${TRAVIS+x} ]] && [[ ! -z ${is_linux+x} ]]; then
     GAUZE_ANDROID_USE_EMULATOR=YES # remote test w/ emulator
 else
     GAUZE_ANDROID_USE_EMULATOR=NO # support local host testing on a real device
