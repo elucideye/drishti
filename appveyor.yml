@@ -10,22 +10,26 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       TOOLCHAIN: "vs-15-2017"
       CONFIG: Release
+      BUILD_SHARED: ON
 
     - TOOLCHAIN: "vs-14-2015-sdk-8-1"
       CONFIG: Release
+      BUILD_SHARED: OFF
 
     - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Release
+      BUILD_SHARED: OFF      
 
     - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Debug
+      BUILD_SHARED: OFF
 
 install:
   - cmd: bin\hunter_env.cmd
 
 build_script:
 
-  - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%"
+  - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%" "%BUILD_SHARED%"
 
 artifacts:
   - path: _archives\drishti-*.tar.gz
