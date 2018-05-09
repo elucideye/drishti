@@ -38,4 +38,9 @@ ARGS=(
     "${INSTALL}"
 )
 
+# http://gauze.readthedocs.io/en/latest/prereq/android.html?highlight=GAUZE_ANDROID_EMULATOR_GPU
+if [[ $(uname -a) =~ .*Linux.* ]]; then
+    ARGS+=(GAUZE_ANDROID_EMULATOR_GPU=off) # else host
+fi
+
 polly.py ${ARGS[@]} --reconfig

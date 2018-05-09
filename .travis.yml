@@ -45,6 +45,9 @@ addons:
       # pip3
       - python3-pip
 
+      # sh: 1: glxinfo: not found
+      - mesa-utils
+
 env:
   global:
     - secure: "VsEvjGdwEpr+MvCpvi6C0GuEV97NBpe4fR5Oni+9cbmv4HyKBMnQKqedVJFvWk70Yb/XUeFJ/hBaTX/q4tItegEJ4bNt2La365ng+T/vML8l1lY19VdRYrbEK9fuZq1ozS6DEDYtmWidufIX1mixYnL1Yyq2cchvs+T9wjclTAvInfMiLveCV4BJmdj8EMxS7QibYKSVpYkxBj4/pc6z0HxbPjgYnUREUbN67mZ1Bf9T/2PqQdeub3qWAG36kwsZ2BmzXUhiJ0XytCMVNGJ2sQbg47lt5aXNFtv5N79Z2GEqV+Yw0EaaQ2PLZOf7HKzFQTco8j5KbhVIoJr7cv9ST0gHQSHwZr+bINWn+frUHzYOO8nlu7nciDT5LCSZ9YRVIzzB1dTn7w82LZiBh1cr4OdhE5uDSHyEdtlkqKzVn4CpIgmPBXUhRjZPIn9hq7PQYc7wleO0ssqzQ/kYw9VSchhFDhPE/QBRkSbvD+eCPCOGP5cpAzpI5OvDa7if+0McIrMVmLx718Uf00MZ7r3FsJMDnAjJlnKog2Rn17Rhl7UCsvhxl7vtxsoSo9ohhvzBWIe0fT2gOsg8rSZ0R+s666DlhGIffyzWqqv8SfAQKo0sfcE9op/c3HF6NAKxHLuxAkAyJ2qFWKkJ017wpYhJx5cz6LHC3x24ahHNi2dqIJY="
@@ -92,7 +95,8 @@ git:
 
 before_install:
 
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then mkdir -p latest-clang-symlinks && ln -s /usr/bin/clang-5.0 latest-clang-symlinks/clang && ln -s /usr/bin/clang++-5.0 latest-clang-symlinks/clang++ && export PATH="$PWD/latest-clang-symlinks:$PATH"; fi
+  # https://stackoverflow.com/a/38790045
+  - bin/travis_clang_links.sh
 
 install:
   - source bin/hunter_env.sh
