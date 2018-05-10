@@ -25,16 +25,18 @@ INSTALL="${3}"
 # and the tests run on a real Android via USB connection in local host testing
 # See: https://developer.android.com/studio/run/emulator-acceleration#command-gpu
 
-if [[ $(uname -a) =~ .*Linux.* ]]; then
+if [[ `uname` == "Linux" ]]; then
     GAUZE_ANDROID_EMULATOR_GPU=off # this should work
-    is_linux=1
 else
     GAUZE_ANDROID_EMULATOR_GPU=host
 fi
 
-# skip emulator CI tests for linux builds
-if [[ ! -z ${TRAVIS+x} ]] && [[ ! -z ${is_linux+x} ]]; then
+if [[ ${TRAVIS} == "true" ]]; then
+  if [[ `uname` == "Linux" ]]; then
+    GAUZE_ANDROID_USE_EMULATOR=NO # Not working on Linux
+  else
     GAUZE_ANDROID_USE_EMULATOR=YES # remote test w/ emulator
+  fi
 else
     GAUZE_ANDROID_USE_EMULATOR=NO # support local host testing on a real device
 fi
