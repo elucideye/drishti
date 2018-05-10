@@ -57,10 +57,16 @@ matrix:
     # Linux {
 
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=libcxx-fpic-hid-sections INSTALL=--strip
+      env: >
+        TOOLCHAIN=libcxx-fpic-hid-sections
+        CONFIG=Release
+        INSTALL=--strip
 
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=gcc-5-pic-hid-sections-lto INSTALL=--strip
+      env: >
+        TOOLCHAIN=gcc-5-pic-hid-sections-lto
+        CONFIG=Release
+        INSTALL=--strip
 
       # FIXME: C++ exception with description "EGLContextImpl::EGLContextImpl() : eglCreatePbufferSurface():
       # Assertion '(eglGetError() == EGL_SUCCESS)' failed in file 'lib/aglet/EGLContext.cpp' line 59"
@@ -69,7 +75,10 @@ matrix:
       # and the tests run on a real Android via USB connection in local host testing
       # See: https://developer.android.com/studio/run/emulator-acceleration#command-gpu
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r16b-api-24-arm64-v8a-clang-libcxx14 INSTALL=--strip
+      env: >
+        TOOLCHAIN=android-ndk-r16b-api-24-arm64-v8a-clang-libcxx14
+        CONFIG=Release
+        INSTALL=--strip
 
     # }
 
@@ -77,18 +86,30 @@ matrix:
 
     - os: osx
       osx_image: xcode9.3
-      env: CONFIG=Release TOOLCHAIN=osx-10-13 INSTALL=--install
+      env: >
+        TOOLCHAIN=osx-10-13
+        CONFIG=Release
+        INSTALL=--install
 
     - os: osx
       osx_image: xcode8.3
-      env: CONFIG=MinSizeRel TOOLCHAIN=ios-nocodesign-10-3-arm64-dep-9-0-device-libcxx-hid-sections INSTALL=--install
+      env: >
+        TOOLCHAIN=ios-nocodesign-10-3-arm64-dep-9-0-device-libcxx-hid-sections
+        CONFIG=MinSizeRel
+        INSTALL=--install
 
     - os: osx
       osx_image: xcode8.3
-      env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
+      env: >
+        TOOLCHAIN=osx-10-12-sanitize-address-hid-sections
+        CONFIG=Release
+        INSTALL=--install
 
     - os: osx
-      env: CONFIG=MinSizeRel TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
+      env: >
+        TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
+        CONFIG=MinSizeRel
+        INSTALL=--strip
 
     # }
 
