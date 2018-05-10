@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Implementation of a simple sensor/camera abstraction.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
 */
@@ -23,7 +23,7 @@ class DRISHTI_EXPORT SensorModel
 {
 public:
     // ### Intrisnic camera parameters:
-    struct Intrinsic
+    struct DRISHTI_EXPORT Intrinsic
     {
         Intrinsic(const Vec2f& c, float fx, const Vec2i& size);
         const Vec2f m_c;
@@ -32,7 +32,7 @@ public:
     };
 
     // ### Extrinsic camera parameters:
-    struct Extrinsic
+    struct DRISHTI_EXPORT Extrinsic
     {
         Extrinsic(const Matrix33f& R);
         Matrix33f m_R;
