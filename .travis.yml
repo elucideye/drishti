@@ -106,11 +106,6 @@ git:
 # See https://docs.travis-ci.com/user/private-dependencies/#API-Token
 # CI_USER_TOKEN is added to .travis.yml settings
 
-before_install:
-
-  # https://stackoverflow.com/a/38790045
-  - bin/travis_clang_links.sh
-
 install:
   - source bin/hunter_env.sh
 
