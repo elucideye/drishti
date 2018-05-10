@@ -47,12 +47,16 @@ matrix:
         TOOLCHAIN=clang-fpic-hid-sections
         CONFIG=Release
         INSTALL=--strip
+        TEST=--test
+        GPU=OFF
 
     - os: linux
       env: >
         TOOLCHAIN=gcc-7-pic-hid-sections-lto
         CONFIG=Release
         INSTALL=--strip
+        TEST=--test
+        GPU=OFF
 
       # FIXME: C++ exception with description "EGLContextImpl::EGLContextImpl() : eglCreatePbufferSurface():
       # Assertion '(eglGetError() == EGL_SUCCESS)' failed in file 'lib/aglet/EGLContext.cpp' line 59"
@@ -65,6 +69,8 @@ matrix:
         TOOLCHAIN=android-ndk-r16b-api-24-arm64-v8a-clang-libcxx14
         CONFIG=Release
         INSTALL=--strip
+        TEST=--test
+        GPU=ON
 
     # }
 
@@ -76,6 +82,8 @@ matrix:
         TOOLCHAIN=osx-10-13
         CONFIG=Release
         INSTALL=--install
+        TEST=--test
+        GPU=OFF
 
     - os: osx
       osx_image: xcode8.3
@@ -83,6 +91,8 @@ matrix:
         TOOLCHAIN=ios-nocodesign-10-3-arm64-dep-9-0-device-libcxx-hid-sections
         CONFIG=MinSizeRel
         INSTALL=--install
+        TEST=""
+        GPU=OFF
 
     - os: osx
       osx_image: xcode8.3
@@ -90,12 +100,16 @@ matrix:
         TOOLCHAIN=osx-10-12-sanitize-address-hid-sections
         CONFIG=Release
         INSTALL=--install
+        TEST=--test
+        GPU=OFF
 
     - os: osx
       env: >
         TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
         CONFIG=MinSizeRel
         INSTALL=--strip
+        TEST=--test
+        GPU=OFF
 
     # }
 

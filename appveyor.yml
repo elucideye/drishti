@@ -28,7 +28,7 @@ install:
   - cmd: bin\hunter_env.cmd
 
 build_script:
-
+  - cmd: set APPVEYOR_CMAKE_ARGS=DRISHTI_HAS_GPU=OFF
   - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%" "%BUILD_SHARED%"
 
 artifacts:
