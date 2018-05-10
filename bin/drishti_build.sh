@@ -32,11 +32,7 @@ else
 fi
 
 if [[ ${TRAVIS} == "true" ]]; then
-  if [[ `uname` == "Linux" ]]; then
-    GAUZE_ANDROID_USE_EMULATOR=NO # Not working on Linux
-  else
     GAUZE_ANDROID_USE_EMULATOR=YES # remote test w/ emulator
-  fi
 else
     GAUZE_ANDROID_USE_EMULATOR=NO # support local host testing on a real device
 fi
