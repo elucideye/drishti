@@ -106,7 +106,7 @@ matrix:
         CONFIG=MinSizeRel
         INSTALL=--strip
         TEST=--test
-        GPU=OFF
+        GPU=ON
 
     # }
 
