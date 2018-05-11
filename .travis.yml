@@ -67,7 +67,7 @@ matrix:
         CONFIG=Release
         INSTALL=--strip
         TEST=--test
-        GPU=ON
+        GPU=OFF
 
     # }
 
