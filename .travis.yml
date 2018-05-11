@@ -22,14 +22,8 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      # For Qt
-      - libegl1-mesa-dev
-
       # For ogles_gpgpu (GL library)
       - libgl1-mesa-dev
-
-      # GCC 7, Clang 5
-      - g++-7
 
       # GCC 5
       - g++-5
