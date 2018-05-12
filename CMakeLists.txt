@@ -167,14 +167,6 @@ else()
   set(DRISHTI_IS_MOBILE FALSE)
 endif()
 
-string(COMPARE EQUAL "$ENV{TRAVIS}" "true" travis_ci)
-string(COMPARE EQUAL "$ENV{APPVEYOR}" "True" appveyor_ci)
-if(travis_ci OR appveyor_ci)
-  set(DRISHTI_CI TRUE)
-else()
-  set(DRISHTI_CI FALSE)
-endif()
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 ####################
@@ -288,13 +280,7 @@ option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." OF
 option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." OFF)
 option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
 
-# On CI platforms we won't have a usable GPU except for the Android emulator
-# We set a variable here to help us make decisions about dependencies later on.
-if(ANDROID OR NOT ${DRISHTI_CI}) 
-  set(DRISHTI_HAS_GPU TRUE)
-else()
-  set(DRISHTI_HAS_GPU FALSE)
-endif()
+option(DRISHTI_HAS_GPU "Drishti has GPU" ON)
 
 if(DRISHTI_HAS_GPU AND DRISHTI_BUILD_TESTS)
   set(DRISHTI_DO_GPU_TESTING TRUE)
@@ -303,11 +289,7 @@ else()
 endif()
 
 if(DRISHTI_BUILD_TESTS OR DRISHTI_BUILD_INTEGRATION_TESTS)
-  if(IOS AND DRISHTI_CI)
-    # do not run test on CI (TODO: remote device testing)
-  else()
-    enable_testing()
-  endif()
+  enable_testing()
   hunter_add_package(gauze)
   find_package(gauze CONFIG REQUIRED)
 

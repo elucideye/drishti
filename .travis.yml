@@ -13,40 +13,23 @@ dist:
 
 # Install packages differs for container-based infrastructure
 # * https://docs.travis-ci.com/user/migrating-from-legacy/#How-do-I-install-APT-sources-and-packages%3F
+# List of available packages:
+# * https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-trusty
+# List of available sources:
+# * https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-trusty-5.0
     packages:
-      # For Qt
-      - libegl1-mesa-dev
-
       # For ogles_gpgpu (GL library)
       - libgl1-mesa-dev
 
-      # Packages for Android development: http://superuser.com/a/360398/252568
-      - libncurses5:i386
-      - libstdc++6:i386
-      - zlib1g:i386
-
-      # Default GCC 4.8 is buggy:
-      # * https://github.com/elucideye/drishti/issues/273#issuecomment-301297286
+      # GCC 5
       - g++-5
-      - gcc-5
-
-      - clang-5.0
-      - libc++-dev
-      - libc++abi-dev
-      - libclang-5.0-dev
-      - libclang-common-5.0-dev
-      - libclang1-5.0
 
       # pip3
       - python3-pip
-
-      # sh: 1: glxinfo: not found
-      - mesa-utils
 
 env:
   global:
@@ -57,38 +40,73 @@ matrix:
     # Linux {
 
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=libcxx-fpic-hid-sections INSTALL=--strip
+      env: >
+        TOOLCHAIN=clang-fpic-hid-sections
+        CONFIG=Release
+        INSTALL=--strip
+        TEST=--test
+        GPU=OFF
 
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=gcc-5-pic-hid-sections-lto INSTALL=--strip
+      env: >
+        TOOLCHAIN=gcc-5-pic-hid-sections-lto
+        CONFIG=Release
+        INSTALL=--strip
+        TEST=--test
+        GPU=OFF
 
-      # FIXME: C++ exception with description "EGLContextImpl::EGLContextImpl() : eglCreatePbufferSurface(): 
+      # FIXME: C++ exception with description "EGLContextImpl::EGLContextImpl() : eglCreatePbufferSurface():
       # Assertion '(eglGetError() == EGL_SUCCESS)' failed in file 'lib/aglet/EGLContext.cpp' line 59"
-      # It seems the cpu based gpu emulator associated with GAUZE_ANDROID_EMULATOR_GPU=off either isn't 
+      # It seems the cpu based gpu emulator associated with GAUZE_ANDROID_EMULATOR_GPU=off either isn't
       # working or isn't compatible with this eglCreatePbufferSurface() stuff, however, the build is fine
       # and the tests run on a real Android via USB connection in local host testing
       # See: https://developer.android.com/studio/run/emulator-acceleration#command-gpu
     - os: linux
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r16b-api-24-arm64-v8a-clang-libcxx14 INSTALL=--strip
-      
+      env: >
+        TOOLCHAIN=android-ndk-r16b-api-24-arm64-v8a-clang-libcxx14
+        CONFIG=Release
+        INSTALL=--strip
+        TEST=--test
+        GPU=OFF
+
     # }
 
     # OSX {
 
     - os: osx
       osx_image: xcode9.3
-      env: CONFIG=Release TOOLCHAIN=osx-10-13 INSTALL=--install
+      env: >
+        TOOLCHAIN=osx-10-13
+        CONFIG=Release
+        INSTALL=--install
+        TEST=--test
+        GPU=OFF
 
     - os: osx
       osx_image: xcode8.3
-      env: CONFIG=MinSizeRel TOOLCHAIN=ios-nocodesign-10-3-arm64-dep-9-0-device-libcxx-hid-sections INSTALL=--install
+      env: >
+        TOOLCHAIN=ios-nocodesign-10-3-arm64-dep-9-0-device-libcxx-hid-sections
+        CONFIG=MinSizeRel
+        INSTALL=--install
+        TEST=""
+        GPU=OFF
 
     - os: osx
       osx_image: xcode8.3
-      env: CONFIG=Release TOOLCHAIN=osx-10-12-sanitize-address-hid-sections INSTALL=--install
+      env: >
+        TOOLCHAIN=osx-10-12-sanitize-address-hid-sections
+        CONFIG=Release
+        INSTALL=--install
+        TEST=--test
+        GPU=OFF
 
     - os: osx
-      env: CONFIG=MinSizeRel TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections INSTALL=--strip
+      env: >
+        TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
+        CONFIG=MinSizeRel
+        INSTALL=--strip
+        TEST=--test
+        GPU=ON
 
     # }
 
@@ -98,11 +116,6 @@ git:
 
 # See https://docs.travis-ci.com/user/private-dependencies/#API-Token
 # CI_USER_TOKEN is added to .travis.yml settings
-
-before_install:
-
-  # https://stackoverflow.com/a/38790045
-  - bin/travis_clang_links.sh
 
 install:
   - source bin/hunter_env.sh

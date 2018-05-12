@@ -32,16 +32,9 @@ else
 fi
 
 if [[ ${TRAVIS} == "true" ]]; then
-  if [[ `uname` == "Linux" ]]; then
-    GAUZE_ANDROID_USE_EMULATOR=NO # Not working on Linux
-    TEST=""
-  else
     GAUZE_ANDROID_USE_EMULATOR=YES # remote test w/ emulator
-    TEST="--test"
-  fi
 else
     GAUZE_ANDROID_USE_EMULATOR=NO # support local host testing on a real device
-    TEST="--test"
 fi
 
 # Note: '--ios-{multiarch,combined}' do nothing for non-iOS builds
@@ -60,8 +53,10 @@ ARGS=(
     DRISHTI_BUILD_TESTS=YES
     DRISHTI_BUILD_EXAMPLES=YES
     DRISHTI_COPY_3RDPARTY_LICENSES=ON
+    DRISHTI_HAS_GPU=${GPU}
     GAUZE_ANDROID_USE_EMULATOR=${GAUZE_ANDROID_USE_EMULATOR}
     GAUZE_ANDROID_EMULATOR_GPU=${GAUZE_ANDROID_EMULATOR_GPU}
+    GAUZE_ANDROID_EMULATOR_PARTITION_SIZE=40
     HUNTER_CONFIGURATION_TYPES="${CONFIG}"
     HUNTER_SUPPRESS_LIST_OF_FILES=ON
 )
