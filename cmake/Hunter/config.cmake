@@ -33,6 +33,7 @@ endif()
 hunter_config(dlib VERSION ${dlib_version} CMAKE_ARGS ${dlib_cmake_args})
 hunter_config(nlohmann_json VERSION ${nlohmann_json_version})
 
+option(DRISHTI_ACF_AS_SUBMODULE "Use drishti acf as submodule" OFF)
 set(acf_cmake_args
   ACF_BUILD_TESTS=OFF 
   ACF_BUILD_EXAMPLES=OFF
@@ -41,7 +42,12 @@ set(acf_cmake_args
   ACF_BUILD_OGLES_GPGPU=${DRISHTI_BUILD_OGLES_GPGPU}
   ACF_KEEPS_SOURCES=1
 )
-hunter_config(acf VERSION ${HUNTER_acf_VERSION} CMAKE_ARGS ${acf_cmake_args})
+
+if(DRISHTI_ACF_AS_SUBMODULE)
+  hunter_config(acf GIT_SUBMODULE "src/3rdparty/acf" CMAKE_ARGS ${acf_cmake_args})
+else()
+  hunter_config(acf VERSION ${HUNTER_acf_VERSION} CMAKE_ARGS ${acf_cmake_args})
+endif()
 
 set(eigen_cmake_args
   BUILD_TESTING=OFF

@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Public API header only OpenCV interop for drishti types.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
 */
@@ -13,9 +13,9 @@
 
 // TODO: preprocessor test for opencv?
 
-#include "drishti/Image.hpp"
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/Eye.hpp"
+#include <drishti/Image.hpp>
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/Eye.hpp>
 
 #include <opencv2/core.hpp>
 

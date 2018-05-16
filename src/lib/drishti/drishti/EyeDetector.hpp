@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Top level eye detection API class declaration.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the declaration of the eye detection class used
@@ -13,8 +13,8 @@
 #ifndef __drishti_drishti_EyeDetector_hpp__
 #define __drishti_drishti_EyeDetector_hpp__
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/Image.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/Image.hpp>
 
 #include <memory> // unique_ptr, shared_ptr
 #include <vector> // for eyelid contour

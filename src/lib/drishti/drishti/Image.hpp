@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Top level Image declaration.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the declaration of the image structure used
@@ -13,7 +13,7 @@
 #ifndef __drishti_drishti_Image_hpp__
 #define __drishti_drishti_Image_hpp__
 
-#include "drishti/drishti_sdk.hpp"
+#include <drishti/drishti_sdk.hpp>
 #include <cstdint>
 #include <type_traits>
 #include <stdlib.h>

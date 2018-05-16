@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Private utility class to map extern "C" callbacks to C++ API.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
  */
@@ -11,12 +11,12 @@
 #ifndef __drishti_drishti_FaceMonitorAdapter_h__
 #define __drishti_drishti_FaceMonitorAdapter_h__ 1
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/drishti_cv.hpp"
-#include "drishti/EyeSegmenterImpl.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/drishti_cv.hpp>
+#include <drishti/EyeSegmenterImpl.hpp>
 
-#include "drishti/face/Face.h"
-#include "drishti/hci/FaceFinder.h"
+#include <drishti/face/Face.h>
+#include <drishti/hci/FaceFinder.h>
 
 _DRISHTI_SDK_BEGIN
 

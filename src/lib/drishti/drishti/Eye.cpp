@@ -3,16 +3,16 @@
   @author David Hirvonen
   @brief  Top level API eye model implementation.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the implementation of the eye model structure used
   to report results for the top level SDK.
 */
 
-#include "drishti/Eye.hpp"
-#include "drishti/drishti_cv.hpp"
-#include "drishti/eye/Eye.h"
+#include <drishti/Eye.hpp>
+#include <drishti/drishti_cv.hpp>
+#include <drishti/eye/Eye.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>

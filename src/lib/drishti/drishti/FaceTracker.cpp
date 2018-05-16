@@ -3,23 +3,23 @@
   @author David Hirvonen
   @brief  Implementation of public API for eye model estimation using simple portable types.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
  */
 
-#include "drishti/FaceTracker.hpp"
-#include "drishti/ContextImpl.h"
-#include "drishti/FaceMonitorAdapter.h"
-#include "drishti/SensorImpl.h"
+#include <drishti/FaceTracker.hpp>
+#include <drishti/ContextImpl.h>
+#include <drishti/FaceMonitorAdapter.h>
+#include <drishti/SensorImpl.h>
 
-#include "drishti/face/Face.h"
-#include "drishti/hci/FaceFinder.h"
-#include "drishti/hci/FaceFinderPainter.h"
-#include "drishti/core/make_unique.h"
-#include "drishti/core/Logger.h"
+#include <drishti/face/Face.h>
+#include <drishti/hci/FaceFinder.h>
+#include <drishti/hci/FaceFinderPainter.h>
+#include <drishti/core/make_unique.h>
+#include <drishti/core/Logger.h>
 
-#include "drishti/drishti_cv.hpp"
+#include <drishti/drishti_cv.hpp>
 
 #include <string>
 #include <fstream>
@@ -86,12 +86,14 @@ struct FaceTracker::Impl
 
         if (manager->getDoAnnotation())
         {
-            m_faceFinder = drishti::hci::FaceFinderPainter::create(factory, settings, manager->get()->glContext);            
+            m_faceFinder = drishti::hci::FaceFinderPainter::create(factory, settings, manager->get()->glContext);
         }
         else
         {
             m_faceFinder = drishti::hci::FaceFinder::create(factory, settings, manager->get()->glContext);
         }
+
+        m_faceFinder->setDoCpuAcf(manager->getDoCpuACF());
     }
 
     int operator()(const VideoFrame& frame)

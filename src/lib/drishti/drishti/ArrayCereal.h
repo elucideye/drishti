@@ -39,7 +39,7 @@
 #include <cereal/cereal.hpp>
 #include <vector>
 
-#include "drishti/Array.hpp"
+#include <drishti/Array.hpp>
 
 namespace cereal
 {

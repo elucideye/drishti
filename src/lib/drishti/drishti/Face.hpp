@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Top level API eye model declaration.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the declaration of the eye model structure used
@@ -13,10 +13,10 @@
 #ifndef __drishti_drishti_Face_hpp__
 #define __drishti_drishti_Face_hpp__ 1
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/Eye.hpp"
-#include "drishti/Image.hpp"
-#include "drishti/Array.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/Eye.hpp>
+#include <drishti/Image.hpp>
+#include <drishti/Array.hpp>
 
 _DRISHTI_SDK_BEGIN
 

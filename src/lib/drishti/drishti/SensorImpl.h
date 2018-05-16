@@ -11,8 +11,8 @@
 #ifndef __drishti_drishti_SensorImpl_h__
 #define __drishti_drishti_SensorImpl_h__
 
-#include "drishti/Sensor.hpp"
-#include "drishti/sensor/Sensor.h"
+#include <drishti/Sensor.hpp>
+#include <drishti/sensor/Sensor.h>
 
 _DRISHTI_SDK_BEGIN
 

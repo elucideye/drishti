@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Public API for continuous face filter.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the VideoFrame public API class.
@@ -12,9 +12,9 @@
 #ifndef __drishti_drishti_VideoFrame_hpp__
 #define __drishti_drishti_VideoFrame_hpp__
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/drishti_gl.hpp"
-#include "drishti/Image.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/drishti_gl.hpp>
+#include <drishti/Image.hpp>
 
 _DRISHTI_SDK_BEGIN
 

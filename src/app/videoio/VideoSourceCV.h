@@ -71,8 +71,7 @@ public:
     virtual void setOutputFormat(PixelFormat) {}
 
     static std::shared_ptr<VideoSourceCV> create(const std::string& filename);
-
-protected:
+    static std::shared_ptr<VideoSourceCV> createCV(const std::string& filename, const cv::Size &size);
 };
 
 DRISHTI_VIDEOIO_NAMESPACE_END

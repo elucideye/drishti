@@ -60,8 +60,8 @@ if(DRISHTI_USE_DRISHTI_UPLOAD)
   )
   endif()
 else()
-  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.20.70.tar.gz")
-  set(DRISHTI_HUNTER_GATE_SHA1 "95fb7d11f0828746e2983b5f06ff7981a676da3f")
+  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.20.79.tar.gz")
+  set(DRISHTI_HUNTER_GATE_SHA1 "428c555b2205ce6aa94707a97c18be7afebecee2")
   if(HUNTER_ENABLED AND NOT DRISHTI_IS_REPO_BUILD)
     # DEPENDENCY: if(HUNTER_ENABLE): we are being used as a dependency from
     # another project and we will use the config.cmake from the parent project.
@@ -93,7 +93,7 @@ endif()
 ### Drishti project ###
 #######################
 
-project(drishtisdk VERSION 0.9.1)
+project(drishtisdk VERSION 0.10.0)
 
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
 

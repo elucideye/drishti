@@ -83,13 +83,6 @@ source_group("eye\\Source Files" FILES ${DRISHTI_EYE_SRCS})
 source_group("graphics\\Header Files" FILES ${DRISHTI_GRAPHICS_HDRS_PUBLIC})
 source_group("graphics\\Source Files" FILES ${DRISHTI_GRAPHICS_SRCS})
 
-#   if(DRISHTI_BUILD_ACF)
-#     ### acf
-#     source_group("acf\\Header Files" FILES ${DRISHTI_ACF_HDRS_PUBLIC})
-#     source_group("acf\\Source Files" FILES ${DRISHTI_ACF_SRCS})
-#     list(APPEND DRISHTI_WORLD_SOURCES ${DRISHTI_ACF_SRCS} ${DRISHTI_ACF_HDRS_PUBLIC})
-#   endif()
-
 if(DRISHTI_BUILD_FACE)
   ### face
   source_group("face\\Header Files" FILES ${DRISHTI_FACE_HDRS_PUBLIC})
@@ -101,7 +94,7 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   list(APPEND DRISHTI_SDK_3RDPARTY_LIBS ${OGLES_GPGPU_LIB})
 
   ### hci
-  # currently only works w/ ogles_gpgpu
+  # currently requires ogles_gpgpu
   # TODO: needs CPU only path
   if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU)
     source_group("hci\\Header Files" FILES ${DRISHTI_HCI_HDRS_PUBLIC})
@@ -110,6 +103,10 @@ if(DRISHTI_BUILD_OGLES_GPGPU)
   endif()
 
 endif()
+
+source_group("drishti\\Header Files Private" FILES ${DRISHTI_DRISHTI_HDRS_PRIVATE})
+source_group("drishti\\Header Files" FILES ${DRISHTI_DRISHTI_HDRS_PUBLIC})
+source_group("drishti\\Source Files" FILES ${DRISHTI_DRISHTI_SRCS})
 
 add_library(drishti_world ${LIB_TYPE} ${DRISHTI_WORLD_SOURCES})
 set_property(TARGET drishti_world PROPERTY FOLDER "libs/drishti")
@@ -326,7 +323,7 @@ if(NOT IOS)
     )
 endif()
 
-foreach(library ${drishti_libs} drishtisdk)
+foreach(library ${drishti_libs} drishtisdk drishti)
   set_property(TARGET ${library} PROPERTY FOLDER "libs/drishti")
 endforeach()
 

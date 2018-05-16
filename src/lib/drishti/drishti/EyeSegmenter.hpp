@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Public API for eye model estimation using simple portable types.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the Eyesegmenter public API class for eye model estimation.
@@ -12,9 +12,9 @@
 #ifndef __drishti_drishti_EyeSegmenter_hpp__
 #define __drishti_drishti_EyeSegmenter_hpp__
 
-#include "drishti/drishti_sdk.hpp" // TODO: get rid of this
-#include "drishti/Image.hpp"
-#include "drishti/Eye.hpp"
+#include <drishti/drishti_sdk.hpp> // TODO: get rid of this
+#include <drishti/Image.hpp>
+#include <drishti/Eye.hpp>
 
 #include <memory> // unique_ptr, shared_ptr
 #include <vector> // for eyelid contour

@@ -20,8 +20,11 @@
 #endif
 // clang-format on
 
+#include <opencv2/highgui.hpp>
+
 #include <boost/filesystem.hpp>
 
+#include <iostream>
 #include <algorithm>
 #include <locale>
 
@@ -30,6 +33,57 @@ namespace bfs = boost::filesystem;
 using string_hash::operator"" _hash;
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
+
+// Random access VideoSourceCV
+class VideoSourceOpenCV : public VideoSourceCV
+{
+public:
+    VideoSourceOpenCV(const std::string& filename, const cv::Size &size)
+    {
+        if (filename.find_first_not_of("0123456789") == std::string::npos)
+        {
+            video.open(cv::CAP_ANY + std::stoi(filename));
+        }
+        else
+        {
+            video.open(filename);
+        }
+
+        // Set to large # to force max operating resolution (this isn't otherwise exposed)
+        // https://stackoverflow.com/a/31464688
+        //video.set(cv::CAP_PROP_FRAME_WIDTH, 10000.0);
+        //video.set(cv::CAP_PROP_FRAME_HEIGHT, 10000.0);
+
+        if(size.area())
+        {
+            video.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(size.width));
+            video.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(size.height));
+        }
+    }
+    ~VideoSourceOpenCV() = default;
+    virtual Frame operator()(int i)
+    {
+        cv::Mat frame;
+        video >> frame;
+        return { frame, static_cast<std::size_t>(i) };
+    }
+    virtual std::size_t count() const
+    {
+        return static_cast<int>(video.get(cv::CAP_PROP_FRAME_COUNT));
+    }
+    virtual bool isRandomAccess() const
+    {
+        return false;
+    }
+protected:
+    cv::VideoCapture video;
+};
+
+
+std::shared_ptr<VideoSourceCV> VideoSourceCV::createCV(const std::string& filename, const cv::Size &size)
+{
+    return std::make_shared<VideoSourceOpenCV>(filename, size);
+}
 
 std::shared_ptr<VideoSourceCV> VideoSourceCV::create(const std::string& filename)
 {

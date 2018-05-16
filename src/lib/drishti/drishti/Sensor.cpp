@@ -11,9 +11,9 @@
 #ifndef __drishti_drishti_Sensor_h__
 #define __drishti_drishti_Sensor_h__
 
-#include "drishti/Sensor.hpp"
-#include "drishti/SensorImpl.h" // private
-#include "drishti/sensor/Sensor.h"
+#include <drishti/Sensor.hpp>
+#include <drishti/SensorImpl.h> // private
+#include <drishti/sensor/Sensor.h>
 
 #include <opencv2/core.hpp>
 
