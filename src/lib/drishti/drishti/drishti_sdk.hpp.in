@@ -13,7 +13,7 @@
 #ifndef __drishti_drishti_drishti_sdk_hpp__
 #define __drishti_drishti_drishti_sdk_hpp__
 
-#include "drishti/drishti_export.hpp"
+#include <drishti/drishti_export.hpp>
 
 #if __APPLE__
 #  ifdef DRISHTI_EXPORT

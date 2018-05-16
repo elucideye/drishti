@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Top level API eye model declaration.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the implementation of the private implementation structure
@@ -11,16 +11,16 @@
   and improve build times.
 */
 
-#include "drishti/EyeSegmenterImpl.hpp"
-#include "drishti/eye/Eye.h" // internal sdk eye model
-#include "drishti/eye/EyeModelEstimator.h"
-#include "drishti/core/Logger.h"
-#include "drishti/core/make_unique.h"
+#include <drishti/EyeSegmenterImpl.hpp>
+#include <drishti/eye/Eye.h> // internal sdk eye model
+#include <drishti/eye/EyeModelEstimator.h>
+#include <drishti/core/Logger.h>
+#include <drishti/core/make_unique.h>
 
 // OpenCV inlucdes must come before drishti_cv.hpp
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include "drishti/drishti_cv.hpp" // Must come after opencvx
+#include <drishti/drishti_cv.hpp> // Must come after opencvx
 
 #include <string>
 #include <fstream>

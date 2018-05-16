@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Public API for continuous face filter.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the FaceTracker public API class.
@@ -12,11 +12,11 @@
 #ifndef __drishti_drishti_FaceTracker_hpp__
 #define __drishti_drishti_FaceTracker_hpp__ 1
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/Image.hpp"
-#include "drishti/Face.hpp"
-#include "drishti/VideoFrame.hpp"
-#include "drishti/Context.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/Image.hpp>
+#include <drishti/Face.hpp>
+#include <drishti/VideoFrame.hpp>
+#include <drishti/Context.hpp>
 
 #include <memory>
 

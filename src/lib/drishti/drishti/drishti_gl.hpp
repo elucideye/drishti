@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Provide standard OpenGL includes on various platforms.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file provides standard OpenGL includes. 
@@ -23,11 +23,12 @@
 #  include <GL/gl.h>
 #  include <GL/glu.h>
 #elif __APPLE__
-#  include "TargetConditionals.h"
+#  include <TargetConditionals.h>
 #  if (TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR) || TARGET_OS_IPHONE
 #    if defined(DRISHTI_OPENGL_ES3)
 #      include <OpenGLES/ES3/gl.h>
 #      include <OpenGLES/ES3/glext.h>
+#      include <OpenGLES/ES2/glext2.h>
 #    else
 #      include <OpenGLES/ES2/gl.h>
 #      include <OpenGLES/ES2/glext.h>

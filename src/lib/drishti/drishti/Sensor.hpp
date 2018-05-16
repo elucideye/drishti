@@ -11,8 +11,8 @@
 #ifndef __drishti_drishti_Sensor_hpp__
 #define __drishti_drishti_Sensor_hpp__
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/Image.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/Image.hpp>
 
 #include <array>
 #include <memory>

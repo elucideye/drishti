@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Public API for continuous face filter.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the public API of the Context class.  This class 
@@ -15,10 +15,10 @@
 #ifndef __drishti_drishti_Context_hpp__
 #define __drishti_drishti_Context_hpp__
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/drishti_gl.hpp"
-#include "drishti/Image.hpp"
-#include "drishti/Sensor.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/drishti_gl.hpp>
+#include <drishti/Image.hpp>
+#include <drishti/Sensor.hpp>
 
 #include <memory>
 
@@ -27,6 +27,7 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT Context
 {
 public:
+    
     struct Impl;
 
     Context(drishti::sdk::SensorModel& sensor);
@@ -64,10 +65,14 @@ public:
     void setDoOptimizedPipeline(bool flag);
     bool getDoOptimizedPipeline() const;
 
+    void setDoCpuACF(bool flag);
+    bool getDoCpuACF() const;
+    
     void setDoAnnotation(bool flag);
     bool getDoAnnotation() const;
 
 protected:
+
     std::unique_ptr<Impl> impl;
 };
 

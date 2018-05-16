@@ -3,16 +3,16 @@
   @author David Hirvonen
   @brief  Eye serialization.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   Contains serialization routines for Eye models.
 */
 
-#include "drishti/EyeIO.hpp"
-#include "drishti/core/drishti_stdlib_string.h"
-#include "drishti/core/drishti_cv_cereal.h"
-#include "drishti/ArrayCereal.h"
+#include <drishti/EyeIO.hpp>
+#include <drishti/core/drishti_stdlib_string.h>
+#include <drishti/core/drishti_cv_cereal.h>
+#include <drishti/ArrayCereal.h>
 
 // clang-format off
 #ifdef DRISHTI_CEREAL_XML_JSON

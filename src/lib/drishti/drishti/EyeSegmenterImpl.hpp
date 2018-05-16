@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Top level API eye model declaration.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the declaration of the private implementation structure
@@ -14,11 +14,11 @@
 #ifndef __drishti_drishti_EyeSegmenterImpl_hpp__
 #define __drishti_drishti_EyeSegmenterImpl_hpp__
 
-#include "drishti/EyeSegmenter.hpp"
-#include "drishti/core/Logger.h"
+#include <drishti/EyeSegmenter.hpp>
+#include <drishti/core/Logger.h>
 
-#include "drishti/eye/Eye.h"
-#include "drishti/drishti_cv.hpp"
+#include <drishti/eye/Eye.h>
+#include <drishti/drishti_cv.hpp>
 
 // clang-format off
 namespace drishti { namespace eye { class EyeModelEstimator; } };

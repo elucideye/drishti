@@ -2,7 +2,7 @@
   @file   Array.hpp
   @brief  Lightweight portable container.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the declaration of the image structure used

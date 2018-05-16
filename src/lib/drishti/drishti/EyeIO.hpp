@@ -3,7 +3,7 @@
   @author David Hirvonen
   @brief  Eye model serialization.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   Contains serializaiton and ostream operators for the Eye model. 
@@ -18,8 +18,8 @@
 #ifndef __drishti_drishti_EyeIO_hpp__
 #define __drishti_drishti_EyeIO_hpp__
 
-#include "drishti/drishti_sdk.hpp"
-#include "drishti/Eye.hpp"
+#include <drishti/drishti_sdk.hpp>
+#include <drishti/Eye.hpp>
 
 #include <vector>
 #include <iostream>
