@@ -86,7 +86,7 @@ struct FaceTracker::Impl
 
         if (manager->getDoAnnotation())
         {
-            m_facefinder = drishti::hci::FaceFinderPainter::create(factory, settings, manager->get()->glContext);
+            m_faceFinder = drishti::hci::FaceFinderPainter::create(factory, settings, manager->get()->glContext);
         }
         else
         {
