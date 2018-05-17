@@ -119,9 +119,7 @@ OG_TO_STR(
  });
 // clang-format on
 
-FacePainter::~FacePainter()
-{
-}
+FacePainter::~FacePainter() = default;
 
 void FacePainter::getUniforms()
 {
@@ -144,7 +142,7 @@ void FacePainter::getUniforms()
 FacePainter::FacePainter(int outputOrientation)
     : m_outputOrientation(outputOrientation)
     , m_colorRGB(1.f, 1.f, 1.f)
-    , m_colorLetterboxHeight(0.5f)
+    , m_colorLetterboxHeight(1.f) // 1 == no letterbox
 {
     assert(m_outputOrientation == 0);
 

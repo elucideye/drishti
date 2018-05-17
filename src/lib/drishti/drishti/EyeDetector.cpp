@@ -3,15 +3,15 @@
   @author David Hirvonen
   @brief  Top level eye detection API class implementation.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the implementation of the eye detection class used
   for the top level SDK.
 */
 
-#include "drishti/EyeDetector.hpp"
-#include "drishti/drishti_cv.hpp"
+#include <drishti/EyeDetector.hpp>
+#include <drishti/drishti_cv.hpp>
 
 #include <acf/ACF.h>
 

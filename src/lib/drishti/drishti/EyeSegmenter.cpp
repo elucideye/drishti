@@ -3,16 +3,16 @@
   @author David Hirvonen
   @brief  Implementation of public API for eye model estimation using simple portable types.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
   This file contains the Eyesegmenter public API class for eye model estimation.
 */
 
-#include "drishti/EyeSegmenter.hpp"
-#include "drishti/EyeSegmenterImpl.hpp"
-#include "drishti/core/make_unique.h"
-#include "drishti/core/drishti_serialize.h"
+#include <drishti/EyeSegmenter.hpp>
+#include <drishti/EyeSegmenterImpl.hpp>
+#include <drishti/core/make_unique.h>
+#include <drishti/core/drishti_serialize.h>
 
 #include <string>
 #include <fstream>

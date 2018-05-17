@@ -3,14 +3,14 @@
   @author David Hirvonen
   @brief  Public API for continuous face filter.
 
-  \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
+  \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
 */
 
-#include "drishti/Context.hpp"
-#include "drishti/ContextImpl.h"
-#include "drishti/SensorImpl.h"
+#include <drishti/Context.hpp>
+#include <drishti/ContextImpl.h>
+#include <drishti/SensorImpl.h>
 
 #define DRISHTI_LOGGER_NAME "drishti"
 
@@ -130,6 +130,16 @@ bool Context::getDoOptimizedPipeline() const
     return impl->doOptimizedPipeline;
 }
 
+void Context::setDoCpuACF(bool flag)
+{
+    impl->doCpuAcf = flag;
+}
+
+bool Context::getDoCpuACF() const
+{
+    return impl->doCpuAcf;
+}
+
 void Context::setDoAnnotation(bool flag)
 {
     impl->doAnnotation = flag;
@@ -138,7 +148,6 @@ void Context::setDoAnnotation(bool flag)
 bool Context::getDoAnnotation() const
 {
     return impl->doAnnotation;
-
 }
 
 _DRISHTI_SDK_END

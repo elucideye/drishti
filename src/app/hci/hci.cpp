@@ -152,6 +152,14 @@ struct SimpleTimer
     }
 };
 
+static std::vector<std::string> split(const string& input, const string& regex) 
+{
+    // passing -1 as the submatch index parameter performs splitting
+    std::regex re(regex);
+    std::sregex_token_iterator first{ input.begin(), input.end(), re, -1 }, last;
+    return { first, last };
+}
+
 int gauze_main(int argc, char** argv)
 {
     const auto argumentCount = argc;
@@ -167,9 +175,10 @@ int gauze_main(int argc, char** argv)
     bool doMovie = false;
     bool doDebug = false;
     bool doCpu = false;
+    bool doCvVideoCapture = false;
     int loops = 0;
     
-    std::string sInput, sOutput, sSwizzle = "rgba";
+    std::string sInput, sOutput, sSwizzle = "rgba", sDimensions;
 
     float resolution = 1.f;
     float fx = 0.f;
@@ -188,6 +197,9 @@ int gauze_main(int argc, char** argv)
     options.add_options()
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
+
+        ("cv", "Use cv::VideoCapture for video", cxxopts::value<bool>(doCvVideoCapture))
+        ("size", "cv::VideoCapture video dimensions: wxh", cxxopts::value<std::string>(sDimensions))        
 
         ("swizzle", "Swizzle channel operation", cxxopts::value<std::string>(sSwizzle))
     
@@ -313,11 +325,29 @@ int gauze_main(int argc, char** argv)
 
     // NOTE: We can create the OpenGL context prior to AVFoundation use as a workaround
     auto opengl = aglet::GLContext::create(aglet::GLContext::kAuto, doWindow ? "hci" : "", 640, 480);
-#if defined(_WIN32) || defined(_WIN64)
-    CV_Assert(!glewInit());
-#endif
 
-    auto video = drishti::videoio::VideoSourceCV::create(sInput);
+    // Allocate a video source
+    std::shared_ptr<drishti::videoio::VideoSourceCV> video;
+    if(doCvVideoCapture)
+    {
+        cv::Size size; // video dimensions
+        if (!sDimensions.empty())
+        {
+            std::vector<std::string> dimensions = split(sDimensions, "x");
+            if (!dimensions.size())
+            {
+                logger->error("Must specify input dimensions in format: <width>x<height>, received {}", sDimensions);
+                return 1;
+            }
+            size = { std::stoi(dimensions[0]), std::stoi(dimensions[1]) };
+        }        
+        video = drishti::videoio::VideoSourceCV::createCV(sInput, size);
+    }
+    else
+    {
+        video = drishti::videoio::VideoSourceCV::create(sInput);
+    }
+                
     video->setOutputFormat(drishti::videoio::VideoSourceCV::ARGB); // be explicit, fail on error
 
     // Retrieve first frame to configure sensor parameters:
@@ -350,7 +380,7 @@ int gauze_main(int argc, char** argv)
     settings.renderEyesWidthRatio = 0.25f * opengl->getGeometry().sx; // *** rendering ***
     settings.doSingleFace = true;
     settings.doOptimizedPipeline = !doCpu;
-    
+ 
     // The following parameters are set directly through the command line parser:
     //
     //  settings.minDetectionDistance = ...;
@@ -462,7 +492,7 @@ int gauze_main(int argc, char** argv)
 #endif            
             timer.reset(); // reset timer
         }
-        
+
         logger->info("fps: {}", (++timer).fps());
         
         counter++;
