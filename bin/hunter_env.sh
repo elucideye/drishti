@@ -46,7 +46,9 @@ if [[ "$(uname)" == "Darwin" ]] && [ ! $(which python3) ]; then travis_retry bre
 # Install Python package 'requests'
 # 'easy_install3' is not installed by 'brew install python3' on OS X 10.9 Maverick
 if [[ "$(uname)" == "Darwin" ]]; then pip3 install requests; fi
+if [[ "$(uname)" == "Darwin" ]]; then pip3 install gitpython; fi
 if [[ "$(uname)" == "Linux" ]]; then travis_retry pip3 install --user requests; fi
+if [[ "$(uname)" == "Linux" ]]; then travis_retry pip3 install --user gitpython; fi
 
 # Install latest Polly toolchains and scripts
 wget https://github.com/ruslo/polly/archive/master.zip
@@ -59,9 +61,14 @@ export ANDROID_NDK_r10e="${PWD}/_ci/android-ndk-r10e"
 export ANDROID_NDK_r11c="${PWD}/_ci/android-ndk-r11c"
 export ANDROID_NDK_r15c="${PWD}/_ci/android-ndk-r15c"
 export ANDROID_NDK_r16b="${PWD}/_ci/android-ndk-r16b"
+export ANDROID_NDK_r17="${PWD}/_ci/android-ndk-r17"
 
 # Install dependencies (CMake, Android NDK)
-install-ci-dependencies.py
+if [[ ${TRAVIS} == "true" ]]; then
+    install-ci-dependencies.py --prune-archives
+else
+    install-ci-dependencies.py
+fi
 
 # Tune locations
 export PATH="${PWD}/_ci/cmake/bin:${PATH}"
