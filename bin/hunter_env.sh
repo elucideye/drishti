@@ -46,7 +46,9 @@ if [[ "$(uname)" == "Darwin" ]] && [ ! $(which python3) ]; then travis_retry bre
 # Install Python package 'requests'
 # 'easy_install3' is not installed by 'brew install python3' on OS X 10.9 Maverick
 if [[ "$(uname)" == "Darwin" ]]; then pip3 install requests; fi
+if [[ "$(uname)" == "Darwin" ]]; then pip3 install gitpython; fi
 if [[ "$(uname)" == "Linux" ]]; then travis_retry pip3 install --user requests; fi
+if [[ "$(uname)" == "Linux" ]]; then travis_retry pip3 install --user gitpython; fi
 
 # Install latest Polly toolchains and scripts
 wget https://github.com/ruslo/polly/archive/master.zip
