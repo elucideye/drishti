@@ -62,7 +62,11 @@ export ANDROID_NDK_r16b="${PWD}/_ci/android-ndk-r16b"
 export ANDROID_NDK_r17="${PWD}/_ci/android-ndk-r17"
 
 # Install dependencies (CMake, Android NDK)
-install-ci-dependencies.py
+if [[ ${TRAVIS} == "true" ]]; then
+    install-ci-dependencies.py --prune-archives
+else
+    install-ci-dependencies.py
+fi
 
 # Tune locations
 export PATH="${PWD}/_ci/cmake/bin:${PATH}"
