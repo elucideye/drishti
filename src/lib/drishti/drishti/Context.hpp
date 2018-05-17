@@ -71,6 +71,9 @@ public:
     void setDoAnnotation(bool flag);
     bool getDoAnnotation() const;
 
+    void setGLContext(void *context);
+    void* getGLContext() const;
+
 protected:
 
     std::unique_ptr<Impl> impl;

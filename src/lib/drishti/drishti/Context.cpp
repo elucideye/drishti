@@ -21,6 +21,10 @@ Context::Impl::Impl(drishti::sdk::SensorModel& sensor)
     , logger(drishti::core::Logger::create(DRISHTI_LOGGER_NAME))
     , threads(std::make_shared<tp::ThreadPool<>>()) // thread-pool
 {
+#if defined(_WIN32) || defined(_WIN64)
+    // A windows DLL must call glewInit() from within the library (not the application layer)
+    CV_Assert(wglGetCurrentContext() != NULL && GLEW_OK == glewInit());
+#endif  
 }
 
 Context::Context(drishti::sdk::SensorModel& sensor)
@@ -148,6 +152,16 @@ void Context::setDoAnnotation(bool flag)
 bool Context::getDoAnnotation() const
 {
     return impl->doAnnotation;
+}
+
+void Context::setGLContext(void *context)
+{
+    impl->glContext = context;
+}
+
+void* Context::getGLContext() const
+{
+    return impl->glContext;
 }
 
 _DRISHTI_SDK_END
