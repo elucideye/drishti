@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Source: https://github.com/ruslo/hunter/blob/master/.travis.yml
 #
