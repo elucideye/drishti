@@ -33,7 +33,8 @@ endif()
 hunter_config(dlib VERSION ${dlib_version} CMAKE_ARGS ${dlib_cmake_args})
 hunter_config(nlohmann_json VERSION ${nlohmann_json_version})
 
-option(DRISHTI_ACF_AS_SUBMODULE "Use drishti acf as submodule" OFF)
+
+option(DRISHTI_ACF_AS_SUBMODULE "Use drishti acf as submodule" ON)
 set(acf_cmake_args
   ACF_BUILD_TESTS=OFF 
   ACF_BUILD_EXAMPLES=OFF
