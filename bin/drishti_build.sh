@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Simple build drishti SDK build script to support both CI builds
 # and matching host development.
