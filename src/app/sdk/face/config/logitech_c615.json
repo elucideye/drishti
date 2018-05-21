@@ -1,0 +1,17 @@
+{
+    "acfCalibration": 0.002,
+    "doAnnotation": true,
+    "doSimplePipeline": true,
+    "faceFinderInterval": 0.0,
+    "videoWidth": 1920,
+    "videoHeight": 1080,
+    "focalLength": 1476.0,
+    "minDetectionDistance": 0.1,    
+    "maxDetectionDistance": 1.0,
+    "maxTrackMisses": 2,
+    "minFaceSeparation": 0.1,
+    "minTrackHits": 3,
+    "multiFace": true,
+    "regressorCropScale": 1.1,
+    "doCpuAcf": true
+}
