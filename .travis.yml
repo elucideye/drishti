@@ -46,7 +46,8 @@ matrix:
         INSTALL=--strip
         TEST=--test
         GPU=OFF
-
+        BUILD_SHARED=ON
+        
     - os: linux
       env: >
         TOOLCHAIN=gcc-5-pic-hid-sections-lto
@@ -54,6 +55,7 @@ matrix:
         INSTALL=--strip
         TEST=--test
         GPU=OFF
+        BUILD_SHARED=ON
 
       # FIXME: C++ exception with description "EGLContextImpl::EGLContextImpl() : eglCreatePbufferSurface():
       # Assertion '(eglGetError() == EGL_SUCCESS)' failed in file 'lib/aglet/EGLContext.cpp' line 59"
@@ -68,6 +70,7 @@ matrix:
         INSTALL=--strip
         TEST=--test
         GPU=OFF
+        BUILD_SHARED=ON
 
     # }
 
@@ -81,6 +84,7 @@ matrix:
         INSTALL=--install
         TEST=--test
         GPU=OFF
+        BUILD_SHARED=ON
 
     - os: osx
       osx_image: xcode8.3
@@ -90,6 +94,7 @@ matrix:
         INSTALL=--install
         TEST=""
         GPU=OFF
+        BUILD_SHARED=ON
 
     - os: osx
       osx_image: xcode8.3
@@ -99,6 +104,7 @@ matrix:
         INSTALL=--install
         TEST=--test
         GPU=OFF
+        BUILD_SHARED=ON
 
     - os: osx
       env: >
@@ -107,6 +113,7 @@ matrix:
         INSTALL=--strip
         TEST=--test
         GPU=ON
+        BUILD_SHARED=ON        
 
     # }
 
