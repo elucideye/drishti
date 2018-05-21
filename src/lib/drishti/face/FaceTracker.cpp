@@ -56,9 +56,16 @@ struct FaceTracker::Impl
                 core::MinimizeLinearAssignment(C, direct_assignment, reverse_assignment);
             }
 
-            std::vector<std::uint8_t> hits(m_tracks.size(), 0);
+            // For all valid assignments we will either
+            //  (1) stack a new track if the assignment cost is too high
+            //  (2) extend an existing track
+            // 
+            // We will then start new tracks for all remaining unasigned detections:
+            std::vector<std::uint8_t> hits(m_tracks.size(), 0), assigned(facesIn.size(), 0);
             for (const auto& m : direct_assignment)
             {
+                assigned[m.second] = 1;
+
                 // Create a new track, or update an old track:
                 if (C[m.first][m.second] > m_costThreshold)
                 {
@@ -72,7 +79,7 @@ struct FaceTracker::Impl
                 }
             }
 
-            for (int i = 0; i < hits.size(); i++)
+            for (std::size_t i = 0; i < hits.size(); i++)
             {
                 if (!hits[i])
                 {
@@ -80,11 +87,19 @@ struct FaceTracker::Impl
                 }
             }
 
+            // ... finally we initialize new tracks for all unasigned detections...
+            for (std::size_t i = 0; i < assigned.size(); i++)
+            {
+                if (!assigned[i])
+                {
+                    m_tracks.emplace_back(facesIn[i], TrackInfo(m_id++));
+                }
+            }
+            
             // Prune old tracks:
             m_tracks.erase(std::remove_if(m_tracks.begin(), m_tracks.end(), [this](const FaceTrack& track) {
                 return (track.second.misses >= m_maxTrackMisses);
-            }),
-                m_tracks.end());
+            }), m_tracks.end());
         }
 
         // Return subset of remaining mature tracks:
