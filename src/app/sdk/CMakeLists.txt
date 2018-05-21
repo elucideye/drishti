@@ -10,6 +10,8 @@
 
 if(NOT DRISHTI_BUNDLE_SDK_SAMPLES)
 
+  set(DRISHTI_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/../../..")
+
   cmake_minimum_required(VERSION 3.9) # CMAKE_INTERPROCEDURAL_OPTIMIZATION
 
   # https://docs.hunter.sh/en/latest/reference/user-variables.html#hunter-keep-package-sources
@@ -32,8 +34,6 @@ if(NOT DRISHTI_BUNDLE_SDK_SAMPLES)
   # add the drishti package
   hunter_add_package(drishti)
   find_package(drishti CONFIG REQUIRED)
-
-  set(DRISHTI_ROOT_DIR "../../..")
 
 endif()
 
