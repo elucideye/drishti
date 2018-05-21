@@ -12,8 +12,6 @@ if(NOT DRISHTI_BUNDLE_SDK_SAMPLES)
 
   cmake_minimum_required(VERSION 3.9) # CMAKE_INTERPROCEDURAL_OPTIMIZATION
 
-  set(DRISHTI_ROOT_DIR "../../..")
-
   # https://docs.hunter.sh/en/latest/reference/user-variables.html#hunter-keep-package-sources
   option(HUNTER_KEEP_PACKAGE_SOURCES "Keep installed package sources for debugging (caveat...)" OFF)
 
@@ -35,6 +33,15 @@ if(NOT DRISHTI_BUNDLE_SDK_SAMPLES)
   hunter_add_package(drishti)
   find_package(drishti CONFIG REQUIRED)
 
+  set(DRISHTI_ROOT_DIR "../../..")
+
+endif()
+
+if(NOT DEFINED DRISHTI_HAVE_TO_STRING)
+  try_compile(DRISHTI_HAVE_TO_STRING "${CMAKE_BINARY_DIR}/compile_tests" "${DRISHTI_ROOT_DIR}/cmake/to_string.cpp")
+endif()
+if(NOT DEFINED DRISHTI_HAVE_LOCALECONV)
+  try_compile(DRISHTI_HAVE_LOCALECONV "${CMAKE_BINARY_DIR}/compile_tests" "${DRISHTI_ROOT_DIR}/cmake/localeconv.cpp")
 endif()
 
 ################################

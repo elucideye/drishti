@@ -17,7 +17,7 @@
 */
 
 // Need std:: extensions for android targets
-#if defined(DRISHTI_HUNTER_TEST_ADD_TO_STRING)
+#if !defined(DRISHTI_HAVE_TO_STRING)
 #  include "stdlib_string.h"
 #endif
 
@@ -73,7 +73,7 @@ static void from_json(const std::string &filename, Params &params);
 
 // avoid localeconv error w/ nlohmann::json on older android build
 
-#if !defined(DRISHTI_HUNTER_TEST_NO_LOCALECONV)
+#if defined(DRISHTI_HAVE_LOCALECONV)
 static void to_json(const std::string &filename, const Params &params);
 #endif
 
@@ -90,7 +90,7 @@ int gauze_main(int argc, char** argv)
     bool doPreview = false;
     std::string sInput, sOutput, sModels, sConfig;
 
-#if !defined(DRISHTI_HUNTER_TEST_NO_LOCALECONV)
+#if defined(DRISHTI_HAVE_LOCALECONV)
     std::string sBoilerplate;
 #endif
 
@@ -105,7 +105,7 @@ int gauze_main(int argc, char** argv)
         ("o,output", "Output image", cxxopts::value<std::string>(sOutput))
         ("m,models", "Model factory configuration file (JSON)", cxxopts::value<std::string>(sModels))
         ("c,config", "Configuration file", cxxopts::value<std::string>(sConfig))
-#if !defined(DRISHTI_HUNTER_TEST_NO_LOCALECONV)
+#if defined(DRISHTI_HAVE_LOCALECONV)
         ("boilerplate", "Dump boilerplate json file (then quit)", cxxopts::value<std::string>(sBoilerplate))
 #endif
         // context parameters (configuratino):
@@ -156,7 +156,7 @@ int gauze_main(int argc, char** argv)
         return 1;
     }
     
-#if !defined(DRISHTI_HUNTER_TEST_NO_LOCALECONV)
+#if defined(DRISHTI_HAVE_LOCALECONV)
     if(!sBoilerplate.empty())
     {
         to_json(sBoilerplate, params);
@@ -360,7 +360,7 @@ int gauze_main(int argc, char** argv)
     return 0;
 }
 
-#if !defined(DRISHTI_TEST_BUILD_TESTS)
+#if !defined(DRISHTI_SDK_TEST_BUILD_TESTS)
 int main(int argc, char** argv)
 {
     try
@@ -456,7 +456,7 @@ static void from_json(const std::string &filename, Params &params)
     from_json(json, params);
 }
 
-#if !defined(DRISHTI_HUNTER_TEST_NO_LOCALECONV)
+#if defined(DRISHTI_HAVE_LOCALECONV)
 static void to_json(nlohmann::json &json, const Params &params)
 {
     json = nlohmann::json

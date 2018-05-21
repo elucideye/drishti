@@ -121,7 +121,7 @@ int gauze_main(int argc, char** argv)
     return 0;
 }
 
-#if !defined(DRISHTI_TEST_BUILD_TESTS)
+#if !defined(DRISHTI_SDK_TEST_BUILD_TESTS)
 int main(int argc, char **argv)
 {
     try

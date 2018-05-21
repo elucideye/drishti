@@ -13,7 +13,7 @@
 #include <drishti/drishti_cv.hpp>
 
 // Need std:: extensions for android targets
-#if defined(DRISHTI_HUNTER_TEST_ADD_TO_STRING)
+#if !defined(DRISHTI_HAVE_TO_STRING)
 #include "stdlib_string.h"
 #endif
 
