@@ -24,8 +24,8 @@ if(NOT DRISHTI_BUNDLE_SDK_SAMPLES)
   include("${DRISHTI_ROOT_DIR}/cmake/HunterGate.cmake")
   
   HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.20.79.tar.gz"
-    SHA1 "428c555b2205ce6aa94707a97c18be7afebecee2"
+    URL "https://github.com/ruslo/hunter/archive/v0.21.9.tar.gz"
+    SHA1 "0056188988906abb63a06c6f1aaef01832c62b74"
     FILEPATH "${DRISHTI_ROOT_DIR}/cmake/Hunter/config.cmake"
   )
 
