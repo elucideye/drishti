@@ -282,6 +282,9 @@ if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
   list(APPEND drishti_interface_libs drishti)
 endif()
 
+# ALIAS target allow us to have same interface while including project
+add_library(drishti::drishti ALIAS drishti)
+
 if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
   # Error: ld: Assertion failed: (0 && "need to handle arm64 -r reloc")
   #drishti_strip(drishti)

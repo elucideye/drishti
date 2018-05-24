@@ -35,6 +35,8 @@ public:
 
     Impl* get() { return impl.get(); }
 
+    void updateGL();
+
     void setDoSingleFace(bool flag);
     bool getDoSingleFace() const;
 

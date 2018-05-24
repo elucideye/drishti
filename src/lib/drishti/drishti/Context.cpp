@@ -21,18 +21,23 @@ Context::Impl::Impl(drishti::sdk::SensorModel& sensor)
     , logger(drishti::core::Logger::create(DRISHTI_LOGGER_NAME))
     , threads(std::make_shared<tp::ThreadPool<>>()) // thread-pool
 {
-#if defined(_WIN32) || defined(_WIN64)
-    // A windows DLL must call glewInit() from within the library (not the application layer)
-    CV_Assert(wglGetCurrentContext() != NULL && GLEW_OK == glewInit());
-#endif  
 }
 
 Context::Context(drishti::sdk::SensorModel& sensor)
 {
     impl = drishti::core::make_unique<Impl>(sensor);
+    updateGL();
 }
 
 Context::~Context() = default;
+
+void Context::updateGL()
+{
+#if defined(_WIN32) || defined(_WIN64)
+    // A windows DLL must call glewInit() from within the library (not the application layer)
+    CV_Assert(wglGetCurrentContext() != NULL && GLEW_OK == glewInit());
+#endif  
+}
 
 void Context::setDoSingleFace(bool flag)
 {
