@@ -54,5 +54,4 @@ endif()
 target_include_directories(drishti PUBLIC $<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}/drishti>)
 add_library(drishti::drishti ALIAS drishti)
 
-set(DRISHTI_BUNDLE_SDK_SAMPLES ON) # indicate they will be bundled
 add_subdirectory(sdk)

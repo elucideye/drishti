@@ -8,7 +8,7 @@
 # etc).
 ################################################################################
 
-if(NOT DRISHTI_BUNDLE_SDK_SAMPLES)
+if(NOT TARGET drishti::drishti)
 
   set(DRISHTI_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/../../..")
 

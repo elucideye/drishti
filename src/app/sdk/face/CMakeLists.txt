@@ -57,4 +57,5 @@ endif()
 if(DRISHTI_HAVE_LOCALECONV)
   target_compile_definitions(drishti-face-test PUBLIC DRISHTI_HAVE_LOCALECONV=1)
 endif()
+
 install(TARGETS drishti-face-test DESTINATION bin)
