@@ -47,7 +47,7 @@ matrix:
         TEST=--test
         GPU=OFF
         BUILD_SHARED=ON
-        
+
     - os: linux
       env: >
         TOOLCHAIN=gcc-5-pic-hid-sections-lto
@@ -113,7 +113,7 @@ matrix:
         INSTALL=--strip
         TEST=--test
         GPU=ON
-        BUILD_SHARED=ON        
+        BUILD_SHARED=ON
 
     # }
 
