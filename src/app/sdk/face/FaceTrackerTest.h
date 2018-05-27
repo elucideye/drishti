@@ -36,13 +36,34 @@ public:
 
     // Callback definitions: {
     int allocator(const drishti_image_t& spec, drishti::sdk::Image4b& image);
-    static int allocatorFunc(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image);
+    static int allocatorFunc
+    (
+        void* context,
+        const drishti_image_t& spec,
+        drishti::sdk::Image4b& image
+    );
 
     int callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results);
-    static int callbackFunc(void* context, drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results);
+    static int callbackFunc
+    (
+        void* context,
+        drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results
+     );
 
-    drishti_request_t trigger(const drishti_face_tracker_result_t& faces, double timestamp, std::uint32_t tex);
-    static drishti_request_t triggerFunc(void* context, const drishti_face_tracker_result_t& faces, double timestamp, std::uint32_t tex);
+    drishti_request_t trigger
+    (
+        const drishti_face_tracker_result_t& faces,
+        double timestamp,
+        std::uint32_t tex
+    );
+    
+    static drishti_request_t triggerFunc
+    (
+        void* context,
+        const drishti_face_tracker_result_t& faces,
+        double timestamp,
+        std::uint32_t tex
+    );
     // }
 
     // A user definable stack operation, with a default implementatino that performs

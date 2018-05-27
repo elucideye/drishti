@@ -380,6 +380,7 @@ int gauze_main(int argc, char** argv)
     settings.renderEyesWidthRatio = 0.25f * opengl->getGeometry().sx; // *** rendering ***
     settings.doSingleFace = true;
     settings.doOptimizedPipeline = !doCpu;
+    settings.ignoreLatestFramesInMonitor = true;
  
     // The following parameters are set directly through the command line parser:
     //

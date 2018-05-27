@@ -178,7 +178,11 @@ _DRISHTI_SDK_END
 DRISHTI_EXTERN_C_BEGIN
 
 DRISHTI_EXPORT drishti::sdk::FaceTracker*
-drishti_face_tracker_create_from_streams(drishti::sdk::Context* manager, drishti::sdk::FaceTracker::Resources& resources)
+drishti_face_tracker_create_from_streams
+(
+    drishti::sdk::Context* manager,
+    drishti::sdk::FaceTracker::Resources& resources
+)
 {
     return new drishti::sdk::FaceTracker(manager, resources);
 }
@@ -193,7 +197,11 @@ drishti_face_tracker_destroy(drishti::sdk::FaceTracker*& tracker)
 }
 
 DRISHTI_EXPORT int
-drishti_face_tracker_callback(drishti::sdk::FaceTracker* tracker, drishti_face_tracker_t& table)
+drishti_face_tracker_callback
+(
+    drishti::sdk::FaceTracker* tracker,
+    drishti_face_tracker_t& table
+)
 {
     if (tracker)
     {

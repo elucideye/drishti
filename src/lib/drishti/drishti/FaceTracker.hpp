@@ -173,7 +173,12 @@ typedef int (*drishti_face_tracker_callback_t)(void* context, drishti_face_track
  * @return A request structure for frame history + associated metadata.
  */
 typedef drishti_request_t (*drishti_face_tracker_update_t)
-(void* context, const drishti_face_tracker_result_t& faces, double timestamp, std::uint32_t texture);
+(
+    void* context,
+    const drishti_face_tracker_result_t& faces,
+    double timestamp,
+    std::uint32_t texture
+);
 
 /** 
  * @brief Allocation routine.
@@ -186,7 +191,11 @@ typedef drishti_request_t (*drishti_face_tracker_update_t)
  * @return Error code (reserved).
  */
 typedef int (*drishti_face_tracker_allocator_t)
-(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image);
+(
+    void* context,
+    const drishti_image_t& spec,
+    drishti::sdk::Image4b& image
+);
 
 /**
  * @brief A table of user defined callbacks to assist in face tracking.
@@ -296,6 +305,7 @@ public:
     void add(drishti_face_tracker_t& table);
 
 protected:
+    
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };
@@ -319,7 +329,11 @@ DRISHTI_EXTERN_C_BEGIN
  */
 
 DRISHTI_EXPORT drishti::sdk::FaceTracker*
-drishti_face_tracker_create_from_streams(drishti::sdk::Context* manager, drishti::sdk::FaceTracker::Resources& resources);
+drishti_face_tracker_create_from_streams
+(
+    drishti::sdk::Context* manager,
+    drishti::sdk::FaceTracker::Resources& resources
+);
 
 /**
  * @brief Stream based deallocation of FaceTracker
@@ -343,7 +357,11 @@ drishti_face_tracker_destroy(drishti::sdk::FaceTracker*& tracker);
  */
 
 DRISHTI_EXPORT int
-drishti_face_tracker_track(drishti::sdk::FaceTracker* tracker, const drishti::sdk::VideoFrame& frame);
+drishti_face_tracker_track
+(
+    drishti::sdk::FaceTracker* tracker,
+    const drishti::sdk::VideoFrame& frame
+);
 
 /**
  * @brief Define a set of callbacks to return face tracking results.
@@ -362,7 +380,11 @@ drishti_face_tracker_track(drishti::sdk::FaceTracker* tracker, const drishti::sd
  */
 
 DRISHTI_EXPORT int
-drishti_face_tracker_callback(drishti::sdk::FaceTracker* tracker, drishti_face_tracker_t& table);
+drishti_face_tracker_callback
+(
+    drishti::sdk::FaceTracker* tracker,
+    drishti_face_tracker_t& table
+);
 
 DRISHTI_EXTERN_C_END
 

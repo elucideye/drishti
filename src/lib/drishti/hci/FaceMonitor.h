@@ -68,7 +68,14 @@ public:
     struct Request
     {
         Request() = default;
-        Request(int n, bool getImage, bool getTexture, bool getFrames=true, bool getEyes=true)
+        Request
+        (
+            int n,
+            bool getImage,
+            bool getTexture,
+            bool getFrames=true,
+            bool getEyes=true
+         )
             : n(n)
             , getImage(getImage)
             , getTexture(getTexture)
@@ -77,11 +84,11 @@ public:
         {
         }
 
-        int n = 0;               //! Number of frames requested (last n)
-        bool getImage = false;   //! Request an image (typically incurs some overhead)
-        bool getTexture = false; //! Request a texture (typically no overhead)
-        bool getFrames = true;   //! Retrieve frame textures or images
-        bool getEyes = true;     //! Retrieve eye textures or images
+        int n = 0;                //! Number of frames requested (last n)
+        bool getImage = false;    //! Request an image (typically incurs some overhead)
+        bool getTexture = false;  //! Request a texture (typically no overhead)
+        bool getFrames = true;    //! Retrieve frame textures or images
+        bool getEyes = true;      //! Retrieve eye textures or images
 
         Request& operator|=(const Request& src)
         {

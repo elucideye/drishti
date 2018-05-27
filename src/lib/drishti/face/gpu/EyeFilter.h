@@ -92,10 +92,13 @@ public:
     {
         m_faces.push_back(face);
     }
+    
+    void clearFaces()
+    {
+        m_faces.clear();
+    }
 
     void dump(std::vector<cv::Mat4b>& images, std::vector<EyePair>& eyes, int n, bool getImage);
-
-    void renderIris();
 
 protected:
     int m_history = 3;

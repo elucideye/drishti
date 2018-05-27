@@ -106,6 +106,8 @@ public:
         float renderEyesWidthRatio = 0.25f;
 
         int history = DRISHTI_HCI_FACEFINDER_HISTORY;
+        
+        bool ignoreLatestFramesInMonitor = false;
     };
 
     FaceFinder(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
@@ -167,7 +169,7 @@ protected:
     void init2(drishti::face::FaceDetectorFactory& resources);
 
     void dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n = 1, bool getImage = false);
-    void dumpFaces(ImageViews& frames, int n = 1, bool getImage = false);
+    void dumpFaces(ImageViews& frames, int n = 1, bool getImage = false, int skipFrames = 0);
     int detectOnly(ScenePrimitives& scene, bool doDetection);
     virtual int detect(const FrameInput& frame, ScenePrimitives& scene, bool doDetection);
     virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);

@@ -86,24 +86,26 @@ EyeFilter::~EyeFilter()
 void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes, int n, bool getImage)
 {
     // FifoProc::operator[] will preserve temporal ordering
-    auto length = fifoProc->getBufferCount();
+    int length = static_cast<int>(fifoProc->getBufferCount());
     n = std::min(n, static_cast<int>(length));
-    frames.resize(n);
     eyes.resize(n);
+    frames.resize(n);
     for (int i = 0; i < n; i++)
     {
+        const int index = length - i - 1;
         if (getImage)
         {
             // Pull frames in reverse order such that frames[0] is newest
-            auto* filter = (*fifoProc)[i];
+            auto* filter = (*fifoProc)[index];
             frames[i].create(filter->getOutFrameH(), filter->getOutFrameW());
             filter->getResultData(frames[i].ptr<uint8_t>());
         }
 
-        cv::Matx33f N = transformation::denormalize(frames[i].size());
-        for (int j = 0; j < m_eyeHistory[i].size(); j++)
+        cv::Matx33f N = transformation::denormalize(frames[i].size());        
+        const auto &history = m_eyeHistory[index];
+        for (int j = 0; j < history.size(); j++)
         {
-            const auto& e = m_eyeHistory[i][j];
+            const auto& e = history[j];
             eyes[i][j] = (N * e.H) * e.eye;
         }
     }
@@ -130,10 +132,6 @@ ProcInterface* EyeFilter::getOutputFilter() const
     return lastProc;
 }
 
-void EyeFilter::renderIris()
-{
-}
-
 int EyeFilter::render(int position)
 {
     // If we have faces, then configure appropriate transformations:
@@ -148,7 +146,7 @@ int EyeFilter::render(int position)
         {
             MappedTextureRegion region;
             convert(m_eyes[i], region);
-            transformProc.addCrop(region);
+            transformProc.addCrop(region); // will be cleared after render step
         }
     }
 
@@ -160,9 +158,7 @@ int EyeFilter::render(int position)
     }
 
     getInputFilter()->process(position);
-
-    renderIris();
-
+    
     m_faces.clear();
 
     return 0;

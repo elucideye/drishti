@@ -95,6 +95,7 @@ struct FaceFinder::Impl
         , usePBO(args.usePBO)
         , doOptimizedPipeline(args.doOptimizedPipeline)
         , history(args.history)
+        , ignoreLatestFramesInMonitor(args.ignoreLatestFramesInMonitor)
     {
     }
 
@@ -210,6 +211,8 @@ struct FaceFinder::Impl
     // :::::::::::::::::::::::
     std::unique_ptr<ogles_gpgpu::TransformProc> warper;
     std::unique_ptr<ogles_gpgpu::TransformProc> rotater; // output frame rotation
+    
+    bool ignoreLatestFramesInMonitor = true;
 };
 
 DRISHTI_HCI_NAMESPACE_END

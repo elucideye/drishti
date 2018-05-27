@@ -54,6 +54,11 @@ static cv::Mat draw(const acf::Detector::Pyramid& pyramid);
 static void logPyramid(const std::string& filename, const acf::Detector::Pyramid& P);
 #endif // DRISHTI_HCI_FACEFINDER_DEBUG_PYRAMIDS
 
+static int modulo(int a, int b)
+{
+    return (((a % b) + b) % b);
+}
+
 static ogles_gpgpu::Size2d convert(const cv::Size& size)
 {
     return ogles_gpgpu::Size2d(size.width, size.height);
@@ -176,14 +181,15 @@ void FaceFinder::dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n, bool g
     }
 }
 
-void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage)
+void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage, int skipFrames)
 {
-    auto length = impl->fifo->getBufferCount();
+    const int length = static_cast<int>(impl->fifo->getBufferCount());
+    
     frames.resize(std::min(static_cast<std::size_t>(n), static_cast<std::size_t>(length)));
-    for (int i = 0; i < frames.size(); i++)
+    for (int i = 0, j = skipFrames; i < static_cast<int>(frames.size()); i++, j++)
     {
-        // Rerverse fifo for storage such that the largest timestamp comes first
-        auto* filter = (*impl->fifo)[length - i - 1];
+        // Reverse fifo for storage such that the largest timestamp comes first
+        auto* filter = (*impl->fifo)[length - j - 1];
         const auto size = filter->getOutFrameSize();
         
         // Always assign texture (no cost)
@@ -382,7 +388,8 @@ GLuint FaceFinder::stabilize(GLuint inputTexId, const cv::Size& inputSizeUp, con
 void FaceFinder::init(const cv::Size& inputSize)
 {
     //impl->logger->set_level(spdlog::level::err);
-
+    impl->doOptimizedPipeline &= static_cast<bool>(impl->threads);
+    impl->latency = impl->doOptimizedPipeline ? 2 : 0;
     impl->start = HighResolutionClock::now();
 
     auto inputSizeUp = inputSize;
@@ -394,9 +401,14 @@ void FaceFinder::init(const cv::Size& inputSize)
 
     impl->faceEstimator = std::make_shared<drishti::face::FaceModelEstimator>(*impl->sensor);
 
+    // If we are runnign an optimized pipeline there will be some latency
+    // as specified by "latency" in addition to the user specified history,
+    // so we must allocate our full frame FIFO large enough to store both.
+    const int fullHistory = impl->history + impl->latency;
+    
     initColormap();
     initACF(inputSizeUp);                     // initialize ACF first (configure opengl platform extensions)
-    initFIFO(inputSizeUp, impl->history); // keep last N frames
+    initFIFO(inputSizeUp, fullHistory);       // keep last N frames
     initPainter(inputSizeUp);                 // {inputSizeUp.width/4, inputSizeUp.height/4}
     initFaceFilters(inputSizeUp);             // gpu "filter" (effects)
 
@@ -413,10 +425,6 @@ void FaceFinder::init(const cv::Size& inputSize)
         // Must initialize blobFilter after eye filter:
         initBlobFilter();
     }
-    
-    impl->doOptimizedPipeline &= static_cast<bool>(impl->threads);
-    
-    impl->latency = impl->doOptimizedPipeline ? 2 : 0;
 }
 
 template <typename Container>
@@ -476,13 +484,15 @@ std::pair<GLuint, ScenePrimitives> FaceFinder::runFast(const FrameInput& frame2,
 
     if (impl->fifo->getBufferCount() > 0)
     {
-        if (impl->fifo->getBufferCount() > 1)
+        if (impl->fifo->getBufferCount() >= 2)
         {
-            // Retrieve CPU processing for frame n-2
-            scene0 = impl->scene.get();                     // scene n-2
-            texture0 = (*impl->fifo)[-2]->getOutputTexId(); // texture n-2
-            updateEyes(texture0, scene0);                   // update the eye texture
+            const int index = modulo(-2, impl->fifo->getBufferCount());
 
+            // Retrieve CPU processing for frame n-2
+            scene0 = impl->scene.get();                        // scene n-2
+            texture0 = (*impl->fifo)[index]->getOutputTexId(); // texture n-2
+            updateEyes(texture0, scene0);                      // update the eye texture
+            
             outputTexture = paint(scene0, texture0);
             outputScene = &scene0;
         }
@@ -631,7 +641,13 @@ GLuint FaceFinder::operator()(const FrameInput& frame1)
  * SCENE : { __________, __________, scene[n-2], ... }
  */
 
-void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& now, bool isInit, std::uint32_t tex)
+void FaceFinder::notifyListeners
+(
+    const ScenePrimitives& scene,
+    const TimePoint& now,
+    bool isInit,
+    std::uint32_t tex
+)
 {
     // Perform optional frame grabbing
     // NOTE: This must occur in the main OpenGL thread:
@@ -651,15 +667,48 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
         request |= requests[i]; // accumulate requests
     }
 
-    // Clip request to available history:
-    if(request.n > impl->fifo->getBufferCount())
+    // Clip request to available history.  The ignoreLatestFramesInMonitor
+    // state flag is specific to the optimized pipeline (w/ built-in latency)
+    // and indicates that the user is not interested in viewing the latest
+    // frames (i.e., first two) from the FIFO that have no associated metadata.
+    // When we are computing the global request (from all registered listeners)
+    // we need to take this into account, as it will impact the Request::n
+    // parameter.  For example, if the full frame FIFO contains 5 frames,
+    // and our GPU latency is 2 frames, then the most a user can request is
+    // just 3 frames.
+    
+    int skipFrames = 0;
+    int metadataOffset = impl->latency;
+    int availableFrameCount = static_cast<int>(impl->fifo->getBufferCount());
+    if(impl->ignoreLatestFramesInMonitor)
     {
-        request.n = impl->fifo->getBufferCount();
+        skipFrames = impl->latency;
+        metadataOffset = 0;
+        availableFrameCount -= skipFrames;
     }
-
+    
+    if(request.n > availableFrameCount)
+    {
+        request.n = availableFrameCount;
+    }
+    
     // If a frame was requested we'll have to pull down data from the GPU here:
     // * eye buffer: eye crops may be requested
     // * face buffer: face crops may be requested
+    
+    // We have 4 separate buffers that need to synchronized and merged
+    // at each time step.
+    //
+    // Sizes:
+    //   N1 = impl->history + impl->latency
+    //   N2 = impl->history
+    //
+    // Buffers: impl-> ...
+    //   fifo                            ; [1][2][3][4][5] ; N1
+    //   scenePrimitives                 ; [1][2][3]       ; N2
+    //   eyeFilter->m_impl->fifoProc     ; [1][2][3]       ; N2
+    //   eyeFilter->m_impl->m_eyeHistory ; [1][2][3]       ; N2
+    
     if (request.n > 0)
     {
         frames.resize(request.n);
@@ -667,30 +716,36 @@ void FaceFinder::notifyListeners(const ScenePrimitives& scene, const TimePoint& 
         {
             // ### collect face images ###
             std::vector<core::ImageView> faces;
-            dumpFaces(faces, request.n, request.getImage);
+            dumpFaces(faces, request.n, request.getImage, skipFrames);
             if (faces.size() && request.getFrames)
             {
-                for (int i = 0; i < static_cast<int>(std::min(faces.size(), frames.size())); i++)
+                const int length = static_cast<int>(std::min(faces.size(), frames.size()));
+                for (int i = 0; i < length; i++)
                 {
                     frames[i].image = faces[i];
-                    if(i >= impl->latency)
+                    if(i >= metadataOffset)
                     {
-                        frames[i].faceModels = impl->scenePrimitives[i - impl->latency].faces();
+                        const int index = i - impl->latency;
+                        frames[i].faceModels = impl->scenePrimitives[index].faces();
                     }
                 }
             }
         }
-            
+        
         if (request.getEyes)
         {
             // ### collect eye images ###
             std::vector<core::ImageView> eyes;
             std::vector<std::array<eye::EyeModel, 2>> eyePairs;
-            dumpEyes(eyes, eyePairs, request.n, request.getImage);
-            for (int i = 0; i < static_cast<int>(std::min(eyes.size(), frames.size())); i++)
+            const int numberOfSynchronizedEyes = std::max(request.n - impl->latency + skipFrames, 0);
+            if(numberOfSynchronizedEyes)
             {
-                frames[i].eyes = eyes[i];
-                frames[i].eyeModels = eyePairs[i];
+                dumpEyes(eyes, eyePairs, numberOfSynchronizedEyes, request.getImage);
+                for (int i = 0; i < static_cast<int>(std::min(eyes.size(), frames.size())); i++)
+                {
+                    frames[i + metadataOffset].eyes = eyes[i];
+                    frames[i + metadataOffset].eyeModels = eyePairs[i];
+                }
             }
         }
     }
@@ -920,7 +975,7 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
 
             //impl->imageLogger(gray);
             const bool isDetection = true;
-            const float Sdr = impl->ACFScale /* acf->full */ * impl->acf->getGrayscaleScale() /* full->gray */;
+            const float Sdr = impl->ACFScale * impl->acf->getGrayscaleScale();
             const cv::Matx33f Hdr = transformation::scale(Sdr);
             impl->faceDetector->setDoIrisRefinement(true);
             impl->faceDetector->refine(Ib, faces, Hdr, isDetection);
@@ -943,32 +998,41 @@ int FaceFinder::detect(const FrameInput& frame, ScenePrimitives& scene, bool doD
         //   1) map to regression image resolution
         //   2) refine the face model
         //   3) map back to the full resolution image
-
+        
         const float Sfr = impl->acf->getGrayscaleScale(); // full->regression
         const cv::Matx33f Hfr = transformation::scale(Sfr);
         drishti::face::FaceTracker::FaceTrackVec tracksOut;
         (*impl->faceTracker)(faces, tracksOut);
 
+        // Clear the face vector and use this to store tracks that don't receive
+        // detection assignments -- we will need to refine the landmarks separately
         faces.clear();
         for (auto& f : tracksOut)
         {
-            // For any missed face we need to update the landmarks from the
             if (f.second.misses > 0)
             {
-                faces.push_back(Hfr * f.first); // prepare for regression
+                // Here we map tracks that received no detection assignment to
+                // the regression image resolution for subsequent refinement.
+                faces.push_back(Hfr * f.first);
             }
             else
             {
-                scene.faces().emplace_back(f.first); // store output
+                // Each track that was assigned to a detection will have valid
+                // landmarks and can simply be copied to the face vector.
+                scene.faces().emplace_back(f.first);
             }
         }
 
-        // Faces have been mapped to
-        impl->faceDetector->refine(Ib, faces, cv::Matx33f::eye(), false);
-        scaleToFullResolution(faces);
-        for (auto& f : faces)
+        // Finally we run the landmark refinement at the operative resolution
+        // for all the unassigned tracks.
+        if(faces.size())
         {
-            scene.faces().emplace_back(f);
+            impl->faceDetector->refine(Ib, faces, cv::Matx33f::eye(), false);
+            scaleToFullResolution(faces);
+            for (auto& f : faces) 
+            {
+                scene.faces().emplace_back(f);
+            }
         }
 
         // Sort near to far:
@@ -990,10 +1054,17 @@ void FaceFinder::updateEyes(GLuint inputTexId, const ScenePrimitives& scene)
         {
             impl->eyeFilter->addFace(f);
         }
+    }
+    else
+    {
+        impl->eyeFilter->clearFaces();
+    }
 
-        // Trigger eye enhancer, triggers blob filter:
-        impl->eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
-
+    // Trigger eye enhancer, triggers blob filter:
+    impl->eyeFilter->process(inputTexId, 1, GL_TEXTURE_2D);
+    
+    if (scene.faces().size())
+    {
         // Limit to points on iris:
         const auto& eyeWarps = impl->eyeFilter->getEyeWarps();
 
