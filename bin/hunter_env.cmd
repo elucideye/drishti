@@ -1,6 +1,6 @@
 :: Name: hunter_env.cmd
 :: Purpose: Polly + cmake installation for hunter development
-:: Copyright 2017 Elucideye, Inc.
+:: Copyright 2017-2018 Elucideye, Inc.
 ::
 :: Source: https://github.com/ingenue/hunter/blob/pkg.template/appveyor.yml
 
