@@ -93,7 +93,7 @@ endif()
 ### Drishti project ###
 #######################
 
-project(drishtisdk VERSION 0.12.1)
+project(drishtisdk VERSION 0.12.2)
 
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
 
