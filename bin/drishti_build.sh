@@ -17,24 +17,16 @@ TOOLCHAIN="${1}"
 CONFIG="${2}"
 INSTALL="${3}"
 
-# On CI/Travis + Linux the cpu emulation is having problems (OK on mac hosts)
-# C++ exception with description "EGLContextImpl::EGLContextImpl() : eglCreatePbufferSurface():
-# Assertion '(eglGetError() == EGL_SUCCESS)' failed in file 'lib/aglet/EGLContext.cpp' line 59"
-# It seems the cpu based gpu emulator associated with GAUZE_ANDROID_EMULATOR_GPU=off either isn't
-# working or isn't compatible with this eglCreatePbufferSurface() stuff, however, the build is fine
-# and the tests run on a real Android via USB connection in local host testing
-# See: https://developer.android.com/studio/run/emulator-acceleration#command-gpu
-
-if [[ `uname` == "Linux" ]]; then
-    GAUZE_ANDROID_EMULATOR_GPU=off # this should work
-else
-    GAUZE_ANDROID_EMULATOR_GPU=host
-fi
-
 if [[ ${TRAVIS} == "true" ]]; then
     GAUZE_ANDROID_USE_EMULATOR=YES # remote test w/ emulator
 else
     GAUZE_ANDROID_USE_EMULATOR=NO # support local host testing on a real device
+fi
+
+if [[ `uname` == "Linux" ]]; then
+    GAUZE_ANDROID_EMULATOR_GPU=swiftshader
+else
+    GAUZE_ANDROID_EMULATOR_GPU=host
 fi
 
 # Note: '--ios-{multiarch,combined}' do nothing for non-iOS builds
