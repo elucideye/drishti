@@ -87,9 +87,9 @@ matrix:
         BUILD_SHARED=ON
 
     - os: osx
-      osx_image: xcode8.3
+      osx_image: xcode9.3
       env: >
-        TOOLCHAIN=ios-nocodesign-10-3-arm64-dep-9-0-device-libcxx-hid-sections
+        TOOLCHAIN=ios-nocodesign-11-3-dep-9-3-arm64
         CONFIG=MinSizeRel
         INSTALL=--install
         TEST=""
