@@ -26,10 +26,10 @@ public:
     class Impl;
 
     BlobFilter();
-    ~BlobFilter();
+    ~BlobFilter() override;
 
-    virtual ProcInterface* getInputFilter() const;
-    virtual ProcInterface* getOutputFilter() const;
+    ProcInterface* getInputFilter() const override;
+    ProcInterface* getOutputFilter() const override;
 
     ProcInterface* getHessian() const;
     ProcInterface* getHessianPeaks() const;
@@ -37,11 +37,11 @@ public:
     /**
      * Return the processor's name.
      */
-    virtual const char* getProcName() { return "BlobFilter"; }
+    const char* getProcName() override { return "BlobFilter"; }
 
-    virtual int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false);
-    virtual int reinit(int inW, int inH, bool prepareForExternalInput = false);
-    virtual int render(int position = 0);
+    int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false) override;
+    int reinit(int inW, int inH, bool prepareForExternalInput = false) override;
+    int render(int position = 0) override;
 
     cv::Mat paint();
 

@@ -23,8 +23,7 @@ BEGIN_OGLES_GPGPU
  */
 
 EllipsoPolarWarp::EllipsoPolarWarp()
-{
-}
+= default;
 
 void EllipsoPolarWarp::renderIris(const DRISHTI_EYE::EyeModel& eye)
 {
@@ -48,10 +47,10 @@ void EllipsoPolarWarp::renderIris(const DRISHTI_EYE::EyeModel& eye)
     {
         // Map destination points into clip space [(-1,-1)... (+1,+1)]
         cv::Matx33f N = transformation::translate(-1.f, -1.f) * transformation::scale(2.0, 2.0);
-        for (int i = 0; i < m_texels.size(); i++)
+        for (auto & m_texel : m_texels)
         {
-            cv::Point3f q = N * m_texels[i];
-            m_texels[i] = { q.x, q.y };
+            cv::Point3f q = N * m_texel;
+            m_texel = { q.x, q.y };
         }
     }
 

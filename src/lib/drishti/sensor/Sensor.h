@@ -18,6 +18,7 @@
 #include <opencv2/core/core.hpp>
 
 #include <array>
+#include <utility>
 
 DRISHTI_SENSOR_NAMESPACE_BEGIN
 
@@ -52,7 +53,7 @@ public:
     // ### Extrinsic camera parameters:
     struct Extrinsic
     {
-        Extrinsic() {}
+        Extrinsic() = default;
         Extrinsic(const cv::Matx33f& R)
             : R(R)
         {
@@ -60,20 +61,20 @@ public:
         cv::Matx33f R;
     };
 
-    SensorModel() {} // init with defaults
+    SensorModel() = default; // init with defaults
 
     SensorModel(const float fx)
     {
         m_intrinsic.m_fx = fx;
     }
 
-    SensorModel(const Intrinsic& intrinsic)
-        : m_intrinsic(intrinsic)
+    SensorModel(Intrinsic  intrinsic)
+        : m_intrinsic(std::move(intrinsic))
     {
     }
 
-    SensorModel(const Intrinsic& intrinsic, const Extrinsic& extrinsic)
-        : m_intrinsic(intrinsic)
+    SensorModel(Intrinsic  intrinsic, const Extrinsic& extrinsic)
+        : m_intrinsic(std::move(intrinsic))
         , m_extrinsic(extrinsic)
     {
     }

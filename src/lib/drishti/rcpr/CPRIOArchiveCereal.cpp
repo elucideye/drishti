@@ -35,7 +35,7 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-typedef cereal::PortableBinaryOutputArchive OArchive;
+using OArchive = cereal::PortableBinaryOutputArchive;
 template void CPR::Model::Parts::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::Model::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<OArchive>(OArchive& ar, const unsigned int);
@@ -46,7 +46,7 @@ template void CPR::RegModel::serialize<OArchive>(OArchive& ar, const unsigned in
 template void CPR::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void Recipe::serialize<OArchive>(OArchive& ar, const unsigned int);
 
-typedef cereal::PortableBinaryInputArchive IArchive;
+using IArchive = cereal::PortableBinaryInputArchive;
 template void CPR::Model::Parts::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void CPR::Model::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void CPR::CprPrm::FtrPrm::serialize<IArchive>(IArchive& ar, const unsigned int);

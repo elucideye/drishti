@@ -18,7 +18,7 @@
 
 DRISHTI_GEOMETRY_BEGIN
 
-typedef std::vector<cv::Point2f> PointVec;
+using PointVec = std::vector<cv::Point2f>;
 
 // Translation and scale:
 cv::Matx33f procrustes(const PointVec& points);
@@ -26,7 +26,7 @@ cv::Matx33f procrustes(const PointVec& points);
 template <typename T>
 T median(std::vector<T>& params)
 {
-    typename std::vector<T>::iterator nth = params.begin() + params.size() / 2;
+    auto nth = params.begin() + params.size() / 2;
     std::nth_element(params.begin(), nth, params.end());
     return *nth;
 }

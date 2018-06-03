@@ -16,6 +16,7 @@
 #include <opencv2/core.hpp>
 
 #include <memory>
+#include <utility>
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
@@ -24,20 +25,20 @@ class VideoSourceCV
 public:
     struct Frame
     {
-        Frame() {}
-        Frame(const cv::Mat& image)
-            : image(image)
+        Frame() = default;
+        Frame(cv::Mat  image)
+            : image(std::move(image))
         {
         }
-        Frame(const cv::Mat& image, std::size_t index)
-            : image(image)
+        Frame(cv::Mat  image, std::size_t index)
+            : image(std::move(image))
             , index(index)
         {
         }
-        Frame(const cv::Mat& image, std::size_t index, const std::string& name)
-            : image(image)
+        Frame(cv::Mat  image, std::size_t index, std::string  name)
+            : image(std::move(image))
             , index(index)
-            , name(name)
+            , name(std::move(name))
         {
         }
 
@@ -61,8 +62,8 @@ public:
         ANY,
     };
 
-    VideoSourceCV() {}
-    ~VideoSourceCV() {}
+    VideoSourceCV() = default;
+    ~VideoSourceCV() = default;
 
     virtual Frame operator()(int i = -1) = 0;
     virtual bool good() const { return true; }

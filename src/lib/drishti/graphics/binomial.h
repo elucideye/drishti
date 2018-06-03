@@ -20,23 +20,23 @@ BEGIN_OGLES_GPGPU
 class BinomialProc : public ogles_gpgpu::Filter3x3Proc
 {
 public:
-    BinomialProc() {}
-    virtual const char* getProcName()
+    BinomialProc() = default;
+    const char* getProcName() override
     {
         return "BinomialProc";
     }
 
 private:
-    virtual const char* getFragmentShaderSource()
+    const char* getFragmentShaderSource() override
     {
         return fshaderBinomialSrc;
     }
-    virtual void getUniforms()
+    void getUniforms() override
     {
         Filter3x3Proc::getUniforms();
         shParamUInputTex = shader->getParam(UNIF, "inputImageTexture");
     }
-    virtual void setUniforms() {}
+    void setUniforms() override {}
     static const char* fshaderBinomialSrc; // fragment shader source
 };
 

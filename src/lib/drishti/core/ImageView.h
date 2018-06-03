@@ -12,6 +12,7 @@
 #define __drishti_core_ImageView_h__
 
 #include <opencv2/core.hpp> // for cv::Mat4b
+#include <utility>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
@@ -30,9 +31,9 @@ struct Texture
 struct ImageView
 {
     ImageView() = default;
-    ImageView(const Texture& texture, const cv::Mat4b& image)
-        : texture(texture)
-        , image(image)
+    ImageView(Texture  texture, cv::Mat4b  image)
+        : texture(std::move(texture))
+        , image(std::move(image))
     {
     }
     Texture texture; //! Texture descriptor

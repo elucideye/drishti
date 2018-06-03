@@ -47,7 +47,7 @@ int CPR::cprApplyTree(const cv::Mat& I, const RegModel& regModel, const Vector1d
 
 int CPR::cprApplyTree(const ImageMaskPair& IsIn, const RegModel& regModel, const Vector1d& pIn, CPRResult& result, bool doPreview) const
 {
-    ImageMaskPair Is = IsIn;
+    const ImageMaskPair& Is = IsIn;
     auto& p = result.p;
     p = pIn;
 

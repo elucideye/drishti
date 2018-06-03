@@ -67,7 +67,7 @@ void EyeModelEstimator::Impl::init()
     m_jitterEyelidParams.deltaX = { -0.05f, +0.05f };
     m_jitterEyelidParams.deltaY = { -0.05f, +0.05f };
 
-    m_eyeSpec = EyeModelSpecification::create(16, 9, 1, 1, 1, 1, 1);
+    m_eyeSpec = EyeModelSpecification::create(16, 9, true, true, true, true, true);
 }
 
 void EyeModelEstimator::Impl::setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
@@ -157,8 +157,7 @@ int EyeModelEstimator::Impl::operator()(const cv::Mat& crop, EyeModel& eye) cons
 }
 
 EyeModelEstimator::EyeModelEstimator()
-{
-}
+= default;
 
 EyeModelEstimator::EyeModelEstimator(std::istream& is, const std::string& hint)
 {
@@ -175,7 +174,7 @@ EyeModelEstimator::EyeModelEstimator(const RegressorConfig& config)
     m_impl = drishti::core::make_unique<EyeModelEstimator::Impl>(config.eyeRegressor, config.irisRegressor, config.pupilRegressor);
 }
 
-EyeModelEstimator::~EyeModelEstimator() {}
+EyeModelEstimator::~EyeModelEstimator() = default;
 
 void EyeModelEstimator::setDoIndependentIrisAndPupil(bool flag)
 {

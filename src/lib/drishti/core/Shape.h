@@ -18,7 +18,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
@@ -42,7 +42,7 @@ inline cv::Point_<T> centroid(const std::vector<cv::Point_<T>>& contour, int n =
 
 struct ControlPoint
 {
-    ControlPoint() {}
+    ControlPoint() = default;
     ControlPoint(float x, float y, bool knot)
         : p(x, y)
         , knot(knot)
@@ -70,13 +70,13 @@ struct ControlPoint
         return p;
     }
     cv::Point2f p;
-    bool knot;
+    bool knot{};
 };
 
 struct Shape
 {
-    typedef std::vector<ControlPoint> ControlPointSetType;
-    typedef ControlPointSetType::iterator IteratorType;
+    using ControlPointSetType = std::vector<ControlPoint>;
+    using IteratorType = ControlPointSetType::iterator;
     IteratorType begin()
     {
         return contour.begin();
@@ -86,7 +86,7 @@ struct Shape
         return contour.end();
     }
 
-    Shape() {}
+    Shape() = default;
     Shape(const cv::Rect& bbox, double score_ = 0.0)
         : roi(bbox)
         , score(score_)

@@ -27,7 +27,7 @@
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
-CPR::CPR() {}
+CPR::CPR() = default;
 CPR::CPR(const CPR& src) {}
 
 #if !DRISHTI_CPR_DO_LEAN

@@ -10,6 +10,8 @@
 
 #include "drishti/graphics/LineShader.h"
 
+#include <utility>
+
 BEGIN_OGLES_GPGPU
 
 // clang-format off
@@ -37,8 +39,8 @@ OG_TO_STR(
  });
 // clang-format on
 
-LineShader::LineShader(const VertexBuffer& vertices)
-    : points(vertices)
+LineShader::LineShader(VertexBuffer  vertices)
+    : points(std::move(vertices))
     , MVP(glm::mat4())
 {
     // Compile utility line shader:

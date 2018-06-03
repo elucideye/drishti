@@ -49,7 +49,7 @@ public:
 
     struct DisplayTexture
     {
-        DisplayTexture() {}
+        DisplayTexture() = default;
         DisplayTexture(GLint texId, const Size2d& size)
             : texId(texId)
             , size(size)
@@ -79,7 +79,7 @@ public:
 
     struct EyeAttributes
     {
-        EyeAttributes() {}
+        EyeAttributes() = default;
         EyeAttributes(const FeaturePoints* points, float scale = 1.f, const cv::Vec3f& color = { 0.f, 1.f, 0.f })
             : points(points)
             , scale(scale)
@@ -114,17 +114,17 @@ public:
     /**
      * Destructor
      */
-    ~FacePainter();
+    ~FacePainter() override;
 
     /**
      * Render a face image.
      */
-    int render(int position = 0);
+    int render(int position = 0) override;
 
     /**
      * Return the processors name.
      */
-    virtual const char* getProcName()
+    const char* getProcName() override
     {
         return "FacePainter";
     }
@@ -132,18 +132,18 @@ public:
     /**
      * Basic init.
      */
-    virtual int init(int inW, int inH, unsigned int order, bool prepareForExternalInput);
+    int init(int inW, int inH, unsigned int order, bool prepareForExternalInput) override;
 
     /**
      * Get the fragment shader source.
      */
-    virtual const char* getFragmentShaderSource()
+    const char* getFragmentShaderSource() override
     {
         return fshaderLetterBoxSrc;
     }
 
-    virtual void getUniforms();
-    virtual void setUniforms();
+    void getUniforms() override;
+    void setUniforms() override;
 
     virtual void clear();
 
@@ -280,8 +280,8 @@ private:
     virtual void renderGaze();
 
     // Make sure these aren't called
-    virtual void setOutputRenderOrientation(RenderOrientation o);
-    virtual void setOutputSize(float scaleFactor);
+    void setOutputRenderOrientation(RenderOrientation o) override;
+    void setOutputSize(float scaleFactor) override;
 
     //static const char *fshaderTransformSrc;  // fragment shader source
 
@@ -333,15 +333,15 @@ private:
     std::shared_ptr<Shader> m_draw;
     GLint m_drawShParamAColor;
     GLint m_drawShParamAPosition;
-    GLint m_drawShParamULineColor;
+    GLint m_drawShParamULineColor{};
     GLint m_drawShParamUMVP;
 
     // #### color stuff ###
     Vec3f m_colorRGB;
-    GLint m_colorShParamRGB;
+    GLint m_colorShParamRGB{};
 
     GLfloat m_colorLetterboxHeight;
-    GLint m_colorShLetterboxHeight;
+    GLint m_colorShLetterboxHeight{};
 
     // #### Draw flow texture
     DisplayTexture m_flowInfo;

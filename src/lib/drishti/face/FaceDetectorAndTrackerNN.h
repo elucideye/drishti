@@ -20,12 +20,12 @@ class TrackerNN : public FaceDetectorAndTracker::TrackImpl
 public:
     TrackerNN();
     ~TrackerNN();
-    virtual void initialize(const cv::Mat1b& image, const FaceModel& face);
-    virtual bool update(const cv::Mat1b& image, FaceModel& face);
-    virtual std::vector<cv::Point2f> getFeatures() const;
+    void initialize(const cv::Mat1b& image, const FaceModel& face) override;
+    bool update(const cv::Mat1b& image, FaceModel& face) override;
+    std::vector<cv::Point2f> getFeatures() const override;
 
 protected:
-    virtual void initializeWithRegions(const cv::Mat1b& image, const std::vector<cv::Rect>& regions) {}
+    void initializeWithRegions(const cv::Mat1b& image, const std::vector<cv::Rect>& regions) override {}
     DRISHTI_FACE::FaceModel m_face;
 };
 

@@ -167,8 +167,8 @@ void upsample(const PointVec& controlPoints, PointVec& interpolatedPoints, int f
     if (controlPoints.size() > 1)
     {
         typedef Eigen::Spline<double, 2> Spline2d;
-        typedef Spline2d::PointType PointType;
-        typedef Spline2d::ControlPointVectorType ControlPointVectorType;
+        using PointType = Spline2d::PointType;
+        using ControlPointVectorType = Spline2d::ControlPointVectorType;
 
         int length = int(controlPoints.size()) + int(closed);
         ControlPointVectorType points(2, length);

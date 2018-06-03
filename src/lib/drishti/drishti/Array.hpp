@@ -26,14 +26,14 @@ public:
     class iterator
     {
     public:
-        typedef typename std::ptrdiff_t difference_type;
-        typedef T value_type;
-        typedef T& reference;
-        typedef T* pointer;
-        typedef std::forward_iterator_tag iterator_category;
-        typedef std::size_t size_type;
-
-        iterator() {}
+        using difference_type = typename std::ptrdiff_t;
+        using value_type = T;
+        using reference = T&;
+        using pointer = T*;
+        using iterator_category = std::forward_iterator_tag;
+        using size_type = std::size_t;
+        
+        iterator() = default;
         iterator(const iterator& other)
             : ptr_(other.ptr_)
         {
@@ -42,7 +42,7 @@ public:
             : ptr_(ptr_)
         {
         }
-        ~iterator() {}
+        ~iterator() = default;
 
         iterator& operator=(const iterator& other)
         {
@@ -91,14 +91,14 @@ public:
     class const_iterator
     {
     public:
-        typedef typename std::ptrdiff_t difference_type;
-        typedef T value_type;
-        typedef const T& const_reference;
-        typedef const T* const_pointer;
-        typedef std::forward_iterator_tag iterator_category;
-        typedef std::size_t size_type;
+        using difference_type = typename std::ptrdiff_t;
+        using value_type = T;
+        using const_reference = const T &;
+        using const_pointer = const T *;
+        using iterator_category = std::forward_iterator_tag;
+        using size_type = std::size_t;
 
-        const_iterator() {}
+        const_iterator() = default;
         const_iterator(const const_iterator& other)
             : ptr_(other.ptr_)
         {
@@ -111,7 +111,7 @@ public:
             : ptr_(ptr_)
         {
         }
-        ~const_iterator() {}
+        ~const_iterator() = default;
 
         const_iterator& operator=(const const_iterator& other)
         {
@@ -158,9 +158,8 @@ public:
     };
 
     Array()
-        : size_(0)
-    {
-    }
+         
+    = default;
     Array(std::size_t size)
         : size_(std::min(size, N))
     {
@@ -191,8 +190,8 @@ public:
     const_iterator end() const { return (data_ + size_); }
 
 private:
-    T data_[N];
-    std::size_t size_;
+    T data_[N]{};
+    std::size_t size_{0};
 };
 
 _DRISHTI_SDK_END

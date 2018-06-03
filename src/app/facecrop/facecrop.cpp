@@ -104,9 +104,9 @@ enum GroundTruthFormat
 
 struct GroundTruth
 {
-    GroundTruth() {}
-    GroundTruth(const FACE::Table& table, GroundTruthFormat format)
-        : table(table)
+    GroundTruth() = default;
+    GroundTruth(FACE::Table  table, GroundTruthFormat format)
+        : table(std::move(table))
         , format(format)
     {
     }
@@ -119,6 +119,7 @@ struct GroundTruth
 #include <cstdio>
 #include <string>
 #include <boost/uuid/sha1.hpp>
+#include <utility>
 
 std::string get_sha1(void const* buffer, std::size_t byte_count)
 {
@@ -168,7 +169,7 @@ using ImageVec = std::vector<cv::Mat>;
 using FaceJittererMeanPtr = std::unique_ptr<FaceJittererMean>;
 using FaceResourceManager = drishti::core::LazyParallelResource<std::thread::id, FaceJittererMeanPtr>;
 static int saveNegatives(const FACE::Table& table, const std::string& sOutput, int sampleCount, int winSize, int threads, spdlog::logger& logger);
-static int saveInpaintedSamples(const FACE::Table& table, const std::string sBackground, const std::string& sOutput, spdlog::logger& logger);
+static int saveInpaintedSamples(const FACE::Table& table, const std::string& sBackground, const std::string& sOutput, spdlog::logger& logger);
 static FaceWithLandmarks computeMeanFace(FaceResourceManager& manager);
 static void saveMeanFace(FaceResourceManager& manager, const FaceSpecification& faceSpec, const std::string& sImage, const std::string& sPoints, spdlog::logger& logger);
 static int saveDefaultConfigs(const std::string& sOutput, spdlog::logger& logger);
@@ -349,7 +350,7 @@ int gauze_main(int argc, char* argv[])
         if(is)
         {
             cereal::JSONInputArchive ia(is);
-            typedef decltype(ia) Archive;
+            using Archive = decltype(ia);
             ia(GENERIC_NVP("jitter", jitterParams));
         }
     } // else we will be performing straight cropping or mirroring
@@ -369,7 +370,7 @@ int gauze_main(int argc, char* argv[])
         if(is)
         {
             cereal::JSONInputArchive ia(is);
-            typedef decltype(ia) Archive;
+            using Archive = decltype(ia);
             ia(GENERIC_NVP("face", faceSpec));
         }
         else
@@ -701,7 +702,7 @@ static int standardizeFaceData(const FACE::Table &table, const std::string &sOut
         auto landmarks = standardizeFaceData(table);
         
         cereal::JSONOutputArchive oa(os);
-        typedef decltype(oa) Archive;
+        using Archive = decltype(oa);
         oa(GENERIC_NVP("faces", landmarks));
     }
     else
@@ -774,7 +775,7 @@ static int saveLandmarksJson(const std::string &sOutput, const std::vector<cv::P
     if(os)
     {
         cereal::JSONOutputArchive oa(os);
-        typedef decltype(oa) Archive;
+        using Archive = decltype(oa);
         oa(GENERIC_NVP("landmarks", landmarks));
     }
     else
@@ -792,7 +793,7 @@ static int saveLandmarksXml(const std::string &sOutput, const drishti::face::Fac
     if(os)
     {
         cereal::XMLOutputArchive oa(os);
-        typedef decltype(oa) Archive;
+        using Archive = decltype(oa);
         oa(GENERIC_NVP("landmarks", landmarks));
     }
     else
@@ -840,7 +841,7 @@ static int saveDefaultJitter(const std::string &sOutput, spdlog::logger &logger)
     if(os)
     {
         cereal::JSONOutputArchive oa(os);
-        typedef decltype(oa) Archive;
+        using Archive = decltype(oa);
         oa(GENERIC_NVP("jitter", JitterParams()));
     }
     else
@@ -858,7 +859,7 @@ static int saveDefaultFaceSpec(const std::string &sOutput, spdlog::logger &logge
     if(os)
     {
         cereal::JSONOutputArchive oa(os);
-        typedef decltype(oa) Archive;
+        using Archive = decltype(oa);
         oa(GENERIC_NVP("face", FaceSpecification()));
     }
     else
@@ -1020,7 +1021,7 @@ static int saveNegatives(const FACE::Table &table, const std::string &sOutput, i
     return 0;
 }
 
-static int saveInpaintedSamples(const FACE::Table &table, const std::string sBackground, const std::string &sOutput, spdlog::logger &logger)
+static int saveInpaintedSamples(const FACE::Table &table, const std::string& sBackground, const std::string &sOutput, spdlog::logger &logger)
 {
     cv::RNG rng;
     

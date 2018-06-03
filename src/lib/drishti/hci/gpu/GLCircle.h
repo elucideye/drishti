@@ -20,20 +20,20 @@ BEGIN_OGLES_GPGPU
 // TODO: add to ogles_gpgpu
 struct Vec2f
 {
-    Vec2f() {}
+    Vec2f() = default;
     Vec2f(float a, float b)
     {
         data[0] = a;
         data[1] = b;
     }
-    GLfloat data[2];
+    GLfloat data[2]{};
 };
 
 class CircleProc : public ogles_gpgpu::FilterProcBase
 {
 public:
-    CircleProc() {}
-    virtual const char* getProcName()
+    CircleProc() = default;
+    const char* getProcName() override
     {
         return "CircleProc";
     }
@@ -43,18 +43,18 @@ public:
     void setCenter(const Vec2f& value) { center = value; }
 
 private:
-    virtual const char* getFragmentShaderSource()
+    const char* getFragmentShaderSource() override
     {
         return fshaderCircleSrc;
     }
-    virtual void getUniforms()
+    void getUniforms() override
     {
         shParamUCenter = shader->getParam(UNIF, "center");
         shParamURadius = shader->getParam(UNIF, "radius");
         shParamUColor = shader->getParam(UNIF, "color");
         shParamURatio = shader->getParam(UNIF, "ratio");
     }
-    virtual void setUniforms()
+    void setUniforms() override
     {
         ratio = static_cast<float>(getOutFrameW()) / static_cast<float>(getOutFrameH());
         glUniform2fv(shParamUCenter, 1, &center.data[0]);
@@ -69,10 +69,10 @@ private:
     Vec2f center = { 0.5f, 0.5f };
     float radius = 0.1f;
 
-    GLint shParamUCenter;
-    GLint shParamURadius;
-    GLint shParamUColor;
-    GLint shParamURatio;
+    GLint shParamUCenter{};
+    GLint shParamURadius{};
+    GLint shParamUColor{};
+    GLint shParamURatio{};
 };
 
 END_OGLES_GPGPU

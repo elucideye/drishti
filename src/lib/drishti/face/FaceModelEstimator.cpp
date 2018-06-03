@@ -10,10 +10,12 @@
 
 #include "drishti/face/FaceModelEstimator.h"
 
+#include <utility>
+
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-FaceModelEstimator::FaceModelEstimator(const sensor::SensorModel& sensor)
-    : m_sensor(sensor)
+FaceModelEstimator::FaceModelEstimator(sensor::SensorModel  sensor)
+    : m_sensor(std::move(sensor))
 {
 }
 

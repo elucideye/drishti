@@ -231,7 +231,7 @@ void EyeModelEstimator::serialize(Archive& ar, const unsigned int version)
 template <typename T>
 T median(std::vector<T>& params)
 {
-    std::vector<float>::iterator nth = params.begin() + params.size() / 2;
+    auto nth = params.begin() + params.size() / 2;
     std::nth_element(params.begin(), nth, params.end());
     return *nth;
 }

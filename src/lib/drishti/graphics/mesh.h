@@ -31,7 +31,7 @@ public:
 
     MeshProc(const drishti::graphics::MeshTex& mesh, const cv::Mat& iso, bool doWire);
 
-    const char* getProcName()
+    const char* getProcName() override
     {
         return "MeshProc";
     }
@@ -44,9 +44,9 @@ public:
     }
 
 private:
-    virtual void filterRenderCleanup();
+    void filterRenderCleanup() override;
 
-    virtual const char* getFragmentShaderSource()
+    const char* getFragmentShaderSource() override
     {
         return fshaderPixelSrc;
     }

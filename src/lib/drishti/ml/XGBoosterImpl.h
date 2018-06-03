@@ -29,7 +29,7 @@ std::string xtos(const T& t)
 class XGBooster::Impl
 {
 public:
-    typedef XGBooster::Recipe Recipe;
+    using Recipe = XGBooster::Recipe;
 
     Impl()
     {

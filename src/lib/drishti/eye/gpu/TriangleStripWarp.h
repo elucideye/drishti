@@ -24,23 +24,23 @@ public:
     using PointSet2f = std::vector<cv::Point2f>;
 
     TriangleStripWarp();
-    virtual const char* getProcName()
+    const char* getProcName() override
     {
         return "TriangleStripWarp";
     }
 
-    virtual const char* getVertexShaderSource()
+    const char* getVertexShaderSource() override
     {
         return vshaderDefault;
     }
-    virtual const char* getFragmentShaderSource()
+    const char* getFragmentShaderSource() override
     {
         return fshaderTriangleSrc;
     }
 
     // We will override texture and vertex coords:
-    virtual void filterRenderSetCoords();
-    virtual void filterRenderDraw();
+    void filterRenderSetCoords() override;
+    void filterRenderDraw() override;
 
     PointSet2f m_pixels;
     PointSet2f m_texels;

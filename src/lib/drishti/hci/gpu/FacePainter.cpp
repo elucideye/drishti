@@ -242,9 +242,9 @@ void FacePainter::renderDrawings()
         {
             for (const auto& c : e.contours)
             {
-                for (int i = 0; i < c.size(); i++)
+                for (const auto & i : c)
                 {
-                    lines.points.emplace_back(c[i]);
+                    lines.points.emplace_back(i);
                     lines.colors.emplace_back(e.color);
                 }
             }
@@ -445,11 +445,11 @@ int FacePainter::FacePainter::render(int position)
     }
 #endif
 
-    for (int i = 0; i < 2; i++)
+    for (auto & i : m_irisInfo)
     {
-        if (m_irisInfo[i].texId >= 0)
+        if (i.texId >= 0)
         {
-            renderTex(m_irisInfo[i]);
+            renderTex(i);
         }
     }
 
@@ -752,7 +752,7 @@ void FacePainter::setEyeTexture(GLint texIdx, const ogles_gpgpu::Size2d& size, c
     if (outFrameW > outFrameH)
     {
         // B) Place the eyes in the upper left corner
-        const int width = static_cast<int>(m_eyesWidthRatio * outFrameW + 0.5f);
+        const auto width = static_cast<int>(m_eyesWidthRatio * outFrameW + 0.5f);
         eyesRoi = { 0, 0, width, width * size.height / size.width };
         eyesRoi.x = 0;
     }

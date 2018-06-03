@@ -40,7 +40,7 @@ struct GLTexture
         return texId;
     }
 
-    GLuint texId;
+    GLuint texId{};
 };
 
 END_OGLES_GPGPU

@@ -22,7 +22,7 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-FaceModel::FaceModel() {} //  = default;
+FaceModel::FaceModel() = default; //  = default;
 FaceModel::~FaceModel() = default;
 
 float FaceModel::getInterPupillaryDistance() const

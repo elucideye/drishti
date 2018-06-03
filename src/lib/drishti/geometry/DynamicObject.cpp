@@ -12,7 +12,6 @@
 DRISHTI_GEOMETRY_BEGIN
 
 DynamicObject3D::DynamicObject3D()
-{
-}
+= default;
 
 DRISHTI_GEOMETRY_END

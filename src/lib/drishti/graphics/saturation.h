@@ -22,27 +22,27 @@ public:
         : gain(gain)
     {
     }
-    virtual const char* getProcName()
+    const char* getProcName() override
     {
         return "SaturationProc";
     }
 
 private:
-    virtual const char* getFragmentShaderSource()
+    const char* getFragmentShaderSource() override
     {
         return fshaderSaturationSrc;
     }
-    virtual void getUniforms()
+    void getUniforms() override
     {
         shParamUGain = shader->getParam(UNIF, "gain");
     }
-    virtual void setUniforms()
+    void setUniforms() override
     {
         glUniform1f(shParamUGain, gain);
     }
     static const char* fshaderSaturationSrc; // fragment shader source
     float gain = 1.f;
-    GLint shParamUGain;
+    GLint shParamUGain{};
 };
 
 END_OGLES_GPGPU

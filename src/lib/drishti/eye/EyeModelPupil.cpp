@@ -93,7 +93,7 @@ void EyeModelEstimator::Impl::segmentPupil(const cv::Mat& I, EyeModel& eye, int 
     rcpr::Vector1d model(5);
     for (int i = 0; i < 5; i++)
     {
-        rcpr::Vector1d::iterator nth = params[i].begin() + params[i].size() / 2;
+        auto nth = params[i].begin() + params[i].size() / 2;
         std::nth_element(params[i].begin(), nth, params[i].end());
         model[i] = *nth;
     }

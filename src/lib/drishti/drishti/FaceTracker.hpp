@@ -45,7 +45,7 @@ struct drishti_face_tracker_result_t
     /**
      * Acquisition time of the contained frame.
      */
-    double time; // TimePoint
+    double time{}; // TimePoint
 
     /**
      * The image description (memory and/or OpenGL texture)
@@ -81,7 +81,7 @@ DRISHTI_EXTERN_C_BEGIN
  * Provides an image specification sufficient for memory allocation.
  */
 
-typedef struct drishti_image
+struct drishti_image
 {
     /**
      * Image width in pixels
@@ -103,7 +103,9 @@ typedef struct drishti_image
      */
     std::size_t stride;
 
-} drishti_image_t;
+};
+
+using drishti_image_t = drishti_image;
 
 /**
  * @brief A "request" object specifying the # of frames to retrieve and
@@ -139,6 +141,8 @@ typedef struct drishti_request
 
 } drishti_request_t;
 
+using drishti_request_t = drishti_request;
+
 /**
  * An alias for a vector of drishti_face_tracker_result_t objects.
  */
@@ -154,7 +158,7 @@ typedef drishti::sdk::Array<drishti_face_tracker_result_t, 64> drishti_face_trac
  * @param results A vector containing frames + associated face metadata for the past N frames
  * @return Error code (reserved).
  */
-typedef int (*drishti_face_tracker_callback_t)(void* context, drishti_face_tracker_results_t& results);
+using drishti_face_tracker_callback_t = int (*)(void *, drishti_face_tracker_results_t &);
 
 /** 
  * @brief This function is called (back) with the face+eye models for the current frame.
@@ -172,13 +176,7 @@ typedef int (*drishti_face_tracker_callback_t)(void* context, drishti_face_track
  * @param texture The texture ID for the current frame (for preview).
  * @return A request structure for frame history + associated metadata.
  */
-typedef drishti_request_t (*drishti_face_tracker_update_t)
-(
-    void* context,
-    const drishti_face_tracker_result_t& faces,
-    double timestamp,
-    std::uint32_t texture
-);
+using drishti_face_tracker_update_t = drishti_request_t (*)(void *, const drishti_face_tracker_result_t &, double, std::uint32_t);
 
 /** 
  * @brief Allocation routine.
@@ -190,12 +188,7 @@ typedef drishti_request_t (*drishti_face_tracker_update_t)
  * @param spec A specification describing how the image to be allocated.
  * @return Error code (reserved).
  */
-typedef int (*drishti_face_tracker_allocator_t)
-(
-    void* context,
-    const drishti_image_t& spec,
-    drishti::sdk::Image4b& image
-);
+using drishti_face_tracker_allocator_t = int (*)(void *, const drishti_image_t &, drishti::sdk::Image4b &);
 
 /**
  * @brief A table of user defined callbacks to assist in face tracking.
@@ -208,7 +201,7 @@ typedef int (*drishti_face_tracker_allocator_t)
  * drishti does not exported allocated memory across the SDK boundary.
  */
 
-typedef struct drishti_face_tracker
+struct drishti_face_tracker
 {
     /**
      * A pointer to allocated FaceTracker state.
@@ -231,7 +224,9 @@ typedef struct drishti_face_tracker
      * A callback for memory allocation.
      */
     drishti_face_tracker_allocator_t allocator;
-} drishti_face_tracker_t;
+};
+
+using drishti_face_tracker_t = struct drishti_face_tracker;
 
 DRISHTI_EXTERN_C_END
 
@@ -249,10 +244,10 @@ public:
     // The referenced streams must stay in scope for the scope of the construction.
     struct Resources
     {
-        std::istream* sFaceDetector;
-        std::istream* sFaceRegressor;
-        std::istream* sEyeRegressor;
-        std::istream* sFaceModel;
+        std::istream* sFaceDetector{};
+        std::istream* sFaceRegressor{};
+        std::istream* sEyeRegressor{};
+        std::istream* sFaceModel{};
         std::string logger; // logger name
     };
 

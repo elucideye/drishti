@@ -32,8 +32,8 @@ public:
         int height;
     };
 
-    VideoSinkCV() {}
-    ~VideoSinkCV() {}
+    VideoSinkCV() = default;
+    ~VideoSinkCV() = default;
     virtual bool good() = 0;
     virtual bool begin() = 0;
     virtual bool operator()(const cv::Mat& image) = 0;

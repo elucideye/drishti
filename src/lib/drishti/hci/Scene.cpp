@@ -41,10 +41,9 @@ static float getAngle(const cv::Point2f& p)
 void flowToDrawings(const std::vector<cv::Vec4f>& flow, LineDrawingVec& drawings, const cv::Mat3f& colorMap)
 {
     drawings.reserve(drawings.size() + flow.size());
-    for (int i = 0; i < flow.size(); i++)
+    for (const auto & f : flow)
     {
         ogles_gpgpu::LineDrawing drawing;
-        const auto& f = flow[i];
         const cv::Point2f p(f[0], f[1]);
         const cv::Point2f q(f[2], f[3]);
         const float angle = getAngle(q);

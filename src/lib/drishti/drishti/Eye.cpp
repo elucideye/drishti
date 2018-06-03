@@ -28,19 +28,11 @@ _DRISHTI_SDK_BEGIN
  */
 
 Eye::Eye()
-{
-}
+= default;
 
 Eye::Eye(const Eye& src)
-    : iris(src.iris)
-    , pupil(src.pupil)
-    , eyelids(src.eyelids)
-    , crease(src.crease)
-    , innerCorner(src.innerCorner)
-    , outerCorner(src.outerCorner)
-    , roi(src.roi)
-{
-}
+     
+= default;
 
 void createMask(Image1b& mask, const Eye& eye, int components)
 {

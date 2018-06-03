@@ -8,7 +8,7 @@ DRISHTI_GEOMETRY_BEGIN
 class EllipseSerializer : public cv::RotatedRect
 {
 public:
-    EllipseSerializer() {}
+    EllipseSerializer() = default;
     EllipseSerializer(const cv::RotatedRect& e)
         : cv::RotatedRect(e)
     {

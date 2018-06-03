@@ -4,6 +4,7 @@
 #include <istream>
 #include <iterator>
 #include <memory>
+#include <utility>
 
 // https://stackoverflow.com/a/1567703
 class Line
@@ -55,8 +56,8 @@ struct VideoCaptureList::Impl
         init();
     }
 
-    Impl(const std::vector<std::string>& filenames)
-        : filenames(filenames)
+    Impl(std::vector<std::string>  filenames)
+        : filenames(std::move(filenames))
     {
         init();
     }

@@ -45,7 +45,7 @@ public:
     FaceFinderPainter(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext = nullptr);
     ~FaceFinderPainter();
     virtual void getOutputPixels(FrameDelegate& delegate);
-    virtual void init(const cv::Size& inputSize);
+    void init(const cv::Size& inputSize) override;
     void drawIris(bool flag) { m_drawIris = flag; }
     void setLetterboxHeight(float height);
     static FaceFinderPtr create(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext);
@@ -60,8 +60,8 @@ public:
     EffectKind getEffectKind() const;
 
 protected:
-    virtual void initPainter(const cv::Size& inputSizeUp);
-    virtual GLuint paint(const ScenePrimitives& scene, GLuint inputTexture);
+    void initPainter(const cv::Size& inputSizeUp) override;
+    GLuint paint(const ScenePrimitives& scene, GLuint inputTexture) override;
 
     GLuint filter(const ScenePrimitives& scene, GLuint inputTexture);
 

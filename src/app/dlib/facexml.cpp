@@ -290,9 +290,9 @@ int gauze_main(int argc, char** argv)
             }
         }
         
-        for(int i = 0; i < mu.size(); i++)
+        for(auto & i : mu)
         {
-            std::cout << mu[i].x << "," << mu[i].y << " ";
+            std::cout << i.x << "," << i.y << " ";
         }
     }
     

@@ -30,19 +30,19 @@ public:
     RegressionTreeEnsembleShapeEstimator();
     RegressionTreeEnsembleShapeEstimator(const std::string& filename);
     RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint = {});
-    ~RegressionTreeEnsembleShapeEstimator();
+    ~RegressionTreeEnsembleShapeEstimator() override;
 
-    virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger);
-    virtual int operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const;
-    virtual int operator()(const cv::Mat& I, Point2fVec& points, BoolVec& mask) const;
-    virtual std::vector<cv::Point2f> getMeanShape() const;
-    virtual void setDoPreview(bool flag) {}
-    virtual bool isPCA() const;
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger) override;
+    int operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const override;
+    int operator()(const cv::Mat& I, Point2fVec& points, BoolVec& mask) const override;
+    std::vector<cv::Point2f> getMeanShape() const override;
+    void setDoPreview(bool flag) override {}
+    bool isPCA() const override;
 
-    virtual void setStagesHint(int stages);
-    virtual int getStagesHint() const;
+    void setStagesHint(int stages) override;
+    int getStagesHint() const override;
 
-    void dump(std::vector<float>& values, bool pca);
+    void dump(std::vector<float>& values, bool pca) override;
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version);
@@ -54,7 +54,7 @@ protected:
     std::unique_ptr<Impl> m_impl;
 };
 
-typedef RegressionTreeEnsembleShapeEstimator RTEShapeEstimator;
+using RTEShapeEstimator = drishti::ml::RegressionTreeEnsembleShapeEstimator;
 
 DRISHTI_ML_NAMESPACE_END
 

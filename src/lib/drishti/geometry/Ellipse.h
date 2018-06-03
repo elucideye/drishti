@@ -33,7 +33,7 @@ DRISHTI_GEOMETRY_BEGIN
 class Ellipse : public cv::RotatedRect
 {
 public:
-    Ellipse() {}
+    Ellipse() = default;
     Ellipse(const Ellipse& src);
     Ellipse(const cv::Vec6d& par);
     Ellipse(const cv::RotatedRect& cen);
@@ -64,7 +64,7 @@ std::vector<float> pointsToPhi(const std::vector<cv::Point2f>& points);
 std::vector<float> ellipseToPhi(const cv::RotatedRect& e);
 cv::RotatedRect phiToEllipse(const std::vector<float>& phi);
 
-typedef std::vector<cv::Point2f> PointVec;
+using PointVec = std::vector<cv::Point2f>;
 void ellipse2Poly(const cv::RotatedRect& ellipse, float delta, std::vector<cv::Point2f>& points);
 
 // see: http://research.microsoft.com/en-us/um/people/awf/ellipse/fitellipse.html

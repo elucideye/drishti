@@ -22,12 +22,12 @@ _DRISHTI_SDK_BEGIN
 class EyeDetector::Impl
 {
 public:
-    Impl() {}
+    Impl() = default;
     Impl(const std::string& filename)
     {
         init(filename);
     }
-    ~Impl() {}
+    ~Impl() = default;
 
     void init(const std::string& filename)
     {
@@ -63,12 +63,12 @@ public:
 
 // ######### EyeDetector ############
 
-EyeDetector::EyeDetector() {}
+EyeDetector::EyeDetector() = default;
 EyeDetector::EyeDetector(const std::string& filename)
 {
     m_impl = std::unique_ptr<Impl>(new Impl(filename));
 }
-EyeDetector::~EyeDetector() {}
+EyeDetector::~EyeDetector() = default;
 int EyeDetector::operator()(const Image3b& image, std::vector<Rect>& objects)
 {
     return (*m_impl)(image, objects);

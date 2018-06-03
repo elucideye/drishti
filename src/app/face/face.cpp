@@ -434,14 +434,14 @@ checkModel(LoggerPtr& logger, const std::string& sModel, const std::string& desc
     if (sModel.empty())
     {
         logger->error("Must specify valid model {}", sModel);
-        return 1;
+        return true;
     }
     if (!drishti::cli::file::exists(sModel))
     {
         logger->error("Specified model file does not exist or is not readable");
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 static cv::Mat
@@ -469,7 +469,7 @@ writeAsJson(const std::string& filename, const std::vector<drishti::face::FaceMo
     if (ofs)
     {
         cereal::JSONOutputArchive oa(ofs);
-        typedef decltype(oa) Archive; // needed by macro
+        using Archive = decltype(oa); // needed by macro
         oa << GENERIC_NVP("faces", faces);
     }
     return ofs.good();

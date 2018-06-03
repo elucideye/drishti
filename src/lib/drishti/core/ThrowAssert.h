@@ -109,7 +109,7 @@ public:
     }
 
     /// The assertion message
-    virtual const char* what() const throw()
+    const char* what() const throw() override
     {
         return report.c_str();
     }
@@ -138,9 +138,8 @@ public:
         return message.c_str();
     }
 
-    ~AssertionFailureException() throw()
-    {
-    }
+    ~AssertionFailureException() throw() override
+    = default;
 };
 
 DRISHTI_CORE_NAMESPACE_END

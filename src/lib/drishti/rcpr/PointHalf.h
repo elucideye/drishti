@@ -19,7 +19,7 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 
 struct PointHalf
 {
-    PointHalf() {}
+    PointHalf() = default;
 
     PointHalf(const cv::Point2f& p)
         : x(half_float::detail::float2half<std::round_to_nearest>(p.x))
@@ -44,7 +44,7 @@ struct PointHalf
         ar& y;
     }
 
-    half_float::detail::uint16 x, y;
+    half_float::detail::uint16 x{}, y{};
 };
 
 DRISHTI_RCPR_NAMESPACE_END

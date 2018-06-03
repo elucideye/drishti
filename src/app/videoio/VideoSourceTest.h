@@ -23,11 +23,11 @@ class VideoSourceTest : public VideoSourceCV
 {
 public:
     VideoSourceTest(const std::string& filename);
-    virtual Frame operator()(int i = -1);
-    virtual bool good() const;
-    virtual std::size_t count() const;
-    virtual bool isRandomAccess() const;
-    virtual void setOutputFormat(PixelFormat value);
+    Frame operator()(int i = -1) override;
+    bool good() const override;
+    std::size_t count() const override;
+    bool isRandomAccess() const override;
+    void setOutputFormat(PixelFormat value) override;
 
 protected:
     std::size_t counter = 0;

@@ -27,7 +27,7 @@ using LineDrawingVec = std::vector<ogles_gpgpu::LineDrawing>;
 
 struct FeaturePoint
 {
-    FeaturePoint() {}
+    FeaturePoint() = default;
     FeaturePoint(const cv::Point2f& point)
         : point(point)
     {
@@ -44,9 +44,8 @@ struct FeaturePoint
 struct ScenePrimitives
 {
     ScenePrimitives()
-        : m_frameIndex(0)
-    {
-    }
+         
+    = default;
 
     ScenePrimitives(uint64_t frameIndex)
         : m_frameIndex(frameIndex)

@@ -8,7 +8,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "drishti/core/string_utils.h"
 #include "drishti/core/Line.h" // for csv_reader
@@ -25,7 +25,7 @@ void tokenize(const std::string& input, std::vector<std::string>& tokens)
 
 std::string basename(const std::string& name, const std::string& ext)
 {
-    size_t pos = name.rfind("/");
+    size_t pos = name.rfind('/');
 
     if (pos != std::string::npos)
     {

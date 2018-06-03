@@ -90,7 +90,7 @@ public:
         };
     }
 
-    virtual Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t texture)
+    Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t texture) override
     {
         double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(timeStamp - m_start).count();
         drishti_face_tracker_result_t result;
@@ -98,7 +98,7 @@ public:
         return convert(m_table.update(m_table.context, result, elapsed, texture));
     }
 
-    virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
+    void grab(const std::vector<FaceImage>& frames, bool isInitialized) override
     {
         // Populate public API buffer using public SDK wrapper types w/ shallow copy:
         drishti::sdk::Array<drishti_face_tracker_result_t, 64> results(frames.size());

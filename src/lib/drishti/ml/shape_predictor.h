@@ -71,6 +71,7 @@
 
 // STL
 #include <deque>
+#include <utility>
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
@@ -96,8 +97,8 @@ inline dlib::point dlib_point(const cv::Point& p)
 
 typedef dlib::matrix<float, 0, 1> fshape;
 typedef dlib::vector<float, 2> fpoint;
-typedef std::vector<fpoint> PointVecf;
-typedef std::vector<PointVecf> PointVecVecf;
+using PointVecf = std::vector<fpoint>;
+using PointVecVecf = std::vector<PointVecf>;
 
 static cv::RotatedRect vectorToEllipse(const std::vector<float>& phi)
 {
@@ -246,7 +247,7 @@ struct split_feature
     unsigned short idx2 = 0;
     float thresh = 0.f;
 
-    split_feature() {}
+    split_feature() = default;
     split_feature(unsigned short idx1, unsigned short idx2, float thresh)
         : idx1(idx1)
         , idx2(idx2)
@@ -655,7 +656,7 @@ DRISHTI_END_NAMESPACE(impl) // end namespace impl
 template <typename T>
 std::vector<dlib::vector<T, 2>> convert_shape_to_points(const fshape& shape, int ellipse_count)
 {
-    int point_length = int((shape.size() - (ellipse_count * 5)) / 2);
+    auto point_length = int((shape.size() - (ellipse_count * 5)) / 2);
     std::vector<dlib::vector<T, 2>> points(point_length + (ellipse_count * 5));
 
     for (unsigned long i = 0; i < point_length; ++i)
@@ -686,20 +687,20 @@ public:
     ~shape_predictor() = default;
 
     shape_predictor(
-        const fshape& initial_shape_,
-        const std::vector<std::vector<impl::regression_tree>>& forests_,
-        const std::vector<std::vector<InterpolatedFeature>>& interpolated_features,
+        fshape  initial_shape_,
+        std::vector<std::vector<impl::regression_tree>>  forests_,
+        std::vector<std::vector<InterpolatedFeature>>  interpolated_features,
         StandardizedPCAPtr& pca,
         bool npd = false,
         bool do_affine = false,
         int ellipse_count = 0)
-        : initial_shape(initial_shape_)
-        , forests(forests_)
+        : initial_shape(std::move(initial_shape_))
+        , forests(std::move(forests_))
         , m_pca(pca)
         , m_ellipse_count(ellipse_count)
         , m_npd(npd)
         , m_do_affine(do_affine)
-        , interpolated_features(interpolated_features)
+        , interpolated_features(std::move(interpolated_features))
     /*!
          requires
          - initial_shape.size()%2 == 0
@@ -766,15 +767,15 @@ public:
     }
 
     shape_predictor(
-        const fshape& initial_shape_,
-        const std::vector<std::vector<impl::regression_tree>>& forests_,
+        fshape  initial_shape_,
+        std::vector<std::vector<impl::regression_tree>>  forests_,
         const std::vector<PointVecf>& pixel_coordinates,
         StandardizedPCAPtr& pca,
         bool npd = false,
         bool do_affine = false,
         int ellipse_count = 0)
-        : initial_shape(initial_shape_)
-        , forests(forests_)
+        : initial_shape(std::move(initial_shape_))
+        , forests(std::move(forests_))
         , m_pca(pca)
         , m_ellipse_count(ellipse_count)
         , m_npd(npd)
@@ -852,7 +853,7 @@ public:
             if (do_pca)
             {
                 // Get euclidean model for current shape space estimate:
-                int current_pca_dim = int(forests[iter][0].leaf_values[0].size());
+                auto current_pca_dim = int(forests[iter][0].leaf_values[0].size());
                 back_project(*m_pca, current_pca_dim, current_shape_full_, cs_);
             }
 
@@ -925,14 +926,14 @@ public:
         if (do_pca)
         {
             // Convert the final model back to euclidean
-            int current_pca_dim = int(forests.back()[0].leaf_values[0].size());
+            auto current_pca_dim = int(forests.back()[0].leaf_values[0].size());
             back_project(*m_pca, current_pca_dim, current_shape_full_, current_shape);
         }
 
         // convert the current_shape into a full_object_detection
         const dlib::point_transform_affine tform_to_img = unnormalizing_tform(rect);
 
-        int point_length = int((current_shape.size() - (m_ellipse_count * 5)) / 2);
+        auto point_length = int((current_shape.size() - (m_ellipse_count * 5)) / 2);
         std::vector<dlib::point> parts(point_length + (m_ellipse_count * 5));
         for (unsigned long i = 0; i < point_length; ++i)
         {
@@ -1057,13 +1058,13 @@ void deserialize(drishti::ml::shape_predictor& item, std::istream& in);
 
 DRISHTI_ML_NAMESPACE_END
 
-typedef drishti::ml::impl::regression_tree RTType;
+using RTType = drishti::ml::impl::regression_tree;
 typedef dlib::vector<float, 2> Vec2Type;
 
 #if DRISHTI_DLIB_DO_HALF
 struct PointHalf
 {
-    PointHalf() {}
+    PointHalf() = default;
 
     PointHalf(const Vec2Type& src)
         : x(half_float::detail::float2half<std::round_to_nearest>(src(0)))
@@ -1091,7 +1092,7 @@ struct PointHalf
         ar& y;
     }
 
-    half_float::detail::uint16 x, y;
+    half_float::detail::uint16 x{}, y{};
 };
 #endif
 

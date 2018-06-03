@@ -28,9 +28,9 @@ public:
     VideoSourceStills(const std::string& filename);
     VideoSourceStills(const std::vector<std::string>& filenames);
     ~VideoSourceStills();
-    virtual Frame operator()(int i = -1);
-    virtual std::size_t count() const;
-    virtual bool isRandomAccess() const { return true; }
+    Frame operator()(int i = -1) override;
+    std::size_t count() const override;
+    bool isRandomAccess() const override { return true; }
 
 protected:
     std::unique_ptr<Impl> m_impl;

@@ -183,7 +183,7 @@ void FaceFinder::dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n, bool g
 
 void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage, int skipFrames)
 {
-    const int length = static_cast<int>(impl->fifo->getBufferCount());
+    const auto length = static_cast<int>(impl->fifo->getBufferCount());
     
     frames.resize(std::min(static_cast<std::size_t>(n), static_cast<std::size_t>(length)));
     for (int i = 0, j = skipFrames; i < static_cast<int>(frames.size()); i++, j++)
@@ -296,10 +296,10 @@ void FaceFinder::initBlobFilter()
 void FaceFinder::initIris(const cv::Size& size)
 {
     // ### Ellipsopolar warper ####
-    for (int i = 0; i < 2; i++)
+    for (auto & i : impl->ellipsoPolar)
     {
-        impl->ellipsoPolar[i] = std::make_shared<ogles_gpgpu::EllipsoPolarWarp>();
-        impl->ellipsoPolar[i]->setOutputSize(size.width, size.height);
+        i = std::make_shared<ogles_gpgpu::EllipsoPolarWarp>();
+        i->setOutputSize(size.width, size.height);
     }
 }
 
@@ -346,7 +346,7 @@ void FaceFinder::initEyeEnhancer(const cv::Size& inputSizeUp, const cv::Size& ey
         impl->eyeFilter->add(impl->eyeFlow.get());
     }
 
-    impl->eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, (GLenum)GL_RGBA);
+    impl->eyeFilter->prepare(inputSizeUp.width, inputSizeUp.height, static_cast<GLenum>(GL_RGBA));
 }
 
 void FaceFinder::initPainter(const cv::Size& /* inputSizeUp */)
@@ -376,7 +376,7 @@ GLuint FaceFinder::stabilize(GLuint inputTexId, const cv::Size& inputSizeUp, con
         cv::Matx44f MVP;
         transformation::R3x3To4x4(Sinv * H * S, MVP);
 
-        ogles_gpgpu::Mat44f MVPt;
+        ogles_gpgpu::Mat44f MVPt{};
         cv::Mat(MVP.t()).copyTo(cv::Mat(4, 4, CV_32FC1, &MVPt.data[0][0]));
         impl->warper->setTransformMatrix(MVPt);
     }
@@ -679,7 +679,7 @@ void FaceFinder::notifyListeners
     
     int skipFrames = 0;
     int metadataOffset = impl->latency;
-    int availableFrameCount = static_cast<int>(impl->fifo->getBufferCount());
+    auto availableFrameCount = static_cast<int>(impl->fifo->getBufferCount());
     if(impl->ignoreLatestFramesInMonitor)
     {
         skipFrames = impl->latency;

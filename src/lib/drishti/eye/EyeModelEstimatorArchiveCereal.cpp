@@ -12,11 +12,11 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-typedef cereal::PortableBinaryOutputArchive OArchive;
+using OArchive = cereal::PortableBinaryOutputArchive;
 template void EyeModelEstimator::Impl::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void EyeModelEstimator::serialize<OArchive>(OArchive& ar, const unsigned int);
 
-typedef cereal::PortableBinaryInputArchive IArchive;
+using IArchive = cereal::PortableBinaryInputArchive;
 template void EyeModelEstimator::Impl::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void EyeModelEstimator::serialize<IArchive>(IArchive& ar, const unsigned int);
 

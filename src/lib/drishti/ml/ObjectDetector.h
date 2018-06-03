@@ -26,8 +26,8 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class ObjectDetector
 {
 public:
-    virtual int operator()(const cv::Mat& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0) = 0;
-    virtual int operator()(const MatP& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0) = 0;
+    virtual int operator()(const cv::Mat& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = nullptr) = 0;
+    virtual int operator()(const MatP& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = nullptr) = 0;
     virtual void setMaxDetectionCount(size_t maxCount);
     virtual void setDetectionScorePruneRatio(double ratio);
     virtual void prune(std::vector<cv::Rect>& objects, std::vector<double>& scores);

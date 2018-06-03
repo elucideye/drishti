@@ -95,9 +95,9 @@ void EyeModelEstimator::Impl::segmentEyelids_(const cv::Mat& I, EyeModel& eye) c
 
     // Get the basic shape:
     std::vector<bool> mask; // occlusion mask
-    for (int i = 0; i < poses.size(); i++)
+    for (auto & pose : poses)
     {
-        (*m_eyeEstimator)(I, poses[i], mask);
+        (*m_eyeEstimator)(I, pose, mask);
     }
 
     // Get median of poses:
@@ -169,7 +169,7 @@ static void drawEyes(const cv::Mat& I, const std::vector<EyeModel>& eyes, const 
 static void jitter(const cv::Rect& roi, const geometry::UniformSimilarityParams& params, std::vector<cv::Rect>& poses, int n)
 {
     cv::Point2f center = drishti::geometry::centroid<int, float>(roi);
-    geometry::UniformSimilarityParams params_ = params;
+    const geometry::UniformSimilarityParams& params_ = params;
     for (int i = 0; i < n; i++)
     {
         bool hasRoi = false;
@@ -197,7 +197,7 @@ static void jitter(const EyeModel& eye, const geometry::UniformSimilarityParams&
 {
     // TODO: move this to a config file:
     cv::Point2f center = drishti::core::centroid(eye.eyelids);
-    geometry::UniformSimilarityParams params_ = params;
+    const geometry::UniformSimilarityParams& params_ = params;
     for (int i = 0; i < n; i++)
     {
         cv::Matx33f H = geometry::randomSimilarity(params_, cv::theRNG(), center);
@@ -210,12 +210,12 @@ static PointVec getMedianOfPoses(const std::vector<PointVec>& poses)
     std::vector<std::vector<float>> params[2];
     params[0].resize(poses[0].size());
     params[1].resize(poses[0].size());
-    for (int i = 0; i < poses.size(); i++)
+    for (const auto & pose : poses)
     {
-        for (int j = 0; j < poses[i].size(); j++)
+        for (int j = 0; j < pose.size(); j++)
         {
-            params[0][j].push_back(poses[i][j].x);
-            params[1][j].push_back(poses[i][j].y);
+            params[0][j].push_back(pose[j].x);
+            params[1][j].push_back(pose[j].y);
         }
     }
 

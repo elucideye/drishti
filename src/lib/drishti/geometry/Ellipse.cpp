@@ -53,10 +53,8 @@ cv::Point2f Ellipse::getMinorAxisNeg() const
 
 // (((((((( Ellipse ))))))))
 Ellipse::Ellipse(const Ellipse& src)
-    : cv::RotatedRect(src)
-    , m_par(src.m_par)
-{
-}
+     
+= default;
 Ellipse::Ellipse(const cv::Vec6d& par)
     : cv::RotatedRect(conicPar2Cen(par))
     , m_par(par)

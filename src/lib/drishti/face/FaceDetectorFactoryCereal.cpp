@@ -27,7 +27,7 @@ drishti::face::FaceModel loadFaceModel(std::istream& is)
     if (is)
     {
         cereal::JSONInputArchive ia(is);
-        typedef decltype(ia) Archive;
+        using Archive = decltype(ia);
 
         std::vector<cv::Point2f> landmarks;
         ia(GENERIC_NVP("landmarks", landmarks));

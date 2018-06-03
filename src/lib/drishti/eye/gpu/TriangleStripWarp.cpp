@@ -40,7 +40,7 @@ OG_TO_STR(
 //});
 // clang-format on
 
-TriangleStripWarp::TriangleStripWarp() {}
+TriangleStripWarp::TriangleStripWarp() = default;
 
 // We will override texture and vertex coords:
 void TriangleStripWarp::filterRenderSetCoords()

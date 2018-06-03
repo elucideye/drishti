@@ -62,8 +62,7 @@ void EyeSegmenter::init(std::istream& is, ArchiveKind kind)
 }
 
 EyeSegmenter::~EyeSegmenter()
-{
-}
+= default;
 
 bool EyeSegmenter::good() const
 {

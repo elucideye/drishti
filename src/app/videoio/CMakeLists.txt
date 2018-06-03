@@ -2,6 +2,8 @@
 
 set(test_lib drishti_videoio)
 
+set(BUILD_FOR_APPLE FALSE)
+
 set(videoio_srcs
 
   drishti_videoio.h
@@ -19,7 +21,7 @@ set(videoio_srcs
   VideoSourceTest.cpp
   )
 
-if(APPLE)
+if(BUILD_FOR_APPLE)
   # AVFoundation framework video (i.e., quicktime *.MOV)
   list(APPEND videoio_srcs
 
@@ -49,7 +51,7 @@ target_link_libraries(drishti_videoio PUBLIC ${OpenCV_LIBS} drishtisdk
   Boost::filesystem  
   )
 
-if(APPLE)
+if(BUILD_FOR_APPLE)
   target_compile_options(drishti_videoio PUBLIC "-fobjc-arc")
   target_compile_definitions(drishti_videoio PUBLIC DRISHTI_USE_AVFOUNDATION=1)
 

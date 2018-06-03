@@ -27,6 +27,7 @@
 #include <fstream>
 #include <iostream>
 #include <numeric>
+#include <utility>
 #include <vector>
 #include <iterator>
 #include <memory>
@@ -46,18 +47,14 @@ class FaceDetector
 public:
     struct PaddedImage
     {
-        PaddedImage() {}
-        PaddedImage(const cv::Mat& Ib, const cv::Rect& roi = {})
-            : Ib(Ib)
+        PaddedImage() = default;
+        PaddedImage(cv::Mat  Ib, const cv::Rect& roi = {})
+            : Ib(std::move(Ib))
             , roi(roi)
         {
         }
         PaddedImage& operator=(const PaddedImage& I)
-        {
-            Ib = I.Ib;
-            roi = I.roi;
-            return (*this);
-        }
+        = default;
         operator cv::Mat()
         {
             return Ib;
@@ -67,11 +64,11 @@ public:
     };
 
     typedef std::function<std::array<cv::Mat, 2>(const cv::Point2f& L, const cv::Point2f& R)> EyeCropper;
-    typedef std::function<int(const cv::Mat&, const std::string& tag)> MatLoggerType;
-    typedef std::function<void(double seconds)> TimeLoggerType;
+    using MatLoggerType = std::function<int (const cv::Mat &, const std::string &)>;
+    using TimeLoggerType = std::function<void (double)>;
 
     class Impl;
-    typedef std::vector<cv::Point2f> Landmarks;
+    using Landmarks = std::vector<cv::Point2f>;
 
     FaceDetector(FaceDetectorFactory& Resources);
     ~FaceDetector();

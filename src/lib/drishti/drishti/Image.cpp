@@ -13,12 +13,12 @@
 #include <drishti/Image.hpp>
 
 #include <memory>
-#include <string.h> // cent os 6.2
+#include <cstring> // cent os 6.2
 
 _DRISHTI_SDK_BEGIN
 
 template <typename T>
-Image<T>::Image() {}
+Image<T>::Image() = default;
 
 template <typename T>
 Image<T>::~Image()
@@ -27,14 +27,14 @@ Image<T>::~Image()
     {
         delete[] storage;
     }
-    storage = data = 0;
+    storage = data = nullptr;
 }
 
 template <typename T>
 Image<T>::Image(const Image& src)
     : rows(src.rows)
     , cols(src.cols)
-    , storage(NULL)
+    , storage(nullptr)
     , data(src.data)
     , stride(src.stride)
 {
@@ -44,7 +44,7 @@ template <typename T>
 Image<T>::Image(size_t rows, size_t cols, T* data, size_t stride, bool keep)
     : rows(rows)
     , cols(cols)
-    , storage(keep ? data : NULL)
+    , storage(keep ? data : nullptr)
     , data(data)
     , stride(stride)
 {

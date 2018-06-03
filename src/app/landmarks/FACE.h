@@ -38,7 +38,7 @@ DRISHTI_BEGIN_NAMESPACE(FACE)
 struct record
 {
     std::string filename;
-    int index;
+    int index{};
 
     float angle = 0.f;                             // angle from frontal
     cv::Vec4f quaternion = { 0.f, 0.f, 0.f, 1.f }; // quaternion
