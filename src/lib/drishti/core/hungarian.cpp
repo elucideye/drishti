@@ -56,7 +56,7 @@ public:
     void Minimize(std::vector<int>* agent, std::vector<int>* task);
 
 private:
-    typedef void (HungarianOptimizer::*Step)();
+    using Step = void (drishti::core::HungarianOptimizer::*)();
 
     typedef enum {
         NONE,

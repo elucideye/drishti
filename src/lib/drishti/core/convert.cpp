@@ -51,7 +51,7 @@ void convertU8ToF32(const cv::Mat4b& input, std::vector<PlaneInfo>& planes)
 
     for (int x = 0, y = 0; y < input.rows; y++)
     {
-        const cv::Vec4b* ptrA = input.ptr<cv::Vec4b>(y);
+        const auto* ptrA = input.ptr<cv::Vec4b>(y);
         for (int i = 0; i < planes.size(); i++)
         {
             ptrs[i] = planes[i].plane.ptr<float>(y);
@@ -64,13 +64,13 @@ void convertU8ToF32(const cv::Mat4b& input, std::vector<PlaneInfo>& planes)
             {
                 const auto& c = planes[i].channel;
 
-                uint8x8_t l, u;
+                uint8x8_t l{}, u{};
                 l = vget_low_u8(a.val[c]);
                 u = vget_high_u8(a.val[c]);
                 uint16x8_t b1 = vmovl_u8(l);
                 uint16x8_t b2 = vmovl_u8(u);
 
-                uint16x4_t l1, u1;
+                uint16x4_t l1{}, u1{};
                 l1 = vget_low_u16(b1);
                 u1 = vget_high_u16(b1);
                 float32x4_t c1a = vcvtq_f32_u32(vmovl_u16(l1));
@@ -113,7 +113,7 @@ void unpack(const cv::Mat4b& input, std::vector<PlaneInfo>& planes)
         }
 
         const int stepA = 16;
-        const cv::Vec4b* ptrA = input.ptr<cv::Vec4b>(y);
+        const auto* ptrA = input.ptr<cv::Vec4b>(y);
         for (x = 0; x <= input.cols - stepA; x += stepA, ptrA += stepA)
         {
             uint8x16x4_t a = vld4q_u8(reinterpret_cast<const uint8_t*>(ptrA));

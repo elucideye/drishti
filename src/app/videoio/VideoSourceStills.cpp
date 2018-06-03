@@ -16,24 +16,25 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+#include <utility>
 
 DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 
 class VideoSourceStills::Impl
 {
 public:
-    Impl(const std::string& filename)
-        : m_filename(filename)
+    Impl(std::string  filename)
+        : m_filename(std::move(filename))
     {
         m_filenames = drishti::cli::expand(m_filename);
     }
 
-    Impl(const std::vector<std::string>& filenames)
-        : m_filenames(filenames)
+    Impl(std::vector<std::string>  filenames)
+        : m_filenames(std::move(filenames))
     {
     }
 
-    ~Impl() {}
+    ~Impl() = default;
 
     std::size_t count() const
     {
@@ -64,8 +65,7 @@ VideoSourceStills::VideoSourceStills(const std::vector<std::string>& filenames)
 }
 
 VideoSourceStills::~VideoSourceStills()
-{
-}
+= default;
 
 std::size_t VideoSourceStills::count() const
 {

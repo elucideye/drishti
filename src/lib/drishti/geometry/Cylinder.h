@@ -21,7 +21,7 @@ template <typename T>
 class Cylinder3D
 {
 public:
-    Cylinder3D() {}
+    Cylinder3D() = default;
 
     Cylinder3D(const Cylinder3D& src)
         : position(src.position)

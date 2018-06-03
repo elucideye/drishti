@@ -20,8 +20,8 @@ class FaceDetectorAndTracker : public FaceDetector
 public:
     class TrackImpl;
     FaceDetectorAndTracker(FaceDetectorFactory& resources);
-    virtual void operator()(const MatP& I, const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H);
-    virtual std::vector<cv::Point2f> getFeatures() const;
+    void operator()(const MatP& I, const PaddedImage& Ib, std::vector<FaceModel>& faces, const cv::Matx33f& H) override;
+    std::vector<cv::Point2f> getFeatures() const override;
 
     void setMaxTrackAge(double age);
     double getMaxTrackAge() const;

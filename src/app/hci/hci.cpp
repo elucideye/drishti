@@ -74,7 +74,7 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
      * @param timestmap the acquisition timestamp for the frame
      * @return a frame request for the last n frames with requested image formats
      */
-    virtual Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t texture)
+    Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t texture) override
     {
         cv::Point3f xyz = faces.size() ? (*faces.front().eyesCenter) : cv::Point3f();
         m_logger->info("SimpleFaceMonitor: Found {} faces {}", faces.size(), xyz);
@@ -98,7 +98,7 @@ struct FaceMonitorLogger : public drishti::hci::FaceMonitor
      * @param frames A vector containing the last N consecutive FaceImage objects
      * @param isInitialized Return true if the FIFO buffer is fully initialized.
      */
-    virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
+    void grab(const std::vector<FaceImage>& frames, bool isInitialized) override
     {
         int faces = 0, eyes = 0; // full images, and eye images
         for(const auto &f : frames)
@@ -573,14 +573,14 @@ static bool checkModel(LoggerPtr& logger, const std::string& sModel, const std::
     if (sModel.empty())
     {
         logger->error("Must specify valid model {}", sModel);
-        return 1;
+        return true;
     }
     if (!drishti::cli::file::exists(sModel))
     {
         logger->error("Specified file {} does not exist or is not readable", sModel);
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 static ogles_gpgpu::SwizzleProc::SwizzleKind getSwizzleKind(const std::string &sSwizzle)

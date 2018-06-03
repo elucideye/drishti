@@ -61,17 +61,17 @@ public:
         }
     }
     ~VideoSourceOpenCV() = default;
-    virtual Frame operator()(int i)
+    Frame operator()(int i) override
     {
         cv::Mat frame;
         video >> frame;
         return { frame, static_cast<std::size_t>(i) };
     }
-    virtual std::size_t count() const
+    std::size_t count() const override
     {
         return static_cast<int>(video.get(cv::CAP_PROP_FRAME_COUNT));
     }
-    virtual bool isRandomAccess() const
+    bool isRandomAccess() const override
     {
         return false;
     }

@@ -17,7 +17,7 @@
 #include "drishti/core/drishti_core.h"
 
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 DRISHTI_CORE_NAMESPACE_BEGIN
 
@@ -25,9 +25,8 @@ template <typename T>
 struct Field
 {
     Field()
-        : has(false)
-    {
-    }
+         
+    = default;
     Field(const T& t)
         : has(true)
         , value(t)
@@ -101,7 +100,7 @@ struct Field
     }
 
     bool has = false;
-    T value;
+    T value{};
 };
 
 DRISHTI_CORE_NAMESPACE_END

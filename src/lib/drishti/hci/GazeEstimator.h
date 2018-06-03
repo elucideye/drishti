@@ -30,7 +30,7 @@ public:
 
     struct GazeEstimate
     {
-        GazeEstimate() {}
+        GazeEstimate() = default;
         GazeEstimate(const cv::Point2f& relative, float openness = 0.0)
             : relative(relative)
             , openness(openness)

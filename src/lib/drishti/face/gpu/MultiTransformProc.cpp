@@ -38,9 +38,9 @@ void MultiTransformProc::filterRenderDraw()
     Tools::checkGLErr(getProcName(), "FacePainter::renderFaces() : glVertexAttribPointer()");
 
     glEnable(GL_SCISSOR_TEST);
-    for (int i = 0; i < m_crops.size(); i++)
+    for (auto & m_crop : m_crops)
     {
-        renderRegion(m_crops[i].roi, m_crops[i].H);
+        renderRegion(m_crop.roi, m_crop.H);
         Tools::checkGLErr(getProcName(), "render draw");
     }
     glDisable(GL_SCISSOR_TEST);

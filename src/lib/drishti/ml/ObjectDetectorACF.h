@@ -31,11 +31,11 @@ public:
     bool good() const;
     explicit operator bool() const;
     
-    virtual int operator()(const cv::Mat& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0);
-    virtual int operator()(const MatP& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = 0);
-    virtual cv::Size getWindowSize() const;
-    virtual void setDoNonMaximaSuppression(bool flag);
-    virtual bool getDoNonMaximaSuppression() const;
+    int operator()(const cv::Mat& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = nullptr) override;
+    int operator()(const MatP& image, std::vector<cv::Rect>& objects, std::vector<double>* scores = nullptr) override;
+    cv::Size getWindowSize() const override;
+    void setDoNonMaximaSuppression(bool flag) override;
+    bool getDoNonMaximaSuppression() const override;
     
     acf::Detector* getDetector() const { return m_impl.get(); }
 

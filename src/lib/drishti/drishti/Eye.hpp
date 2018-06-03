@@ -135,8 +135,8 @@ protected:
     Ellipse pupil;
     ArrayVec2f eyelids;
     ArrayVec2f crease;
-    Vec2f innerCorner;
-    Vec2f outerCorner;
+    Vec2f innerCorner{};
+    Vec2f outerCorner{};
     Recti roi;
 };
 

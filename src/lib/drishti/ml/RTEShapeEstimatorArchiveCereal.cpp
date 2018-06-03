@@ -15,12 +15,12 @@ DRISHTI_ML_NAMESPACE_BEGIN
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-typedef cereal::PortableBinaryOutputArchive OArchive;
+using OArchive = cereal::PortableBinaryOutputArchive;
 template void RTEShapeEstimator::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<OArchive>(OArchive& ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<OArchive>(OArchive& ar, const unsigned int);
 
-typedef cereal::PortableBinaryInputArchive IArchive;
+using IArchive = cereal::PortableBinaryInputArchive;
 template void RTEShapeEstimator::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void RTEShapeEstimator::Impl::serialize<IArchive>(IArchive& ar, const unsigned int);
 template void RTEShapeEstimator::serializeModel<IArchive>(IArchive& ar, const unsigned int);

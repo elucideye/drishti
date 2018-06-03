@@ -205,10 +205,10 @@ void EyeModelSpecification::serialize(Archive& ar, const unsigned int version)
     ar& GENERIC_NVP("pupilEllipse", pupilEllipse);
 }
 
-typedef cereal::JSONOutputArchive OArchiveJSON;
+using OArchiveJSON = cereal::JSONOutputArchive;
 template void EyeModelSpecification::serialize<OArchiveJSON>(OArchiveJSON& ar, const unsigned int);
 
-typedef cereal::JSONInputArchive IArchiveJSON;
+using IArchiveJSON = cereal::JSONInputArchive;
 template void EyeModelSpecification::serialize<IArchiveJSON>(IArchiveJSON& ar, const unsigned int);
 
 DRISHTI_EYE_NAMESPACE_END

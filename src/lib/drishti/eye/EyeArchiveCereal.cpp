@@ -18,30 +18,30 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 // ############ PortableBinary{Input,Output}Archive ################
 // ##################################################################
 
-typedef cereal::PortableBinaryOutputArchive OArchive;
+using OArchive = cereal::PortableBinaryOutputArchive;
 template void EyeModel::serialize<OArchive>(OArchive& ar, const unsigned int);
 
-typedef cereal::PortableBinaryInputArchive IArchive;
+using IArchive = cereal::PortableBinaryInputArchive;
 template void EyeModel::serialize<IArchive>(IArchive& ar, const unsigned int);
 
 // #############################################
 // #################### XML ####################
 // #############################################
 
-typedef cereal::XMLOutputArchive OArchiveXML;
+using OArchiveXML = cereal::XMLOutputArchive;
 template void EyeModel::serialize<OArchiveXML>(OArchiveXML& ar, const unsigned int);
 
-typedef cereal::XMLInputArchive IArchiveXML;
+using IArchiveXML = cereal::XMLInputArchive;
 template void EyeModel::serialize<IArchiveXML>(IArchiveXML& ar, const unsigned int);
 
 // ##############################################
 // #################### JSON ####################
 // ##############################################
 
-typedef cereal::JSONOutputArchive OArchiveJSON;
+using OArchiveJSON = cereal::JSONOutputArchive;
 template void EyeModel::serialize<OArchiveJSON>(OArchiveJSON& ar, const unsigned int);
 
-typedef cereal::JSONInputArchive IArchiveJSON;
+using IArchiveJSON = cereal::JSONInputArchive;
 template void EyeModel::serialize<IArchiveJSON>(IArchiveJSON& ar, const unsigned int);
 
 DRISHTI_EYE_NAMESPACE_END

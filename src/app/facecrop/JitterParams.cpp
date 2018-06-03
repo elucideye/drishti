@@ -83,8 +83,8 @@ void JitterParams::serialize(Archive& ar, const unsigned int version)
     ar& GENERIC_NVP("origin", origin);
 }
 
-typedef cereal::JSONOutputArchive OArchiveJSON;
+using OArchiveJSON = cereal::JSONOutputArchive;
 template void JitterParams::serialize<OArchiveJSON>(OArchiveJSON& ar, const unsigned int);
 
-typedef cereal::JSONInputArchive IArchiveJSON;
+using IArchiveJSON = cereal::JSONInputArchive;
 template void JitterParams::serialize<IArchiveJSON>(IArchiveJSON& ar, const unsigned int);

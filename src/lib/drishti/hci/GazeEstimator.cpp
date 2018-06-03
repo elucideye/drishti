@@ -33,8 +33,7 @@ public:
     };
 
     Impl()
-    {
-    }
+    = default;
     void begin()
     {
     }

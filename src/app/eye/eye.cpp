@@ -47,7 +47,7 @@ static bool writeAsJson(const std::string& filename, drishti::eye::EyeModel& eye
     if (ofs)
     {
         cereal::JSONOutputArchive oa(ofs);
-        typedef decltype(oa) Archive; // needed by macro
+        using Archive = decltype(oa); // needed by macro
         oa << GENERIC_NVP("eye", eye);
     }
     return ofs.good();

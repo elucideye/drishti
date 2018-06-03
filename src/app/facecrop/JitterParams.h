@@ -6,7 +6,7 @@
 
 struct JitterParams
 {
-    JitterParams() {}
+    JitterParams() = default;
 
     struct Distribution
     {

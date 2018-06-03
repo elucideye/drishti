@@ -27,8 +27,8 @@ DRISHTI_ML_NAMESPACE_BEGIN
 class ShapeEstimator
 {
 public:
-    typedef std::vector<bool> BoolVec;
-    typedef std::vector<cv::Point2f> Point2fVec;
+    using BoolVec = std::vector<bool>;
+    using Point2fVec = std::vector<cv::Point2f>;
 
     virtual ~ShapeEstimator();
 

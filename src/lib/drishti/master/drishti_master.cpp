@@ -12,5 +12,5 @@
 #include "drishti_master.hpp"
 
 DRISHTI_MASTER_BEGIN
-VersionInfo::VersionInfo() {}
+VersionInfo::VersionInfo() = default;
 DRISHTI_MASTER_END

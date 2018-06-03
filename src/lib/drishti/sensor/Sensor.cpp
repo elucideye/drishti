@@ -13,8 +13,7 @@
 DRISHTI_SENSOR_NAMESPACE_BEGIN
 
 SensorModel::Intrinsic::Intrinsic()
-{
-}
+= default;
 
 SensorModel::Intrinsic::Intrinsic(const cv::Point2f& c, float fx, const cv::Size& size)
     : m_size(size)

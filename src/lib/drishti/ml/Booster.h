@@ -73,7 +73,7 @@ DMatrixSimpleFromMat(const float* data, bst_ulong nrow, bst_ulong ncol, float mi
             {
                 if (nan_missing || data[j] != missing)
                 {
-                    mat.row_data_.push_back(RowBatch::Entry(bst_uint(j), data[j]));
+                    mat.row_data_.emplace_back(bst_uint(j), data[j]);
                     ++nelem;
                 }
             }
@@ -134,7 +134,7 @@ DMatrixSimpleFromMat(const MatrixType<float>& data, bst_ulong nrow, bst_ulong nc
         {
             if (!mask.size() || mask[i][j])
             {
-                mat.row_data_.push_back(RowBatch::Entry(bst_uint(j), data[i][j]));
+                mat.row_data_.emplace_back(bst_uint(j), data[i][j]);
                 ++nelem;
             }
         }
@@ -186,7 +186,7 @@ public:
         gbm_->DoBoost(train.fmat(), this->FindBufferOffset(train), train.info.info, &gpair_);
 #endif
     }
-    inline void CheckInitModel(void)
+    inline void CheckInitModel()
     {
         if (!init_model)
         {

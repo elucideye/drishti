@@ -11,6 +11,8 @@
 #ifndef __drishti_rcpr_ImageMaskPair_h__
 #define __drishti_rcpr_ImageMaskPair_h__ 1
 
+#include <utility>
+
 #include "drishti/rcpr/drishti_rcpr.h"
 
 DRISHTI_RCPR_NAMESPACE_BEGIN
@@ -18,14 +20,14 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 struct ImageMaskPair
 {
 public:
-    ImageMaskPair() {}
-    ImageMaskPair(const cv::Mat& image)
-        : image(image)
+    ImageMaskPair() = default;
+    ImageMaskPair(cv::Mat  image)
+        : image(std::move(image))
     {
     }
-    ImageMaskPair(const cv::Mat& image, const cv::Mat& mask)
-        : image(image)
-        , mask(mask)
+    ImageMaskPair(cv::Mat  image, cv::Mat  mask)
+        : image(std::move(image))
+        , mask(std::move(mask))
     {
     }
 

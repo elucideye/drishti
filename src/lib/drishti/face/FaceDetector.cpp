@@ -25,7 +25,9 @@
 
 #include <acf/ACF.h> // ACF detection
 
-#include <stdio.h>
+#include <cstdio>
+
+#include <utility>
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
@@ -39,9 +41,9 @@ static void chooseBest(std::vector<cv::Rect>& objects, std::vector<double>& scor
 class FaceDetector::Impl
 {
 public:
-    typedef FaceDetector::MatLoggerType MatLoggerType;
-    typedef FaceDetector::TimeLoggerType TimeLoggerType;
-    typedef FaceDetector::EyeCropper EyeCropper;
+    using MatLoggerType = FaceDetector::MatLoggerType;
+    using TimeLoggerType = FaceDetector::TimeLoggerType;
+    using EyeCropper = FaceDetector::EyeCropper;
 
     Impl(FaceDetectorFactory& resources)
     {
@@ -229,7 +231,7 @@ public:
         const cv::Rect fullBounds({ 0, 0 }, Ib.Ib.size());
         const cv::Rect bounds = Ib.roi.area() ? Ib.roi : fullBounds;
 
-        for (int i = 0; i < shapes.size(); i++)
+        for (auto & shape : shapes)
         {
             // Detection rectangles may have a geometry (w.r.t. face features) that is incompatible with the
             // ROI geometry used for training the face landmark regressor.  In cases where we aim to refine
@@ -243,30 +245,30 @@ public:
             cv::Rect roi;
             if(isDetection)
             {
-                roi = mapDetectionToRegressor(shapes[i].roi, m_Hrd, Hdr_);
+                roi = mapDetectionToRegressor(shape.roi, m_Hrd, Hdr_);
             }
             else
             {
-                roi = (Hdr_ * shapes[i].roi);
+                roi = (Hdr_ * shape.roi);
             }
 
             // Perform an addition (optional) scaling that can be tuned easily by the user as some detection
             // scales will perform better than the mean mapping used above (experimentally).
-            shapes[i].roi = scaleRoi(roi, m_scaling);
+            shape.roi = scaleRoi(roi, m_scaling);
 
             // Crop the image such that the ROI to pixel geometry is preserved.  For most cases this is
             // a simple shallow copy/view, but in cases where the border is clipped, then we will effectively
             // perform border padding to achieve this goal.  This make our prediction ROI closest to the ROI
             // used during training and ensures our cascaded pose regression has the best chance of success.
-            cv::Mat crop = geometryPreservingCrop(shapes[i].roi, gray);
+            cv::Mat crop = geometryPreservingCrop(shape.roi, gray);
 
             std::vector<bool> mask;
             std::vector<cv::Point2f> points;
             (*m_regressor)(crop, points, mask);
             for (const auto& p : points)
             {
-                const cv::Point q = p + cv::Point2f(shapes[i].roi.tl());
-                shapes[i].contour.emplace_back(q.x, q.y, 0);
+                const cv::Point q = p + cv::Point2f(shape.roi.tl());
+                shape.contour.emplace_back(q.x, q.y, 0);
             }
         }
     }
@@ -481,7 +483,7 @@ public:
     {
         m_doNMSGlobal = doNMS;
     }
-    void setLogger(MatLoggerType logger)
+    void setLogger(const MatLoggerType& logger)
     {
         if (m_detector)
         {
@@ -491,15 +493,15 @@ public:
     }
     void setDetectionTimeLogger(TimeLoggerType logger)
     {
-        m_detectionTimeLogger = logger;
+        m_detectionTimeLogger = std::move(logger);
     }
     void setRegressionTimeLogger(TimeLoggerType logger)
     {
-        m_regressionTimeLogger = logger;
+        m_regressionTimeLogger = std::move(logger);
     }
     void setEyeRegressionTimeLogger(TimeLoggerType logger)
     {
-        m_eyeRegressionTimeLogger = logger;
+        m_eyeRegressionTimeLogger = std::move(logger);
     }
     void setEyeCropper(EyeCropper& cropper)
     {
@@ -607,7 +609,7 @@ void FaceDetector::setFaceDetectorMean(const FaceModel& mu)
 }
 void FaceDetector::setLogger(MatLoggerType logger)
 {
-    m_impl->setLogger(logger);
+    m_impl->setLogger(std::move(logger));
 }
 drishti::ml::ObjectDetector* FaceDetector::getDetector()
 {
@@ -670,15 +672,15 @@ cv::Size FaceDetector::getWindowSize() const
 }
 void FaceDetector::setDetectionTimeLogger(TimeLoggerType logger)
 {
-    m_impl->setDetectionTimeLogger(logger);
+    m_impl->setDetectionTimeLogger(std::move(logger));
 }
 void FaceDetector::setRegressionTimeLogger(TimeLoggerType logger)
 {
-    m_impl->setRegressionTimeLogger(logger);
+    m_impl->setRegressionTimeLogger(std::move(logger));
 }
 void FaceDetector::setEyeRegressionTimeLogger(TimeLoggerType logger)
 {
-    m_impl->setEyeRegressionTimeLogger(logger);
+    m_impl->setEyeRegressionTimeLogger(std::move(logger));
 }
 void FaceDetector::setEyeCropper(EyeCropper& cropper)
 {

@@ -66,14 +66,14 @@ void EyeSegmenter::Impl::init(std::istream& is, ArchiveKind kind)
     m_eme->setStreamLogger(m_streamLogger);
 }
 
-EyeSegmenter::Impl::~Impl() {}
+EyeSegmenter::Impl::~Impl() = default;
 
 int EyeSegmenter::Impl::operator()(const Image3b& image, Eye& eye, bool isRight)
 {
     int status = 0;
 
     const int minWidth = getMinWidth();
-    const int minHeight = int(float(getMinWidth()) / getRequiredAspectRatio() + 0.5f);
+    const auto minHeight = int(float(getMinWidth()) / getRequiredAspectRatio() + 0.5f);
     if (image.getCols() < minWidth || image.getRows() < minHeight)
     {
         return 1;
@@ -120,7 +120,7 @@ int EyeSegmenter::Impl::operator()(const Image3b& image, Eye& eye, bool isRight)
 
 Eye EyeSegmenter::Impl::getMeanEye(int width) const
 {
-    int height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
+    auto height = int(float(width) / EYE_ASPECT_RATIO + 0.5f);
     DRISHTI_EYE::EyeModel model = m_eme->getMeanShape(cv::Size(width, height));
     drishti::sdk::Eye eye = convert(model);
     eye.setRoi({ 0, 0, width, height });

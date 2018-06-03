@@ -28,8 +28,8 @@ class infix_ostream_iterator : public std::iterator<std::output_iterator_tag, vo
     bool first_elem;
 
 public:
-    typedef charT char_type;
-    typedef traits traits_type;
+    using char_type = charT;
+    using traits_type = traits;
     typedef std::basic_ostream<charT, traits> ostream_type;
     infix_ostream_iterator(ostream_type& s)
         : os(&s)

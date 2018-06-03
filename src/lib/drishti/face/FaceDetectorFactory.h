@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 #include <map>
 
@@ -33,14 +34,14 @@ public:
     FaceDetectorFactory(bool inner=false) : inner(inner) {}
 
     FaceDetectorFactory(
-        const std::string& sFaceDetector,
-        const std::string& sFaceRegressor,
-        const std::string& sEyeRegressor,
-        const std::string& sFaceDetectorMean, bool inner=false)
-        : sFaceDetector(sFaceDetector)
-        , sFaceRegressor(sFaceRegressor)
-        , sEyeRegressor(sEyeRegressor)
-        , sFaceDetectorMean(sFaceDetectorMean)
+        std::string  sFaceDetector,
+        std::string  sFaceRegressor,
+        std::string  sEyeRegressor,
+        std::string  sFaceDetectorMean, bool inner=false)
+        : sFaceDetector(std::move(sFaceDetector))
+        , sFaceRegressor(std::move(sFaceRegressor))
+        , sEyeRegressor(std::move(sEyeRegressor))
+        , sFaceDetectorMean(std::move(sFaceDetectorMean))
         , inner(inner)
     {
     }
@@ -66,7 +67,7 @@ public:
 class FaceDetectorFactoryStream : public FaceDetectorFactory
 {
 public:
-    FaceDetectorFactoryStream() {}
+    FaceDetectorFactoryStream() = default;
 
     FaceDetectorFactoryStream(
         std::istream* iFaceDetector,
@@ -81,10 +82,10 @@ public:
     {
     }
 
-    virtual std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector();
-    virtual std::unique_ptr<drishti::ml::ShapeEstimator> getFaceEstimator();
-    virtual std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator();
-    virtual drishti::face::FaceModel getMeanFace();
+    std::unique_ptr<drishti::ml::ObjectDetector> getFaceDetector() override;
+    std::unique_ptr<drishti::ml::ShapeEstimator> getFaceEstimator() override;
+    std::unique_ptr<drishti::eye::EyeModelEstimator> getEyeEstimator() override;
+    drishti::face::FaceModel getMeanFace() override;
 
     std::istream* iFaceDetector = nullptr;
     std::istream* iFaceRegressor = nullptr;

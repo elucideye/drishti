@@ -33,7 +33,7 @@ void StandardizedPCA::Standardizer::create(int size, int type)
 void StandardizedPCA::Standardizer::compute(const cv::Mat& src, const cv::Mat &columnWeights)
 {
     create(src.cols, CV_32FC1);
-    float *pMu = mu.ptr<float>(), *pSigma = sigma.ptr<float>();
+    auto *pMu = mu.ptr<float>(), *pSigma = sigma.ptr<float>();
     for (int i = 0; i < src.cols; i++, pMu++, pSigma++)
     {
         cv::Scalar mu, sigma;

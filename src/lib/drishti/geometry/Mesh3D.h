@@ -24,7 +24,7 @@ public:
     using APoint3d = cv::Point3_<T>;
     using APointVec3d = std::vector<APoint3d>;
 
-    Mesh3D() {}
+    Mesh3D() = default;
     Mesh3D(const Mesh3D& mesh)
         : m_vertices(mesh.m_vertices)
     {

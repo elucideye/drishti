@@ -45,20 +45,20 @@
 DRISHTI_RCPR_NAMESPACE_BEGIN
 
 #define CV_REAL_TYPE CV_32F
-typedef float RealType;
-typedef std::vector<cv::Point2f> PointVec;
+using RealType = float;
+using PointVec = std::vector<cv::Point2f>;
 inline int PointVecSize(const PointVec& v)
 {
     return int(v.size());
 }
 
 typedef cv::Matx<RealType, 3, 3> Matx33Real;
-typedef std::vector<RealType> Vector1d;
-typedef std::vector<cv::Mat> ImageVec;
-typedef std::vector<int> IntVec;
-typedef std::vector<ImageMaskPair> ImageMaskPairVec;
-typedef std::vector<Vector1d> EllipseVec;
-typedef std::vector<cv::Matx33f> HVec;
+using Vector1d = std::vector<RealType>;
+using ImageVec = std::vector<cv::Mat>;
+using IntVec = std::vector<int>;
+using ImageMaskPairVec = std::vector<ImageMaskPair>;
+using EllipseVec = std::vector<Vector1d>;
+using HVec = std::vector<cv::Matx33f>;
 
 class CPR : public drishti::ml::ShapeEstimator
 {
@@ -73,14 +73,14 @@ public:
     CPR(const char* filename);
 #endif
 
-    ~CPR();
+    ~CPR() override;
 
     void setViewer(ViewFunc& viewer)
     {
         m_viewer = viewer;
     }
 
-    virtual std::vector<cv::Point2f> getMeanShape() const;
+    std::vector<cv::Point2f> getMeanShape() const override;
 
     cv::RotatedRect getPStar() const; // get mean normalized ellipse
 
@@ -89,7 +89,7 @@ public:
         double xs, ys, ang, scl, asp;
     };
 
-    virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)
+    void setStreamLogger(std::shared_ptr<spdlog::logger>& logger) override
     {
         drishti::ml::ShapeEstimator::setStreamLogger(logger);
         for (auto& reg : (*regModel->regs))
@@ -101,12 +101,12 @@ public:
         }
     }
 
-    virtual void setStagesHint(int stages)
+    void setStagesHint(int stages) override
     {
         stagesHint = stages;
     };
 
-    virtual int getStagesHint() const
+    int getStagesHint() const override
     {
         return stagesHint;
     };
@@ -167,7 +167,7 @@ public:
 
         core::Field<RealType> verbose;
 
-        typedef rcpr::Recipe Recipe;
+        using Recipe = rcpr::Recipe;
 
         std::vector<Recipe> cascadeRecipes;
 
@@ -231,8 +231,8 @@ public:
         std::vector<Vector1d> pAll;
     };
 
-    virtual int operator()(const cv::Mat& I, const cv::Mat& M, PointVec& points, std::vector<bool>& mask) const;
-    virtual int operator()(const cv::Mat& I, PointVec& points, std::vector<bool>& mask) const;
+    int operator()(const cv::Mat& I, const cv::Mat& M, PointVec& points, std::vector<bool>& mask) const override;
+    int operator()(const cv::Mat& I, PointVec& points, std::vector<bool>& mask) const override;
 
     struct FeaturesResult
     {
@@ -250,7 +250,7 @@ public:
     int cprApplyTree(const cv::Mat& Is, const RegModel& regModel, const Vector1d& p, CPRResult& result, bool preview = false) const;
     int cprApplyTree(const ImageMaskPair& Is, const RegModel& regModel, const Vector1d& p, CPRResult& result, bool preview = false) const;
 
-    virtual void setDoPreview(bool flag);
+    void setDoPreview(bool flag) override;
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version);

@@ -27,7 +27,7 @@ public:
     using VertexBuffer = std::vector<glm::vec4>;
     using CoordBuffer = std::vector<glm::vec2>;
 
-    MeshShader(const cv::Mat& iso, const VertexBuffer& vertices, const CoordBuffer& coords);
+    MeshShader(const cv::Mat& iso, VertexBuffer  vertices, CoordBuffer  coords);
 
     static const char* getProcName();
 

@@ -59,7 +59,7 @@ inline T ntoh_any(T t)
         return t;
     }
 
-    unsigned char* ptr = reinterpret_cast<unsigned char*>(&t);
+    auto* ptr = reinterpret_cast<unsigned char*>(&t);
     std::reverse(ptr, ptr + sizeof(t));
     return t;
 }
@@ -72,8 +72,8 @@ inline cv::Size read_png_size(const std::string& filename)
     {
         unsigned int width, height;
         in.seekg(16);
-        in.read((char*)&width, 4);
-        in.read((char*)&height, 4);
+        in.read(reinterpret_cast<char*>(&width), 4);
+        in.read(reinterpret_cast<char*>(&height), 4);
         size = { static_cast<int>(ntoh_any(width)), static_cast<int>(ntoh_any(height)) };
     }
     return size;
@@ -171,8 +171,8 @@ public:
             for (int j = 0; j < points.size(); j++)
             {
                 // <part name='0000' x='49' y='82'/>
-                const int x = static_cast<int>(points[j].x + 0.5f);
-                const int y = static_cast<int>(points[j].y + 0.5f);
+                const auto x = static_cast<int>(points[j].x + 0.5f);
+                const auto y = static_cast<int>(points[j].y + 0.5f);
 
                 // Important: dlib requires fixed width part names
                 std::stringstream ss;

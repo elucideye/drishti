@@ -23,7 +23,7 @@ public:
     static FixedThreadPool* getInstance();
 
 private:
-    ThreadPoolSource() {}
+    ThreadPoolSource() = default;
 
 public:
     ThreadPoolSource(ThreadPoolSource const&) = delete;

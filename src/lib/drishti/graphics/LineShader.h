@@ -29,7 +29,7 @@ class LineShader
 public:
     using VertexBuffer = std::vector<glm::vec4>;
 
-    LineShader(const VertexBuffer& vertices);
+    LineShader(VertexBuffer  vertices);
 
     static const char* getProcName();
 

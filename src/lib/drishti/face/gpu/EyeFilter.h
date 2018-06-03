@@ -53,7 +53,7 @@ public:
 
     EyeFilter(const Size2d& sizeOut, Mode mode, float cutoff, int history);
 
-    virtual ~EyeFilter();
+    ~EyeFilter() override;
 
     void setAutoScaling(bool flag)
     {
@@ -73,20 +73,20 @@ public:
     /**
      * Return the processors name.
      */
-    virtual const char* getProcName()
+    const char* getProcName() override
     {
         return "EyeFilter";
     }
 
-    virtual ProcInterface* getInputFilter() const;
-    virtual ProcInterface* getOutputFilter() const;
+    ProcInterface* getInputFilter() const override;
+    ProcInterface* getOutputFilter() const override;
 
-    virtual void setOutputSize(float scaleFactor);
-    virtual void setOutputSize(int outW, int outH);
+    void setOutputSize(float scaleFactor) override;
+    void setOutputSize(int outW, int outH) override;
 
-    virtual int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false);
-    virtual int reinit(int inW, int inH, bool prepareForExternalInput = false);
-    virtual int render(int position);
+    int init(int inW, int inH, unsigned int order, bool prepareForExternalInput = false) override;
+    int reinit(int inW, int inH, bool prepareForExternalInput = false) override;
+    int render(int position) override;
 
     void addFace(const drishti::face::FaceModel& face)
     {

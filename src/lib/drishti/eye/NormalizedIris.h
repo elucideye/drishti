@@ -11,7 +11,9 @@
 #ifndef __drishti_eye_NormalizedIris_h__
 #define __drishti_eye_NormalizedIris_h__
 
-#include <stdio.h>
+#include <cstdio>
+
+#include <utility>
 
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/eye/Eye.h"
@@ -21,11 +23,11 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 class NormalizedIris
 {
 public:
-    NormalizedIris() {}
-    NormalizedIris(const cv::Mat& image, const cv::Mat& mask, const cv::Rect& roi)
+    NormalizedIris() = default;
+    NormalizedIris(cv::Mat  image, cv::Mat  mask, const cv::Rect& roi)
         : roi(roi)
-        , image(image)
-        , mask(mask)
+        , image(std::move(image))
+        , mask(std::move(mask))
     {
     }
 

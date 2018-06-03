@@ -35,7 +35,7 @@ void EyeModelEstimator::Impl::segmentIris(const cv::Mat& I, EyeModel& eye) const
 {
     // Find transformation mapping mean iris to our image:
     auto cpr = dynamic_cast<drishti::rcpr::CPR*>(m_irisEstimator.get());
-    CV_Assert(cpr != 0);
+    CV_Assert(cpr != nullptr);
 
     cv::Mat1b M;
     if (cpr && cpr->usesMask())

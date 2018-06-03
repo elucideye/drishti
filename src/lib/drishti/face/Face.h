@@ -16,7 +16,7 @@
 #include "drishti/eye/Eye.h"
 #include "drishti/geometry/Rectangle.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 

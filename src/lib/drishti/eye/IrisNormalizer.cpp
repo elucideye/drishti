@@ -19,8 +19,7 @@
 DRISHTI_EYE_NAMESPACE_BEGIN
 
 IrisNormalizer::IrisNormalizer()
-{
-}
+= default;
 
 void IrisNormalizer::warpIris(const cv::Mat& crop, const cv::Mat1b& mask, const cv::Size& paddedSize, Rays& rayPixels, Rays& rayTexels, NormalizedIris& code, int padding) const
 {

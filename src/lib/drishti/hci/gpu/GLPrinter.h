@@ -30,13 +30,13 @@ public:
     void end();
     void printAt(const std::wstring& str, float x, float y, float sx, float sy);
 
-    GLuint m_texId;
-    GLuint m_vbo, m_vao;
+    GLuint m_texId{};
+    GLuint m_vbo{}, m_vao{};
 
     // #### Draw shader ####
     std::shared_ptr<Shader> m_shader;
     GLuint m_shParamAPos;
-    GLuint m_shParamATexCoord;
+    GLuint m_shParamATexCoord{};
     GLuint m_shParamUInputTex;
 
     static const char* vshaderPrinterSrc; // vertex shader source

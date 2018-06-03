@@ -38,7 +38,7 @@ using namespace drishti::core;
 
 DRISHTI_EYE_NAMESPACE_BEGIN
 
-typedef std::vector<cv::Point2f> PointVec;
+using PointVec = std::vector<cv::Point2f>;
 static std::vector<PointVec> ellipseToContours(const cv::RotatedRect& ellipse, const PointVec& eyelids = {});
 static void fillPolly(cv::Mat& image, const PointVec& polly, const cv::Scalar& value);
 
@@ -411,10 +411,10 @@ void EyeModel::draw(cv::Mat& canvas, int level, bool doMask, const cv::Scalar& c
     {
         // Draw the ellipse contours:
         auto contours = getContours();
-        for (int i = 0; i < contours.size(); i++)
+        for (auto & i : contours)
         {
             std::vector<std::vector<cv::Point>> contour(1);
-            std::copy(contours[i].begin(), contours[i].end(), std::back_inserter(contour[0]));
+            std::copy(i.begin(), i.end(), std::back_inserter(contour[0]));
             cv::polylines(canvas, contour, false, color, width);
         }
     }
@@ -445,9 +445,9 @@ void EyeModel::draw(cv::Mat& canvas, int level, bool doMask, const cv::Scalar& c
         {
             cv::circle(canvas, cv::Point(iris[0], iris[1]), iris[2], { 0, 255, 0 }, 1, 8);
         }
-        for (int i = 0; i < eyelids.size(); i++)
+        for (const auto & eyelid : eyelids)
         {
-            cv::circle(canvas, eyelids[i], 4, { 0, 255, 0 }, 1, 8);
+            cv::circle(canvas, eyelid, 4, { 0, 255, 0 }, 1, 8);
         }
         for (const auto& i : cornerIndices)
         {
@@ -665,7 +665,7 @@ static std::vector<PointVec> ellipseToContours(const cv::RotatedRect& ellipse, c
         {
             // Search for zero crossing
             doCopy = false;
-            int n = int(mask.size());
+            auto n = int(mask.size());
             for (int i = 0; (i < mask.size()) && validCount; i++)
             {
                 int j = mod(i - 1, n);

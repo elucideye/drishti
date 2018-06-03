@@ -17,7 +17,7 @@
 #include <opencv2/videostab.hpp> // TODO replace cv::videostab::MotionModel type with int?
 
 #include <vector>
-#include <stdio.h>
+#include <cstdio>
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 

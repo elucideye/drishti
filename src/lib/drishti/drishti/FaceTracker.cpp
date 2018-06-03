@@ -128,8 +128,7 @@ FaceTracker::FaceTracker(Context* manager, Resources& factory)
 }
 
 FaceTracker::~FaceTracker()
-{
-}
+= default;
 
 bool FaceTracker::good() const
 {

@@ -32,8 +32,8 @@ CEREAL_CLASS_VERSION(drishti::ml::XGBooster, 1);
 // #################### portable_binary_*archive ####################
 // ##################################################################
 
-typedef cereal::PortableBinaryOutputArchive OArchive;
-typedef cereal::PortableBinaryInputArchive IArchive;
+using OArchive = cereal::PortableBinaryOutputArchive;
+using IArchive = cereal::PortableBinaryInputArchive;
 
 DRISHTI_ML_NAMESPACE_BEGIN
 template void XGBooster::serialize<OArchive>(OArchive& ar, const unsigned int);

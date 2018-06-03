@@ -148,7 +148,7 @@ static const float32x4_t v32x4f_neg_half = { -0.5f, -0.5f, -0.5f, -0.5f };
 
 void convertFixedPoint(const float* pa, int16_t* pb, int n, int fraction)
 {
-    float scale = float(1 << fraction);
+    auto scale = float(1 << fraction);
 
     int i = 0;
 

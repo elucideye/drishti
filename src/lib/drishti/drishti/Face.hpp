@@ -47,7 +47,7 @@ struct DRISHTI_EXPORT Face
     /**
      * Estimated 3D position for point between the eyes.
      */
-    drishti::sdk::Vec3f position;
+    drishti::sdk::Vec3f position{};
 };
 
 _DRISHTI_SDK_END

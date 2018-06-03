@@ -15,12 +15,10 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 // =============================
 
 TrackerNN::TrackerNN()
-{
-}
+= default;
 
 TrackerNN::~TrackerNN()
-{
-}
+= default;
 
 std::vector<cv::Point2f> TrackerNN::getFeatures() const
 {

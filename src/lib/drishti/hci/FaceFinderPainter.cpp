@@ -29,14 +29,15 @@
 #include "ogles_gpgpu/common/gl/memtransfer_optimized.h"
 
 #include <memory>
+#include <utility>
 
 using drishti::face::operator*;
 using drishti::core::operator*;
 
 struct MethodLog
 {
-    MethodLog(const std::string& name)
-        : name(name)
+    MethodLog(std::string  name)
+        : name(std::move(name))
     {
     }
     std::string name;
@@ -51,7 +52,7 @@ static void getImage(ogles_gpgpu::ProcInterface& proc, FaceFinderPainter::FrameD
     {
         // clag-format off
         ogles_gpgpu::MemTransfer::FrameDelegate delegate = [&](const ogles_gpgpu::Size2d& size, const void* pixels, size_t bytesPerRow) {
-            callback(cv::Mat(size.height, size.width, CV_8UC4, (void*)pixels, bytesPerRow));
+            callback(cv::Mat(size.height, size.width, CV_8UC4, const_cast<void*>(pixels), bytesPerRow));
         };
         // clag-format on
         proc.getResultData(delegate);
@@ -80,11 +81,11 @@ public:
             { 0.9f, 0.9f }
         };
     }
-    ~Impl() {}
+    ~Impl() = default;
 
     std::chrono::high_resolution_clock::time_point m_tic;
 
-    int m_index;
+    int m_index{};
     std::vector<cv::Point2f> m_positions;
 
     bool m_showMotionAxes = true;
@@ -106,8 +107,7 @@ FaceFinderPainter::create(FaceDetectorFactoryPtr& factory, Settings& settings, v
 }
 
 FaceFinderPainter::~FaceFinderPainter()
-{
-}
+= default;
 
 void FaceFinderPainter::setEffectKind(EffectKind kind)
 {

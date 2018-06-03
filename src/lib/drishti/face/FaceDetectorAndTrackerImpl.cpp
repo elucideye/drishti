@@ -12,8 +12,8 @@
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
-FaceDetectorAndTracker::TrackImpl::TrackImpl() {}
-FaceDetectorAndTracker::TrackImpl::~TrackImpl() {}
+FaceDetectorAndTracker::TrackImpl::TrackImpl() = default;
+FaceDetectorAndTracker::TrackImpl::~TrackImpl() = default;
 
 void FaceDetectorAndTracker::TrackImpl::initializeWithRegions(const cv::Mat1b& image, const std::vector<cv::Rect>& regions)
 {

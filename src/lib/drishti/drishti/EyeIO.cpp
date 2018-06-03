@@ -132,14 +132,14 @@ std::ostream& operator<<(std::ostream& os, const EyeOStream& eye)
         case EyeStream::XML:
         {
             cereal::XMLOutputArchive oa(os);
-            typedef decltype(oa) Archive;
+            using Archive = decltype(oa);
             oa << GENERIC_NVP("eye", eye.eye);
             break;
         }
         case EyeStream::JSON:
         {
             cereal::JSONOutputArchive oa(os);
-            typedef decltype(oa) Archive;
+            using Archive = decltype(oa);
             oa << GENERIC_NVP("eye", eye.eye);
             break;
         }
@@ -159,14 +159,14 @@ std::istream& operator>>(std::istream& is, EyeIStream& eye)
         case EyeStream::XML:
         {
             cereal::XMLInputArchive ia(is);
-            typedef decltype(ia) Archive;
+            using Archive = decltype(ia);
             ia(GENERIC_NVP("eye", eye.eye));
             break;
         }
         case EyeStream::JSON:
         {
             cereal::JSONInputArchive ia(is);
-            typedef decltype(ia) Archive;
+            using Archive = decltype(ia);
             ia(GENERIC_NVP("eye", eye.eye));
             break;
         }

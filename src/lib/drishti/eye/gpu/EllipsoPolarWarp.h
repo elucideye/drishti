@@ -15,6 +15,7 @@
 #include "drishti/eye/gpu/EyeWarp.h"
 
 #include <opencv2/core.hpp>
+#include <utility>
 
 BEGIN_OGLES_GPGPU
 
@@ -24,16 +25,16 @@ public:
     using EyeDelegate = std::function<drishti::eye::EyeWarp(void)>;
 
     EllipsoPolarWarp();
-    virtual const char* getProcName()
+    const char* getProcName() override
     {
         return "EllipsoPolarWarp";
     }
-    virtual int render(int position = 0);
-    virtual void filterRenderSetCoords();
+    int render(int position = 0) override;
+    void filterRenderSetCoords() override;
 
     void addEyeDelegate(EyeDelegate delegate)
     {
-        m_eyeDelegate = delegate;
+        m_eyeDelegate = std::move(delegate);
     }
 
 protected:

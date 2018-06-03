@@ -17,6 +17,7 @@
 
 #include <string>
 #include <iostream>
+#include <utility>
 
 DRISHTI_ML_NAMESPACE_BEGIN
 
@@ -38,8 +39,8 @@ DRISHTI_ML_NAMESPACE_BEGIN
 
 struct BoundingBox
 {
-    BoundingBox(const std::string& lbl, const cv::Rect& bb, float occ, const cv::Rect& bbV, bool ign, double ang)
-        : lbl(lbl)
+    BoundingBox(std::string  lbl, const cv::Rect& bb, float occ, const cv::Rect& bbV, bool ign, double ang)
+        : lbl(std::move(lbl))
         , bb(bb)
         , occ(occ)
         , bbV(bbV)
@@ -62,7 +63,7 @@ struct BoundingBox
 
 struct BoundingBoxSet
 {
-    BoundingBoxSet() {}
+    BoundingBoxSet() = default;
     friend std::ostream& operator<<(std::ostream& os, const BoundingBoxSet& src);
 
     std::vector<BoundingBox> objects;
@@ -86,9 +87,9 @@ inline std::ostream& operator<<(std::ostream& os, const BoundingBoxSet& src)
 {
     static const std::string header = "% bbGt version=3\n";
     os << header;
-    for (int i = 0; i < src.objects.size(); i++)
+    for (const auto & object : src.objects)
     {
-        os << src.objects[i] << std::endl;
+        os << object << std::endl;
     }
 
     return os;

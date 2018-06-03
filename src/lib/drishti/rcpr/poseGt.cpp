@@ -476,9 +476,9 @@ Matx33Real phisToHs(const Vector1d& phis)
 Vector1d compPhiStar(const CPR::Model& model, const EllipseVec& phis)
 {
     Vector1d phi(phis.front().size(), 0);
-    for (int i = 0; i < phis.size(); i++)
+    for (const auto & i : phis)
     {
-        phi += phis[i];
+        phi += i;
     }
 
     phi *= (Vector1d::value_type(1.0) / phis.size());
@@ -489,9 +489,9 @@ Vector1d compPhiStar(const CPR::Model& model, const EllipseVec& phis)
     for (int j = 0; j < M; j++)
     {
         double t = (2.0 * M_PI) * double(j) / (M - 1), del = 0.0;
-        for (int i = 0; i < phis.size(); i++)
+        for (const auto & phi : phis)
         {
-            del += std::pow(normAng(phis[i][2] - t, DRISHTI_CPR_ANGLE_RANGE), 2.0);
+            del += std::pow(normAng(phi[2] - t, DRISHTI_CPR_ANGLE_RANGE), 2.0);
         }
 
         if (del < best.second)

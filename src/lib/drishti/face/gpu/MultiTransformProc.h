@@ -18,17 +18,17 @@ BEGIN_OGLES_GPGPU
 struct MappedTextureRegion
 {
     Rect2d roi;
-    Mat44f H; // column major format for opengl
+    Mat44f H{}; // column major format for opengl
 };
 
 class MultiTransformProc : public ogles_gpgpu::TransformProc
 {
 public:
-    MultiTransformProc() {}
-    virtual ~MultiTransformProc() {}
+    MultiTransformProc() = default;
+    ~MultiTransformProc() override = default;
 
     void renderRegion(const Rect2d& dstRoiPix, const Mat44f& Heye);
-    virtual void filterRenderDraw();
+    void filterRenderDraw() override;
 
     void addCrop(const MappedTextureRegion& crop)
     {

@@ -16,7 +16,7 @@
 #include <drishti/drishti_sdk.hpp>
 #include <cstdint>
 #include <type_traits>
-#include <stdlib.h>
+#include <cstdlib>
 
 _DRISHTI_SDK_BEGIN
 
@@ -28,7 +28,7 @@ template <typename T, int D>
 struct Vec
 {
 public:
-    Vec() {}
+    Vec() = default;
 
     template <typename... Tail>
     Vec(typename std::enable_if<sizeof...(Tail) + 1 == D, T>::type head, Tail... tail)
@@ -49,12 +49,12 @@ protected:
     T val[D];
 };
 
-typedef Vec<uint8_t, 3> Vec3b;
-typedef Vec<uint8_t, 4> Vec4b;
-typedef Vec<float, 2> Vec2f;
-typedef Vec<float, 3> Vec3f;
-typedef Vec<int, 2> Vec2i;
-typedef Vec<int, 3> Vec3i;
+using Vec3b = Vec<uint8_t, 3>;
+using Vec4b = Vec<uint8_t, 4>;
+using Vec2f = Vec<float, 2>;
+using Vec3f = Vec<float, 3>;
+using Vec2i = Vec<int, 2>;
+using Vec3i = Vec<int, 3>;
 
 /*
  * Size2 types
@@ -76,8 +76,8 @@ struct Size2
     T width, height;
 };
 
-typedef Size2<float> Size2f;
-typedef Size2<int> Size2i;
+using Size2f = Size2<float>;
+using Size2i = Size2<int>;
 
 /*
  * Matrix types
@@ -86,7 +86,7 @@ typedef Size2<int> Size2i;
 template <typename T, int rowDim, int colDim>
 struct Matrix
 {
-    Matrix() {}
+    Matrix() = default;
     Matrix(const Matrix& src)
     {
         for (int y = 0; y < rowDim; y++)
@@ -106,7 +106,7 @@ struct Matrix
 
     static Matrix<T, rowDim, colDim> eye()
     {
-        Matrix<T, rowDim, colDim> I;
+        Matrix<T, rowDim, colDim> I{};
         for (int y = 0; y < 3; y++)
         {
             for (int x = 0; x < 3; x++)
@@ -153,8 +153,8 @@ struct Rect
     T x, y, width, height;
 };
 
-typedef Rect<int> Recti;
-typedef Rect<float> Rectf;
+using Recti = Rect<int>;
+using Rectf = Rect<float>;
 
 /*
  * Texture container
@@ -170,8 +170,8 @@ struct DRISHTI_EXPORT Texture
         // copy
     }
 
-    Vec2i size;
-    std::uint32_t texId;
+    Vec2i size{};
+    std::uint32_t texId{};
 };
 
 /*
@@ -208,15 +208,15 @@ public:
 protected:
     size_t rows = 0;
     size_t cols = 0;
-    T *storage = 0, *data = 0;
+    T *storage = nullptr, *data = nullptr;
     size_t stride = 0; // byte
 };
 
-typedef Image<uint8_t> Image1b;
-typedef Image<Vec3b> Image3b;
-typedef Image<Vec4b> Image4b;
-typedef Image<float> Image1f;
-typedef Image<Vec3f> Image3f;
+using Image1b = Image<uint8_t>;
+using Image3b = Image<Vec3b>;
+using Image4b = Image<Vec4b>;
+using Image1f = Image<float>;
+using Image3f = Image<Vec3f>;
 
 _DRISHTI_SDK_END
 

@@ -86,7 +86,7 @@ EyeFilter::~EyeFilter()
 void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes, int n, bool getImage)
 {
     // FifoProc::operator[] will preserve temporal ordering
-    int length = static_cast<int>(fifoProc->getBufferCount());
+    auto length = static_cast<int>(fifoProc->getBufferCount());
     n = std::min(n, static_cast<int>(length));
     eyes.resize(n);
     frames.resize(n);

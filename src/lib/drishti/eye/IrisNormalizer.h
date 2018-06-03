@@ -11,7 +11,7 @@
 #ifndef __drishti_eye_IrisNormalizer_h__
 #define __drishti_eye_IrisNormalizer_h__
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "drishti/eye/drishti_eye.h"
 #include "drishti/eye/Eye.h"

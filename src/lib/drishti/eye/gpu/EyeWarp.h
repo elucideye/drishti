@@ -19,7 +19,7 @@ DRISHTI_EYE_NAMESPACE_BEGIN
 
 struct EyeWarp
 {
-    EyeWarp() {}
+    EyeWarp() = default;
     EyeWarp(const cv::Rect2f& roi, const cv::Matx33f& H)
         : roi(roi)
         , H(H)

@@ -20,7 +20,7 @@ _DRISHTI_SDK_BEGIN
 
 struct DRISHTI_EXPORT VideoFrame
 {
-    VideoFrame() {}
+    VideoFrame() = default;
     VideoFrame(const Vec2i& size, void* pixelBuffer, bool useRawPixels, GLuint inputTexture, GLenum textureFormat)
         : size(size)
         , pixelBuffer(pixelBuffer)
@@ -30,7 +30,7 @@ struct DRISHTI_EXPORT VideoFrame
     {
     }
 
-    Vec2i size;
+    Vec2i size{};
     void* pixelBuffer = nullptr;
     bool useRawPixels = false;
     GLuint inputTexture = 0;

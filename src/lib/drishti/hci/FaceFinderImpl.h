@@ -59,12 +59,12 @@ struct FaceFinder::Impl
         , sensor(args.sensor)
         , logger(args.logger)
         , threads(args.threads)
-        , hasInit(false)
-        , outputOrientation(args.outputOrientation)
+        , 
+         outputOrientation(args.outputOrientation)
 
         // ACF and detection parameters:
-        , debugACF(false)
-        , acfCalibration(args.acfCalibration)
+        , 
+         acfCalibration(args.acfCalibration)
         , doSingleFace(args.doSingleFace)
         , faceFinderInterval(args.faceFinderInterval)
         , minDistanceMeters(args.minDetectionDistance)
@@ -80,8 +80,8 @@ struct FaceFinder::Impl
 
         // Eye parameters:
         , doBlobs(args.doBlobs)
-        , doIris(DRISHTI_HCI_FACEFINDER_DO_ELLIPSO_POLAR)
-        , eyesSize(args.eyesSize)
+        , 
+         eyesSize(args.eyesSize)
         , doEyesScaling(args.doEyesScaling)
 
         // Annotations:

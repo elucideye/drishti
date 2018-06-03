@@ -103,13 +103,13 @@ void GLPrinterShader::printAt(const std::wstring& str, float x, float y, float s
 {
     auto& font = Vera_16_2048;
 
-    for (int i = 0; i < str.size(); i++)
+    for (wchar_t i : str)
     {
         //Find the glyph for the character we are looking for
-        texture_glyph_t* glyph = 0;
+        texture_glyph_t* glyph = nullptr;
         for (int j = 0; j < font.glyphs_count; ++j)
         {
-            if (font.glyphs[j].codepoint == str[i])
+            if (font.glyphs[j].codepoint == i)
             {
                 glyph = &font.glyphs[j];
                 break;
@@ -121,10 +121,10 @@ void GLPrinterShader::printAt(const std::wstring& str, float x, float y, float s
         }
 
         // vertex coordinates: x, y
-        float x0 = (float)+(x + glyph->offset_x * sx);
-        float y0 = (float)+(y + glyph->offset_y * sy);
-        float x1 = (float)+(x0 + glyph->width * sx);
-        float y1 = (float)+(y0 + glyph->height * sy);
+        auto x0 = +(x + glyph->offset_x * sx);
+        auto y0 = +(y + glyph->offset_y * sy);
+        auto x1 = +(x0 + glyph->width * sx);
+        auto y1 = +(y0 + glyph->height * sy);
 
         // texture coordinates: s, t
         float s0 = glyph->s0;

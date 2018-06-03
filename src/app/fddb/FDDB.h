@@ -29,7 +29,7 @@ namespace FDDB
 {
 struct record
 {
-    typedef std::vector<double> Ellipse;
+    using Ellipse = std::vector<double>;
     typedef std::pair<Ellipse, bool> EllipseEntry;
 
     std::string filename;

@@ -20,8 +20,7 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 static cv::Mat getAffineLeastSquares(const cv::Vec6f& T1, const cv::Vec6f& T2);
 
 FaceMesh::FaceMesh()
-{
-}
+= default;
 
 FaceMesh::FaceMesh(const std::string& filename)
 {
@@ -114,9 +113,9 @@ FaceMesh::Triangles FaceMesh::delaunay(const Landmarks& landmarks, const cv::Siz
         cv::Rect roi({ 0, 0 }, size);
         cv::Subdiv2D subdiv;
         subdiv.initDelaunay(roi);
-        for (int i = 0; i < kMirrorMap.size(); i++)
+        for (auto i : kMirrorMap)
         {
-            auto p = landmarks[kMirrorMap[i][0]];
+            auto p = landmarks[i[0]];
             subdiv.insert(p);
         }
         std::vector<cv::Vec3i> indices;
@@ -217,9 +216,9 @@ int FaceMesh::writeTriangulation(const std::string& filename) const
     {
         fs << "triangles"
            << "[";
-        for (int i = 0; i < m_indices.size(); i++)
+        for (const auto & m_indice : m_indices)
         {
-            fs << m_indices[i];
+            fs << m_indice;
         }
         fs << "]";
     }

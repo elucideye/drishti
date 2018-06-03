@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <utility>
 
 // clang-format off
 namespace detail
@@ -35,9 +36,9 @@ static void draw(cv::Mat& image, const drishti::sdk::Face& face);
 
 struct FaceTrackTest::Impl
 {
-    Impl(std::shared_ptr<spdlog::logger>& logger, const std::string& output)
+    Impl(std::shared_ptr<spdlog::logger>& logger, std::string  output)
         : logger(logger)
-        , output(output)
+        , output(std::move(output))
         , counter(0)
     {
         worker.start();
@@ -225,7 +226,7 @@ int FaceTrackTest::allocator(const drishti_image_t& spec, drishti::sdk::Image4b&
 
 int FaceTrackTest::callbackFunc(void* context, drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
 {
-    if (FaceTrackTest* ft = static_cast<FaceTrackTest*>(context))
+    if (auto* ft = static_cast<FaceTrackTest*>(context))
     {
         return ft->callback(results);
     }
@@ -234,7 +235,7 @@ int FaceTrackTest::callbackFunc(void* context, drishti::sdk::Array<drishti_face_
 
 drishti_request_t FaceTrackTest::triggerFunc(void* context, const drishti_face_tracker_result_t& faces, double timestamp, std::uint32_t tex)
 {
-    if (FaceTrackTest* ft = static_cast<FaceTrackTest*>(context))
+    if (auto* ft = static_cast<FaceTrackTest*>(context))
     {
         return ft->trigger(faces, timestamp, tex);
     }
@@ -243,7 +244,7 @@ drishti_request_t FaceTrackTest::triggerFunc(void* context, const drishti_face_t
 
 int FaceTrackTest::allocatorFunc(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image)
 {
-    if (FaceTrackTest* ft = static_cast<FaceTrackTest*>(context))
+    if (auto* ft = static_cast<FaceTrackTest*>(context))
     {
         return ft->allocator(spec, image);
     }

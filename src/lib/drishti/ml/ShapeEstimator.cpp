@@ -11,7 +11,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "drishti/ml/drishti_ml.h"
 #include "drishti/ml/ShapeEstimator.h"
