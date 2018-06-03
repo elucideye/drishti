@@ -12,6 +12,7 @@
 
 #include <drishti/EyeDetector.hpp>
 #include <drishti/drishti_cv.hpp>
+#include <drishti/core/make_unique.h>
 
 #include <acf/ACF.h>
 
@@ -20,9 +21,8 @@
 
 _DRISHTI_SDK_BEGIN
 
-class EyeDetector::Impl
+struct EyeDetector::Impl
 {
-public:
     Impl() = default;
     Impl(const std::string& filename)
     {
@@ -34,13 +34,11 @@ public:
     {
         m_detector = std::make_shared<acf::Detector>(filename);
 
-#if 1
         // Perform modification
         acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", -0.005 };
+        dflt.cascCal = { "cascCal", +0.005 };
         m_detector->acfModify(dflt);
-#endif
     }
 
     int operator()(const Image3b& image, std::vector<Rect>& objects)
