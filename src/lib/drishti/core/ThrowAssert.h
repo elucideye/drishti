@@ -109,36 +109,36 @@ public:
     }
 
     /// The assertion message
-    const char* what() const throw() override
+    const char* what() const noexcept override
     {
         return report.c_str();
     }
 
     /// The expression which was asserted to be true
-    const char* Expression() const throw()
+    const char* Expression() const noexcept
     {
         return expression;
     }
 
     /// Source file
-    const char* File() const throw()
+    const char* File() const noexcept
     {
         return file;
     }
 
     /// Source line
-    int Line() const throw()
+    int Line() const noexcept
     {
         return line;
     }
 
     /// Description of failure
-    const char* Message() const throw()
+    const char* Message() const noexcept
     {
         return message.c_str();
     }
 
-    ~AssertionFailureException() throw() override
+    ~AssertionFailureException() noexcept override
     = default;
 };
 

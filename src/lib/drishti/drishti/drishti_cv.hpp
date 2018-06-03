@@ -72,7 +72,7 @@ inline cv::Point2f drishtiToCv(const drishti::sdk::Vec2f& v)
 
 inline drishti::sdk::Vec2f cvToDrishti(const cv::Point2f& p)
 {
-    return drishti::sdk::Vec2f(p.x, p.y);
+    return {p.x, p.y};
 }
 
 inline cv::Point3f drishtiToCv(const drishti::sdk::Vec3f& v)
@@ -82,7 +82,7 @@ inline cv::Point3f drishtiToCv(const drishti::sdk::Vec3f& v)
 
 inline drishti::sdk::Vec3f cvToDrishti(const cv::Point3f& p)
 {
-    return drishti::sdk::Vec3f(p.x, p.y, p.z);
+    return {p.x, p.y, p.z};
 }
 
 // vector<Point>

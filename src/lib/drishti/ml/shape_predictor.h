@@ -88,7 +88,7 @@ inline cv::Rect cv_rect(const dlib::rectangle& r)
 }
 inline dlib::rectangle dlib_rect(const cv::Rect& r)
 {
-    return dlib::rectangle(r.x, r.y, r.br().x, r.br().y);
+    return {r.x, r.y, r.br().x, r.br().y};
 }
 inline dlib::point dlib_point(const cv::Point& p)
 {
@@ -502,7 +502,7 @@ inline dlib::point_transform_affine find_tform_between_shapes(
     if (num == 1)
     {
         // Just use an identity transform if there is only one landmark.
-        return dlib::point_transform_affine();
+        return {};
     }
 
     for (unsigned long i = 0; i < num; ++i)

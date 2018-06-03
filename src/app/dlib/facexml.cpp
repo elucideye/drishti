@@ -33,6 +33,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <string>
 
 namespace bfs = boost::filesystem;
@@ -271,7 +272,7 @@ int gauze_main(int argc, char** argv)
             return face.filename.empty();
         };
         faces.erase(std::remove_if(faces.begin(), faces.end(), pruner), faces.end());
-        std::random_shuffle(faces.begin(), faces.end());
+        std::shuffle(faces.begin(), faces.end(), std::mt19937(std::random_device()()));
         if (number < faces.size())
         {
             faces.erase(faces.begin() + number, faces.end());

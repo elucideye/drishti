@@ -61,7 +61,7 @@ static int modulo(int a, int b)
 
 static ogles_gpgpu::Size2d convert(const cv::Size& size)
 {
-    return ogles_gpgpu::Size2d(size.width, size.height);
+    return {size.width, size.height};
 }
 
 FaceFinder::FaceFinder(FaceDetectorFactoryPtr& factory, Settings& args, void* glContext)

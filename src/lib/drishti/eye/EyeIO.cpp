@@ -75,7 +75,7 @@ std::vector<float> eyeToVector(const EyeModel& eye, bool crease)
 
 static cv::Range add(int count, const cv::Range& last = { 0, 0 })
 {
-    return cv::Range(last.end, last.end + count);
+    return {last.end, last.end + count};
 }
 
 EyeModelSpecification EyeModelSpecification::create(

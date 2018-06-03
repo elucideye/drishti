@@ -33,7 +33,7 @@ public:
 
     ScopeTimeLogger(ScopeTimeLogger&& other)
         : m_logger(std::move(other.m_logger))
-        , m_tic(std::move(other.m_tic))
+        , m_tic(other.m_tic)
     {
     }
 

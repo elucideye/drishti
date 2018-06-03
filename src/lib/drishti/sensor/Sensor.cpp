@@ -24,7 +24,7 @@ SensorModel::Intrinsic::Intrinsic(const cv::Point2f& c, float fx, const cv::Size
 
 cv::Matx33f SensorModel::Intrinsic::getK() const
 {
-    return cv::Matx33f(*m_fx, 0, m_c->x, 0, *m_fx, m_c->y, 0, 0, 1);
+    return {*m_fx, 0, m_c->x, 0, *m_fx, m_c->y, 0, 0, 1};
 }
 
 cv::Point3f SensorModel::Intrinsic::getDepth(const std::array<cv::Point2f, 2>& pixels, float widthMeters) const

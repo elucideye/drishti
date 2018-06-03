@@ -15,6 +15,7 @@
 
 #include <acf/ACF.h>
 
+#include <memory>
 #include <opencv2/core/core.hpp>
 
 _DRISHTI_SDK_BEGIN
@@ -66,7 +67,7 @@ public:
 EyeDetector::EyeDetector() = default;
 EyeDetector::EyeDetector(const std::string& filename)
 {
-    m_impl = std::unique_ptr<Impl>(new Impl(filename));
+    m_impl = std::make_unique<Impl>(filename);
 }
 EyeDetector::~EyeDetector() = default;
 int EyeDetector::operator()(const Image3b& image, std::vector<Rect>& objects)
