@@ -32,7 +32,7 @@ struct EyeDetector::Impl
 
     void init(const std::string& filename)
     {
-        m_detector = std::make_shared<acf::Detector>(filename);
+        m_detector = drishti::core::make_unique<acf::Detector>(filename);
 
         // Perform modification
         acf::Detector::Modify dflt;
@@ -57,7 +57,7 @@ struct EyeDetector::Impl
         return objects.size();
     }
 
-    std::shared_ptr<acf::Detector> m_detector;
+    std::unique_ptr<acf::Detector> m_detector;
 };
 
 // ######### EyeDetector ############
@@ -65,7 +65,7 @@ struct EyeDetector::Impl
 EyeDetector::EyeDetector() = default;
 EyeDetector::EyeDetector(const std::string& filename)
 {
-    m_impl = std::make_unique<Impl>(filename);
+    m_impl = drishti::core::make_unique<Impl>(filename);
 }
 EyeDetector::~EyeDetector() = default;
 int EyeDetector::operator()(const Image3b& image, std::vector<Rect>& objects)
