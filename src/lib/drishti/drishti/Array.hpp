@@ -61,7 +61,7 @@ public:
             ptr_++;
             return *this;
         }
-        iterator operator++(int)
+        const iterator operator++(int)
         {
             iterator i = *this;
             ptr_++;
@@ -130,7 +130,7 @@ public:
             ptr_++;
             return *this;
         }
-        const_iterator operator++(int)
+        const const_iterator operator++(int)
         {
             iterator i = *this;
             ptr_++;

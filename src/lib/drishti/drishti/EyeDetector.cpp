@@ -12,16 +12,17 @@
 
 #include <drishti/EyeDetector.hpp>
 #include <drishti/drishti_cv.hpp>
+#include <drishti/core/make_unique.h>
 
 #include <acf/ACF.h>
 
+#include <memory>
 #include <opencv2/core/core.hpp>
 
 _DRISHTI_SDK_BEGIN
 
-class EyeDetector::Impl
+struct EyeDetector::Impl
 {
-public:
     Impl() = default;
     Impl(const std::string& filename)
     {
@@ -31,15 +32,13 @@ public:
 
     void init(const std::string& filename)
     {
-        m_detector = std::make_shared<acf::Detector>(filename);
+        m_detector = drishti::core::make_unique<acf::Detector>(filename);
 
-#if 1
         // Perform modification
         acf::Detector::Modify dflt;
         dflt.cascThr = { "cascThr", -1.0 };
-        dflt.cascCal = { "cascCal", -0.005 };
+        dflt.cascCal = { "cascCal", +0.005 };
         m_detector->acfModify(dflt);
-#endif
     }
 
     int operator()(const Image3b& image, std::vector<Rect>& objects)
@@ -58,7 +57,7 @@ public:
         return objects.size();
     }
 
-    std::shared_ptr<acf::Detector> m_detector;
+    std::unique_ptr<acf::Detector> m_detector;
 };
 
 // ######### EyeDetector ############
@@ -66,7 +65,7 @@ public:
 EyeDetector::EyeDetector() = default;
 EyeDetector::EyeDetector(const std::string& filename)
 {
-    m_impl = std::unique_ptr<Impl>(new Impl(filename));
+    m_impl = drishti::core::make_unique<Impl>(filename);
 }
 EyeDetector::~EyeDetector() = default;
 int EyeDetector::operator()(const Image3b& image, std::vector<Rect>& objects)

@@ -40,7 +40,7 @@ public:
 
     PointPair end()
     {
-        return PointPair();
+        return {};
     }
 
     void reset()

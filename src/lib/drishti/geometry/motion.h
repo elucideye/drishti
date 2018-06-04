@@ -41,7 +41,7 @@ cv::Mat estimateGlobMotionLeastSquaresSimilarity(int npoints, cv::Point2f* point
 
 inline cv::Matx33f translate(float x, float y)
 {
-    return cv::Matx33f(1, 0, x, 0, 1, y, 0, 0, 1);
+    return {1, 0, x, 0, 1, y, 0, 0, 1};
 }
 
 inline cv::Matx33f translate(const cv::Point2f& t)
@@ -66,13 +66,13 @@ inline cv::Matx33f scale(float x, float y, const cv::Point2f& c)
 
 inline cv::Matx33f transpose()
 {
-    return cv::Matx33f(0, 1, 0, 1, 0, 0, 0, 0, 1);
+    return {0, 1, 0, 1, 0, 0, 0, 0, 1};
 }
 inline cv::Matx33f rotate(float theta)
 {
     const float a = std::cos(theta);
     const float b = std::sin(theta);
-    return cv::Matx33f(a, -b, 0, b, a, 0, 0, 0, 1);
+    return {a, -b, 0, b, a, 0, 0, 0, 1};
 }
 
 inline cv::Matx33f rotate(int degrees)

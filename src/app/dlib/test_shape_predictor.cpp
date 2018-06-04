@@ -48,7 +48,7 @@ cv::Rect cv_rect(const dlib::rectangle& r)
 
 dlib::rectangle dlib_rect(const cv::Rect& r)
 {
-    return dlib::rectangle(r.x, r.y, r.br().x, r.br().y);
+    return {r.x, r.y, r.br().x, r.br().y};
 }
 
 dlib::point dlib_point(const cv::Point& p)

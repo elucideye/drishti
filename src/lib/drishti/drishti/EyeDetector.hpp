@@ -40,8 +40,6 @@ public:
         int x, y, width, height;
     };
 
-    class Impl;
-
     EyeDetector();
     EyeDetector(const std::string& filename);
     ~EyeDetector();
@@ -49,6 +47,8 @@ public:
 
 protected:
     void init(const std::string& filename);
+
+    struct Impl;    
     std::unique_ptr<Impl> m_impl;
 };
 
