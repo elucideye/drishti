@@ -108,7 +108,7 @@ matrix:
 
     - os: osx
       env: >
-        TOOLCHAIN=android-ndk-r17-api-24-arm64-v8a-clang-libcxx14
+        TOOLCHAIN=android-ndk-r17-api-19-armeabi-v7a-neon-hid-sections
         CONFIG=MinSizeRel
         INSTALL=--strip
         TEST=--test
