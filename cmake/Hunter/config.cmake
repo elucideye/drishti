@@ -130,30 +130,6 @@ set(opencv_cmake_args
   # objdetect: needed for drishti/face/FaceDetector.h
   # videoio: needed for drishti/src/app/videoio/VideoSourceCV.cpp
   BUILD_LIST=imgproc,optflow,plot,tracking,video,ximgproc,highgui,videostab,objdetect,videoio
-
-  # Disable unused opencv_contrib modules (when OPENCV_WITH_EXTRA_MODULES == YES)
-  BUILD_opencv_aruco=OFF
-  BUILD_opencv_bgsegm=OFF
-  BUILD_opencv_bioinspired=OFF
-  BUILD_opencv_ccalib=OFF
-  BUILD_opencv_cvv=OFF
-  BUILD_opencv_datasets=OFF
-  BUILD_opencv_dpm=OFF
-  BUILD_opencv_face=OFF
-  BUILD_opencv_fuzzy=OFF
-  BUILD_opencv_hdf=OFF
-  BUILD_opencv_line_descriptor=OFF
-  BUILD_opencv_reg=OFF
-  BUILD_opencv_rgbd=OFF
-  BUILD_opencv_saliency=OFF
-  BUILD_opencv_sfm=OFF
-  BUILD_opencv_stereo=OFF
-  BUILD_opencv_structured_light=OFF
-  BUILD_opencv_surface_matching=OFF
-  BUILD_opencv_text=OFF
-  BUILD_opencv_xfeatures2d=OFF
-  BUILD_opencv_xobjdetect=OFF
-  BUILD_opencv_xphoto=OFF
 )
 
 hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION} CMAKE_ARGS ${opencv_cmake_args})
