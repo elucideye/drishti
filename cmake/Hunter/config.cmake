@@ -1,38 +1,36 @@
+# FIXME, waiting for release:
+# * https://github.com/jarro2783/cxxopts/issues/110#issuecomment-394909564
+hunter_config(
+    cxxopts
+    VERSION 2.1.1
+    URL https://github.com/jarro2783/cxxopts/archive/e725ea308468ab50751ba7f930842a4c061226e9.zip
+    SHA1 cbeec5576599d031f6f992d987e1f3575b3afee3
+)
+
 hunter_config(
   xgboost
   VERSION 0.40-p10 # v0.7.0 introduces significant API changes
   CMAKE_ARGS XGBOOST_USE_HALF=ON XGBOOST_USE_CEREAL=ON XGBOOST_DO_LEAN=${DRISHTI_BUILD_MIN_SIZE}
   )
 
-set(dlib_cmake_args
-  DLIB_HEADER_ONLY=OFF  #all previous builds were header on, so that is the default
-  DLIB_ENABLE_ASSERTS=OFF #must be set on/off or debug/release build will differ and config will not match one
-  DLIB_NO_GUI_SUPPORT=ON
-  DLIB_ISO_CPP_ONLY=OFF # needed for directory navigation code (loading training data)
-  DLIB_JPEG_SUPPORT=OFF  # https://github.com/hunter-packages/dlib/blob/eb79843227d0be45e1efa68ef9cc6cc187338c8e/dlib/CMakeLists.txt#L422-L432
-  DLIB_LINK_WITH_SQLITE3=OFF
-  DLIB_USE_BLAS=OFF
-  DLIB_USE_LAPACK=OFF
-  DLIB_USE_CUDA=OFF
-  DLIB_PNG_SUPPORT=ON
-  DLIB_GIF_SUPPORT=OFF
-  DLIB_USE_MKL_FFT=OFF  
-  HUNTER_INSTALL_LICENSE_FILES=dlib/LICENSE.txt
+hunter_config(dlib
+  VERSION
+    ${HUNTER_dlib_VERSION}
+  CMAKE_ARGS
+    DLIB_HEADER_ONLY=OFF  #all previous builds were header on, so that is the default
+    DLIB_ENABLE_ASSERTS=OFF #must be set on/off or debug/release build will differ and config will not match one
+    DLIB_NO_GUI_SUPPORT=ON
+    DLIB_ISO_CPP_ONLY=OFF # needed for directory navigation code (loading training data)
+    DLIB_JPEG_SUPPORT=OFF  # https://github.com/hunter-packages/dlib/blob/eb79843227d0be45e1efa68ef9cc6cc187338c8e/dlib/CMakeLists.txt#L422-L432
+    DLIB_LINK_WITH_SQLITE3=OFF
+    DLIB_USE_BLAS=OFF
+    DLIB_USE_LAPACK=OFF
+    DLIB_USE_CUDA=OFF
+    DLIB_PNG_SUPPORT=ON
+    DLIB_GIF_SUPPORT=OFF
+    DLIB_USE_MKL_FFT=OFF  
+    HUNTER_INSTALL_LICENSE_FILES=dlib/LICENSE.txt
 )
-
-if(ANDROID)
-  # https://travis-ci.org/ingenue/hunter/jobs/287844545
-  # Will be fixed in Android NDK 17
-  set(dlib_version 19.2-p2)
-  set(nlohmann_json_version 2.1.1-p1)
-else()
-  set(dlib_version ${HUNTER_dlib_VERSION})
-  set(nlohmann_json_version ${HUNTER_nlohmann_json_VERSION})  
-endif()
-
-hunter_config(dlib VERSION ${dlib_version} CMAKE_ARGS ${dlib_cmake_args})
-hunter_config(nlohmann_json VERSION ${nlohmann_json_version})
-
 
 option(DRISHTI_ACF_AS_SUBMODULE "Use drishti acf as submodule" OFF)
 set(acf_cmake_args
