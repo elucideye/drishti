@@ -121,12 +121,15 @@ set(opencv_cmake_args
   BUILD_opencv_dnn=OFF #  -/-
   BUILD_LIBPROTOBUF_FROM_SOURCES=NO
 
-  BUILD_opencv_imgproc=ON   # required for flow
-  BUILD_opencv_optflow=ON   # optflow
-  BUILD_opencv_plot=ON      # tracking -> plot
-  BUILD_opencv_tracking=ON  # tracking
-  BUILD_opencv_video=ON     # tracking -> video
-  BUILD_opencv_ximgproc=ON  # optflow -> ximgproc
+  # imgproc required for flow
+  # tracking -> plot
+  # tracking -> video
+  # optflow -> ximgproc
+  # highgui: dependency for acf
+  # videostab: needed for drishti/core/padding.cpp
+  # objdetect: needed for drishti/face/FaceDetector.h
+  # videoio: needed for drishti/src/app/videoio/VideoSourceCV.cpp
+  BUILD_LIST=imgproc,optflow,plot,tracking,video,ximgproc,highgui,videostab,objdetect,videoio
 
   # Disable unused opencv_contrib modules (when OPENCV_WITH_EXTRA_MODULES == YES)
   BUILD_opencv_aruco=OFF
