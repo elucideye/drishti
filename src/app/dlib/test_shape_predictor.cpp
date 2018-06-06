@@ -78,9 +78,9 @@ int mine(int argc, char* argv[])
         ( "verbose", "Print verbose diagnostics", cxxopts::value<bool>(doVerbose))
         ( "help", "Print the help message", cxxopts::value<bool>(doHelp));
     // clang-format on    
-    options.parse(argc, argv);
+    auto parseResult = options.parse(argc, argv);
 
-    if((argumentCount <= 1) || options.count("help"))
+    if((argumentCount <= 1) || parseResult.count("help"))
     {
         std::cout << options.help({""}) << std::endl;
         return 0;

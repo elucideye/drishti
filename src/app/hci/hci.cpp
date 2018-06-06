@@ -238,9 +238,9 @@ int gauze_main(int argc, char** argv)
         ("h,help", "Print help message");
     // clang-format on
 
-    options.parse(argc, argv);
+    auto parseResult = options.parse(argc, argv);
 
-    if ((argumentCount <= 1) || options.count("help"))
+    if ((argumentCount <= 1) || parseResult.count("help"))
     {
         std::cout << options.help({ "" }) << std::endl;
         return 0;
@@ -280,7 +280,7 @@ int gauze_main(int argc, char** argv)
         return 1;
     }
     
-    if (options.count("focal-length") != 1)
+    if (parseResult.count("focal-length") != 1)
     {
         logger->error("You must specify the focal-length (in pixels)");
         return 1;
