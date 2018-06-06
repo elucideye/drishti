@@ -128,8 +128,8 @@ int gauze_main(int argc, char** argv)
     ;
     // clang-format on
 
-    options.parse(argc, argv);
-    if ((argumentCount <= 1) || options.count("help"))
+    auto parseResult = options.parse(argc, argv);
+    if ((argumentCount <= 1) || parseResult.count("help"))
     {
         std::cout << options.help({ "" }) << std::endl;
         return 0;
@@ -173,19 +173,19 @@ int gauze_main(int argc, char** argv)
     }
     else
     {
-        if (options.count("focal-length") != 1)
+        if (parseResult.count("focal-length") != 1)
         {
             logger->error("Must specify focal length (in pixels)");
             return 1;
         }
         
-        if (options.count("min") != 1)
+        if (parseResult.count("min") != 1)
         {
             logger->error("Must specify closest object distance");
             return 1;
         }
         
-        if (options.count("max") != 1)
+        if (parseResult.count("max") != 1)
         {
             logger->error("Must specify farthest object distance");
             return 1;
@@ -297,7 +297,7 @@ int gauze_main(int argc, char** argv)
         callbacks.initPreview(size, DFLT_TEXTURE_FORMAT);
     }
 
-    if (options.count("capture") == 1)
+    if (parseResult.count("capture") == 1)
     {
         // Set a capture volume on the camera's optical axis with a 1/3 meter radius
         // and be sure not to trigger a capture more than once every 8.0 seconds.

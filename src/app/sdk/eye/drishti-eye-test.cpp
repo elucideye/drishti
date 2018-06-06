@@ -43,8 +43,8 @@ int gauze_main(int argc, char** argv)
         ("l,left", "Left eye", cxxopts::value<bool>(isLeft));
     // clang-format on    
 
-    options.parse(argc, argv);
-    if ((argumentCount <= 1) || options.count("help"))
+    auto parseResult = options.parse(argc, argv);
+    if ((argumentCount <= 1) || parseResult.count("help"))
     {
         std::cout << options.help({ "" }) << std::endl;
         return 0;

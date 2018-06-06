@@ -209,9 +209,9 @@ int gauze_main(int argc, char** argv)
         ("h,help", "Print help message");
     // clang-format on    
     
-    options.parse(argc, argv);
+    auto parseResult = options.parse(argc, argv);
     
-    if((argumentCount <= 1) || options.count("help"))
+    if((argumentCount <= 1) || parseResult.count("help"))
     {
         std::cout << options.help({""}) << std::endl;
         return 0;
@@ -222,7 +222,7 @@ int gauze_main(int argc, char** argv)
     // ############################################
 
     // Be pedantic about input orientation to ensure correct results:
-    if((options["right"].count() + options["left"].count()) != 1)
+    if((parseResult["right"].count() + parseResult["left"].count()) != 1)
     {
         logger->error("Must specify -right or -left but not both!");
         return 1;
