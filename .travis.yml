@@ -108,7 +108,7 @@ matrix:
 
     - os: osx
       env: >
-        TOOLCHAIN=android-ndk-r17-api-19-armeabi-v7a-neon-hid-sections
+        TOOLCHAIN=android-ndk-r17-api-19-armeabi-v7a-neon-clang-libcxx
         CONFIG=MinSizeRel
         INSTALL=--strip
         TEST=--test
