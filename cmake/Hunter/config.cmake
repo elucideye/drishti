@@ -28,13 +28,13 @@ hunter_config(dlib
     DLIB_USE_CUDA=OFF
     DLIB_PNG_SUPPORT=ON
     DLIB_GIF_SUPPORT=OFF
-    DLIB_USE_MKL_FFT=OFF  
+    DLIB_USE_MKL_FFT=OFF
     HUNTER_INSTALL_LICENSE_FILES=dlib/LICENSE.txt
 )
 
 option(DRISHTI_ACF_AS_SUBMODULE "Use drishti acf as submodule" OFF)
 set(acf_cmake_args
-  ACF_BUILD_TESTS=OFF 
+  ACF_BUILD_TESTS=OFF
   ACF_BUILD_EXAMPLES=OFF
   ACF_SERIALIZE_WITH_CVMATIO=${DRISHTI_SERIALIZE_WITH_CVMATIO}
   ACF_SERIALIZE_WITH_CEREAL=ON
@@ -64,7 +64,7 @@ hunter_config(Eigen VERSION ${HUNTER_Eigen_VERSION} CMAKE_ARGS ${eigen_cmake_arg
 # Provide a functional minimal config for the opencv_contrib module:
 #
 
-option(DRISHTI_BUILD_OPENCV_EXTRA "Build opencv_contrib modules" OFF) 
+option(DRISHTI_BUILD_OPENCV_EXTRA "Build opencv_contrib modules" OFF)
 
 string(COMPARE EQUAL "${CMAKE_OSX_SYSROOT}" "iphoneos" _is_ios)
 
@@ -83,8 +83,8 @@ endif()
 
 set(opencv_cmake_args
 
-  OPENCV_WITH_EXTRA_MODULES=${DRISHTI_BUILD_OPENCV_EXTRA} # <===== opencv_contrib    
-  
+  OPENCV_WITH_EXTRA_MODULES=${DRISHTI_BUILD_OPENCV_EXTRA} # <===== opencv_contrib
+
   BUILD_ANDROID_EXAMPLES=OFF
   BUILD_DOCS=OFF
   BUILD_EXAMPLES=OFF
@@ -95,17 +95,17 @@ set(opencv_cmake_args
   BUILD_WITH_STATIC_CRT=OFF # Fix https://github.com/ruslo/hunter/issues/177
   ${_ios_args}
   ${_android_args}
-  
+
   # Find packages in Hunter (instead of building from OpenCV sources)
   BUILD_ZLIB=OFF
   BUILD_TIFF=OFF
   BUILD_PNG=OFF
   BUILD_JPEG=OFF
 
-  # include/jasper/jas_math.h:184:15: error: 'SIZE_MAX' undeclared (first use in this function)    
+  # include/jasper/jas_math.h:184:15: error: 'SIZE_MAX' undeclared (first use in this function)
   BUILD_JASER=OFF
   WITH_JASPER=OFF
-  
+
   # This stuff will build shared libraries. Build with PIC required for dependencies.
   BUILD_opencv_java=OFF
   BUILD_opencv_python2=OFF
@@ -123,7 +123,7 @@ set(opencv_cmake_args
 
   BUILD_opencv_imgproc=ON   # required for flow
   BUILD_opencv_optflow=ON   # optflow
-  BUILD_opencv_plot=ON      # tracking -> plot    
+  BUILD_opencv_plot=ON      # tracking -> plot
   BUILD_opencv_tracking=ON  # tracking
   BUILD_opencv_video=ON     # tracking -> video
   BUILD_opencv_ximgproc=ON  # optflow -> ximgproc
