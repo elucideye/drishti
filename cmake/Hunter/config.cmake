@@ -28,13 +28,13 @@ hunter_config(dlib
     DLIB_USE_CUDA=OFF
     DLIB_PNG_SUPPORT=ON
     DLIB_GIF_SUPPORT=OFF
-    DLIB_USE_MKL_FFT=OFF  
+    DLIB_USE_MKL_FFT=OFF
     HUNTER_INSTALL_LICENSE_FILES=dlib/LICENSE.txt
 )
 
 option(DRISHTI_ACF_AS_SUBMODULE "Use drishti acf as submodule" OFF)
 set(acf_cmake_args
-  ACF_BUILD_TESTS=OFF 
+  ACF_BUILD_TESTS=OFF
   ACF_BUILD_EXAMPLES=OFF
   ACF_SERIALIZE_WITH_CVMATIO=${DRISHTI_SERIALIZE_WITH_CVMATIO}
   ACF_SERIALIZE_WITH_CEREAL=ON
@@ -64,15 +64,7 @@ hunter_config(Eigen VERSION ${HUNTER_Eigen_VERSION} CMAKE_ARGS ${eigen_cmake_arg
 # Provide a functional minimal config for the opencv_contrib module:
 #
 
-option(DRISHTI_BUILD_OPENCV_EXTRA "Build opencv_contrib modules" OFF) 
-
-string(COMPARE EQUAL "${CMAKE_OSX_SYSROOT}" "iphoneos" _is_ios)
-
-if(_is_ios)
-  set(_ios_args BUILD_WEBP=ON)
-else()
-  set(_ios_args "")
-endif()
+option(DRISHTI_BUILD_OPENCV_EXTRA "Build opencv_contrib modules" OFF)
 
 if(ANDROID)
   # This feature doesn't work with new CMake 3.7+ toolchains
@@ -83,8 +75,8 @@ endif()
 
 set(opencv_cmake_args
 
-  OPENCV_WITH_EXTRA_MODULES=${DRISHTI_BUILD_OPENCV_EXTRA} # <===== opencv_contrib    
-  
+  OPENCV_WITH_EXTRA_MODULES=${DRISHTI_BUILD_OPENCV_EXTRA} # <===== opencv_contrib
+
   BUILD_ANDROID_EXAMPLES=OFF
   BUILD_DOCS=OFF
   BUILD_EXAMPLES=OFF
@@ -95,17 +87,24 @@ set(opencv_cmake_args
   BUILD_WITH_STATIC_CRT=OFF # Fix https://github.com/ruslo/hunter/issues/177
   ${_ios_args}
   ${_android_args}
-  
+
   # Find packages in Hunter (instead of building from OpenCV sources)
   BUILD_ZLIB=OFF
   BUILD_TIFF=OFF
   BUILD_PNG=OFF
   BUILD_JPEG=OFF
 
-  # include/jasper/jas_math.h:184:15: error: 'SIZE_MAX' undeclared (first use in this function)    
+  # Skip WEBP for standard use:
+  BUILD_WEBP=OFF
+  WITH_WEBP=OFF
+
+  BUILD_OPENEXR=OFF  
+  WITH_OPENEXR=OFF
+  
+  # include/jasper/jas_math.h:184:15: error: 'SIZE_MAX' undeclared (first use in this function)
   BUILD_JASER=OFF
   WITH_JASPER=OFF
-  
+
   # This stuff will build shared libraries. Build with PIC required for dependencies.
   BUILD_opencv_java=OFF
   BUILD_opencv_python2=OFF
@@ -121,36 +120,7 @@ set(opencv_cmake_args
   BUILD_opencv_dnn=OFF #  -/-
   BUILD_LIBPROTOBUF_FROM_SOURCES=NO
 
-  BUILD_opencv_imgproc=ON   # required for flow
-  BUILD_opencv_optflow=ON   # optflow
-  BUILD_opencv_plot=ON      # tracking -> plot    
-  BUILD_opencv_tracking=ON  # tracking
-  BUILD_opencv_video=ON     # tracking -> video
-  BUILD_opencv_ximgproc=ON  # optflow -> ximgproc
-
-  # Disable unused opencv_contrib modules (when OPENCV_WITH_EXTRA_MODULES == YES)
-  BUILD_opencv_aruco=OFF
-  BUILD_opencv_bgsegm=OFF
-  BUILD_opencv_bioinspired=OFF
-  BUILD_opencv_ccalib=OFF
-  BUILD_opencv_cvv=OFF
-  BUILD_opencv_datasets=OFF
-  BUILD_opencv_dpm=OFF
-  BUILD_opencv_face=OFF
-  BUILD_opencv_fuzzy=OFF
-  BUILD_opencv_hdf=OFF
-  BUILD_opencv_line_descriptor=OFF
-  BUILD_opencv_reg=OFF
-  BUILD_opencv_rgbd=OFF
-  BUILD_opencv_saliency=OFF
-  BUILD_opencv_sfm=OFF
-  BUILD_opencv_stereo=OFF
-  BUILD_opencv_structured_light=OFF
-  BUILD_opencv_surface_matching=OFF
-  BUILD_opencv_text=OFF
-  BUILD_opencv_xfeatures2d=OFF
-  BUILD_opencv_xobjdetect=OFF
-  BUILD_opencv_xphoto=OFF
+  BUILD_LIST=core,imgproc,videoio,highgui,videostab,objdetect
 )
 
 hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION} CMAKE_ARGS ${opencv_cmake_args})
