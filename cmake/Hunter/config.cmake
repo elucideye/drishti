@@ -66,14 +66,6 @@ hunter_config(Eigen VERSION ${HUNTER_Eigen_VERSION} CMAKE_ARGS ${eigen_cmake_arg
 
 option(DRISHTI_BUILD_OPENCV_EXTRA "Build opencv_contrib modules" OFF)
 
-string(COMPARE EQUAL "${CMAKE_OSX_SYSROOT}" "iphoneos" _is_ios)
-
-if(_is_ios)
-  set(_ios_args BUILD_WEBP=ON)
-else()
-  set(_ios_args "")
-endif()
-
 if(ANDROID)
   # This feature doesn't work with new CMake 3.7+ toolchains
   set(_android_args ENABLE_PRECOMPILED_HEADERS=OFF)
@@ -102,6 +94,13 @@ set(opencv_cmake_args
   BUILD_PNG=OFF
   BUILD_JPEG=OFF
 
+  # Skip WEBP for standard use:
+  BUILD_WEBP=OFF
+  WITH_WEBP=OFF
+
+  BUILD_OPENEXR=OFF  
+  WITH_OPENEXR=OFF
+  
   # include/jasper/jas_math.h:184:15: error: 'SIZE_MAX' undeclared (first use in this function)
   BUILD_JASER=OFF
   WITH_JASPER=OFF
@@ -121,15 +120,7 @@ set(opencv_cmake_args
   BUILD_opencv_dnn=OFF #  -/-
   BUILD_LIBPROTOBUF_FROM_SOURCES=NO
 
-  # imgproc required for flow
-  # tracking -> plot
-  # tracking -> video
-  # optflow -> ximgproc
-  # highgui: dependency for acf
-  # videostab: needed for drishti/core/padding.cpp
-  # objdetect: needed for drishti/face/FaceDetector.h
-  # videoio: needed for drishti/src/app/videoio/VideoSourceCV.cpp
-  BUILD_LIST=imgproc,optflow,plot,tracking,video,ximgproc,highgui,videostab,objdetect,videoio
+  BUILD_LIST=core,imgproc,videoio,highgui,videostab,objdetect
 )
 
 hunter_config(OpenCV VERSION ${HUNTER_OpenCV_VERSION} CMAKE_ARGS ${opencv_cmake_args})
