@@ -15,7 +15,6 @@ python %POLLY_ROOT%\bin\polly.py ^
 --toolchain "%2%" ^
 --test ^
 --fwd ^
-DRISHTI_USE_DRISHTI_UPLOAD=YES ^
 DRISHTI_BUILD_SHARED_SDK="%3%" ^
 DRISHTI_COPY_3RDPARTY_LICENSES=ON ^
 DRISHTI_BUILD_TESTS=ON ^

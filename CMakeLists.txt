@@ -41,53 +41,26 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 ### HunterGate and cache ###
 ############################
 
-option(DRISHTI_USE_DRISHTI_UPLOAD "Use drishti upload configuration" OFF)
 set(drishti_upload_init "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/init.cmake")
 
-if(DRISHTI_USE_DRISHTI_UPLOAD)
-  if(EXISTS "${drishti_upload_init}")
-    # CI: Locked CI build configuration
-    include("cmake/HunterGate.cmake") # HUNTER_ENABLED
-    include("${drishti_upload_init}")
-  else()
-    # FAILURE:
+include("cmake/HunterGate.cmake")
+
+if(HUNTER_PACKAGE_BUILD)
+  # URL/SHA1 will not be used actually, settings will be inherited
+  HunterGate(URL "${HUNTER_URL}" SHA1 "${HUNTER_SHA1}")
+else()
+  if(NOT EXISTS "${drishti_upload_init}")
     message(
       FATAL_ERROR
       "File does not exist:\n"
       "  ${drishti_upload_init}\n"
       "Run this command if submodule is not initialized:\n"
       "  git submodule update --init --recursive ."
-  )
+    )
   endif()
-else()
-  set(DRISHTI_HUNTER_GATE_URL "https://github.com/ruslo/hunter/archive/v0.22.4.tar.gz")
-  set(DRISHTI_HUNTER_GATE_SHA1 "5d7fedae4cd9c488d68e1936d64fc7fa1cb1fed3")
 
-  if(HUNTER_ENABLED AND NOT DRISHTI_IS_REPO_BUILD)
-    # DEPENDENCY: if(HUNTER_ENABLE): we are being used as a dependency from
-    # another project and we will use the config.cmake from the parent project.
-    message(STATUS "Drishti Hunter package build detected")
-    include("cmake/HunterGate.cmake") # HUNTER_ENABLED
-    HunterGate(
-      URL "${DRISHTI_HUNTER_GATE_URL}"
-      SHA1 "${DRISHTI_HUNTER_GATE_SHA1}"
-    )
-  else()
-    # LOCAL: This is a local repository build and we are relying on a local
-    # config (instead of CI friendly drishti-upload) that is closer to the 
-    # current default versions in ${HUNTER_ROOT}/cmake/configs/default.cmake
-    # Note that HUNTER_ENABLED=ON will eventually be set in the cache so
-    # we set a variable to cache for subsequent builds.
-    message(STATUS "Drishti in-repository build detected")
-    set(DRISHTI_IS_REPO_BUILD TRUE CACHE STRING "Is a build from the local repository")
-    include("cmake/default_options.cmake")
-    include("cmake/HunterGate.cmake") # HUNTER_ENABLED
-    HunterGate(
-      URL "${DRISHTI_HUNTER_GATE_URL}"
-      SHA1 "${DRISHTI_HUNTER_GATE_SHA1}"
-      FILEPATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake"
-    )
-  endif()
+  # CI: Locked CI build configuration
+  include("${drishti_upload_init}")
 endif()
 
 #######################
