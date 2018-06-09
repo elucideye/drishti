@@ -120,6 +120,15 @@ if(DRISHTI_BUILD_MERGED_SDK)
   option(DRISHTI_BUILD_OPENCV_WORLD "Build OpenCV world (monolithic lib)" OFF)
 endif()
 
+option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
+
+# Used in drishti-upload/config.cmake {
+option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
+option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
+option(DRISHTI_OPENGL_ES3 "Support OpenGL ES 3.0 (default 2.0)" OFF)
+option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
+# }
+
 message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 #######################
