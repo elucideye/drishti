@@ -59,6 +59,8 @@ else()
     )
   endif()
 
+  option(DRISHTI_HUNTER_CONFIG_MINIMAL "Use 'minimal' config" OFF)
+
   # CI: Locked CI build configuration
   include("${drishti_upload_init}")
 endif()
