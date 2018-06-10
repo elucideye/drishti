@@ -71,6 +71,17 @@ matrix:
         TEST=--test
         GPU=ON
         BUILD_SHARED=ON
+        MINIMAL=OFF
+
+    - os: linux
+      env: >
+        TOOLCHAIN=android-ndk-r17-api-24-arm64-v8a-clang-libcxx14
+        CONFIG=Release
+        INSTALL=--strip
+        TEST=--test
+        GPU=ON
+        BUILD_SHARED=ON
+        MINIMAL=ON
 
     # }
 
