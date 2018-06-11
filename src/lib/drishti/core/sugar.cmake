@@ -15,7 +15,6 @@ sugar_files(DRISHTI_CORE_SRCS
   Logger.cpp
   Shape.cpp
   arithmetic.cpp
-  convert.cpp
   drawing.cpp
   hungarian.cpp
   padding.cpp
@@ -36,7 +35,6 @@ sugar_files(DRISHTI_CORE_HDRS_PUBLIC
   Shape.h
   ThrowAssert.h
   arithmetic.h
-  convert.h
   drawing.h
   drishti_algorithm.h
   drishti_cereal_pba.h
