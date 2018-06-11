@@ -279,6 +279,21 @@ if(DRISHTI_BUILD_TESTS OR DRISHTI_BUILD_INTEGRATION_TESTS)
   hunter_add_package(gauze)
   find_package(gauze CONFIG REQUIRED)
 
+  if(ANDROID AND NOT CMAKE_HOST_WIN32)
+    hunter_add_package(Android-SDK)
+    set(old "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
+    set(new "${CMAKE_CURRENT_BINARY_DIR}/adb")
+    if(NOT EXISTS "${new}")
+      execute_process(
+          COMMAND ${CMAKE_COMMAND} -E create_symlink ${old} ${new}
+          RESULT_VARIABLE result
+      )
+      if(NOT result EQUAL "0")
+        message(FATAL_ERROR "Can't create symlink")
+      endif()
+    endif()
+  endif()
+
   hunter_add_package(GTest)
   find_package(GTest CONFIG REQUIRED)
 endif()
