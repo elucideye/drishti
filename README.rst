@@ -161,7 +161,7 @@ After the environment is configured, you can build for any supported
 
 .. code-block:: bash
 
-    polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --fwd HUNTER_CONFIGURATION_TYPES=${CONFIG} --install --verbose --reconfig
+    polly.py --toolchain ${TOOLCHAIN} --config-all ${CONFIG} --fwd --install --verbose --reconfig
     
 ::
 
