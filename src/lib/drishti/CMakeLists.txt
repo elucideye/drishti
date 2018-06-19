@@ -48,7 +48,7 @@ set(DRISHTI_WORLD_SOURCES
   ${DRISHTI_EYE_HDRS_PUBLIC}
   ${DRISHTI_GRAPHICS_SRCS}
   ${DRISHTI_GRAPHICS_HDRS_PUBLIC}
-  )
+)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -171,20 +171,28 @@ endif()
 ### drishtisdk (static)
 add_library(drishtisdk ${drishti_sdk_srcs})
 target_link_libraries(drishtisdk PUBLIC ${drishti_sdk_libs})
+
+# support private access to drishti/drishti_sdk.hpp
+target_include_directories(drishtisdk
+  PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>" 
+)
+
 if(DRISHTI_BUILD_SHARED_SDK)
   drishti_strip(drishtisdk)
 endif()
+
 set_target_properties(drishtisdk
   PROPERTIES
   PUBLIC_HEADER "${DRISHTISDK_PUBLIC_HDRS}"
-  )
+)
 
 if(NOT IOS)
   set_target_properties(drishtisdk
     PROPERTIES
     SOVERSION "${drishtisdk_VERSION_MAJOR}"
     VERSION "${drishtisdk_VERSION}"
-    )
+  )
 endif()
 
 # Set the serialization mode preprocessor flags (boost and/or cereal)
@@ -195,7 +203,7 @@ foreach(library ${DRISHTI_LIBRARY_LIST})
     PUBLIC
     "$<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}>"
     "$<INSTALL_INTERFACE:${drishti_include_install_dir}>"
-    )
+  )
 
   if(DRISHTI_OPENGL_ES3)
     target_compile_definitions(${library} PUBLIC DRISHTI_OPENGL_ES3=1)
@@ -298,23 +306,32 @@ endif()
 ### Generate export header and set build/install include paths
 ##############################################################
 
+set(DRISHTI_SDK_MAX_FACES 8 CACHE STRING "Maximum # of faces to be supported")
+message("DRISHTI_SDK_MAX_FACES ${DRISHTI_SDK_MAX_FACES}")
+
+# Requires:
+# @DRISHTI_SDK_MAX_FACES@
+set(drishti_constants_hpp_in "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_constants.hpp.in")
+set(drishti_constants_hpp "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_constants.hpp")
+configure_file("${drishti_constants_hpp_in}" "${drishti_constants_hpp}" @ONLY)
+
 include (GenerateExportHeader)
 set(drishti_export_header "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_export.hpp")
 generate_export_header(drishti
   EXPORT_FILE_NAME "${drishti_export_header}"
-  )
+)
 
 set_target_properties(drishti
   PROPERTIES
   PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
-  )
+)
 
 if(IOS)
   # This is required for some Xcode archive operations in end users of a shared framework
   set_target_properties(drishti
     PROPERTIES
     XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
-    )
+  )
 endif()
 
 if(NOT IOS)
@@ -323,7 +340,7 @@ if(NOT IOS)
     PROPERTIES
     VERSION "${drishtisdk_VERSION}"
     SOVERSION "${drishtisdk_VERSION_MAJOR}"
-    )
+  )
 endif()
 
 foreach(library ${drishti_libs} drishtisdk drishti)
@@ -351,7 +368,12 @@ if(DRISHTI_INSTALL)
 
   # Export minimal public SDK or full internal SDK
   set(TARGET_SDK "drishti")
-  set(TARGET_PUBLIC_HDRS ${DRISHTI_DRISHTI_HDRS_PUBLIC} "${drishti_export_header}" "${drishti_sdk_hpp}")
+  set(TARGET_PUBLIC_HDRS
+    ${DRISHTI_DRISHTI_HDRS_PUBLIC}
+    "${drishti_export_header}"
+    "${drishti_constants_hpp}"
+    "${drishti_sdk_hpp}"
+  )
 
   include(CMakePackageConfigHelpers)
   write_basic_package_version_file("${drishti_version_config}"
@@ -370,24 +392,24 @@ if(DRISHTI_INSTALL)
     RUNTIME DESTINATION "bin"
     INCLUDES DESTINATION "${drishti_include_install_dir}"
     PUBLIC_HEADER DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
-    )
+  )
 
   install(
     FILES
     ${TARGET_PUBLIC_HDRS}
     DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
-    )
+  )
 
   install(
     FILES "${drishti_project_config}" "${drishti_version_config}"
     DESTINATION "${drishti_config_install_dir}"
-    )
+  )
 
   install(
     EXPORT "${drishti_targets_export_name}"
     NAMESPACE "${drishti_namespace}"
     DESTINATION "${drishti_config_install_dir}"
-    )  
+  )  
 endif()
 
 # Experimental size reduction
@@ -446,7 +468,7 @@ foreach(library ${drishti_interface_libs})
     PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
     "$<INSTALL_INTERFACE:include>"  # <prefix>/include
-    )
+  )
 endforeach()
 
 #################
@@ -468,7 +490,7 @@ if(DRISHTI_BUILD_TESTS)
       PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR}>"
       "$<INSTALL_INTERFACE:include>"  # <prefix>/include
-      )
+    )
   endif()
   
 endif()

@@ -114,7 +114,7 @@ void FaceTrackTest::setPreviewGeometry(float tx, float ty, float sx, float sy)
     m_impl->setPreviewGeometry(tx, ty, sx, sy);
 }
 
-int FaceTrackTest::callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
+int FaceTrackTest::callback(drishti_face_tracker_results_t& results)
 {
     m_impl->logger->info("callback: Received results");
 
@@ -224,7 +224,7 @@ int FaceTrackTest::allocator(const drishti_image_t& spec, drishti::sdk::Image4b&
     return 0;
 }
 
-int FaceTrackTest::callbackFunc(void* context, drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
+int FaceTrackTest::callbackFunc(void* context, drishti_face_tracker_results_t& results)
 {
     if (auto* ft = static_cast<FaceTrackTest*>(context))
     {

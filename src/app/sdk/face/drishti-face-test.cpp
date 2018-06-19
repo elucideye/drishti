@@ -28,6 +28,8 @@
 #include "FaceTrackerFactoryJson.h"
 #include "VideoCaptureList.h"
 
+#include "drishti/drishti_sdk.hpp" // for version from public SDK
+
 #include <opencv2/core.hpp>    // for cv::Mat
 #include <opencv2/imgproc.hpp> // for cv::cvtColor()
 #include <opencv2/highgui.hpp> // for cv::imread()
@@ -84,6 +86,8 @@ static cv::Size getSize(const cv::VideoCapture& video);
 
 int gauze_main(int argc, char** argv)
 {
+    auto logger = createLogger("drishti-face-test");
+    
     const auto argumentCount = argc;
 
     float captureZ = 0.f;
@@ -93,6 +97,8 @@ int gauze_main(int argc, char** argv)
 #if defined(DRISHTI_HAVE_LOCALECONV)
     std::string sBoilerplate;
 #endif
+
+    bool doVersion = false;    
 
     Params params;
     
@@ -125,7 +131,9 @@ int gauze_main(int argc, char** argv)
         // behavior:
         ("capture", "Target capture distance", cxxopts::value<float>(captureZ))
         ("p,preview", "Preview window", cxxopts::value<bool>(doPreview))
-    ;
+
+        ("version", "Report library version", cxxopts::value<bool>(doVersion))
+        ;
     // clang-format on
 
     auto parseResult = options.parse(argc, argv);
@@ -135,8 +143,11 @@ int gauze_main(int argc, char** argv)
         return 0;
     }
 
-    auto logger = createLogger("drishti-face-test");
-
+    if(doVersion)
+    {
+        logger->info("Version: {}", DRISHTI_VERSION);
+        return 0;
+    }    
     
     if (sInput.empty())
     {

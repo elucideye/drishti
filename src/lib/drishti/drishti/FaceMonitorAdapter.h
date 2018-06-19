@@ -100,8 +100,7 @@ public:
 
     void grab(const std::vector<FaceImage>& frames, bool isInitialized) override
     {
-        // Populate public API buffer using public SDK wrapper types w/ shallow copy:
-        drishti::sdk::Array<drishti_face_tracker_result_t, 64> results(frames.size());
+        drishti_face_tracker_results_t results(frames.size());
 
         for (size_t i = 0; i < frames.size(); i++)
         {
