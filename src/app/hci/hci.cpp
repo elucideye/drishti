@@ -18,6 +18,8 @@
 #include "drishti/face/FaceDetectorFactoryJson.h"
 #include "drishti/core/drishti_string_hash.h"
 
+#include "drishti/drishti_sdk.hpp" // for version from public SDK
+
 #include "ogles_gpgpu/common/proc/swizzle.h"
 
 #include "videoio/VideoSourceCV.h"
@@ -176,6 +178,7 @@ int gauze_main(int argc, char** argv)
     bool doDebug = false;
     bool doCpu = false;
     bool doCvVideoCapture = false;
+    bool doVersion = false;    
     int loops = 0;
     
     std::string sInput, sOutput, sSwizzle = "rgba", sDimensions;
@@ -234,7 +237,8 @@ int gauze_main(int argc, char** argv)
 
         // ... factory can be used instead of D,M,R,E
         ("F,factory", "Factory (json model zoo)", cxxopts::value<std::string>(sFactory))
-    
+
+        ("version", "Report library version", cxxopts::value<bool>(doVersion))        
         ("h,help", "Print help message");
     // clang-format on
 
@@ -245,6 +249,12 @@ int gauze_main(int argc, char** argv)
         std::cout << options.help({ "" }) << std::endl;
         return 0;
     }
+
+    if(doVersion)
+    {
+        logger->info("Version: {}", DRISHTI_VERSION);
+        return 0;
+    }    
 
     // ############################################
     // ### Command line argument error checking ###

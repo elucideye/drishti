@@ -21,6 +21,8 @@
 #include "drishti/core/drishti_cv_cereal.h"
 #include "drishti/testlib/drishti_cli.h"
 
+#include "drishti/drishti_sdk.hpp" // for version from public SDK
+
 // Package includes:
 #include "cxxopts.hpp"
 
@@ -188,6 +190,7 @@ int gauze_main(int argc, char** argv)
     bool isRight = false;
     bool isLeft = false;
     bool doLabels = false;
+    bool doVersion = false;
 
     cv::Matx33f prewarp = cv::Matx33f::eye();
 
@@ -206,6 +209,7 @@ int gauze_main(int argc, char** argv)
         ("l,left", "Left eye inputs", cxxopts::value<bool>(isLeft))
         ("p,prewarp", "Prewarp", cxxopts::value<std::string>(sPrewarp))
         ("L,labels", "Generate label image", cxxopts::value<bool>(doLabels))
+        ("version", "Report library version", cxxopts::value<bool>(doVersion))
         ("h,help", "Print help message");
     // clang-format on    
     
@@ -215,6 +219,12 @@ int gauze_main(int argc, char** argv)
     {
         std::cout << options.help({""}) << std::endl;
         return 0;
+    }
+
+    if(doVersion)
+    {
+        logger->info("Version: {}", DRISHTI_VERSION);
+        return 0;        
     }
     
     // ############################################

@@ -219,7 +219,7 @@ protected:
         }
     }
 
-    int callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
+    int callback(drishti_face_tracker_results_t& results)
     {
         m_logger->info("callback: Received results");
         return 0;
@@ -243,7 +243,7 @@ protected:
      * C API:
      */
 
-    static int callbackFunc(void* context, drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results)
+    static int callbackFunc(void* context, drishti_face_tracker_results_t& results)
     {
         if (FaceTest* ft = static_cast<FaceTest*>(context))
         {

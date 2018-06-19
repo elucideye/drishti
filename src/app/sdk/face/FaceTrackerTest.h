@@ -43,11 +43,11 @@ public:
         drishti::sdk::Image4b& image
     );
 
-    int callback(drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results);
+    int callback(drishti_face_tracker_results_t& results);
     static int callbackFunc
     (
         void* context,
-        drishti::sdk::Array<drishti_face_tracker_result_t, 64>& results
+        drishti_face_tracker_results_t& results
      );
 
     drishti_request_t trigger

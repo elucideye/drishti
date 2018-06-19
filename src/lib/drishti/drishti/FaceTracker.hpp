@@ -13,6 +13,7 @@
 #define __drishti_drishti_FaceTracker_hpp__ 1
 
 #include <drishti/drishti_sdk.hpp>
+#include <drishti/drishti_constants.hpp> // DRISHTI_SDK_MAX_FACES
 #include <drishti/Image.hpp>
 #include <drishti/Face.hpp>
 #include <drishti/VideoFrame.hpp>
@@ -147,7 +148,7 @@ using drishti_request_t = drishti_request;
  * An alias for a vector of drishti_face_tracker_result_t objects.
  */
 
-typedef drishti::sdk::Array<drishti_face_tracker_result_t, 64> drishti_face_tracker_results_t;
+typedef drishti::sdk::Array<drishti_face_tracker_result_t, DRISHTI_SDK_MAX_FACES> drishti_face_tracker_results_t;
 
 // User defined callbacks:
 

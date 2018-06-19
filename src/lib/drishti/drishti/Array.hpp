@@ -12,6 +12,7 @@
 #ifndef __drishti_drishti_Array_hpp__
 #define __drishti_drishti_Array_hpp__
 
+#include <drishti/drishti_sdk.hpp>
 #include <cstdint>
 #include <iterator>
 #include <algorithm>
@@ -132,7 +133,7 @@ public:
         }
         const const_iterator operator++(int)
         {
-            iterator i = *this;
+            const_iterator i = *this;
             ptr_++;
             return i;
         } // optional
@@ -144,7 +145,7 @@ public:
         } //optional
         const_iterator operator+(size_type n) const
         {
-            iterator i = *this;
+            const_iterator i = *this;
             i += n;
             return i;
         } //optional

@@ -25,10 +25,13 @@ static std::shared_ptr<spdlog::logger> createLogger(const char* name);
 
 int gauze_main(int argc, char** argv)
 {
+    auto logger = createLogger("drishti-eye-test");
+
     const auto argumentCount = argc;
 
     bool isRight = false;
     bool isLeft = false;
+    bool doVersion = false;    
     std::string sInput, sOutput, sModel;
 
     cxxopts::Options options("drishti-eye-test", "Command line interface for eye model fitting");
@@ -40,7 +43,9 @@ int gauze_main(int argc, char** argv)
         ("o,output", "Output image", cxxopts::value<std::string>(sOutput))
         ("m,model", "Eye model (pose regression)", cxxopts::value<std::string>(sModel))
         ("r,right", "Right eye", cxxopts::value<bool>(isRight))
-        ("l,left", "Left eye", cxxopts::value<bool>(isLeft));
+        ("l,left", "Left eye", cxxopts::value<bool>(isLeft))
+        ("version", "Report library version", cxxopts::value<bool>(doVersion))        
+        ;
     // clang-format on    
 
     auto parseResult = options.parse(argc, argv);
@@ -50,7 +55,11 @@ int gauze_main(int argc, char** argv)
         return 0;
     }
 
-    auto logger = createLogger("drishti-eye-test");
+    if(doVersion)
+    {
+        logger->info("Version: {}", DRISHTI_VERSION);
+        return 0;        
+    }
     
     if (sInput.empty())
     {

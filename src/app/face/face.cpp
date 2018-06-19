@@ -26,6 +26,8 @@
 #include "drishti/ml/ObjectDetector.h"
 #include "drishti/ml/ObjectDetectorACF.h"
 
+#include "drishti/drishti_sdk.hpp" // for version from public SDK
+
 #include <acf/ACF.h>
 
 // clang-format off
@@ -155,6 +157,8 @@ int gauze_main(int argc, char** argv)
     bool doDisplay = false;
     bool doAnnotation = false;
     bool doPositiveOnly = false;
+    bool doVersion = false;
+    
     float scale = 1.0;
     double cascCal = 0.0;
     int minWidth = -1; // minimum object width
@@ -196,6 +200,7 @@ int gauze_main(int argc, char** argv)
         ("0,pause", "Pause display window", cxxopts::value<bool>(doPause))
         ("p,positive", "Limit output to positve examples", cxxopts::value<bool>(doPositiveOnly))
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
+        ("version", "Report library version", cxxopts::value<bool>(doVersion))        
         ("h,help", "Print help message");
     // clang-format on
 
@@ -206,6 +211,12 @@ int gauze_main(int argc, char** argv)
         std::cout << options.help({ "" }) << std::endl;
         return 0;
     }
+
+    if(doVersion)
+    {
+        logger->info("Version: {}", DRISHTI_VERSION);
+        return 0;
+    }    
 
     // ############################################
     // ### Command line argument error checking ###
