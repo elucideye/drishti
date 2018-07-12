@@ -83,7 +83,7 @@ EyeFilter::~EyeFilter()
     procPasses.clear();
 }
 
-void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes, int n, bool getImage)
+void EyeFilter::dump(std::vector<drishti::core::ImageView>& frames, std::vector<EyePair>& eyes, int n, bool getImage)
 {
     // FifoProc::operator[] will preserve temporal ordering
     auto length = static_cast<int>(fifoProc->getBufferCount());
@@ -93,15 +93,21 @@ void EyeFilter::dump(std::vector<cv::Mat4b>& frames, std::vector<EyePair>& eyes,
     for (int i = 0; i < n; i++)
     {
         const int index = length - i - 1;
+        auto* filter = (*fifoProc)[index];
+        
+        const cv::Size size =  {filter->getOutFrameW(),filter->getOutFrameH()};
+        
+        // Always populate the texture:
+        frames[i].texture = { size, filter->getOutputTexId() };
+        
         if (getImage)
         {
             // Pull frames in reverse order such that frames[0] is newest
-            auto* filter = (*fifoProc)[index];
-            frames[i].create(filter->getOutFrameH(), filter->getOutFrameW());
-            filter->getResultData(frames[i].ptr<uint8_t>());
+            frames[i].image.create(size);
+            filter->getResultData(frames[i].image.ptr<uint8_t>());
         }
 
-        cv::Matx33f N = transformation::denormalize(frames[i].size());        
+        cv::Matx33f N = transformation::denormalize(size);
         const auto &history = m_eyeHistory[index];
         for (int j = 0; j < history.size(); j++)
         {
