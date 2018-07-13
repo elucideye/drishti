@@ -171,14 +171,7 @@ void FaceFinder::registerFaceMonitorCallback(FaceMonitor* callback)
 
 void FaceFinder::dumpEyes(ImageViews& frames, EyeModelPairs& eyes, int n, bool getImage)
 {
-    std::vector<cv::Mat4b> images;
-    impl->eyeFilter->dump(images, eyes, n, getImage);
-
-    frames.resize(images.size());
-    for (int i = 0; i < images.size(); i++)
-    {
-        frames[i].image = images[i];
-    }
+    impl->eyeFilter->dump(frames, eyes, n, getImage);
 }
 
 void FaceFinder::dumpFaces(ImageViews& frames, int n, bool getImage, int skipFrames)
@@ -792,7 +785,7 @@ void FaceFinder::computeAcf(const FrameInput& frame, bool doLuv, bool doDetectio
     glDepthMask(GL_FALSE);
 
     impl->acf->setDoLuvTransfer(doLuv);
-    impl->acf->setDoAcfTrasfer(doDetection);
+    impl->acf->setDoAcfTransfer(doDetection);
 
     (*impl->acf)(frame);
 }

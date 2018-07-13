@@ -26,6 +26,7 @@ END_OGLES_GPGPU
 #include "drishti/face/gpu/MultiTransformProc.h"
 #include "drishti/face/Face.h"
 #include "drishti/eye/gpu/EyeWarp.h"
+#include "drishti/core/ImageView.h"
 
 #include "ogles_gpgpu/common/proc/base/multipassproc.h"
 
@@ -98,7 +99,7 @@ public:
         m_faces.clear();
     }
 
-    void dump(std::vector<cv::Mat4b>& images, std::vector<EyePair>& eyes, int n, bool getImage);
+    void dump(std::vector<drishti::core::ImageView>& images, std::vector<EyePair>& eyes, int n, bool getImage);
 
 protected:
     int m_history = 3;
