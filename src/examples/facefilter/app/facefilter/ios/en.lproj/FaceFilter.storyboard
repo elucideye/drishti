@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Fpj-qh-xEO">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--GLKit View Controller-->
+        <scene sceneID="Gc5-Bt-8mn">
+            <objects>
+                <glkViewController preferredFramesPerSecond="30" id="Fpj-qh-xEO" customClass="FaceFilterViewController" customModule="FaceFilter" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="CiT-Y0-gaF"/>
+                        <viewControllerLayoutGuide type="bottom" id="rXG-LG-5QB"/>
+                    </layoutGuides>
+                    <glkView key="view" multipleTouchEnabled="YES" contentMode="center" id="yHx-q6-5lx">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="Fpj-qh-xEO" id="cDJ-Kv-rSG"/>
+                        </connections>
+                    </glkView>
+                </glkViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="zQC-SX-sjf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-71.200000000000003" y="218.1409295352324"/>
+        </scene>
+    </scenes>
+</document>

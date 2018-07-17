@@ -59,3 +59,4 @@ if(DRISHTI_HAVE_LOCALECONV)
 endif()
 
 install(TARGETS drishti-face-test DESTINATION bin)
+set_property(TARGET drishti-face-test PROPERTY FOLDER "examples/console")

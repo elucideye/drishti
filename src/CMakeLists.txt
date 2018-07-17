@@ -220,7 +220,7 @@ endif()
 set(DRISHTI_SDK_3RDPARTY_LIBS
   ${DRISHTI_SDK_3RDPARTY_SRC_LIBS}
   ${DRISHTI_SDK_3RDPARTY_PKG_LIBS}
-  )
+)
 
 include(sugar_include)
 sugar_include(.)
@@ -235,13 +235,22 @@ add_subdirectory(lib)
 hunter_add_package(cxxopts)
 find_package(cxxopts CONFIG REQUIRED)
 
-# Include *nix style console apps (some will run on iOS and Android)
+# Build standalone examples using the public API
 if(DRISHTI_BUILD_EXAMPLES)
+
+  # Simulate naming from find_package(drishti CONFIG REQUIRED) use case 
+  target_include_directories(drishti PUBLIC $<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}/drishti>)
+
+  add_subdirectory(examples)
+endif()
+
+# Include *nix style console apps (some will run on iOS and Android)
+if(DRISHTI_BUILD_UTILITIES)
   add_subdirectory(app)
 endif()
 
 # (Optional) build unit tests
 if(DRISHTI_BUILD_TESTS)
   add_subdirectory(tests)
-  #add_subdirectory(benchmarks)
 endif()
+

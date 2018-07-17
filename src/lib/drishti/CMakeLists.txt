@@ -382,7 +382,12 @@ if(DRISHTI_INSTALL)
     )
 
   # Note: variable 'drishti_targets_export_name' used
-  configure_file("${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in" "${drishti_project_config}" @ONLY)
+  # TODO: Belongs to top level CMakeLists.txt
+  configure_file(
+      "${CMAKE_CURRENT_LIST_DIR}/Config.cmake.in"
+      "${drishti_project_config}"
+      @ONLY
+  )
 
   install(
     TARGETS ${TARGET_SDK} ${DRISHTI_INSTALL_TARGETS}

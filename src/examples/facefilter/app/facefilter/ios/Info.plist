@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE
+    plist
+    PUBLIC
+    "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd"
+>
+<plist version="1.0">
+<dict>
+  <!--
+  String below icon (XCODE_ATTRIBUTE_PRODUCT_NAME)
+  -->
+  <key>CFBundleDisplayName</key>
+  <string>$(PRODUCT_NAME)</string>
+
+  <!--
+  Internal name of executable file
+  e.g.: ProductName.app/ExecutableName
+  NOTE: This key is required (!)
+  Initialized automatically by Xcode (no need to modify cmake target property)
+  (XCODE_ATTRIBUTE_EXECUTABLE_NAME)
+  -->
+  <key>CFBundleExecutable</key>
+  <string>$(EXECUTABLE_NAME)</string>
+
+  <!--
+  Bundle identifier. Unique id, usually reverse DNS:
+  e.g.: com.example.johndoe.awesomeproject
+  (XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER)
+  -->
+  <key>CFBundleIdentifier</key>
+  <string>$(BUNDLE_IDENTIFIER)</string>
+
+  <!--
+  Icons for iPhone:
+  -->
+  <key>CFBundleIcons</key>
+  <dict>
+    <key>CFBundlePrimaryIcon</key>
+    <dict>
+      <key>CFBundleIconFiles</key>
+      <array>
+        <string>Icon_iPhone_Retina_120x120</string>
+        <string>Icon_iPhone_iPad_Retina_80x80</string>
+        <string>Icon_iPhone_iPad_Retina_58x58</string>
+        <string>Icon</string>
+      </array>
+    </dict>
+  </dict>
+
+  <!--
+  Icons for iPad:
+  -->
+  <key>CFBundleIcons~ipad</key>
+  <dict>
+    <key>CFBundlePrimaryIcon</key>
+    <dict>
+      <key>CFBundleIconFiles</key>
+      <array>
+        <string>Icon_iPad_Non-Retina_76x76</string>
+        <string>Icon_iPad_Retina_152x152</string>
+        <string>Icon_iPad_Non-Retina_40x40</string>
+        <string>Icon_iPhone_iPad_Retina_80x80</string>
+        <string>Icon_iPad_Non-Retina_29x29</string>
+        <string>Icon_iPhone_iPad_Retina_58x58</string>
+        <string>Icon</string>
+      </array>
+    </dict>
+  </dict>
+
+  <!--
+  Device supported orientations
+  -->
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+
+  <!--
+  iPhone launch images
+  -->
+
+  <key>UILaunchStoryboardName</key>
+  <string>LaunchScreen</string>
+
+  <key>UIMainStoryboardFile</key>
+  <string>FaceFilter</string>
+
+  <!--
+  Other
+  -->
+  <key>CFBundleDevelopmentRegion</key>
+  <string>en</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleName</key>
+  <string>$(PRODUCT_NAME)</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>1.1</string>
+  <key>CFBundleSignature</key>
+  <string>????</string>
+  <key>CFBundleVersion</key>
+  <string>1.1</string>
+  <key>LSRequiresIPhoneOS</key>
+  <true/>
+  <key>UIRequiredDeviceCapabilities</key>
+  <array>
+  <string>video-camera</string>
+  </array>
+  <key>NSCameraUsageDescription</key>
+  <string>Use your Camera to capture video.</string>
+</dict>
+</plist>

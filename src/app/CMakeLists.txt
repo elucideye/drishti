@@ -49,9 +49,3 @@ add_subdirectory(fddb)
 if(DRISHTI_BUILD_HCI AND DRISHTI_BUILD_OGLES_GPGPU AND aglet_FOUND)
   add_subdirectory(hci)
 endif()
-
-# Simulate naming from find_package(drishti CONFIG REQUIRED) use case 
-target_include_directories(drishti PUBLIC $<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}/drishti>)
-add_library(drishti::drishti ALIAS drishti)
-
-add_subdirectory(sdk)
