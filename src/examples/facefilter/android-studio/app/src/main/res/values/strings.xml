@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="request_permission">This sample needs camera permission.</string>
+  <string name="internal_error">Internal error.</string>
+  <string name="camera_error">Incompatible camera.</string>
+</resources>
