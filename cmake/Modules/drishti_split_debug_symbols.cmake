@@ -2,19 +2,21 @@ function(drishti_split_debug_symbols lib_name)
 
   if(XCODE)
 
-    # TODO: For iOS universal builds we need to support both: iphoneos and iphonesimulator
-    # i.e., _builds/<toolchain>/src/lib/drishti/Release-iphoneos/libdrishti.dylib.dSYM
-    set(dsym_name "${lib_name}.dSYM")
-    add_custom_command(TARGET ${lib_name}
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/${dsym_name}"
-      COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE:${lib_name}>.dSYM" "${CMAKE_BINARY_DIR}/${dsym_name}"
-      )
+    if(NOT DRISHTI_DISABLE_DSYM)
+      # TODO: For iOS universal builds we need to support both: iphoneos and iphonesimulator
+      # i.e., _builds/<toolchain>/src/lib/drishti/Release-iphoneos/libdrishti.dylib.dSYM
+      set(dsym_name "${lib_name}.dSYM")
+      add_custom_command(TARGET ${lib_name}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/${dsym_name}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "$<TARGET_FILE:${lib_name}>.dSYM" "${CMAKE_BINARY_DIR}/${dsym_name}"
+        )
 
-    install(DIRECTORY
-      "${CMAKE_BINARY_DIR}/${dsym_name}"
-      DESTINATION ".dSYM/"
-      )
+      install(DIRECTORY
+        "${CMAKE_BINARY_DIR}/${dsym_name}"
+        DESTINATION ".dSYM/"
+        )
+    endif()
 
   else()
 
