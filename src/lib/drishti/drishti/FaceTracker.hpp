@@ -129,12 +129,12 @@ typedef struct drishti_request
      * Get OpenGL textures.
      */
     bool getTexture;
-    
+
     /**
      * Grab full frame images/textures.
      */
     bool getFrames;
-    
+
     /**
      * Grab eye pair images/textures.
      */
@@ -152,7 +152,7 @@ typedef drishti::sdk::Array<drishti_face_tracker_result_t, DRISHTI_SDK_MAX_FACES
 
 // User defined callbacks:
 
-/** 
+/**
  * @brief Returns face detections for current frame
  *
  * @param context Allocated context with internal library state.
@@ -161,9 +161,9 @@ typedef drishti::sdk::Array<drishti_face_tracker_result_t, DRISHTI_SDK_MAX_FACES
  */
 using drishti_face_tracker_callback_t = int (*)(void *, drishti_face_tracker_results_t &);
 
-/** 
+/**
  * @brief This function is called (back) with the face+eye models for the current frame.
- * 
+ *
  * This function is called for each frame with a list of detected faces.  The user provided
  * implementation must assess the face models and determine if any additional history is
  * required.  The user must then populate and return a <drishti_request_t> which can retrieve
@@ -179,7 +179,7 @@ using drishti_face_tracker_callback_t = int (*)(void *, drishti_face_tracker_res
  */
 using drishti_face_tracker_update_t = drishti_request_t (*)(void *, const drishti_face_tracker_result_t &, double, std::uint32_t);
 
-/** 
+/**
  * @brief Allocation routine.
  *
  * This is a user provided function to perform image allocation in cases where images are requested.
@@ -210,14 +210,14 @@ struct drishti_face_tracker
     void* context;
 
     /**
-     * A callback containins a list of all detected faces (if any) for each frame.
-     * Note: This will be called for every frame (after an initializationp period)
-     * even if no faces are deteted in the current frame.
+     * A callback containing a list of all detected faces (if any) for each frame.
+     * Note: This will be called for every frame (after an initialization period)
+     * even if no faces are detected in the current frame.
      */
     drishti_face_tracker_update_t update;
 
     /**
-     * A callback returning frames requested by the <update> functino.
+     * A callback returning frames requested by the <update> function.
      */
     drishti_face_tracker_callback_t callback;
 
@@ -256,7 +256,7 @@ public:
      * Constructor
      *
      * @param context Face tracker configuration and state details
-     * @param factory Container of istream objects sufficient to allocate a 
+     * @param factory Container of istream objects sufficient to allocate a
      * face tracker and eye model fitting
      */
     FaceTracker(Context* context, Resources& factory);
@@ -295,13 +295,13 @@ public:
 
     /**
      * Install a set of user defined callback functions to manage tracking.
-     * 
+     *
      * @param table The set of user defined callbacks for tracking.
      */
     void add(drishti_face_tracker_t& table);
 
 protected:
-    
+
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };
