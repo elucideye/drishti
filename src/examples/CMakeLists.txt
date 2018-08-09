@@ -77,5 +77,4 @@ endif()
 ###############
 
 add_subdirectory(eye)
-add_subdirectory(face)
 add_subdirectory(facefilter)

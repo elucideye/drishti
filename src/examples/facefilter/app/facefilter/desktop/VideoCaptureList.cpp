@@ -6,6 +6,8 @@
 #include <memory>
 #include <utility>
 
+#include <facefilter/Exception.hpp>
+
 // https://stackoverflow.com/a/1567703
 class Line
 {
@@ -22,11 +24,12 @@ public:
 
 namespace detail
 {
-    template <typename T, typename... Args>
-    std::unique_ptr<T> make_unique(Args&&... args)
-    {
-        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    }
+
+template <typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args&&... args)
+{
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
 }
 
 static void expand(const std::string& filename, std::vector<std::string>& filenames)
@@ -43,7 +46,7 @@ static void expand(const std::string& filename, std::vector<std::string>& filena
         }
         else
         {
-            throw std::runtime_error("Unable to open file: " + filename);
+            throw facefilter::Exception(facefilter::Exception::FILE_OPEN);
         }
     }
 }
@@ -56,7 +59,7 @@ struct VideoCaptureList::Impl
         init();
     }
 
-    Impl(std::vector<std::string>  filenames)
+    Impl(std::vector<std::string> filenames)
         : filenames(std::move(filenames))
     {
         init();

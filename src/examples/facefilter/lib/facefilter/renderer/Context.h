@@ -24,6 +24,12 @@
 #endif
 // clang-format on
 
+namespace ogles_gpgpu
+{
+class VideoSource;
+class GrayscaleProc;
+};
+
 BEGIN_FACEFILTER_NAMESPACE
 
 struct Application
@@ -34,9 +40,11 @@ public:
     void setAssetManager(void* assetManager);
     void loadAsset(const char* key, const char* filename);
     void drawFrame(std::uint32_t texId);
+    void drawFrame(void* ptr, bool useRawPixels, std::uint32_t type);
     void initContext(void* context);
     void initCamera(int width, int height, int rotation, float focalLength);
     void initDisplay(int width, int height);
+    void setPreviewGeometry(float tx, float ty, float sx, float sy);
     void destroy();
     void setGLContext(void* context);
     void registerSetDisplayBufferCallback(const std::function<void()>& callback);
@@ -70,6 +78,9 @@ protected:
     JNIEnv* m_JNIEnv;
     jobject m_jobject;
 #endif
+
+    std::unique_ptr<ogles_gpgpu::VideoSource> m_video;
+    std::unique_ptr<ogles_gpgpu::GrayscaleProc> m_gray;
 
     std::shared_ptr<Renderer> m_renderer;
 
