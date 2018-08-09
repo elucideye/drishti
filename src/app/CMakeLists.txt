@@ -18,9 +18,6 @@ endif()
 ### Applications ###
 ####################
 
-# Top level folder for QT applications:
-add_subdirectory(qt)
-
 if(DRISHTI_BUILD_FACE)
   add_subdirectory(facecrop)
 endif()
