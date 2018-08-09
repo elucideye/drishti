@@ -29,5 +29,10 @@ hunter_add_package(OpenCV)
 find_package(OpenCV REQUIRED)
 list(APPEND facefilter_deps ${OpenCV_LIBS})
 
+### Boost ###
+hunter_add_package(Boost COMPONENTS filesystem system) # FaceTrackerFactoryJson
+find_package(Boost CONFIG REQUIRED system filesystem)
+list(APPEND facefilter_deps Boost::filesystem Boost::system)
+
 target_link_libraries(facefilter_renderer PUBLIC ${facefilter_deps})
 set_property(TARGET facefilter_renderer PROPERTY FOLDER "examples/lib/")
