@@ -3,33 +3,7 @@
 
 cmake_minimum_required(VERSION 3.9) # CMAKE_INTERPROCEDURAL_OPTIMIZATION
 
-# By default, the source code for all managed dependencies will be removed after
-# building and installing to the cache.  This behavior is consistent with most 
-# installed libraries (i.e., /usr/local/lib/*), but it does prevent stepping 
-# through the dependencies in a debugger in cases where a problem is not 
-# contained within the drishti project sources.  In such cases, you can set 
-# HUNTER_KEEP_PACKAGE_SOURCES=ON from the command line during the project 
-# configuration and the source will be left for all packages when they are
-# created.  This setting must be used before a package is installed -- it 
-# won't be applied retroactively to installed packages.  In order to re-install
-# a package with sources you can always remove the cache
-# (i.e., rm -rf ${HOME}/.hunter) or, less drastically you can modify the 
-# CONFIG-ID of an installed package to trigger the configuration and 
-# installation steps.  This can be done by modifying the input CMAKE_ARGS 
-# list in a hunter_config() call.  In the following example KEEP_SOURCES=1
-# is  added to trigger a re-installation:
-#
-#   hunter_config(foo VERSION ${HUNTER_foo_VERSION} CMAKE_ARGS KEEP_SOURCES=1)
-#
-# The HUNTER_KEEP_PACKAGE_SOURCES development feature is described here:
-#
-# In order to support stepping through package sources you will also have to
-# make sure that debug versions of the packages are installed.  This will
-# happen by default, but will not happen if you specify a release only build
-# using HUNTER_CONFIGURATION_TYPES=Release
-
-# https://docs.hunter.sh/en/latest/reference/user-variables.html#hunter-keep-package-sources
-option(HUNTER_KEEP_PACKAGE_SOURCES "Keep installed package sources for debugging (caveat...)" OFF)
+include("src/examples/cmake/include/init.cmake")
 
 #########################
 ### CMAKE_MODULE_PATH ###
@@ -37,43 +11,25 @@ option(HUNTER_KEEP_PACKAGE_SOURCES "Keep installed package sources for debugging
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 
-############################
-### HunterGate and cache ###
-############################
-
-set(drishti_upload_init "${CMAKE_CURRENT_LIST_DIR}/drishti-upload/init.cmake")
-
-include("cmake/HunterGate.cmake")
-
-if(HUNTER_PACKAGE_BUILD)
-  # URL/SHA1 will not be used actually, settings will be inherited
-  HunterGate(URL "${HUNTER_URL}" SHA1 "${HUNTER_SHA1}")
-else()
-  if(NOT EXISTS "${drishti_upload_init}")
-    message(
-      FATAL_ERROR
-      "File does not exist:\n"
-      "  ${drishti_upload_init}\n"
-      "Run this command if submodule is not initialized:\n"
-      "  git submodule update --init --recursive ."
-    )
-  endif()
-
-  option(DRISHTI_HUNTER_CONFIG_MINIMAL "Use 'minimal' config" OFF)
-
-  # CI: Locked CI build configuration
-  include("${drishti_upload_init}")
-endif()
-
 #######################
 ### Drishti project ###
 #######################
 
 project(drishtisdk VERSION 0.12.4)
 
+#################
+### Languages ###
+#################
+
+if(IOS)
+  # This must be in the top/highest level directory (really)
+  set(CMAKE_Swift_LANGUAGE_VERSION 4.1)
+  set(CMAKE_XCODE_ATTRIBUTE_SWIFT_VERSION "4.1")
+  enable_language(Swift)
+endif()  
+
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
 
-set(DRISHTI_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
 set(DRISHTI_3RD_PARTY_DIR "${CMAKE_CURRENT_LIST_DIR}/src/3rdparty")
 set(DRISHTI_APP_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/app")
 set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
@@ -86,12 +42,6 @@ set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 ## Do note move this!!!!!!!!
 #####################################################################
 
-# Warning: The following options relate to
-# drishti-upload/config.cmake:
-#
-# DRISHTI_BUILD_MIN_SIZE:
-#   This is included via drishti-upload/config.cmake
-#
 # DRISHTI_BUILD_MERGED_SDK: (see: DRISHTI_BUILD_OPENCV_WORLD)
 #   Force DRISHTI_BUILD_OPENCV_WORLD=OFF since the merged
 #   library introduces duplicate object names (filenames)
@@ -102,18 +52,11 @@ set(DRISHTI_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/src/lib")
 #   This is an override for the same setting in
 #   drishti-upload/config.cmake.
 #
-# DRISHTI_BUILD_MIN_SIZE:
-#   This can alter the hunter-package options for
-#   various dependencies in order to produce smaller builds,
-#   such as eliminating code related to model training.
 
 option(DRISHTI_BUILD_SHARED_SDK "Build shared SDK" OFF)
 option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
 
 option(DRISHTI_COPY_3RDPARTY_LICENSES "Install 3rd party licenses" ON)
-
-# See: drishti-upload/config.cmake
-# option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
 
 if(DRISHTI_BUILD_MERGED_SDK)
   # Override the drishti-upload DRISHTI_BUILD_OPENCV_WORLD option, since the opencv_world
@@ -123,13 +66,6 @@ if(DRISHTI_BUILD_MERGED_SDK)
 endif()
 
 option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
-
-# Used in drishti-upload/config.cmake {
-option(DRISHTI_BUILD_MIN_SIZE "Build minimum size lib (exclude training)" ON)
-option(DRISHTI_BUILD_OGLES_GPGPU "Build with OGLES_GPGPU" ON)
-option(DRISHTI_OPENGL_ES3 "Support OpenGL ES 3.0 (default 2.0)" OFF)
-option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
-# }
 
 message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
@@ -227,7 +163,7 @@ endif()
 # see https://github.com/forexample/github-binary-release/blob/master/CMakeLists.txt
 
 include(InstallRequiredSystemLibraries)
-include("cmake/pack.cmake") # includes Cpack
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/pack.cmake") # includes Cpack
 
 string(COMPARE NOTEQUAL "$ENV{TRAVIS_TAG}" "" travis_deploy)
 string(COMPARE EQUAL "$ENV{APPVEYOR_REPO_TAG}" "true" appveyor_deploy)
@@ -259,12 +195,8 @@ option(DRISHTI_SERIALIZE_WITH_CVMATIO "Perform serialization with cvmatio" OFF)
 # ${DRISHTISDK}/src/lib/drishti/<module>/ut/
 # ${DRISHTISDK}/src/tests
 
-# DRISHTI_BUILD_INTEGRATION_TESTS:
-# ${DRISHTISDK}/src/examples/integration/
-
 option(DRISHTI_BUILD_BENCHMARKS "Build internal benchmarks (size and speed)." OFF)
 option(DRISHTI_BUILD_TESTS "Build and run internal unit tests." OFF)
-option(DRISHTI_BUILD_INTEGRATION_TESTS "Build and run tests for installed libraries." OFF)
 
 option(DRISHTI_HAS_GPU "Drishti has GPU" ON)
 
@@ -274,7 +206,7 @@ else()
   set(DRISHTI_DO_GPU_TESTING FALSE)
 endif()
 
-if(DRISHTI_BUILD_TESTS OR DRISHTI_BUILD_INTEGRATION_TESTS)
+if(DRISHTI_BUILD_TESTS)
   enable_testing()
   hunter_add_package(gauze)
   find_package(gauze CONFIG REQUIRED)
@@ -357,25 +289,6 @@ message("--- ${CMAKE_BUILD_TYPE} ---")
 hunter_add_package(sugar)
 find_package(sugar CONFIG REQUIRED)
 
-################################################
-### Drishti integration (post-install) tests ###
-################################################
-
-if(DRISHTI_BUILD_INTEGRATION_TESTS)
-  # Re-use drishti test interface for integration testing
-  add_subdirectory(src/lib/drishti/testlib)
-  add_subdirectory(src/examples/integration)
-  return()
-endif()
-
-### ^
-### | Settings above this line apply to both drishti library
-### | and drishti integration testing of installed libraries.
-### +---------------------------------------------------------
-### | Settings below this line apply only to drishti libraries.
-### |
-### V
-
 ##############
 ### cotire ###
 ##############
@@ -395,7 +308,8 @@ option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 # This will build a static library using all specified modules
 option(DRISHTI_INSTALL "Run package-config installation" ON)
 option(DRISHTI_BUILD_C_INTERFACE "Build C API" OFF)
-option(DRISHTI_BUILD_EXAMPLES "Build the examples" ON)
+option(DRISHTI_BUILD_UTILITIES "Build the utilities (may use private api)" ON)
+option(DRISHTI_BUILD_EXAMPLES "Build the examples (public/relocatable api)" ON)
 option(DRISHTI_BUILD_ASAN_TEST "Intentional ASAN test" OFF)
 option(DRISHTI_BUILD_FACE "Drishti face lib" ON)
 option(DRISHTI_BUILD_HCI "Drishti video and HCI lib" ON)
@@ -419,7 +333,11 @@ set(drishti_targets_export_name "${CMAKE_PROJECT_NAME}Targets")
 set(drishti_namespace "${CMAKE_PROJECT_NAME}::")
 
 #### std::to_string ####
-try_compile(DRISHTI_HAVE_TO_STRING "${CMAKE_BINARY_DIR}/compile_tests" "${PROJECT_SOURCE_DIR}/cmake/to_string.cpp")
+try_compile(
+    DRISHTI_HAVE_TO_STRING
+    "${CMAKE_BINARY_DIR}/try_compile"
+    "${CMAKE_CURRENT_LIST_DIR}/src/examples/cmake/to_string.cpp"
+)
 
 ##################################
 ### Includes (to be deprecated ###

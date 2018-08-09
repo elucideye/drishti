@@ -1,0 +1,5 @@
+if(IOS)
+  add_subdirectory(ios)
+elseif(ANDROID)
+  add_subdirectory(android)
+endif()
