@@ -3,33 +3,14 @@
 language:
   - cpp
 
-# Container-based infrastructure (Linux)
-# * https://docs.travis-ci.com/user/migrating-from-legacy/#How-can-I-use-container-based-infrastructure%3F
+# Image with best disk space availability {
+# * https://docs.travis-ci.com/user/reference/overview/#virtualisation-environment-vs-operating-system
 sudo:
-  - false
+  - required
 
 dist:
   - trusty
-
-# Install packages differs for container-based infrastructure
-# * https://docs.travis-ci.com/user/migrating-from-legacy/#How-do-I-install-APT-sources-and-packages%3F
-# List of available packages:
-# * https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-trusty
-# List of available sources:
-# * https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      # For ogles_gpgpu (GL library)
-      - libgl1-mesa-dev
-
-      # GCC 5
-      - g++-5
-
-      # pip3
-      - python3-pip
+# }
 
 env:
   global:
@@ -130,6 +111,12 @@ git:
 # CI_USER_TOKEN is added to .travis.yml settings
 
 install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get -y update
+  - sudo apt-get install -y libgl1-mesa-dev # For ogles_gpgpu (GL library)
+  - sudo apt-get install -y g++-5 # GCC 5
+  - sudo apt-get install -y python3-pip # pip3
+
   - source bin/hunter_env.sh
 
 script:
