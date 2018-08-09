@@ -10,11 +10,15 @@
 */
 
 #include <facefilter/renderer/Context.h>
+#include <facefilter/make_unique.h>
 
 #include <ogles_gpgpu/common/core.h>
 #if defined(__ANDROID__) || defined(ANDROID)
 #  include <ogles_gpgpu/platform/opengl/gl_includes.h> // GL_TEXTURE_EXTERNAL_OES
 #endif
+
+#include <ogles_gpgpu/common/proc/video.h>
+#include <ogles_gpgpu/common/proc/grayscale.h>
 
 #include <iostream>
 
@@ -79,6 +83,20 @@ void Application::drawFrame(std::uint32_t texId)
     }
 }
 
+void Application::drawFrame(void* ptr, bool useRawPixels, std::uint32_t type)
+{
+    if (!m_video)
+    {
+        m_video = facefilter::make_unique<ogles_gpgpu::VideoSource>();
+        m_gray = facefilter::make_unique<ogles_gpgpu::GrayscaleProc>();
+        m_gray->setGrayscaleConvType(ogles_gpgpu::GRAYSCALE_INPUT_CONVERSION_NONE);
+        m_video->set(m_gray.get());
+    }
+    (*m_video)({ { m_cameraWidth, m_cameraHeight }, ptr, false, 0, type });
+
+    drawFrame(m_gray->getOutputTexId());
+}
+
 void Application::initCamera(int width, int height, int rotation, float focalLength)
 {
     m_hasCamera = true;
@@ -99,6 +117,14 @@ void Application::initDisplay(int width, int height)
     initPipeline();
 }
 
+void Application::setPreviewGeometry(float tx, float ty, float sx, float sy)
+{
+    if (m_renderer)
+    {
+        m_renderer->setPreviewGeometry(tx, ty, sx, sy);
+    }
+}
+
 void Application::destroy()
 {
     m_hasCamera = false;
@@ -114,7 +140,7 @@ void Application::initPipeline()
     m_context = ogles_gpgpu::Core::getCurrentEAGLContext();
     ogles_gpgpu::Core::tryEnablePlatformOptimizations();
 #endif
-    
+
     if (m_hasCamera && m_hasDisplay && !m_assets.empty() && !m_renderer)
     {
         glActiveTexture(GL_TEXTURE0);

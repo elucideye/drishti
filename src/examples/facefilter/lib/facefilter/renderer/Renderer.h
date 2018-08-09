@@ -34,6 +34,7 @@ public:
         Application& application);
     virtual ~Renderer();
     void resize(int w, int h);
+    void setPreviewGeometry(float tx, float ty, float sx, float sy);
     void render();
     void setTexture(std::uint32_t texId);
     void setInputTextureTarget(GLenum textureTaret);

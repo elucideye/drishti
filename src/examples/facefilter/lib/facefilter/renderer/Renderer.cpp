@@ -54,7 +54,7 @@ struct Renderer::Impl
         {
             std::swap(frameSizeUp.width, frameSizeUp.height);
         }
-        
+
         const auto &&transform = recalculateViewGeometry(frameSizeUp, displaySize, kFillModePreserveAspectRatio);
         disp.setOffset(transform.x, transform.y);
         disp.setDisplayResolution(transform.scaleX, transform.scaleY);
@@ -63,7 +63,7 @@ struct Renderer::Impl
         gray.setOutputRenderOrientation(ogles_gpgpu::degreesToOrientation(rotation));
 
         initDrishti(frameSizeUp, focalLength, glContext);
-        
+
         if(m_tracker)
         {
             // Manually prepare display if drishti will be used
@@ -76,11 +76,11 @@ struct Renderer::Impl
         {
             gray.add(&disp);
         }
-        
+
         // Always prepare gray regardless of whether drishti is configured
         gray.prepare(frameSize.width, frameSize.height, 0, false);
     }
-    
+
     std::shared_ptr<spdlog::logger>& getLogger()
     {
         return m_Application.getLogger();
@@ -116,21 +116,21 @@ struct Renderer::Impl
         context.setDoCpuACF(false);                          // available only if using the simple pipeline
         context.setDoOptimizedPipeline(true);                // configure optimized pipeline
         context.setGLContext(glContext);
-    
+
         m_tracker = facefilter::make_unique<drishti::sdk::FaceTracker>(&context, m_factory->factory);
         if (!m_tracker)
         {
             m_Application.getLogger()->error("Failed to create face tracker");
             throw std::runtime_error("Failed to insantiate tracker");
         }
-        
+
         m_tracker->add(m_callbacks->table);
     }
 
     void render()
     {
         gray.process(texId, 1, inputTextureTarget);
-        
+
         if(m_tracker)
         {
             drishti::sdk::VideoFrame frame({frameSize.width,frameSize.height}, nullptr, false, gray.getOutputTexId(), TEXTURE_FORMAT);
@@ -138,7 +138,13 @@ struct Renderer::Impl
             disp.process(outputTex, 1, GL_TEXTURE_2D);
         }
     }
-    
+
+    void setPreviewGeometry(float tx, float ty, float sx, float sy)
+    {
+        disp.setOffset(tx, ty);
+        disp.setDisplayResolution(sx, sy);
+    }
+
     void setDisplayBufferCallback(const std::function<void()> &callback)
     {
         setDisplayBuffer = callback;
@@ -184,12 +190,20 @@ Renderer::Renderer(
     );
 }
 
-void Renderer::resize(int w, int h) 
+void Renderer::resize(int w, int h)
 {
     // TODO
 }
 
-void Renderer::render() 
+void Renderer::setPreviewGeometry(float tx, float ty, float sx, float sy)
+{
+    if (m_impl)
+    {
+        m_impl->setPreviewGeometry(tx, ty, sx, sy);
+    }
+}
+
+void Renderer::render()
 {
     if(m_impl)
     {
