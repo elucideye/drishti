@@ -11,6 +11,33 @@ Real time eye tracking for embedded and mobile devices in C++11.
 
 |eye models 1| |eye models 2| |eye models 3|
 
+NEWS (2018/08/10)
+_________________
+
+Native iOS, Android, and "desktop" variants of the real-time 
+``facefilter`` application have been added here: ``src/examples/facefilter``.
+These applications link against the installed public ``drishti::drishti`` 
+package interface, which is designed without external types in the API definition.
+The ``facefilter`` demos are enabled by the ``DRISHTI_BUILD_EXAMPLES`` 
+CMake option, and the entire ``src/examples`` tree is designed to be relocatable,
+you can ``cp -r src/examples ${HOME}/drishti_examples``, customize, and
+build, by simply updating the drishti package details.  The ``iOS`` target
+requires Xcode 9 (beta 4) or above (Swift language requirements) and will
+be generated directly as a standard CMake ``add_executable()`` target
+as part of the usual top level project build. The Android Studio 
+application is located here: ``src/examples/facefilter/android-studio``.
+Android Studio/Gradle is required to build the application layer,
+and the CMake build is managed directly by ``gradle``.  There are a 
+few platform specific configurations that must be addressed before building.
+In particular, we must use a recent standard CMake executable, not the modified
+version that is bundled with Android Studio.  External CMake support is a new
+Android Studio feature, which requries version 3.2 beta or above.  
+The external CMake path must be provided by the user in a local 
+`src/examples/facefilter/android-studio/local.properties` file.
+Please read the following 
+`android-studio <https://docs.hunter.sh/en/latest/faq/android-studio.html>`__
+link (from the Hunter FAQ) carefully before building.
+
 Overview
 --------
 
@@ -18,24 +45,23 @@ Goal: SDK size <= 1 MB and combined resources (object detection +
 regression models) <= 4 MB.
 
 -  `Hunter <https://github.com/ruslo/hunter>`__ package management and
-   CMake build system by Ruslan Baratov, as well as much of the cross
-   platform Qt work: "Organized Freedom!" :)
--  A C++ and OpenGL ES 2.0 implementation of `Fast Feature Pyramids for
-   Object
-   Detection <https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf>`__
+   CMake build system by Ruslan Baratov, as well as CI and much of the
+   real time `facefilter` mobile application(s) layer: "Organized Freedom!" :)
+-  A C++ and OpenGL ES 2.0 implementation of 
+   `Fast Feature Pyramids for Object Detection 
+   <https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf>`__
    (see `Piotr's Matlab Toolbox <https://pdollar.github.io/toolbox>`__)
-   for face and eye detection; UPDATE: The acf code has been moved to a separate
-   repository with a hunter package `HERE <https://github.com/elucideye/acf>`__
--  Iris ellipse fitting via `Cascaded Pose
-   Regression <https://pdollar.github.io/files/papers/DollarCVPR10pose.pdf>`__
+   for face and eye detection -- the ACF library is available as a standalone
+   Hunter package `here <https://github.com/elucideye/acf>`__
+-  Iris ellipse fitting via 
+   `Cascaded Pose Regression <https://pdollar.github.io/files/papers/DollarCVPR10pose.pdf>`__
    (Piotr Dollar, et al) + `XGBoost <https://github.com/dmlc/xgboost>`__
    regression (Tianqi Chen, et al)
--  Face landmarks and eye contours provided by `"One Millisecond Face
-   Alignment with an Ensemble of Regression
-   Trees" <http://www.cv-foundation.org/openaccess/content_cvpr_2014/papers/Kazemi_One_Millisecond_Face_2014_CVPR_paper.pdf>`__
+-  Face landmarks and global eye models provided by 
+   `"One Millisecond Face Alignment with an Ensemble of Regression Trees <http://www.cvfoundation.org/openaccess/content_cvpr_2014/papers/Kazemi_One_Millisecond_Face_2014_CVPR_paper.pdf>`__
    (Kazemi, et al) using a modified implementation from
-   `Dlib <https://github.com/davisking/dlib>`__ (Davis King) (normalized
-   pixel differences, line indexed features, PCA size reductions)
+   `Dlib <https://github.com/davisking/dlib>`__ (Davis King) 
+   (normalized pixel differences, line indexed features, PCA size reductions)
 -  OpenGL ES friendly GPGPU shader processing and efficient iOS +
    Android texture handling using a modified version of
    `ogles\_gpgpu <https://github.com/hunter-packages/ogles_gpgpu>`__
@@ -126,13 +152,10 @@ invocations -- it is not required for building Hunter projects.
 To reproduce the CI builds on a local host, the following setup is
 recommended:
 
--  Install compiler:
-   http://cgold.readthedocs.io/en/latest/first-step.html
--  Install `CMake <https://github.com/kitware/CMake>`__ (and add to
-   ``PATH``)
+-  Install `compiler <http://cgold.readthedocs.io/en/latest/first-step.html>`__
+-  Install `CMake <https://github.com/kitware/CMake>`__ (and add to ``PATH``)
 -  Install Python (for Polly)
--  Clone `Polly <https://github.com/ruslo/polly>`__ and add
-   ``<polly>/bin`` to ``PATH``
+-  Clone `Polly <https://github.com/ruslo/polly>`__ and add ``<polly>/bin`` to ``PATH``
 
 Note: Polly is not a build requirement, CMake can always be used
 directly, but it is used here for convenience.
