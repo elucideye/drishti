@@ -36,7 +36,16 @@ The external CMake path must be provided by the user in a local
 `src/examples/facefilter/android-studio/local.properties` file.
 Please read the following 
 `android-studio <https://docs.hunter.sh/en/latest/faq/android-studio.html>`__
-link (from the Hunter FAQ) carefully before building.
+link (from the Hunter FAQ) carefully before building.  Note that there are two
+locations that can be used for building the applicaton.  The first one 
+(``drishti/android-studio``) is a top level in-repo build that bundles the
+drishti sources in the project directly, which is convenient for debugging
+and development.  The second one (``drishti/src/examples/facefilter/android-studio``)
+is provided as a basis for managing the drishti build as a Hunter package
+via the Hunter ``GIT_SELF`` ``hunter_config()`` option.  That is provided
+as a basis for application development with drishti and Hunter packages
+outside of the repository, where the ``hunter_config(drishti ....)`` 
+call would be updated appropriately for the task.
 
 Overview
 --------

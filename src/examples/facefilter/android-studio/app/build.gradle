@@ -38,7 +38,6 @@ android {
                     '-DHUNTER_STATUS_DEBUG=ON',
                     '-DCMAKE_VERBOSE_MAKEFILE=ON'
                     '-DDRISHTI_OPENGL_ES3=ON'
-                    '-DDRISHTI_DRISHTI_AS_SELF=ON'
             }
         }
 
