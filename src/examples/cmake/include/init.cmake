@@ -10,6 +10,9 @@ if(FACEFILTER_ANDROID_STUDIO)
   set(CMAKE_TOOLCHAIN_FILE "${gen_toolchain}" CACHE PATH "" FORCE)
 endif()
 
+# Default toolchain for builds without Polly
+set(CMAKE_TOOLCHAIN_FILE "${top_dir}/cmake/toolchain.cmake" CACHE PATH "Default CMake toolchain")
+
 # By default, the source code for all managed dependencies will be removed after
 # building and installing to the cache.  This behavior is consistent with most
 # installed libraries (i.e., /usr/local/lib/*), but it does prevent stepping
