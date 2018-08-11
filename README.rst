@@ -7,45 +7,30 @@ drishti
    :alt: drishti\_text\_big
 
 Real time eye tracking for embedded and mobile devices in C++11.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+================================================================
 
 |eye models 1| |eye models 2| |eye models 3|
 
 NEWS (2018/08/10)
-_________________
+-----------------
 
-Native iOS, Android, and "desktop" variants of the real-time 
-``facefilter`` application have been added here: ``src/examples/facefilter``.
-These applications link against the installed public ``drishti::drishti`` 
+Native iOS, Android, and "desktop" variants of the real-time
+``facefilter`` application have been added here:
+`src/examples/facefilter <https://github.com/elucideye/drishti/tree/master/src/examples/facefilter>`__.
+These applications link against the installed public ``drishti::drishti``
 package interface, which is designed without external types in the API definition.
-The ``facefilter`` demos are enabled by the ``DRISHTI_BUILD_EXAMPLES`` 
+The ``facefilter`` demos are enabled by the ``DRISHTI_BUILD_EXAMPLES``
 CMake option, and the entire ``src/examples`` tree is designed to be relocatable,
 you can ``cp -r src/examples ${HOME}/drishti_examples``, customize, and
 build, by simply updating the drishti package details.  The ``iOS`` target
 requires Xcode 9 (beta 4) or above (Swift language requirements) and will
 be generated directly as a standard CMake ``add_executable()`` target
-as part of the usual top level project build. The Android Studio 
+as part of the usual top level project build. The Android Studio
 application is located here: ``src/examples/facefilter/android-studio``.
 Android Studio/Gradle is required to build the application layer,
-and the CMake build is managed directly by ``gradle``.  There are a 
-few platform specific configurations that must be addressed before building.
-In particular, we must use a recent standard CMake executable, not the modified
-version that is bundled with Android Studio.  External CMake support is a new
-Android Studio feature, which requries version 3.2 beta or above.  
-The external CMake path must be provided by the user in a local 
-`src/examples/facefilter/android-studio/local.properties` file.
-Please read the following 
-`android-studio <https://docs.hunter.sh/en/latest/faq/android-studio.html>`__
-link (from the Hunter FAQ) carefully before building.  Note that there are two
-locations that can be used for building the applicaton.  The first one 
-(``drishti/android-studio``) is a top level in-repo build that bundles the
-drishti sources in the project directly, which is convenient for debugging
-and development.  The second one (``drishti/src/examples/facefilter/android-studio``)
-is provided as a basis for managing the drishti build as a Hunter package
-via the Hunter ``GIT_SELF`` ``hunter_config()`` option.  That is provided
-as a basis for application development with drishti and Hunter packages
-outside of the repository, where the ``hunter_config(drishti ....)`` 
-call would be updated appropriately for the task.
+and the CMake build is managed directly by ``gradle``.  There are a
+few platform specific configurations that must be addressed before building,
+please check details below.
 
 Overview
 --------
@@ -55,21 +40,21 @@ regression models) <= 4 MB.
 
 -  `Hunter <https://github.com/ruslo/hunter>`__ package management and
    CMake build system by Ruslan Baratov, as well as CI and much of the
-   real time `facefilter` mobile application(s) layer: "Organized Freedom!" :)
--  A C++ and OpenGL ES 2.0 implementation of 
-   `Fast Feature Pyramids for Object Detection 
+   real time `facefilter` mobile application(s) layer: "Organize Freedom!" :)
+-  A C++ and OpenGL ES 2.0 implementation of
+   `Fast Feature Pyramids for Object Detection
    <https://pdollar.github.io/files/papers/DollarPAMI14pyramids.pdf>`__
    (see `Piotr's Matlab Toolbox <https://pdollar.github.io/toolbox>`__)
    for face and eye detection -- the ACF library is available as a standalone
    Hunter package `here <https://github.com/elucideye/acf>`__
--  Iris ellipse fitting via 
+-  Iris ellipse fitting via
    `Cascaded Pose Regression <https://pdollar.github.io/files/papers/DollarCVPR10pose.pdf>`__
    (Piotr Dollar, et al) + `XGBoost <https://github.com/dmlc/xgboost>`__
    regression (Tianqi Chen, et al)
--  Face landmarks and global eye models provided by 
+-  Face landmarks and global eye models provided by
    `"One Millisecond Face Alignment with an Ensemble of Regression Trees <http://www.cvfoundation.org/openaccess/content_cvpr_2014/papers/Kazemi_One_Millisecond_Face_2014_CVPR_paper.pdf>`__
    (Kazemi, et al) using a modified implementation from
-   `Dlib <https://github.com/davisking/dlib>`__ (Davis King) 
+   `Dlib <https://github.com/davisking/dlib>`__ (Davis King)
    (normalized pixel differences, line indexed features, PCA size reductions)
 -  OpenGL ES friendly GPGPU shader processing and efficient iOS +
    Android texture handling using a modified version of
@@ -88,7 +73,7 @@ Drishti Right Eye Annotation Scheme
 -----------------------------------
 
 +----------------+---------------------------------------------------------------+
-| FEATURE        | SPECIFICATION                                                 | 
+| FEATURE        | SPECIFICATION                                                 |
 +================+===============================================================+
 | eyelids        | 2D points 0-15                                                |
 +----------------+---------------------------------------------------------------+
@@ -100,9 +85,9 @@ Drishti Right Eye Annotation Scheme
 +----------------+---------------------------------------------------------------+
 | inner limbus   | limbus intersection with ray from inner corner to iris center |
 +----------------+---------------------------------------------------------------+
-| iris ellipse   | 2D center, minor axis, major axis, angle (radians)            | 
+| iris ellipse   | 2D center, minor axis, major axis, angle (radians)            |
 +----------------+---------------------------------------------------------------+
-| pupil ellipse  | 2D center, minor axis, major axis, angle (radians)            | 
+| pupil ellipse  | 2D center, minor axis, major axis, angle (radians)            |
 +----------------+---------------------------------------------------------------+
 
 * the left eye is obtained by Y axis mirroring
@@ -116,6 +101,9 @@ Drishti Right Eye Annotation Scheme
 
 Quick Start (i.e., How do I make this library work?)
 ----------------------------------------------------
+
+General
+~~~~~~~
 
 Drishti is a `CMake <https://github.com/kitware/CMake>`__ based project
 that uses the `Hunter <https://github.com/ruslo/hunter>`__ package
@@ -131,9 +119,12 @@ the root ``CMakeLists.txt`` file (typically
 it). Each CMake dependency's ``find_package(FOO)`` call that is paired
 with a ``hunter_add_package(FOO CONFIG REQUIRED)`` will be managed by
 Hunter. In most cases, the only system requirement for building a Hunter
-project is a recent `CMake with
-CURL <https://docs.hunter.sh/en/latest/contributing.html#reporting-bugs>`__
-support and a working compiler correpsonding to the operative toolchain.
+project is `a recent CMake <https://docs.hunter.sh/en/latest/quick-start/cmake.html>`__
+, a working compiler corresponding to the operative toolchain and native build tool.
+If you're not familiar with CMake, you can try to build
+`this minimal example <https://cgold.readthedocs.io/en/latest/first-step.html>`__
+to get a basic understanding.
+
 Hunter will maintain all dependencies in a
 `versioned <https://docs.hunter.sh/en/latest/overview/customization.html>`__
 local
@@ -146,59 +137,136 @@ select `toolchains <#Toolchains>`__ will be backed by a server side
 binary cache (https://github.com/elucideye/hunter-cache) and will
 produce faster first time builds (use them if you can!).
 
-The
-`Travis <https://github.com/elucideye/drishti/blob/master/.travis.yml>`__
-(Linux/OSX/iOS/Android) and
-`Appveyor <https://github.com/elucideye/drishti/blob/master/appveyor.yml>`__
-(Windows) CI scripts in the project's root directory can serve as a
-reference for basic setup when building from source. To support cross
-platform builds and testing, the CI scripts make use of
+Get latest sources
+~~~~~~~~~~~~~~~~~~
+
+Clone this repository and initialize all submodules:
+
+.. code-block:: none
+
+  > git clone https://github.com/elucideye/drishti
+  > cd drishti
+  [drishti]> git submodule update --init .
+
+or
+
+.. code-block:: none
+
+  > git clone --recursive https://github.com/elucideye/drishti
+
+Generate and build
+~~~~~~~~~~~~~~~~~~
+
+Desktop platforms usually don't require a toolchain (a default toolchain with C++11 support will
+be set by Drishti) and you can generate and build Drishti as a regular CMake project.
+
+Linux + GCC + Makefile with Drishti examples, Release:
+
+.. code-block:: none
+
+  cmake -H. -B_builds -DHUNTER_STATUS_DEBUG=ON -DDRISHTI_BUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
+  cmake --build _builds
+
+macOS + Xcode with Drishti examples, Release:
+
+.. code-block:: none
+
+  cmake -H. -B_builds -GXcode -DHUNTER_STATUS_DEBUG=ON -DDRISHTI_BUILD_EXAMPLES=ON
+  cmake --build _builds --config Release
+
+Windows + Visual Studio 15 2017 with Drishti examples, Release:
+
+.. code-block:: none
+
+  cmake -H. -B_builds -G "Visual Studio 15 2017" -DHUNTER_STATUS_DEBUG=ON -DDRISHTI_BUILD_EXAMPLES=ON
+  cmake --build _builds --config Release
+
+To run the install procedure add the ``CMAKE_INSTALL_PREFIX`` variable
+and use ``--target install``:
+
+.. code-block:: none
+
+  cmake -H. -B_builds -G "Visual Studio 15 2017" -DHUNTER_STATUS_DEBUG=ON -DCMAKE_INSTALL_PREFIX=_install
+  cmake --build _builds --config Release --target install
+
+Polly based build
+~~~~~~~~~~~~~~~~~
+
+To support cross platform builds and testing, the CI scripts make use of
 `Polly <https://github.com/ruslo/polly>`__: a set of common CMake
-toolchains paired with a simple ``polly.py`` CMake build script. Polly
-is used here for convenience to generate ``CMake`` command line
-invocations -- it is not required for building Hunter projects.
+toolchains paired with a simple ``polly.py`` CMake build script.
+Polly is a Python script, make sure Python 3 is installed:
 
-To reproduce the CI builds on a local host, the following setup is
-recommended:
+.. code-block:: none
 
--  Install `compiler <http://cgold.readthedocs.io/en/latest/first-step.html>`__
--  Install `CMake <https://github.com/kitware/CMake>`__ (and add to ``PATH``)
--  Install Python (for Polly)
--  Clone `Polly <https://github.com/ruslo/polly>`__ and add ``<polly>/bin`` to ``PATH``
+  > which python3
+  /usr/bin/python3
+
+Clone Polly and add ``bin`` folder to ``PATH``:
+
+.. code-block:: none
+
+  > git clone https://github.com/ruslo/polly
+  > export PATH=`pwd`/polly/bin:$PATH
+
+Check it:
+
+.. code-block:: none
+
+  > which polly.py
+  /.../polly/bin/polly.py
+
+  > polly.py --help
+  Python version: 3.5
+  usage: polly.py [-h]
+      [--toolchain ...
 
 Note: Polly is not a build requirement, CMake can always be used
 directly, but it is used here for convenience.
 
-The ``bin/hunter_env.{sh,cmd}`` scripts (used in the CI builds) can be
-used as a fast shortcut to install these tools for you. You may want to
-add the ``PATH`` variables permanently to your ``.bashrc`` file (or
-equivalent) for future sessions.
-
-Note: If you are building with an Android toolchain, you should set the ``TOOLCHAIN`` variable appropriately *before* "sourcing" the ``hunter_env.{sh,cmd}`` setup script.  That will call ``install-ci-depepdencies.py``, and if an Android toolchain is detected, it will install it in your temporary ``_ci`` folder.  This helps standardize the setup for first time builds, although a different configuration or layout can be used after you are are able to build properly.  If you have a pre-installed NDK and are familiar with Android builds, you can set your ``ANDROID_NDK_<version>`` variable approriately (e.g., ``export ANDROID_NDK_r10e=${YOUR_PATH_TO_NDK_FOLDER}/android-ndk-r10e``).   The latest Android Studio releases also provides native support for standard CMake builds (previously only a custom Android specific CMake could be used), so you can use Hunter based projects directly through Android Studio.  For a sample project please see `_android-studio-with-hunter <https://github.com/forexample/android-studio-with-hunter>`__
-
-.. code-block:: bash
-
-    # For Android, set be sure to set the TOOLCHAIN variable before sourcing bin/hunter_env.{sh,cmd}
-    export TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections
-    export CONFIG=Release
-
-+--------------------------------+--------------------------+
-| Linux/OSX/Android/iOS          | Windows                  |
-+================================+==========================+
-| ``source bin/hunter_env.sh``   | ``bin\hunter_env.cmd``   |
-+--------------------------------+--------------------------+
-
 After the environment is configured, you can build for any supported
-``Polly`` toolchain (see ``polly.py --help``) with a command like this:
+``Polly`` toolchain (below you can find some toolchains used in CI) with a command like this:
 
 .. code-block:: bash
 
-    polly.py --toolchain ${TOOLCHAIN} --config-all ${CONFIG} --fwd --install --verbose --reconfig
-    
+    polly.py --toolchain ${TOOLCHAIN} --config-all ${CONFIG} --install --verbose
+
+Building examples:
+
+.. code-block:: bash
+
+    polly.py --toolchain ${TOOLCHAIN} --config-all ${CONFIG} --install --verbose --reconfig --fwd DRISHTI_BUILD_EXAMPLES=ON
+
 ::
 
 
-Note: The ``--reconfig`` flag is included in the example above, which will re-run the CMake configure step (to incorporate CMake changes) for you.  It is a reasonable step to add in cases where you aren't sure if it is needed.
+Note: The ``--reconfig`` flag is included in the example above, which will
+re-run the CMake configure step (to incorporate CMake changes) for you.  It is
+a reasonable step to add in cases where you aren't sure if it is needed.
+
+Android Studio build
+~~~~~~~~~~~~~~~~~~~~
+
+For Android Studio, there are additional requirements:
+
+* CMake 3.9.2+
+* Ninja
+* Android Studio 3.2+ (it's beta at this moment)
+
+Note: Polly will not be used here, because CMake code launched by Android Studio
+itself.
+
+The path to the CMake executable should be added to the ``local.properties``
+file before opening ``drishti/android-studio`` in Android Studio or before
+invoking the Gradle build script.
+
+Please check these instructions for details and useful notes:
+
+* https://docs.hunter.sh/en/latest/faq/android-studio.html
+
+There is another entry point for Android Studio - ``src/examples/facefilter/android-studio``.
+It should be used only for testing or as a template for starting your own project
+based on Drishti.
 
 Applications
 ------------
@@ -209,20 +277,22 @@ console application to see an example of a full eye tracking pipeline with the G
 Integration
 -----------
 
-Drishti is also available as a hunter package.  If you would like to integrate drishti in your project, please see the hunter  `drishti package documentation <https://docs.hunter.sh/en/latest/packages/pkg/drishti.html#pkg-drishti>`__.
+Drishti is also available as a Hunter package.  If you would like to integrate
+Drishti in your project, please see the Hunter
+`Drishti package documentation <https://docs.hunter.sh/en/latest/packages/pkg/drishti.html#pkg-drishti>`__.
 
-Steps:
+Steps (check https://docs.hunter.sh/en/latest/quick-start.html):
 
-Add ``cmake/HunterGate.cmake`` and a minimal ``cmake/Hunter/config.cmake`` to your project: 
+Add ``cmake/HunterGate.cmake`` and a minimal ``cmake/Hunter/config.cmake`` to your project:
 
 .. code-block:: cmake
 
     mkdir -p cmake/Hunter
     wget https://raw.githubusercontent.com/hunter-packages/gate/master/cmake/HunterGate.cmake -O cmake/HunterGate.cmake
     wget https://raw.githubusercontent.com/ruslo/hunter/master/examples/drishti/config.cmake -O cmake/Hunter/config.cmake
-    
+
 ::
-    
+
 Add ``HunterGate(URL <url> SHA1 <sha1>)`` to the top of your ``CMakeLists.txt`` (You can find updated release information `here <https://github.com/ruslo/hunter/releases>`__).
 
 .. code-block:: cmake
@@ -231,18 +301,18 @@ Add ``HunterGate(URL <url> SHA1 <sha1>)`` to the top of your ``CMakeLists.txt`` 
     HunterGate(
         URL "https://github.com/ruslo/hunter/archive/v0.19.140.tar.gz"
         SHA1 "f2c30348c05d0d424976648ce3560044e007496c"
-        LOCAL # use cmake/Hunter/config.cmake 
+        LOCAL # use cmake/Hunter/config.cmake
     )
 
 ::
 
-Finally, add the drishti package to your CMakeLists.txt and link it to your target:
+Finally, add the Drishti package to your CMakeLists.txt and link it to your target:
 
 .. code-block:: cmake
 
     hunter_add_package(drishti)
     find_package(drishti CONFIG REQUIRED)
-    target_link_libraries(your_app_or_lib drishti::drishti)
+    target_link_libraries(your_app_or_lib PUBLIC drishti::drishti)
 
 ::
 
@@ -261,30 +331,32 @@ binary cache.
 
 Linux (Ubunty Trusty 14.04):
 
-* ``TOOLCHAIN=gcc-5-pic-hid-sections-lto`` ``CONFIG=Release`` # CI 
+* ``TOOLCHAIN=clang-fpic-hid-sections`` ``CONFIG=Release`` # CI
+* ``TOOLCHAIN=gcc-5-pic-hid-sections-lto`` ``CONFIG=Release`` # CI
 * ``TOOLCHAIN=libcxx`` ``CONFIG=Release`` # w/ clang 3.8
 
-OSX: 
+OSX:
 
-* ``TOOLCHAIN=osx-10-11-hid-sections-lto`` ``CONFIG=Release`` # CI
-* ``TOOLCHAIN=osx-10-12-sanitize-address-hid-sections`` ``CONFIG=Release`` # CI 
+* ``TOOLCHAIN=osx-10-13`` ``CONFIG=Release`` # CI
+* ``TOOLCHAIN=osx-10-12-sanitize-address-hid-sections`` ``CONFIG=Release`` # CI
 * ``TOOLCHAIN=xcode-hid-sections`` ``CONFIG=Release`` # generic
 
-iOS: 
+iOS:
 
-* ``TOOLCHAIN=ios-nocodesign-10-1-arm64-dep-9-0-device-libcxx-hid-sections-lto`` ``CONFIG=MinSizeRel`` # CI 
+* ``TOOLCHAIN=ios-nocodesign-11-3-dep-9-3-arm64`` ``CONFIG=Release`` # CI
 * ``TOOLCHAIN=ios-10-1-arm64-dep-8-0-hid-sections`` ``CONFIG=Release``
 
-Android (from OSX): 
+Android:
 
-* ``TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections`` ``CONFIG=MinSizeRel`` # CI 
+* ``TOOLCHAIN=android-ndk-r17-api-19-armeabi-v7a-neon-clang-libcxx`` ``CONFIG=MinSizeRel`` # CI
+* ``TOOLCHAIN=android-ndk-r17-api-24-arm64-v8a-clang-libcxx14`` ``CONFIG=Release`` # CI
 * ``TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon-hid-sections-lto`` ``CONFIG=MinSizeRel``
 
-Windows: 
+Windows:
 
-* ``TOOLCHAIN=vs-14-2015-sdk-8-1`` ``CONFIG=Release`` # CI 
-* ``TOOLCHAIN=vs-14-2015-sdk-8-1`` ``CONFIG=Debug`` # CI 
-* ``TOOLCHAIN=vs-14-2015-win64-sdk-8-1`` ``CONFIG=Release`` # CI 
+* ``TOOLCHAIN=vs-15-2017`` ``CONFIG=Release`` # CI
+* ``TOOLCHAIN=vs-14-2015-sdk-8-1`` ``CONFIG=Release`` # CI
+* ``TOOLCHAIN=vs-14-2015-win64-sdk-8-1`` ``CONFIG=Release`` # CI
 * ``TOOLCHAIN=vs-14-2015-win64-sdk-8-1`` ``CONFIG=Debug`` # CI
 
 The polly out of source build trees are located in
@@ -293,14 +365,48 @@ are installed in ``_install/${TOOLCHAIN}``, and the build logs are
 dumped in ``_logs/${TOOLCHAIN}``. The iOS frameworks are installed in
 ``_frameworks/${TOOLCHAIN}``.
 
+Choosing simplest toolchain
+---------------------------
+
+On Linux you will usually want ``--toolchain gcc-pic`` (GCC based toolchain with position independent code).
+
+On Windows, the preferred toolchain will depend on the generator you want, e.g.,
+if you want "Visual Studio 15 2017", then use ``--toolchain vs-15-2017``, if you
+want the 64 bit version use ``--toolchain vs-15-2017-win64``.
+
+On macOS, the choice of toolchain depends on Xcode version you have installed.
+Please check this table for Xcode versions and corresponding iOS/macOS SDK
+versions:
+
+* https://polly.readthedocs.io/en/latest/toolchains/ios.html
+
+E.g., if you have Xcode 8.3.1 installed, then the default SDK will be macOS
+10.12 SDK, hence you can use ``--toolchain osx-10-12``. Instead of the Xcode
+generator, you can use a Makefile toolchain - ``--toolchain osx-10-12-make``.
+
+In the same table, you can find iOS SDK version. E.g., if you have installed
+Xcode 9.4 with default iOS SDK 11.4, and you want to set the deployment SDK
+to version 9.3, you can use ``--toolchain ios-11-4-dep-9-3-arm64`` to build
+the ARM64 architecture.  If you have several versions of Xcode installed, you
+can use ``IOS_X_Y_DEVELOPER_DIR``/``OSX_X_Y_DEVELOPER_DIR`` environment
+variables for switching. E.g., if ``OSX_10_13_DEVELOPER_DIR`` will be set to
+Xcode 9.0 location, then Xcode 9.0 will be used with ``--toolchain osx-10-13``,
+even if Xcode 9.3 is installed and set as the default.
+
+You can use Polly toolchains to build Android if you don't want to rely on
+Android Studio. The only requirement is an environment variable with the
+Android NDK location. Set the ``ANDROID_NDK_r10e`` environment variable with
+the path to the Android NDK r10e, and you can use any
+``--toolchain android-ndk-r10e-*`` variants.
+
 .. |Travis| image:: https://img.shields.io/travis/elucideye/drishti/master.svg?style=flat-square&label=Linux%20OSX%20Android%20iOS
    :target: https://travis-ci.org/elucideye/drishti/builds
 .. |Appveyor| image:: https://img.shields.io/appveyor/ci/headupinclouds/drishti.svg?style=flat-square&label=Windows
    :target: https://ci.appveyor.com/project/headupinclouds/drishti
 .. |License (3-Clause BSD)| image:: https://img.shields.io/badge/license-BSD%203--Clause-brightgreen.svg?style=flat-square
    :target: http://opensource.org/licenses/BSD-3-Clause
-.. |Hunter| image:: https://img.shields.io/badge/hunter-v0.19.94-blue.svg
-   :target: http://github.com/ruslo/hunter
+.. |Hunter| image:: https://img.shields.io/badge/hunter-drishti-blue.svg
+   :target: https://docs.hunter.sh/en/latest/packages/pkg/drishti.html
 .. |Gitter| image:: https://badges.gitter.im/elucideye/drishti.svg
    :target: https://gitter.im/elucideye/drishti?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 .. |eye models 1| image:: https://user-images.githubusercontent.com/554720/28920911-d836e56a-7821-11e7-8b41-bc338f100cc1.png
@@ -308,4 +414,3 @@ dumped in ``_logs/${TOOLCHAIN}``. The iOS frameworks are installed in
 .. |eye models 3| image:: https://user-images.githubusercontent.com/554720/28920920-dcd8e708-7821-11e7-8fc2-b9f375a9a550.png
 .. |iPhone| image:: https://goo.gl/1uLQ44
    :target: https://vimeo.com/230351171
-   
