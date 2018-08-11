@@ -118,7 +118,15 @@ struct GroundTruth
 // ######################### SHA1 #####################################
 #include <cstdio>
 #include <string>
-#include <boost/uuid/sha1.hpp>
+
+#include <boost/version.hpp> // BOOST_VERSION
+
+#if (BOOST_VERSION >= 106800)
+#  include <boost/uuid/detail/sha1.hpp>
+#else
+#  include <boost/uuid/sha1.hpp>
+#endif
+
 #include <utility>
 
 std::string get_sha1(void const* buffer, std::size_t byte_count)
