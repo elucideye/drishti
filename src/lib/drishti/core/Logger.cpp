@@ -42,7 +42,7 @@ std::shared_ptr<spdlog::logger> Logger::create(const char* name)
     {
         // Check for existing logger
         auto logger = get(name);
-        if (logger)
+        if (logger) // NOLINT (TODO)
         {
             return logger;
         }
@@ -55,7 +55,7 @@ std::shared_ptr<spdlog::logger> Logger::create(const char* name)
 #endif
     auto logger = std::make_shared<spdlog::logger>(name, begin(sinks), end(sinks));
     spdlog::register_logger(logger);
-    spdlog::set_pattern("[%H:%M:%S.%e | thread:%t | %n | %l]: %v");
+    spdlog::set_pattern("[%H:%M:%S.%e | thread:%t | %n | %l]: %v"); // NOLINT (TODO)
     return logger;
 }
 
