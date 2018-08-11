@@ -203,8 +203,8 @@ case "${TYPE}" in
     ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH} || echo "Ooops"
 
     # Sometimes second launch failing with the same error, put a wait command
-    # to try to improve stability (empirical note: 5 is not enough)
-    sleep 10
+    # to try to improve stability (empirical note: 95 is not enough)
+    sleep 110
 
     # Now should be fine
     ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}
