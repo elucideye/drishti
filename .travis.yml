@@ -50,6 +50,11 @@ matrix:
         MINIMAL=ON
         TYPE=polly
 
+    - os: linux
+      env: >
+        ANDROID_STUDIO_ARCH=arm64-v8a
+        TYPE=android-studio
+
     # }
 
     # OSX {
