@@ -163,7 +163,7 @@ case "${TYPE}" in
 
       set -x
 
-      ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}
+      ../bin/travis_wait -i 60 "./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}"
 
       exit 0
     fi
