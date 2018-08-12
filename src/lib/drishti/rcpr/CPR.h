@@ -68,9 +68,13 @@ public:
     CPR();
     CPR(const CPR& src);
 
+    CPR(CPR&&) = delete;
+    CPR& operator=(const CPR&) = delete;
+    CPR& operator=(CPR&&) = delete;
+
 #if !DRISHTI_CPR_DO_LEAN
-    CPR(const std::string& filename);
-    CPR(const char* filename);
+    explicit CPR(const std::string& filename);
+    explicit CPR(const char* filename);
 #endif
 
     ~CPR() override;

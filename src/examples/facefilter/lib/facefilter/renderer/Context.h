@@ -37,6 +37,12 @@ struct Application
 public:
     Application();
     ~Application();
+
+    Application(const Application&) = delete;
+    Application(Application&&) = delete;
+    Application& operator=(const Application&) = delete;
+    Application& operator=(Application&&) = delete;
+
     void setAssetManager(void* assetManager);
     void loadAsset(const char* key, const char* filename);
     void drawFrame(std::uint32_t texId);

@@ -62,6 +62,11 @@ protected:
         drishti::core::Logger::drop("test-drishti-face");
     }
 
+    FaceDetectorTest(const FaceDetectorTest&) = delete;
+    FaceDetectorTest(FaceDetectorTest&&) = delete;
+    FaceDetectorTest& operator=(const FaceDetectorTest&) = delete;
+    FaceDetectorTest& operator=(FaceDetectorTest&&) = delete;
+
     // Called after constructor for each test
     virtual void SetUp() {}
 
@@ -96,7 +101,7 @@ protected:
     std::shared_ptr<drishti::face::FaceDetectorAndTracker> m_detector;
 };
 
-TEST_F(FaceDetectorTest, FaceDetector)
+TEST_F(FaceDetectorTest, FaceDetector) // NOLINT (TODO)
 {
     std::vector<drishti::face::FaceModel> faces;
     (*m_detector)(Ip, Ib, faces, cv::Matx33f::eye());

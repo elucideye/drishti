@@ -28,6 +28,11 @@ public:
     BlobFilter();
     ~BlobFilter() override;
 
+    BlobFilter(const BlobFilter&) = delete;
+    BlobFilter(BlobFilter&&) = delete;
+    BlobFilter& operator=(const BlobFilter&) = delete;
+    BlobFilter& operator=(BlobFilter&&) = delete;
+
     ProcInterface* getInputFilter() const override;
     ProcInterface* getOutputFilter() const override;
 

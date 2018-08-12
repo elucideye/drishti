@@ -6,10 +6,10 @@
   \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
-  This file contains the public API of the Context class.  This class 
-  will store and allocate internal state necessary for real time 
+  This file contains the public API of the Context class.  This class
+  will store and allocate internal state necessary for real time
   face tracking.
-  
+
 */
 
 #ifndef __drishti_drishti_Context_hpp__
@@ -27,11 +27,16 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT Context
 {
 public:
-    
+
     struct Impl;
 
-    Context(drishti::sdk::SensorModel& sensor);
+    explicit Context(drishti::sdk::SensorModel& sensor);
     ~Context();
+
+    Context(const Context&) = delete;
+    Context(Context&&) = delete;
+    Context& operator=(const Context&) = delete;
+    Context& operator=(Context&&) = delete;
 
     Impl* get() { return impl.get(); }
 
@@ -69,7 +74,7 @@ public:
 
     void setDoCpuACF(bool flag);
     bool getDoCpuACF() const;
-    
+
     void setDoAnnotation(bool flag);
     bool getDoAnnotation() const;
 

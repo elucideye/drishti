@@ -129,6 +129,11 @@ protected:
     {
     }
 
+    EyeSegmenterTest(const EyeSegmenterTest&) = delete;
+    EyeSegmenterTest(EyeSegmenterTest&&) = delete;
+    EyeSegmenterTest& operator=(const EyeSegmenterTest&) = delete;
+    EyeSegmenterTest& operator=(EyeSegmenterTest&&) = delete;
+
     // Called after constructor for each test
     virtual void SetUp() {}
 
@@ -219,7 +224,7 @@ protected:
  * Basic class construction
  */
 
-TEST(EyeSegmenter, StringConstructor)
+TEST(EyeSegmenter, StringConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeRegressor))
     {
@@ -229,7 +234,7 @@ TEST(EyeSegmenter, StringConstructor)
     }
 }
 
-TEST(EyeSegmenter, StreamConstructor)
+TEST(EyeSegmenter, StreamConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeRegressor))
     {
@@ -262,7 +267,7 @@ static void checkInvalid(const drishti::sdk::Eye& eye)
  * Fixture tests
  */
 
-TEST_F(EyeSegmenterTest, EyeSerialization)
+TEST_F(EyeSegmenterTest, EyeSerialization) // NOLINT (TODO)
 {
     int targetWidth = 128;
     drishti::sdk::Eye eye;
@@ -296,7 +301,7 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
     }
 }
 
-TEST_F(EyeSegmenterTest, ImageEmpty)
+TEST_F(EyeSegmenterTest, ImageEmpty) // NOLINT (TODO)
 {
     for (const auto& entry : m_images)
     {
@@ -312,7 +317,7 @@ TEST_F(EyeSegmenterTest, ImageEmpty)
     }
 }
 
-TEST_F(EyeSegmenterTest, ImageTooSmall)
+TEST_F(EyeSegmenterTest, ImageTooSmall) // NOLINT (TODO)
 {
     for (const auto& entry : m_images)
     {
@@ -330,7 +335,7 @@ TEST_F(EyeSegmenterTest, ImageTooSmall)
 
 // TODO: Add ground truth comparison
 // * hamming distance for sclera and iris masks components
-TEST_F(EyeSegmenterTest, ImageValid)
+TEST_F(EyeSegmenterTest, ImageValid) // NOLINT (TODO)
 {
     for (auto iter = getFirstValid(); iter != m_images.end(); iter++)
     {
@@ -355,7 +360,7 @@ TEST_F(EyeSegmenterTest, ImageValid)
 }
 
 // Currently there is no internal quality check, but this is included for regression:
-TEST_F(EyeSegmenterTest, ImageIsBlack)
+TEST_F(EyeSegmenterTest, ImageIsBlack) // NOLINT (TODO)
 {
     Entry entry;
     const int width = 256;
@@ -368,7 +373,7 @@ TEST_F(EyeSegmenterTest, ImageIsBlack)
     checkValid(eye, entry.storage.size());
 }
 
-TEST_F(EyeSegmenterTest, ImageIsWhite)
+TEST_F(EyeSegmenterTest, ImageIsWhite) // NOLINT (TODO)
 {
     Entry entry;
 

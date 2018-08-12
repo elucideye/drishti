@@ -107,7 +107,10 @@ public:
     }
 
     ParallelLambdaRange(const ParallelLambdaRange&) = delete;
-    void operator=(const ParallelLambdaRange&) = delete;
+    ParallelLambdaRange& operator=(const ParallelLambdaRange&) = delete;
+    ParallelLambdaRange& operator=(ParallelLambdaRange&&) = delete;
+
+    ~ParallelLambdaRange() = default;
 
 protected:
     std::function<void(const cv::Range& r)> m_function;

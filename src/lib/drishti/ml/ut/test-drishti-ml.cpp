@@ -18,14 +18,14 @@
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cv_cereal.h"
 
-TEST(XGBooster, XGBoosterInit)
+TEST(XGBooster, XGBoosterInit) // NOLINT (TODO)
 {
     // Run simple function fit w/ full (non-lean) builds:
     drishti::ml::XGBooster booster;
     ASSERT_EQ(true, true);
 }
 
-TEST(StandardizedPCA, gemm_transpose_continuous)
+TEST(StandardizedPCA, gemm_transpose_continuous) // NOLINT (TODO)
 {
     cv::Mat A, Bt, C;
 
@@ -52,7 +52,7 @@ TEST(StandardizedPCA, gemm_transpose_continuous)
     }
 }
 
-TEST(StandardizedPCA, gemm_transpose_non_continuous)
+TEST(StandardizedPCA, gemm_transpose_non_continuous) // NOLINT (TODO)
 {
     cv::Mat A, Bt1, Bt, C;
 

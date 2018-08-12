@@ -87,6 +87,7 @@ template <typename T, int rowDim, int colDim>
 struct Matrix
 {
     Matrix() = default;
+    ~Matrix() = default;
     Matrix(const Matrix& src)
     {
         for (int y = 0; y < rowDim; y++)
@@ -97,6 +98,10 @@ struct Matrix
             }
         }
     }
+
+    Matrix(Matrix&&) = default;
+    Matrix& operator=(const Matrix&) = delete;
+    Matrix& operator=(Matrix&&) = delete;
 
     int rows() const { return rowDim; }
     int cols() const { return colDim; }
@@ -186,6 +191,11 @@ public:
     Image(const Image& src);
     Image(size_t rows, size_t cols, T* data, size_t stride, bool keep = false);
     ~Image();
+
+    Image(Image&&) = default;
+    Image& operator=(const Image&) = default;
+    Image& operator=(Image&&) = default;
+
     size_t getRows() const
     {
         return rows;

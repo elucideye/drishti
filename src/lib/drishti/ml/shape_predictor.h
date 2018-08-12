@@ -686,6 +686,11 @@ public:
     shape_predictor() = default;
     ~shape_predictor() = default;
 
+    shape_predictor(const shape_predictor&) = delete;
+    shape_predictor(shape_predictor&&) = delete;
+    shape_predictor& operator=(const shape_predictor&) = delete;
+    shape_predictor& operator=(shape_predictor&&) = delete;
+
     shape_predictor(
         fshape  initial_shape_,
         std::vector<std::vector<impl::regression_tree>>  forests_,

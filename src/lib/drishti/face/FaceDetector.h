@@ -48,13 +48,19 @@ public:
     struct PaddedImage
     {
         PaddedImage() = default;
-        PaddedImage(cv::Mat  Ib, const cv::Rect& roi = {})
+        explicit PaddedImage(cv::Mat  Ib, const cv::Rect& roi = {})
             : Ib(std::move(Ib))
             , roi(roi)
         {
         }
-        PaddedImage& operator=(const PaddedImage& I)
-        = default;
+        PaddedImage& operator=(const PaddedImage&) = default;
+
+        PaddedImage(const PaddedImage&) = delete;
+        PaddedImage(PaddedImage&&) = delete;
+        PaddedImage& operator =(PaddedImage&&) = default;
+
+        ~PaddedImage() = default;
+
         operator cv::Mat()
         {
             return Ib;
@@ -70,8 +76,13 @@ public:
     class Impl;
     using Landmarks = std::vector<cv::Point2f>;
 
-    FaceDetector(FaceDetectorFactory& Resources);
+    explicit FaceDetector(FaceDetectorFactory& Resources);
     ~FaceDetector();
+
+    FaceDetector(const FaceDetector&) = delete;
+    FaceDetector(FaceDetector&&) = delete;
+    FaceDetector& operator=(const FaceDetector&) = delete;
+    FaceDetector& operator=(FaceDetector&&) = delete;
 
     void setLandmarkFormat(FaceSpecification::Format format);
 

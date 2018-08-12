@@ -29,10 +29,16 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT EyeSegmenter::Impl
 {
 public:
-    Impl(bool doLoad = false);
+    explicit Impl(bool doLoad = false);
     Impl(const std::string& filename, ArchiveKind kind);
     Impl(std::istream& is, ArchiveKind kind);
     ~Impl();
+
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
+
     int operator()(const Image3b& image, Eye& eye, bool isRight);
 
     Eye getMeanEye(int width) const;

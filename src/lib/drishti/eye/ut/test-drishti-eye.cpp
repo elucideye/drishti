@@ -82,6 +82,11 @@ protected:
     {
     }
 
+    EyeModelEstimatorTest(const EyeModelEstimatorTest&) = delete;
+    EyeModelEstimatorTest(EyeModelEstimatorTest&&) = delete;
+    EyeModelEstimatorTest& operator=(const EyeModelEstimatorTest&) = delete;
+    EyeModelEstimatorTest& operator=(EyeModelEstimatorTest&&) = delete;
+
     // Called after constructor for each test
     virtual void SetUp() {}
 
@@ -198,7 +203,7 @@ static bool isEqual(const drishti::eye::EyeModel& eyeA, const drishti::eye::EyeM
  * Basic class construction
  */
 
-TEST(EyeModelEstimator, StringConstructor)
+TEST(EyeModelEstimator, StringConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeModelPrivateFilename))
     {
@@ -208,7 +213,7 @@ TEST(EyeModelEstimator, StringConstructor)
     }
 }
 
-TEST(EyeModelEstimator, StreamConstructor)
+TEST(EyeModelEstimator, StreamConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeModelPrivateFilename))
     {
@@ -220,7 +225,7 @@ TEST(EyeModelEstimator, StreamConstructor)
     }
 }
 
-TEST_F(EyeModelEstimatorTest, CerealSerialization)
+TEST_F(EyeModelEstimatorTest, CerealSerialization) // NOLINT (TODO)
 {
     std::string filename = std::string(sOutputDirectory) + "/eye.cpb";
     save_cpb(filename, *m_eyeSegmenter);
@@ -233,7 +238,7 @@ TEST_F(EyeModelEstimatorTest, CerealSerialization)
  * Fixture tests
  */
 
-TEST_F(EyeModelEstimatorTest, EyeSerialization)
+TEST_F(EyeModelEstimatorTest, EyeSerialization) // NOLINT (TODO)
 {
     drishti::eye::EyeModel eye;
 
@@ -250,7 +255,7 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
 }
 
 // * hamming distance for sclera and iris masks components
-TEST_F(EyeModelEstimatorTest, ImageValid)
+TEST_F(EyeModelEstimatorTest, ImageValid) // NOLINT (TODO)
 {
     if (!m_eye || !m_eyeSegmenter)
     {
@@ -280,7 +285,7 @@ TEST_F(EyeModelEstimatorTest, ImageValid)
     }
 }
 
-TEST_F(EyeModelEstimatorTest, IsRepeatable)
+TEST_F(EyeModelEstimatorTest, IsRepeatable) // NOLINT (TODO)
 {
     if (!m_eye || !m_eyeSegmenter)
     {
@@ -310,7 +315,7 @@ TEST_F(EyeModelEstimatorTest, IsRepeatable)
 }
 
 // Currently there is no internal quality check, but this is included for regression:
-TEST_F(EyeModelEstimatorTest, ImageIsBlack)
+TEST_F(EyeModelEstimatorTest, ImageIsBlack) // NOLINT (TODO)
 {
     Entry entry;
     const int width = 128;
@@ -324,7 +329,7 @@ TEST_F(EyeModelEstimatorTest, ImageIsBlack)
     checkValid(eye, entry.image.size());
 }
 
-TEST_F(EyeModelEstimatorTest, ImageIsWhite)
+TEST_F(EyeModelEstimatorTest, ImageIsWhite) // NOLINT (TODO)
 {
     Entry entry;
     const int width = 128;

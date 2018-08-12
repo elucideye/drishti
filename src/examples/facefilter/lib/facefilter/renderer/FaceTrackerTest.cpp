@@ -19,6 +19,11 @@ struct FaceTrackTest::Impl
         // CUSTOM user constructor
     }
 
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
+
     ~Impl() = default;
 
     // CUSTOM user fields

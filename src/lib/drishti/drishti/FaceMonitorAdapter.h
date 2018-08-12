@@ -69,7 +69,7 @@ public:
     using TimePoint = HighResolutionClock::time_point; // <std::chrono::system_clock>;
     using Faces = std::vector<drishti::face::FaceModel>;
 
-    FaceMonitorAdapter(drishti_face_tracker_t& table, int n = std::numeric_limits<int>::max())
+    explicit FaceMonitorAdapter(drishti_face_tracker_t& table, int n = std::numeric_limits<int>::max())
         : m_start(HighResolutionClock::now())
         , m_table(table)
         , m_n(n)
@@ -77,6 +77,11 @@ public:
     }
 
     ~FaceMonitorAdapter() = default;
+
+    FaceMonitorAdapter(const FaceMonitorAdapter&) = delete;
+    FaceMonitorAdapter(FaceMonitorAdapter&&) = delete;
+    FaceMonitorAdapter& operator=(const FaceMonitorAdapter&) = delete;
+    FaceMonitorAdapter& operator=(FaceMonitorAdapter&&) = delete;
 
     static Request convert(const drishti_request_t &request)
     {

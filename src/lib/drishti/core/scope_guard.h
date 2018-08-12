@@ -43,7 +43,8 @@ public:
     }
 
     scope_guard(const scope_guard&) = delete;
-    void operator=(const scope_guard&) = delete;
+    scope_guard& operator=(const scope_guard&) = delete;
+    scope_guard& operator=(scope_guard&&) = delete;
 
 private:
     std::function<void()> f;

@@ -34,6 +34,10 @@ public:
     {
     }
 
+    Mesh3D& operator=(Mesh3D&&) = delete;
+
+    ~Mesh3D() = default;
+
     Mesh3D<T>& operator=(const Mesh3D<T>& src)
     {
         this->m_vertices = src.m_vertices;

@@ -33,6 +33,12 @@ struct LazyParallelResource
         other.m_alloc = nullptr;
     }
 
+    LazyParallelResource(const LazyParallelResource&) = default;
+    LazyParallelResource& operator=(const LazyParallelResource&) = default;
+    LazyParallelResource& operator=(LazyParallelResource&&) = default;
+
+    ~LazyParallelResource() = default;
+
     virtual Value& operator[](const Key& key)
     {
         std::unique_lock<std::mutex> lock(m_mutex);

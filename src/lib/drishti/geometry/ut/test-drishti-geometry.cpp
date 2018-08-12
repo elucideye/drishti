@@ -13,7 +13,7 @@
 #include "drishti/geometry/Ellipse.h"
 #include "drishti/geometry/intersectConicLine.h"
 
-TEST(Ellipse, EllipseLineIntersection2)
+TEST(Ellipse, EllipseLineIntersection2) // NOLINT (TODO)
 {
     const cv::RotatedRect E({ 0.f, 0.f }, { 2.f, 1.f }, 0.f);
     const cv::Matx33f C = drishti::geometry::ConicSection_<float>(E).getMatrix();

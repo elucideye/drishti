@@ -25,9 +25,15 @@ class VideoSourceStills : public VideoSourceCV
 public:
     class Impl;
 
-    VideoSourceStills(const std::string& filename);
-    VideoSourceStills(const std::vector<std::string>& filenames);
+    explicit VideoSourceStills(const std::string& filename);
+    explicit VideoSourceStills(const std::vector<std::string>& filenames);
     ~VideoSourceStills();
+
+    VideoSourceStills(const VideoSourceStills&) = delete;
+    VideoSourceStills(VideoSourceStills&&) = delete;
+    VideoSourceStills& operator=(const VideoSourceStills&) = delete;
+    VideoSourceStills& operator=(VideoSourceStills&&) = delete;
+
     Frame operator()(int i = -1) override;
     std::size_t count() const override;
     bool isRandomAccess() const override { return true; }

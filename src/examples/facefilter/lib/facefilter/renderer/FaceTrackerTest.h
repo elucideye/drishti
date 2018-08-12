@@ -34,6 +34,11 @@ public:
     FaceTrackTest(std::shared_ptr<spdlog::logger>& logger, const std::string& sOutput);
     ~FaceTrackTest();
 
+    FaceTrackTest(const FaceTrackTest&) = delete;
+    FaceTrackTest(FaceTrackTest&&) = delete;
+    FaceTrackTest& operator=(const FaceTrackTest&) = delete;
+    FaceTrackTest& operator=(FaceTrackTest&&) = delete;
+
     // Callback definitions: {
     int allocator(const drishti_image_t& spec, drishti::sdk::Image4b& image);
     static int allocatorFunc(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image);

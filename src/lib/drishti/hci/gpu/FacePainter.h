@@ -116,6 +116,11 @@ public:
      */
     ~FacePainter() override;
 
+    FacePainter(const FacePainter&) = delete;
+    FacePainter(FacePainter&&) = delete;
+    FacePainter& operator=(const FacePainter&) = delete;
+    FacePainter& operator=(FacePainter&&) = delete;
+
     /**
      * Render a face image.
      */

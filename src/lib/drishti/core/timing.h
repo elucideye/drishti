@@ -44,7 +44,8 @@ public:
     }
 
     ScopeTimeLogger(const ScopeTimeLogger&) = delete;
-    void operator=(const ScopeTimeLogger&) = delete;
+    ScopeTimeLogger& operator=(const ScopeTimeLogger&) = delete;
+    ScopeTimeLogger& operator=(ScopeTimeLogger&&) = delete;
 
     static double timeDifference(const TimePoint& a, const TimePoint& b)
     {

@@ -33,17 +33,20 @@ public:
         using pointer = T*;
         using iterator_category = std::forward_iterator_tag;
         using size_type = std::size_t;
-        
+
         iterator() = default;
         iterator(const iterator& other)
             : ptr_(other.ptr_)
         {
         }
-        iterator(pointer ptr_)
+        explicit iterator(pointer ptr_)
             : ptr_(ptr_)
         {
         }
         ~iterator() = default;
+
+        iterator(iterator&&) = default;
+        iterator& operator=(iterator&&) = delete;
 
         iterator& operator=(const iterator& other)
         {
@@ -100,19 +103,22 @@ public:
         using size_type = std::size_t;
 
         const_iterator() = default;
-        const_iterator(const const_iterator& other)
+        explicit const_iterator(const const_iterator& other)
             : ptr_(other.ptr_)
         {
         }
-        const_iterator(const iterator& other)
+        explicit const_iterator(const iterator& other)
             : ptr_(other.ptr_)
         {
         }
-        const_iterator(const_pointer ptr_)
+        explicit const_iterator(const_pointer ptr_)
             : ptr_(ptr_)
         {
         }
         ~const_iterator() = default;
+
+        const_iterator(const_iterator&&) = default;
+        const_iterator& operator=(const_iterator&&) = delete;
 
         const_iterator& operator=(const const_iterator& other)
         {
@@ -158,10 +164,9 @@ public:
         const_pointer ptr_;
     };
 
-    Array()
-         
-    = default;
-    Array(std::size_t size)
+    Array() = default;
+    ~Array() = default;
+    explicit Array(std::size_t size)
         : size_(std::min(size, N))
     {
     } // clippinpg semantics
@@ -174,6 +179,10 @@ public:
         }
     }
 
+    Array(Array&&) = default;
+    Array& operator=(const Array&) = default;
+    Array& operator=(Array&&) = default;
+
     void clear() { size_ = 0; }
     void resize(std::size_t size) { size_ = std::min(N, size); }
 
@@ -184,11 +193,11 @@ public:
     T& operator[](std::size_t index) { return data_[index]; }
     const T& operator[](std::size_t index) const { return data_[index]; }
 
-    iterator begin() { return data_; }
-    iterator end() { return (data_ + size_); }
+    iterator begin() { return iterator(data_); }
+    iterator end() { return iterator(data_ + size_); }
 
     const_iterator begin() const { return const_iterator(data_); }
-    const_iterator end() const { return (data_ + size_); }
+    const_iterator end() const { return const_iterator(data_ + size_); }
 
 private:
     T data_[N]{};

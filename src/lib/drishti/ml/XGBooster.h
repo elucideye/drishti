@@ -46,6 +46,11 @@ public:
     float operator()(const std::vector<float>& features);
     void train(const MatrixType<float>& features, const std::vector<float>& values, const MatrixType<uint8_t>& mask = {});
 
+    XGBooster(const XGBooster&) = delete;
+    XGBooster(XGBooster&&) = delete;
+    XGBooster& operator=(const XGBooster&) = delete;
+    XGBooster& operator=(XGBooster&&) = delete;
+
     void read(const std::string& filename);
     void write(const std::string& filename) const;
 

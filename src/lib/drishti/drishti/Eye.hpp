@@ -39,7 +39,12 @@ public:
     };
 
     Eye();
+    ~Eye() = default;
     Eye(const Eye& src);
+
+    Eye(Eye&&) = default;
+    Eye& operator=(const Eye&) = default;
+    Eye& operator=(Eye&&) = default;
 
     void setIris(const Ellipse& src)
     {

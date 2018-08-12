@@ -41,11 +41,16 @@ public:
 
         init();
     }
-    Impl(const Recipe& recipe)
+    explicit Impl(const Recipe& recipe)
         : m_recipe(recipe)
     {
         init();
     }
+
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
 
     ~Impl();
 

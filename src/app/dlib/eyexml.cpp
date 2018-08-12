@@ -137,8 +137,12 @@ public:
         m_spec = drishti::eye::EyeModelSpecification::create();
     }
 
-    ~DlibDocument()
-    = default;
+    DlibDocument(const DlibDocument&) = delete;
+    DlibDocument(DlibDocument&&) = delete;
+    DlibDocument& operator=(const DlibDocument&) = delete;
+    DlibDocument& operator=(DlibDocument&&) = delete;
+
+    ~DlibDocument() = default;
 
     void start()
     {

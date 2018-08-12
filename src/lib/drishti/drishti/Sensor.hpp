@@ -41,6 +41,11 @@ public:
     SensorModel(const Intrinsic& intrinsic, const Extrinsic& extrinsic);
     ~SensorModel();
 
+    SensorModel(const SensorModel&) = delete;
+    SensorModel(SensorModel&&) = delete;
+    SensorModel& operator=(const SensorModel&) = delete;
+    SensorModel& operator=(SensorModel&&) = delete;
+
     struct Impl;
 
     std::unique_ptr<Impl>& getImpl()

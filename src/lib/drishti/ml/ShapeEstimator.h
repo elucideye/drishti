@@ -30,6 +30,13 @@ public:
     using BoolVec = std::vector<bool>;
     using Point2fVec = std::vector<cv::Point2f>;
 
+    ShapeEstimator() = default;
+
+    ShapeEstimator(const ShapeEstimator&) = delete;
+    ShapeEstimator(ShapeEstimator&&) = delete;
+    ShapeEstimator& operator=(const ShapeEstimator&) = delete;
+    ShapeEstimator& operator=(ShapeEstimator&&) = delete;
+
     virtual ~ShapeEstimator();
 
     virtual void setStreamLogger(std::shared_ptr<spdlog::logger>& logger)

@@ -28,9 +28,14 @@ public:
     class Impl;
 
     RegressionTreeEnsembleShapeEstimator();
-    RegressionTreeEnsembleShapeEstimator(const std::string& filename);
-    RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint = {});
+    explicit RegressionTreeEnsembleShapeEstimator(const std::string& filename);
+    explicit RegressionTreeEnsembleShapeEstimator(std::istream& is, const std::string& hint = {});
     ~RegressionTreeEnsembleShapeEstimator() override;
+
+    RegressionTreeEnsembleShapeEstimator(const RegressionTreeEnsembleShapeEstimator&) = delete;
+    RegressionTreeEnsembleShapeEstimator(RegressionTreeEnsembleShapeEstimator&&) = delete;
+    RegressionTreeEnsembleShapeEstimator& operator=(const RegressionTreeEnsembleShapeEstimator&) = delete;
+    RegressionTreeEnsembleShapeEstimator& operator=(RegressionTreeEnsembleShapeEstimator&&) = delete;
 
     void setStreamLogger(std::shared_ptr<spdlog::logger>& logger) override;
     int operator()(const cv::Mat& I, const cv::Mat& M, Point2fVec& points, BoolVec& mask) const override;

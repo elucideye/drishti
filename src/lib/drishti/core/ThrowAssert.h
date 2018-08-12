@@ -138,8 +138,12 @@ public:
         return message.c_str();
     }
 
-    ~AssertionFailureException() noexcept override
-    = default;
+    AssertionFailureException(const AssertionFailureException&) = delete;
+    AssertionFailureException(AssertionFailureException&&) = default;
+    AssertionFailureException& operator=(const AssertionFailureException&) = delete;
+    AssertionFailureException& operator=(AssertionFailureException&&) = delete;
+
+    ~AssertionFailureException() noexcept override = default;
 };
 
 DRISHTI_CORE_NAMESPACE_END

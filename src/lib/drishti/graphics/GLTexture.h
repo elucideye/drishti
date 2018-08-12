@@ -30,6 +30,11 @@ struct GLTexture
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    GLTexture(const GLTexture&) = delete;
+    GLTexture(GLTexture&&) = delete;
+    GLTexture& operator=(const GLTexture&) = delete;
+    GLTexture& operator=(GLTexture&&) = delete;
+
     ~GLTexture()
     {
         glDeleteTextures(1, &texId);

@@ -61,6 +61,12 @@ public:
         }
     }
     ~VideoSourceOpenCV() = default;
+
+    VideoSourceOpenCV(const VideoSourceOpenCV&) = delete;
+    VideoSourceOpenCV(VideoSourceOpenCV&&) = delete;
+    VideoSourceOpenCV& operator=(const VideoSourceOpenCV&) = delete;
+    VideoSourceOpenCV& operator=(VideoSourceOpenCV&&) = delete;
+
     Frame operator()(int i) override
     {
         cv::Mat frame;

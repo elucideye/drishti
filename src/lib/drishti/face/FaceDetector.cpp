@@ -52,6 +52,11 @@ public:
 
     ~Impl() = default;
 
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
+
     void create(FaceDetectorFactory& resources)
     {
         m_detector = resources.getFaceDetector();

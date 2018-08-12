@@ -50,17 +50,6 @@ extern const char* sFaceImageFilename;
 
 BEGIN_EMPTY_NAMESPACE
 
-struct WaitKey
-{
-    WaitKey() {}
-    ~WaitKey()
-    {
-#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
-        cv::waitKey(0);
-#endif
-    }
-};
-
 class FaceTest : public ::testing::Test
 {
 protected:
@@ -91,6 +80,11 @@ protected:
     {
         drishti::core::Logger::drop("test-drishti-drishti-face");
     }
+
+    FaceTest(const FaceTest&) = delete;
+    FaceTest(FaceTest&&) = delete;
+    FaceTest& operator=(const FaceTest&) = delete;
+    FaceTest& operator=(FaceTest&&) = delete;
 
     /*
      * FaceFinder configuration can be achieved by modifying the input
@@ -327,7 +321,7 @@ protected:
 };
 
 #if defined(DRISHTI_DO_GPU_TESTING)
-TEST_F(FaceTest, RunSimpleTest)
+TEST_F(FaceTest, RunSimpleTest) // NOLINT (TODO)
 {
     static const bool doCpu = false;
     static const bool doAsync = true;

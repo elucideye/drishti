@@ -35,10 +35,15 @@ public:
     };
 
     EyeModelEstimator();
-    EyeModelEstimator(const std::string& filename);
-    EyeModelEstimator(std::istream& is, const std::string& hint = {});
-    EyeModelEstimator(const RegressorConfig& config);
+    explicit EyeModelEstimator(const std::string& filename);
+    explicit EyeModelEstimator(std::istream& is, const std::string& hint = {});
+    explicit EyeModelEstimator(const RegressorConfig& config);
     ~EyeModelEstimator();
+
+    EyeModelEstimator(const EyeModelEstimator&) = delete;
+    EyeModelEstimator(EyeModelEstimator&&) = delete;
+    EyeModelEstimator& operator=(const EyeModelEstimator&) = delete;
+    EyeModelEstimator& operator=(EyeModelEstimator&&) = delete;
 
     bool good() const;
     operator bool() const;

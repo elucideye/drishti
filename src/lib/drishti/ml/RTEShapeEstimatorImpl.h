@@ -27,6 +27,11 @@ public:
     Impl(std::istream& is, const std::string& hint = {});
     ~Impl();
 
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
+
     void packPointsInShape(const std::vector<cv::Point2f>& points, int ellipseCount, float* shape) const
     {
         // Copy initial chunk of 2d points

@@ -102,6 +102,11 @@ public:
     DlibDocument() = default;
     ~DlibDocument() = default;
 
+    DlibDocument(const DlibDocument&) = delete;
+    DlibDocument(DlibDocument&&) = delete;
+    DlibDocument& operator=(const DlibDocument&) = delete;
+    DlibDocument& operator=(DlibDocument&&) = delete;
+
     void start()
     {
         static const char* sStyleSheet = "xml-stylesheet type='text/xsl' href='image_metadata_stylesheet.xsl'";

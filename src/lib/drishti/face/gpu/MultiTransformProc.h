@@ -27,6 +27,11 @@ public:
     MultiTransformProc() = default;
     ~MultiTransformProc() override = default;
 
+    MultiTransformProc(const MultiTransformProc&) = delete;
+    MultiTransformProc(MultiTransformProc&&) = delete;
+    MultiTransformProc& operator=(const MultiTransformProc&) = delete;
+    MultiTransformProc& operator=(MultiTransformProc&&) = delete;
+
     void renderRegion(const Rect2d& dstRoiPix, const Mat44f& Heye);
     void filterRenderDraw() override;
 

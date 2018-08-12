@@ -261,8 +261,9 @@ public:
 
     // FaceTracker cannot be moved or copied:
     FaceTracker(const FaceTracker&) = delete;
-    FaceTracker& operator=(const FaceTracker&) = delete;
     FaceTracker(FaceTracker&&) = delete;
+    FaceTracker& operator=(const FaceTracker&) = delete;
+    FaceTracker& operator=(FaceTracker&&) = delete;
 
     /**
      * Destructor
