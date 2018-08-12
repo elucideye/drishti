@@ -89,7 +89,7 @@ void CPR::CprPrm::FtrPrm::merge(const CPR::CprPrm::FtrPrm& opts, int checkExtra)
 
 static cv::RotatedRect pointsToEllipse(const std::vector<cv::Point2f>& points)
 {
-    return cv::RotatedRect({ points[0].x, points[1].x }, { points[2].x, points[3].x }, points[4].x);
+    return { { points[0].x, points[1].x }, { points[2].x, points[3].x }, points[4].x };
 }
 
 static Vector1d pointsToPhi(const std::vector<cv::Point2f>& points)

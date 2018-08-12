@@ -60,7 +60,7 @@ void serialize(Archive& ar, drishti::sdk::Size2i& s, const unsigned int version)
 template <class Archive>
 void serialize(Archive& ar, drishti::sdk::Size2f& s, const unsigned int version)
 {
-    ar& GENERIC_NVP("width", s.width);
+    ar& GENERIC_NVP("width", s.width); // NOLINT (TODO)
     ar& GENERIC_NVP("height", s.height);
 }
 

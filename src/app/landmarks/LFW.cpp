@@ -110,7 +110,7 @@ FACE::Table parseLFW(const std::string& filename)
         LFW::lfw_parser<decltype(begin)> parser;
 
         LFW::Table result;
-        bool success = qi::phrase_parse(begin, end, parser, qi::blank, result);
+        bool success = qi::phrase_parse(begin, end, parser, qi::blank, result); // NOLINT (TODO)
 
         table.lines.resize(result.lines.size());
         for (int i = 0; i < result.lines.size(); i++)

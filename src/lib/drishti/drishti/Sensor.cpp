@@ -19,6 +19,7 @@
 
 #include <array>
 #include <memory>
+#include <utility>
 
 _DRISHTI_SDK_BEGIN
 
@@ -35,8 +36,8 @@ SensorModel::Intrinsic::Intrinsic(const Vec2f& c, float fx, const Vec2i& size)
 {
 }
 
-SensorModel::Extrinsic::Extrinsic(const Matrix33f& R)
-    : m_R(R)
+SensorModel::Extrinsic::Extrinsic(Matrix33f  R)
+    : m_R(std::move(R))
 {
 }
 

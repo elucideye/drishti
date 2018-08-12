@@ -45,7 +45,7 @@ public:
         }
         ~iterator() = default;
 
-        iterator(iterator&&) = default;
+        iterator(iterator&&) noexcept = default;
         iterator& operator=(iterator&&) = delete;
 
         iterator& operator=(const iterator& other)
@@ -117,7 +117,7 @@ public:
         }
         ~const_iterator() = default;
 
-        const_iterator(const_iterator&&) = default;
+        const_iterator(const_iterator&&) noexcept = default;
         const_iterator& operator=(const_iterator&&) = delete;
 
         const_iterator& operator=(const const_iterator& other)
@@ -179,9 +179,9 @@ public:
         }
     }
 
-    Array(Array&&) = default;
+    Array(Array&&) noexcept = default;
     Array& operator=(const Array&) = default;
-    Array& operator=(Array&&) = default;
+    Array& operator=(Array&&) noexcept = default;
 
     void clear() { size_ = 0; }
     void resize(std::size_t size) { size_ = std::min(N, size); }

@@ -119,7 +119,7 @@ EyeModelEstimator::Impl::estimateCentralIris(const cv::Mat& I, const cv::Mat& M,
 
 static cv::RotatedRect ellipseFromCircle(const cv::Point2f& c, float radius, float theta)
 {
-    return cv::RotatedRect(c, { radius * 2.f, radius * 2.f }, theta * 180.0 / M_PI);
+    return { c, { radius * 2.f, radius * 2.f }, theta * 180.0 / M_PI };
 }
 
 // Note: The inner corner should be most stable:

@@ -118,7 +118,7 @@ public:
     void setDetectionTimeLogger(TimeLoggerType logger);
     void setRegressionTimeLogger(TimeLoggerType logger);
     void setEyeRegressionTimeLogger(TimeLoggerType logger);
-    void setLogger(MatLoggerType logger);
+    void setLogger(const MatLoggerType& logger);
     void setHrd(const cv::Matx33f& Hrd); // regression face => detection face
     void setEyeCropper(EyeCropper& cropper);
     void paint(cv::Mat& frame);

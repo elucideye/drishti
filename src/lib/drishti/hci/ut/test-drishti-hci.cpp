@@ -64,6 +64,12 @@ BEGIN_EMPTY_NAMESPACE
 
 class HCITest : public ::testing::Test
 {
+public:
+    HCITest(const HCITest&) = delete;
+    HCITest(HCITest&&) = delete;
+    HCITest& operator=(const HCITest&) = delete;
+    HCITest& operator=(HCITest&&) = delete;
+
 protected:
     bool m_hasTranspose = false;
 
@@ -117,15 +123,10 @@ protected:
     }
 
     // Cleanup
-    virtual ~HCITest()
+    ~HCITest() override
     {
         drishti::core::Logger::drop("test-drishti-hci");
     }
-
-    HCITest(const HCITest&) = delete;
-    HCITest(HCITest&&) = delete;
-    HCITest& operator=(const HCITest&) = delete;
-    HCITest& operator=(HCITest&&) = delete;
 
     /*
      * FaceFinder configuration can be achieved by modifying the input
@@ -162,10 +163,10 @@ protected:
     }
 
     // Called after constructor for each test
-    virtual void SetUp() {}
+    void SetUp() override {}
 
     // Called after destructor for each test
-    virtual void TearDown() {}
+    void TearDown() override {}
 
     static cv::Mat loadImage(const std::string& filename)
     {

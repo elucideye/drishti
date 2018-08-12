@@ -19,7 +19,7 @@ void MultiTransformProc::renderRegion(const Rect2d& dstRoiPix, const Mat44f& H)
     // Limit warping to desired eye crop region
     glScissor(dstRoiPix.x, dstRoiPix.y, dstRoiPix.width, dstRoiPix.height);
 
-    glUniformMatrix4fv(shParamUTransform, 1, 0, (GLfloat*)&H.data[0]);
+    glUniformMatrix4fv(shParamUTransform, 1, 0, (GLfloat*)&H.data[0]); // NOLINT (TODO)
     Tools::checkGLErr(getProcName(), "MultiTransformProc::renderEye() : glUniformMatrix4fv()");
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, OGLES_GPGPU_QUAD_VERTICES);

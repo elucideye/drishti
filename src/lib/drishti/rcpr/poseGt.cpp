@@ -247,7 +247,7 @@ int ftrsGen(const CPR::Model& model, const CPR::CprPrm::FtrPrm& ftrPrmIn, FtrDat
     cv::RNG rng;
     while (points.size() < (F1 * 4))
     {
-        rng.state = rand();
+        rng.state = rand(); // NOLINT (TODO)
         cv::Point2f p(rng.uniform(-1.0, +1.0), rng.uniform(-1.0, +1.0));
         if (cv::norm(p) < 1.0)
         {

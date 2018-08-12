@@ -48,7 +48,7 @@ FaceTrackerFactoryJson::FaceTrackerFactoryJson(const std::string& sModels, std::
 
 void FaceTrackerFactoryJson::init(const std::string& sModels, std::shared_ptr<spdlog::logger>& logger)
 {
-    auto ifs = open_stream(sModels);
+    auto ifs = open_stream(sModels); // NOLINT (TODO)
 
     nlohmann::json json = nlohmann::json::parse(*ifs);
 

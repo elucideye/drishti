@@ -612,9 +612,9 @@ void FaceDetector::setFaceDetectorMean(const FaceModel& mu)
 {
     m_impl->setFaceDetectorMean(mu);
 }
-void FaceDetector::setLogger(MatLoggerType logger)
+void FaceDetector::setLogger(const MatLoggerType& logger)
 {
-    m_impl->setLogger(std::move(logger));
+    m_impl->setLogger(logger);
 }
 drishti::ml::ObjectDetector* FaceDetector::getDetector()
 {

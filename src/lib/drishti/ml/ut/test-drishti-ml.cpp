@@ -45,7 +45,7 @@ TEST(StandardizedPCA, gemm_transpose_continuous) // NOLINT (TODO)
         ASSERT_EQ(C.rows, A.rows);
         ASSERT_EQ(C.cols, Bt.rows);
 
-        for (auto iter = C.begin<float>(); iter != C.end<float>(); iter++)
+        for (auto iter = C.begin<float>(); iter != C.end<float>(); iter++) // NOLINT (TODO)
         {
             EXPECT_FLOAT_EQ(*iter, float(dim));
         }
@@ -73,7 +73,7 @@ TEST(StandardizedPCA, gemm_transpose_non_continuous) // NOLINT (TODO)
         ASSERT_EQ(C.rows, A.rows);
         ASSERT_EQ(C.cols, Bt.rows);
 
-        for (auto iter = C.begin<float>(); iter != C.end<float>(); iter++)
+        for (auto iter = C.begin<float>(); iter != C.end<float>(); iter++) // NOLINT (TODO)
         {
             EXPECT_FLOAT_EQ(*iter, float(dim));
         }

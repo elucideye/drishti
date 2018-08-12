@@ -58,7 +58,7 @@ void EyeModelEstimator::Impl::segmentPupil(const cv::Mat& I, EyeModel& eye, int 
     std::vector<cv::RotatedRect> pupils;
     const float minScale = radius * 1.f / 4.f;
     const float maxScale = radius * 1.f / 2.f;
-    for (float s = minScale; s <= maxScale; s *= 1.05f)
+    for (float s = minScale; s <= maxScale; s *= 1.05f) // NOLINT (TODO)
     {
         pupils.emplace_back(pupil.center, cv::Size2f(s, s) * scale, pupil.angle);
     }

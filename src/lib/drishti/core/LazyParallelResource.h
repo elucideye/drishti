@@ -35,7 +35,7 @@ struct LazyParallelResource
 
     LazyParallelResource(const LazyParallelResource&) = default;
     LazyParallelResource& operator=(const LazyParallelResource&) = default;
-    LazyParallelResource& operator=(LazyParallelResource&&) = default;
+    LazyParallelResource& operator=(LazyParallelResource&&) = default; // NOLINT (TODO)
 
     ~LazyParallelResource() = default;
 

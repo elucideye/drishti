@@ -99,7 +99,7 @@ struct Matrix
         }
     }
 
-    Matrix(Matrix&&) = default;
+    Matrix(Matrix&&) noexcept = default;
     Matrix& operator=(const Matrix&) = delete;
     Matrix& operator=(Matrix&&) = delete;
 
@@ -192,9 +192,9 @@ public:
     Image(size_t rows, size_t cols, T* data, size_t stride, bool keep = false);
     ~Image();
 
-    Image(Image&&) = default;
+    Image(Image&&) noexcept = default;
     Image& operator=(const Image&) = default;
-    Image& operator=(Image&&) = default;
+    Image& operator=(Image&&) noexcept = default;
 
     size_t getRows() const
     {
@@ -211,7 +211,7 @@ public:
     template <typename T2>
     const T2* ptr() const
     {
-        return reinterpret_cast<T2*>(data);
+        return reinterpret_cast<T2*>(data); // NOLINT (TODO)
     }
     Image<T> clone();
 

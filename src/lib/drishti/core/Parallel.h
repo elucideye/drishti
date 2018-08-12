@@ -75,7 +75,7 @@ public:
     ParallelHomogeneousLambda operator=(const ParallelHomogeneousLambda&) = delete;
     ParallelHomogeneousLambda operator=(ParallelHomogeneousLambda&&) = delete;
 
-    ~ParallelHomogeneousLambda() = default;
+    ~ParallelHomogeneousLambda() override = default;
 
 protected:
     std::function<void(int)> m_function;
@@ -110,7 +110,7 @@ public:
     ParallelLambdaRange& operator=(const ParallelLambdaRange&) = delete;
     ParallelLambdaRange& operator=(ParallelLambdaRange&&) = delete;
 
-    ~ParallelLambdaRange() = default;
+    ~ParallelLambdaRange() override = default;
 
 protected:
     std::function<void(const cv::Range& r)> m_function;

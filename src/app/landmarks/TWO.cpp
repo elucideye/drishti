@@ -108,7 +108,7 @@ FACE::Table parseTWO(const std::string& filename)
         TWO::two_parser<decltype(f)> parser;
 
         TWO::Table result;
-        bool success = qi::phrase_parse(f, l, parser, qi::blank, result);
+        bool success = qi::phrase_parse(f, l, parser, qi::blank, result); // NOLINT (TODO)
 
         table.lines.resize(result.lines.size());
         for (int i = 0; i < result.lines.size(); i++)

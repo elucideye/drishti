@@ -57,8 +57,13 @@ public:
         return (segmenter && segmenter->good()) ? segmenter : nullptr;
     }
 
+    EyeModelEstimatorTest(const EyeModelEstimatorTest&) = delete;
+    EyeModelEstimatorTest(EyeModelEstimatorTest&&) = delete;
+    EyeModelEstimatorTest& operator=(const EyeModelEstimatorTest&) = delete;
+    EyeModelEstimatorTest& operator=(EyeModelEstimatorTest&&) = delete;
+
 protected:
-    struct Entry
+    struct Entry // NOLINT (TODO)
     {
         cv::Mat image;
         bool isRight;
@@ -78,20 +83,13 @@ protected:
     }
 
     // Cleanup
-    virtual ~EyeModelEstimatorTest()
-    {
-    }
-
-    EyeModelEstimatorTest(const EyeModelEstimatorTest&) = delete;
-    EyeModelEstimatorTest(EyeModelEstimatorTest&&) = delete;
-    EyeModelEstimatorTest& operator=(const EyeModelEstimatorTest&) = delete;
-    EyeModelEstimatorTest& operator=(EyeModelEstimatorTest&&) = delete;
+    ~EyeModelEstimatorTest() override = default;
 
     // Called after constructor for each test
-    virtual void SetUp() {}
+    void SetUp() override {}
 
     // Called after destructor for each test
-    virtual void TearDown() {}
+    void TearDown() override {}
 
     // Utility methods:
     void loadImages()
@@ -127,7 +125,7 @@ protected:
             cv::Mat resized;
             if (width > 0)
             {
-                const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
+                const auto height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
                 cv::resize(padded, resized, { width, height }, width);
             }
 
@@ -207,7 +205,7 @@ TEST(EyeModelEstimator, StringConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeModelPrivateFilename))
     {
-        ASSERT_NE(sEyeModelPrivateFilename, (const char*)NULL);
+        ASSERT_NE(sEyeModelPrivateFilename, (const char*)nullptr);
         auto segmenter = EyeModelEstimatorTest::create(sEyeModelPrivateFilename);
         ASSERT_EQ(segmenter->good(), true);
     }
@@ -217,7 +215,7 @@ TEST(EyeModelEstimator, StreamConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeModelPrivateFilename))
     {
-        ASSERT_NE(sEyeModelPrivateFilename, (const char*)NULL);
+        ASSERT_NE(sEyeModelPrivateFilename, (const char*)nullptr);
         std::ifstream is(sEyeModelPrivateFilename);
         ASSERT_TRUE((bool)is);
         auto segmenter = EyeModelEstimatorTest::create(sEyeModelPrivateFilename);
@@ -319,7 +317,7 @@ TEST_F(EyeModelEstimatorTest, ImageIsBlack) // NOLINT (TODO)
 {
     Entry entry;
     const int width = 128;
-    const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
+    const auto height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
 
     assert(entry.isRight);
@@ -333,7 +331,7 @@ TEST_F(EyeModelEstimatorTest, ImageIsWhite) // NOLINT (TODO)
 {
     Entry entry;
     const int width = 128;
-    const int height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
+    const auto height = static_cast<int>(static_cast<float>(width) / EYE_ASPECT_RATIO + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
 
     assert(entry.isRight);

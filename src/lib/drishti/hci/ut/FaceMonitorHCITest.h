@@ -20,12 +20,12 @@ public:
 
     int m_index = 0;
 
-    virtual Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t tex)
+    Request request(const Faces& faces, const TimePoint& timeStamp, std::uint32_t tex) override
     {
         return Request{ 3, true, true };
     }
 
-    virtual void grab(const std::vector<FaceImage>& frames, bool isInitialized)
+    void grab(const std::vector<FaceImage>& frames, bool isInitialized) override
     {
         m_faces = frames;
         m_isInitialized = isInitialized;

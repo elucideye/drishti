@@ -27,13 +27,8 @@ BEGIN_FACEFILTER_NAMESPACE
 static std::shared_ptr<spdlog::logger> createLogger(const char* name);
 
 Application::Application()
-    : m_hasCamera(false)
-    , m_hasDisplay(false)
-#if defined(__ANDROID__)
-    , m_JNIEnv(nullptr)
-#endif
 {
-    m_logger = createLogger("facefilter");
+    m_logger = createLogger("facefilter"); // NOLINT (TODO)
 }
 
 Application::~Application()

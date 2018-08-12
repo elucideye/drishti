@@ -26,7 +26,7 @@ public:
     ObjectDetectorACF();
     ObjectDetectorACF(const std::string& filename);
     ObjectDetectorACF(std::istream& is, const std::string& hint = {});
-    virtual ~ObjectDetectorACF();
+    ~ObjectDetectorACF() override;
 
     ObjectDetectorACF(const ObjectDetectorACF&) = delete;
     ObjectDetectorACF(ObjectDetectorACF&&) = delete;

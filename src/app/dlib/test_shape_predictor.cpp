@@ -106,7 +106,7 @@ int mine(int argc, char* argv[])
 
     drishti::ml::shape_predictor sp;
     load_cpb(sModel, sp);
-    int ellipse_count = sp.m_ellipse_count;
+    //int ellipse_count = sp.m_ellipse_count;
     
 #if 0
     for(auto &f : filenames)

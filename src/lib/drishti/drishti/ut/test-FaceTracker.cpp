@@ -52,6 +52,13 @@ BEGIN_EMPTY_NAMESPACE
 
 class FaceTest : public ::testing::Test
 {
+public:
+
+    FaceTest(const FaceTest&) = delete;
+    FaceTest(FaceTest&&) = delete;
+    FaceTest& operator=(const FaceTest&) = delete;
+    FaceTest& operator=(FaceTest&&) = delete;
+
 protected:
     bool m_hasTranspose = false;
 
@@ -76,15 +83,10 @@ protected:
     }
 
     // Cleanup
-    virtual ~FaceTest()
+    ~FaceTest() override
     {
         drishti::core::Logger::drop("test-drishti-drishti-face");
     }
-
-    FaceTest(const FaceTest&) = delete;
-    FaceTest(FaceTest&&) = delete;
-    FaceTest& operator=(const FaceTest&) = delete;
-    FaceTest& operator=(FaceTest&&) = delete;
 
     /*
      * FaceFinder configuration can be achieved by modifying the input
@@ -292,10 +294,10 @@ protected:
 #endif // DRISHTI_BUILD_C_INTERFACE
 
     // Called after constructor for each test
-    virtual void SetUp() {}
+    void SetUp() override {}
 
     // Called after destructor for each test
-    virtual void TearDown() {}
+    void TearDown() override {}
 
     static cv::Mat loadImage(const std::string& filename)
     {

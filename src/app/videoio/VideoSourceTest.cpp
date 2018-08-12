@@ -36,7 +36,7 @@ auto VideoSourceTest::operator()(int i) -> Frame
     }
 
     Frame frame;
-    frame.image = cv::Mat(480, 640, type, cv::Scalar(rand() % 255, rand() % 255, rand() % 255, 255));
+    frame.image = cv::Mat(480, 640, type, cv::Scalar(rand() % 255, rand() % 255, rand() % 255, 255)); // NOLINT (TODO)
     frame.index = counter++;
     frame.name = std::to_string(frame.index);
     return frame;
