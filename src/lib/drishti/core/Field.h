@@ -32,10 +32,11 @@ struct Field
     }
     ~Field() = default;
 
-    Field(const Field&) = default; // TODO (?)
-    Field(Field&&) = delete;
-    Field& operator=(const Field&) = delete;
-    Field& operator=(Field&&) = delete;
+    // TODO (?)
+    Field(const Field&) = default;
+    Field(Field&&) = default;
+    Field& operator=(const Field&) = default;
+    Field& operator=(Field&&) = default;
 
     Field<T>& operator=(const T& src)
     {

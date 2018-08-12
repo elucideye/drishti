@@ -63,7 +63,7 @@ public:
         cv::Rect roi;
     };
 
-    typedef std::function<std::array<cv::Mat, 2>(const cv::Point2f& L, const cv::Point2f& R)> EyeCropper;
+    using EyeCropper = std::function<std::array<cv::Mat, 2>(const cv::Point2f& L, const cv::Point2f& R)>;
     using MatLoggerType = std::function<int (const cv::Mat &, const std::string &)>;
     using TimeLoggerType = std::function<void (double)>;
 

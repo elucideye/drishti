@@ -138,7 +138,7 @@ protected:
         {
             auto eye = std::make_shared<drishti::eye::EyeModel>();
             cereal::JSONInputArchive ia(is);
-            typedef decltype(ia) Archive;
+            using Archive = decltype(ia);
             ia(GENERIC_NVP("eye", *eye));
             m_eye = eye;
             m_eye->refine();
@@ -245,7 +245,7 @@ TEST_F(EyeModelEstimatorTest, EyeSerialization)
 
     std::ofstream os(filename);
     cereal::JSONOutputArchive oa(os);
-    typedef decltype(oa) Archive;
+    using Archive = decltype(oa);
     oa << GENERIC_NVP("eye", eye);
 }
 

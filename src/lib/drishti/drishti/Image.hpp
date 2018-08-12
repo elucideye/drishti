@@ -121,7 +121,7 @@ struct Matrix
     T data[rowDim][colDim];
 };
 
-typedef Matrix<float, 3, 3> Matrix33f;
+using Matrix33f = Matrix<float, 3, 3>;
 
 /*
  * Rect types

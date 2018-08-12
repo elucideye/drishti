@@ -35,10 +35,11 @@ struct FaceModel
 
     ~FaceModel();
 
-    FaceModel(const FaceModel&) = delete;
-    FaceModel(FaceModel&&) = delete;
-    FaceModel& operator(const FaceModel&) = delete;
-    FaceModel& operator(FaceModel&&) = delete;
+    // TODO (?)
+    FaceModel(const FaceModel&) = default;
+    FaceModel(FaceModel&&) = default;
+    FaceModel& operator=(const FaceModel&) = default;
+    FaceModel& operator=(FaceModel&&) = default;
 
     float getInterPupillaryDistance() const;
     cv::Point2f getEyeLeftCenter() const;

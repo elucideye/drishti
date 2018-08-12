@@ -52,7 +52,7 @@ inline int PointVecSize(const PointVec& v)
     return int(v.size());
 }
 
-typedef cv::Matx<RealType, 3, 3> Matx33Real;
+using Matx33Real = cv::Matx<RealType, 3, 3>;
 using Vector1d = std::vector<RealType>;
 using ImageVec = std::vector<cv::Mat>;
 using IntVec = std::vector<int>;

@@ -43,13 +43,13 @@
 extern "C" {
 #endif
 
-typedef struct
+struct kerning_t
 {
     uint32_t codepoint;
     float kerning;
-} kerning_t;
+};
 
-typedef struct
+struct texture_glyph_t
 {
     uint32_t codepoint;
     int width, height;
@@ -58,9 +58,9 @@ typedef struct
     float s0, t0, s1, t1;
     size_t kerning_count;
     kerning_t kerning[19];
-} texture_glyph_t;
+};
 
-typedef struct
+struct texture_font_t
 {
     size_t tex_width;
     size_t tex_height;
@@ -73,7 +73,7 @@ typedef struct
     float descender;
     size_t glyphs_count;
     texture_glyph_t glyphs[96];
-} texture_font_t;
+};
 
 texture_font_t Vera_16_2048 = {
     2048, 2048, 1,

@@ -290,7 +290,7 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
         if (os)
         {
             cereal::JSONOutputArchive oa(os);
-            typedef decltype(oa) Archive;
+            using Archive = decltype(oa);
             oa << GENERIC_NVP("eye", privateEye);
         }
     }
