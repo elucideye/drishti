@@ -9,6 +9,8 @@
 */
 
 #include "drishti/core/arithmetic.h"
+
+#include <cmath>
 #include "drishti/core/drishti_math.h"
 
 // clang-format off
@@ -23,7 +25,7 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 template <>
 float round(float x)
 {
-    return ::round(x);
+    return std::round(x);
 }
 template <>
 double round(double x)
