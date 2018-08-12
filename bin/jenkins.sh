@@ -69,6 +69,7 @@ case "${TYPE}" in
 
     if [[ "${TOOLCHAIN}" == "clang-tidy" ]];
     then
+      SHARED_SDK=OFF
       if [[ "${TRAVIS}" == "true" ]];
       then
         POLLY_DISCARD_OPTIONS="--discard 10 --tail 200"
@@ -85,6 +86,7 @@ case "${TYPE}" in
         POLLY_DISCARD_OPTIONS=""
       fi
     else
+      SHARED_SDK=ON
       POLLY_DISCARD_OPTIONS=""
     fi
 
@@ -113,7 +115,7 @@ case "${TYPE}" in
         ${TEST} \
         "${INSTALL}" \
         --fwd \
-        DRISHTI_BUILD_SHARED_SDK=ON \
+        DRISHTI_BUILD_SHARED_SDK=${SHARED_SDK} \
         DRISHTI_BUILD_TESTS=YES \
         DRISHTI_BUILD_EXAMPLES=YES \
         DRISHTI_COPY_3RDPARTY_LICENSES=ON \
