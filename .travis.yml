@@ -105,8 +105,8 @@ install:
   - if [[ "`uname`" == "Linux" ]]; then sudo wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -; fi
   - if [[ "`uname`" == "Linux" ]]; then sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-5.0 main"; fi
   - if [[ "`uname`" == "Linux" ]]; then sudo apt-get -y update; fi
-  - if [[ "`uname`" == "Linux" ]]; then sudo apt-get install -y libc++-dev libc++abi-dev libclang-5.0-dev libclang-common-5.0-dev libclang1-5.0 clang-5.0 llvm-5.0-dev; fi
 
+  - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y libc++-dev libc++abi-dev libclang-5.0-dev libclang-common-5.0-dev libclang1-5.0 clang-5.0; fi
   - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y libgl1-mesa-dev; fi # For ogles_gpgpu (GL library)
   # (FIXME) - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y g++-5; fi # GCC 5
   - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y python3-pip; fi # pip3
