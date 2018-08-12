@@ -57,7 +57,7 @@ public:
     {
     }
 
-    ParallelHomogeneousLambda(ParallelHomogeneousLambda&& other)
+    ParallelHomogeneousLambda(ParallelHomogeneousLambda&& other) noexcept
         : m_function(std::move(other.m_function))
     {
         other.m_function = nullptr;
@@ -95,7 +95,7 @@ public:
     {
     }
 
-    ParallelLambdaRange(ParallelLambdaRange&& other)
+    ParallelLambdaRange(ParallelLambdaRange&& other) noexcept
         : m_function(std::move(other.m_function))
     {
         other.m_function = nullptr;

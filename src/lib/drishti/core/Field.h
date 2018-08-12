@@ -34,9 +34,9 @@ struct Field
 
     // TODO (?)
     Field(const Field&) = default;
-    Field(Field&&) = default;
+    Field(Field&&) = default; // NOLINT (TODO)
     Field& operator=(const Field&) = default;
-    Field& operator=(Field&&) = default;
+    Field& operator=(Field&&) = default; // NOLINT (TODO)
 
     Field<T>& operator=(const T& src)
     {

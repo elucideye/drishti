@@ -31,7 +31,7 @@ public:
         m_tic = HighResolutionClock::now();
     }
 
-    ScopeTimeLogger(ScopeTimeLogger&& other)
+    ScopeTimeLogger(ScopeTimeLogger&& other) noexcept
         : m_logger(std::move(other.m_logger))
         , m_tic(other.m_tic)
     {

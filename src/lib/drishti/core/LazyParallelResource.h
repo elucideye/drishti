@@ -27,7 +27,7 @@ struct LazyParallelResource
         : m_alloc(std::forward<Callable>(func))
     {
     }
-    LazyParallelResource(LazyParallelResource&& other)
+    LazyParallelResource(LazyParallelResource&& other) noexcept
         : m_alloc(std::move(other.m_alloc))
     {
         other.m_alloc = nullptr;

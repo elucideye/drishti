@@ -25,7 +25,7 @@ public:
     {
     }
 
-    scope_guard(scope_guard&& other)
+    scope_guard(scope_guard&& other) noexcept
         : f(std::move(other.f))
     {
         other.f = nullptr;
