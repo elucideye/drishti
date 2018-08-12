@@ -46,7 +46,7 @@ cv::RotatedRect conicPar2Cen(const cv::Vec6d& par)
     // ellipse = (centrex,centrey,ax,ay,orientation)
     if (Auu == 0 || Avv == 0)
     {
-        return cv::RotatedRect(cv::Point2f(0.f, 0.f), cv::Size2f(0.f, 0.f), 0.f);
+        return {cv::Point2f(0.f, 0.f), cv::Size2f(0.f, 0.f), 0.f};
     }
 
     // ROTATED = [Ao Au Av Auu Avv]
@@ -66,7 +66,7 @@ cv::RotatedRect conicPar2Cen(const cv::Vec6d& par)
     // OpenCV format:
     cv::Point2f center(uCentre, vCentre);
     cv::Size2f size(Ru * 2.0, Rv * 2.0);
-    return cv::RotatedRect(center, size, thetarad * 180.0 / M_PI);
+    return {center, size, thetarad * 180.0 / M_PI};
 }
 
 DRISHTI_GEOMETRY_END

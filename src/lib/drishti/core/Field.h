@@ -5,7 +5,7 @@
 
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
- 
+
   NOTE: GENERIC_NVP should be defined prior to including this class for either
   boost or cereal archives.
 
@@ -24,15 +24,18 @@ DRISHTI_CORE_NAMESPACE_BEGIN
 template <typename T>
 struct Field
 {
-    Field()
-         
-    = default;
+    Field() = default;
     Field(const T& t)
         : has(true)
         , value(t)
     {
     }
     ~Field() = default;
+
+    Field(const Field&) = default; // TODO (?)
+    Field(Field&&) = delete;
+    Field& operator=(const Field&) = delete;
+    Field& operator=(Field&&) = delete;
 
     Field<T>& operator=(const T& src)
     {

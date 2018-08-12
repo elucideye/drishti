@@ -28,6 +28,12 @@ public:
         Standardizer();
         Standardizer(int size, int type);
         ~Standardizer();
+
+        Standardizer(const Standardizer&) = delete;
+        Standardizer(Standardizer&&) = delete;
+        Standardizer& operator=(const Standardizer&) = delete;
+        Standardizer& operator=(Standardizer&&) = delete;
+
         void create(int size, int type);
         void compute(const cv::Mat& src, const cv::Mat &columnWeights={});
         cv::Mat standardize(const cv::Mat& src) const;
@@ -44,6 +50,11 @@ public:
     void compute(const cv::Mat& data, cv::Mat& projection, float retainedVariance, const cv::Mat &columnWeights={});
     void compute(const cv::Mat& data, cv::Mat& projection, int maxComponents, const cv::Mat &columnWeights={});
     void init();
+
+    StandardizedPCA(const StandardizedPCA&) = delete;
+    StandardizedPCA(StandardizedPCA&&) = delete;
+    StandardizedPCA& operator=(const StandardizedPCA&) = delete;
+    StandardizedPCA& operator=(StandardizedPCA&&) = delete;
 
     size_t getNumComponents() const;
 

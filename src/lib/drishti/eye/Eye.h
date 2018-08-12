@@ -41,6 +41,11 @@ struct EyeModel
     EyeModel();
     ~EyeModel();
 
+    EyeModel(const EyeModel&) = default; // TODO (?)
+    EyeModel(EyeModel&&) = delete;
+    EyeModel& operator=(const EyeModel&) = delete;
+    EyeModel& operator=(EyeModel&&) = delete;
+
     const cv::Point2f& getOuterCorner() const
     {
         return eyelids[cornerIndices[0]];

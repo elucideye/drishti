@@ -49,7 +49,7 @@ cv::RotatedRect randomSimilarityEllipse(const UniformSimilarityParams& params, c
     const float s1 = rng.uniform(params.scale[0], params.scale[1]);
     const float x = rng.uniform(params.deltaX[0], params.deltaX[1]);
     const float y = rng.uniform(params.deltaY[0], params.deltaY[1]);
-    return cv::RotatedRect({ x, y }, { s1, s1 }, theta);
+    return {{ x, y }, { s1, s1 }, theta};
 }
 
 // WRT specified center

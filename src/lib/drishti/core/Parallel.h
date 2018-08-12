@@ -32,8 +32,12 @@ public:
         }
     }
 
+    ~ParallelHeterogeneousLambda() override = default;
+
     ParallelHeterogeneousLambda(const ParallelHeterogeneousLambda&) = delete;
-    void operator=(const ParallelHeterogeneousLambda&) = delete;
+    ParallelHeterogeneousLambda(ParallelHeterogeneousLambda&&) = delete;
+    ParallelHeterogeneousLambda& operator=(const ParallelHeterogeneousLambda&) = delete;
+    ParallelHeterogeneousLambda& operator=(ParallelHeterogeneousLambda&&) = delete;
 
 protected:
     std::vector<std::function<void()>> m_functions;
@@ -68,7 +72,10 @@ public:
     }
 
     ParallelHomogeneousLambda(const ParallelHomogeneousLambda&) = delete;
-    void operator=(const ParallelHomogeneousLambda&) = delete;
+    ParallelHomogeneousLambda operator=(const ParallelHomogeneousLambda&) = delete;
+    ParallelHomogeneousLambda operator=(ParallelHomogeneousLambda&&) = delete;
+
+    ~ParallelHomogeneousLambda() = default;
 
 protected:
     std::function<void(int)> m_function;

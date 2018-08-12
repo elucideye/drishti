@@ -24,10 +24,13 @@ public:
 
 private:
     ThreadPoolSource() = default;
+    ~ThreadPoolSource() = default;
 
 public:
     ThreadPoolSource(ThreadPoolSource const&) = delete;
-    void operator=(ThreadPoolSource const&) = delete;
+    ThreadPoolSource(ThreadPoolSource&&) = delete;
+    ThreadPoolSource& operator=(const ThreadPoolSource&) = delete;
+    ThreadPoolSource& operator=(ThreadPoolSource&&) = delete;
 };
 
 DRISHTI_CORE_NAMESPACE_END
