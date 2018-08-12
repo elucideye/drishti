@@ -211,7 +211,7 @@ case "${TYPE}" in
     sleep 30
 
     # Now should be fine
-    ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}
+    ../bin/travis_wait -i 60 "./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}"
 
     # Back to normal CMake configuration
     sed -i 's,^if(DRISHTI_DEBUG_STOP OR TRUE)$,if(DRISHTI_DEBUG_STOP),' ../CMakeLists.txt
