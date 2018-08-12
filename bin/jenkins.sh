@@ -198,15 +198,29 @@ case "${TYPE}" in
 
     set -x
 
+    # Let's stop Gradle build at beginning of CMakeLists.txt so we can lauch
+    # it explicitly by `cmake --build` (workaround for Android Studio bug, see below)
+    sed -i 's,^if(DRISHTI_DEBUG_STOP)$,if(DRISHTI_DEBUG_STOP OR TRUE),' ../CMakeLists.txt
+
     # First Gradle lauch will hit issue:
     # * https://issuetracker.google.com/issues/75268076
     ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH} || echo "Ooops"
 
     # Sometimes second launch failing with the same error, put a wait command
-    # to try to improve stability (empirical note: 95 is not enough)
-    sleep 110
+    # to try to improve stability (empirical note: 15 is not enough)
+    sleep 30
 
     # Now should be fine
+    ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}
+
+    # Back to normal CMake configuration
+    sed -i 's,^if(DRISHTI_DEBUG_STOP OR TRUE)$,if(DRISHTI_DEBUG_STOP),' ../CMakeLists.txt
+
+    # Lauch CMake build without Gradle.
+    ../bin/travis_wait -i 60 "cmake --build ../src/examples/facefilter/android-studio/app/.externalNativeBuild/cmake/debug/${ANDROID_STUDIO_ARCH}"
+
+    # CMake part done, now we can continue with the
+    # rest parts of Android Studio project
     ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}
 
     ;;
