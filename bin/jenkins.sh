@@ -72,7 +72,7 @@ case "${TYPE}" in
       SHARED_SDK=OFF
       if [[ "${TRAVIS}" == "true" ]];
       then
-        POLLY_DISCARD_OPTIONS="--discard 10 --tail 200"
+        VERBOSE=""
 
         wget -q "${CLANG_LLVM_FULL_URL}"
         tar xf "${CLANG_LLVM_FILENAME}"
@@ -83,11 +83,11 @@ case "${TYPE}" in
         echo "Checks: '-*'" >> _ci/.clang-tidy
         echo "WarningsAsErrors: ''" >> _ci/.clang-tidy
       else
-        POLLY_DISCARD_OPTIONS=""
+        VERBOSE=--verbose
       fi
     else
       SHARED_SDK=ON
-      POLLY_DISCARD_OPTIONS=""
+      VERBOSE=--verbose
     fi
 
     if [[ ${TRAVIS} == "true" ]]; then
@@ -107,8 +107,7 @@ case "${TYPE}" in
     polly.py \
         --toolchain "${TOOLCHAIN}" \
         --config "${CONFIG}" \
-        --verbose \
-        ${POLLY_DISCARD_OPTIONS} \
+        ${VERBOSE} \
         --ios-multiarch --ios-combined \
         --archive drishti \
         --jobs 4 \
