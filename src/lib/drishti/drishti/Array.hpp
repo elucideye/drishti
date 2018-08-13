@@ -24,7 +24,7 @@ class Array
 {
 public:
     // http://stackoverflow.com/a/7759622
-    class iterator
+    class iterator // NOLINT (TODO)
     {
     public:
         using difference_type = typename std::ptrdiff_t;
@@ -44,9 +44,6 @@ public:
         {
         }
         ~iterator() = default;
-
-        iterator(iterator&&) noexcept = default;
-        iterator& operator=(iterator&&) = delete;
 
         iterator& operator=(const iterator& other)
         {
