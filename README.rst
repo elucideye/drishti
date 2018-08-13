@@ -268,6 +268,55 @@ There is another entry point for Android Studio - ``src/examples/facefilter/andr
 It should be used only for testing or as a template for starting your own project
 based on Drishti.
 
+Android Studio workarounds
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following factors can all contribute to some instability in the Android
+Studio managed build:
+
+* Android Studio 3.2 is **beta**
+* Using custom CMake 3.7+ in Android Studio is `a preview feature <https://developer.android.com/studio/projects/add-native-code#vanilla_cmake>`__
+* Some issues are hard to track or confirm, some `issues <https://issuetracker.google.com/issues/75268076>`__ are already reported but still **not fixed**
+
+From experience, the weakest part in the build is the communication between
+Gradle and CMake. To minimize it, the following trick can be used:
+
+* Open the top-level ``CMakeLists.txt`` file
+* Find ``if(DRISHTI_DEBUG_STOP)`` `condition <https://github.com/elucideye/drishti/blob/d8b91e26eb1a1f62412bd2d56d1a229d646b6864/CMakeLists.txt#L102-L107>`__
+* Substitute ``if(DRISHTI_DEBUG_STOP)`` with ``if(TRUE)``
+* Run Gradle build:
+
+.. code-block:: none
+
+  [drishti]> cd android-studio
+  [drishti/android-studio]> ./gradlew assembleDebug
+
+If you're running it a first time there will be a high chance to hit this
+Gradle issue:
+
+.. code-block:: none
+
+  * What went wrong:
+  Execution failed for task '...'.
+  > Conversion = c, Flags =
+
+In this case, just wait for few seconds and run Gradle again:
+
+.. code-block:: none
+
+  [drishti/android-studio]> ./gradlew assembleDebug
+
+* Revert ``CMakeLists.txt`` file, i.e. substitute ``if(TRUE)`` with ``if(DRISHTI_DEBUG_STOP)``.
+
+* Run the CMake build without Gradle:
+
+.. code-block:: none
+
+  [drishti/android-studio]> cmake --build ../src/examples/facefilter/android-studio/app/.externalNativeBuild/cmake/debug/arm64-v8a
+
+Once the CMake build is ready, you can use ``./gradlew assembleDebug`` or open
+Android Studio IDE.
+
 Applications
 ------------
 
