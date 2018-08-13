@@ -99,6 +99,13 @@ hunter_add_package(check_ci_tag)
 find_package(check_ci_tag CONFIG REQUIRED)
 check_ci_tag()
 
+if(DRISHTI_DEBUG_STOP)
+  # Workaround for Android Studio bug, exit as soon as Toolchain-ID/Config-ID
+  # is ready, i.e. after first 'hunter_add_package' call.
+  # Used in 'bin/jenkins.sh'.
+  return()
+endif()
+
 ##############
 ## Doxygen ###
 ##############

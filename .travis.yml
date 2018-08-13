@@ -22,17 +22,18 @@ matrix:
 
     - os: linux
       env: >
-        TOOLCHAIN=clang-fpic-hid-sections
+        TOOLCHAIN=libcxx-fpic-hid-sections
         CONFIG=Release
         INSTALL=--strip
         TYPE=polly
 
-    - os: linux
-      env: >
-        TOOLCHAIN=gcc-5-pic-hid-sections-lto
-        CONFIG=Release
-        INSTALL=--strip
-        TYPE=polly
+    # FIXME: https://github.com/travis-ci/travis-ci/issues/9976
+    # - os: linux
+    #   env: >
+    #     TOOLCHAIN=gcc-5-pic-hid-sections-lto
+    #     CONFIG=Release
+    #     INSTALL=--strip
+    #     TYPE=polly
 
     - os: linux
       env: >
@@ -100,11 +101,15 @@ git:
 # CI_USER_TOKEN is added to .travis.yml settings
 
 install:
-  - if [[ "`uname`" == "Linux" ]]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+  # (FIXME) - if [[ "`uname`" == "Linux" ]]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+  - if [[ "`uname`" == "Linux" ]]; then sudo wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -; fi
+  - if [[ "`uname`" == "Linux" ]]; then sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-5.0 main"; fi
   - if [[ "`uname`" == "Linux" ]]; then sudo apt-get -y update; fi
-  - if [[ "`uname`" == "Linux" ]]; then sudo apt-get install -y libgl1-mesa-dev; fi # For ogles_gpgpu (GL library)
-  - if [[ "`uname`" == "Linux" ]]; then sudo apt-get install -y g++-5; fi # GCC 5
-  - if [[ "`uname`" == "Linux" ]]; then sudo apt-get install -y python3-pip; fi # pip3
+
+  - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y libc++-dev libc++abi-dev libclang-5.0-dev libclang-common-5.0-dev libclang1-5.0 clang-5.0; fi
+  - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y libgl1-mesa-dev; fi # For ogles_gpgpu (GL library)
+  # (FIXME) - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y g++-5; fi # GCC 5
+  - if [[ "`uname`" == "Linux" ]]; then travis_retry sudo apt-get install -y python3-pip; fi # pip3
 
   - source bin/hunter_env.sh
 
