@@ -66,7 +66,8 @@ cv::RotatedRect conicPar2Cen(const cv::Vec6d& par)
     // OpenCV format:
     cv::Point2f center(uCentre, vCentre);
     cv::Size2f size(Ru * 2.0, Rv * 2.0);
-    return {center, size, thetarad * 180.0 / M_PI};
+    const float angle = thetarad * 180.0 / M_PI;
+    return {center, size, angle};
 }
 
 DRISHTI_GEOMETRY_END
