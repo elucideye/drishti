@@ -87,7 +87,7 @@ static cv::Size read_png_size(const std::string& filename)
         in.seekg(16);
         in.read(reinterpret_cast<char*>(&width), 4); // NOLINT (TODO)
         in.read(reinterpret_cast<char*>(&height), 4); // NOLINT (TODO)
-        size = { static_cast<int>(ntoh_any(width)), static_cast<int>(ntoh_any(height)) };
+        size = { static_cast<int>(ntoh_any(width)), static_cast<int>(ntoh_any(height)) }; // NOLINT (TODO)
     }
     return size;
 }
