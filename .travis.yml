@@ -37,7 +37,7 @@ matrix:
 
     - os: linux
       env: >
-        TOOLCHAIN=clang-tidy
+        TOOLCHAIN=clang-tidy-libcxx
         CONFIG=Release
         INSTALL=--strip
         TYPE=polly

@@ -67,7 +67,7 @@ case "${TYPE}" in
       fi
     fi
 
-    if [[ "${TOOLCHAIN}" == "clang-tidy" ]];
+    if [[ "${TOOLCHAIN}" == "clang-tidy-libcxx" ]];
     then
       SHARED_SDK=OFF
       if [[ "${TRAVIS}" == "true" ]];
