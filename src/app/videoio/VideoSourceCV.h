@@ -65,6 +65,11 @@ public:
     VideoSourceCV() = default;
     ~VideoSourceCV() = default;
 
+    VideoSourceCV(const VideoSourceCV&) = delete;
+    VideoSourceCV(VideoSourceCV&&) = delete;
+    VideoSourceCV& operator=(const VideoSourceCV&) = delete;
+    VideoSourceCV& operator=(VideoSourceCV&&) = delete;
+
     virtual Frame operator()(int i = -1) = 0;
     virtual bool good() const { return true; }
     virtual std::size_t count() const = 0;

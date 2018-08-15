@@ -54,6 +54,11 @@ static drishti::sdk::ArchiveKind getArchiveKind(const std::string& filename)
 class EyeSegmenterTest : public ::testing::Test
 {
 public:
+    EyeSegmenterTest(const EyeSegmenterTest&) = delete;
+    EyeSegmenterTest(EyeSegmenterTest&&) = delete;
+    EyeSegmenterTest& operator=(const EyeSegmenterTest&) = delete;
+    EyeSegmenterTest& operator=(EyeSegmenterTest&&) = delete;
+
     static std::shared_ptr<drishti::sdk::EyeSegmenter> create(const std::string& filename)
     {
         if (isArchiveSupported(filename))
@@ -102,7 +107,7 @@ protected:
     using Vec3b = drishti::sdk::Vec3b;
     using Image3b = drishti::sdk::Image3b;
 
-    struct Entry
+    struct Entry // NOLINT (TODO)
     {
         Image3b image;
         cv::Mat storage;
@@ -125,15 +130,13 @@ protected:
     }
 
     // Cleanup
-    virtual ~EyeSegmenterTest()
-    {
-    }
+    ~EyeSegmenterTest() override = default;
 
     // Called after constructor for each test
-    virtual void SetUp() {}
+    void SetUp() override {}
 
     // Called after destructor for each test
-    virtual void TearDown() {}
+    void TearDown() override {}
 
     // Utility methods:
     void loadImages()
@@ -166,7 +169,7 @@ protected:
             cv::Mat resized;
             if (width > 0)
             {
-                int height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
+                auto height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
                 cv::resize(padded, resized, { width, height }, width);
             }
 
@@ -219,22 +222,22 @@ protected:
  * Basic class construction
  */
 
-TEST(EyeSegmenter, StringConstructor)
+TEST(EyeSegmenter, StringConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeRegressor))
     {
-        ASSERT_NE(sEyeRegressor, (const char*)NULL);
+        ASSERT_NE(sEyeRegressor, (const char*)nullptr);
         auto segmenter = EyeSegmenterTest::create(sEyeRegressor);
         ASSERT_EQ(segmenter && segmenter->good(), true);
     }
 }
 
-TEST(EyeSegmenter, StreamConstructor)
+TEST(EyeSegmenter, StreamConstructor) // NOLINT (TODO)
 {
     if (isArchiveSupported(sEyeRegressor))
     {
         // Make sure sEyeRegressor is not null:
-        ASSERT_NE(sEyeRegressor, (const char*)NULL);
+        ASSERT_NE(sEyeRegressor, (const char*)nullptr);
         std::ifstream is(sEyeRegressor, std::ios_base::binary | std::ios::in);
         ASSERT_TRUE((bool)is);
         drishti::sdk::EyeSegmenter segmenter(is, getArchiveKind(sEyeRegressor));
@@ -262,7 +265,7 @@ static void checkInvalid(const drishti::sdk::Eye& eye)
  * Fixture tests
  */
 
-TEST_F(EyeSegmenterTest, EyeSerialization)
+TEST_F(EyeSegmenterTest, EyeSerialization) // NOLINT (TODO)
 {
     int targetWidth = 128;
     drishti::sdk::Eye eye;
@@ -290,13 +293,13 @@ TEST_F(EyeSegmenterTest, EyeSerialization)
         if (os)
         {
             cereal::JSONOutputArchive oa(os);
-            typedef decltype(oa) Archive;
+            using Archive = decltype(oa);
             oa << GENERIC_NVP("eye", privateEye);
         }
     }
 }
 
-TEST_F(EyeSegmenterTest, ImageEmpty)
+TEST_F(EyeSegmenterTest, ImageEmpty) // NOLINT (TODO)
 {
     for (const auto& entry : m_images)
     {
@@ -312,7 +315,7 @@ TEST_F(EyeSegmenterTest, ImageEmpty)
     }
 }
 
-TEST_F(EyeSegmenterTest, ImageTooSmall)
+TEST_F(EyeSegmenterTest, ImageTooSmall) // NOLINT (TODO)
 {
     for (const auto& entry : m_images)
     {
@@ -330,7 +333,7 @@ TEST_F(EyeSegmenterTest, ImageTooSmall)
 
 // TODO: Add ground truth comparison
 // * hamming distance for sclera and iris masks components
-TEST_F(EyeSegmenterTest, ImageValid)
+TEST_F(EyeSegmenterTest, ImageValid) // NOLINT (TODO)
 {
     for (auto iter = getFirstValid(); iter != m_images.end(); iter++)
     {
@@ -355,11 +358,11 @@ TEST_F(EyeSegmenterTest, ImageValid)
 }
 
 // Currently there is no internal quality check, but this is included for regression:
-TEST_F(EyeSegmenterTest, ImageIsBlack)
+TEST_F(EyeSegmenterTest, ImageIsBlack) // NOLINT (TODO)
 {
     Entry entry;
     const int width = 256;
-    const int height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
+    const auto height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
 
     drishti::sdk::Eye eye;
@@ -368,12 +371,12 @@ TEST_F(EyeSegmenterTest, ImageIsBlack)
     checkValid(eye, entry.storage.size());
 }
 
-TEST_F(EyeSegmenterTest, ImageIsWhite)
+TEST_F(EyeSegmenterTest, ImageIsWhite) // NOLINT (TODO)
 {
     Entry entry;
 
     const int width = 256;
-    const int height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
+    const auto height = static_cast<int>(static_cast<float>(width) / m_eyeSegmenter->getRequiredAspectRatio() + 0.5f);
     createImage(entry, height, width, { 0, 0, 0 });
 
     drishti::sdk::Eye eye;

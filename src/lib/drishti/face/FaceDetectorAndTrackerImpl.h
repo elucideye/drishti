@@ -36,6 +36,11 @@ public:
     TrackImpl();
     ~TrackImpl();
 
+    TrackImpl(const TrackImpl&) = delete;
+    TrackImpl(TrackImpl&&) = delete;
+    TrackImpl& operator=(const TrackImpl&) = delete;
+    TrackImpl& operator=(TrackImpl&&) = delete;
+
     /*
      * This will update cv::Rect eyeFull{L,R}::roi
      */

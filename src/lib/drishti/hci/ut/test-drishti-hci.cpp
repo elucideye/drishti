@@ -64,6 +64,12 @@ BEGIN_EMPTY_NAMESPACE
 
 class HCITest : public ::testing::Test
 {
+public:
+    HCITest(const HCITest&) = delete;
+    HCITest(HCITest&&) = delete;
+    HCITest& operator=(const HCITest&) = delete;
+    HCITest& operator=(HCITest&&) = delete;
+
 protected:
     bool m_hasTranspose = false;
 
@@ -117,7 +123,7 @@ protected:
     }
 
     // Cleanup
-    virtual ~HCITest()
+    ~HCITest() override
     {
         drishti::core::Logger::drop("test-drishti-hci");
     }
@@ -157,10 +163,10 @@ protected:
     }
 
     // Called after constructor for each test
-    virtual void SetUp() {}
+    void SetUp() override {}
 
     // Called after destructor for each test
-    virtual void TearDown() {}
+    void TearDown() override {}
 
     static cv::Mat loadImage(const std::string& filename)
     {
@@ -219,14 +225,14 @@ protected:
 };
 
 #if defined(DRISHTI_DO_GPU_TESTING)
-TEST_F(HCITest, RunTestCPUAsync)
+TEST_F(HCITest, RunTestCPUAsync) // NOLINT (TODO)
 {
     static const bool doCpu = true;
     static const bool doAsync = true;
     runTest(doCpu, doAsync);
 }
 
-TEST_F(HCITest, RunTestGPUAsync)
+TEST_F(HCITest, RunTestGPUAsync) // NOLINT (TODO)
 {
     static const bool doCpu = false;
     static const bool doAsync = true;

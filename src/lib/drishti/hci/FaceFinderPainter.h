@@ -44,6 +44,12 @@ public:
 
     FaceFinderPainter(FaceDetectorFactoryPtr& factory, Settings& settings, void* glContext = nullptr);
     ~FaceFinderPainter();
+
+    FaceFinderPainter(const FaceFinderPainter&) = delete;
+    FaceFinderPainter(FaceFinderPainter&&) = delete;
+    FaceFinderPainter& operator=(const FaceFinderPainter&) = delete;
+    FaceFinderPainter& operator=(FaceFinderPainter&&) = delete;
+
     virtual void getOutputPixels(FrameDelegate& delegate);
     void init(const cv::Size& inputSize) override;
     void drawIris(bool flag) { m_drawIris = flag; }

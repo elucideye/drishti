@@ -31,7 +31,7 @@ public:
         m_tic = HighResolutionClock::now();
     }
 
-    ScopeTimeLogger(ScopeTimeLogger&& other)
+    ScopeTimeLogger(ScopeTimeLogger&& other) noexcept
         : m_logger(std::move(other.m_logger))
         , m_tic(other.m_tic)
     {
@@ -44,7 +44,8 @@ public:
     }
 
     ScopeTimeLogger(const ScopeTimeLogger&) = delete;
-    void operator=(const ScopeTimeLogger&) = delete;
+    ScopeTimeLogger& operator=(const ScopeTimeLogger&) = delete;
+    ScopeTimeLogger& operator=(ScopeTimeLogger&&) = delete;
 
     static double timeDifference(const TimePoint& a, const TimePoint& b)
     {

@@ -87,6 +87,7 @@ template <typename T, int rowDim, int colDim>
 struct Matrix
 {
     Matrix() = default;
+    ~Matrix() = default;
     Matrix(const Matrix& src)
     {
         for (int y = 0; y < rowDim; y++)
@@ -97,6 +98,10 @@ struct Matrix
             }
         }
     }
+
+    Matrix(Matrix&&) noexcept = default;
+    Matrix& operator=(const Matrix&) = delete;
+    Matrix& operator=(Matrix&&) = delete;
 
     int rows() const { return rowDim; }
     int cols() const { return colDim; }
@@ -121,7 +126,7 @@ struct Matrix
     T data[rowDim][colDim];
 };
 
-typedef Matrix<float, 3, 3> Matrix33f;
+using Matrix33f = Matrix<float, 3, 3>;
 
 /*
  * Rect types
@@ -186,6 +191,11 @@ public:
     Image(const Image& src);
     Image(size_t rows, size_t cols, T* data, size_t stride, bool keep = false);
     ~Image();
+
+    Image(Image&&) noexcept = default;
+    Image& operator=(const Image&) = default;
+    Image& operator=(Image&&) noexcept = default;
+
     size_t getRows() const
     {
         return rows;
@@ -201,7 +211,7 @@ public:
     template <typename T2>
     const T2* ptr() const
     {
-        return reinterpret_cast<T2*>(data);
+        return reinterpret_cast<T2*>(data); // NOLINT (TODO)
     }
     Image<T> clone();
 

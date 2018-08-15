@@ -58,8 +58,14 @@ public:
 
     struct Impl;
 
-    FaceTracker(float costThreshold = 0.15f, std::size_t minTrackHits = 3, std::size_t maxTrackMisses = 3);
+    explicit FaceTracker(float costThreshold = 0.15f, std::size_t minTrackHits = 3, std::size_t maxTrackMisses = 3);
     ~FaceTracker();
+
+    FaceTracker(const FaceTracker&) = delete;
+    FaceTracker(FaceTracker&&) = delete;
+    FaceTracker& operator=(const FaceTracker&) = delete;
+    FaceTracker& operator=(FaceTracker&&) = delete;
+
     void operator()(const FaceModelVec& facesIn, FaceTrackVec& facesOut);
 
 protected:

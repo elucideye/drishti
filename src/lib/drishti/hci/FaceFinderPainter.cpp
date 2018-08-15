@@ -83,6 +83,11 @@ public:
     }
     ~Impl() = default;
 
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
+
     std::chrono::high_resolution_clock::time_point m_tic;
 
     int m_index{};

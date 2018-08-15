@@ -20,6 +20,12 @@ class TrackerNN : public FaceDetectorAndTracker::TrackImpl
 public:
     TrackerNN();
     ~TrackerNN();
+
+    TrackerNN(const TrackerNN&) = delete;
+    TrackerNN(TrackerNN&&) = delete;
+    TrackerNN& operator=(const TrackerNN&) = delete;
+    TrackerNN& operator=(TrackerNN&&) = delete;
+
     void initialize(const cv::Mat1b& image, const FaceModel& face) override;
     bool update(const cv::Mat1b& image, FaceModel& face) override;
     std::vector<cv::Point2f> getFeatures() const override;

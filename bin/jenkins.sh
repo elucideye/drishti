@@ -67,11 +67,12 @@ case "${TYPE}" in
       fi
     fi
 
-    if [[ "${TOOLCHAIN}" == "clang-tidy" ]];
+    if [[ "${TOOLCHAIN}" == "clang-tidy-libcxx" ]];
     then
+      SHARED_SDK=OFF
       if [[ "${TRAVIS}" == "true" ]];
       then
-        POLLY_DISCARD_OPTIONS="--discard 10 --tail 200"
+        VERBOSE=""
 
         wget -q "${CLANG_LLVM_FULL_URL}"
         tar xf "${CLANG_LLVM_FILENAME}"
@@ -82,10 +83,11 @@ case "${TYPE}" in
         echo "Checks: '-*'" >> _ci/.clang-tidy
         echo "WarningsAsErrors: ''" >> _ci/.clang-tidy
       else
-        POLLY_DISCARD_OPTIONS=""
+        VERBOSE=--verbose
       fi
     else
-      POLLY_DISCARD_OPTIONS=""
+      SHARED_SDK=ON
+      VERBOSE=--verbose
     fi
 
     if [[ ${TRAVIS} == "true" ]]; then
@@ -105,15 +107,14 @@ case "${TYPE}" in
     polly.py \
         --toolchain "${TOOLCHAIN}" \
         --config "${CONFIG}" \
-        --verbose \
-        ${POLLY_DISCARD_OPTIONS} \
+        ${VERBOSE} \
         --ios-multiarch --ios-combined \
         --archive drishti \
         --jobs 4 \
         ${TEST} \
         "${INSTALL}" \
         --fwd \
-        DRISHTI_BUILD_SHARED_SDK=ON \
+        DRISHTI_BUILD_SHARED_SDK=${SHARED_SDK} \
         DRISHTI_BUILD_TESTS=YES \
         DRISHTI_BUILD_EXAMPLES=YES \
         DRISHTI_COPY_3RDPARTY_LICENSES=ON \
@@ -163,7 +164,7 @@ case "${TYPE}" in
 
       set -x
 
-      ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}
+      ../bin/travis_wait -i 60 "./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}"
 
       exit 0
     fi
@@ -211,7 +212,7 @@ case "${TYPE}" in
     sleep 30
 
     # Now should be fine
-    ./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}
+    ../bin/travis_wait -i 60 "./gradlew assembleDebug -Parch=${ANDROID_STUDIO_ARCH}"
 
     # Back to normal CMake configuration
     sed -i 's,^if(DRISHTI_DEBUG_STOP OR TRUE)$,if(DRISHTI_DEBUG_STOP),' ../CMakeLists.txt

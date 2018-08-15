@@ -41,8 +41,14 @@ public:
     };
 
     EyeDetector();
-    EyeDetector(const std::string& filename);
+    explicit EyeDetector(const std::string& filename);
     ~EyeDetector();
+
+    EyeDetector(const EyeDetector&) = delete;
+    EyeDetector(EyeDetector&&) = delete;
+    EyeDetector& operator=(const EyeDetector&) = delete;
+    EyeDetector& operator=(EyeDetector&&) = delete;
+
     int operator()(const Image3b& image, std::vector<Rect>& objects);
 
 protected:

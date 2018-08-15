@@ -20,7 +20,7 @@
 
 BEGIN_EMPTY_NAMESPACE
 
-TEST(HungarianAssignment, hungarian)
+TEST(HungarianAssignment, hungarian) // NOLINT (TODO)
 {
     std::vector<cv::Point2f> points1{
         { 1.f, 1.f },

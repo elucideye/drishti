@@ -91,6 +91,11 @@ struct Padder : public Transform
         eye = eye - tl;
     }
 
+    Padder(const Padder&) = delete;
+    Padder(Padder&&) = delete;
+    Padder& operator=(const Padder&) = delete;
+    Padder& operator=(Padder&&) = delete;
+
     static bool isGoodAspectRatio(const cv::Size& size, float targetAspectRatio)
     {
         const float currentAspectRatio = std::abs(static_cast<float>(size.width) / static_cast<float>(size.height));
@@ -124,6 +129,11 @@ struct Flopper : public Transform
         }
     }
 
+    Flopper(const Flopper&) = delete;
+    Flopper(Flopper&&) = delete;
+    Flopper& operator=(const Flopper&) = delete;
+    Flopper& operator=(Flopper&&) = delete;
+
     bool isRight = true;
 };
 
@@ -150,6 +160,11 @@ struct Warper : public Transform
             eye = H->inv() * eye;
         }
     }
+
+    Warper(const Warper&) = delete;
+    Warper(Warper&&) = delete;
+    Warper& operator=(const Warper&) = delete;
+    Warper& operator=(Warper&&) = delete;
 
     const cv::Matx33f* H = nullptr;
 };

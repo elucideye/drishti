@@ -35,6 +35,15 @@ public:
     virtual bool getDoNonMaximaSuppression() const;
     virtual cv::Size getWindowSize() const = 0;
 
+    ObjectDetector() = default;
+
+    ObjectDetector(const ObjectDetector&) = delete;
+    ObjectDetector(ObjectDetector&&) = delete;
+    ObjectDetector& operator=(const ObjectDetector&) = delete;
+    ObjectDetector& operator=(ObjectDetector&&) = delete;
+
+    virtual ~ObjectDetector() = default;
+
 protected:
     bool m_doNms = false;
     double m_detectionScorePruneRatio = 0.0;

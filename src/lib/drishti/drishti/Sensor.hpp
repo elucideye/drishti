@@ -34,12 +34,17 @@ public:
     // ### Extrinsic camera parameters:
     struct DRISHTI_EXPORT Extrinsic
     {
-        Extrinsic(const Matrix33f& R);
+        Extrinsic(Matrix33f  R);
         Matrix33f m_R;
     };
 
     SensorModel(const Intrinsic& intrinsic, const Extrinsic& extrinsic);
     ~SensorModel();
+
+    SensorModel(const SensorModel&) = delete;
+    SensorModel(SensorModel&&) = delete;
+    SensorModel& operator=(const SensorModel&) = delete;
+    SensorModel& operator=(SensorModel&&) = delete;
 
     struct Impl;
 

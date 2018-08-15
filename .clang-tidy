@@ -1,10 +1,21 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,-*,google-readability-casting,misc-*,-misc-incorrect-roundings,-misc-macro-parentheses,-misc-misplaced-widening-cast,-misc-static-assert,modernize-*,-modernize-deprecated-headers,-modernize-pass-by-value,-modernize-raw-string-literal,-modernize-return-braced-init-list,-modernize-use-auto,-modernize-use-default-member-init,-modernize-use-emplace,-modernize-use-equals-default,-modernize-use-equals-delete,-modernize-use-noexcept,-modernize-use-transparent-functors,-modernize-use-using,performance-*,-performance-inefficient-string-concatenation,readability-*,-readability-function-size,-readability-identifier-naming,-readability-implicit-bool-cast,-readability-inconsistent-declaration-parameter-name,-readability-named-parameter,-readability-redundant-declaration,-readability-redundant-member-init,-readability-simplify-boolean-expr,,-*,clang-analyzer-*,-clang-analyzer-alpha*,performance-*,cppcoreguidelines-*,cert-*,modernize-*'
-WarningsAsErrors: ''
+# TODO (?): cppcoreguidelines-pro-bounds-pointer-arithmetic
+# TODO (?): cppcoreguidelines-pro-type-vararg
+# TODO (?): cppcoreguidelines-pro-bounds-array-to-pointer-decay
+# TODO (?): cppcoreguidelines-pro-bounds-constant-array-index
+# TODO (?): cert-flp30-c
+# TODO (?): cert-err58-cpp
+# TODO (?): cppcoreguidelines-pro-type-union-access
+# TODO (?): clang-analyzer-optin.performance.Padding
+# TODO (?): cppcoreguidelines-pro-type-const-cast
+# TODO (?): cppcoreguidelines-owning-memory
+# TODO (?): cert-err60-cpp
+Checks:          'clang-diagnostic-*,clang-analyzer-*,-*,google-readability-casting,misc-*,-misc-incorrect-roundings,-misc-macro-parentheses,-misc-misplaced-widening-cast,-misc-static-assert,modernize-*,-modernize-deprecated-headers,-modernize-pass-by-value,-modernize-raw-string-literal,-modernize-return-braced-init-list,-modernize-use-auto,-modernize-use-default-member-init,-modernize-use-emplace,-modernize-use-equals-default,-modernize-use-equals-delete,-modernize-use-noexcept,-modernize-use-transparent-functors,-modernize-use-using,performance-*,-performance-inefficient-string-concatenation,readability-*,-readability-function-size,-readability-identifier-naming,-readability-implicit-bool-cast,-readability-inconsistent-declaration-parameter-name,-readability-named-parameter,-readability-redundant-declaration,-readability-redundant-member-init,-readability-simplify-boolean-expr,,-*,clang-analyzer-*,-clang-analyzer-alpha*,performance-*,cppcoreguidelines-*,cert-*,modernize-*,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-pro-type-vararg,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-cppcoreguidelines-pro-bounds-constant-array-index,-cert-flp30-c,-cert-err58-cpp,-cppcoreguidelines-pro-type-union-access,-clang-analyzer-optin.performance.Padding,-cppcoreguidelines-pro-type-const-cast,-cppcoreguidelines-owning-memory,-cert-err60-cpp'
+WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false
 User:            dhirvonen
-CheckOptions:    
+CheckOptions:
   - key:             cert-dcl59-cpp.HeaderFileExtensions
     value:           h,hh,hpp,hxx
   - key:             cert-err09-cpp.CheckThrowTemporaries

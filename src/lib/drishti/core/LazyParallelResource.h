@@ -27,11 +27,17 @@ struct LazyParallelResource
         : m_alloc(std::forward<Callable>(func))
     {
     }
-    LazyParallelResource(LazyParallelResource&& other)
+    LazyParallelResource(LazyParallelResource&& other) noexcept
         : m_alloc(std::move(other.m_alloc))
     {
         other.m_alloc = nullptr;
     }
+
+    LazyParallelResource(const LazyParallelResource&) = default;
+    LazyParallelResource& operator=(const LazyParallelResource&) = default;
+    LazyParallelResource& operator=(LazyParallelResource&&) = default; // NOLINT (TODO)
+
+    ~LazyParallelResource() = default;
 
     virtual Value& operator[](const Key& key)
     {

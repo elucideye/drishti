@@ -17,7 +17,7 @@ DRISHTI_RCPR_NAMESPACE_BEGIN
 
 inline cv::RotatedRect operator*(const cv::RotatedRect& e, float scale)
 {
-    return cv::RotatedRect(e.center * scale, e.size * scale, e.angle);
+    return { e.center * scale, e.size * scale, e.angle };
 }
 
 //

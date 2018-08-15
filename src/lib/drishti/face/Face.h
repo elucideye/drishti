@@ -35,6 +35,12 @@ struct FaceModel
 
     ~FaceModel();
 
+    // TODO (?)
+    FaceModel(const FaceModel&) = default;
+    FaceModel(FaceModel&&) = default;
+    FaceModel& operator=(const FaceModel&) = default;
+    FaceModel& operator=(FaceModel&&) = default;
+
     float getInterPupillaryDistance() const;
     cv::Point2f getEyeLeftCenter() const;
     cv::Point2f getEyeRightCenter() const;

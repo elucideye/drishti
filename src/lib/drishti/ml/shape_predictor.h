@@ -95,8 +95,8 @@ inline dlib::point dlib_point(const cv::Point& p)
     return dlib::point(p.x, p.y);
 }
 
-typedef dlib::matrix<float, 0, 1> fshape;
-typedef dlib::vector<float, 2> fpoint;
+using fshape = dlib::matrix<float, 0, 1>;
+using fpoint = dlib::vector<float, 2>;
 using PointVecf = std::vector<fpoint>;
 using PointVecVecf = std::vector<PointVecf>;
 
@@ -686,6 +686,11 @@ public:
     shape_predictor() = default;
     ~shape_predictor() = default;
 
+    shape_predictor(const shape_predictor&) = delete;
+    shape_predictor(shape_predictor&&) = delete;
+    shape_predictor& operator=(const shape_predictor&) = delete;
+    shape_predictor& operator=(shape_predictor&&) = delete;
+
     shape_predictor(
         fshape  initial_shape_,
         std::vector<std::vector<impl::regression_tree>>  forests_,
@@ -1059,7 +1064,7 @@ void deserialize(drishti::ml::shape_predictor& item, std::istream& in);
 DRISHTI_ML_NAMESPACE_END
 
 using RTType = drishti::ml::impl::regression_tree;
-typedef dlib::vector<float, 2> Vec2Type;
+using Vec2Type = dlib::vector<float, 2>;
 
 #if DRISHTI_DLIB_DO_HALF
 struct PointHalf

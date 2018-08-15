@@ -37,6 +37,13 @@ matrix:
 
     - os: linux
       env: >
+        TOOLCHAIN=clang-tidy-libcxx
+        CONFIG=Release
+        INSTALL=--strip
+        TYPE=polly
+
+    - os: linux
+      env: >
         TOOLCHAIN=android-ndk-r17-api-24-arm64-v8a-clang-libcxx14
         CONFIG=Release
         INSTALL=--strip

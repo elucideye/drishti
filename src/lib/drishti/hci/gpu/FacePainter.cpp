@@ -153,7 +153,7 @@ FacePainter::FacePainter(int outputOrientation)
 
     m_draw = std::make_shared<Shader>();
 #if DRISHIT_HCI_FACEPAINTER_DO_COLOR
-    bool compiled = m_draw->buildFromSrc(vshaderColorVaryingSrc, fshaderColorVaryingSrc);
+    bool compiled = m_draw->buildFromSrc(vshaderColorVaryingSrc, fshaderColorVaryingSrc); // NOLINT (TODO)
     m_drawShParamAColor = m_draw->getParam(ATTR, "color");
 #else
     bool compiled = m_draw->buildFromSrc(vshaderColorSrc, fshaderColorSrc);

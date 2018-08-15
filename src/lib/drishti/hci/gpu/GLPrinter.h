@@ -24,6 +24,11 @@ public:
     GLPrinterShader();
     ~GLPrinterShader();
 
+    GLPrinterShader(const GLPrinterShader&) = delete;
+    GLPrinterShader(GLPrinterShader&&) = delete;
+    GLPrinterShader& operator=(const GLPrinterShader&) = delete;
+    GLPrinterShader& operator=(GLPrinterShader&&) = delete;
+
     static const char* getProcName() { return "GLPrinterShader"; }
 
     void begin();

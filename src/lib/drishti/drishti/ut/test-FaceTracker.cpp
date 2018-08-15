@@ -50,19 +50,15 @@ extern const char* sFaceImageFilename;
 
 BEGIN_EMPTY_NAMESPACE
 
-struct WaitKey
-{
-    WaitKey() {}
-    ~WaitKey()
-    {
-#if DRISHTI_HCI_TEST_DISPLAY_OUTPUT
-        cv::waitKey(0);
-#endif
-    }
-};
-
 class FaceTest : public ::testing::Test
 {
+public:
+
+    FaceTest(const FaceTest&) = delete;
+    FaceTest(FaceTest&&) = delete;
+    FaceTest& operator=(const FaceTest&) = delete;
+    FaceTest& operator=(FaceTest&&) = delete;
+
 protected:
     bool m_hasTranspose = false;
 
@@ -87,7 +83,7 @@ protected:
     }
 
     // Cleanup
-    virtual ~FaceTest()
+    ~FaceTest() override
     {
         drishti::core::Logger::drop("test-drishti-drishti-face");
     }
@@ -298,10 +294,10 @@ protected:
 #endif // DRISHTI_BUILD_C_INTERFACE
 
     // Called after constructor for each test
-    virtual void SetUp() {}
+    void SetUp() override {}
 
     // Called after destructor for each test
-    virtual void TearDown() {}
+    void TearDown() override {}
 
     static cv::Mat loadImage(const std::string& filename)
     {
@@ -327,7 +323,7 @@ protected:
 };
 
 #if defined(DRISHTI_DO_GPU_TESTING)
-TEST_F(FaceTest, RunSimpleTest)
+TEST_F(FaceTest, RunSimpleTest) // NOLINT (TODO)
 {
     static const bool doCpu = false;
     static const bool doAsync = true;

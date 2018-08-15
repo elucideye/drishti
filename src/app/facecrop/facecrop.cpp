@@ -6,13 +6,13 @@
   \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
   \license{This project is released under the 3 Clause BSD License.}
 
- 
+
  1) POSITIVES
     --input=<FILE> : filename + (optional) landmarks
     --format=(two|drishti|lfw|muct|helen|bioid|lfpw)
     --output=<POSITIVE_DIR>
 
- 2) POSITIVES + NEGATIVES (non-overlapping negatives) 
+ 2) POSITIVES + NEGATIVES (non-overlapping negatives)
     :: This would require adding object detection internally, it seems cleaner to leave hard negative
     :: sampling to another application.
     --input=<FILE> : filename + (optional) landmarks
@@ -24,7 +24,7 @@
     --input=<FILE> : filename + (optional) landmarks
     --format=raw
     --negatives=<NEGATIVE_DIR>
- 
+
  4) NEGATIVES w/ INPAINTING
     --input=<FILE> : filename + (optional) landmarks
     --format=raw
@@ -112,7 +112,7 @@ struct GroundTruth
     }
 
     FACE::Table table;
-    GroundTruthFormat format;
+    GroundTruthFormat format = MUCTFormat;
 };
 
 // ######################### SHA1 #####################################
@@ -255,32 +255,32 @@ int gauze_main(int argc, char* argv[])
         ("0,zero", "Zero jitter model (photometric jitter only)", cxxopts::value<bool>(doPhotometricJitter))
         ("l,landmarks", "Master landmark file (xml format)", cxxopts::value<std::string>(sLandmarks))
         ("m,mirror", "Perform jittering", cxxopts::value<bool>(doMirror))
-    
+
 #if defined(DRISHTI_BUILD_EOS)
         ("eos-model", "EOS 3D dephormable model", cxxopts::value<std::string>(sEosModel))
         ("eos-mapping", "EOS Landmark mapping", cxxopts::value<std::string>(sEosMapping))
 #endif
         ("standardize", "Standardize input files to filename + bounding boxes", cxxopts::value<std::string>(sStandardize))
-    
+
         // ### Negative options ###
         ("I,inpaint", "Inpaint faces", cxxopts::value<bool>(doInpaint))
         ("N,negatives","Negatives", cxxopts::value<std::string>(sNegatives))
         ("W,winsize", "Minimum window size", cxxopts::value<int>(winSize))
         ("B,background", "Background image list", cxxopts::value<std::string>(sBackground))
-    
+
         // Output parameters:
         ("t,threads", "Thread count", cxxopts::value<int>(threads))
         ("h,help", "Print help message");
-    // clang-format on    
-    
+    // clang-format on
+
     auto parseResult = options.parse(argc, argv);
-    
+
     if((argumentCount <= 1) || parseResult.count("help"))
     {
         std::cout << options.help({""}) << std::endl;
         return 0;
     }
-    
+
     // ############################################
     // ### Command line argument error checking ###
     // ############################################
@@ -291,7 +291,7 @@ int gauze_main(int argc, char* argv[])
         logger->error("Must specify output directory (positives or negatives)");
         return 1;
     }
-    
+
     // ... positives ...
     if(!sPositives.empty())
     {
@@ -306,7 +306,7 @@ int gauze_main(int argc, char* argv[])
             return 1;
         }
     }
-    
+
     if (!sLandmarks.empty())
     {
         std::ofstream check(sLandmarks);
@@ -320,7 +320,7 @@ int gauze_main(int argc, char* argv[])
             return 1;
         }
     }
-    
+
     // ... negatives ...
     if(!sNegatives.empty())
     {
@@ -335,7 +335,7 @@ int gauze_main(int argc, char* argv[])
             return 1;
         }
     }
-    
+
     // ### Input
     if(sInput.empty())
     {
@@ -347,7 +347,7 @@ int gauze_main(int argc, char* argv[])
         logger->error("Specified input file does not exist or is not readable");
         return 1;
     }
-    
+
     //::::::::::::::::::::::::::
     //::: Face jitter params :::
     //::::::::::::::::::::::::::
@@ -362,7 +362,7 @@ int gauze_main(int argc, char* argv[])
             ia(GENERIC_NVP("jitter", jitterParams));
         }
     } // else we will be performing straight cropping or mirroring
-    
+
     //:::::::::::::::::::::::::::::::::
     //::: Face normalization params :::
     //:::::::::::::::::::::::::::::::::
@@ -387,13 +387,13 @@ int gauze_main(int argc, char* argv[])
             return -1;
         }
     }
-    
+
     //:::::::::::::::::::::::::::::::
     //::: Parse input + landmarks :::
     //:::::::::::::::::::::::::::::::
     GroundTruth gt = parseInput(sInput, sFormat, sDirectory, sExtension);
     auto &table = gt.table;
-    
+
     if(table.lines.empty())
     {
         logger->error("Error: no images were found, please check input file and (optionally) base directory");
@@ -408,7 +408,7 @@ int gauze_main(int argc, char* argv[])
             return -1;
         }
     }
-    
+
     if(!sStandardize.empty())
     {
         return standardizeFaceData(table, sStandardize);
@@ -421,7 +421,7 @@ int gauze_main(int argc, char* argv[])
             return code;
         }
     }
-    
+
     if(sPositives.empty() && !sNegatives.empty() && !doInpaint)
     {
         // ##########################
@@ -437,14 +437,14 @@ int gauze_main(int argc, char* argv[])
         // ###################################
         return saveInpaintedSamples(table, sBackground, sNegatives, *logger);
     }
-    
+
     // ... ELSE STANDARD POSITIVES AND/OR NEGATIVES ...
-   
+
 #if defined(DRISHTI_BUILD_EOS)
     if(!(sEosModel.empty() || sEosMapping.empty()))
     {
         computePose(table, sEosModel, sEosMapping, logger);
-        
+
         { // Write name + angle:
             std::string filename;
             filename += sPositives;
@@ -494,17 +494,17 @@ int gauze_main(int argc, char* argv[])
     {
         // Get thread specific segmenter lazily:
         auto tid = std::this_thread::get_id();
-        
+
         auto &jitterer = manager[tid];
         assert(jitterer.get());
-        
+
         // Load current image
         logger->info("{} = {}", table.lines[i].filename, repeat[i]);
-        
+
         if(repeat[i] > 0)
         {
             cv::Mat image = cv::imread(table.lines[i].filename, cv::IMREAD_COLOR);
-            
+
             if(!image.empty())
             {
 
@@ -526,34 +526,34 @@ int gauze_main(int argc, char* argv[])
                         faces.push_back((*jitterer)(image, table.lines[i].points, FaceJitterer::kJitter, doPhotometricJitter)); // no mirror
                     }
                 }
- 
+
                 if(!sPositives.empty())
                 {
                     cv::Rect roi(cv::Point(faceSpec.border, faceSpec.border), faceSpec.size);
                     save(faces, roi, sPositives, table.lines[i].filename, i);
                 }
-                
+
                 jitterer->updateMean(faces);
-                
+
 #if defined(DRISHTI_USE_IMSHOW)
                 if(doPreview)
                 {
                     cv::Mat canvas = image.clone();
                     previewFaceWithLandmarks(canvas, table.lines[i].points);
                     glfw::imshow("facecrop:image", canvas);
-                    
+
                     std::vector<cv::Mat> images;
                     for(const auto &f : faces)
                     {
                         cv::Mat chip = f.image.clone();
-                        previewFaceWithLandmarks(chip, f.landmarks); 
+                        previewFaceWithLandmarks(chip, f.landmarks);
                         images.push_back(chip);
                     }
-                    
+
                     cv::hconcat(images, canvas);
                     glfw::imshow("facecrop:jitter", canvas);
                     glfw::imshow("facecrop::mu", jitterer->mu.image);
-                    
+
                     glfw::waitKey(0);
                 }
 #endif
@@ -562,7 +562,7 @@ int gauze_main(int argc, char* argv[])
     };
 
     //harness({0,static_cast<int>(table.lines.size())});
-    
+
     if(threads == 1 || threads == 0 || doPreview)
     {
         harness({0,static_cast<int>(table.lines.size())});
@@ -571,9 +571,9 @@ int gauze_main(int argc, char* argv[])
     {
         cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, std::max(threads, -1));
     }
-    
+
     saveMeanFace(manager, faceSpec, sPositives + "/mean.png", sPositives + "/mean", *logger);
-    
+
     return 0;
 }
 
@@ -595,7 +595,7 @@ int main(int argc, char **argv)
     {
         std::cerr << "Unknown exception catched" << std::endl;
     }
-    
+
     exit(-1);
 }
 
@@ -643,7 +643,7 @@ static GroundTruth parseInput(const std::string &sInput, const std::string &sFor
         default :
             CV_Assert(false);
     }
-    
+
     std::string sDirectory = sDirectoryIn;
     if(!sDirectory.empty())
     {
@@ -651,7 +651,7 @@ static GroundTruth parseInput(const std::string &sInput, const std::string &sFor
         {
             sDirectory += "/";
         }
-        
+
         for(auto &l : gt.table.lines)
         {
             l.filename = sDirectory + l.filename;
@@ -666,14 +666,14 @@ static GroundTruth parseInput(const std::string &sInput, const std::string &sFor
     {
         std::replace(begin(l.filename), end(l.filename), '\\', '/');
     }
-    
+
     return gt;
 }
 
 static FACE::Table parseRAW(const std::string &sInput)
 {
     const auto filenames = drishti::cli::expand(sInput);
-    
+
     FACE::Table table;
     table.lines.resize(filenames.size());
     for(int i = 0; i < filenames.size(); i++)
@@ -708,7 +708,7 @@ static int standardizeFaceData(const FACE::Table &table, const std::string &sOut
     if(os)
     {
         auto landmarks = standardizeFaceData(table);
-        
+
         cereal::JSONOutputArchive oa(os);
         using Archive = decltype(oa);
         oa(GENERIC_NVP("faces", landmarks));
@@ -735,13 +735,13 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
     {
         return drishti::core::make_unique<drishti::face::FaceMeshMapperEOSLandmark>(sModel, sMapping);
     };
-    
+
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         // Get thread specific segmenter lazily:
         auto tid = std::this_thread::get_id();
         auto &meshMapper = manager[tid];
-        
+
         auto &record = table.lines[i];
         if(record.points.size() == 68)
         {
@@ -755,12 +755,12 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
             {
                 size = cv::imread(record.filename).size();
             }
-            
+
             cv::Mat dummy;
             dummy.cols = size.width;
             dummy.rows = size.height;
             auto result = (*meshMapper)(record.points, dummy);
-            
+
             const auto &q = result->getQuaternion();
             record.quaternion = { q[0], q[1], q[2], q[3] };  // Note: q1 == frontal for now
             Eigen::Quaternion<float> q0(q[0], q[1], q[2], q[3]), q1(0.f, 0.f, 0.f, 1.f), arc = q0 * q1.inverse();
@@ -771,10 +771,10 @@ static void computePose(FACE::Table &table, const std::string &sModel, const std
 #endif
         }
     };
-    
+
     cv::parallel_for_({0,static_cast<int>(table.lines.size())}, harness, 8);
 }
-#endif 
+#endif
 
 static int saveLandmarksJson(const std::string &sOutput, const std::vector<cv::Point2f> &landmarks, spdlog::logger &logger)
 {
@@ -822,7 +822,7 @@ static void saveMeanFace(FaceResourceManager &manager, const FaceSpecification &
         mu.image.convertTo(tmp, CV_8UC3, 255.0);
         cv::imwrite(sImage, tmp);
     }
-    
+
     if(!sPoints.empty())
     {
         // Output json for points
@@ -834,7 +834,7 @@ static void saveMeanFace(FaceResourceManager &manager, const FaceSpecification &
         model.eyeRightCenter = mu.landmarks[0];
         model.eyeLeftCenter = mu.landmarks[1];
         model.noseTip = mu.landmarks[2];
-        
+
         cv::Matx33f T = transformation::translate(-tl);
         cv::Matx33f S = transformation::scale(faceSpec.size.width, faceSpec.size.height);
         model = (S.inv() * T) * model; // remove border and normalize
@@ -898,7 +898,7 @@ static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager)
     {
         count += j.second->mu.count;
     }
- 
+
     FaceWithLandmarks mu;
     for(const auto &j : manager.getMap())
     {
@@ -915,7 +915,7 @@ static FaceWithLandmarks computeMeanFace(FaceResourceManager &manager)
             }
         }
     }
-    
+
     return mu;
 }
 
@@ -928,7 +928,7 @@ static void save_bbGtv3(const std::string &sOutput, const std::vector<cv::Rect> 
 {
     static const char *sHeader = "% bbGt version=3";
     static const char *sLabel = "face";
-    
+
     std::ofstream ofs(sOutput);
     if(ofs)
     {
@@ -950,18 +950,33 @@ static void save(std::vector<FaceWithLandmarks> &faces, const cv::Rect &roi, con
         std::string base = drishti::core::basename(filename);
 
         { // save the image file
-            std::string sOutput = dir + "/" + ss.str() + "_" + base + ".png";
+            std::string sOutput = dir;
+            sOutput += "/";
+            sOutput += ss.str();
+            sOutput += "_";
+            sOutput += base;
+            sOutput += ".png";
             cv::imwrite(sOutput, faces[i].image);
             faces[i].filename = sOutput;
         }
-        
+
         {  // Save bbox file for each face (compatible w/ Piotr's toolbox):
-            std::string sOutput = dir + "/" + ss.str() + "_" + base + ".txt";
+            std::string sOutput = dir;
+            sOutput += "/";
+            sOutput += ss.str();
+            sOutput += "_";
+            sOutput += base;
+            sOutput += ".txt";
             save_bbGtv3(sOutput, {roi});
         }
 
         { // Save the landmarks in a flat file:
-            std::string sOutput = dir + "/" + ss.str() + "_" + base + ".pts";
+            std::string sOutput = dir;
+            sOutput += "/";
+            sOutput += ss.str();
+            sOutput += "_";
+            sOutput += base;
+            sOutput += ".pts";
             std::ofstream ofs(sOutput);
             if(ofs)
             {
@@ -1000,39 +1015,44 @@ static int saveNegatives(const FACE::Table &table, const std::string &sOutput, i
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         cv::RNG rng;
-        
+
         const auto &f = table.lines[i].filename;
         cv::Mat negative = cv::imread(f, cv::IMREAD_COLOR);
-        
+
         int minDim = std::min(negative.cols, negative.rows);
         if((minDim >= winSize) && !negative.empty())
         {
+            std::string filename;
             for(int j = 0; j < repeat[i]; j++)
             {
                 const int width = rng.uniform(winSize, minDim);
                 const int x = rng.uniform(0, negative.cols-width);
                 const int y = rng.uniform(0, negative.rows-width);
-                
+
                 logger.info("roi:{},{},{},{}({})", x, y, width, width, winSize);
                 cv::Mat crop = negative(cv::Rect(x, y, width, width));
-                
+
                 cv::resize(crop, crop, {winSize, winSize}, 0, 0, cv::INTER_AREA);
                 std::string sha1 = get_sha1(crop.ptr<void>(), crop.total());
-                cv::imwrite(sOutput + "/" + sha1 + ".png", crop);
+                filename = sOutput;
+                filename += "/";
+                filename += sha1;
+                filename += ".png";
+                cv::imwrite(filename, crop);
             }
         }
     };
-    
+
     //cv::parallel_for_({0,static_cast<int>(sInput.size())}, harness, std::max(threads, -1));
     harness({0,static_cast<int>(repeat.size())});
-    
+
     return 0;
 }
 
 static int saveInpaintedSamples(const FACE::Table &table, const std::string& sBackground, const std::string &sOutput, spdlog::logger &logger)
 {
     cv::RNG rng;
-    
+
     // Read a bunch of negative samples:
     std::vector<cv::Mat> negatives;
     auto filenames = drishti::cli::expand(sBackground);
@@ -1044,13 +1064,13 @@ static int saveInpaintedSamples(const FACE::Table &table, const std::string& sBa
             negatives.push_back(I);
         }
     }
-    
+
     std::map< std::string, std::vector<const std::vector<cv::Point2f>*> > landmarks;
     for(const auto &r : table.lines)
     {
         landmarks[r.filename].push_back(&r.points);
     }
-    
+
     drishti::core::ParallelHomogeneousLambda harness = [&](int i)
     {
         const auto &r = table.lines[i];
@@ -1058,7 +1078,7 @@ static int saveInpaintedSamples(const FACE::Table &table, const std::string& sBa
         if(!image.empty())
         {
             logger.info("faceless:{}", r.filename);
-            
+
             cv::Mat blended;
             auto iter = landmarks.find(r.filename);
             if(iter != landmarks.end())
@@ -1070,15 +1090,15 @@ static int saveInpaintedSamples(const FACE::Table &table, const std::string& sBa
                     const cv::RotatedRect face(center, cv::Size2f(roi.width, roi.height*2.f), 0);
                     cv::Mat mask(image.size(), CV_8UC3, cv::Scalar::all(0));
                     cv::ellipse(mask, face, cv::Scalar::all(255), -1, 8);
-                    
+
                     cv::Mat bg;
                     cv::resize(negatives[rng.uniform(0, negatives.size())], bg, image.size(), 0, 0, cv::INTER_AREA);
-                    
+
                     blended = blend(blended.empty() ? image : blended, bg, mask, 6);
                     blended.convertTo(blended, CV_8UC3, 255.0);
                 }
             }
-            
+
             if(!blended.empty())
             {
                 std::string base = drishti::core::basename(r.filename);
@@ -1086,9 +1106,9 @@ static int saveInpaintedSamples(const FACE::Table &table, const std::string& sBa
             }
         }
     };
-    
+
     //cv::parallel_for_({0,static_cast<int>(table.lines.size()}, harness, std::max(threads, -1));
     harness({0,static_cast<int>(table.lines.size())});
-    
+
     return 0;
 }

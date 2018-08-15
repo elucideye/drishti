@@ -48,13 +48,19 @@ public:
     struct PaddedImage
     {
         PaddedImage() = default;
-        PaddedImage(cv::Mat  Ib, const cv::Rect& roi = {})
+        explicit PaddedImage(cv::Mat  Ib, const cv::Rect& roi = {})
             : Ib(std::move(Ib))
             , roi(roi)
         {
         }
-        PaddedImage& operator=(const PaddedImage& I)
-        = default;
+        PaddedImage& operator=(const PaddedImage&) = default;
+
+        PaddedImage(const PaddedImage&) = delete;
+        PaddedImage(PaddedImage&&) = delete;
+        PaddedImage& operator =(PaddedImage&&) = default;
+
+        ~PaddedImage() = default;
+
         operator cv::Mat()
         {
             return Ib;
@@ -63,15 +69,20 @@ public:
         cv::Rect roi;
     };
 
-    typedef std::function<std::array<cv::Mat, 2>(const cv::Point2f& L, const cv::Point2f& R)> EyeCropper;
+    using EyeCropper = std::function<std::array<cv::Mat, 2>(const cv::Point2f& L, const cv::Point2f& R)>;
     using MatLoggerType = std::function<int (const cv::Mat &, const std::string &)>;
     using TimeLoggerType = std::function<void (double)>;
 
     class Impl;
     using Landmarks = std::vector<cv::Point2f>;
 
-    FaceDetector(FaceDetectorFactory& Resources);
+    explicit FaceDetector(FaceDetectorFactory& Resources);
     ~FaceDetector();
+
+    FaceDetector(const FaceDetector&) = delete;
+    FaceDetector(FaceDetector&&) = delete;
+    FaceDetector& operator=(const FaceDetector&) = delete;
+    FaceDetector& operator=(FaceDetector&&) = delete;
 
     void setLandmarkFormat(FaceSpecification::Format format);
 
@@ -107,7 +118,7 @@ public:
     void setDetectionTimeLogger(TimeLoggerType logger);
     void setRegressionTimeLogger(TimeLoggerType logger);
     void setEyeRegressionTimeLogger(TimeLoggerType logger);
-    void setLogger(MatLoggerType logger);
+    void setLogger(const MatLoggerType& logger);
     void setHrd(const cv::Matx33f& Hrd); // regression face => detection face
     void setEyeCropper(EyeCropper& cropper);
     void paint(cv::Mat& frame);

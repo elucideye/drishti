@@ -34,6 +34,12 @@ public:
 
     VideoSinkCV() = default;
     ~VideoSinkCV() = default;
+
+    VideoSinkCV(const VideoSinkCV&) = delete;
+    VideoSinkCV(VideoSinkCV&&) = delete;
+    VideoSinkCV& operator=(const VideoSinkCV&) = delete;
+    VideoSinkCV& operator=(VideoSinkCV&&) = delete;
+
     virtual bool good() = 0;
     virtual bool begin() = 0;
     virtual bool operator()(const cv::Mat& image) = 0;

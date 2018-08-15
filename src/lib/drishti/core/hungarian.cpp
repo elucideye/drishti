@@ -58,11 +58,11 @@ public:
 private:
     using Step = void (drishti::core::HungarianOptimizer::*)();
 
-    typedef enum {
+    enum Mark {
         NONE,
         PRIME,
         STAR
-    } Mark;
+    };
 
     // Convert the final cost matrix into a set of assignments of agents -> tasks.
     // Returns the assignment in the two vectors passed as argument, the same as

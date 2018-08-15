@@ -37,13 +37,14 @@ class DRISHTI_EXPORT EyeSegmenter
 {
 public:
     class Impl;
-    EyeSegmenter(const std::string& filename, ArchiveKind kind = kAuto);
-    EyeSegmenter(std::istream& is, ArchiveKind kind = kAuto);
+    explicit EyeSegmenter(const std::string& filename, ArchiveKind kind = kAuto);
+    explicit EyeSegmenter(std::istream& is, ArchiveKind kind = kAuto);
 
     // EyeSegmenter cannot be moved or copied:
     EyeSegmenter(const EyeSegmenter&) = delete;
-    EyeSegmenter& operator=(const EyeSegmenter&) = delete;
     EyeSegmenter(EyeSegmenter&&) = delete;
+    EyeSegmenter& operator=(const EyeSegmenter&) = delete;
+    EyeSegmenter& operator=(EyeSegmenter&&) = delete;
 
     ~EyeSegmenter();
 

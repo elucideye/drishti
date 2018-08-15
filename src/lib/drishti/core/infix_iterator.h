@@ -30,7 +30,7 @@ class infix_ostream_iterator : public std::iterator<std::output_iterator_tag, vo
 public:
     using char_type = charT;
     using traits_type = traits;
-    typedef std::basic_ostream<charT, traits> ostream_type;
+    using ostream_type = std::basic_ostream<charT, traits>;
     infix_ostream_iterator(ostream_type& s)
         : os(&s)
         , delimiter(0)

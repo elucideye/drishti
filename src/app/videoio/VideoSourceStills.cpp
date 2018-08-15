@@ -2,10 +2,10 @@
  @file   videoio/VideoSourceStills.cpp
  @author David Hirvonen
  @brief  Simple implementation of a list-of-files VideoSource.
- 
+
  \copyright Copyright 2017 Elucideye, Inc. All rights reserved.
  \license{This project is released under the 3 Clause BSD License.}
- 
+
  */
 
 #include "videoio/VideoSourceStills.h"
@@ -23,18 +23,23 @@ DRISHTI_VIDEOIO_NAMESPACE_BEGIN
 class VideoSourceStills::Impl
 {
 public:
-    Impl(std::string  filename)
+    explicit Impl(std::string  filename)
         : m_filename(std::move(filename))
     {
         m_filenames = drishti::cli::expand(m_filename);
     }
 
-    Impl(std::vector<std::string>  filenames)
+    explicit Impl(std::vector<std::string>  filenames)
         : m_filenames(std::move(filenames))
     {
     }
 
     ~Impl() = default;
+
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
 
     std::size_t count() const
     {
@@ -43,10 +48,10 @@ public:
 
     VideoSourceCV::Frame operator()(int i = -1)
     {
-		if (!((0 <= i) && (i < m_filenames.size())))
-		{
-			return {};
-		}
+    if (!((0 <= i) && (i < m_filenames.size())))
+    {
+      return {};
+    }
         return VideoSourceCV::Frame(cv::imread(m_filenames[i]), i, m_filenames[i]);
     }
 

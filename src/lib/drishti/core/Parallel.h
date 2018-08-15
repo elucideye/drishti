@@ -32,8 +32,12 @@ public:
         }
     }
 
+    ~ParallelHeterogeneousLambda() override = default;
+
     ParallelHeterogeneousLambda(const ParallelHeterogeneousLambda&) = delete;
-    void operator=(const ParallelHeterogeneousLambda&) = delete;
+    ParallelHeterogeneousLambda(ParallelHeterogeneousLambda&&) = delete;
+    ParallelHeterogeneousLambda& operator=(const ParallelHeterogeneousLambda&) = delete;
+    ParallelHeterogeneousLambda& operator=(ParallelHeterogeneousLambda&&) = delete;
 
 protected:
     std::vector<std::function<void()>> m_functions;
@@ -53,7 +57,7 @@ public:
     {
     }
 
-    ParallelHomogeneousLambda(ParallelHomogeneousLambda&& other)
+    ParallelHomogeneousLambda(ParallelHomogeneousLambda&& other) noexcept
         : m_function(std::move(other.m_function))
     {
         other.m_function = nullptr;
@@ -68,7 +72,10 @@ public:
     }
 
     ParallelHomogeneousLambda(const ParallelHomogeneousLambda&) = delete;
-    void operator=(const ParallelHomogeneousLambda&) = delete;
+    ParallelHomogeneousLambda operator=(const ParallelHomogeneousLambda&) = delete;
+    ParallelHomogeneousLambda operator=(ParallelHomogeneousLambda&&) = delete;
+
+    ~ParallelHomogeneousLambda() override = default;
 
 protected:
     std::function<void(int)> m_function;
@@ -88,7 +95,7 @@ public:
     {
     }
 
-    ParallelLambdaRange(ParallelLambdaRange&& other)
+    ParallelLambdaRange(ParallelLambdaRange&& other) noexcept
         : m_function(std::move(other.m_function))
     {
         other.m_function = nullptr;
@@ -100,7 +107,10 @@ public:
     }
 
     ParallelLambdaRange(const ParallelLambdaRange&) = delete;
-    void operator=(const ParallelLambdaRange&) = delete;
+    ParallelLambdaRange& operator=(const ParallelLambdaRange&) = delete;
+    ParallelLambdaRange& operator=(ParallelLambdaRange&&) = delete;
+
+    ~ParallelLambdaRange() override = default;
 
 protected:
     std::function<void(const cv::Range& r)> m_function;

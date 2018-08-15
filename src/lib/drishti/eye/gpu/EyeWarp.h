@@ -14,6 +14,7 @@
 #include "drishti/eye/Eye.h"
 
 #include <opencv2/core/core.hpp>
+#include <utility>
 
 DRISHTI_EYE_NAMESPACE_BEGIN
 
@@ -25,10 +26,10 @@ struct EyeWarp
         , H(H)
     {
     }
-    EyeWarp(const cv::Rect2f& roi, const cv::Matx33f& H, const DRISHTI_EYE::EyeModel& eye)
+    EyeWarp(const cv::Rect2f& roi, const cv::Matx33f& H, DRISHTI_EYE::EyeModel  eye)
         : roi(roi)
         , H(H)
-        , eye(eye)
+        , eye(std::move(eye))
     {
     }
     cv::Rect2f roi;

@@ -32,6 +32,13 @@ BEGIN_EMPTY_NAMESPACE
 
 class FaceDetectorTest : public ::testing::Test
 {
+public:
+
+    FaceDetectorTest(const FaceDetectorTest&) = delete;
+    FaceDetectorTest(FaceDetectorTest&&) = delete;
+    FaceDetectorTest& operator=(const FaceDetectorTest&) = delete;
+    FaceDetectorTest& operator=(FaceDetectorTest&&) = delete;
+
 protected:
 
     // Setup
@@ -57,16 +64,16 @@ protected:
     }
 
     // Cleanup
-    virtual ~FaceDetectorTest()
+    ~FaceDetectorTest() override
     {
         drishti::core::Logger::drop("test-drishti-face");
     }
 
     // Called after constructor for each test
-    virtual void SetUp() {}
+    void SetUp() override {}
 
     // Called after destructor for each test
-    virtual void TearDown() {}
+    void TearDown() override {}
 
     cv::Mat loadImage(const std::string& filename)
     {
@@ -96,7 +103,7 @@ protected:
     std::shared_ptr<drishti::face::FaceDetectorAndTracker> m_detector;
 };
 
-TEST_F(FaceDetectorTest, FaceDetector)
+TEST_F(FaceDetectorTest, FaceDetector) // NOLINT (TODO)
 {
     std::vector<drishti::face::FaceModel> faces;
     (*m_detector)(Ip, Ib, faces, cv::Matx33f::eye());

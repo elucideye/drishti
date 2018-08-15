@@ -56,6 +56,11 @@ public:
 
     ~EyeFilter() override;
 
+    EyeFilter(const EyeFilter&) = delete;
+    EyeFilter(EyeFilter&&) = delete;
+    EyeFilter& operator=(const EyeFilter&) = delete;
+    EyeFilter& operator=(EyeFilter&&) = delete;
+
     void setAutoScaling(bool flag)
     {
         m_doAutoScaling = flag;

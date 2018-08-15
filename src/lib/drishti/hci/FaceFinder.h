@@ -106,12 +106,17 @@ public:
         float renderEyesWidthRatio = 0.25f;
 
         int history = DRISHTI_HCI_FACEFINDER_HISTORY;
-        
+
         bool ignoreLatestFramesInMonitor = false;
     };
 
     FaceFinder(FaceDetectorFactoryPtr& factory, Settings& config, void* glContext = nullptr);
     ~FaceFinder();
+
+    FaceFinder(const FaceFinder&) = delete;
+    FaceFinder(FaceFinder&&) = delete;
+    FaceFinder& operator=(const FaceFinder&) = delete;
+    FaceFinder& operator=(FaceFinder&&) = delete;
 
     static void tryEnablePlatformOptimizations();
 

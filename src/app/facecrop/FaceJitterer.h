@@ -60,6 +60,13 @@ struct FaceWithLandmarks
     Landmarks eyesNoseMouth; // {eyeR, eyeL, nose, mouthR, mouthL}
     std::string filename;
 
+    FaceWithLandmarks() = default;
+    ~FaceWithLandmarks() = default;
+
+    FaceWithLandmarks& operator=(FaceWithLandmarks&&) = default;
+    FaceWithLandmarks(FaceWithLandmarks&&) = default;
+    FaceWithLandmarks(const FaceWithLandmarks&) = default;
+
     FaceWithLandmarks& operator=(const FaceWithLandmarks& src)
     {
         image = src.image;

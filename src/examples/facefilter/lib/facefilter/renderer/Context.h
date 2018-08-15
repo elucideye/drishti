@@ -37,6 +37,12 @@ struct Application
 public:
     Application();
     ~Application();
+
+    Application(const Application&) = delete;
+    Application(Application&&) = delete;
+    Application& operator=(const Application&) = delete;
+    Application& operator=(Application&&) = delete;
+
     void setAssetManager(void* assetManager);
     void loadAsset(const char* key, const char* filename);
     void drawFrame(std::uint32_t texId);
@@ -62,20 +68,20 @@ protected:
     void* m_context = nullptr;
     std::function<void()> setDisplayBufferCallback;
 
-    bool m_hasCamera;
-    int m_cameraWidth;
-    int m_cameraHeight;
-    int m_cameraRotation;
-    float m_cameraFocalLength;
+    bool m_hasCamera{false};
+    int m_cameraWidth{};
+    int m_cameraHeight{};
+    int m_cameraRotation{};
+    float m_cameraFocalLength{};
 
-    bool m_hasDisplay;
-    int m_displayWidth;
-    int m_displayHeight;
+    bool m_hasDisplay{false};
+    int m_displayWidth{};
+    int m_displayHeight{};
 
     std::string m_assets;
 
 #if defined(__ANDROID__)
-    JNIEnv* m_JNIEnv;
+    JNIEnv* m_JNIEnv{nullptr};
     jobject m_jobject;
 #endif
 

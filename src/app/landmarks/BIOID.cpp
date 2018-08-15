@@ -99,7 +99,7 @@ void parseBIOID(const std::string& filename, BIOID::record& output)
         is.unsetf(std::ios::skipws);
         boost::spirit::istream_iterator begin(is), end;
         FACE::bioid_parser<decltype(begin)> parser;
-        bool success = qi::phrase_parse(begin, end, parser, qi::blank, output);
+        bool success = qi::phrase_parse(begin, end, parser, qi::blank, output); // NOLINT (TODO)
     }
 }
 

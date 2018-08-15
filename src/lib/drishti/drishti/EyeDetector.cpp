@@ -24,11 +24,16 @@ _DRISHTI_SDK_BEGIN
 struct EyeDetector::Impl
 {
     Impl() = default;
-    Impl(const std::string& filename)
+    explicit Impl(const std::string& filename)
     {
         init(filename);
     }
     ~Impl() = default;
+
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
 
     void init(const std::string& filename)
     {

@@ -75,7 +75,7 @@ FACE::Table parseMUCT(const std::string& filename)
         is.unsetf(std::ios::skipws);
         boost::spirit::istream_iterator begin(is), end;
         FACE::muct_parser<decltype(begin)> parser;
-        bool success = qi::phrase_parse(begin, end, parser, qi::blank, table);
+        bool success = qi::phrase_parse(begin, end, parser, qi::blank, table); // NOLINT (TODO)
     }
     return table;
 }

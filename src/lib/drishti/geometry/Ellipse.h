@@ -6,8 +6,8 @@
   \copyright Copyright 2014-2016 Elucideye, Inc. All rights reserved.
   \license{This file is released under the 3 Clause BSD License (exceptions noted below)}
 
-  1) class Conicsection_  
-     License: MIT 
+  1) class Conicsection_
+     License: MIT
      https://github.com/LeszekSwirski/pupiltracker/
 
   2) cv::RotatedRect ConicSection_<T>::getEllipse()
@@ -34,10 +34,15 @@ class Ellipse : public cv::RotatedRect
 {
 public:
     Ellipse() = default;
+    ~Ellipse() = default;
     Ellipse(const Ellipse& src);
     Ellipse(const cv::Vec6d& par);
     Ellipse(const cv::RotatedRect& cen);
     Ellipse(const cv::RotatedRect& cen, const cv::Vec6d& par);
+
+    Ellipse(Ellipse&&) = delete;
+    Ellipse& operator=(const Ellipse&) = delete;
+    Ellipse& operator=(Ellipse&&) = delete;
 
     const cv::Vec6d& getParametric() const
     {
@@ -141,12 +146,12 @@ inline std::vector<cv::Point2f> ellipseToPoints(const cv::RotatedRect& e)
 
 inline cv::RotatedRect pointsToEllipse(const cv::Point2f* p)
 {
-    return cv::RotatedRect({ p[0].x, p[1].x }, { p[2].x, p[3].x }, p[4].x);
+    return {{ p[0].x, p[1].x }, { p[2].x, p[3].x }, p[4].x};
 }
 
 inline cv::RotatedRect pointsToEllipse(const std::vector<cv::Point2f>& p)
 {
-    return cv::RotatedRect({ p[0].x, p[1].x }, { p[2].x, p[3].x }, p[4].x);
+    return {{ p[0].x, p[1].x }, { p[2].x, p[3].x }, p[4].x};
 }
 
 inline std::vector<cv::RotatedRect> pointsToEllipses(const std::vector<cv::Point2f>& p)

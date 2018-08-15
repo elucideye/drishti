@@ -29,10 +29,14 @@ public:
         : m_vertices(mesh.m_vertices)
     {
     }
-    Mesh3D(Mesh3D&& mesh)
+    Mesh3D(Mesh3D&& mesh) noexcept
         : m_vertices(std::move(mesh.m_vertices))
     {
     }
+
+    Mesh3D& operator=(Mesh3D&&) = delete;
+
+    ~Mesh3D() = default;
 
     Mesh3D<T>& operator=(const Mesh3D<T>& src)
     {

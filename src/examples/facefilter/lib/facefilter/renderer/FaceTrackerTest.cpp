@@ -19,6 +19,11 @@ struct FaceTrackTest::Impl
         // CUSTOM user constructor
     }
 
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
+
     ~Impl() = default;
 
     // CUSTOM user fields
@@ -72,7 +77,7 @@ int FaceTrackTest::allocator(const drishti_image_t& spec, drishti::sdk::Image4b&
 
 int FaceTrackTest::callbackFunc(void* context, drishti_face_tracker_results_t& results)
 {
-    if (FaceTrackTest* ft = static_cast<FaceTrackTest*>(context))
+    if (auto* ft = static_cast<FaceTrackTest*>(context))
     {
         return ft->callback(results);
     }
@@ -82,7 +87,7 @@ int FaceTrackTest::callbackFunc(void* context, drishti_face_tracker_results_t& r
 drishti_request_t
 FaceTrackTest::triggerFunc(void* context, const drishti_face_tracker_result_t& faces, double timestamp, std::uint32_t tex)
 {
-    if (FaceTrackTest* ft = static_cast<FaceTrackTest*>(context))
+    if (auto* ft = static_cast<FaceTrackTest*>(context))
     {
         return ft->trigger(faces, timestamp, tex);
     }
@@ -91,7 +96,7 @@ FaceTrackTest::triggerFunc(void* context, const drishti_face_tracker_result_t& f
 
 int FaceTrackTest::allocatorFunc(void* context, const drishti_image_t& spec, drishti::sdk::Image4b& image)
 {
-    if (FaceTrackTest* ft = static_cast<FaceTrackTest*>(context))
+    if (auto* ft = static_cast<FaceTrackTest*>(context))
     {
         return ft->allocator(spec, image);
     }

@@ -33,6 +33,12 @@ public:
         const cv::Size& displaySize,
         Application& application);
     virtual ~Renderer();
+
+    Renderer(const Renderer&) = delete;
+    Renderer(Renderer&&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
+
     void resize(int w, int h);
     void setPreviewGeometry(float tx, float ty, float sx, float sy);
     void render();

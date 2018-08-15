@@ -22,6 +22,7 @@ class Cylinder3D
 {
 public:
     Cylinder3D() = default;
+    ~Cylinder3D() = default;
 
     Cylinder3D(const Cylinder3D& src)
         : position(src.position)
@@ -36,6 +37,10 @@ public:
         , length(length)
     {
     }
+
+    Cylinder3D(Cylinder3D&&) = delete;
+    Cylinder3D& operator=(const Cylinder3D&) = delete;
+    Cylinder3D& operator=(Cylinder3D&&) = delete;
 
     const cv::Point3_<T>& getPosition() const { return position; }
     T getRadius() const { return radius; }

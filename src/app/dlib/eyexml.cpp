@@ -66,13 +66,13 @@ inline T ntoh_any(T t)
 {
     static const unsigned char int_bytes[sizeof(int)] = { 0xFF };
     static const int msb_0xFF = 0xFF << (sizeof(int) - 1) * CHAR_BIT;
-    static bool host_is_big_endian = (*(reinterpret_cast<const int*>(int_bytes)) & msb_0xFF) != 0;
+    static bool host_is_big_endian = (*(reinterpret_cast<const int*>(int_bytes)) & msb_0xFF) != 0; // NOLINT (TODO)
     if (host_is_big_endian)
     {
         return t;
     }
 
-    auto* ptr = reinterpret_cast<unsigned char*>(&t);
+    auto* ptr = reinterpret_cast<unsigned char*>(&t); // NOLINT (TODO)
     std::reverse(ptr, ptr + sizeof(t));
     return t;
 }
@@ -85,9 +85,9 @@ static cv::Size read_png_size(const std::string& filename)
     {
         unsigned int width, height;
         in.seekg(16);
-        in.read(reinterpret_cast<char*>(&width), 4);
-        in.read(reinterpret_cast<char*>(&height), 4);
-        size = { static_cast<int>(ntoh_any(width)), static_cast<int>(ntoh_any(height)) };
+        in.read(reinterpret_cast<char*>(&width), 4); // NOLINT (TODO)
+        in.read(reinterpret_cast<char*>(&height), 4); // NOLINT (TODO)
+        size = { static_cast<int>(ntoh_any(width)), static_cast<int>(ntoh_any(height)) }; // NOLINT (TODO)
     }
     return size;
 }
@@ -137,8 +137,12 @@ public:
         m_spec = drishti::eye::EyeModelSpecification::create();
     }
 
-    ~DlibDocument()
-    = default;
+    DlibDocument(const DlibDocument&) = delete;
+    DlibDocument(DlibDocument&&) = delete;
+    DlibDocument& operator=(const DlibDocument&) = delete;
+    DlibDocument& operator=(DlibDocument&&) = delete;
+
+    ~DlibDocument() = default;
 
     void start()
     {

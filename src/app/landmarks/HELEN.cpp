@@ -128,7 +128,7 @@ FACE::Table parseHELEN(const std::string& filename)
         is.unsetf(std::ios::skipws);
         boost::spirit::istream_iterator begin(is), end;
         FACE::helen_parser<decltype(begin)> parser;
-        bool success = qi::phrase_parse(begin, end, parser, qi::blank, output);
+        bool success = qi::phrase_parse(begin, end, parser, qi::blank, output); // NOLINT (TODO)
 
         table.lines.resize(output.lines.size());
         for (int i = 0; i < table.lines.size(); i++)

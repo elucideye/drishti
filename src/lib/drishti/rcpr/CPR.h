@@ -52,7 +52,7 @@ inline int PointVecSize(const PointVec& v)
     return int(v.size());
 }
 
-typedef cv::Matx<RealType, 3, 3> Matx33Real;
+using Matx33Real = cv::Matx<RealType, 3, 3>;
 using Vector1d = std::vector<RealType>;
 using ImageVec = std::vector<cv::Mat>;
 using IntVec = std::vector<int>;
@@ -68,9 +68,13 @@ public:
     CPR();
     CPR(const CPR& src);
 
+    CPR(CPR&&) = delete;
+    CPR& operator=(const CPR&) = delete;
+    CPR& operator=(CPR&&) = delete;
+
 #if !DRISHTI_CPR_DO_LEAN
-    CPR(const std::string& filename);
-    CPR(const char* filename);
+    explicit CPR(const std::string& filename);
+    explicit CPR(const char* filename);
 #endif
 
     ~CPR() override;

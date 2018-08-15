@@ -113,7 +113,7 @@ using drishti_image_t = drishti_image;
  * the desired format: (1) OpenGL texture or; (2) user memory.
  */
 
-typedef struct drishti_request
+struct drishti_request_t
 {
     /**
      * Retrieve the last N frames.
@@ -140,15 +140,13 @@ typedef struct drishti_request
      */
     bool getEyes;
 
-} drishti_request_t;
-
-using drishti_request_t = drishti_request;
+};
 
 /**
  * An alias for a vector of drishti_face_tracker_result_t objects.
  */
 
-typedef drishti::sdk::Array<drishti_face_tracker_result_t, DRISHTI_SDK_MAX_FACES> drishti_face_tracker_results_t;
+using drishti_face_tracker_results_t = drishti::sdk::Array<drishti_face_tracker_result_t, DRISHTI_SDK_MAX_FACES>;
 
 // User defined callbacks:
 
@@ -263,8 +261,9 @@ public:
 
     // FaceTracker cannot be moved or copied:
     FaceTracker(const FaceTracker&) = delete;
-    FaceTracker& operator=(const FaceTracker&) = delete;
     FaceTracker(FaceTracker&&) = delete;
+    FaceTracker& operator=(const FaceTracker&) = delete;
+    FaceTracker& operator=(FaceTracker&&) = delete;
 
     /**
      * Destructor
