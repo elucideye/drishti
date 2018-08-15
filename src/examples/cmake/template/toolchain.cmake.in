@@ -52,18 +52,18 @@ set(CMAKE_SYSTEM_VERSION "@CMAKE_SYSTEM_VERSION@")
 
 if("@_INTERNAL_ANDROID_STUDIO_ORIGINAL_CMAKE_TOOLCHAIN_FILE@" STREQUAL "")
   # Variable not set, initial project configuration.
-  # Path to original Android NDK toolchain saved in CMAKE_TOOLCHAIN_FILE.
-  if("@CMAKE_TOOLCHAIN_FILE@" STREQUAL "")
-    message(FATAL_ERROR "Unexpected: CMAKE_TOOLCHAIN_FILE is empty")
+  # Path to original Android NDK toolchain saved in CMAKE_TOOLCHAIN_FILE_CMAKE_PATH.
+  if("@CMAKE_TOOLCHAIN_FILE_CMAKE_PATH@" STREQUAL "")
+    message(FATAL_ERROR "Unexpected: CMAKE_TOOLCHAIN_FILE_CMAKE_PATH is empty")
   endif()
 
-  if(NOT EXISTS "@CMAKE_TOOLCHAIN_FILE@")
+  if(NOT EXISTS "@CMAKE_TOOLCHAIN_FILE_CMAKE_PATH@")
     message(
-        FATAL_ERROR "CMAKE_TOOLCHAIN_FILE not found: '@CMAKE_TOOLCHAIN_FILE@'"
+        FATAL_ERROR "File not found: '@CMAKE_TOOLCHAIN_FILE_CMAKE_PATH@'"
     )
   endif()
 
-  set(_original_toolchain_file "@CMAKE_TOOLCHAIN_FILE@")
+  set(_original_toolchain_file "@CMAKE_TOOLCHAIN_FILE_CMAKE_PATH@")
 else()
   set(_original_toolchain_file "@_INTERNAL_ANDROID_STUDIO_ORIGINAL_CMAKE_TOOLCHAIN_FILE@")
 endif()

@@ -2,6 +2,7 @@ set(top_dir "${CMAKE_CURRENT_LIST_DIR}/../..")
 
 if(FACEFILTER_ANDROID_STUDIO)
   set(gen_toolchain "${CMAKE_CURRENT_BINARY_DIR}/generated/toolchain.cmake")
+  file(TO_CMAKE_PATH "${CMAKE_TOOLCHAIN_FILE}" CMAKE_TOOLCHAIN_FILE_CMAKE_PATH)
   configure_file(
     "${top_dir}/cmake/template/toolchain.cmake.in"
     "${gen_toolchain}"
