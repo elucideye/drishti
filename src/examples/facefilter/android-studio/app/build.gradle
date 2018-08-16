@@ -29,7 +29,11 @@ android {
 
     defaultConfig {
         applicationId 'com.elucideye.facefilter'
+
+        // https://developer.android.com/reference/android/support/v4/app/ActivityCompat#requestpermissions
+        // See FaceFilterCameraManager.java
         minSdkVersion 24
+
         targetSdkVersion 27
         externalNativeBuild {
             cmake {

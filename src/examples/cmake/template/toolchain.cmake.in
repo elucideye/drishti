@@ -80,6 +80,12 @@ if("${_INTERNAL_ANDROID_STUDIO_ORIGINAL_CMAKE_TOOLCHAIN_FILE}" STREQUAL "${CMAKE
   message(FATAL_ERROR "Internal error")
 endif()
 
+# Before including Android NDK toolchain
+if("${CMAKE_ANDROID_ARCH_ABI}" STREQUAL "armeabi-v7a")
+  set(ANDROID_ARM_NEON TRUE CACHE BOOL "..." FORCE)
+  set(ANDROID_ARM_MODE "arm" CACHE STRING "..." FORCE)
+endif()
+
 set(ANDROID_NDK "") # Suppress warning
 include("${_INTERNAL_ANDROID_STUDIO_ORIGINAL_CMAKE_TOOLCHAIN_FILE}")
 
