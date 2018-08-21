@@ -22,15 +22,28 @@ package interface, which is designed without external types in the API definitio
 The ``facefilter`` demos are enabled by the ``DRISHTI_BUILD_EXAMPLES``
 CMake option, and the entire ``src/examples`` tree is designed to be relocatable,
 you can ``cp -r src/examples ${HOME}/drishti_examples``, customize, and
-build, by simply updating the drishti package details.  The ``iOS`` target
-requires Xcode 9 (beta 4) or above (Swift language requirements) and will
-be generated directly as a standard CMake ``add_executable()`` target
-as part of the usual top level project build. The Android Studio
-application is located here: ``src/examples/facefilter/android-studio``.
+build, by simply updating the drishti package details.  
+
+iOS
+~~~
+
+The ``iOS`` ``facefilter`` target requires Xcode 9 (beta 4) or above 
+(Swift language requirements)  and will be generated directly as a standard CMake 
+``add_executable()`` target as part of the usual top level project build -- 
+*if* you are using an appropriate CMake 
+`iOS toolchain <https://polly.readthedocs.io/en/latest/toolchains/ios.html>`__ 
+(see bottom of README for details) for 
+`cross compilation <https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling>`__ 
+from your macOS + Xcode host.   Please see `iOS Build`_ below for more details. 
+
+Android Studio
+~~~~~~~~~~~~~~
+
+The Android Studio application is located here: ``src/examples/facefilter/android-studio``.
 Android Studio/Gradle is required to build the application layer,
 and the CMake build is managed directly by ``gradle``.  There are a
-few platform specific configurations that must be addressed before building,
-please check details below.
+few platform specific configurations that must be addressed before building.
+Please see `Android Studio Build`__ bdlow for more details below.
 
 Overview
 --------
@@ -244,7 +257,26 @@ Note: The ``--reconfig`` flag is included in the example above, which will
 re-run the CMake configure step (to incorporate CMake changes) for you.  It is
 a reasonable step to add in cases where you aren't sure if it is needed.
 
-Android Studio build
+iOS Build
+~~~~~~~~~
+
+Since CMake contains an Xcode generator, building for ``iOS`` is fairly straightforward.
+In practice, it is no different than the other `polly.py` toolchain builds.  As always,
+you will need to have an Apple Developer Account to build and run on ``iOS`` devices.
+There are a few setup steps associated with Apple code signing requirements.
+Since iOS 10.0, Xcode projects require a valid `Team ID` entry, 
+which can be set through CMake using the `CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM` CMake variable.
+If you generate an Xcode project through a `polly.py` command (described below), it will initialize 
+the field for you if the
+`POLLY_IOS_DEVELOPMENT_TEAM <https://polly.readthedocs.io/en/latest/toolchains/ios/errors/polly_ios_development_team.html#polly-ios-development-team>`__ 
+environment variable is set with your `Team ID`, which
+can be found in your `Apple Developer Account <https://developer.apple.com/account/#/membership>`__.
+If you are using an Apple Enterprise Developer Account, the ``CMAKE_TRY_COMPILE`` step can
+fail with an error beginning with `No profiles for 'com.example' were found: ...`.
+You can fix this with a one time Xcode initialization described in
+`POLLY_IOS_DEVELOPMENT_TEAM <https://polly.readthedocs.io/en/latest/toolchains/ios/errors/polly_ios_bundle_identifier.html#polly-ios-bundle-identifier>`__.
+
+Android Studio Build
 ~~~~~~~~~~~~~~~~~~~~
 
 For Android Studio, there are additional requirements:
@@ -268,7 +300,7 @@ There is another entry point for Android Studio - ``src/examples/facefilter/andr
 It should be used only for testing or as a template for starting your own project
 based on Drishti.
 
-Android Studio workarounds
+Android Studio Workarounds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following factors can all contribute to some instability in the Android
