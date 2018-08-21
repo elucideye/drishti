@@ -43,7 +43,7 @@ The Android Studio application is located here: ``src/examples/facefilter/androi
 Android Studio/Gradle is required to build the application layer,
 and the CMake build is managed directly by ``gradle``.  There are a
 few platform specific configurations that must be addressed before building.
-Please see `Android Studio Build`__ bdlow for more details below.
+Please see `Android Studio Build`_ bdlow for more details below.
 
 Overview
 --------
