@@ -32,9 +32,10 @@ The ``iOS`` ``facefilter`` target requires Xcode 9 (beta 4) or above
 ``add_executable()`` target as part of the usual top level project build -- 
 *if* you are using an appropriate CMake 
 `iOS toolchain <https://polly.readthedocs.io/en/latest/toolchains/ios.html>`__ 
-(see bottom of README for details) for 
+for 
 `cross compilation <https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling>`__ 
-from your macOS + Xcode host.   Please see `iOS Build`_ below for more details. 
+from your macOS + Xcode host for your ``iOS`` device.   Please see
+`Polly Based Build`__ and `iOS Build`_ below for more details. 
 
 Android Studio
 ~~~~~~~~~~~~~~
@@ -43,7 +44,7 @@ The Android Studio application is located here: ``src/examples/facefilter/androi
 Android Studio/Gradle is required to build the application layer,
 and the CMake build is managed directly by ``gradle``.  There are a
 few platform specific configurations that must be addressed before building.
-Please see `Android Studio Build`_ bdlow for more details below.
+Please see `Android Studio Build`_ below for more details.
 
 Overview
 --------
@@ -150,7 +151,7 @@ select `toolchains <#Toolchains>`__ will be backed by a server side
 binary cache (https://github.com/elucideye/hunter-cache) and will
 produce faster first time builds (use them if you can!).
 
-Get latest sources
+Get Latest Sources
 ~~~~~~~~~~~~~~~~~~
 
 Clone this repository and initialize all submodules:
@@ -167,7 +168,7 @@ or
 
   > git clone --recursive https://github.com/elucideye/drishti
 
-Generate and build
+Generate and Build
 ~~~~~~~~~~~~~~~~~~
 
 Desktop platforms usually don't require a toolchain (a default toolchain with C++11 support will
@@ -202,7 +203,7 @@ and use ``--target install``:
   cmake -H. -B_builds -G "Visual Studio 15 2017" -DHUNTER_STATUS_DEBUG=ON -DCMAKE_INSTALL_PREFIX=_install
   cmake --build _builds --config Release --target install
 
-Polly based build
+Polly Based Build
 ~~~~~~~~~~~~~~~~~
 
 To support cross platform builds and testing, the CI scripts make use of
