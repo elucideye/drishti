@@ -35,7 +35,7 @@ The ``iOS`` ``facefilter`` target requires Xcode 9 (beta 4) or above
 for 
 `cross compilation <https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling>`__ 
 from your macOS + Xcode host for your ``iOS`` device.   Please see
-`Polly Based Build`__ and `iOS Build`_ below for more details. 
+`Polly Based Build`_ and `iOS Build`_ below for more details. 
 
 Android Studio
 ~~~~~~~~~~~~~~
