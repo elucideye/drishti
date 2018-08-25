@@ -282,7 +282,23 @@ target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # defin
 target_link_libraries(${drishti_api_name} PRIVATE "${drishti_sdk_libs}")
 list(APPEND drishti_interface_libs ${drishti_api_name})
 
-if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
+if(DRISHTI_BUILD_SHARED_SDK)
+  if(IOS)
+
+    # https://cmake.org/cmake/help/latest/prop_tgt/FRAMEWORK.html#framework
+    set_target_properties(${drishti_api_name} PROPERTIES
+      FRAMEWORK TRUE
+      FRAMEWORK_VERSION A
+      MACOSX_FRAMEWORK_IDENTIFIER "com.elucideye.drishti"
+      MACOSX_FRAMEWORK_INFO_PLIST "${DRISHTI_TOP_DIR}/cmake/Modules/template/Info.plist.in"
+      VERSION ${PROJECT_VERSION}   # "current version" in semantic format in Mach-O binary file
+      SOVERSION ${PROJECT_VERSION} # "compatibility version" in semantic format in Mach-O binary file
+      PUBLIC_HEADER ${DRISHTI_DRISHTI_HDRS_PUBLIC}
+      XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+   )
+)
+  endif()
+elseif(DRISHTI_BUILD_MERGED_SDK)
   # (Optional) merge top level library and all dependencies:
   # Also see: http://stackoverflow.com/a/18949281
   include(drishti_merge_libraries)
