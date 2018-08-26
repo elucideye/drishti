@@ -302,8 +302,10 @@ CMake entry and rerun.  The ``local.properties`` file will look something like t
 
     ndk.dir=/home/username/Android/Sdk/ndk-bundle
     sdk.dir=/home/username/Android/Sdk
-    cmake.dir=/opt/cmake # for <cmake.dir>/bin/cmake
-
+    cmake.dir=/opt/cmake
+    
+The ``cmake.dir`` entry should be set such that ``<cmake.dir>/bin/cmake`` points to a
+valid ``cmake`` executable file.
 
 Please check these instructions for details and useful notes:
 
