@@ -28,7 +28,7 @@ if(NOT TARGET drishti::drishti)
 
   if(DEFINED drishti_FRAMEWORK)
 
-    set(x_fmwk_path ${drishti_FRAMEWORK})
+    set(x_fmwk_path ${drishti_FRAMEWORK}) # /some/path/to/foo.framewori/foo 
     get_filename_component(x_fmwk_lib ${x_fmwk_path} NAME_WE)   # foo
     get_filename_component(x_fmwk_dir ${x_fmwk_path} DIRECTORY) # /some/path/to/foo.framework
     get_filename_component(x_fmwk_name ${x_fmwk_dir} NAME)      # foo.framework
