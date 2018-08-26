@@ -17,18 +17,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 
 project(drishtisdk VERSION 0.12.5)
 
+include("src/examples/cmake/include/init-languages.cmake")  # must come after project()
+
 set(DRISHTI_TOP_DIR "${CMAKE_CURRENT_LIST_DIR}")
-
-#################
-### Languages ###
-#################
-
-if(IOS)
-  # This must be in the top/highest level directory (really)
-  set(CMAKE_Swift_LANGUAGE_VERSION 4.1)
-  set(CMAKE_XCODE_ATTRIBUTE_SWIFT_VERSION "4.1")
-  enable_language(Swift)
-endif()  
 
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # for 3rd parties added by add_subdirectory
 

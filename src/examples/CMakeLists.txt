@@ -10,32 +10,31 @@
 
 cmake_minimum_required(VERSION 3.9) # CMAKE_INTERPROCEDURAL_OPTIMIZATION
 
-include("cmake/include/init.cmake")
+if(NOT TARGET drishti::drishti)
 
-project(drishti_hunter_test VERSION 0.0.1)
+  include("cmake/include/init.cmake")
 
-#################
-### Languages ###
-#################
+  project(drishti_hunter_test VERSION 0.0.1)
 
-if(IOS)
-  # This must be in the top/highest level directory (really)
-  set(CMAKE_Swift_LANGUAGE_VERSION 4.1)
-  set(CMAKE_XCODE_ATTRIBUTE_SWIFT_VERSION "4.1")
-  enable_language(Swift)
+  include("cmake/include/init-languages.cmake")  # must come after project()
+
+  # * If build as a child project then parent will set this to 'OFF' (see
+  #   config.cmake which will be loaded on first 'hunter_add_package')
+  # * If build as a stand alone project then option will be 'ON' and 'GIT_SELF'
+  #   will be used for Drishti
+  option(DRISHTI_DRISHTI_AS_SELF "Use drishti as GIT_SELF" ON)
+
+  # add the drishti package, possibly using GIT_SELF feature
+  hunter_add_package(drishti)
+  find_package(drishti CONFIG REQUIRED)
+  
 endif()
-
-# * If build as a child project then parent will set this to 'OFF' (see
-#   config.cmake which will be loaded on first 'hunter_add_package')
-# * If build as a stand alone project then option will be 'ON' and 'GIT_SELF'
-#   will be used for Drishti
-option(DRISHTI_DRISHTI_AS_SELF "Use drishti as GIT_SELF" ON)
 
 if(NOT DEFINED DRISHTI_HAVE_TO_STRING)
   try_compile(DRISHTI_HAVE_TO_STRING
     "${CMAKE_BINARY_DIR}/try_compile"
     "${CMAKE_CURRENT_LIST_DIR}/cmake/to_string.cpp"
-  )
+    )
 endif()
 
 if(NOT DEFINED DRISHTI_HAVE_LOCALECONV)
@@ -57,12 +56,6 @@ find_package(cxxopts CONFIG REQUIRED)
 
 hunter_add_package(spdlog) # for logging
 find_package(spdlog CONFIG REQUIRED)
-
-if(NOT TARGET drishti::drishti)
-  # add the drishti package, possibly using GIT_SELF feature
-  hunter_add_package(drishti)
-  find_package(drishti CONFIG REQUIRED)
-endif()
 
 set(base_deps drishti::drishti cxxopts::cxxopts ${OpenCV_LIBS} spdlog::spdlog)
 

@@ -236,11 +236,15 @@ hunter_add_package(cxxopts)
 find_package(cxxopts CONFIG REQUIRED)
 
 # Build standalone examples using the public API
-if(DRISHTI_BUILD_EXAMPLES)
-
+#
+# Note: If we are building an IOS framework, we can't actually run it through CMake
+#
+#   dyld: Library not loaded: @rpath/drishti.framework/drishti
+#     Referenced from: /var/containers/Bundle/Application/<GUID>/FaceFilter.app/FaceFilter
+#     Reason: image not found
+if(DRISHTI_BUILD_EXAMPLES AND NOT (IOS AND DRISHTI_BUILD_SHARED_SDK))
   # Simulate naming from find_package(drishti CONFIG REQUIRED) use case 
   target_include_directories(drishti PUBLIC $<BUILD_INTERFACE:${DRISHTI_INCLUDE_DIRECTORIES}/drishti>)
-
   add_subdirectory(examples)
 endif()
 
