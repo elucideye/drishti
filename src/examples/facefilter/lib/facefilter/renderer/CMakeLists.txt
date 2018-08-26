@@ -17,7 +17,9 @@ set(facefilter_deps "")
 # Note: Don't IWYU here, so we can defer to alias drishti::drishti for local builds
 # hunter_add_package(drishti)
 # find_package(drishti CONFIG REQUIRED)
-list(APPEND facefilter_deps drishti::drishti)
+if(TARGET drishti::drishti)
+  list(APPEND facefilter_deps drishti::drishti)
+endif()
 
 ### ogles_gpgpu ###
 hunter_add_package(ogles_gpgpu)
@@ -36,3 +38,10 @@ list(APPEND facefilter_deps Boost::filesystem Boost::system)
 
 target_link_libraries(facefilter_renderer PUBLIC ${facefilter_deps})
 set_property(TARGET facefilter_renderer PROPERTY FOLDER "examples/lib/")
+
+if(DEFINED drishti_FRAMEWORK)
+  # This part isn't working, we need to link against the framework for this utility lib too
+  target_compile_options(facefilter_renderer PUBLIC "-F $<TARGET_FILE_DIR:${x_fmwk_lib}>/../")
+  target_link_libraries(facefilter_renderer PUBLIC "-F $<TARGET_FILE_DIR:${x_fmwk_lib}>/../ -framework ${x_fmwk_lib}")  
+endif()
+  

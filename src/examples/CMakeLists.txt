@@ -25,8 +25,37 @@ if(NOT TARGET drishti::drishti)
   option(DRISHTI_DRISHTI_AS_SELF "Use drishti as GIT_SELF" ON)
 
   # add the drishti package, possibly using GIT_SELF feature
-  hunter_add_package(drishti)
-  find_package(drishti CONFIG REQUIRED)
+
+  if(DEFINED drishti_FRAMEWORK)
+
+    set(x_fmwk_path ${drishti_FRAMEWORK})
+    get_filename_component(x_fmwk_lib ${x_fmwk_path} NAME_WE)   # foo
+    get_filename_component(x_fmwk_dir ${x_fmwk_path} DIRECTORY) # /some/path/to/foo.framework
+    get_filename_component(x_fmwk_name ${x_fmwk_dir} NAME)      # foo.framework
+    
+    # import library
+    add_library(${x_fmwk_lib} SHARED IMPORTED)
+    set_target_properties(${x_fmwk_lib} PROPERTIES IMPORTED_LOCATION ${x_fmwk_path})
+
+    # We want to add include paths for the IMPORTED target (as framework)
+    # https://gitlab.kitware.com/cmake/cmake/issues/15689
+
+    # We want to be able to do this from the installed framework without
+    # relying on the build tree, but the headers in the framework don't
+    # preserve the expected hierarch, i.e., there is some magic in xcode
+    # that adds the correct prefix when we do:
+    #
+    #  #include "drishti/file.h"
+    #
+    # because that file is really in drishti.framework/Headers/file.h
+    
+    # Create alias lib for linking: facefilter_renderer -> drishti::drishti
+    #add_library(${x_fmwk_lib}::${x_fmwk_lib} ALIAS ${x_fmwk_lib})
+    
+  else()
+    hunter_add_package(drishti)
+    find_package(drishti CONFIG REQUIRED)
+  endif()
   
 endif()
 
@@ -57,7 +86,10 @@ find_package(cxxopts CONFIG REQUIRED)
 hunter_add_package(spdlog) # for logging
 find_package(spdlog CONFIG REQUIRED)
 
-set(base_deps drishti::drishti cxxopts::cxxopts ${OpenCV_LIBS} spdlog::spdlog)
+set(base_deps cxxopts::cxxopts ${OpenCV_LIBS} spdlog::spdlog)
+if(TARGET drishti::drishti) # will not be defined if using framework
+  list(APPEND base_deps drishti::drishti)
+endif()
 
 if(DRISHTI_TEST_BUILD_TESTS)
   hunter_add_package(gauze) # for tests
@@ -69,5 +101,5 @@ endif()
 ### Samples ###
 ###############
 
-add_subdirectory(eye)
+#add_subdirectory(eye)
 add_subdirectory(facefilter)
