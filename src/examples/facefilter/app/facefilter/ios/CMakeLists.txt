@@ -102,4 +102,34 @@ target_link_libraries(FaceFilter PUBLIC
   "-framework OpenGLES"
 )
 
+if(DRISHTI_BUILD_SHARED_SDK)
+  # DRISHTI_BUILD_SHARED_SDK will only be defined for build tree runs, we need to generalize
+  # this to support prebuilt frameworks in builds from src/examples
+  target_compile_options(FaceFilter PUBLIC "-F $<TARGET_FILE_DIR:drishti>/../")
+  target_link_libraries(FaceFilter PUBLIC "-F $<TARGET_FILE_DIR:drishti>/../ -framework drishti")
+  
+  add_custom_command(
+    TARGET FaceFilter
+    POST_BUILD
+    COMMAND
+    "${CMAKE_COMMAND}" -E copy_directory
+    "$<TARGET_FILE_DIR:drishti>/../drishti.framework"
+    "$<TARGET_FILE_DIR:FaceFilter>/Frameworks/drishti.framework"
+    )
+
+  # https://github.com/wrld3d/wrld-example-app/blob/0e4abd90983061788280f5c5b44355f0d11be94f/cmake/templates/ios/EmbedFramework.cmake#L43-L55
+  add_custom_command(
+    TARGET FaceFilter
+    POST_BUILD
+    COMMAND
+    codesign --force --verbose "$<TARGET_FILE_DIR:FaceFilter>/Frameworks/drishti.framework" --sign "iPhone Developer"
+    COMMENT "Signing drishti.framework"
+  )
+
+  # https://cmake.org/pipermail/cmake/2016-July/063939.html
+  set_target_properties(FaceFilter PROPERTIES
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+  )
+endif()
+
 set_property(TARGET FaceFilter PROPERTY FOLDER "examples/gui")
