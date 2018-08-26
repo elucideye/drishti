@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 ### Drishti project ###
 #######################
 
-project(drishtisdk VERSION 0.12.4)
+project(drishtisdk VERSION 0.12.5)
 
 set(DRISHTI_TOP_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
