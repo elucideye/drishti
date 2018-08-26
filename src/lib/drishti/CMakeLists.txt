@@ -284,6 +284,8 @@ list(APPEND drishti_interface_libs ${drishti_api_name})
 
 # Requires:
 # @DRISHTI_SDK_MAX_FACES@
+set(DRISHTI_SDK_MAX_FACES 8 CACHE STRING "Maximum # of faces to be supported")
+message("DRISHTI_SDK_MAX_FACES ${DRISHTI_SDK_MAX_FACES}")
 set(drishti_constants_hpp_in "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_constants.hpp.in")
 set(drishti_constants_hpp "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_constants.hpp")
 configure_file("${drishti_constants_hpp_in}" "${drishti_constants_hpp}" @ONLY)
@@ -365,9 +367,6 @@ endif()
 ###################################
 ### set build/install include paths
 ###################################
-
-set(DRISHTI_SDK_MAX_FACES 8 CACHE STRING "Maximum # of faces to be supported")
-message("DRISHTI_SDK_MAX_FACES ${DRISHTI_SDK_MAX_FACES}")
 
 set_target_properties(drishti
   PROPERTIES
