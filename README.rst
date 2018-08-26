@@ -302,7 +302,7 @@ CMake entry and rerun.  The ``local.properties`` file will look something like t
 
     ndk.dir=/home/username/Android/Sdk/ndk-bundle
     sdk.dir=/home/username/Android/Sdk
-    cmake.dir=/opt/cmake/bin
+    cmake.dir=/opt/cmake # for <cmake.dir>/bin/cmake
 
 
 Please check these instructions for details and useful notes:
