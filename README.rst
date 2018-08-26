@@ -286,12 +286,24 @@ For Android Studio, there are additional requirements:
 * Ninja
 * Android Studio 3.2+ (it's beta at this moment)
 
-Note: Polly will not be used here, because CMake code launched by Android Studio
+Note: Polly will not be used here, because CMake is launched by Android Studio
 itself.
 
 The path to the CMake executable should be added to the ``local.properties``
-file before opening ``drishti/android-studio`` in Android Studio or before
-invoking the Gradle build script.
+file before opening ``drishti/android-studio`` in Android Studio, or before
+invoking the Gradle build script.  If you do not have a ``local.properties`` 
+file, it will begenerated automatically by Android Studio in the top level 
+``android-studio`` folder (usually ``drishti/android-studio/local.properites``), 
+when it is launched, at which point you can add the ``cmake.dir=/path/to/native/cmake`` 
+CMake entry and rerun.  The ``local.properties`` file will look something like this:
+
+
+.. code-block:: none
+
+    ndk.dir=/home/username/Android/Sdk/ndk-bundle
+    sdk.dir=/home/username/Android/Sdk
+    cmake.dir=/opt/cmake/bin
+
 
 Please check these instructions for details and useful notes:
 
