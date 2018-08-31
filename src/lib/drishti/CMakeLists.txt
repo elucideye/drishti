@@ -341,7 +341,7 @@ if(DRISHTI_BUILD_SHARED_SDK)
     )
 
     # override install dir for framework build
-    set(drishti_include_install_dir "Frameworks/${drishti_api_name}.framework/Headers")
+    set(drishti_include_install_dir "${drishti_api_name}.framework/Headers")
     
   endif()
 elseif(DRISHTI_BUILD_MERGED_SDK)
@@ -430,7 +430,7 @@ if(DRISHTI_INSTALL)
     RUNTIME DESTINATION "bin"
     INCLUDES DESTINATION "${drishti_include_install_dir}"
     PUBLIC_HEADER DESTINATION "${drishti_include_install_dir}"
-    FRAMEWORK DESTINATION "Frameworks"
+    FRAMEWORK DESTINATION "."
   )
 
   install(
