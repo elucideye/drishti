@@ -272,15 +272,8 @@ endif()
 # These targets will be configured with appropriate include paths:
 set(drishti_interface_libs "")
 
-# Create the public shared library
-add_library(${drishti_api_name} ${api_lib_type}
-  ${DRISHTI_DRISHTI_SRCS}
-  ${DRISHTI_DRISHTI_HDRS_PUBLIC}
-  ${DRISHTI_DRISHTI_HDRS_PRIVATE}
-  ${drishti_sdk_hpp})
-target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
-target_link_libraries(${drishti_api_name} PRIVATE "${drishti_sdk_libs}")
-list(APPEND drishti_interface_libs ${drishti_api_name})
+include (GenerateExportHeader)
+set(drishti_export_header "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_export.hpp")
 
 # Requires:
 # @DRISHTI_SDK_MAX_FACES@
@@ -290,17 +283,24 @@ set(drishti_constants_hpp_in "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_constant
 set(drishti_constants_hpp "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_constants.hpp")
 configure_file("${drishti_constants_hpp_in}" "${drishti_constants_hpp}" @ONLY)
 
-include (GenerateExportHeader)
-set(drishti_export_header "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_export.hpp")
-generate_export_header(drishti
-  EXPORT_FILE_NAME "${drishti_export_header}"
-)
-
 set(DRISHTI_INSTALL_PUBLIC_HDRS
   ${DRISHTI_DRISHTI_HDRS_PUBLIC}
   "${drishti_export_header}"
   "${drishti_constants_hpp}"
   "${drishti_sdk_hpp}"
+)
+
+# Create the public shared library
+add_library(${drishti_api_name} ${api_lib_type}
+  ${DRISHTI_INSTALL_PUBLIC_HDRS}
+  ${DRISHTI_DRISHTI_SRCS}
+  ${DRISHTI_DRISHTI_HDRS_PRIVATE})
+target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
+target_link_libraries(${drishti_api_name} PRIVATE "${drishti_sdk_libs}")
+list(APPEND drishti_interface_libs ${drishti_api_name})
+
+generate_export_header(drishti
+  EXPORT_FILE_NAME "${drishti_export_header}"
 )
 
 # Append drishti subdirectory for installed headers
@@ -339,10 +339,6 @@ if(DRISHTI_BUILD_SHARED_SDK)
       XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
       INSTALL_NAME_DIR "@rpath"
     )
-
-    # override install dir for framework build
-    set(drishti_include_install_dir "${drishti_api_name}.framework/Headers")
-
   endif()
 elseif(DRISHTI_BUILD_MERGED_SDK)
   # (Optional) merge top level library and all dependencies:
@@ -367,11 +363,6 @@ endif()
 ###################################
 ### set build/install include paths
 ###################################
-
-set_target_properties(drishti
-  PROPERTIES
-  PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
-)
 
 if(NOT IOS)
   # Use standrad shared lib versioning except for Xcode shared frameworks
@@ -428,16 +419,19 @@ if(DRISHTI_INSTALL)
     LIBRARY DESTINATION "lib"
     ARCHIVE DESTINATION "lib"
     RUNTIME DESTINATION "bin"
-    INCLUDES DESTINATION "${drishti_include_install_dir}"
-    PUBLIC_HEADER DESTINATION "${drishti_include_install_dir}"
     FRAMEWORK DESTINATION "."
+    INCLUDES DESTINATION "${drishti_include_install_dir}"
   )
 
-  install(
-    FILES
-    ${DRISHTI_INSTALL_PUBLIC_HDRS}
-    DESTINATION "${drishti_include_install_dir}"
-  )
+  if(DRISHTI_BUILD_SHARED_SDK AND IOS)
+    # Headers are part of framework
+  else()
+    install(
+      FILES
+      ${DRISHTI_INSTALL_PUBLIC_HDRS}
+      DESTINATION "${drishti_include_install_dir}"
+    )
+  endif()
 
   install(
     FILES "${drishti_project_config}" "${drishti_version_config}"
