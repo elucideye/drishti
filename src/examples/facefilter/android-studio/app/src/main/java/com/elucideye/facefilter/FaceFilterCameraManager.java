@@ -410,7 +410,7 @@ public class FaceFilterCameraManager
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
                 for (Size psize : map.getOutputSizes(SurfaceTexture.class))
                 {
-                    int area = psize.getHeight() * psize.getHeight();
+                    int area = psize.getHeight() * psize.getWidth();
                     if (area > maxArea)
                     {
                         maxArea = area;
