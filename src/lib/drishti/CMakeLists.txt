@@ -334,11 +334,20 @@ if(DRISHTI_BUILD_SHARED_SDK)
       PUBLIC_HEADER "${DRISHTI_INSTALL_PUBLIC_HDRS}"
       XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iOS Developer"
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
-      XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO
-      XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO
       INSTALL_NAME_DIR "@rpath//"
       BUILD_WITH_INSTALL_NAME_DIR YES
     )
+
+    if(DRISHTI_CODE_SIGN)
+      set_target_properties(${drishti_api_name} PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+      )
+    else()
+      set_target_properties(${drishti_api_name} PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO
+        XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO
+      )
+    endif()
   endif()
 elseif(DRISHTI_BUILD_MERGED_SDK)
   # (Optional) merge top level library and all dependencies:

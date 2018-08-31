@@ -68,6 +68,7 @@ if(DRISHTI_BUILD_MERGED_SDK)
 endif()
 
 option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
+option(DRISHTI_CODE_SIGN "iOS code signing" ON)
 
 message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 

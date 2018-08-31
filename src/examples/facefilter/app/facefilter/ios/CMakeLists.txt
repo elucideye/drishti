@@ -82,7 +82,7 @@ if(DRISHTI_OPENGL_ES3)
   )
 endif()
 
-if(FACEFILTER_CODE_SIGN)
+if(DRISHTI_CODE_SIGN)
   set_target_properties(
     FaceFilter
     PROPERTIES

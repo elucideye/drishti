@@ -1,5 +1,3 @@
-option(FACEFILTER_CODE_SIGN "iOS code signing" ON)
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 hunter_add_package(sugar)
