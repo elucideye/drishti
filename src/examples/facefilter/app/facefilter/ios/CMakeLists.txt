@@ -18,9 +18,19 @@ foreach(resource ${drishti_assets})
   list(APPEND FACEFILTER_RESOURCES ${${resource}})
 endforeach()
 
+if(IOS AND DRISHTI_BUILD_SHARED_SDK)
+  set_source_files_properties(
+      "${DRISHTI_FRAMEWORK_LOCATION}"
+      PROPERTIES
+      GENERATED YES
+      MACOSX_PACKAGE_LOCATION Frameworks
+  )
+endif()
+
 add_executable(FaceFilter
   ${FACEFILTER_SWIFT_SRCS}
   FaceFilter-Bridging-Header.h
+  ${DRISHTI_FRAMEWORK_LOCATION}
 
   # Resources
   ${FACEFILTER_RESOURCES}

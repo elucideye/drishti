@@ -353,6 +353,20 @@ try_compile(
 ### Includes (to be deprecated ###
 ##################################
 
+if(IOS AND DRISHTI_BUILD_SHARED_SDK)
+  list(LENGTH CMAKE_CONFIGURATION_TYPES len)
+  if(NOT len EQUAL "1")
+    message(FATAL_ERROR "Not supported")
+  endif()
+
+  set(
+      DRISHTI_FRAMEWORK_LOCATION
+      "${CMAKE_CURRENT_BINARY_DIR}/src/lib/drishti/${CMAKE_CONFIGURATION_TYPES}-iphoneos/drishti.framework"
+  )
+else()
+  set(DRISHTI_FRAMEWORK_LOCATION "")
+endif()
+
 add_subdirectory(src)
 
 #################################
