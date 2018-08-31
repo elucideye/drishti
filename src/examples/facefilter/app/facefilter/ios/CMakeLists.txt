@@ -20,7 +20,7 @@ endforeach()
 
 add_executable(FaceFilter
   ${FACEFILTER_SWIFT_SRCS}
-  FaceFilter-Bridging-Header.h  
+  FaceFilter-Bridging-Header.h
 
   # Resources
   ${FACEFILTER_RESOURCES}
@@ -29,10 +29,10 @@ add_executable(FaceFilter
 set(CMAKE_MACOSX_RPATH 1)
 # when building, don't use the install RPATH already
 # (but later on when installing)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)    
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 
 set_target_properties(
   FaceFilter
@@ -44,22 +44,22 @@ set_target_properties(
   XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
 
   # By default this setting is empty => archives not showing up in Xcode organizer.
-  # http://stackoverflow.com/a/8102602/2288008y  
+  # http://stackoverflow.com/a/8102602/2288008y
   XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
 
   # If this setting is "YES" application can't pass archive validation.
   # http://stackoverflow.com/a/24040412/2288008
-  XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO" 
+  XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
   RESOURCE "${FACEFILTER_RESOURCES}"
   XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER  "com.elucideye.facefilter"
 
   # dyld: Library not loaded: @rpath/libswiftAVFoundation.dylib
-  # Unable to load Swift runtime library (image not found): https://stackoverflow.com/a/24972407a  
+  # Unable to load Swift runtime library (image not found): https://stackoverflow.com/a/24972407a
   XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks\n@loader_path/Frameworks"
   INSTALL_RPATH "@executable_path/../Frameworks\n@loader_path/Frameworks"
 
   XCODE_ATTRIBUTE_SWIFT_OBJC_BRIDGING_HEADER "${CMAKE_CURRENT_LIST_DIR}/FaceFilter-Bridging-Header.h"
-  
+
   XCODE_ATTRIBUTE_PRODUCT_NAME "FaceFilter"
   XCODE_ATTRIBUTE_BUNDLE_IDENTIFIER "com.elucideye.facefilter"
   XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER  "com.elucideye.facefilter"
@@ -90,7 +90,7 @@ if(FACEFILTER_CODE_SIGN)
   )
 endif()
 
-target_link_libraries(FaceFilter PUBLIC 
+target_link_libraries(FaceFilter PUBLIC
   facefilter_renderer
   facefilter_bindings
   "-framework CoreMedia"
