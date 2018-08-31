@@ -175,7 +175,7 @@ target_link_libraries(drishtisdk PUBLIC ${drishti_sdk_libs})
 # support private access to drishti/drishti_sdk.hpp
 target_include_directories(drishtisdk
   PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>" 
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
 )
 
 if(DRISHTI_BUILD_SHARED_SDK)
@@ -322,7 +322,7 @@ if(DRISHTI_BUILD_SHARED_SDK)
       "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
       @ONLY
     )
-    
+
     # https://cmake.org/cmake/help/latest/prop_tgt/FRAMEWORK.html#framework
     set_target_properties(${drishti_api_name} PROPERTIES
       FRAMEWORK TRUE
@@ -335,14 +335,14 @@ if(DRISHTI_BUILD_SHARED_SDK)
       XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iOS Developer"
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
       XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO
-      XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO      
+      XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO
       XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
       INSTALL_NAME_DIR "@rpath"
     )
 
     # override install dir for framework build
     set(drishti_include_install_dir "${drishti_api_name}.framework/Headers")
-    
+
   endif()
 elseif(DRISHTI_BUILD_MERGED_SDK)
   # (Optional) merge top level library and all dependencies:
@@ -360,10 +360,10 @@ if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
   #drishti_strip(drishti)
 endif()
 
-if(DRISHTI_BUILD_SHARED_SDK)  
-  drishti_split_debug_symbols(drishti)  
+if(DRISHTI_BUILD_SHARED_SDK)
+  drishti_split_debug_symbols(drishti)
 endif()
-  
+
 ###################################
 ### set build/install include paths
 ###################################
@@ -448,7 +448,7 @@ if(DRISHTI_INSTALL)
     EXPORT "${drishti_targets_export_name}"
     NAMESPACE "${drishti_namespace}"
     DESTINATION "${drishti_config_install_dir}"
-  )  
+  )
 endif()
 
 # Experimental size reduction
@@ -489,7 +489,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
     #drishti_strip(drishti_c)
   endif()
 
-  if(DRISHTI_INSTALL)  
+  if(DRISHTI_INSTALL)
     # Simple install to execute post build strip
     install(
       TARGETS drishti_c
@@ -499,7 +499,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
       RUNTIME DESTINATION "bin"
       INCLUDES DESTINATION "${drishti_include_install_dir}"
       )
-  endif()  
+  endif()
 endif()
 
 foreach(library ${drishti_interface_libs})
@@ -531,5 +531,5 @@ if(DRISHTI_BUILD_TESTS)
       "$<INSTALL_INTERFACE:include>"  # <prefix>/include
     )
   endif()
-  
+
 endif()
