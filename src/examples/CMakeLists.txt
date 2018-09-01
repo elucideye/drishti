@@ -61,7 +61,20 @@ find_package(spdlog CONFIG REQUIRED)
 if(NOT TARGET drishti::drishti)
   # add the drishti package, possibly using GIT_SELF feature
   hunter_add_package(drishti)
-  find_package(drishti CONFIG REQUIRED)
+
+  if(IOS AND DRISHTI_BUILD_SHARED_SDK)
+    set(DRISHTI_FRAMEWORK_LOCATION "${DRISHTI_ROOT}/drishti.framework")
+    add_library(drishti::drishti INTERFACE IMPORTED)
+    set_target_properties(
+        drishti::drishti
+        PROPERTIES
+        INTERFACE_COMPILE_OPTIONS "-F${DRISHTI_ROOT}"
+        INTERFACE_LINK_LIBRARIES "-F${DRISHTI_ROOT} -framework drishti"
+    )
+  else()
+    find_package(drishti CONFIG REQUIRED)
+    set(DRISHTI_FRAMEWORK_LOCATION "")
+  endif()
 endif()
 
 set(base_deps drishti::drishti cxxopts::cxxopts ${OpenCV_LIBS} spdlog::spdlog)

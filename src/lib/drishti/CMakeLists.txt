@@ -175,7 +175,7 @@ target_link_libraries(drishtisdk PUBLIC ${drishti_sdk_libs})
 # support private access to drishti/drishti_sdk.hpp
 target_include_directories(drishtisdk
   PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>" 
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
 )
 
 if(DRISHTI_BUILD_SHARED_SDK)
@@ -272,17 +272,84 @@ endif()
 # These targets will be configured with appropriate include paths:
 set(drishti_interface_libs "")
 
+include (GenerateExportHeader)
+set(drishti_export_header "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_export.hpp")
+
+# Requires:
+# @DRISHTI_SDK_MAX_FACES@
+set(DRISHTI_SDK_MAX_FACES 8 CACHE STRING "Maximum # of faces to be supported")
+message("DRISHTI_SDK_MAX_FACES ${DRISHTI_SDK_MAX_FACES}")
+set(drishti_constants_hpp_in "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_constants.hpp.in")
+set(drishti_constants_hpp "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_constants.hpp")
+configure_file("${drishti_constants_hpp_in}" "${drishti_constants_hpp}" @ONLY)
+
+set(DRISHTI_INSTALL_PUBLIC_HDRS
+  ${DRISHTI_DRISHTI_HDRS_PUBLIC}
+  "${drishti_export_header}"
+  "${drishti_constants_hpp}"
+  "${drishti_sdk_hpp}"
+)
+
 # Create the public shared library
 add_library(${drishti_api_name} ${api_lib_type}
+  ${DRISHTI_INSTALL_PUBLIC_HDRS}
   ${DRISHTI_DRISHTI_SRCS}
-  ${DRISHTI_DRISHTI_HDRS_PUBLIC}
-  ${DRISHTI_DRISHTI_HDRS_PRIVATE}
-  ${drishti_sdk_hpp})
+  ${DRISHTI_DRISHTI_HDRS_PRIVATE})
 target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # define M_PI_2 for Visual Studio
 target_link_libraries(${drishti_api_name} PRIVATE "${drishti_sdk_libs}")
 list(APPEND drishti_interface_libs ${drishti_api_name})
 
-if((NOT DRISHTI_BUILD_SHARED_SDK) AND DRISHTI_BUILD_MERGED_SDK)
+generate_export_header(drishti
+  EXPORT_FILE_NAME "${drishti_export_header}"
+)
+
+# Append drishti subdirectory for installed headers
+set(drishti_include_install_dir "${drishti_include_install_dir}/${drishti_api_name}")
+
+if(DRISHTI_BUILD_SHARED_SDK)
+  if(IOS)
+    # Configure Info.plist template:
+    #  @CF_BUNDLE_SHORT_VERSION_STRING@
+    #  @CF_BUNDLE_VERSION@
+    #  @CF_BUNDLE_NAME@
+    #  @CF_BUNDLE_IDENTIFIER@
+    set(CF_BUNDLE_SHORT_VERSION_STRING "${drishtisdk_VERSION}")
+    set(CF_BUNDLE_VERSION "${drishtisdk_VERSION}")
+    set(CF_BUNDLE_NAME "drishti")
+    set(CF_BUNDLE_IDENTIFIER "com.elucideye.drishti")
+    configure_file(
+      "${DRISHTI_TOP_DIR}/cmake/Modules/templates/Info.plist.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
+      @ONLY
+    )
+
+    # https://cmake.org/cmake/help/latest/prop_tgt/FRAMEWORK.html#framework
+    set_target_properties(${drishti_api_name} PROPERTIES
+      FRAMEWORK TRUE
+      FRAMEWORK_VERSION A
+      MACOSX_FRAMEWORK_IDENTIFIER "${CF_BUNDLE_IDENTIFIER}"
+      MACOSX_FRAMEWORK_INFO_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
+      VERSION "${drishtisdk_VERSION}" # "current version" in semantic format in Mach-O binary file
+      SOVERSION "${drishtisdk_VERSION}" # "compatibility version" in semantic format in Mach-O binary file
+      PUBLIC_HEADER "${DRISHTI_INSTALL_PUBLIC_HDRS}"
+      XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iOS Developer"
+      XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
+      INSTALL_NAME_DIR "@rpath//"
+      BUILD_WITH_INSTALL_NAME_DIR YES
+    )
+
+    if(DRISHTI_CODE_SIGN)
+      set_target_properties(${drishti_api_name} PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+      )
+    else()
+      set_target_properties(${drishti_api_name} PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO
+        XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO
+      )
+    endif()
+  endif()
+elseif(DRISHTI_BUILD_MERGED_SDK)
   # (Optional) merge top level library and all dependencies:
   # Also see: http://stackoverflow.com/a/18949281
   include(drishti_merge_libraries)
@@ -298,41 +365,13 @@ if(DRISHTI_BUILD_SHARED_SDK AND NOT (IOS AND DRISHTI_BUILD_MERGED_SDK))
   #drishti_strip(drishti)
 endif()
 
-if(DRISHTI_BUILD_SHARED_SDK)  
-  drishti_split_debug_symbols(drishti)  
+if(DRISHTI_BUILD_SHARED_SDK)
+  drishti_split_debug_symbols(drishti)
 endif()
-  
-##############################################################
-### Generate export header and set build/install include paths
-##############################################################
 
-set(DRISHTI_SDK_MAX_FACES 8 CACHE STRING "Maximum # of faces to be supported")
-message("DRISHTI_SDK_MAX_FACES ${DRISHTI_SDK_MAX_FACES}")
-
-# Requires:
-# @DRISHTI_SDK_MAX_FACES@
-set(drishti_constants_hpp_in "${CMAKE_CURRENT_LIST_DIR}/drishti/drishti_constants.hpp.in")
-set(drishti_constants_hpp "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_constants.hpp")
-configure_file("${drishti_constants_hpp_in}" "${drishti_constants_hpp}" @ONLY)
-
-include (GenerateExportHeader)
-set(drishti_export_header "${CMAKE_CURRENT_BINARY_DIR}/drishti/drishti_export.hpp")
-generate_export_header(drishti
-  EXPORT_FILE_NAME "${drishti_export_header}"
-)
-
-set_target_properties(drishti
-  PROPERTIES
-  PUBLIC_HEADER "${DRISHTI_DRISHTI_HDRS_PUBLIC}"
-)
-
-if(IOS)
-  # This is required for some Xcode archive operations in end users of a shared framework
-  set_target_properties(drishti
-    PROPERTIES
-    XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone/iPad
-  )
-endif()
+###################################
+### set build/install include paths
+###################################
 
 if(NOT IOS)
   # Use standrad shared lib versioning except for Xcode shared frameworks
@@ -368,12 +407,6 @@ if(DRISHTI_INSTALL)
 
   # Export minimal public SDK or full internal SDK
   set(TARGET_SDK "drishti")
-  set(TARGET_PUBLIC_HDRS
-    ${DRISHTI_DRISHTI_HDRS_PUBLIC}
-    "${drishti_export_header}"
-    "${drishti_constants_hpp}"
-    "${drishti_sdk_hpp}"
-  )
 
   include(CMakePackageConfigHelpers)
   write_basic_package_version_file("${drishti_version_config}"
@@ -395,15 +428,19 @@ if(DRISHTI_INSTALL)
     LIBRARY DESTINATION "lib"
     ARCHIVE DESTINATION "lib"
     RUNTIME DESTINATION "bin"
+    FRAMEWORK DESTINATION "."
     INCLUDES DESTINATION "${drishti_include_install_dir}"
-    PUBLIC_HEADER DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
   )
 
-  install(
-    FILES
-    ${TARGET_PUBLIC_HDRS}
-    DESTINATION "${drishti_include_install_dir}/${CMAKE_PROJECT_NAME}"
-  )
+  if(DRISHTI_BUILD_SHARED_SDK AND IOS)
+    # Headers are part of framework
+  else()
+    install(
+      FILES
+      ${DRISHTI_INSTALL_PUBLIC_HDRS}
+      DESTINATION "${drishti_include_install_dir}"
+    )
+  endif()
 
   install(
     FILES "${drishti_project_config}" "${drishti_version_config}"
@@ -414,7 +451,7 @@ if(DRISHTI_INSTALL)
     EXPORT "${drishti_targets_export_name}"
     NAMESPACE "${drishti_namespace}"
     DESTINATION "${drishti_config_install_dir}"
-  )  
+  )
 endif()
 
 # Experimental size reduction
@@ -455,7 +492,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
     #drishti_strip(drishti_c)
   endif()
 
-  if(DRISHTI_INSTALL)  
+  if(DRISHTI_INSTALL)
     # Simple install to execute post build strip
     install(
       TARGETS drishti_c
@@ -465,7 +502,7 @@ if(DRISHTI_BUILD_C_INTERFACE)
       RUNTIME DESTINATION "bin"
       INCLUDES DESTINATION "${drishti_include_install_dir}"
       )
-  endif()  
+  endif()
 endif()
 
 foreach(library ${drishti_interface_libs})
@@ -497,5 +534,5 @@ if(DRISHTI_BUILD_TESTS)
       "$<INSTALL_INTERFACE:include>"  # <prefix>/include
     )
   endif()
-  
+
 endif()

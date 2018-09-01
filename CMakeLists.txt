@@ -15,7 +15,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 ### Drishti project ###
 #######################
 
-project(drishtisdk VERSION 0.12.4)
+project(drishtisdk VERSION 0.12.5)
+
+set(DRISHTI_TOP_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 #################
 ### Languages ###
@@ -66,6 +68,7 @@ if(DRISHTI_BUILD_MERGED_SDK)
 endif()
 
 option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)
+option(DRISHTI_CODE_SIGN "iOS code signing" ON)
 
 message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
@@ -349,6 +352,20 @@ try_compile(
 ##################################
 ### Includes (to be deprecated ###
 ##################################
+
+if(IOS AND DRISHTI_BUILD_SHARED_SDK)
+  list(LENGTH CMAKE_CONFIGURATION_TYPES len)
+  if(NOT len EQUAL "1")
+    message(FATAL_ERROR "Not supported")
+  endif()
+
+  set(
+      DRISHTI_FRAMEWORK_LOCATION
+      "${CMAKE_CURRENT_BINARY_DIR}/src/lib/drishti/${CMAKE_CONFIGURATION_TYPES}-iphoneos/drishti.framework"
+  )
+else()
+  set(DRISHTI_FRAMEWORK_LOCATION "")
+endif()
 
 add_subdirectory(src)
 
