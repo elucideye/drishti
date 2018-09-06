@@ -25,11 +25,18 @@ environment:
       BUILD_SHARED: OFF
 
 install:
-  - cmd: bin\hunter_env.cmd
+  # Python 3
+  - cmd: set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
+
+  # Install Python package 'requests', 'gitpython'
+  - cmd: pip install requests
+  - cmd: pip install gitpython
+
+  # Add '--quiet' to avoid leaking the token to logs
+  - cmd: git submodule update --init --recursive --quiet
 
 build_script:
-  - cmd: set APPVEYOR_CMAKE_ARGS=DRISHTI_HAS_GPU=OFF
-  - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%" "%BUILD_SHARED%"
+  - cmd: python bin\jenkins.py
 
 artifacts:
   - path: _archives\drishti-*.tar.gz
