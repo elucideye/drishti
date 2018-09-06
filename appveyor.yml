@@ -18,7 +18,7 @@ environment:
 
     - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Release
-      BUILD_SHARED: OFF      
+      BUILD_SHARED: OFF
 
     - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Debug
