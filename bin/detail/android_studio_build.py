@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import time
 
 from detail.download_unzip import download_unzip
 from detail.substitute_line import substitute_line
@@ -48,16 +49,35 @@ def android_studio_build():
     os.environ['PATH'] = "{};{}".format(ninja_path, os.getenv('PATH'))
 
     download_unzip(
-        'https://dl.google.com/android/repository/android-ndk-r17-linux-x86_64.zip',
+        'https://dl.google.com/android/repository/android-ndk-r17c-windows-x86_64.zip',
         '_android_ndk'
     )
 
     android_ndk = os.path.join(os.getcwd(), '_android_ndk', 'android-ndk-r17')
+    android_sdk = os.path.join(os.getenv('USERPROFILE'), 'android-sdk')
+    licenses_dir = os.path.join(android_sdk, 'licenses')
 
+    os.makedirs(licenses_dir, exist_ok=True)
+
+    android_ndk = android_ndk.replace('\\', '/')
+    cmake_dir = cmake_dir.replace('\\', '/')
+    android_sdk = android_sdk.replace('\\', '/')
+
+    # Create 'local.properties'
     f = open('local.properties', 'w')
-    f.write('sdk.dir={}/android-sdk\n'.format(os.getenv('USERPROFILE')))
+    f.write('sdk.dir={}\n'.format(android_sdk))
     f.write('ndk.dir={}\n'.format(android_ndk))
     f.write('cmake.dir={}\n'.format(cmake_dir))
+    f.close()
+
+    # https://stackoverflow.com/a/38381577
+    f = open(os.path.join(licenses_dir, 'android-sdk-license'), 'w')
+    f.write('\nd56f5187479451eabf01fb78af6dfcb131a6481e')
+    f.close()
+
+    # https://stackoverflow.com/a/38339046
+    f = open(os.path.join(os.getcwd(), 'gradle.properties'), 'w')
+    f.write('android.builder.sdkDownload=true')
     f.close()
 
   expected = os.path.join(os.getcwd(), 'local.properties')
@@ -72,6 +92,17 @@ def android_studio_build():
       '^if\(DRISHTI_DEBUG_STOP\)$',
       'if(DRISHTI_DEBUG_STOP OR TRUE)'
   )
+
+  if is_appveyor:
+    # First Gradle lauch will hit issue:
+    # * https://issuetracker.google.com/issues/75268076
+    subprocess.call(
+        ['gradlew.bat', 'assembleDebug', '-Parch={}'.format(arch)]
+    )
+
+    # Sometimes second launch failing with the same error, put a wait command
+    # to try to improve stability
+    time.sleep(15)
 
   subprocess.check_call(
       ['gradlew.bat', 'assembleDebug', '-Parch={}'.format(arch)]
