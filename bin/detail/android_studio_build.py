@@ -53,7 +53,7 @@ def android_studio_build():
         '_android_ndk'
     )
 
-    android_ndk = os.path.join(os.getcwd(), '_android_ndk', 'android-ndk-r17')
+    android_ndk = os.path.join(os.getcwd(), '_android_ndk', 'android-ndk-r17c')
     android_sdk = os.path.join(os.getenv('USERPROFILE'), 'android-sdk')
     licenses_dir = os.path.join(android_sdk, 'licenses')
 
