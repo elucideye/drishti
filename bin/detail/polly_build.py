@@ -5,26 +5,13 @@ import time
 
 from detail.download_unzip import download_unzip
 
-def run():
+def polly_build():
   polly_script = [sys.executable]
 
   if os.getenv('APPVEYOR') == 'True':
-    download_unzip(
-        'https://github.com/ruslo/polly/archive/master.zip', '_polly'
-    )
-
-    cwd = os.getcwd()
-    polly_bin = os.path.join(cwd, '_polly', 'polly-master', 'bin')
-
-    # Install dependencies (CMake, Ninja)
-    ci_deps_script = os.path.join(polly_bin, 'install-ci-dependencies.py')
-    subprocess.check_call([sys.executable, ci_deps_script])
-
-    # Tune locations
-    cmake_bin = os.path.join(cwd, '_ci', 'cmake', 'bin')
-    os.environ['PATH'] = "{};{}".format(cmake_bin, os.getenv('PATH'))
-
-    polly_script += [os.path.join(polly_bin, 'polly.py')]
+    polly_script += [
+        os.path.join(os.getcwd(), '_polly', 'polly-master', 'bin', 'polly.py')
+    ]
   else:
     polly_script += [subprocess.check_output(['where', 'polly.py']).decode('utf-8').rstrip()]
 

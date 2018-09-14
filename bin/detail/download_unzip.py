@@ -28,6 +28,8 @@ def file_download(url, local_path):
 def download_unzip(url, todir):
   if not os.path.exists(todir):
     os.mkdir(todir)
+  backdir = os.getcwd()
+
   os.chdir(todir)
 
   temp_local_path = os.path.join(os.getcwd(), 'temp.zip')
@@ -42,4 +44,4 @@ def download_unzip(url, todir):
   )
 
   os.remove(temp_local_path)
-  os.chdir('..')
+  os.chdir(backdir)
