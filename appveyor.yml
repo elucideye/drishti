@@ -7,29 +7,51 @@ environment:
 
   matrix:
 
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      TOOLCHAIN: "vs-15-2017"
+    - TOOLCHAIN: "vs-15-2017"
       CONFIG: Release
       BUILD_SHARED: ON
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      TYPE: polly
 
     - TOOLCHAIN: "vs-14-2015-sdk-8-1"
       CONFIG: Release
       BUILD_SHARED: OFF
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      TYPE: polly
 
     - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Release
-      BUILD_SHARED: OFF      
+      BUILD_SHARED: OFF
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      TYPE: polly
 
     - TOOLCHAIN: "vs-14-2015-win64-sdk-8-1"
       CONFIG: Debug
       BUILD_SHARED: OFF
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      TYPE: polly
+
+    - ANDROID_STUDIO_ARCH: arm64-v8a
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      TYPE: android-studio
+
+    - ANDROID_STUDIO_ARCH: armeabi-v7a
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      TYPE: android-studio
 
 install:
-  - cmd: bin\hunter_env.cmd
+  # Python 3
+  - cmd: set PATH=C:\Python34-x64;C:\Python34-x64\Scripts;%PATH%
+
+  # Install Python package 'requests', 'gitpython'
+  - cmd: pip install requests
+  - cmd: pip install gitpython
+
+  # Add '--quiet' to avoid leaking the token to logs
+  - cmd: git submodule update --init --recursive --quiet
 
 build_script:
-  - cmd: set APPVEYOR_CMAKE_ARGS=DRISHTI_HAS_GPU=OFF
-  - cmd: bin\build-appveyor.cmd "%CONFIG%" "%TOOLCHAIN%" "%BUILD_SHARED%"
+  - cmd: python bin\jenkins.py
 
 artifacts:
   - path: _archives\drishti-*.tar.gz
