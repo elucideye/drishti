@@ -355,7 +355,7 @@ static int drishtiEyeToDlib(
                 {
                     bfs::path sEyeMask = bfs::path(sLabels) / bfs::path(sImage).filename();
                     cv::Mat labels = eye.labels(size, 1, 2, 3, 2);
-                    cv::imwrite(sEyeMask.c_str(), labels);
+                    cv::imwrite(sEyeMask.string(), labels);
                 }
             }
         }
