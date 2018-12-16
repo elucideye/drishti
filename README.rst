@@ -319,14 +319,16 @@ based on Drishti.
 Android Studio Workarounds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following factors can all contribute to some instability in the Android
-Studio managed build:
+The following factors may contribute to some instability in the Android
+Studio managed build.
 
-* Android Studio 3.2.1
-* Using custom CMake 3.7+ in Android Studio is `a preview feature <https://developer.android.com/studio/projects/add-native-code#vanilla_cmake>`__
+* Using custom CMake 3.7+ in Android Studio is `a relatively new feature <https://developer.android.com/studio/projects/add-native-code#vanilla_cmake>`__
 * Some issues are hard to track or confirm, some `issues <https://issuetracker.google.com/issues/75268076>`__ are already reported but still **not fixed**
 
-From experience, the weakest part in the build is the communication between
+With support for official CMake binaries now in the Android Studio 3.2.1 release, 
+the Android build stability is very likely improved compared to earlier beta versions.
+
+From experience, the weakest part in the build has been communication between
 Gradle and CMake. To minimize it, the following trick can be used:
 
 * Open the top-level ``CMakeLists.txt`` file
