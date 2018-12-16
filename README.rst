@@ -40,7 +40,8 @@ from your macOS + Xcode host for your ``iOS`` device.   Please see
 Android Studio
 ~~~~~~~~~~~~~~
 
-The Android Studio application is located here: ``src/examples/facefilter/android-studio``.
+The top level Android Studio application is located in the ``android-studio`` directory.
+This target will build and manage repository C++ sources directly as part of the project.
 Android Studio/Gradle is required to build the application layer,
 and the CMake build is managed directly by ``gradle``.  There are a
 few platform specific configurations that must be addressed before building.
@@ -284,7 +285,7 @@ For Android Studio, there are additional requirements:
 
 * CMake 3.9.2+
 * Ninja
-* Android Studio 3.2+ (it's beta at this moment)
+* Android Studio 3.2.1
 
 Note: Polly will not be used here, because CMake is launched by Android Studio
 itself.
@@ -321,7 +322,7 @@ Android Studio Workarounds
 The following factors can all contribute to some instability in the Android
 Studio managed build:
 
-* Android Studio 3.2 is **beta**
+* Android Studio 3.2.1
 * Using custom CMake 3.7+ in Android Studio is `a preview feature <https://developer.android.com/studio/projects/add-native-code#vanilla_cmake>`__
 * Some issues are hard to track or confirm, some `issues <https://issuetracker.google.com/issues/75268076>`__ are already reported but still **not fixed**
 
@@ -491,9 +492,9 @@ even if Xcode 9.3 is installed and set as the default.
 
 You can use Polly toolchains to build Android if you don't want to rely on
 Android Studio. The only requirement is an environment variable with the
-Android NDK location. Set the ``ANDROID_NDK_r10e`` environment variable with
-the path to the Android NDK r10e, and you can use any
-``--toolchain android-ndk-r10e-*`` variants.
+Android NDK location. Set the ``ANDROID_NDK_r17`` environment variable with
+the path to the Android NDK r17, and you can use any
+``--toolchain android-ndk-r17-*`` variants.
 
 .. |Travis| image:: https://img.shields.io/travis/elucideye/drishti/master.svg?style=flat-square&label=Linux%20OSX%20Android%20iOS
    :target: https://travis-ci.org/elucideye/drishti/builds
