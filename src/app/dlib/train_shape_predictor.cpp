@@ -130,14 +130,14 @@ int gauze_main(int argc, char* argv[])
         ( "help", "Print the help message", cxxopts::value<bool>(do_help));
     // clang-format on    
 
-    options.parse(argc, argv);
+    auto opts = options.parse(argc, argv);
 
     if(do_silent)
     {
         logger->set_level(spdlog::level::off);
     }    
 
-    if((argumentCount <= 1) || options.count("help"))
+    if((argumentCount <= 1) || opts.count("help"))
     {
         logger->info(options.help({""}));
         return 0;

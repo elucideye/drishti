@@ -686,10 +686,11 @@ public:
     shape_predictor() = default;
     ~shape_predictor() = default;
 
-    shape_predictor(const shape_predictor&) = delete;
-    shape_predictor(shape_predictor&&) = delete;
-    shape_predictor& operator=(const shape_predictor&) = delete;
-    shape_predictor& operator=(shape_predictor&&) = delete;
+    // Note: default constructors required w/ DRISHTI_BUILD_MIN_SIZE=ON
+    //shape_predictor(const shape_predictor&) = delete;
+    //shape_predictor(shape_predictor&&) = delete;
+    //shape_predictor& operator=(const shape_predictor&) = delete;
+    //shape_predictor& operator=(shape_predictor&&) = delete;
 
     shape_predictor(
         fshape  initial_shape_,

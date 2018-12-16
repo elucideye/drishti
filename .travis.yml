@@ -35,12 +35,13 @@ matrix:
     #     INSTALL=--strip
     #     TYPE=polly
 
-    - os: linux
-      env: >
-        TOOLCHAIN=clang-tidy-libcxx
-        CONFIG=Release
-        INSTALL=--strip
-        TYPE=polly
+    # FIXME: need automated fixer script to run before each pr
+    #- os: linux
+    #  env: >
+    #    TOOLCHAIN=clang-tidy-libcxx
+    #    CONFIG=Release
+    #    INSTALL=--strip
+    #    TYPE=polly
 
     - os: linux
       env: >

@@ -183,7 +183,7 @@ public:
         doc.append_node(dataset);
     }
 
-    void addEye(const std::string& sEye, const std::string& sImage)
+    drishti::eye::EyeModel addEye(const std::string& sEye, const std::string& sImage)
     {
         drishti::eye::EyeModel eye;
         load(sEye, eye);
@@ -193,6 +193,8 @@ public:
             // Parse image dimensions
             addEye(eye, sImage);
         }
+
+        return eye;
     }
     
     cv::Mat draw_with_padding(const cv::Mat &image, const drishti::eye::EyeModel &eyeIn)
@@ -328,7 +330,11 @@ public:
     rapidxml::xml_document<> doc;
 };
 
-static int drishtiEyeToDlib(const std::vector<std::string>& filenames, std::string& sOutput, const std::string& ext = ".eye.xml")
+static int drishtiEyeToDlib(
+    const std::vector<std::string>& filenames,
+    const std::string& sOutput,
+    const std::string& sLabels,
+    const std::string& ext = ".eye.xml")
 {
     std::ofstream os(sOutput);
     if (os)
@@ -340,7 +346,18 @@ static int drishtiEyeToDlib(const std::vector<std::string>& filenames, std::stri
         {
             bfs::path sEye(sImage);
             sEye.replace_extension(ext);
-            doc.addEye(sEye.string(), sImage);
+            auto &&eye = doc.addEye(sEye.string(), sImage);
+
+            if(!sLabels.empty())
+            {
+                cv::Size size = read_png_size(sImage);
+                if(size.area())
+                {
+                    bfs::path sEyeMask = bfs::path(sLabels) / bfs::path(sImage).filename();
+                    cv::Mat labels = eye.labels(size, 1, 2, 3, 2);
+                    cv::imwrite(sEyeMask.string(), labels);
+                }
+            }
         }
         doc.finish();
         doc.write(os);
@@ -360,7 +377,9 @@ int gauze_main(int argc, char** argv)
     // ### Command line parsing ###
     // ############################
 
-    std::string sInput, sOutput, sExtension = ".eye.xml";
+    bool doLabels = false;
+
+    std::string sInput, sOutput, sLabels, sExtension = ".eye.xml";
 
     cxxopts::Options options("eyexml", "Convert eye files to xml");
 
@@ -369,6 +388,7 @@ int gauze_main(int argc, char** argv)
         ("i,input", "Input file", cxxopts::value<std::string>(sInput))
         ("o,output", "Output directory", cxxopts::value<std::string>(sOutput))
         ("e,extension", "Extension", cxxopts::value<std::string>(sExtension))
+        ("l,labels", "Dump labels", cxxopts::value<std::string>(sLabels))
         ("h,help", "Print help message");
     // clang-format on
 
@@ -382,7 +402,7 @@ int gauze_main(int argc, char** argv)
 
     auto filenames = drishti::cli::expand(sInput);
 
-    return drishtiEyeToDlib(filenames, sOutput, sExtension);
+    return drishtiEyeToDlib(filenames, sOutput, sLabels, sExtension);
 }
 
 int main(int argc, char** argv)

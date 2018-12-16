@@ -20,3 +20,5 @@ target_link_libraries(${test_app} PUBLIC cxxopts::cxxopts)
 hunter_add_package(aglet)
 find_package(aglet CONFIG REQUIRED)
 target_link_libraries(${test_app} PUBLIC aglet::aglet)
+
+install(TARGETS ${test_app} DESTINATION bin)
