@@ -290,10 +290,16 @@ For Android Studio, there are additional requirements:
 Note: Polly will not be used here, because CMake is launched by Android Studio
 itself.
 
+Note: Host compiler is required for some parts of the build.
+E.g. on Windows you have to install
+`Visual Studio <https://cgold.readthedocs.io/en/latest/first-step/native-build-tool/visual-studio.html>`__.
+Please check that `minimal C++ example <https://cgold.readthedocs.io/en/latest/first-step/minimal-example.html>`__
+is working.
+
 The path to the CMake executable should be added to the ``local.properties``
 file before opening ``drishti/android-studio`` in Android Studio, or before
 invoking the Gradle build script.  If you do not have a ``local.properties``
-file, it will begenerated automatically by Android Studio in the top level
+file, it will be generated automatically by Android Studio in the top level
 ``android-studio`` folder (usually ``drishti/android-studio/local.properites``),
 when it is launched, at which point you can add the ``cmake.dir=/path/to/native/cmake``
 CMake entry and rerun.  The ``local.properties`` file will look something like this:
