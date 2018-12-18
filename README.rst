@@ -22,20 +22,20 @@ package interface, which is designed without external types in the API definitio
 The ``facefilter`` demos are enabled by the ``DRISHTI_BUILD_EXAMPLES``
 CMake option, and the entire ``src/examples`` tree is designed to be relocatable,
 you can ``cp -r src/examples ${HOME}/drishti_examples``, customize, and
-build, by simply updating the drishti package details.  
+build, by simply updating the drishti package details.
 
 iOS
 ~~~
 
-The ``iOS`` ``facefilter`` target requires Xcode 9 (beta 4) or above 
-(Swift language requirements)  and will be generated directly as a standard CMake 
-``add_executable()`` target as part of the usual top level project build -- 
-*if* you are using an appropriate CMake 
-`iOS toolchain <https://polly.readthedocs.io/en/latest/toolchains/ios.html>`__ 
-for 
-`cross compilation <https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling>`__ 
+The ``iOS`` ``facefilter`` target requires Xcode 9 (beta 4) or above
+(Swift language requirements)  and will be generated directly as a standard CMake
+``add_executable()`` target as part of the usual top level project build --
+*if* you are using an appropriate CMake
+`iOS toolchain <https://polly.readthedocs.io/en/latest/toolchains/ios.html>`__
+for
+`cross compilation <https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/CrossCompiling>`__
 from your macOS + Xcode host for your ``iOS`` device.   Please see
-`Polly Based Build`_ and `iOS Build`_ below for more details. 
+`Polly Based Build`_ and `iOS Build`_ below for more details.
 
 Android Studio
 ~~~~~~~~~~~~~~
@@ -266,11 +266,11 @@ Since CMake contains an Xcode generator, building for ``iOS`` is fairly straight
 In practice, it is no different than the other `polly.py` toolchain builds.  As always,
 you will need to have an Apple Developer Account to build and run on ``iOS`` devices.
 There are a few setup steps associated with Apple code signing requirements.
-Since iOS 10.0, Xcode projects require a valid `Team ID` entry, 
+Since iOS 10.0, Xcode projects require a valid `Team ID` entry,
 which can be set through CMake using the `CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM` CMake variable.
-If you generate an Xcode project through a `polly.py` command (described below), it will initialize 
+If you generate an Xcode project through a `polly.py` command (described below), it will initialize
 the field for you if the
-`POLLY_IOS_DEVELOPMENT_TEAM <https://polly.readthedocs.io/en/latest/toolchains/ios/errors/polly_ios_development_team.html#polly-ios-development-team>`__ 
+`POLLY_IOS_DEVELOPMENT_TEAM <https://polly.readthedocs.io/en/latest/toolchains/ios/errors/polly_ios_development_team.html#polly-ios-development-team>`__
 environment variable is set with your `Team ID`, which
 can be found in your `Apple Developer Account <https://developer.apple.com/account/#/membership>`__.
 If you are using an Apple Enterprise Developer Account, the ``CMAKE_TRY_COMPILE`` step can
@@ -292,10 +292,10 @@ itself.
 
 The path to the CMake executable should be added to the ``local.properties``
 file before opening ``drishti/android-studio`` in Android Studio, or before
-invoking the Gradle build script.  If you do not have a ``local.properties`` 
-file, it will begenerated automatically by Android Studio in the top level 
-``android-studio`` folder (usually ``drishti/android-studio/local.properites``), 
-when it is launched, at which point you can add the ``cmake.dir=/path/to/native/cmake`` 
+invoking the Gradle build script.  If you do not have a ``local.properties``
+file, it will begenerated automatically by Android Studio in the top level
+``android-studio`` folder (usually ``drishti/android-studio/local.properites``),
+when it is launched, at which point you can add the ``cmake.dir=/path/to/native/cmake``
 CMake entry and rerun.  The ``local.properties`` file will look something like this:
 
 
@@ -304,7 +304,7 @@ CMake entry and rerun.  The ``local.properties`` file will look something like t
     ndk.dir=/home/username/Android/Sdk/ndk-bundle
     sdk.dir=/home/username/Android/Sdk
     cmake.dir=/opt/cmake
-    
+
 The ``cmake.dir`` entry should be set such that ``<cmake.dir>/bin/cmake`` points to a
 valid ``cmake`` executable file.
 
@@ -325,7 +325,7 @@ Studio managed build.
 * Using custom CMake 3.7+ in Android Studio is `a relatively new feature <https://developer.android.com/studio/projects/add-native-code#vanilla_cmake>`__
 * Some issues are hard to track or confirm, some `issues <https://issuetracker.google.com/issues/75268076>`__ are already reported but still **not fixed**
 
-With support for official CMake binaries now in the Android Studio 3.2.1 release, 
+With support for official CMake binaries now in the Android Studio 3.2.1 release,
 the Android build stability is very likely improved compared to earlier beta versions.
 
 From experience, the weakest part in the build has been communication between
