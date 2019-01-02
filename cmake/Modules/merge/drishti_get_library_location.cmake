@@ -1,3 +1,11 @@
+# @file   drishti_get_library_location.cmake
+# @brief  CMake script to return the location of a library target.
+#
+# \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
+# \license{This project is released under the 3 Clause BSD License.}
+#
+# This is a helper routine for drishti_merge_libraries.cmake
+
 include(CMakeParseArguments) # cmake_parse_arguments
 
 function(drishti_get_library_location)

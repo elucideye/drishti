@@ -61,10 +61,13 @@ option(DRISHTI_BUILD_MERGED_SDK "Merge all static dependencies" OFF)
 option(DRISHTI_COPY_3RDPARTY_LICENSES "Install 3rd party licenses" ON)
 
 if(DRISHTI_BUILD_MERGED_SDK)
+
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules/merge")
   # Override the drishti-upload DRISHTI_BUILD_OPENCV_WORLD option, since the opencv_world
   # library contains duplicate object filenames that prevents a successful split + merge
   # due to limitations in the ar utility.
   option(DRISHTI_BUILD_OPENCV_WORLD "Build OpenCV world (monolithic lib)" OFF)
+
 endif()
 
 option(DRISHTI_BUILD_ACF "Drishti ACF lib" ON)

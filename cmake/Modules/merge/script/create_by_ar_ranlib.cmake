@@ -1,3 +1,11 @@
+# @file   create_by_ar_ranlib.cmake
+# @brief  Use CMAKE_AR and CMAKE_RANLIB to create a single static lib
+#
+# \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
+# \license{This project is released under the 3 Clause BSD License.}
+#
+# This is a helper routine for drishti_merge_libraries.cmake
+
 cmake_minimum_required(VERSION 3.1)
 
 include("${CMAKE_CURRENT_LIST_DIR}/../drishti_merge_print.cmake")

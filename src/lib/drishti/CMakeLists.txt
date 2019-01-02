@@ -299,10 +299,6 @@ target_compile_definitions(${drishti_api_name} PUBLIC _USE_MATH_DEFINES) # defin
 target_link_libraries(${drishti_api_name} PRIVATE "${drishti_sdk_libs}")
 list(APPEND drishti_interface_libs ${drishti_api_name})
 
-generate_export_header(drishti
-  EXPORT_FILE_NAME "${drishti_export_header}"
-)
-
 # Append drishti subdirectory for installed headers
 set(drishti_include_install_dir "${drishti_include_install_dir}/${drishti_api_name}")
 
@@ -356,6 +352,10 @@ elseif(DRISHTI_BUILD_MERGED_SDK)
   drishti_merge_libraries(LIBRARIES ${drishti_api_name} FINAL drishti)
   list(APPEND drishti_interface_libs drishti)
 endif()
+
+generate_export_header(drishti
+  EXPORT_FILE_NAME "${drishti_export_header}"
+)
 
 # ALIAS target allow us to have same interface while including project
 add_library(drishti::drishti ALIAS drishti)

@@ -1,3 +1,9 @@
+# @file   drishti_merge_librariers.cmake
+# @brief  CMake scripts to recursively gather deps, split to .o files, and merge to mega *.a
+#
+# \copyright Copyright 2014-2018 Elucideye, Inc. All rights reserved.
+# \license{This project is released under the 3 Clause BSD License.}
+
 include(CMakeParseArguments) # cmake_parse_arguments
 
 cmake_policy(SET CMP0026 OLD) # drishti_merge_libraries_msvc use LOCATION
