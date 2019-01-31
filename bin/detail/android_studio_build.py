@@ -72,7 +72,7 @@ def android_studio_build():
 
     # https://stackoverflow.com/a/38381577
     f = open(os.path.join(licenses_dir, 'android-sdk-license'), 'w')
-    f.write('\nd56f5187479451eabf01fb78af6dfcb131a6481e')
+    f.write('\n24333f8a63b6825ea9c5514f83c2829b004d1fee')
     f.close()
 
     # https://stackoverflow.com/a/38339046
