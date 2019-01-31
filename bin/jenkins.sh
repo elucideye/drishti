@@ -193,7 +193,7 @@ case "${TYPE}" in
 
     # https://stackoverflow.com/a/38381577
     mkdir -p ${HOME}/android-sdk/licenses
-    echo -e "\nd56f5187479451eabf01fb78af6dfcb131a6481e" > "${HOME}/android-sdk/licenses/android-sdk-license"
+    echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > "${HOME}/android-sdk/licenses/android-sdk-license"
 
     # https://stackoverflow.com/a/38339046
     echo "android.builder.sdkDownload=true" > gradle.properties
