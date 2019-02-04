@@ -40,7 +40,7 @@ android {
                 arguments '-DANDROID_STL=c++_static',
                     '-DFACEFILTER_ANDROID_STUDIO=1',
                     '-DHUNTER_STATUS_DEBUG=ON',
-                    '-DCMAKE_VERBOSE_MAKEFILE=ON'
+                    '-DCMAKE_VERBOSE_MAKEFILE=ON',
                     '-DDRISHTI_OPENGL_ES3=ON'
             }
         }

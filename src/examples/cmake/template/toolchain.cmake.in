@@ -41,6 +41,9 @@
 set(ANDROID_ABI "@ANDROID_ABI@")
 set(ANDROID_PLATFORM "@ANDROID_PLATFORM@")
 set(ANDROID_STL "@ANDROID_STL@")
+set(ANDROID_NDK "@ANDROID_NDK@") # /usr/bin/ld: unrecognised emulation mode: aarch64linux
+set(ANDROID_STL_PATH "@ANDROID_NDK@/sources/cxx-stl/llvm-libc++")
+
 set(CMAKE_ANDROID_ARCH_ABI "@CMAKE_ANDROID_ARCH_ABI@")
 set(CMAKE_SYSTEM_NAME "Android")
 set(CMAKE_SYSTEM_VERSION "@CMAKE_SYSTEM_VERSION@")
@@ -91,9 +94,35 @@ include("${_INTERNAL_ANDROID_STUDIO_ORIGINAL_CMAKE_TOOLCHAIN_FILE}")
 
 # STEP 3: Tweak CMake Android variables
 
-set(CMAKE_SYSTEM_VERSION "${ANDROID_NATIVE_API_LEVEL}")
+set(CMAKE_ANDROID_STL_PATH "${ANDROID_STL_PATH}")
+
+# NDK r19 updates {
+
+# From ${ANDROID_ROOT}/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake:
+#
+# > Inhibit all of CMake's own NDK handling code.
+# > set(CMAKE_SYSTEM_VERSION 1)
+#
+# If we set CMAKE_SYSTEM_VERSION in the injection step, it results
+# in initial CMake compiler checks failing due to use of the
+# system linker rather than the NDK linker.
+#
+# This results in errors like:
+#
+# > /usr/bin/ld: unrecognised emulation mode: aarch64linux
+#
+# Avoid settings CMAKE_SYSTEM_VERSION for NDK r19
+# set(CMAKE_SYSTEM_VERSION "${ANDROID_NATIVE_API_LEVEL}")
+
+# see discussion in https://github.com/android-ndk/ndk/issues/890 
+list(APPEND CMAKE_SYSTEM_LIBRARY_PATH "/usr/lib/${ANDROID_TOOLCHAIN_NAME}/${ANDROID_PLATFORM_LEVEL}")
+list(APPEND CMAKE_FIND_ROOT_PATH "${ANDROID_NDK}")
+set(CMAKE_SYSROOT "${ANDROID_SYSROOT}")
+
+# * https://github.com/ruslo/hunter/blob/b91cf1dd4fe119004332fe304c40ac619ac5e4de/cmake/modules/hunter_dump_cmake_flags.cmake#L63-L71
+set(CMAKE_SYSROOT_COMPILE "${ANDROID_SYSROOT}")
+# }
 
 # STEP 4: Custom user variables
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

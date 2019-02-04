@@ -1,1 +1,3 @@
-include '../src/examples/facefilter/android-studio/app'
+// https://stackoverflow.com/a/20128717
+include 'facefilter'
+project(':facefilter').projectDir = new File('../src/examples/facefilter/android-studio/app')
