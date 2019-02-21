@@ -40,6 +40,18 @@ from your macOS + Xcode host for your ``iOS`` device.   Please see
 Android Studio
 ~~~~~~~~~~~~~~
 
+UPDATE: Android NDK r19 is not currently supported due to significant structural changes in the android-ndk toolchain that conflict with CMake's internal Android support.  See this `_discussion <https://gitlab.kitware.com/cmake/cmake/issues/18787#note_520775>`__ for more details.
+
+You can download standalone NDK r18x toolchains or earlier and specify those directly in your gradle `local.properties`.
+
+**drishti/android-studio/local.properties** example:
+
+.. code-block:: none
+
+  ndk.dir=/Users/username/android/android-ndk-r18b
+  sdk.dir=/Users/username/Library/Android/sdk
+  cmake.dir=/usr/local
+
 The top level Android Studio application is located in the ``android-studio`` directory.
 This target will build and manage repository C++ sources directly as part of the project.
 Android Studio/Gradle is required to build the application layer,
