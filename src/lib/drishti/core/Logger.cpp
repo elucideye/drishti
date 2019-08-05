@@ -11,6 +11,7 @@
 
 #include "drishti/core/Logger.h"
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 // clang-format off
 #if defined(__ANDROID__)
