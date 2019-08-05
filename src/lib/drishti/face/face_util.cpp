@@ -13,43 +13,11 @@
 #include "drishti/eye/EyeIO.h"
 #include "drishti/geometry/Primitives.h"
 
-#include <opencv2/videostab/global_motion.hpp>
-#include <opencv2/video/tracking.hpp>
-#include <opencv2/highgui.hpp>
-
 #include <array>
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
 using PointVec = std::vector<cv::Point2f>;
-
-cv::Mat estimateGlobalMotionLeastSquares(const FaceModel& a, const FaceModel& b, cv::videostab::MotionModel model)
-{
-    CV_Assert(a.eyeLeftCenter.has);
-    CV_Assert(a.eyeRightCenter.has);
-    CV_Assert(a.noseTip.has);
-    PointVec ptsA{ a.eyeRightCenter, a.eyeLeftCenter, a.noseTip };
-    if (a.mouthCornerLeft.has && a.mouthCornerRight.has)
-    {
-        ptsA.push_back(a.mouthCornerLeft);
-        ptsA.push_back(a.mouthCornerRight);
-    }
-
-    CV_Assert(b.eyeLeftCenter.has);
-    CV_Assert(b.eyeRightCenter.has);
-    CV_Assert(b.noseTip.has);
-    PointVec ptsB{ b.eyeRightCenter, b.eyeLeftCenter, b.noseTip };
-    if (b.mouthCornerLeft.has && b.mouthCornerRight.has)
-    {
-        ptsB.push_back(b.mouthCornerLeft);
-        ptsB.push_back(b.mouthCornerRight);
-    }
-
-    float rmse = 0;
-    cv::Mat M = cv::videostab::estimateGlobalMotionLeastSquares(ptsA, ptsB, model, &rmse);
-
-    return M;
-}
 
 std::vector<float> faceToVector(const FaceModel& face, bool crease, bool brow, bool nose)
 {
