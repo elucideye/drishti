@@ -238,7 +238,7 @@ public:
             std::stringstream ss;
             ss << i;
             
-            const int fontFace = CV_FONT_HERSHEY_PLAIN;
+            const int fontFace = cv::FONT_HERSHEY_PLAIN;
             const double fontScale = 2.0;
             int thickness = 3, baseline = 0;
             const cv::Size textSize = cv::getTextSize(ss.str(), fontFace, fontScale, thickness, &baseline);

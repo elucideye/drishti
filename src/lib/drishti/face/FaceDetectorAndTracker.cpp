@@ -19,9 +19,6 @@ DRISHTI_FACE_NAMESPACE_BEGIN
 FaceDetectorAndTracker::FaceDetectorAndTracker(FaceDetectorFactory& resources)
     : FaceDetector(resources)
 {
-    //m_pImpl = std::make_shared<CorrelationTracker>();
-    //m_pImpl = std::make_shared<LKTracker>();
-    //m_pImpl = std::make_shared<CVTracker>();
     m_pImpl = std::make_shared<TrackerNN>();
 }
 

@@ -14,15 +14,12 @@
 #include "drishti/face/drishti_face.h"
 #include "drishti/face/Face.h"
 
-#include <opencv2/videostab.hpp> // TODO replace cv::videostab::MotionModel type with int?
-
 #include <vector>
 #include <cstdio>
 
 DRISHTI_FACE_NAMESPACE_BEGIN
 
 std::vector<float> faceToVector(const FaceModel& face, bool crease = false, bool brow = false, bool nose = false);
-cv::Mat estimateGlobalMotionLeastSquares(const FaceModel& src, const FaceModel& dst, cv::videostab::MotionModel model);
 cv::Point2f estimateGaze(const DRISHTI_FACE::FaceModel& face);
 
 DRISHTI_FACE_NAMESPACE_END

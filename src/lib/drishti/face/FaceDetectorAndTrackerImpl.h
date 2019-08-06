@@ -10,15 +10,6 @@
 
 #include "drishti/face/FaceDetectorAndTracker.h"
 
-//#include <dlib/image_transforms/interpolation.h>
-//#include <dlib/image_transforms/fhog.h>
-//#include <dlib/image_processing/correlation_tracker.h>
-//#include <dlib/opencv/cv_image.h>
-
-#include <opencv2/features2d.hpp>
-#include <opencv2/videostab/global_motion.hpp>
-#include <opencv2/highgui.hpp>
-
 #include <chrono>
 
 #ifndef __drishti_face_FaceDetectorAndTrackerImpl_h__

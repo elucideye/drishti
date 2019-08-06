@@ -11,7 +11,7 @@
 #include "drishti/core/drishti_core.h"
 
 #include <opencv2/imgproc.hpp>
-#include <opencv2/videostab.hpp>
+#include <opencv2/photo.hpp>
 
 #include <iostream>
 
@@ -30,9 +30,9 @@ cv::Point padWithInpainting(const cv::Mat& image, cv::Mat& padded, int top, int 
     mask = cv::Mat::zeros(padded.size(), CV_8UC1);
     mask({ { std::max(left, 0), std::max(top, 0) }, image.size() }).setTo(255);
 
-    cv::videostab::ColorAverageInpainter inpainter;
-    //cv::videostab::ColorInpainter inpainter(cv::INPAINT_TELEA, std::min(image.cols, image.rows)/16.0);
-    inpainter.inpaint(0, padded, mask);
+    cv::Mat painted;
+    cv::inpaint(padded, mask, painted, std::min(image.cols, image.rows)/16.0, cv::INPAINT_TELEA);
+    cv::swap(padded, painted);
 
     return cv::Point(left, top);
 }
@@ -119,7 +119,7 @@ cv::Mat borderMask(const cv::Mat& image)
 void inpaintBorder(const cv::Mat& input, cv::Mat& output, cv::Mat& mask)
 {
     cv::Mat black;
-    cv::reduce(input.reshape(1, input.size().area()), black, 1, CV_REDUCE_MAX);
+    cv::reduce(input.reshape(1, input.size().area()), black, 1, cv::REDUCE_MAX);
     black = black.reshape(1, input.rows);
 
     mask = cv::Mat1b::zeros(input.size());

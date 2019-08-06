@@ -18,6 +18,14 @@
 #endif
 
 #include <spdlog/spdlog.h> // for portable logging
+#include <spdlog/sinks/stdout_sinks.h>
+
+// clang-format off
+#if defined(__ANDROID__) || defined(ANDROID)
+#  include <spdlog/sinks/android_sink.h>
+#endif
+// clang-format on
+
 #include <spdlog/fmt/ostr.h>
 
 #include <facefilter/renderer/FaceTrackerFactoryJson.h>
@@ -165,8 +173,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    video->set(CV_CAP_PROP_FRAME_WIDTH, params.videoWidth);
-    video->set(CV_CAP_PROP_FRAME_HEIGHT, params.videoHeight);
+    video->set(cv::CAP_PROP_FRAME_WIDTH, params.videoWidth);
+    video->set(cv::CAP_PROP_FRAME_HEIGHT, params.videoHeight);
 
     cv::Size size = getSize(*video);
     if (size.area() == 0)
@@ -268,8 +276,8 @@ static std::shared_ptr<spdlog::logger> createLogger(const char* name)
 {
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
-#if defined(__ANDROID__)
-    sinks.push_back(std::make_shared<spdlog::sinks::android_sink>());
+#if defined(__ANDROID__) || defined(ANDROID)
+    sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
 #endif
     auto logger = std::make_shared<spdlog::logger>(name, begin(sinks), end(sinks));
     spdlog::register_logger(logger);

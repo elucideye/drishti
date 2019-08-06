@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 
                     std::stringstream text;
                     text << o.occ << " " << o.bb.width;
-                    cv::putText(image, text.str(), o.bb.tl(), CV_FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar::all(255));
+                    cv::putText(image, text.str(), o.bb.tl(), cv::FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar::all(255));
                 }
 
                 glfw::imshow("image", image);

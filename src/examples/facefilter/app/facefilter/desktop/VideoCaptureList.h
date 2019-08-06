@@ -19,7 +19,7 @@ public:
     bool grab() override;
     bool isOpened() const override;
     void release() override;
-    bool open(const cv::String& filename) override;
+    bool open(const cv::String& filename, int apiPreference = cv::CAP_ANY) override;
     bool read(cv::OutputArray image) override;
     double get(int propId) const override;
 

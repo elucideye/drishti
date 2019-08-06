@@ -62,6 +62,7 @@ export ANDROID_NDK_r11c="${PWD}/_ci/android-ndk-r11c"
 export ANDROID_NDK_r15c="${PWD}/_ci/android-ndk-r15c"
 export ANDROID_NDK_r16b="${PWD}/_ci/android-ndk-r16b"
 export ANDROID_NDK_r17="${PWD}/_ci/android-ndk-r17"
+export ANDROID_NDK_r18b="${PWD}/_ci/android-ndk-r18b"
 
 # Install dependencies (CMake, Android NDK)
 if [[ ${TRAVIS} == "true" ]]; then

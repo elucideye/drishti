@@ -11,9 +11,10 @@
 
 #include "drishti/core/Logger.h"
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 // clang-format off
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(ANDROID)
 #  include <spdlog/sinks/android_sink.h>
 #endif
 // clang-format on
@@ -50,8 +51,8 @@ std::shared_ptr<spdlog::logger> Logger::create(const char* name)
 
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
-#if defined(__ANDROID__)
-    sinks.push_back(std::make_shared<spdlog::sinks::android_sink>());
+#if defined(__ANDROID__)  || defined(ANDROID)
+    sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
 #endif
     auto logger = std::make_shared<spdlog::logger>(name, begin(sinks), end(sinks));
     spdlog::register_logger(logger);

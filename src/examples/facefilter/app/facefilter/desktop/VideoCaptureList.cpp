@@ -109,7 +109,7 @@ void VideoCaptureList::release()
     m_impl->image.release();
 }
 
-bool VideoCaptureList::open(const cv::String& filename)
+bool VideoCaptureList::open(const cv::String& filename, int /*apiPreference*/)
 {
     m_impl = detail::make_unique<Impl>(filename);
     return !m_impl->image.empty();
@@ -130,11 +130,11 @@ double VideoCaptureList::get(int propId) const
 {
     switch (propId)
     {
-        case CV_CAP_PROP_FRAME_WIDTH:
+        case cv::CAP_PROP_FRAME_WIDTH:
             return static_cast<double>(m_impl->image.cols);
-        case CV_CAP_PROP_FRAME_HEIGHT:
+        case cv::CAP_PROP_FRAME_HEIGHT:
             return static_cast<double>(m_impl->image.rows);
-        case CV_CAP_PROP_FRAME_COUNT:
+        case cv::CAP_PROP_FRAME_COUNT:
             return static_cast<double>(m_impl->filenames.size());
         default:
             return 0.0;

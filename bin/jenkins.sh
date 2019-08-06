@@ -179,10 +179,10 @@ case "${TYPE}" in
     export PATH="`pwd`:${PATH}"
     cd ..
 
-    wget -q "https://dl.google.com/android/repository/android-ndk-r17-linux-x86_64.zip"
-    unzip -q android-ndk-r17-linux-x86_64.zip
-    export ANDROID_NDK="`pwd`/android-ndk-r17"
-    rm android-ndk-r17-linux-x86_64.zip
+    wget -q "https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip"
+    unzip -q android-ndk-r18b-linux-x86_64.zip
+    export ANDROID_NDK="`pwd`/android-ndk-r18b"
+    rm android-ndk-r18b-linux-x86_64.zip
 
     cd android-studio
 
