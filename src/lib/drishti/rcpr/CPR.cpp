@@ -13,8 +13,6 @@
 #include "drishti/core/drishti_stdlib_string.h" // FIRST
 #include "drishti/rcpr/CPR.h"
 
-#include <acf/ACFField.h>
-
 // Deprecated backwards compatibility
 
 // clang-format off

@@ -12,15 +12,16 @@ endif()
 include(sugar_include)
 
 sugar_include(testlib) # for testing
-
 sugar_include(drishti) # public API
-sugar_include(graphics)
 sugar_include(core)
 sugar_include(geometry)
 sugar_include(eye)
 sugar_include(ml)
 sugar_include(rcpr)
 sugar_include(sensor)
+if(DRISHTI_BUILD_OGLES_GPGPU)
+  sugar_include(graphics)
+endif()
 if(DRISHTI_BUILD_FACE)
   sugar_include(face)
 endif()

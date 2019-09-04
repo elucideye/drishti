@@ -12,8 +12,6 @@ endif()
 include(sugar_files)
 
 sugar_files(DRISHTI_ML_SRCS
-  ObjectDetector.cpp
-  ObjectDetectorACF.cpp  
   PCA.cpp
   PCAArchiveCereal.cpp
   RTEShapeEstimatorArchiveCereal.cpp  
@@ -26,8 +24,6 @@ sugar_files(DRISHTI_ML_SRCS
 sugar_files(DRISHTI_ML_HDRS_PUBLIC
   Booster.h
   BoundingBox.h
-  ObjectDetector.h
-  ObjectDetectorACF.h
   PCA.h
   PCAImpl.h
   RTEShapeEstimatorImpl.h
@@ -40,6 +36,18 @@ sugar_files(DRISHTI_ML_HDRS_PUBLIC
   shape_predictor_archive.h
   )
 
+if(DRISHTI_BUILD_ACF)
+  sugar_files(DRISHTI_ML_SRCS
+    ObjectDetector.cpp
+    ObjectDetectorACF.cpp
+  )
+
+  sugar_files(DRISHTI_ML_HDRS_PUBLIC
+    ObjectDetector.h
+    ObjectDetectorACF.h
+  )
+endif()
+  
 sugar_files(DRISHTI_ML_UT
   ut/test-drishti-ml.cpp
   )

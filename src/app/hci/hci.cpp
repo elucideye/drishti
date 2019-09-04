@@ -8,6 +8,8 @@
 
 */
 
+
+
 // Local includes:
 #include "drishti/core/drishti_stdlib_string.h" // android workaround
 #include "drishti/core/Semaphore.h"
@@ -154,6 +156,8 @@ struct SimpleTimer
     }
 };
 
+
+#  if !(__GNUC__ == 4 && __GNUC_MINOR__ == 8)
 static std::vector<std::string> split(const string& input, const string& regex) 
 {
     // passing -1 as the submatch index parameter performs splitting
@@ -161,6 +165,7 @@ static std::vector<std::string> split(const string& input, const string& regex)
     std::sregex_token_iterator first{ input.begin(), input.end(), re, -1 }, last;
     return { first, last };
 }
+#endif
 
 int gauze_main(int argc, char** argv)
 {
@@ -340,7 +345,8 @@ int gauze_main(int argc, char** argv)
     std::shared_ptr<drishti::videoio::VideoSourceCV> video;
     if(doCvVideoCapture)
     {
-        cv::Size size; // video dimensions
+        cv::Size size(640, 480); // video dimensions
+#  if !(__GNUC__ == 4 && __GNUC_MINOR__ == 8)
         if (!sDimensions.empty())
         {
             std::vector<std::string> dimensions = split(sDimensions, "x");
@@ -350,7 +356,8 @@ int gauze_main(int argc, char** argv)
                 return 1;
             }
             size = { std::stoi(dimensions[0]), std::stoi(dimensions[1]) };
-        }        
+        }
+#endif
         video = drishti::videoio::VideoSourceCV::createCV(sInput, size);
     }
     else

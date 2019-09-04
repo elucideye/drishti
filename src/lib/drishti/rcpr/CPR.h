@@ -24,7 +24,6 @@
 #include "half/half.hpp"
 
 #include "drishti/rcpr/drishti_rcpr.h"
-#include <acf/ACFField.h>
 
 // clang-format off
 #if DRISHTI_CPR_DO_HALF_FLOAT
