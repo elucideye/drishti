@@ -37,12 +37,12 @@ sugar_files(DRISHTI_ML_HDRS_PUBLIC
   )
 
 if(DRISHTI_BUILD_ACF)
-  list(APPEND DRISHTI_ML_SRCS
+  sugar_files(DRISHTI_ML_SRCS
     ObjectDetector.cpp
     ObjectDetectorACF.cpp
   )
 
-  list(APPEND DRISHTI_ML_HDRS_PUBLIC
+  sugar_files(DRISHTI_ML_HDRS_PUBLIC
     ObjectDetector.h
     ObjectDetectorACF.h
   )
