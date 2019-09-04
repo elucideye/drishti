@@ -29,7 +29,7 @@ _DRISHTI_SDK_BEGIN
 class DRISHTI_EXPORT Eye
 {
 public:
-    using ArrayVec2f = Array<Vec2f, 128>;
+    using ArrayVec2f = Array<Vec2f, 128ul>;
 
     struct Ellipse
     {

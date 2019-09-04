@@ -48,9 +48,11 @@ endif()
 ### acf ###
 ###########
 
-hunter_add_package(acf)
-find_package(acf CONFIG REQUIRED)
-list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS acf::acf)
+if(DRISHTI_BUILD_ACF)
+  hunter_add_package(acf)
+  find_package(acf CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS acf::acf)
+endif()
 
 ##############
 ### spdlog ###

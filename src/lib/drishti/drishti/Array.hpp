@@ -27,7 +27,6 @@ public:
     class iterator // NOLINT (TODO)
     {
     public:
-        using difference_type = typename std::ptrdiff_t;
         using value_type = T;
         using reference = T&;
         using pointer = T*;
@@ -92,7 +91,6 @@ public:
     class const_iterator
     {
     public:
-        using difference_type = typename std::ptrdiff_t;
         using value_type = T;
         using const_reference = const T &;
         using const_pointer = const T *;
@@ -163,6 +161,7 @@ public:
 
     Array() = default;
     ~Array() = default;
+
     explicit Array(std::size_t size)
         : size_(std::min(size, N))
     {
@@ -197,8 +196,14 @@ public:
     const_iterator end() const { return const_iterator(data_ + size_); }
 
 private:
+
+#  if (__GNUC__ == 4 && __GNUC_MINOR__ == 8)
+    T data_[N];
+    std::size_t size_ = 0;
+#else
     T data_[N]{};
     std::size_t size_{0};
+#endif
 };
 
 _DRISHTI_SDK_END

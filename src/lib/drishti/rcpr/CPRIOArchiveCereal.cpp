@@ -15,8 +15,6 @@
 #include "drishti/core/drishti_cereal_pba.h"
 #include "drishti/core/drishti_cvmat_cereal.h"
 
-#include <acf/ACFField.h>
-
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/utility.hpp>

@@ -31,7 +31,6 @@ Eye::Eye()
 = default;
 
 Eye::Eye(const Eye& src)
-     
 = default;
 
 void createMask(Image1b& mask, const Eye& eye, int components)
