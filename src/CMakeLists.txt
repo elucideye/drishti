@@ -82,9 +82,11 @@ list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS dlib::dlib)
 ### glm ### (header only)
 ###########
 
-hunter_add_package(glm)
-find_package(glm CONFIG REQUIRED)
-list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS glm)
+if(DRISHTI_BUILD_OGLES_GPGPU)
+  hunter_add_package(glm)
+  find_package(glm CONFIG REQUIRED)
+  list(APPEND DRISHTI_SDK_3RDPARTY_PKG_LIBS glm)
+endif()
 
 ############
 ### half ### (header only)
