@@ -1,10 +1,16 @@
 @PACKAGE_INIT@
 
 find_package(OpenCV REQUIRED)
-find_package(ogles_gpgpu CONFIG REQUIRED) # review OpenGL dependencies
 find_package(xgboost CONFIG REQUIRED)
-find_package(acf CONFIG REQUIRED)
 find_package(Boost CONFIG REQUIRED system filesystem)
+
+if(@DRISHTI_BUILD_OGLES_GPGPU@)
+  find_package(ogles_gpgpu CONFIG REQUIRED) # review OpenGL dependencies
+endif()
+
+if(@DRISHTI_BUILD_ACF@)
+  find_package(acf CONFIG REQUIRED)
+endif()
 
 ##
 ## Header (INTERFACE) libraries
@@ -48,7 +54,9 @@ if(@DRISHTI_BUILD_FACE@)
   find_package(nlohmann_json CONFIG REQUIRED)
 endif()
 
-find_package(glm CONFIG REQUIRED)
+if(@DRISHTI_BUILD_OGLES_GPGPU@)
+  find_package(glm CONFIG REQUIRED)
+endif()
 
 if(@DRISHTI_USE_IMSHOW@)
   find_package(imshow CONFIG REQUIRED) # debugging only
