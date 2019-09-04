@@ -27,6 +27,7 @@ public:
     class iterator // NOLINT (TODO)
     {
     public:
+        using difference_type = typename std::ptrdiff_t;
         using value_type = T;
         using reference = T&;
         using pointer = T*;
@@ -91,6 +92,7 @@ public:
     class const_iterator
     {
     public:
+        using difference_type = typename std::ptrdiff_t;
         using value_type = T;
         using const_reference = const T &;
         using const_pointer = const T *;
